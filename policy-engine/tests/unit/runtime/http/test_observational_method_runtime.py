@@ -630,7 +630,9 @@ def test_direct_selection_rejects_missing_requested_limitation_in_selected_cas(
         missing_requested_limitation=True,
     )
 
-    with pytest.raises(ValueError, match="observational_run_intent_limitations_invalid"):
+    # Strict Literal validation may reject a missing member before the
+    # cross-field model validator supplies its stable diagnostic.
+    with pytest.raises(ValueError):
         _validate_direct_method_execution_selection_artifacts(
             store=store,
             selection=selection,
@@ -1085,6 +1087,21 @@ def test_post_worker_fenced_cas_and_fresh_run_get_preserve_candidate_limits(
     from _helpers.control_worker import dispatch_one_control_job, stop_embedded_control_worker
 
     service = runtime_api_env["app"].state._control_service
+
+    def reject_successor_anchor_use(**kwargs: Any) -> Any:
+        _ = kwargs
+        raise AssertionError("legacy v1 execution must not persist a successor anchor")
+
+    monkeypatch.setattr(
+        service,
+        "persist_pre_output_owned_attempt_anchor",
+        reject_successor_anchor_use,
+    )
+    monkeypatch.setattr(
+        service,
+        "persist_pre_output_hte_input_refusal_anchor",
+        reject_successor_anchor_use,
+    )
     stop_embedded_control_worker(service)
     source_ref = (
         _put_runtime_observational_source(service)
@@ -1139,6 +1156,14 @@ def test_post_worker_fenced_cas_and_fresh_run_get_preserve_candidate_limits(
         cell_id=runtime_api_env["cell_a"],
     )
     assert isinstance(selection, DirectMethodExecutionSelection)
+    assert selection.method_version == "1.1.0"
+    assert selection.owned_attempt_anchor_ref is None
+    assert selection.hte is None
+    assert selection.hte_outcome_ref is None
+    assert selection.point_result_ref is None
+    assert selection.hte_result_ref is None
+    assert selection.inference_basis_ref is None
+    assert selection.refusal_diagnostic_ref is None
     assert selection.selection_digest == accepted["observational_selection_digest"]
     assert selection.requested_source_ref == source_ref
     assert selection.submitted_input_ref == source_ref
@@ -1680,6 +1705,22 @@ def test_latest_v1_0_refuses_bounded_profile_instead_of_upgrading(
     assert registration.signature.fqn == "causal.hte.forest_dr@1.0.0"
     with pytest.raises(ValueError, match="observational_method_resource_profile_not_supported"):
         service._require_observational_method_resource_profile(registration, {})
+
+
+def test_dml_v2_profile_uses_fixed_producer_config_not_an_unexposed_parameter(
+    runtime_api_env: dict[str, Any],
+) -> None:
+    """The DML producer fixes use_ray=False internally; it is not a runtime input."""
+    service = runtime_api_env["app"].state._control_service
+    registration = service._resolve_observational_method_registration(
+        fqn="causal.hte.double_ml@2.0.0",
+        version=None,
+    )
+    parameter_names = {item.name for item in registration.signature.parameters}
+    assert "use_ray" not in parameter_names
+    assert registration.method_profile_id == "econml.dml.point_only@2.0"
+    assert registration.execution_scope == "producer_scoped_joblib_parallelism_one"
+    service._require_observational_method_resource_profile(registration, {})
 
 
 def test_latest_method_resolution_fails_closed_when_newer_registry_entry_is_unsupported(

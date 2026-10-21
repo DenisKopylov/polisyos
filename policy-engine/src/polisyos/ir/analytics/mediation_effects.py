@@ -211,11 +211,11 @@ class MediationDecomposition(BaseModel):
 
     @model_validator(mode="before")
     @classmethod
-    def _normalize_payload(cls, payload: Any) -> Any:
+    def _normalize_payload(cls, payload: object) -> object:
         return cls.normalize_payload(payload)
 
     @classmethod
-    def normalize_payload(cls, payload: Any) -> Any:
+    def normalize_payload(cls, payload: object) -> object:
         """Return a decomposition payload with explicit derived ratios filled."""
 
         if not isinstance(payload, dict):
@@ -237,7 +237,7 @@ class MediationDecomposition(BaseModel):
         return normalized
 
     @classmethod
-    def from_effects(cls, **payload: Any) -> MediationDecomposition:
+    def from_effects(cls, **payload: object) -> MediationDecomposition:
         """Construct a decomposition after applying explicit derived defaults."""
 
         return cls.model_validate(cls.normalize_payload(payload))

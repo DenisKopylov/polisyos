@@ -32,7 +32,8 @@ def link_trinity(
     allow_extra_params: bool = False,
     strict: bool = True,
 ) -> tuple[LinkedTrinityBundle, LinkReport]:
-    """Resolve a Trinity bundle against registries, returning bound artifacts plus deterministic diagnostics."""
+    """Resolve a Trinity bundle against registries, returning bound artifacts plus deterministic \
+diagnostics."""
     issues: list[LinkIssue] = []
     notes: dict[str, None] = {}
     missing_registry_emitted: set[str] = set()
@@ -381,7 +382,7 @@ def link_trinity(
     return linked, report
 
 
-def _digest(obj: Any, label: str, notes: dict[str, None]) -> str | None:
+def _digest(obj: object, label: str, notes: dict[str, None]) -> str | None:
     try:
         payload = to_canonical_bytes(obj)
     except CanonViolation as exc:

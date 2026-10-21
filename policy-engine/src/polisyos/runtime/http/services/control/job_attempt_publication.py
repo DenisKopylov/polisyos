@@ -1199,9 +1199,27 @@ class ControlJobAttemptPublicationMixin:
             },
             blocking_status="blocking",
         )
+        failure_kwargs: dict[str, object] = {}
+        if isinstance(exc, ControlProducerExecutionError):
+            refusal_anchor_ref = exc.input_refusal_anchor_ref
+            if refusal_anchor_ref is not None:
+                from polisyos.core.contracts.owned_attempt_anchor import OwnedAttemptAnchorRef
+
+                if (
+                    type(refusal_anchor_ref) is not OwnedAttemptAnchorRef
+                    or exc.code != "observational_input_refused"
+                    or exc.retryable
+                    or job.state != "running"
+                ):
+                    raise ValueError("control_job_input_refusal_publication_invalid")
+                failure_kwargs = {
+                    "owned_attempt_failure_disposition": "input_refused",
+                    "owned_attempt_anchor_ref": refusal_anchor_ref,
+                }
         self._control_store.fail_job(
             job_id=job.job_id,
             capability_manifest_ref=capability_manifest_ref,
             error_message=str(exc),
             progress=progress,
+            **failure_kwargs,
         )

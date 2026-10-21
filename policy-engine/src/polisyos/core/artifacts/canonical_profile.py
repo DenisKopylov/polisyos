@@ -7,6 +7,7 @@ import json
 import re
 import types
 from collections.abc import Mapping, Sequence
+from copy import deepcopy
 from dataclasses import dataclass
 from dataclasses import field as dataclass_field
 from decimal import Decimal
@@ -50,9 +51,14 @@ from polisyos.core.canon import (
     CanonSpec,
     content_hash,
     from_canonical_bytes,
-    to_canonical_bytes,
 )
-from polisyos.core.canon.canon_json import CORE_TAG_POLICY_ID
+from polisyos.core.canon import (
+    to_canonical_bytes as to_canonical_bytes,
+)
+from polisyos.core.canon.canon_json import (
+    CORE_TAG_POLICY_ID,
+    _encode_core_canonical_bytes_raw,
+)
 
 _ModelT = TypeVar("_ModelT", bound=BaseModel)
 
@@ -330,6 +336,9 @@ class _CoreJsonArtifactBoundedReadSeal:
     payload_integrity_verified: bool
     observed_depth: int
     observed_elements: int
+    profile_read: CanonicalProfileRead | None = dataclass_field(
+        default=None, repr=False, compare=False
+    )
 
 
 @dataclass(frozen=True, slots=True)
@@ -532,10 +541,15 @@ def _core_spec_from_profile(profile: BaseModel) -> object:
 
 
 def _encode_core_profiled_value(value: Any, spec: object) -> bytes:
-    """Encode only with the concrete Core spec built from its selected profile."""
+    """Encode once with the selected Core spec during decode-and-compare admission.
+
+    The shared profile reader compares these bytes with the exact selected input.
+    Calling the public encoder here would repeat that same comparison by decoding
+    the encoded bytes a second time, doubling semantic materialization.
+    """
     if not isinstance(spec, CanonSpec):
         raise TypeError("Core canonicalization requires CanonSpec")
-    return to_canonical_bytes(value, spec)
+    return _encode_core_canonical_bytes_raw(value, spec)
 
 
 def _require_exact_bytes(value: object, refusal_code: str) -> bytes:
@@ -1741,6 +1755,7 @@ def read_core_json_artifact_bounded(
             payload_integrity_verified=payload_integrity_verified,
             observed_depth=scanner.max_depth,
             observed_elements=scanner.elements,
+            profile_read=profile_read,
         ),
     )
     return bounded_read
@@ -1831,15 +1846,42 @@ def _verified_core_json_bounded_view(
         observed_elements=observed[5],
     )
 
-    profile_read = _decode_core_payload_under_declaration(
-        raw_payload_bytes,
-        manifest_read.declaration,
-    )
-    profile_read = _bind_selected_artifact_identity(
-        profile_read,
-        artifact_id=str(manifest.artifact_id),
-        manifest_profile_sha256=artifact_manifest_profile_sha256(manifest),
-    )
+    cached_profile_read = seal.profile_read
+    expected_artifact_id = str(manifest.artifact_id)
+    expected_manifest_profile = artifact_manifest_profile_sha256(manifest)
+    if cached_profile_read is None:
+        # A legacy/internal carrier without a retained decode proof still takes
+        # the full profile decoder path; no caller-supplied status substitutes
+        # for canonical validation.
+        profile_read = _decode_core_payload_under_declaration(
+            raw_payload_bytes,
+            manifest_read.declaration,
+        )
+        profile_read = _bind_selected_artifact_identity(
+            profile_read,
+            artifact_id=expected_artifact_id,
+            manifest_profile_sha256=expected_manifest_profile,
+        )
+    else:
+        if (
+            type(cached_profile_read) is not CanonicalProfileRead
+            or cached_profile_read.status != "declared_bytes_conformant"
+            or cached_profile_read._reader_validated is not True
+            or cached_profile_read.raw_payload_bytes != raw_payload_bytes
+            or cached_profile_read.selected_artifact_id != expected_artifact_id
+            or cached_profile_read.selected_manifest_profile_sha256 != expected_manifest_profile
+            or cached_profile_read.reader_policy_id != CORE_TAG_POLICY_ID
+        ):
+            raise CanonicalProfileRefusalError("canon_profile_bounded_cached_read_mismatch")
+        try:
+            # The reader created this cache only after the exact retained bytes
+            # passed decode-and-reencode. Give each consumer a detached value so
+            # mutation cannot poison a later read from the same carrier.
+            profile_read = deepcopy(cached_profile_read)
+        except Exception as exc:
+            raise CanonicalProfileRefusalError(
+                "canon_profile_bounded_cached_value_copy_failed"
+            ) from exc
     require_declared_profile(profile_read)
     if (
         profile_read.raw_payload_bytes != raw_payload_bytes

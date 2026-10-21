@@ -57,12 +57,11 @@ def protocol_declared_callables_are_callable(
                 return False
             continue
 
-        if inspect.isroutine(declared_member) or isinstance(
-            declared_member,
-            (classmethod, staticmethod),
-        ):
-            if not callable(getattr(candidate, name, None)):
-                return False
+        if (
+            inspect.isroutine(declared_member)
+            or isinstance(declared_member, (classmethod, staticmethod))
+        ) and (not callable(getattr(candidate, name, None))):
+            return False
 
     return True
 

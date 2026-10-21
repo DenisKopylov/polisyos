@@ -113,7 +113,7 @@ class MetricBiasDiagnostic(BaseModel):
 
     @model_validator(mode="before")
     @classmethod
-    def _retain_legacy_signed_residual(cls, value: Any) -> Any:
+    def _retain_legacy_signed_residual(cls, value: object) -> object:
         if not isinstance(value, dict):
             return value
         payload = dict(value)
@@ -135,12 +135,13 @@ class MetricBiasDiagnostic(BaseModel):
                 "population_scope",
                 *([] if status == "exact_zero" else ["metric_direction"]),
             ]
-        elif status != "exact_zero" and isinstance(payload["unresolved_assumptions"], list):
-            if "metric_direction" not in payload["unresolved_assumptions"]:
-                payload["unresolved_assumptions"] = [
-                    *payload["unresolved_assumptions"],
-                    "metric_direction",
-                ]
+        elif (status != "exact_zero" and isinstance(payload["unresolved_assumptions"], list)) and (
+            "metric_direction" not in payload["unresolved_assumptions"]
+        ):
+            payload["unresolved_assumptions"] = [
+                *payload["unresolved_assumptions"],
+                "metric_direction",
+            ]
         return payload
 
     @model_validator(mode="after")
@@ -588,22 +589,26 @@ class BacktestReport(BaseModel):
             expected_direction = "not_applicable" if exact_zero else "not_established"
             if diagnostic.n != n or not self._close(diagnostic.mean_residual, mean):
                 raise ValueError(
-                    f"metric diagnostic does not reconcile source count/mean: {diagnostic.metric_name}"
+                    "metric diagnostic does not reconcile source count/mean: "
+                    f"{diagnostic.metric_name}"
                 )
             if not self._close(diagnostic.magnitude, magnitude):
                 raise ValueError(
-                    f"metric diagnostic does not reconcile source magnitude: {diagnostic.metric_name}"
+                    "metric diagnostic does not reconcile source magnitude: "
+                    f"{diagnostic.metric_name}"
                 )
             if (
                 diagnostic.residual_sign != expected_sign
                 or diagnostic.direction_status != expected_direction
             ):
                 raise ValueError(
-                    f"metric diagnostic direction does not reconcile with source rows: {diagnostic.metric_name}"
+                    "metric diagnostic direction does not reconcile with source rows: "
+                    f"{diagnostic.metric_name}"
                 )
             if diagnostic.scope != self._expected_metric_scope(diagnostic.metric_name):
                 raise ValueError(
-                    f"metric diagnostic scope does not reconcile with source scenarios: {diagnostic.metric_name}"
+                    "metric diagnostic scope does not reconcile with source scenarios: "
+                    f"{diagnostic.metric_name}"
                 )
             expected_assumptions = [
                 "residual_independence",
@@ -614,17 +619,20 @@ class BacktestReport(BaseModel):
                 expected_assumptions.append("metric_direction")
             if diagnostic.unresolved_assumptions != expected_assumptions:
                 raise ValueError(
-                    f"metric diagnostic assumptions do not match source status: {diagnostic.metric_name}"
+                    "metric diagnostic assumptions do not match source status: "
+                    f"{diagnostic.metric_name}"
                 )
             if exact_zero:
                 if diagnostic.status != "exact_zero" or diagnostic.reason is not None:
                     raise ValueError(
-                        f"exact-zero diagnostic status does not match source rows: {diagnostic.metric_name}"
+                        "exact-zero diagnostic status does not match source rows: "
+                        f"{diagnostic.metric_name}"
                     )
                 continue
             if diagnostic.status == "exact_zero":
                 raise ValueError(
-                    f"nonzero source residuals cannot be marked exact_zero: {diagnostic.metric_name}"
+                    "nonzero source residuals cannot be marked exact_zero: "
+                    f"{diagnostic.metric_name}"
                 )
             sample_std = (
                 math.sqrt(math.fsum((value - mean) ** 2 for value in values) / (n - 1))
@@ -637,16 +645,19 @@ class BacktestReport(BaseModel):
                     or diagnostic.reason != "insufficient_observations"
                 ):
                     raise ValueError(
-                        f"metric diagnostic availability does not match source count: {diagnostic.metric_name}"
+                        "metric diagnostic availability does not match source count: "
+                        f"{diagnostic.metric_name}"
                     )
             elif sample_std <= 1e-12:
                 if diagnostic.status != "not_computable" or diagnostic.reason != "zero_variance":
                     raise ValueError(
-                        f"metric diagnostic availability does not match source variance: {diagnostic.metric_name}"
+                        "metric diagnostic availability does not match source variance: "
+                        f"{diagnostic.metric_name}"
                     )
             elif diagnostic.status == "not_computable":
                 raise ValueError(
-                    f"variable source residuals cannot be marked not_computable: {diagnostic.metric_name}"
+                    "variable source residuals cannot be marked not_computable: "
+                    f"{diagnostic.metric_name}"
                 )
             elif diagnostic.status == "available":
                 expected_statistic = mean / (sample_std / math.sqrt(n))
@@ -662,18 +673,21 @@ class BacktestReport(BaseModel):
                     or diagnostic.reason is not None
                 ):
                     raise ValueError(
-                        f"executed diagnostic does not reconcile to source t-statistic: {diagnostic.metric_name}"
+                        "executed diagnostic does not reconcile to source t-statistic: "
+                        f"{diagnostic.metric_name}"
                     )
             elif diagnostic.status == "unavailable":
                 if diagnostic.reason is None or not diagnostic.reason.startswith(
                     "scipy_ttest_1samp_"
                 ):
                     raise ValueError(
-                        f"unavailable diagnostic requires a typed SciPy execution reason: {diagnostic.metric_name}"
+                        "unavailable diagnostic requires a typed SciPy execution reason: "
+                        f"{diagnostic.metric_name}"
                     )
             else:
                 raise ValueError(
-                    f"unrecognized diagnostic availability for source metric: {diagnostic.metric_name}"
+                    "unrecognized diagnostic availability for source metric: "
+                    f"{diagnostic.metric_name}"
                 )
 
     def _expected_metric_scope(self, metric_name: str) -> dict[str, Any]:

@@ -102,6 +102,12 @@ from .graph_reconciliation import (
     ReconcileCausalGraph,
     compute_reconciliation_diagnostics,
 )
+from .hte_v2 import (
+    CausalForestEstimatorV2,
+    DoubleMachineLearningV2,
+    ForestDRLearnerEstimatorV2,
+    MetaLearnerEstimatorV2,
+)
 from .interference import (
     BipartiteInterferenceEstimator,
     NetworkAIPWEstimator,
@@ -348,12 +354,16 @@ __all__ = [
     "CheckTransportability",
     "SymbolicIdentify",
     "CausalForestEstimator",
+    "CausalForestEstimatorV2",
     "CausalBCF",
     "ForestDRLearnerEstimator",
     "ForestDRLearnerEstimatorV11",
+    "ForestDRLearnerEstimatorV2",
     "DoubleMachineLearning",
+    "DoubleMachineLearningV2",
     "StructuralNestedMeanModel",
     "MetaLearnerEstimator",
+    "MetaLearnerEstimatorV2",
     "OptimalPolicyLearner",
     "PerformativeLoopSpec",
     "StrategicSolveResult",

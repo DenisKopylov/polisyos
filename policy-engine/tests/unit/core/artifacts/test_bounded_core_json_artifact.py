@@ -176,6 +176,10 @@ class _TypedBoundedTuplePayload(BaseModel):
     }
 
 
+class _TypedBoundedFeatureNamesPayload(_TypedBoundedTuplePayload):
+    source_feature_names: tuple[str, ...] | None
+
+
 class _WrongTypedBoundedSchemaPayload(_TypedBoundedTuplePayload):
     ARTIFACT_SCHEMA_NAME: ClassVar[str] = "test.core-json.WrongBoundedPayload"
 
@@ -297,6 +301,57 @@ def test_bounded_model_validator_reuses_core_alias_tuple_and_schema_admission(
     with pytest.raises(CanonicalProfileRefusalError) as wrong_owner:
         validate_core_model_bounded_read(_WrongTypedBoundedSchemaPayload, bounded_read)
     assert wrong_owner.value.code == "canon_profile_typed_artifact_schema_name_mismatch"
+
+
+@pytest.mark.parametrize(
+    ("source_feature_names", "expected_feature_names"),
+    [(["outcome", "treatment"], ("outcome", "treatment")), (None, None)],
+)
+def test_bounded_owner_reader_roundtrips_optional_feature_names_from_selected_cas(
+    tmp_path,
+    source_feature_names: list[str] | None,
+    expected_feature_names: tuple[str, ...] | None,
+) -> None:
+    payload = {
+        "schema_version": "1.0",
+        "legacy_values": [["alpha", 2]],
+        "source_feature_names": source_feature_names,
+    }
+    store, ref, raw = _typed_bounded_store(tmp_path, payload)
+    bounded_read = read_core_json_artifact_bounded(
+        store,
+        ref,
+        limits=_limits(raw, max_depth=8, max_elements=32),
+    )
+
+    typed = validate_core_model_bounded_read(_TypedBoundedFeatureNamesPayload, bounded_read)
+
+    assert typed.source_feature_names == expected_feature_names
+    assert (
+        type(typed.source_feature_names) is tuple
+        if expected_feature_names is not None
+        else typed.source_feature_names is None
+    )
+    assert bounded_read.effective_ref == ref
+
+
+def test_bounded_owner_reader_keeps_malformed_optional_feature_names_strict(
+    tmp_path,
+) -> None:
+    payload = {
+        "schema_version": "1.0",
+        "legacy_values": [["alpha", 2]],
+        "source_feature_names": ["outcome", 7],
+    }
+    store, ref, raw = _typed_bounded_store(tmp_path, payload)
+    bounded_read = read_core_json_artifact_bounded(
+        store,
+        ref,
+        limits=_limits(raw, max_depth=8, max_elements=32),
+    )
+
+    with pytest.raises(ValidationError):
+        validate_core_model_bounded_read(_TypedBoundedFeatureNamesPayload, bounded_read)
 
 
 def test_mutating_returned_decoded_views_does_not_change_bounded_typed_validation(
@@ -969,7 +1024,38 @@ def test_each_selected_bound_refuses_before_decode_and_removal_reopens_value(
         )
     result = read_core_json_artifact_bounded(store, ref, limits=limits)
     assert result.value == value
-    assert decode_calls >= 1
+    assert decode_calls == 1
+
+
+def test_bounded_view_without_cached_decode_proof_runs_full_profile_decoder(
+    tmp_path,
+    monkeypatch,
+) -> None:
+    """A carrier without the private verified cache still validates its bytes."""
+    import polisyos.core.artifacts.canonical_profile as owner
+
+    value = {"nested": ["selected", 3]}
+    store, ref, raw = _profiled_store(tmp_path, value)
+    bounded = read_core_json_artifact_bounded(
+        store,
+        ref,
+        limits=_limits(raw, max_depth=32, max_elements=64),
+    )
+    original_decode = owner._decode_core_payload_under_declaration
+    decode_calls = 0
+
+    def observed_decode(payload: bytes, declaration: object):
+        nonlocal decode_calls
+        decode_calls += 1
+        return original_decode(payload, declaration)
+
+    monkeypatch.setattr(owner, "_decode_core_payload_under_declaration", observed_decode)
+    assert bounded._seal is not None
+    uncached_seal = replace(bounded._seal, profile_read=None)
+    uncached = replace(bounded, _seal=uncached_seal)
+
+    assert uncached.value == value
+    assert decode_calls == 1
 
 
 def test_bounded_reader_uses_read_only_cas_streaming_facade(

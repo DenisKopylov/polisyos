@@ -491,3 +491,30 @@ projected DAGs, and other non-identity graph profiles remain skipped with a
 typed limitation; explicit algebraic blocks remain independently auditable.
 Partial-graph CI stays held for the G decision, with no completion probability
 or causal authority inferred.
+
+
+### HTE successor producer profiles
+
+Four additive `@2.0.0` methods use a context-aware entry that accepts the
+Runtime-owned `OwnedAttemptAnchorDispatchContext` as a separate typed
+`runtime_context` argument; the context is never inserted into scientific
+method parameters. The legacy registrations retain their existing call shape.
+The dispatch path rejects a legacy FQN, cross-profile anchor, or method without
+the successor hook. The selected input capture is recomputed from the actual
+prepared arrays and reconciled to the persisted anchor before fitting.
+
+CausalForestDML and ForestDR may produce a conditional native interval only
+when the exact EconML 0.17 native `ate_inference.conf_int_mean` route, selected
+rows, contrast, alpha, parameters, and observed resource profile reconcile.
+DoubleML and MetaLearner publish point-only candidates. The DML/Meta profiles
+run inside a method-local `joblib.parallel_config(n_jobs=1)` scope, preserving
+EconML's selected nuisance algorithms; CF/ForestDR record the instantiated
+estimator's live `n_jobs` configuration. These observations do not bound
+BLAS/OpenMP threads, RSS, or deployment-wide CPU usage.
+
+The method returns `hte_outcome_write_ready`, a private, strict candidate value
+inside the ordinary `MethodResult`. It does not create owner refs or write CAS
+artifacts itself. The Scientist bridge validates it against the owner anchor,
+actual MethodResult and MethodExecutionEvidence, then persists the selected IR
+chain. Failed input preparation follows the Runtime's separate typed refusal
+path; no success result, row count, or evidence ref is fabricated for that path.

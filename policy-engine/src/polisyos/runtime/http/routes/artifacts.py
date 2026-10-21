@@ -16,7 +16,6 @@ from polisyos.core.artifacts import (
     ArtifactManifest,
     ArtifactOwnershipError,
     ArtifactRef,
-    CoreJsonReadBoundsRefusalError,
     artifact_manifest_profile_sha256,
     read_core_manifest_profile,
     read_core_manifest_profile_bounded,
@@ -512,37 +511,20 @@ if router is not None:
         )
         route_ref = f"/api/v1/artifacts/{parsed_id}/content"
         try:
-            bounded_manifest_refusal: CoreJsonReadBoundsRefusalError | None = None
-            try:
-                manifest_read = read_core_manifest_profile_bounded(
-                    ctx.store,
-                    parsed_id,
-                    max_manifest_bytes=INSPECTOR_MANIFEST_MAX_BYTES,
-                    manifest_profile_sha256=manifest_profile_sha256,
-                    allow_profile_absent=True,
-                )
-                manifest = manifest_read.manifest
-                declaration = manifest_read.declaration
-            except CoreJsonReadBoundsRefusalError as exc:
-                if exc.original_exception_type != "NotImplementedError":
-                    raise
-                bounded_manifest_refusal = exc
-                # Preserve raw/non-JSON metadata inspection when a backend has no
-                # bounded receipt port; JSON semantics still require the bounded path.
-                manifest_read = None
-                manifest = _resolve_raw_artifact_manifest(
-                    ctx.store, parsed_id, manifest_profile_sha256
-                )
-                declaration = None
+            manifest_read = read_core_manifest_profile_bounded(
+                ctx.store,
+                parsed_id,
+                max_manifest_bytes=INSPECTOR_MANIFEST_MAX_BYTES,
+                manifest_profile_sha256=manifest_profile_sha256,
+                allow_profile_absent=True,
+            )
+            manifest = manifest_read.manifest
+            declaration = manifest_read.declaration
             raw_representation = _prefers_raw_representation(
                 request,
                 media_type=manifest.media_type,
             )
-            if not raw_representation and declaration is None:
-                if bounded_manifest_refusal is None:
-                    raise CanonicalProfileRefusalError("canon_profile_bounded_manifest_unavailable")
-                raise bounded_manifest_refusal
-            if not raw_representation and declaration is not None:
+            if not raw_representation:
                 _require_json_artifact_profile(manifest, declaration)
             selected_ref = _artifact_ref_for_manifest(manifest)
             selected_profile = artifact_manifest_profile_sha256(manifest)
@@ -839,28 +821,16 @@ if router is not None:
             artifact_id=str(parsed_id),
         )
         try:
-            try:
-                manifest_read = read_core_manifest_profile_bounded(
-                    ctx.store,
-                    parsed_id,
-                    max_manifest_bytes=INSPECTOR_MANIFEST_MAX_BYTES,
-                    manifest_profile_sha256=manifest_profile_sha256,
-                    allow_profile_absent=True,
-                )
-                manifest = manifest_read.manifest
-                declaration = manifest_read.declaration
-            except CoreJsonReadBoundsRefusalError as exc:
-                if exc.original_exception_type != "NotImplementedError":
-                    raise
-                manifest = _resolve_raw_artifact_manifest(
-                    ctx.store, parsed_id, manifest_profile_sha256
-                )
-                if _is_json_artifact_media_type(manifest.media_type):
-                    raise exc
-                manifest_read = None
-                declaration = None
-            if declaration is not None:
-                _require_json_artifact_profile(manifest, declaration)
+            manifest_read = read_core_manifest_profile_bounded(
+                ctx.store,
+                parsed_id,
+                max_manifest_bytes=INSPECTOR_MANIFEST_MAX_BYTES,
+                manifest_profile_sha256=manifest_profile_sha256,
+                allow_profile_absent=True,
+            )
+            manifest = manifest_read.manifest
+            declaration = manifest_read.declaration
+            _require_json_artifact_profile(manifest, declaration)
             schema_view = ctx.artifacts.get_schema_view(
                 parsed_id, manifest=manifest, manifest_read=manifest_read
             )
@@ -1205,6 +1175,11 @@ if router is not None:
                 manifest_profile_sha256,
             )
             payload = ctx.store.get_bytes(parsed_id)
+        except CanonicalProfileRefusalError as exc:
+            raise _canonical_profile_conflict(
+                exc,
+                artifact_ref_or_route=f"/api/v1/artifacts/{parsed_id}/download",
+            ) from exc
         except FileNotFoundError as exc:
             raise not_found(str(exc), code="artifact_not_found") from exc
         if not _accepts_raw_representation(request, media_type=manifest.media_type):
@@ -1409,20 +1384,23 @@ def _resolve_raw_artifact_manifest(
     artifact_id: ArtifactID,
     manifest_profile_sha256: str | None,
 ) -> ArtifactManifest:
-    """Resolve metadata for an exact-byte response without semantic profile admission.
+    """Resolve a strict, byte-bounded selected manifest for an exact-byte response.
 
-    Raw bytes remain content-addressed and surface-admission checked. This resolver
-    retains the existing typed storage-view identity and media metadata, but does not
-    claim that the selected CanonInfo proves semantic re-encoding of the payload.
+    The exact raw sidecar must parse and bind to its typed view under the shared
+    inspector manifest limit. Raw bytes remain content-addressed and surface-admission
+    checked; this resolver does not claim semantic payload-to-CanonInfo conformance.
     """
     try:
-        if manifest_profile_sha256 is None:
-            return store.get_manifest(artifact_id)
-        return resolve_manifest_by_profile(
+        manifest_read = read_core_manifest_profile_bounded(
             store,
             artifact_id,
-            manifest_profile_sha256,
+            max_manifest_bytes=INSPECTOR_MANIFEST_MAX_BYTES,
+            manifest_profile_sha256=manifest_profile_sha256,
+            allow_profile_absent=True,
         )
+        return manifest_read.manifest
+    except CanonicalProfileRefusalError:
+        raise
     except FileNotFoundError as exc:
         if not store.has(artifact_id):
             raise not_found(str(exc), code="artifact_not_found") from exc

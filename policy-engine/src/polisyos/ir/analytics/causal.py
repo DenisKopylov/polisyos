@@ -5,7 +5,7 @@ from __future__ import annotations
 import logging
 import re
 from enum import Enum
-from typing import TYPE_CHECKING, Any, ClassVar, Literal, TypeGuard
+from typing import Any, ClassVar, Literal, Protocol, TypeGuard
 
 from pydantic import BaseModel, ConfigDict, Field, model_validator
 
@@ -23,6 +23,16 @@ from polisyos.ir.analytics.dynamic_causal_semantics import (
     InterventionKind,
     InterventionScope,
     LocalIndependenceAttachment,
+)
+from polisyos.ir.analytics.estimand import EstimandAST, SideConditionKind
+from polisyos.ir.analytics.negative_certificate import NegativeCertificate
+from polisyos.ir.analytics.proximal import (
+    ProximalIdentificationCertificate,
+    ProximalMediationCertificate,
+)
+from polisyos.ir.analytics.recoverability import (
+    JointDecisionCertificate,
+    RecoverabilityCertificate,
 )
 from polisyos.ir.analytics.survey_quality import SurveyQualityCertificate
 from polisyos.ir.analytics.transportability import (
@@ -42,6 +52,7 @@ from polisyos.ir.analytics.uncertainty import (
     value_uncertainty_output_contract,
 )
 from polisyos.ir.artifacts import ArtifactStore, InputRef, get_json_artifact, put_json_artifact
+from polisyos.ir.governance.phase1 import Phase1GateSummary
 from polisyos.ir.model_layer.canon import CanonSpec
 from polisyos.ir.registry.refs import (
     BridgePlausibilityReportRef,
@@ -61,15 +72,47 @@ from polisyos.ir.registry.refs import (
 
 logger = logging.getLogger(__name__)
 
-if TYPE_CHECKING:
-    from polisyos.ir.analytics.estimand import SideConditionKind
-    from polisyos.ir.analytics.proximal import (
-        ProximalIdentificationCertificate,
-        ProximalMediationCertificate,
-    )
-else:
-    from polisyos.ir.analytics.estimand import SideConditionKind
-    from polisyos.ir.analytics.proximal import ProximalIdentificationCertificate
+EstimandASTType = EstimandAST
+NegativeCertificateType = NegativeCertificate
+JointDecisionCertificateType = JointDecisionCertificate
+RecoverabilityCertificateType = RecoverabilityCertificate
+Phase1GateSummaryType = Phase1GateSummary
+EstimandInput = EstimandASTType | dict[str, Any] | None
+RecoverabilityInput = (
+    RecoverabilityCertificateType | JointDecisionCertificateType | dict[str, Any] | None
+)
+
+
+class _ProofComposabilityCertificateLike(Protocol):
+    """Structural input consumed when projecting proof-composability state."""
+
+    @property
+    def status(self) -> object: ...
+
+    @property
+    def witness_index_ref(self) -> object: ...
+
+    @property
+    def proof_support_projection_hash(self) -> str | None: ...
+
+    @property
+    def invalidated_by_graph_hashes(self) -> tuple[str, ...]: ...
+
+
+ComposabilityInput = _ProofComposabilityCertificateLike | dict[str, Any] | None
+JointDecisionInput = JointDecisionCertificateType | dict[str, Any] | None
+
+
+class _IdentificationResultLike(Protocol):
+    """Producer-owned ID result fields consumed by the canonical proof adapter."""
+
+    status: object
+    algorithm_version: str
+    estimand_ast: EstimandInput
+    trace: list[str]
+    query_str: str
+    required_distributions: list[Any]
+    metadata: dict[str, Any]
 
 
 class CausalMethod(str, Enum):
@@ -843,16 +886,16 @@ def load_data_readiness_report(
 
 
 def proof_bundle_from_identification_result(
-    result: Any,
+    result: _IdentificationResultLike,
     *,
     graph_ref: str | None = None,
     query_ref: str | None = None,
     negative_certificate_summary: str | None = None,
     proof_trace_ref: EvidenceBundleRef | None = None,
-    recoverability_certificate: Any | None = None,
+    recoverability_certificate: RecoverabilityInput = None,
     recoverability_certificate_ref: RecoverabilityCertificateRef | None = None,
     joint_decision_ref: JointDecisionCertificateRef | None = None,
-    composability_certificate: Any | None = None,
+    composability_certificate: ComposabilityInput = None,
     composability_certificate_ref: ProofComposabilityCertificateRef | None = None,
     witness_index_ref: ProofWitnessIndexRef | None = None,
 ) -> ProofBundle:
@@ -921,7 +964,7 @@ def proof_bundle_from_identification_result(
     proof_support_projection_hash = (
         str(
             result_metadata.get("proof_support_projection_hash")
-            or getattr(composability_certificate, "proof_support_projection_hash", "")
+            or getattr(composability_certificate, "proof_support_projection_hash", None)
             or ""
         ).strip()
         or None
@@ -995,8 +1038,8 @@ def proof_bundle_from_identification_result(
             ),
             **(
                 {
-                    "bridge_plausibility_report_ref": resolved_bridge_plausibility_report_ref.model_dump(
-                        mode="json"
+                    "bridge_plausibility_report_ref": (
+                        resolved_bridge_plausibility_report_ref.model_dump(mode="json")
                     )
                 }
                 if resolved_bridge_plausibility_report_ref is not None
@@ -1067,7 +1110,7 @@ def proof_bundle_from_identification_result(
 
 
 def proof_bundle_from_negative_certificate(
-    certificate: Any,
+    certificate: NegativeCertificateType,
     *,
     graph_ref: str | None = None,
     query_ref: str | None = None,
@@ -1345,7 +1388,7 @@ def build_dynamic_proof_bundle(
     proof_status: Literal["identified", "non_identified", "oracle_needed"],
     graph_ref: str | None = None,
     query_ref: str | None = None,
-    estimand_ast: Any = None,
+    estimand_ast: EstimandInput = None,
     negative_certificate_summary: str | None = None,
     proof_trace: list[str] | None = None,
     assumptions: list[str] | None = None,
@@ -1401,7 +1444,7 @@ def build_forecast_intervention_proof_bundle(
     theorem_family: str = "forecast_local_independence_v1",
     graph_ref: str | None = None,
     query_ref: str | None = None,
-    estimand_ast: Any = None,
+    estimand_ast: EstimandInput = None,
     proof_trace: list[str] | None = None,
     assumptions: list[str] | None = None,
     metadata: dict[str, Any] | None = None,
@@ -1488,14 +1531,14 @@ def build_data_readiness_report(
     *,
     positivity: PositivityDiagnosticReport | dict[str, Any] | None = None,
     support_mismatch: dict[str, Any] | None = None,
-    recoverability_certificate: Any | None = None,
+    recoverability_certificate: RecoverabilityInput = None,
     missingness_assessment: MissingnessAssessmentReport | dict[str, Any] | None = None,
     survey_quality_certificate: SurveyQualityCertificate | dict[str, Any] | None = None,
     survey_quality_certificate_ref: SurveyQualityCertificateRef | dict[str, Any] | None = None,
     recoverability_certificate_ref: RecoverabilityCertificateRef | dict[str, Any] | None = None,
-    joint_decision: Any | None = None,
+    joint_decision: JointDecisionInput = None,
     joint_decision_ref: JointDecisionCertificateRef | dict[str, Any] | None = None,
-    phase1_gate_summary: Any | None = None,
+    phase1_gate_summary: Phase1GateSummaryType | dict[str, Any] | None = None,
     sample_size: int | None = None,
     measurement_quality: Literal["known_good", "proxy_only", "unknown"] = "unknown",
     fallback_data_available: bool = False,
@@ -1810,7 +1853,7 @@ def _normalize_positivity(
         return None, "positivity_parse_failed"
 
 
-def _recoverability_summary(payload: Any) -> dict[str, Any] | None:
+def _recoverability_summary(payload: object) -> dict[str, Any] | None:
     if payload is None:
         return None
     if hasattr(payload, "to_summary_dict"):
@@ -1855,7 +1898,7 @@ def _normalize_survey_quality_certificate(
     return SurveyQualityCertificate.model_validate(payload)
 
 
-def _joint_decision_summary(payload: Any) -> dict[str, Any] | None:
+def _joint_decision_summary(payload: object) -> dict[str, Any] | None:
     if payload is None:
         return None
     if hasattr(payload, "to_summary_dict"):
@@ -1878,7 +1921,9 @@ def _is_string_keyed_dict(value: object) -> TypeGuard[dict[str, object]]:
     return isinstance(value, dict) and all(isinstance(key, str) for key in value)
 
 
-def _typed_ref_from_payload(payload: Any, ref_cls: type[Any]) -> Any | None:
+def _typed_ref_from_payload[RefModelT: BaseModel](
+    payload: object, ref_cls: type[RefModelT]
+) -> RefModelT | None:
     if payload is None:
         return None
     if isinstance(payload, ref_cls):
@@ -1892,7 +1937,7 @@ def _typed_ref_from_payload(payload: Any, ref_cls: type[Any]) -> Any | None:
 
 
 def _normalize_composability_status(
-    payload: Any,
+    payload: object,
 ) -> Literal["reusable", "revalidate", "rederive", "unknown"]:
     candidate = str(getattr(payload, "value", payload) or "").strip().lower()
     if candidate == "reusable":
@@ -1906,7 +1951,7 @@ def _normalize_composability_status(
 
 def _derive_operator_lift_contract(
     *,
-    estimand_ast: Any,
+    estimand_ast: object,
     status_raw: str,
     result_metadata: dict[str, Any],
 ) -> dict[str, Any]:
@@ -1992,7 +2037,7 @@ def _derive_operator_lift_contract(
     }
 
 
-def _extract_operator_target_node(estimand_ast: Any) -> Any | None:
+def _extract_operator_target_node(estimand_ast: object) -> object | None:
     root = getattr(estimand_ast, "root", None)
     if root is None:
         return None
@@ -2006,7 +2051,7 @@ def _extract_operator_target_node(estimand_ast: Any) -> Any | None:
     return None
 
 
-def _default_uniform_probe_class_ref(operator_target: Any) -> str | None:
+def _default_uniform_probe_class_ref(operator_target: object) -> str | None:
     probe_space = getattr(operator_target, "probe_space_ref", None)
     if probe_space is None:
         return None
@@ -2016,14 +2061,14 @@ def _default_uniform_probe_class_ref(operator_target: Any) -> str | None:
     return f"rkhs://{space_id}/unit-ball"
 
 
-def _default_operator_audit_basis(operator_target: Any) -> list[str]:
+def _default_operator_audit_basis(operator_target: object) -> list[str]:
     probe_space = getattr(operator_target, "probe_space_ref", None)
     space_id = str(getattr(probe_space, "space_id", "") or "").strip() or "probe_space"
     return [f"{space_id}::audit_basis::coord_0"]
 
 
 def _normalize_operator_lift_scope(
-    payload: Any,
+    payload: object,
 ) -> Literal["none", "finite_audit_basis", "whole_probe_space"]:
     candidate = str(getattr(payload, "value", payload) or "").strip().lower()
     if candidate == "finite_audit_basis":
@@ -2033,7 +2078,7 @@ def _normalize_operator_lift_scope(
     return "none"
 
 
-def _normalize_string_list(payload: Any) -> list[str]:
+def _normalize_string_list(payload: object) -> list[str]:
     if payload in (None, ""):
         return []
     if not isinstance(payload, (list, tuple, set)):
@@ -2041,11 +2086,11 @@ def _normalize_string_list(payload: Any) -> list[str]:
     return sorted({str(item).strip() for item in payload if str(item).strip()})
 
 
-def _status_value(status: Any) -> str:
+def _status_value(status: object) -> str:
     return str(getattr(status, "value", status) or "").strip().lower()
 
 
-def _extract_dynamic_semantics(payload: Any) -> DynamicSemanticsAttachment | None:
+def _extract_dynamic_semantics(payload: object) -> DynamicSemanticsAttachment | None:
     if payload is None:
         return None
     if isinstance(payload, DynamicSemanticsAttachment):
@@ -2169,7 +2214,7 @@ def _implementation_coverage_for_result(
     return f"declared-scope:{theorem_family or 'native_id'}"
 
 
-def _extract_assumptions_from_estimand(estimand_ast: Any) -> list[str]:
+def _extract_assumptions_from_estimand(estimand_ast: object) -> list[str]:
     if estimand_ast is None:
         return []
     if isinstance(estimand_ast, dict):

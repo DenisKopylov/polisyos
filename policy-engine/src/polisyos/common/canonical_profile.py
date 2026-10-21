@@ -7,6 +7,7 @@ IR retain their distinct typed-tag sets and exception types.
 
 from __future__ import annotations
 
+import hashlib
 import json
 from collections.abc import Callable, Mapping
 from dataclasses import dataclass
@@ -19,6 +20,8 @@ from typing import (
     TypeVar,
     runtime_checkable,
 )
+
+from polisyos.common.serialization import fast_json_dumps_bytes
 
 if TYPE_CHECKING:
     from pydantic import BaseModel
@@ -177,6 +180,47 @@ def _normalize_canonical_profile_mapping(payload: Mapping[str, Any]) -> dict[str
     ):
         normalized["separators"] = tuple(separators)
     return normalized
+
+
+def _manifest_profile_schema_version(manifest: Mapping[str, Any]) -> str:
+    """Return one supported persisted manifest-profile projection version."""
+    version = manifest.get("manifest_schema_version", "v1")
+    if type(version) is not str or version not in {"v1", "v2", "v3"}:
+        raise CanonicalProfileRefusalError("manifest_profile_schema_version_invalid")
+    return version
+
+
+def _manifest_profile_projection(manifest: Mapping[str, Any]) -> dict[str, Any]:
+    """Project normalized manifest data under the historical CAS profile rules.
+
+    Callers with typed models must first project them to JSON-mode, alias-aware,
+    ``exclude_none`` mappings. Raw readers must reconcile that mapping with the
+    typed manifest before using the projection as a selected-view identity.
+    """
+    if not isinstance(manifest, Mapping):
+        raise CanonicalProfileRefusalError("manifest_profile_mapping_required")
+    version = _manifest_profile_schema_version(manifest)
+    excluded = {"artifact_id", "byte_size", "created_at"}
+    projection = {
+        key: value
+        for key, value in manifest.items()
+        if key not in excluded and not (version in {"v1", "v2"} and key == "integrity")
+    }
+    if version == "v3" and isinstance(projection.get("integrity"), Mapping):
+        projection["integrity"] = {
+            key: value for key, value in projection["integrity"].items() if key != "sha256"
+        }
+    return projection
+
+
+def _manifest_profile_sha256(manifest: Mapping[str, Any]) -> str:
+    """Hash one normalized manifest projection using its versioned CAS domain."""
+    projection = _manifest_profile_projection(manifest)
+    payload = fast_json_dumps_bytes(projection, sort_keys=True)
+    version = _manifest_profile_schema_version(manifest)
+    domain_version = "v2" if version == "v3" else "v1"
+    domain = f"polisyos.cas.manifest-profile.{domain_version}\0".encode("ascii")
+    return f"sha256:{hashlib.sha256(domain + payload).hexdigest()}"
 
 
 def parse_canonical_profile(

@@ -2,7 +2,7 @@
 
 from __future__ import annotations
 
-from typing import TYPE_CHECKING, Any
+from typing import TYPE_CHECKING
 
 from polisyos.ir.api import MODEL_LAYER_FACADE_EXPORTS, lazy_dir, resolve_lazy_export
 
@@ -29,7 +29,7 @@ if TYPE_CHECKING:
 __all__ = sorted(MODEL_LAYER_FACADE_EXPORTS)
 
 
-def __getattr__(name: str) -> Any:
+def __getattr__(name: str) -> object:
     return resolve_lazy_export(name, namespace=globals(), exports=MODEL_LAYER_FACADE_EXPORTS)
 
 

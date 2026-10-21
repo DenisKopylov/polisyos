@@ -555,12 +555,12 @@ class TransportabilityResult(BaseModel):
     @classmethod
     def _upgrade_legacy_formula_alias(
         cls,
-        payload: Any,
-    ) -> Any:
+        payload: object,
+    ) -> object:
         return cls.normalize_payload(payload)
 
     @classmethod
-    def normalize_payload(cls, payload: Any) -> Any:
+    def normalize_payload(cls, payload: object) -> object:
         """Return a normalized transportability payload without mutating input.
 
         This is the explicit compatibility boundary for legacy aliases
@@ -967,7 +967,7 @@ def _append_unique(items: list[str], value: str) -> list[str]:
     return [*items, value]
 
 
-def _dedupe_str_items(items: Any) -> list[str]:
+def _dedupe_str_items(items: object) -> list[str]:
     if not isinstance(items, (list, tuple)):
         return []
     out: list[str] = []

@@ -3,7 +3,7 @@
 from __future__ import annotations
 
 from datetime import UTC, datetime
-from typing import TYPE_CHECKING, Any
+from typing import TYPE_CHECKING
 
 from pydantic import BaseModel, ConfigDict, Field, field_validator, model_validator
 
@@ -114,7 +114,7 @@ class Fact(KernelModel):
         return self
 
 
-def build_fact_id(payload: Any) -> str:
+def build_fact_id(payload: object) -> str:
     """Compute deterministic fact_id as sha256 of canonical payload bytes."""
     canon = to_canonical_bytes(payload)
     digest = content_hash(canon)
@@ -132,7 +132,7 @@ class FactBatch(BaseModel):
 
     @model_validator(mode="before")
     @classmethod
-    def reject_floats(cls, value: Any) -> Any:
+    def reject_floats(cls, value: object) -> object:
         reject_float(value)
         return value
 

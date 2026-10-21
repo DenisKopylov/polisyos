@@ -3,11 +3,15 @@
 from __future__ import annotations
 
 import hashlib
+import tomllib
 from datetime import UTC, datetime
 from pathlib import Path
 
+import pytest
+
 from polisyos.core.artifacts import (
     ArtifactWriteOptions,
+    artifact_manifest_profile_projection,
     artifact_manifest_profile_sha256,
     expected_artifact_manifest_for_write,
 )
@@ -17,14 +21,52 @@ from polisyos.core.artifacts.manifest import (
     ArtifactAuthorityInfo,
     ArtifactManifest,
     ArtifactRef,
+    CanonInfo,
     InputRef,
     IntegrityInfo,
+    SchemaInfo,
 )
 from polisyos.runtime.http.services.channel_contracts import RunDetailSnapshot
 
 
 def _artifact_id(hex_value: str) -> ArtifactID:
     return ArtifactID.from_sha256_hex(hex_value * 64)
+
+
+def test_core_manifest_profile_lifecycle_preserves_v1_v2_v3_golden_digests() -> None:
+    expected = {
+        "v1": "sha256:becce32c7823c3bcd2f5d9e26f706cb2094bbbf1803a3268f22641e0a6b84bdb",
+        "v2": "sha256:1694daeaf2a39d255ce1c7848ff99ab502851c8d4983edfd59c22e7f82bb4fc2",
+        "v3": "sha256:5592dadc32c55a1406eb2d813237e3e150209f74f5be22c276bffd97600b8fdc",
+    }
+
+    for version, digest in expected.items():
+        manifest = ArtifactManifest(
+            manifest_schema_version=version,
+            artifact_id=_artifact_id("a"),
+            kind="test.profile_golden",
+            media_type="application/json",
+            byte_size=42,
+            created_at=datetime(2020, 1, 2, 3, 4, 5, tzinfo=UTC),
+            artifact_schema=SchemaInfo(name="test.Golden", version="1.0"),
+            canon=CanonInfo(),
+            inputs=[],
+            integrity=IntegrityInfo(
+                sha256="b" * 64,
+                optional={"digest": "c" * 64},
+            ),
+            warnings=[],
+        )
+
+        assert artifact_manifest_profile_sha256(manifest) == digest
+        projection = artifact_manifest_profile_projection(manifest)
+        assert "artifact_id" not in projection
+        assert "byte_size" not in projection
+        assert "created_at" not in projection
+        if version in {"v1", "v2"}:
+            assert "integrity" not in projection
+        else:
+            assert projection["integrity"] == {"optional": {"digest": "c" * 64}}
 
 
 def test_historical_selectorless_refs_keep_their_default_dump_shape() -> None:
@@ -75,17 +117,64 @@ def test_historical_v1_manifest_sidecar_bytes_and_digest_are_exact() -> None:
 
 
 def test_all_archived_policy_design_cas_sidecars_replay_byte_exactly() -> None:
+    product_root = next(
+        parent
+        for parent in Path(__file__).resolve().parents
+        if (parent / "architecture/generated_artifacts.toml").is_file()
+    )
     fixture_root = (
-        Path(__file__).resolve().parents[4]
-        / "architecture/policy_design_case/layer3_gy_acquisition_cas/artifacts"
+        product_root / "architecture/policy_design_case/layer3_gy_acquisition_cas/artifacts"
     )
     sidecars = sorted(fixture_root.rglob("*.manifest.json"))
-    assert len(sidecars) == 11
+    registry = tomllib.loads(
+        (product_root / "architecture/generated_artifacts.toml").read_text(encoding="utf-8")
+    )
+    family = next(
+        item
+        for item in registry["family"]
+        if item["id"] == "policy-design-case-layer3-gy-n13b-frozen-acquisition-evidence"
+    )
+    fixture_prefix = fixture_root.relative_to(product_root).as_posix() + "/"
+    expected_sidecars = {
+        path
+        for path in family["outputs"]
+        if path.startswith(fixture_prefix) and path.endswith(".manifest.json")
+    }
+    actual_sidecars = {sidecar.relative_to(product_root).as_posix() for sidecar in sidecars}
+    _assert_exact_manifest_sidecar_inventory(expected_sidecars, actual_sidecars)
+    with pytest.raises(AssertionError, match="missing="):
+        _assert_exact_manifest_sidecar_inventory(
+            expected_sidecars, actual_sidecars - {min(expected_sidecars)}
+        )
 
+    serialized_by_profile: dict[tuple[str, str], bytes] = {}
     for sidecar in sidecars:
         original = sidecar.read_bytes()
         manifest = ArtifactManifest.model_validate_json(original)
         assert ManifestLifecycle.to_bytes(manifest) == original, sidecar
+        profile_sha256 = ManifestLifecycle.profile_sha256(manifest)
+        identity = (str(manifest.artifact_id), profile_sha256)
+        previous = serialized_by_profile.setdefault(identity, original)
+        assert previous == original, ("profile aliases differ in serialized bytes", sidecar)
+        stem = sidecar.name.removesuffix(".manifest.json")
+        artifact_hex = str(manifest.artifact_id).removeprefix("sha256:")
+        if ".view." in stem:
+            selected_artifact_hex, selected_profile_hex = stem.split(".view.", maxsplit=1)
+            assert selected_artifact_hex == artifact_hex, sidecar
+            assert selected_profile_hex == profile_sha256.removeprefix("sha256:"), sidecar
+        else:
+            assert stem == artifact_hex, sidecar
+
+
+def _assert_exact_manifest_sidecar_inventory(
+    expected_sidecars: set[str], actual_sidecars: set[str]
+) -> None:
+    missing = expected_sidecars - actual_sidecars
+    unexpected = actual_sidecars - expected_sidecars
+    assert not missing and not unexpected, (
+        f"manifest sidecar inventory differs: missing={sorted(missing)}, "
+        f"unexpected={sorted(unexpected)}"
+    )
 
 
 def test_selected_view_v2_fields_are_emitted_as_real_data() -> None:

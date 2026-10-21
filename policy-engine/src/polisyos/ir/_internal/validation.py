@@ -15,7 +15,6 @@ from typing import (
     Protocol,
     SupportsFloat,
     SupportsIndex,
-    TypeGuard,
     TypeVar,
     cast,
     runtime_checkable,
@@ -89,24 +88,27 @@ def ensure_finite_numeric(value: object, *, field_name: str) -> object:
     return value
 
 
+def coerce_float(value: object) -> float:
+    """Convert one value accepted by Python's ``float`` protocol.
+
+    This helper preserves the distinction between conversion and domain
+    validation: callers decide whether a converted NaN, infinity, or signed
+    value is permitted by their own field contract.
+    """
+
+    return float(cast("_FloatConvertible", value))
+
+
 def _finite_numeric_value(value: object, *, field_name: str) -> float:
     """Return a finite float for values accepted by Python's ``float`` constructor."""
 
-    if not _is_float_convertible(value):
-        raise ValueError(f"{field_name} must be finite")
     try:
-        numeric = float(value)
+        numeric = float(cast("_FloatConvertible", value))
     except (TypeError, ValueError) as exc:  # pragma: no cover - defensive
         raise ValueError(f"{field_name} must be finite") from exc
     if not math.isfinite(numeric):
         raise ValueError(f"{field_name} must be finite")
     return numeric
-
-
-def _is_float_convertible(value: object) -> TypeGuard[_FloatConvertible]:
-    """Narrow dynamic input to the values accepted by Python's ``float`` constructor."""
-
-    return isinstance(value, (str, Buffer, SupportsFloat, SupportsIndex))
 
 
 def ensure_interval_monotonicity(

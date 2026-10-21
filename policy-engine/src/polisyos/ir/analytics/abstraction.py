@@ -11,8 +11,9 @@ from itertools import product
 from typing import TYPE_CHECKING, Any, Literal
 
 import numpy as np
-from pydantic import BaseModel, ConfigDict, Field, field_validator, model_validator
+from pydantic import BaseModel, ConfigDict, Field, ValidationInfo, field_validator, model_validator
 
+from polisyos.ir._internal.validation import coerce_float
 from polisyos.ir.artifacts import ArtifactStore, InputRef, get_json_artifact, put_json_artifact
 from polisyos.ir.model_layer.canon import CanonSpec
 from polisyos.ir.registry.refs import (
@@ -55,16 +56,16 @@ def _ensure_non_empty(value: str, *, field_name: str) -> str:
     return candidate
 
 
-def _ensure_finite(value: float | None, *, field_name: str) -> float | None:
+def _ensure_finite(value: object | None, *, field_name: str) -> float | None:
     if value is None:
         return None
-    casted = float(value)
+    casted = coerce_float(value)
     if not math.isfinite(casted):
         raise ValueError(f"{field_name} must be finite")
     return casted
 
 
-def _ensure_non_negative_finite(value: float | None, *, field_name: str) -> float | None:
+def _ensure_non_negative_finite(value: object | None, *, field_name: str) -> float | None:
     casted = _ensure_finite(value, field_name=field_name)
     if casted is not None and casted < 0.0:
         raise ValueError(f"{field_name} must be non-negative")
@@ -387,7 +388,7 @@ class VariableStateAbstraction(BaseModel):
 
     @field_validator("micro_variable", "macro_variable", mode="before")
     @classmethod
-    def _validate_strings(cls, value: Any, info: Any) -> str:
+    def _validate_strings(cls, value: object, info: ValidationInfo) -> str:
         return _ensure_non_empty(str(value), field_name=str(info.field_name))
 
     @model_validator(mode="after")
@@ -444,11 +445,11 @@ class ContinuousAffineVariableTransform(BaseModel):
 
     @field_validator("scale", "shift", mode="before")
     @classmethod
-    def _validate_finite(cls, value: Any, info: Any) -> float:
+    def _validate_finite(cls, value: object, info: ValidationInfo) -> float:
         normalized = _ensure_finite(value, field_name=str(info.field_name))
         if normalized is None:
             raise ValueError(f"{info.field_name} must be finite")
-        return float(normalized)
+        return normalized
 
 
 class ContinuousApproximateAbstractionConfig(BaseModel):
@@ -485,12 +486,12 @@ class ContinuousApproximateAbstractionConfig(BaseModel):
         mode="before",
     )
     @classmethod
-    def _validate_non_empty_strings(cls, value: Any, info: Any) -> str:
+    def _validate_non_empty_strings(cls, value: object, info: ValidationInfo) -> str:
         return _ensure_non_empty(str(value), field_name=str(info.field_name))
 
     @field_validator("distribution_metric", mode="before")
     @classmethod
-    def _validate_distribution_metric(cls, value: Any) -> str | None:
+    def _validate_distribution_metric(cls, value: object) -> str | None:
         if value is None:
             return None
         return _ensure_non_empty(str(value), field_name="distribution_metric")
@@ -501,7 +502,7 @@ class ContinuousApproximateAbstractionConfig(BaseModel):
         mode="before",
     )
     @classmethod
-    def _coerce_string_tuple_fields(cls, value: Any) -> tuple[str, ...]:
+    def _coerce_string_tuple_fields(cls, value: object) -> tuple[str, ...]:
         if value in (None, ()):
             return ()
         if not isinstance(value, (tuple, list)):
@@ -512,7 +513,7 @@ class ContinuousApproximateAbstractionConfig(BaseModel):
     @classmethod
     def _coerce_intervention_ranges(
         cls,
-        value: Any,
+        value: object,
     ) -> dict[str, tuple[float, float]]:
         if value in (None, {}):
             return {}
@@ -536,7 +537,7 @@ class ContinuousApproximateAbstractionConfig(BaseModel):
 
     @field_validator("state_weights", mode="before")
     @classmethod
-    def _coerce_state_weights(cls, value: Any) -> dict[str, float]:
+    def _coerce_state_weights(cls, value: object) -> dict[str, float]:
         if value in (None, {}):
             return {}
         if not isinstance(value, Mapping):
@@ -555,7 +556,7 @@ class ContinuousApproximateAbstractionConfig(BaseModel):
 
     @field_validator("policy_value_weights", mode="before")
     @classmethod
-    def _coerce_policy_value_weights(cls, value: Any) -> dict[str, float]:
+    def _coerce_policy_value_weights(cls, value: object) -> dict[str, float]:
         if value in (None, {}):
             return {}
         if not isinstance(value, Mapping):
@@ -571,7 +572,7 @@ class ContinuousApproximateAbstractionConfig(BaseModel):
 
     @field_validator("local_mechanism_defects", mode="before")
     @classmethod
-    def _coerce_local_mechanism_defects(cls, value: Any) -> dict[str, float]:
+    def _coerce_local_mechanism_defects(cls, value: object) -> dict[str, float]:
         if value in (None, {}):
             return {}
         if not isinstance(value, Mapping):
@@ -590,7 +591,7 @@ class ContinuousApproximateAbstractionConfig(BaseModel):
 
     @field_validator("gain_matrix", mode="before")
     @classmethod
-    def _coerce_gain_matrix(cls, value: Any) -> dict[str, dict[str, float]]:
+    def _coerce_gain_matrix(cls, value: object) -> dict[str, dict[str, float]]:
         if value in (None, {}):
             return {}
         if not isinstance(value, Mapping):
@@ -649,7 +650,7 @@ class AbstractionCertificate(BaseModel):
 
     @field_validator("preserved_queries", "validation_notes", mode="before")
     @classmethod
-    def _coerce_string_tuples(cls, value: Any) -> tuple[str, ...]:
+    def _coerce_string_tuples(cls, value: object) -> tuple[str, ...]:
         if value in (None, ()):
             return ()
         if not isinstance(value, (tuple, list)):
@@ -658,7 +659,7 @@ class AbstractionCertificate(BaseModel):
 
     @field_validator("error_bound", mode="before")
     @classmethod
-    def _validate_error_bound(cls, value: Any) -> Any:
+    def _validate_error_bound(cls, value: object) -> float | None:
         return _ensure_non_negative_finite(value, field_name="error_bound")
 
     @model_validator(mode="after")
@@ -719,12 +720,14 @@ class AbstractionCertificate(BaseModel):
                 preserved_queries=self.preserved_queries,
                 abstraction_family=abstraction_family,
             )
-        if abstraction_family in CONTINUOUS_APPROXIMATE_TRANSPORT_ABSTRACTION_FAMILIES:
-            if "error_bound_spec" not in self.metadata:
-                raise ValueError(
-                    "continuous approximate abstraction certificates must publish "
-                    "metadata.error_bound_spec"
-                )
+        if (
+            abstraction_family in CONTINUOUS_APPROXIMATE_TRANSPORT_ABSTRACTION_FAMILIES
+            and "error_bound_spec" not in self.metadata
+        ):
+            raise ValueError(
+                "continuous approximate abstraction certificates must publish "
+                "metadata.error_bound_spec"
+            )
 
     def _validate_policy_value_only_contract(self) -> None:
         if self.error_bound is None:
@@ -747,12 +750,14 @@ class AbstractionCertificate(BaseModel):
                 preserved_queries=self.preserved_queries,
                 abstraction_family=abstraction_family,
             )
-        if abstraction_family in CONTINUOUS_APPROXIMATE_TRANSPORT_ABSTRACTION_FAMILIES:
-            if "error_bound_spec" not in self.metadata:
-                raise ValueError(
-                    "continuous policy_value_only abstraction certificates must publish "
-                    "metadata.error_bound_spec"
-                )
+        if (
+            abstraction_family in CONTINUOUS_APPROXIMATE_TRANSPORT_ABSTRACTION_FAMILIES
+            and "error_bound_spec" not in self.metadata
+        ):
+            raise ValueError(
+                "continuous policy_value_only abstraction certificates must publish "
+                "metadata.error_bound_spec"
+            )
 
 
 def persist_finite_state_abstraction_map(
@@ -871,7 +876,8 @@ def _extract_finite_state_table(
     if not mechanism.parents:
         if not isinstance(root_distribution, dict):
             raise ValueError(
-                f"{mechanism.variable}.family_params.distribution must be a mapping for root variables"
+                f"{mechanism.variable}.family_params.distribution must be a mapping "
+                "for root variables"
             )
         return (
             state_space,
@@ -901,11 +907,13 @@ def _extract_finite_state_table(
         raw_distribution = entry.get("distribution")
         if not isinstance(raw_when, dict) or not isinstance(raw_distribution, dict):
             raise ValueError(
-                f"{mechanism.variable}.conditional_distribution[{idx}] must contain when and distribution mappings"
+                f"{mechanism.variable}.conditional_distribution[{idx}] must contain "
+                "when and distribution mappings"
             )
         if set(raw_when) != set(parent_tuple):
             raise ValueError(
-                f"{mechanism.variable}.conditional_distribution[{idx}].when must match parents exactly"
+                f"{mechanism.variable}.conditional_distribution[{idx}].when must "
+                "match parents exactly"
             )
         assignment = {
             parent: _ensure_non_empty(
@@ -916,7 +924,8 @@ def _extract_finite_state_table(
         key = _conditional_key(parent_tuple, assignment)
         if key in table:
             raise ValueError(
-                f"{mechanism.variable}.conditional_distribution contains duplicate parent assignments"
+                f"{mechanism.variable}.conditional_distribution contains duplicate "
+                "parent assignments"
             )
         table[key] = _normalized_distribution(
             raw_distribution,

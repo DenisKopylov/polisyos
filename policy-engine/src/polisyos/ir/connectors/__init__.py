@@ -13,7 +13,14 @@ from enum import Enum, Flag, IntEnum, auto
 from functools import cached_property
 from typing import Any, ClassVar, Protocol, TypeVar, overload
 
-from pydantic import BaseModel, ConfigDict, Field, PrivateAttr, field_validator, model_validator
+from pydantic import (
+    BaseModel,
+    ConfigDict,
+    Field,
+    PrivateAttr,
+    field_validator,
+    model_validator,
+)
 
 from polisyos.ir.model_layer.canon import content_hash, to_canonical_bytes
 from polisyos.ir.registry.refs import EvidenceBundleRef
@@ -1066,3 +1073,59 @@ def _hash_request_payload(canonical_data: dict[str, Any]) -> str:
 
 
 FetchResult.model_rebuild()
+
+
+__all__ = [
+    "UTC",
+    "Any",
+    "BaseModel",
+    "CapabilitySet",
+    "ClassVar",
+    "ConfigDict",
+    "ConnectorCapability",
+    "ConnectorDocumentationSpec",
+    "ConnectorGovernanceProfile",
+    "ConnectorIdentitySpec",
+    "ConnectorMetadataSpec",
+    "ConnectorOperationalProfile",
+    "ConnectorQualityGovernanceSpec",
+    "ConnectorSLASpec",
+    "ConnectorSchemaGovernanceSpec",
+    "ConnectorSourceSpec",
+    "DataT",
+    "DataVersion",
+    "Enum",
+    "EvidenceBundleRef",
+    "FetchPaginationEnvelope",
+    "FetchProvenanceEnvelope",
+    "FetchQualityEnvelope",
+    "FetchRequest",
+    "FetchResult",
+    "FetchSchemaDescriptor",
+    "FetchTransferEnvelope",
+    "Field",
+    "Flag",
+    "IntEnum",
+    "PIIDetectedEntity",
+    "PIIScanSummary",
+    "PrivateAttr",
+    "Protocol",
+    "QualityTier",
+    "ResilienceInfo",
+    "TrustLevel",
+    "TypeVar",
+    "VersionStrategy",
+    "annotations",
+    "auto",
+    "cached_property",
+    "capabilities_from_flags",
+    "content_hash",
+    "dataclass",
+    "datetime",
+    "field",
+    "field_validator",
+    "flags_from_capabilities",
+    "model_validator",
+    "overload",
+    "to_canonical_bytes",
+]

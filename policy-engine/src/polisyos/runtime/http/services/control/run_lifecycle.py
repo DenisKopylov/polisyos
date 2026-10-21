@@ -39,6 +39,7 @@ from polisyos.core.artifacts.manifest import (
     ArtifactTenantContextInfo,
     ProducerInfo,
     SchemaInfo,
+    artifact_ref_identity_key,
 )
 from polisyos.core.artifacts.write_contract import ArtifactWriteOptions
 from polisyos.core.canon import (
@@ -259,6 +260,7 @@ from ..control_plane_store import (
     ControlJobExecutionScope,
     ControlJobLeaseLostError,
     ControlJobRecord,
+    ControlOutboxRecord,
     ControlPlaneStore,
     ControlPreAdmissionIdempotencyConflictError,
     HumanDecisionRecoveryFence,
@@ -269,6 +271,22 @@ from ..control_plane_store import (
 from ..control_worker import ControlWorker
 
 logger = get_logger(__name__)
+
+
+def _same_selected_artifact_ref(left: object, right: object) -> bool:
+    """Compare full selected ArtifactRef identity across typed subclasses."""
+    if not isinstance(left, ArtifactRef) or not isinstance(right, ArtifactRef):
+        return False
+    if left.manifest_profile_sha256 is None or right.manifest_profile_sha256 is None:
+        return False
+    return artifact_ref_identity_key(left) == artifact_ref_identity_key(right)
+
+
+def _same_optional_selected_artifact_ref(left: object, right: object) -> bool:
+    """Compare optional selected refs without weakening non-null identity checks."""
+    if left is None or right is None:
+        return left is None and right is None
+    return _same_selected_artifact_ref(left, right)
 
 
 def _pre_admission_producer_event_refs(
@@ -415,9 +433,46 @@ _NL_REQUEST_SNAPSHOT_KEY = "nl_request_snapshot"
 _NL_REQUEST_SNAPSHOT_DIGEST_PROFILE = (
     "polisyos.runtime.authorization.nl_request_snapshot.canonical_json.v1"
 )
-_OBSERVATIONAL_METHOD_BASE_FQN = "causal.hte.forest_dr"
+_OBSERVATIONAL_METHOD_BASE_FQNS = frozenset(
+    {
+        "causal.hte.causal_forest",
+        "causal.hte.double_ml",
+        "causal.hte.meta_learner",
+        "causal.hte.forest_dr",
+    }
+)
 _OBSERVATIONAL_METHOD_FQN_V1_0 = "causal.hte.forest_dr@1.0.0"
 _OBSERVATIONAL_METHOD_FQN_V1_1 = "causal.hte.forest_dr@1.1.0"
+_OBSERVATIONAL_METHOD_FQN_V2 = frozenset(
+    {
+        "causal.hte.causal_forest@2.0.0",
+        "causal.hte.double_ml@2.0.0",
+        "causal.hte.meta_learner@2.0.0",
+        "causal.hte.forest_dr@2.0.0",
+    }
+)
+_OBSERVATIONAL_METHOD_V2_RESOURCE_PROFILE = {
+    "causal.hte.causal_forest@2.0.0": (
+        "econml.causal_forest_dml.native_mean@2.0",
+        "producer_scoped_joblib_parallelism_one",
+        1,
+    ),
+    "causal.hte.double_ml@2.0.0": (
+        "econml.dml.point_only@2.0",
+        "producer_scoped_joblib_parallelism_one",
+        None,
+    ),
+    "causal.hte.meta_learner@2.0.0": (
+        "econml.meta_learner.point_only@2.0",
+        "producer_scoped_joblib_parallelism_one",
+        None,
+    ),
+    "causal.hte.forest_dr@2.0.0": (
+        "econml.forest_dr.native_mean@2.0",
+        "producer_scoped_joblib_parallelism_one",
+        1,
+    ),
+}
 _OBSERVATIONAL_METHOD_CONTRACT_TARGET_ID = "foundry.causal.hte_observational_data.v1"
 _OBSERVATIONAL_METHOD_CONTRACT_TARGET = (
     "polisyos.foundry.methods.catalog.causal.protocols.HTEObservationalData"
@@ -457,7 +512,7 @@ def _read_observational_resource_policy_artifact(
         tenant_context=manifest.tenant_context,
     )
     if (
-        bounded.effective_ref != policy_ref
+        not _same_selected_artifact_ref(bounded.effective_ref, policy_ref)
         or policy_ref.kind != "runtime.observational_input_resource_policy"
         or policy_ref.media_type != "application/json"
         or policy_ref.manifest_profile_sha256 is None
@@ -510,7 +565,7 @@ def _validate_direct_method_execution_selection_artifacts(
         )
         manifest = bounded.manifest
         if (
-            bounded.effective_ref != ref
+            not _same_selected_artifact_ref(bounded.effective_ref, ref)
             or manifest.kind != kind
             or manifest.media_type != "application/json"
             or manifest.artifact_schema != schema
@@ -527,11 +582,24 @@ def _validate_direct_method_execution_selection_artifacts(
     ) -> _BoundedArtifactModelT:
         bounded = read_core_json_artifact_bounded(store, ref, limits=limits)
         manifest = bounded.manifest
+        payload = bounded.value
+        if not isinstance(payload, Mapping):
+            raise ValueError("direct_method_execution_intent_payload_invalid")
+        payload_version = payload.get("schema_version")
+        if type(payload_version) is not str:
+            raise ValueError("direct_method_execution_intent_schema_version_invalid")
+        expected_version = {
+            "polisyos.runtime.observational_run_intent.v1": "1.0",
+            "polisyos.runtime.observational_run_intent.v2": "2.0",
+            "polisyos.runtime.content_admitted_observational_run_intent.v1": "1.0",
+            "polisyos.runtime.content_admitted_observational_run_intent.v2": "2.0",
+        }.get(payload_version)
         if (
-            bounded.effective_ref != ref
+            not _same_selected_artifact_ref(bounded.effective_ref, ref)
             or manifest.kind != kind
             or manifest.media_type != "application/json"
-            or manifest.artifact_schema != SchemaInfo(name=schema_name, version="1.0")
+            or expected_version is None
+            or manifest.artifact_schema != SchemaInfo(name=schema_name, version=expected_version)
         ):
             raise ValueError("direct_method_execution_intent_manifest_mismatch")
         return validate_core_model_bounded_read(model, bounded)
@@ -586,6 +654,8 @@ def _validate_direct_method_execution_selection_artifacts(
         or admitted_intent.contract_target_id != _OBSERVATIONAL_METHOD_CONTRACT_TARGET_ID
         or admitted_intent.contract_target != selection.contract_target
         or admitted_intent.method_fqn != selection.method_fqn
+        or requested_intent.owned_hte_request_context != selection.owned_hte_request_context
+        or admitted_intent.owned_hte_request_context != selection.owned_hte_request_context
         or admitted_intent.source_protocol != selection.source_protocol
         or admitted_intent.normalization != selection.normalization
         or admitted_intent.limitations != selection.limitations
@@ -655,14 +725,26 @@ def _validate_direct_method_execution_selection_artifacts(
     requested_intent_manifest = read_manifest(
         selection.observational_run_intent_ref,
         kind="runtime.observational_run_intent",
-        schema=SchemaInfo(name="polisyos.runtime.ObservationalRunIntent", version="1.0"),
+        schema=SchemaInfo(
+            name="polisyos.runtime.ObservationalRunIntent",
+            version=(
+                "2.0"
+                if requested_intent.schema_version == "polisyos.runtime.observational_run_intent.v2"
+                else "1.0"
+            ),
+        ),
     ).manifest
     admitted_intent_manifest = read_manifest(
         selection.content_admitted_intent_ref,
         kind="runtime.content_admitted_observational_run_intent",
         schema=SchemaInfo(
             name="polisyos.runtime.ContentAdmittedObservationalRunIntent",
-            version="1.0",
+            version=(
+                "2.0"
+                if admitted_intent.schema_version
+                == "polisyos.runtime.content_admitted_observational_run_intent.v2"
+                else "1.0"
+            ),
         ),
     ).manifest
 
@@ -782,6 +864,63 @@ def _validate_direct_method_execution_selection_artifacts(
         )
         if output_governance != source_governance or output_tenant_context != source_tenant_context:
             raise ValueError("direct_method_execution_output_metadata_mismatch")
+
+    if selection.hte is not None:
+        hte_manifest_specs = [
+            (selection.hte_outcome_ref, "ir.hte_outcome", "polisyos.ir.HTEOutcome", "1.0")
+        ]
+        if selection.hte.kind == "point_estimate":
+            hte_manifest_specs.append(
+                (
+                    selection.point_result_ref,
+                    "ir.hte_point_result",
+                    "polisyos.ir.HTEPointResult",
+                    "1.0",
+                )
+            )
+        if selection.hte.kind == "interval_estimate":
+            hte_manifest_specs.extend(
+                (
+                    (
+                        selection.hte_result_ref,
+                        "ir.hte_result",
+                        "ir.hte_result",
+                        "1.0",
+                    ),
+                    (
+                        selection.inference_basis_ref,
+                        "ir.ate_inference_basis",
+                        "polisyos.ir.ATEInferenceBasis",
+                        "1.0",
+                    ),
+                )
+            )
+        if selection.inference_basis_ref is not None and selection.hte.kind == "point_estimate":
+            hte_manifest_specs.append(
+                (
+                    selection.inference_basis_ref,
+                    "ir.ate_inference_basis",
+                    "polisyos.ir.ATEInferenceBasis",
+                    "1.0",
+                )
+            )
+        if selection.hte.kind == "refusal":
+            hte_manifest_specs.append(
+                (
+                    selection.refusal_diagnostic_ref,
+                    "ir.hte_refusal_diagnostic",
+                    "polisyos.ir.HTERefusalDiagnostic",
+                    "1.0",
+                )
+            )
+        for ref, kind, schema_name, schema_version in hte_manifest_specs:
+            if ref is None:
+                raise ValueError("direct_method_execution_hte_manifest_ref_missing")
+            read_manifest(
+                ref,
+                kind=kind,
+                schema=SchemaInfo(name=schema_name, version=schema_version),
+            )
     result_manifest = result_read.manifest
     evidence_manifest = evidence_manifest_read.manifest
 
@@ -832,8 +971,31 @@ def _validate_direct_method_execution_selection_artifacts(
         != selection.submitted_input_ref.model_dump(mode="json")
         or evidence_payload.get("effective_input_ref")
         != selection.effective_input_ref.model_dump(mode="json")
-        or evidence_payload.get("result_ref") != str(selection.method_result_ref.artifact_id)
+        or evidence_payload.get("method_result_ref")
+        != selection.method_result_ref.model_dump(mode="json")
         or evidence_result_ref != selection.method_result_ref
+        or (
+            selection.method_fqn in _OBSERVATIONAL_METHOD_FQN_V2
+            and evidence_payload.get("owned_attempt_anchor_ref")
+            != selection.owned_attempt_anchor_ref.model_dump(mode="json")
+        )
+        or (
+            selection.method_fqn in _OBSERVATIONAL_METHOD_FQN_V2
+            and selection.hte is not None
+            and evidence_payload.get("materialization_binding_ref")
+            != (
+                selection.hte.materialization_binding_ref.model_dump(mode="json")
+                if selection.hte.materialization_binding_ref is not None
+                else None
+            )
+        )
+        or (
+            selection.method_fqn not in _OBSERVATIONAL_METHOD_FQN_V2
+            and (
+                "owned_attempt_anchor_ref" in evidence_payload
+                or "materialization_binding_ref" in evidence_payload
+            )
+        )
     ):
         raise ValueError("direct_method_execution_evidence_content_mismatch")
 
@@ -845,6 +1007,17 @@ def _validate_direct_method_execution_selection_artifacts(
         ("effective_method_input", selection.effective_input_ref),
         ("method_resource_policy", selection.resource_policy_ref),
     )
+    if selection.method_fqn in _OBSERVATIONAL_METHOD_FQN_V2:
+        if selection.owned_attempt_anchor_ref is None or selection.hte is None:
+            raise ValueError("direct_method_execution_owned_anchor_missing")
+        if selection.hte.materialization_binding_ref is not None:
+            expected_lineage += (
+                (
+                    "physical_source_materialization_binding",
+                    selection.hte.materialization_binding_ref,
+                ),
+            )
+        expected_lineage += (("owned_attempt_anchor", selection.owned_attempt_anchor_ref),)
 
     def has_exact_inputs(
         inputs: tuple[object, ...] | list[object],
@@ -1028,6 +1201,25 @@ class CompletedMethodMetricSource:
     selection: _GraphMethodExecutionSelection
 
 
+@dataclass(frozen=True, slots=True)
+class CompletedMethodHTESource:
+    """Owner-resolved scalar HTE result for a later policy-design workflow.
+
+    The selected summary is the worker-admitted projection. Its accompanying
+    association binds that summary to the exact completed owner event and
+    profiled artifact manifests; it does not grant publication or causal
+    authority.
+    """
+
+    source_run_id: str
+    source_job_id: str
+    source_attempt: int
+    completed_event_id: int
+    completed_event_payload_sha256: str
+    summary: _DirectMethodExecutionHTESummary
+    association: _OwnedAttemptAnchorProjectionAssociation
+
+
 class _FoundryPortProtocol(Protocol):
     """The exact small Foundry boundary needed by the Runtime origin collector."""
 
@@ -1071,7 +1263,9 @@ class _RuntimeObservationalMethodRegistration:
     signature: _MethodSignatureProtocol
     build_digest: str
     contract_target: str
-    n_jobs_parameter: str
+    n_jobs_parameter: str | None
+    method_profile_id: str | None = None
+    execution_scope: str | None = None
 
 
 class _MethodMetricSourceTupleProtocol(Protocol):
@@ -1343,6 +1537,10 @@ class _RuntimeMethodExecutionAdmission:
     method_version: str
     method_abi_digest: str
     method_build_digest: str
+    resource_policy: _ObservationalInputResourcePolicy
+    owned_hte_request_context: _OwnedHTERequestContextV1 | None
+    search_binding_tenant_id: str | None
+    search_binding_cell_id: str | None
     effective_params: dict[str, Any]
     submitted_params: dict[str, Any]
     submitted_params_present: bool
@@ -1540,6 +1738,21 @@ if TYPE_CHECKING:
     from polisyos.core.artifacts.protocol import (
         CoreJSONArtifactStreamingReader as _CoreJSONArtifactStreamingReader,
     )
+    from polisyos.core.contracts.owned_attempt_anchor import (
+        OwnedAttemptAnchorAssociation,
+        OwnedAttemptAnchorDispatchContext,
+        OwnedAttemptAnchorRef,
+        OwnedAttemptAnchorRefusalAssociation,
+    )
+    from polisyos.core.contracts.owned_attempt_anchor import (
+        OwnedAttemptAnchorProjectionAssociation as _OwnedAttemptAnchorProjectionAssociation,
+    )
+    from polisyos.core.contracts.owned_attempt_anchor import (
+        OwnedHTERequestContextV1 as _OwnedHTERequestContextV1,
+    )
+    from polisyos.core.contracts.runtime import (
+        DirectMethodExecutionHTESummary as _DirectMethodExecutionHTESummary,
+    )
     from polisyos.core.contracts.runtime import (
         DirectMethodExecutionRunProjection as _DirectMethodExecutionRunProjection,
     )
@@ -1560,6 +1773,10 @@ if TYPE_CHECKING:
     from polisyos.fabric.connectors.profiles.registry import SourceProfileRegistry
     from polisyos.fabric.connectors.registry import ConnectorRegistry
     from polisyos.fabric.retrieval import RetrievalProviders, RetrievalService
+    from polisyos.foundry.data_plane.bindings import (
+        HTEInputPreparationRefusal,
+        PreparedHTEObservationalInput,
+    )
     from polisyos.foundry.methods import MethodSignature
     from polisyos.ir.observation.bundles import (
         ContractCompatibilityTarget as _ContractCompatibilityTarget,
@@ -3434,6 +3651,7 @@ class ControlPlaneService(
         signature_verifier = None
         if artifact_store is None:
             store_config = ArtifactStoreConfig.from_env().model_copy(update={"root": str(cas_root)})
+            self._artifact_store_backend: str | None = store_config.backend
             self._artifact_store = cast(
                 "ArtifactStore",
                 guard_runtime_cas(
@@ -3449,6 +3667,11 @@ class ControlPlaneService(
             )
         else:
             self._artifact_store = artifact_store
+            from polisyos.core.artifacts.store import FileSystemCAS
+
+            self._artifact_store_backend = (
+                "filesystem" if isinstance(artifact_store, FileSystemCAS) else None
+            )
         if generic_cycle_simulation_admission_owner is not None:
             if generic_cycle_simulation_admission_owner.store is not self._artifact_store:
                 raise ValueError("generic_cycle_simulation_context_owner_store_mismatch")
@@ -3669,11 +3892,13 @@ class ControlPlaneService(
             ),
         )
         self._worker: ControlWorker | None = None
+        self._search_hte_outbox_cursor: int | None = None
+        self._search_hte_outbox_watermark: int | None = None
         if self._policy_resolver.worker_backend == "embedded":
             self._worker = ControlWorker(
                 store=self._control_store,
                 handler=self._process_control_job,
-                maintenance_callback=self.run_published_signature_custody_maintenance,
+                maintenance_callback=self._run_control_worker_maintenance,
             )
             self._worker.start()
 
@@ -3741,6 +3966,186 @@ class ControlPlaneService(
         """Run the container-composed published-signature watcher without an HTTP request."""
 
         return self._published_signature_custody_watcher.scan_once()
+
+    def _run_control_worker_maintenance(self) -> PublishedSignatureCustodyResult:
+        """Run existing custody maintenance and retry owned Search HTE deliveries."""
+        result = self.run_published_signature_custody_maintenance()
+        self.reconcile_pending_search_hte_completion_events()
+        return result
+
+    def _dispatch_search_hte_completion_for_job(self, *, job_id: str) -> None:
+        """Best-effort delivery after a durable HTE completion has committed."""
+        try:
+            event = self._control_store.get_job_terminal_source_event_record(job_id)
+            if event.event_type != "job_completed":
+                return
+            delivery = self._control_store.get_search_hte_completion_outbox_event(
+                job_id=job_id,
+                completed_event_id=event.event_id,
+            )
+            if delivery is not None and delivery.state == "pending":
+                self._deliver_search_hte_completion_outbox(delivery)
+        except Exception:
+            logger.exception("Search HTE completion dispatch read failed for %s", job_id)
+
+    def reconcile_pending_search_hte_completion_events(self) -> int:
+        """Retry one page bounded by a frozen delivery watermark.
+
+        A retry cycle never chases arrivals created while it is running. Failed
+        rows remain pending and are revisited when the next cycle starts at the
+        beginning of the durable Search-only sequence.
+        """
+        page_size = 25
+        cursor = self._search_hte_outbox_cursor
+        watermark = self._search_hte_outbox_watermark
+        try:
+            if watermark is None:
+                watermark = self._control_store.get_search_hte_completion_delivery_watermark()
+                cursor = 0
+            page = self._control_store.list_pending_search_hte_completion_delivery_page(
+                limit=page_size,
+                after_sequence_id=cursor if cursor is not None else 0,
+                through_sequence_id=watermark,
+            )
+        except Exception:
+            logger.exception("Search HTE completion outbox page read failed")
+            self._search_hte_outbox_cursor = None
+            self._search_hte_outbox_watermark = None
+            return 0
+        if not page:
+            self._search_hte_outbox_cursor = None
+            self._search_hte_outbox_watermark = None
+            return 0
+        acknowledged = 0
+        for _, delivery in page:
+            if self._deliver_search_hte_completion_outbox(delivery):
+                acknowledged += 1
+        if len(page) == page_size:
+            self._search_hte_outbox_cursor = page[-1][0]
+            self._search_hte_outbox_watermark = watermark
+        else:
+            self._search_hte_outbox_cursor = None
+            self._search_hte_outbox_watermark = None
+        return acknowledged
+
+    def _deliver_search_hte_completion_outbox(self, delivery_record: ControlOutboxRecord) -> bool:
+        """Content-reconcile and acknowledge only the Search-specific outbox row."""
+        from pydantic import TypeAdapter
+
+        from polisyos.core.contracts.runtime import RuntimeSearchHTECompletionDeliveryV1
+
+        def leave_pending(reason_code: str) -> bool:
+            try:
+                self._control_store.record_outbox_delivery_failure(
+                    event_id=delivery_record.event_id,
+                    reason_code=reason_code,
+                )
+            except Exception:
+                logger.exception(
+                    "Search HTE outbox failure receipt could not be retained for %s",
+                    delivery_record.event_id,
+                )
+            return False
+
+        if (
+            delivery_record.topic != "control.search.hte_completed"
+            or delivery_record.state != "pending"
+            or not delivery_record.job_id
+        ):
+            return leave_pending("search_hte_outbox_identity_not_established")
+        try:
+            payload = TypeAdapter(RuntimeSearchHTECompletionDeliveryV1).validate_python(
+                delivery_record.payload,
+                strict=True,
+            )
+        except Exception:
+            return leave_pending("search_hte_outbox_payload_invalid")
+        if (
+            payload.job_id != delivery_record.job_id
+            or payload.run_id != delivery_record.run_id
+            or delivery_record.event_key
+            != f"{payload.job_id}:job_completed:{payload.completed_event_id}"
+        ):
+            return leave_pending("search_hte_outbox_payload_owner_mismatch")
+        if self._artifact_store_backend != "filesystem":
+            return leave_pending("search_hte_backend_not_established")
+
+        try:
+            created_event = self._control_store._get_job_created_source_event_record(payload.job_id)
+            from polisyos.runtime.http.services.control_plane_store import (
+                _control_job_execution_scope_from_event,
+            )
+
+            scope = _control_job_execution_scope_from_event(created_event.payload)
+            if scope.status != "established" or not scope.tenant_id:
+                return leave_pending("search_hte_execution_scope_not_established")
+            from polisyos.core.artifacts.manifest import artifact_ref_identity_key
+            from polisyos.core.contracts.owned_attempt_anchor import (
+                OwnedAttemptAnchorAssociation,
+            )
+
+            owner_association = self.resolve_historical_completed_method_execution(
+                job_id=payload.job_id,
+                completed_event_id=payload.completed_event_id,
+                tenant_id=scope.tenant_id,
+                cell_id=scope.cell_id,
+            )
+            if (
+                type(owner_association) is not OwnedAttemptAnchorAssociation
+                or owner_association.status != "owner_selection_reconciled"
+                or owner_association.job_id != payload.job_id
+                or owner_association.run_id != payload.run_id
+                or owner_association.attempt != payload.attempt
+                or owner_association.job_completed_event.event_id != payload.completed_event_id
+                or owner_association.job_completed_event.event_type != "job_completed"
+                or owner_association.job_completed_event.payload_sha256
+                != payload.completed_event_payload_sha256
+            ):
+                return leave_pending("search_hte_owner_completion_not_established")
+            binding_ref = owner_association.search_uncertainty_task_binding_ref
+            if binding_ref is None or artifact_ref_identity_key(
+                binding_ref
+            ) != artifact_ref_identity_key(payload.search_uncertainty_task_binding_ref):
+                return leave_pending("search_hte_owner_binding_not_established")
+
+            from polisyos.scientist.methods.search.uncertainty import (
+                SearchUncertaintyCompletionReceipt,
+                consume_owned_hte_completion,
+            )
+
+            receipt = consume_owned_hte_completion(
+                store=self._artifact_store,
+                owner=self,
+                binding_ref=binding_ref,
+                owner_association=owner_association,
+            )
+        except Exception:
+            logger.exception(
+                "Search HTE completion receiver failed for job %s event %s",
+                payload.job_id,
+                payload.completed_event_id,
+            )
+            return leave_pending("search_hte_receiver_not_established")
+        if (
+            type(receipt) is not SearchUncertaintyCompletionReceipt
+            or receipt.schema_version != "1.0"
+            or receipt.job_id != payload.job_id
+            or receipt.completed_event_id != payload.completed_event_id
+        ):
+            return leave_pending("search_hte_receiver_receipt_invalid")
+        if receipt.status not in {"admitted", "already_admitted"}:
+            reason_code = receipt.reason_code or "search_hte_receiver_not_established"
+            return leave_pending(reason_code)
+        try:
+            self._control_store.mark_outbox_published(event_id=delivery_record.event_id)
+            published = self._control_store.get_outbox_event(delivery_record.event_id)
+        except Exception:
+            logger.exception(
+                "Search HTE delivery acknowledgement failed for %s",
+                delivery_record.event_id,
+            )
+            return False
+        return published is not None and published.state == "published"
 
     async def compile_and_run_recursive_generation_cycle(
         self,
@@ -4333,23 +4738,32 @@ class ControlPlaneService(
         tenant_context: ArtifactTenantContextInfo | None = None,
         governance: ArtifactGovernanceInfo | None = None,
         inputs: list[ArtifactRef] | None = None,
+        input_roles: tuple[str, ...] | None = None,
     ) -> ArtifactRef:
         """Persist JSON and retain the exact store-selected manifest view."""
+        if inputs:
+            if input_roles is None or len(input_roles) != len(inputs):
+                raise ValueError("runtime_artifact_input_roles_mismatch")
+            manifest_inputs = [
+                input_ref_from_artifact_ref(reference, role=role)
+                for reference, role in zip(inputs, input_roles, strict=True)
+            ]
+        else:
+            if input_roles not in (None, ()):
+                raise ValueError("runtime_artifact_input_roles_mismatch")
+            manifest_inputs = None
         artifact_ref = self._artifact_store.put_json(
             payload,
             ArtifactWriteOptions(
                 kind=kind,
                 media_type="application/json",
                 schema=SchemaInfo(name=schema_name, version=schema_version),
-                inputs=(
-                    [input_ref_from_artifact_ref(reference) for reference in inputs]
-                    if inputs
-                    else None
-                ),
+                inputs=manifest_inputs,
                 governance=governance,
                 tenant_context=tenant_context,
             ),
             canon_spec=CanonSpec(forbid_floats=False),
+            return_selected_profile=True,
         )
         if tenant_context is not None:
             record_owner = getattr(self._artifact_store, "record_artifact_owner", None)
@@ -4488,17 +4902,39 @@ class ControlPlaneService(
             ForestDRLearnerEstimator,
             ForestDRLearnerEstimatorV11,
         )
+        from polisyos.foundry.methods.catalog.causal.hte_v2 import (
+            CausalForestEstimatorV2,
+            DoubleMachineLearningV2,
+            ForestDRLearnerEstimatorV2,
+            MetaLearnerEstimatorV2,
+        )
         from polisyos.foundry.methods.selection.registry import MethodRegistry
 
         registry = MethodRegistry.get_instance()
         registrations: dict[str, _RuntimeObservationalMethodRegistration] = {}
-        for method_class in (ForestDRLearnerEstimator, ForestDRLearnerEstimatorV11):
+        method_classes = (
+            ForestDRLearnerEstimator,
+            ForestDRLearnerEstimatorV11,
+            CausalForestEstimatorV2,
+            DoubleMachineLearningV2,
+            MetaLearnerEstimatorV2,
+            ForestDRLearnerEstimatorV2,
+        )
+        for method_class in method_classes:
             signature = method_class.signature
             if (
-                not signature.fqn.startswith(f"{_OBSERVATIONAL_METHOD_BASE_FQN}@")
-                or signature.fqn != f"{_OBSERVATIONAL_METHOD_BASE_FQN}@{signature.version}"
+                signature.fqn.rpartition("@")[0] not in _OBSERVATIONAL_METHOD_BASE_FQNS
+                or signature.fqn != f"{signature.fqn.rpartition('@')[0]}@{signature.version}"
             ):
                 raise RuntimeError("observational_method_startup_fqn_mismatch")
+            successor_profile = _OBSERVATIONAL_METHOD_V2_RESOURCE_PROFILE.get(signature.fqn)
+            if successor_profile is not None and (
+                getattr(method_class, "owned_hte_method_fqn", None) != signature.fqn
+                or getattr(method_class, "owned_hte_method_abi", None) != signature.version
+                or getattr(method_class, "owned_hte_profile_id", None) != successor_profile[0]
+                or not callable(getattr(method_class, "pure_step_with_runtime_context", None))
+            ):
+                raise RuntimeError("observational_method_startup_hte_runtime_context_invalid")
             existing_signature = registry.get_signature(signature.fqn)
             if existing_signature is None:
                 registry.register(method_class)
@@ -4523,11 +4959,18 @@ class ControlPlaneService(
                 signature=signature,
                 build_digest=hashlib.sha256(source).hexdigest(),
                 contract_target=_OBSERVATIONAL_METHOD_CONTRACT_TARGET,
-                n_jobs_parameter=_OBSERVATIONAL_METHOD_N_JOBS_PARAMETER,
+                n_jobs_parameter=(
+                    _OBSERVATIONAL_METHOD_N_JOBS_PARAMETER
+                    if successor_profile is None or successor_profile[2] == 1
+                    else None
+                ),
+                method_profile_id=successor_profile[0] if successor_profile else None,
+                execution_scope=successor_profile[1] if successor_profile else None,
             )
         if set(registrations) != {
             _OBSERVATIONAL_METHOD_FQN_V1_0,
             _OBSERVATIONAL_METHOD_FQN_V1_1,
+            *_OBSERVATIONAL_METHOD_FQN_V2,
         }:
             raise RuntimeError("observational_method_supported_registration_set_invalid")
         return registry, registrations
@@ -4555,7 +4998,7 @@ class ControlPlaneService(
         else:
             requested_base = fqn
             requested_version = version
-        if requested_base != _OBSERVATIONAL_METHOD_BASE_FQN:
+        if requested_base not in _OBSERVATIONAL_METHOD_BASE_FQNS:
             raise ValueError("observational_method_registration_not_supported")
         available_versions = self._method_registry.list_versions(requested_base)
         policy = (
@@ -4586,9 +5029,53 @@ class ControlPlaneService(
         self,
         registration: _RuntimeObservationalMethodRegistration,
         resolved_params: Mapping[str, object],
+        *,
+        resource_policy: _ObservationalInputResourcePolicy | None = None,
     ) -> None:
-        """Require the selected signature and values to meet the pinned n_jobs profile."""
-        policy = self._observational_resource_policy
+        """Require the exact method identity to meet its selected Runtime profile."""
+        policy = resource_policy or self._resource_policy_for_registration(registration)
+        if registration.signature.fqn in _OBSERVATIONAL_METHOD_FQN_V2:
+            profile = _OBSERVATIONAL_METHOD_V2_RESOURCE_PROFILE.get(registration.signature.fqn)
+            if (
+                policy.revision != "r5"
+                or policy.schema_version
+                != "polisyos.runtime.observational_input_resource_policy.v5"
+                or policy.method_contract_target != registration.contract_target
+                or policy.method_fqn != registration.signature.fqn
+                or profile is None
+                or registration.method_profile_id != profile[0]
+                or registration.execution_scope != profile[1]
+                or policy.method_profile_id != profile[0]
+                or policy.execution_scope != profile[1]
+                or policy.required_estimator_n_jobs != profile[2]
+                or policy.max_jobs != 1
+                or registration.n_jobs_parameter != ("n_jobs" if profile[2] == 1 else None)
+            ):
+                raise ValueError("observational_method_resource_profile_not_supported")
+            parameters = {item.name: item for item in registration.signature.parameters}
+            if profile[2] == 1:
+                parameter = parameters.get("n_jobs")
+                if (
+                    parameter is None
+                    or type(parameter.default) is not int
+                    or parameter.default != 1
+                    or parameter.bounds != (1, 1)
+                    or type(resolved_params.get("n_jobs")) is not int
+                    or resolved_params.get("n_jobs") != 1
+                ):
+                    raise ValueError("observational_method_resource_profile_not_supported")
+            elif registration.signature.fqn == "causal.hte.meta_learner@2.0.0":
+                parameter = parameters.get("bootstrap_n_jobs")
+                if (
+                    parameter is None
+                    or type(parameter.default) is not int
+                    or parameter.default != 1
+                    or parameter.bounds != (1, 1)
+                    or type(resolved_params.get("bootstrap_n_jobs")) is not int
+                    or resolved_params.get("bootstrap_n_jobs") != 1
+                ):
+                    raise ValueError("observational_method_resource_profile_not_supported")
+            return
         if (
             policy.revision not in {"r2", "r3"}
             or policy.method_contract_target != registration.contract_target
@@ -4618,6 +5105,31 @@ class ControlPlaneService(
         ):
             raise ValueError("observational_method_resource_profile_not_supported")
 
+    def _resource_policy_for_registration(
+        self,
+        registration: _RuntimeObservationalMethodRegistration,
+    ) -> _ObservationalInputResourcePolicy:
+        """Build the selected versioned resource policy for one registered method."""
+        from polisyos.core.contracts.runtime import ObservationalInputResourcePolicy
+
+        profile = _OBSERVATIONAL_METHOD_V2_RESOURCE_PROFILE.get(registration.signature.fqn)
+        if profile is None:
+            return self._observational_resource_policy
+        wait_policy = self._observational_resource_policy.method_execution_wait_policy
+        if wait_policy is None:
+            raise ValueError("observational_method_wait_policy_not_established")
+        return ObservationalInputResourcePolicy(
+            schema_version="polisyos.runtime.observational_input_resource_policy.v5",
+            revision="r5",
+            method_contract_target=registration.contract_target,
+            required_estimator_n_jobs=profile[2],
+            method_execution_wait_policy=wait_policy,
+            method_fqn=registration.signature.fqn,
+            method_profile_id=profile[0],
+            execution_scope=profile[1],
+            max_jobs=1,
+        )
+
     def _observational_read_limits(self) -> CoreJsonReadLimits:
         """Build the exact Core reader limits from the immutable Runtime policy."""
         from polisyos.core.artifacts.canonical_profile import CoreJsonReadLimits
@@ -4645,7 +5157,7 @@ class ControlPlaneService(
             source_ref,
             max_manifest_bytes=limits.max_manifest_bytes,
         )
-        if bounded.effective_ref != source_ref:
+        if not _same_selected_artifact_ref(bounded.effective_ref, source_ref):
             raise ValueError("observational_source_selected_profile_drift")
         manifest = bounded.manifest
         if (
@@ -4662,6 +5174,161 @@ class ControlPlaneService(
             expected_sha256=expected_sha256,
         )
         return bounded, typed_governance, tenant_context, manifest_sha256
+
+    def _resolve_current_search_uncertainty_binding(
+        self,
+        *,
+        binding_ref: ArtifactRef,
+        tenant_id: str,
+        cell_id: str | None,
+        request_context: _OwnedHTERequestContextV1,
+        method_fqn: str,
+        method_version: str,
+        method_abi_digest: str,
+        resolved_params: Mapping[str, object],
+        seed: int,
+        inference_profile_id: str,
+        selected_method_input_ref: ArtifactRef,
+        selected_method_input_content_sha256: str,
+    ) -> object:
+        """Resolve one Search binding against Runtime's frozen request and source pins."""
+        from polisyos.core.artifacts import ensure_ir_artifact_store
+        from polisyos.core.contracts.runtime import SearchUncertaintyTaskAdmissionSnapshot
+        from polisyos.scientist.methods.search.uncertainty import (
+            SearchUncertaintyHTERequestProjection,
+            SearchUncertaintyTaskBindingResolution,
+            resolve_current_search_uncertainty_task_binding,
+        )
+
+        if (
+            binding_ref.kind != "scientist.search.uncertainty_task_binding"
+            or binding_ref.media_type != "application/json"
+            or binding_ref.manifest_profile_sha256 is None
+            or not tenant_id
+            or type(method_fqn) is not str
+            or not method_fqn.endswith("@" + method_version)
+            or type(method_abi_digest) is not str
+            or len(method_abi_digest) != 64
+            or any(character not in "0123456789abcdef" for character in method_abi_digest)
+            or type(seed) is not int
+            or seed < 0
+            or selected_method_input_ref.manifest_profile_sha256 is None
+            or selected_method_input_ref.artifact_id.hex != selected_method_input_content_sha256
+        ):
+            raise ValueError("search_task_binding_runtime_selection_invalid")
+        if (
+            request_context.request_estimand_status != "declared"
+            or request_context.request_target_scope_status != "declared"
+            or request_context.outcome_variable_status != "declared"
+            or request_context.treatment_variable_status != "declared"
+            or request_context.contrast_status != "declared"
+            or request_context.request_alpha_status != "declared"
+        ):
+            raise ValueError("search_task_binding_request_context_not_established")
+        request_payload: dict[str, object] = {
+            "estimand": request_context.request_estimand,
+            "target_scope": request_context.request_target_scope,
+            "outcome_variable_id": request_context.outcome_variable_id,
+            "treatment_variable_id": request_context.treatment_variable_id,
+            "control_value": request_context.control_value,
+            "treated_value": request_context.treated_value,
+            "alpha": request_context.requested_alpha,
+        }
+        if request_context.requested_guarantee_status == "declared":
+            request_payload["requested_guarantee"] = request_context.requested_guarantee
+        request_projection = SearchUncertaintyHTERequestProjection.model_validate(request_payload)
+        params_bytes = json.dumps(
+            dict(resolved_params),
+            ensure_ascii=False,
+            allow_nan=False,
+            sort_keys=True,
+            separators=(",", ":"),
+        ).encode("utf-8")
+        params_sha256 = hashlib.sha256(params_bytes).hexdigest()
+        ir_store = ensure_ir_artifact_store(self._artifact_store)
+        resolution = resolve_current_search_uncertainty_task_binding(
+            store=ir_store,
+            binding_ref=binding_ref,
+            tenant_id=tenant_id,
+            cell_id=cell_id,
+            request_projection=request_projection,
+            selected_method_fqn=method_fqn,
+            selected_method_abi_version=method_version,
+            selected_method_abi_digest=method_abi_digest,
+            selected_method_params=dict(resolved_params),
+            selected_method_params_sha256=params_sha256,
+            selected_method_seed=seed,
+            selected_inference_profile_id=inference_profile_id,
+            selected_input_ref=selected_method_input_ref,
+            selected_input_sha256=selected_method_input_content_sha256,
+        )
+
+        if type(resolution) is not SearchUncertaintyTaskBindingResolution:
+            raise TypeError("search_task_binding_resolution_type_invalid")
+        binding = resolution.binding
+        if (
+            resolution.schema_version != "1.0"
+            or resolution.resolution_status != "current"
+            or resolution.closure_status != "recomputed"
+            or resolution.binding_ref != binding_ref
+            or resolution.tenant_id != tenant_id
+            or resolution.cell_id != cell_id
+            or binding.request_projection != request_projection
+            or binding.selected_method_fqn != method_fqn
+            or binding.selected_method_abi_version != method_version
+            or binding.selected_method_abi_digest != method_abi_digest
+            or binding.selected_method_params != dict(resolved_params)
+            or binding.selected_method_params_sha256 != params_sha256
+            or binding.selected_method_seed != seed
+            or binding.selected_inference_profile_id != inference_profile_id
+            or binding.selected_method_input_ref != selected_method_input_ref
+            or binding.selected_method_input_content_sha256 != selected_method_input_content_sha256
+        ):
+            raise ValueError("search_task_binding_runtime_reconciliation_mismatch")
+        return SearchUncertaintyTaskAdmissionSnapshot(
+            binding_ref=ArtifactRef.model_validate(binding_ref.model_dump(mode="json")),
+            binding_content_sha256=resolution.binding_content_sha256,
+            ticket_id=resolution.ticket_id,
+            ticket_generation=resolution.ticket_generation,
+            owner_revision=resolution.owner_revision,
+            projection_revision=resolution.projection_revision,
+            projection_ref=ArtifactRef.model_validate(
+                resolution.projection_ref.model_dump(mode="json")
+            ),
+            task_admission_ref=ArtifactRef.model_validate(
+                resolution.task_admission_ref.model_dump(mode="json")
+            ),
+            task_epoch_ref=ArtifactRef.model_validate(
+                resolution.task_epoch_ref.model_dump(mode="json")
+            ),
+            owner_context_ref=ArtifactRef.model_validate(
+                resolution.owner_context_ref.model_dump(mode="json")
+            ),
+            basis_ref=ArtifactRef.model_validate(resolution.basis_ref.model_dump(mode="json")),
+            dependency_inventory_ref=ArtifactRef.model_validate(
+                resolution.dependency_inventory_ref.model_dump(mode="json")
+            ),
+            dependency_inventory_sha256=resolution.dependency_inventory_sha256,
+            source_projection_ref=ArtifactRef.model_validate(
+                resolution.source_projection_ref.model_dump(mode="json")
+            ),
+            selected_method_fqn=method_fqn,
+            selected_method_abi_version=method_version,
+            selected_method_abi_digest=method_abi_digest,
+            selected_method_params=dict(resolved_params),
+            selected_method_params_sha256=params_sha256,
+            selected_method_seed=seed,
+            selected_inference_profile_id=inference_profile_id,
+            selected_method_input_ref=ArtifactRef.model_validate(
+                selected_method_input_ref.model_dump(mode="json")
+            ),
+            selected_method_input_content_sha256=selected_method_input_content_sha256,
+            tenant_id=tenant_id,
+            cell_id=cell_id,
+            resolved_at=resolution.resolved_at,
+            resolution_status="current",
+            closure_status="recomputed",
+        )
 
     @staticmethod
     def _resolve_observational_method_params(
@@ -4796,14 +5463,16 @@ class ControlPlaneService(
                 "Submitted method parameters do not resolve against the selected method contract.",
                 code="observational_method_parameters_invalid",
             ) from exc
+        resource_policy = self._resource_policy_for_registration(registration)
         try:
             self._require_observational_method_resource_profile(
                 registration,
                 resolved_params,
+                resource_policy=resource_policy,
             )
         except ValueError as exc:
             raise unprocessable_entity(
-                "The exact selected method does not meet Runtime's declared n_jobs profile.",
+                "The exact selected method does not meet Runtime's declared resource profile.",
                 code="observational_method_resource_profile_not_supported",
             ) from exc
 
@@ -4814,7 +5483,6 @@ class ControlPlaneService(
                 "Asynchronous candidate execution requires an unscoped public observation.",
                 code="observational_source_current_access_not_established",
             ) from exc
-        resource_policy = self._observational_resource_policy
         resource_policy_digest = resource_policy.digest()
         resource_policy_ref = self._put_json_artifact_ref(
             resource_policy.model_dump(mode="json"),
@@ -4824,6 +5492,7 @@ class ControlPlaneService(
             governance=source_governance,
             tenant_context=source_tenant,
             inputs=[selection.source_ref],
+            input_roles=("requested_source",),
         )
         if resource_policy_ref.manifest_profile_sha256 is None:
             raise RuntimeError("observational_resource_policy_profile_not_established")
@@ -4844,7 +5513,85 @@ class ControlPlaneService(
             contract_id=_OBSERVATIONAL_METHOD_CONTRACT_TARGET_ID,
             contract_fqn=_OBSERVATIONAL_METHOD_CONTRACT_TARGET,
         )
+        is_successor = registration.signature.fqn in _OBSERVATIONAL_METHOD_FQN_V2
+        owned_hte_request_context = None
+        search_binding_tenant_id = None
+        search_binding_cell_id = None
+        if is_successor:
+            from polisyos.core.contracts.control import ObservationalHTERequestV2
+            from polisyos.core.contracts.owned_attempt_anchor import OwnedHTERequestContextV1
+
+            hte_request = selection.hte_request
+            if type(hte_request) is not ObservationalHTERequestV2:
+                raise unprocessable_entity(
+                    "Version-two HTE methods require an immutable version-two estimand request.",
+                    code="observational_hte_request_v2_required",
+                )
+            owned_hte_request_context = OwnedHTERequestContextV1(
+                request_estimand_status="declared",
+                request_estimand=hte_request.estimand,
+                request_target_scope_status="declared",
+                request_target_scope=hte_request.target_scope,
+                outcome_variable_status="declared",
+                outcome_variable_id=hte_request.outcome_variable_id,
+                treatment_variable_status="declared",
+                treatment_variable_id=hte_request.treatment_variable_id,
+                contrast_status="declared",
+                control_value=float(hte_request.control_value),
+                treated_value=float(hte_request.treated_value),
+                request_alpha_status="declared",
+                requested_alpha=hte_request.alpha,
+                requested_guarantee_status=(
+                    "declared" if hte_request.requested_guarantee is not None else "not_established"
+                ),
+                requested_guarantee=hte_request.requested_guarantee,
+                search_uncertainty_task_binding_ref=(
+                    hte_request.search_uncertainty_task_binding_ref
+                ),
+            )
+            if hte_request.search_uncertainty_task_binding_ref is not None:
+                if (
+                    principal is None
+                    or principal.authenticated is not True
+                    or principal.fixture_identity is True
+                    or type(principal.tenant_id) is not str
+                    or not principal.tenant_id
+                    or type(principal.cell_id) is not str
+                    or not principal.cell_id
+                ):
+                    raise forbidden(
+                        "Search-bound method execution requires an authenticated tenant and cell.",
+                        code="search_task_binding_runtime_scope_not_established",
+                    )
+                search_binding_tenant_id = principal.tenant_id
+                search_binding_cell_id = principal.cell_id
+                try:
+                    self._resolve_current_search_uncertainty_binding(
+                        binding_ref=hte_request.search_uncertainty_task_binding_ref,
+                        tenant_id=search_binding_tenant_id,
+                        cell_id=search_binding_cell_id,
+                        request_context=owned_hte_request_context,
+                        method_fqn=registration.signature.fqn,
+                        method_version=registration.signature.version,
+                        method_abi_digest=registration.signature.abi_digest(),
+                        resolved_params=resolved_params,
+                        seed=0,
+                        inference_profile_id=resource_policy.method_profile_id,
+                        selected_method_input_ref=selection.source_ref,
+                        selected_method_input_content_sha256=selection.source_ref.artifact_id.hex,
+                    )
+                except (TypeError, ValueError) as exc:
+                    raise unprocessable_entity(
+                        "The Search-owned HTE binding is not current for this exact request "
+                        "and input.",
+                        code="search_task_binding_request_not_current",
+                    ) from exc
         intent = ObservationalRunIntent(
+            schema_version=(
+                "polisyos.runtime.observational_run_intent.v2"
+                if is_successor
+                else "polisyos.runtime.observational_run_intent.v1"
+            ),
             job_id=job_id,
             run_id=run_id,
             requested_source_ref=selection.source_ref,
@@ -4852,6 +5599,9 @@ class ControlPlaneService(
             protocol=selection.protocol,
             method_fqn=registration.signature.fqn,
             method_version=registration.signature.version,
+            owned_hte_request_context=owned_hte_request_context,
+            search_binding_tenant_id=search_binding_tenant_id,
+            search_binding_cell_id=search_binding_cell_id,
             method_abi_digest=registration.signature.abi_digest(),
             method_build_digest=registration.build_digest,
             method_build_digest_scope="class_source_only",
@@ -4876,13 +5626,14 @@ class ControlPlaneService(
             ),
         )
         intent_ref = self._put_json_artifact_ref(
-            intent.model_dump(mode="json"),
+            intent.artifact_payload(),
             kind="runtime.observational_run_intent",
             schema_name="polisyos.runtime.ObservationalRunIntent",
-            schema_version="1.0",
+            schema_version="2.0" if is_successor else "1.0",
             governance=source_governance,
             tenant_context=source_tenant,
             inputs=[selection.source_ref, resource_policy_ref],
+            input_roles=("requested_source", "resource_policy"),
         )
         if intent_ref.manifest_profile_sha256 is None:
             raise RuntimeError("observational_run_intent_profile_not_established")
@@ -4933,9 +5684,41 @@ class ControlPlaneService(
             intent_ref,
             limits=self._observational_read_limits(),
         )
-        if result.effective_ref != intent_ref:
+        if not _same_selected_artifact_ref(result.effective_ref, intent_ref):
             raise ValueError("observational_run_intent_selected_profile_drift")
-        return result.value
+        value = result.value
+        if not isinstance(value, Mapping):
+            raise ValueError("observational_run_intent_payload_not_object")
+        manifest = result.manifest
+        payload_schema_version = value.get("schema_version")
+        schema_versions = {
+            (
+                "polisyos.runtime.observational_run_intent.v1",
+                "runtime.observational_run_intent",
+            ): ("polisyos.runtime.ObservationalRunIntent", "1.0"),
+            (
+                "polisyos.runtime.observational_run_intent.v2",
+                "runtime.observational_run_intent",
+            ): ("polisyos.runtime.ObservationalRunIntent", "2.0"),
+            (
+                "polisyos.runtime.content_admitted_observational_run_intent.v1",
+                "runtime.content_admitted_observational_run_intent",
+            ): ("polisyos.runtime.ContentAdmittedObservationalRunIntent", "1.0"),
+            (
+                "polisyos.runtime.content_admitted_observational_run_intent.v2",
+                "runtime.content_admitted_observational_run_intent",
+            ): ("polisyos.runtime.ContentAdmittedObservationalRunIntent", "2.0"),
+        }
+        expected_schema = schema_versions.get((payload_schema_version, intent_ref.kind))
+        if (
+            expected_schema is None
+            or manifest.kind != intent_ref.kind
+            or manifest.media_type != "application/json"
+            or manifest.artifact_schema
+            != SchemaInfo(name=expected_schema[0], version=expected_schema[1])
+        ):
+            raise ValueError("observational_intent_payload_manifest_version_mismatch")
+        return value
 
     def resolve_method_execution_admission(
         self, *, work: MethodExecutionWork
@@ -4992,6 +5775,10 @@ class ControlPlaneService(
         )
         if intent.resource_policy_ref is None:
             raise ValueError("observational_method_resource_policy_ref_missing")
+        registration = self._observational_method_registrations.get(intent.method_fqn)
+        if registration is None:
+            raise ValueError("observational_method_registration_not_supported")
+        expected_resource_policy = self._resource_policy_for_registration(registration)
         selected_resource_policy = _read_observational_resource_policy_artifact(
             store=self._artifact_store,
             policy_ref=intent.resource_policy_ref,
@@ -5003,6 +5790,7 @@ class ControlPlaneService(
         if (
             type(selected_resource_policy) is not ObservationalInputResourcePolicy
             or selected_resource_policy != intent.resource_policy
+            or selected_resource_policy != expected_resource_policy
             or selected_resource_policy.digest() != intent.resource_policy_digest
         ):
             raise ValueError("observational_method_resource_policy_pin_drift")
@@ -5025,7 +5813,6 @@ class ControlPlaneService(
                 raise ValueError("observational_method_source_schema_pin_drift")
         elif bounded_source.manifest.artifact_schema is not None:
             raise ValueError("observational_method_source_schema_pin_drift")
-        registration = self._observational_method_registrations.get(intent.method_fqn)
         if (
             registration is None
             or source_governance != intent.source_governance
@@ -5035,12 +5822,20 @@ class ControlPlaneService(
             or intent.run_id != str(job.run_id or "")
             or intent.requested_source_ref != persisted_source_ref
             or intent.resource_policy_ref is None
-            or intent.resource_policy_digest != self._observational_resource_policy.digest()
-            or intent.resource_policy != self._observational_resource_policy
+            or intent.resource_policy_digest != expected_resource_policy.digest()
+            or intent.resource_policy != expected_resource_policy
             or intent.contract_target_id != _OBSERVATIONAL_METHOD_CONTRACT_TARGET_ID
             or intent.contract_target_fqn != _OBSERVATIONAL_METHOD_CONTRACT_TARGET
             or intent.selection_digest() != persisted_selection_digest
             or intent.source_access_revalidation_status != _OBSERVATIONAL_SOURCE_ACCESS_STATUS
+            or (
+                intent.search_binding_tenant_id is not None
+                and intent.search_binding_tenant_id != current.scope.tenant_id
+            )
+            or (
+                intent.search_binding_cell_id is not None
+                and intent.search_binding_cell_id != current.scope.cell_id
+            )
             or intent.method_fqn != registration.signature.fqn
             or intent.method_version != registration.signature.version
             or intent.method_abi_digest != registration.signature.abi_digest()
@@ -5052,6 +5847,7 @@ class ControlPlaneService(
             self._require_observational_method_resource_profile(
                 registration,
                 intent.resolved_params,
+                resource_policy=expected_resource_policy,
             )
         except ValueError as exc:
             raise ValueError("observational_method_intent_resource_profile_drift") from exc
@@ -5066,6 +5862,10 @@ class ControlPlaneService(
             method_version=intent.method_version,
             method_abi_digest=intent.method_abi_digest,
             method_build_digest=intent.method_build_digest,
+            resource_policy=expected_resource_policy,
+            owned_hte_request_context=intent.owned_hte_request_context,
+            search_binding_tenant_id=intent.search_binding_tenant_id,
+            search_binding_cell_id=intent.search_binding_cell_id,
             effective_params=dict(intent.resolved_params),
             submitted_params=dict(intent.submitted_params),
             submitted_params_present=intent.submitted_params_present,
@@ -5101,6 +5901,7 @@ class ControlPlaneService(
             self._require_observational_method_resource_profile(
                 registration,
                 admission.effective_params,
+                resource_policy=admission.resource_policy,
             )
         except ValueError as exc:
             raise ValueError("observational_method_resource_profile_pin_mismatch") from exc
@@ -5212,7 +6013,10 @@ class ControlPlaneService(
             or requested_intent.method_build_digest != admission.method_build_digest
             or requested_intent.resource_policy_ref != admission.resource_policy_ref
             or requested_intent.resource_policy_digest != admission.resource_policy_digest
-            or requested_intent.resource_policy != self._observational_resource_policy
+            or requested_intent.resource_policy != admission.resource_policy
+            or requested_intent.owned_hte_request_context != admission.owned_hte_request_context
+            or requested_intent.search_binding_tenant_id != admission.search_binding_tenant_id
+            or requested_intent.search_binding_cell_id != admission.search_binding_cell_id
             or requested_intent.contract_target_id != contract_target_id
             or requested_intent.contract_target_fqn != contract_target_fqn
             or requested_intent.selection_digest() != admission.selection_digest
@@ -5265,7 +6069,51 @@ class ControlPlaneService(
             or observed_elements > admission.limits.max_elements
         ):
             raise ValueError("content_admitted_intent_source_binding_mismatch")
+        search_binding_admission = None
+        request_context = admission.owned_hte_request_context
+        search_binding_ref = (
+            request_context.search_uncertainty_task_binding_ref
+            if request_context is not None
+            else None
+        )
+        if search_binding_ref is not None:
+            execution_scope = current.scope
+            if (
+                admission.method_fqn not in _OBSERVATIONAL_METHOD_FQN_V2
+                or request_context is None
+                or admission.search_binding_tenant_id is None
+                or admission.search_binding_cell_id is None
+                or execution_scope.status != "established"
+                or execution_scope.actor_authenticated is not True
+                or execution_scope.tenant_id != admission.search_binding_tenant_id
+                or execution_scope.cell_id != admission.search_binding_cell_id
+                or payload_integrity_verified is not True
+                or effective_ref.manifest_profile_sha256 is None
+            ):
+                raise ValueError("content_admitted_search_scope_or_input_not_established")
+            selected_profile_id = admission.resource_policy.method_profile_id
+            if type(selected_profile_id) is not str:
+                raise ValueError("content_admitted_search_method_profile_not_established")
+            search_binding_admission = self._resolve_current_search_uncertainty_binding(
+                binding_ref=search_binding_ref,
+                tenant_id=admission.search_binding_tenant_id,
+                cell_id=admission.search_binding_cell_id,
+                request_context=request_context,
+                method_fqn=admission.method_fqn,
+                method_version=admission.method_version,
+                method_abi_digest=admission.method_abi_digest,
+                resolved_params=admission.effective_params,
+                seed=admission.seed,
+                inference_profile_id=selected_profile_id,
+                selected_method_input_ref=effective_ref,
+                selected_method_input_content_sha256=effective_ref.artifact_id.hex,
+            )
         intent = ContentAdmittedObservationalRunIntent(
+            schema_version=(
+                "polisyos.runtime.content_admitted_observational_run_intent.v2"
+                if admission.method_fqn in _OBSERVATIONAL_METHOD_FQN_V2
+                else "polisyos.runtime.content_admitted_observational_run_intent.v1"
+            ),
             job_id=job.job_id,
             run_id=str(job.run_id or ""),
             attempt=job.attempt,
@@ -5280,6 +6128,10 @@ class ControlPlaneService(
             selection_digest=admission.selection_digest,
             source_access_revalidation_status=admission.source_access_revalidation_status,
             method_fqn=method_fqn,
+            owned_hte_request_context=admission.owned_hte_request_context,
+            search_binding_admission=search_binding_admission,
+            search_binding_tenant_id=admission.search_binding_tenant_id,
+            search_binding_cell_id=admission.search_binding_cell_id,
             source_protocol=source_protocol,
             normalization=expected_normalization,
             limitations=expected_admitted_limitations,
@@ -5296,20 +6148,56 @@ class ControlPlaneService(
             observed_elements=observed_elements,
             resource_policy_digest=admission.resource_policy_digest,
         )
+        intent_inputs = [
+            admission.observational_run_intent_ref,
+            admission.requested_source_ref,
+            admission.resource_policy_ref,
+            submitted_ref,
+            effective_ref,
+        ]
+        intent_input_roles = [
+            "observational_run_intent",
+            "requested_source",
+            "resource_policy",
+            "submitted_input",
+            "effective_input",
+        ]
+        if search_binding_admission is not None:
+            intent_inputs.extend(
+                [
+                    search_binding_admission.binding_ref,
+                    search_binding_admission.projection_ref,
+                    search_binding_admission.task_admission_ref,
+                    search_binding_admission.task_epoch_ref,
+                    search_binding_admission.owner_context_ref,
+                    search_binding_admission.basis_ref,
+                    search_binding_admission.dependency_inventory_ref,
+                    search_binding_admission.source_projection_ref,
+                ]
+            )
+            intent_input_roles.extend(
+                [
+                    "search_uncertainty_task_binding",
+                    "search_uncertainty_task_projection",
+                    "search_uncertainty_task_admission",
+                    "search_uncertainty_task_epoch",
+                    "search_uncertainty_owner_context",
+                    "search_uncertainty_task_basis",
+                    "search_uncertainty_dependency_inventory",
+                    "search_uncertainty_source_projection",
+                ]
+            )
         ref = self._put_json_artifact_ref(
-            intent.model_dump(mode="json"),
+            intent.artifact_payload(),
             kind="runtime.content_admitted_observational_run_intent",
             schema_name="polisyos.runtime.ContentAdmittedObservationalRunIntent",
-            schema_version="1.0",
+            schema_version=(
+                "2.0" if admission.method_fqn in _OBSERVATIONAL_METHOD_FQN_V2 else "1.0"
+            ),
             governance=source_governance,
             tenant_context=source_tenant_context,
-            inputs=[
-                admission.observational_run_intent_ref,
-                admission.requested_source_ref,
-                admission.resource_policy_ref,
-                submitted_ref,
-                effective_ref,
-            ],
+            inputs=intent_inputs,
+            input_roles=tuple(intent_input_roles),
         )
         if ref.manifest_profile_sha256 is None:
             raise RuntimeError("content_admitted_intent_profile_not_established")
@@ -5343,6 +6231,511 @@ class ControlPlaneService(
             raise ControlJobLeaseLostError("method_metric_projection_live_lease_mismatch")
         return cast("_MethodExecutionArtifactStore", self._artifact_store)
 
+    def persist_pre_output_owned_attempt_anchor(
+        self,
+        *,
+        work: MethodExecutionWork,
+        admission: MethodExecutionAdmission,
+        prepared: PreparedHTEObservationalInput,
+        content_admitted_intent_ref: ArtifactRef,
+        method_class: type,
+    ) -> OwnedAttemptAnchorDispatchContext:
+        """Persist the current fenced worker's pre-output anchor through Core ownership."""
+        from polisyos.runtime.http.services.control.owned_attempt_anchor import (
+            persist_pre_output_owned_attempt_anchor,
+        )
+
+        return persist_pre_output_owned_attempt_anchor(
+            service=self,
+            work=work,
+            admission=admission,
+            prepared=prepared,
+            content_admitted_intent_ref=content_admitted_intent_ref,
+            method_class=method_class,
+        )
+
+    def persist_pre_output_hte_input_refusal_anchor(
+        self,
+        *,
+        work: MethodExecutionWork,
+        admission: MethodExecutionAdmission,
+        refusal: HTEInputPreparationRefusal,
+        method_class: type,
+    ) -> OwnedAttemptAnchorRef:
+        """Persist typed selected-input refusal without inventing admitted inputs."""
+        from polisyos.foundry.data_plane.bindings import HTEInputPreparationRefusal
+        from polisyos.runtime.http.services.control.owned_attempt_anchor import (
+            persist_pre_output_hte_input_refusal_anchor,
+        )
+
+        if type(refusal) is not HTEInputPreparationRefusal:
+            raise TypeError("method_execution_input_refusal_must_be_typed")
+        return persist_pre_output_hte_input_refusal_anchor(
+            service=self,
+            work=work,
+            admission=admission,
+            refusal=refusal,
+            method_class=method_class,
+        )
+
+    def resolve_owned_attempt_anchor_association(
+        self,
+        *,
+        anchor_ref: OwnedAttemptAnchorRef,
+    ) -> OwnedAttemptAnchorAssociation:
+        """Resolve a Core anchor to the current completed owner-selected output tuple."""
+        from polisyos.core.contracts.owned_attempt_anchor import OwnedAttemptAnchorRef
+        from polisyos.runtime.http.services.control.owned_attempt_anchor import (
+            resolve_owned_attempt_anchor_association,
+        )
+
+        if type(anchor_ref) is not OwnedAttemptAnchorRef:
+            raise TypeError("method_execution_owned_anchor_ref_invalid")
+        return resolve_owned_attempt_anchor_association(service=self, anchor_ref=anchor_ref)
+
+    def resolve_historical_search_uncertainty_task_binding(
+        self,
+        *,
+        binding_ref: ArtifactRef,
+        owner_association: OwnedAttemptAnchorAssociation,
+    ) -> object:
+        """Reconcile an admitted Search binding to its immutable Runtime attempt.
+
+        The Search owner proves the binding's own ticket history and dependency
+        closure. Runtime independently binds that historical result to the
+        selected anchor, content-admitted intent, exact method/source request,
+        and the Search admission snapshot written before dispatch.
+        """
+        from polisyos.core.artifacts import (
+            ensure_ir_artifact_store,
+            read_core_json_artifact_bounded,
+        )
+        from polisyos.core.contracts.owned_attempt_anchor import (
+            OwnedAttemptAnchor,
+            OwnedAttemptAnchorAssociation,
+        )
+        from polisyos.core.contracts.runtime import (
+            ContentAdmittedObservationalRunIntent,
+            ObservationalRunIntent,
+            SearchUncertaintyTaskAdmissionSnapshot,
+        )
+        from polisyos.runtime.http.services.control.owned_attempt_anchor import (
+            _same_request_context,
+        )
+        from polisyos.scientist.methods.search.uncertainty import (
+            SearchUncertaintyHTERequestProjection,
+            SearchUncertaintyTaskBinding,
+            SearchUncertaintyTaskBindingResolution,
+            resolve_historical_search_uncertainty_task_binding,
+        )
+
+        if (
+            type(binding_ref) is not ArtifactRef
+            or binding_ref.kind != "scientist.search.uncertainty_task_binding"
+            or binding_ref.media_type != "application/json"
+            or binding_ref.manifest_profile_sha256 is None
+            or type(owner_association) is not OwnedAttemptAnchorAssociation
+            or owner_association.search_uncertainty_task_binding_ref != binding_ref
+            or owner_association.anchor_ref.manifest_profile_sha256 is None
+        ):
+            raise ValueError("runtime_historical_search_binding_owner_selection_invalid")
+
+        resolution = resolve_historical_search_uncertainty_task_binding(
+            store=ensure_ir_artifact_store(self._artifact_store),
+            binding_ref=binding_ref,
+            owner_association=owner_association,
+        )
+        if (
+            type(resolution) is not SearchUncertaintyTaskBindingResolution
+            or resolution.schema_version != "1.0"
+            or resolution.resolution_status != "historical"
+            or resolution.closure_status != "recomputed"
+            or resolution.binding_ref != binding_ref
+            or type(resolution.binding) is not SearchUncertaintyTaskBinding
+            or resolution.binding_content_sha256 != binding_ref.artifact_id.hex
+            or not resolution.tenant_id
+            or not resolution.cell_id
+        ):
+            raise ValueError("runtime_historical_search_binding_resolution_invalid")
+
+        bounded_anchor = read_core_json_artifact_bounded(
+            self._artifact_store,
+            owner_association.anchor_ref,
+            limits=self._observational_read_limits(),
+        )
+        if (
+            not _same_selected_artifact_ref(
+                bounded_anchor.effective_ref,
+                owner_association.anchor_ref,
+            )
+            or bounded_anchor.manifest.kind != "runtime.owned_attempt_anchor"
+            or bounded_anchor.manifest.media_type != "application/json"
+            or bounded_anchor.manifest.artifact_schema
+            != SchemaInfo(name="polisyos.runtime.OwnedAttemptAnchor", version="1.0")
+        ):
+            raise ValueError("runtime_historical_search_anchor_profile_invalid")
+        try:
+            anchor = OwnedAttemptAnchor.model_validate(bounded_anchor.value, strict=True)
+        except (TypeError, ValueError) as exc:
+            raise ValueError("runtime_historical_search_anchor_payload_invalid") from exc
+        if (
+            anchor.request_context.search_uncertainty_task_binding_ref != binding_ref
+            or anchor.job_id != owner_association.job_id
+            or anchor.run_id != owner_association.run_id
+            or anchor.attempt != owner_association.attempt
+            or not anchor.cell_id
+            or anchor.tenant_id != resolution.tenant_id
+            or anchor.cell_id != resolution.cell_id
+            or anchor.input_admission.admission_status != "input_admitted"
+            or anchor.effective_input_ref != owner_association.source_data_ref
+        ):
+            raise ValueError("runtime_historical_search_anchor_binding_mismatch")
+
+        content_intent_ref = anchor.content_admitted_intent_ref
+        raw_content_intent = self._read_bounded_intent_artifact(content_intent_ref)
+        try:
+            content_intent = ContentAdmittedObservationalRunIntent.model_validate(
+                raw_content_intent,
+                strict=True,
+            )
+            raw_requested_intent = self._read_bounded_intent_artifact(
+                content_intent.requested_intent_ref
+            )
+            requested_intent = ObservationalRunIntent.model_validate(
+                raw_requested_intent,
+                strict=True,
+            )
+        except (TypeError, ValueError) as exc:
+            raise ValueError("runtime_historical_search_intents_invalid") from exc
+        snapshot = content_intent.search_binding_admission
+        binding = resolution.binding
+        if type(snapshot) is not SearchUncertaintyTaskAdmissionSnapshot:
+            raise ValueError("runtime_historical_search_admission_snapshot_missing")
+
+        request_context = anchor.request_context
+        request_projection_payload: dict[str, object] = {
+            "estimand": request_context.request_estimand,
+            "target_scope": request_context.request_target_scope,
+            "outcome_variable_id": request_context.outcome_variable_id,
+            "treatment_variable_id": request_context.treatment_variable_id,
+            "control_value": request_context.control_value,
+            "treated_value": request_context.treated_value,
+            "alpha": request_context.requested_alpha,
+        }
+        if request_context.requested_guarantee_status == "declared":
+            request_projection_payload["requested_guarantee"] = request_context.requested_guarantee
+        request_projection = SearchUncertaintyHTERequestProjection.model_validate(
+            request_projection_payload
+        )
+        params_bytes = json.dumps(
+            dict(requested_intent.resolved_params),
+            ensure_ascii=False,
+            allow_nan=False,
+            sort_keys=True,
+            separators=(",", ":"),
+        ).encode("utf-8")
+        params_sha256 = hashlib.sha256(params_bytes).hexdigest()
+        if (
+            resolution.owner_revision != binding.owner_revision
+            or resolution.projection_revision != binding.projection_revision
+            or resolution.projection_ref != binding.source_projection_ref
+        ):
+            raise ValueError("runtime_historical_search_binding_revision_mismatch")
+        expected_snapshot_values = (
+            (snapshot.binding_ref, binding_ref),
+            (snapshot.binding_content_sha256, resolution.binding_content_sha256),
+            (snapshot.ticket_id, resolution.ticket_id),
+            (snapshot.ticket_generation, resolution.ticket_generation),
+            (snapshot.owner_revision, resolution.owner_revision),
+            (snapshot.projection_revision, resolution.projection_revision),
+            (snapshot.projection_ref, resolution.projection_ref),
+            (snapshot.task_admission_ref, resolution.task_admission_ref),
+            (snapshot.task_epoch_ref, resolution.task_epoch_ref),
+            (snapshot.owner_context_ref, resolution.owner_context_ref),
+            (snapshot.basis_ref, resolution.basis_ref),
+            (snapshot.dependency_inventory_ref, resolution.dependency_inventory_ref),
+            (snapshot.dependency_inventory_sha256, resolution.dependency_inventory_sha256),
+            (snapshot.source_projection_ref, resolution.source_projection_ref),
+            (snapshot.tenant_id, resolution.tenant_id),
+            (snapshot.cell_id, resolution.cell_id),
+            (snapshot.selected_method_fqn, anchor.method_fqn),
+            (snapshot.selected_method_abi_version, anchor.method_version),
+            (snapshot.selected_method_abi_digest, anchor.method_abi_digest),
+            (snapshot.selected_method_params, requested_intent.resolved_params),
+            (snapshot.selected_method_params_sha256, params_sha256),
+            (snapshot.selected_method_seed, requested_intent.seed),
+            (snapshot.selected_inference_profile_id, anchor.resource_policy_method_profile_id),
+            (snapshot.selected_method_input_ref, anchor.effective_input_ref),
+            (
+                snapshot.selected_method_input_content_sha256,
+                anchor.effective_input_ref.artifact_id.hex,
+            ),
+        )
+        if (
+            content_intent.job_id != anchor.job_id
+            or content_intent.run_id != anchor.run_id
+            or content_intent.attempt != anchor.attempt
+            or content_intent.method_fqn != anchor.method_fqn
+            or content_intent.resource_policy_ref != anchor.resource_policy_ref
+            or not _same_request_context(
+                content_intent.owned_hte_request_context,
+                requested_intent.owned_hte_request_context,
+            )
+            or content_intent.requested_intent_ref != anchor.observational_run_intent_ref
+            or content_intent.effective_input_ref != anchor.effective_input_ref
+            or content_intent.search_binding_tenant_id != anchor.tenant_id
+            or content_intent.search_binding_cell_id != anchor.cell_id
+            or not _same_request_context(
+                requested_intent.owned_hte_request_context,
+                request_context,
+            )
+            or binding.request_projection != request_projection
+            or binding.selected_method_fqn != anchor.method_fqn
+            or binding.selected_method_abi_version != anchor.method_version
+            or binding.selected_method_abi_digest != anchor.method_abi_digest
+            or binding.selected_method_params != requested_intent.resolved_params
+            or binding.selected_method_params_sha256 != params_sha256
+            or binding.selected_method_seed != requested_intent.seed
+            or binding.selected_inference_profile_id != anchor.resource_policy_method_profile_id
+            or binding.selected_method_input_ref != anchor.effective_input_ref
+            or binding.selected_method_input_content_sha256
+            != anchor.effective_input_ref.artifact_id.hex
+            or resolution.selected_method_fqn != anchor.method_fqn
+            or resolution.selected_method_abi_version != anchor.method_version
+            or resolution.selected_method_abi_digest != anchor.method_abi_digest
+            or resolution.selected_method_params != requested_intent.resolved_params
+            or resolution.selected_method_params_sha256 != params_sha256
+            or resolution.selected_method_seed != requested_intent.seed
+            or resolution.selected_inference_profile_id != anchor.resource_policy_method_profile_id
+            or resolution.selected_method_input_ref != anchor.effective_input_ref
+            or resolution.selected_method_input_sha256 != anchor.effective_input_ref.artifact_id.hex
+            or any(left != right for left, right in expected_snapshot_values)
+        ):
+            raise ValueError("runtime_historical_search_snapshot_binding_mismatch")
+        return resolution
+
+    def resolve_historical_completed_method_execution(
+        self,
+        *,
+        job_id: str,
+        completed_event_id: int,
+        tenant_id: str,
+        cell_id: str | None,
+    ) -> OwnedAttemptAnchorAssociation | None:
+        """Resolve one exact owner-selected @2 HTE completion for Search receipt.
+
+        This history reader is keyed by the immutable event and matching Search
+        outbox row. It deliberately does not require that the attempt still be
+        the current run winner, so a delayed durable delivery remains provable
+        after a newer attempt supersedes it.
+        """
+        from pydantic import TypeAdapter
+
+        from polisyos.core.artifacts.manifest import artifact_ref_identity_key
+        from polisyos.core.contracts.owned_attempt_anchor import (
+            OwnedAttemptAnchorAssociation,
+            OwnedAttemptAnchorRef,
+        )
+        from polisyos.core.contracts.runtime import (
+            DirectMethodExecutionSelection,
+            MethodExecutionSelection,
+            RuntimeSearchHTECompletionDeliveryV1,
+        )
+        from polisyos.runtime.http.services.control.owned_attempt_anchor import (
+            resolve_owned_attempt_anchor_association,
+        )
+        from polisyos.runtime.http.services.control_plane_store import (
+            _control_job_execution_scope_from_event,
+        )
+
+        if (
+            not isinstance(job_id, str)
+            or not job_id
+            or type(completed_event_id) is not int
+            or completed_event_id < 1
+            or not isinstance(tenant_id, str)
+            or not tenant_id
+        ):
+            return None
+        try:
+            event = self._control_store.get_job_lifecycle_event_record(
+                job_id=job_id,
+                event_id=completed_event_id,
+                expected_event_type="job_completed",
+            )
+            record = self._control_store.get_job(job_id)
+            created_event = self._control_store._get_job_created_source_event_record(job_id)
+            delivery_record = self._control_store.get_search_hte_completion_outbox_event(
+                job_id=job_id,
+                completed_event_id=completed_event_id,
+            )
+        except (OSError, RuntimeError, TypeError, ValueError):
+            return None
+        if (
+            record is None
+            or record.job_id != job_id
+            or record.kind != "workflow_run"
+            or record.run_id is None
+            or delivery_record is None
+            or delivery_record.topic != "control.search.hte_completed"
+            or delivery_record.job_id != job_id
+            or delivery_record.run_id != record.run_id
+            or created_event.job_id != job_id
+            or created_event.event_type != "job_created"
+            or event.job_id != job_id
+            or event.event_type != "job_completed"
+            or event.payload.get("state") != "completed"
+        ):
+            return None
+        try:
+            delivery = TypeAdapter(RuntimeSearchHTECompletionDeliveryV1).validate_python(
+                delivery_record.payload,
+                strict=True,
+            )
+            selection_payload = event.payload.get("method_execution_selection")
+            selection = TypeAdapter(MethodExecutionSelection).validate_python(
+                selection_payload,
+                strict=True,
+            )
+        except (TypeError, ValueError):
+            return None
+
+        def same_selected_ref(left: object, right: object) -> bool:
+            """Compare complete selected ArtifactRef identity across DTO subclasses."""
+            if not isinstance(left, ArtifactRef) or not isinstance(right, ArtifactRef):
+                return False
+            if left.manifest_profile_sha256 is None or right.manifest_profile_sha256 is None:
+                return False
+            return artifact_ref_identity_key(left) == artifact_ref_identity_key(right)
+
+        if (
+            type(selection) is not DirectMethodExecutionSelection
+            or selection.method_version != "2.0.0"
+            or selection.hte is None
+            or selection.owned_attempt_anchor_ref is None
+            or not same_selected_ref(
+                selection.hte.search_uncertainty_task_binding_ref,
+                delivery.search_uncertainty_task_binding_ref,
+            )
+            or delivery.job_id != job_id
+            or delivery.run_id != selection.run_id
+            or delivery.attempt != selection.attempt
+            or delivery.completed_event_id != event.event_id
+            or delivery.completed_event_payload_sha256 != event.payload_sha256
+            or event.payload.get("attempt") != selection.attempt
+            or type(event.payload.get("attempt")) is not int
+            or record.run_id != selection.run_id
+            or type(record.attempt) is not int
+            or record.attempt < selection.attempt
+        ):
+            return None
+        expected_event_key = f"{job_id}:job_completed:{event.event_id}"
+        if delivery_record.event_key != expected_event_key:
+            return None
+        scope = _control_job_execution_scope_from_event(created_event.payload)
+        if (
+            scope.status != "established"
+            or scope.tenant_id != tenant_id
+            or scope.cell_id != cell_id
+            or created_event.payload.get("run_id") != selection.run_id
+            or created_event.payload.get("job_kind") != "workflow_run"
+        ):
+            return None
+        try:
+            anchor_ref = OwnedAttemptAnchorRef.model_validate(
+                selection.owned_attempt_anchor_ref,
+                strict=True,
+            )
+            association = resolve_owned_attempt_anchor_association(
+                service=self,
+                anchor_ref=anchor_ref,
+                expected_completed_event_id=event.event_id,
+                expected_job_id=job_id,
+                expected_tenant_id=tenant_id,
+                expected_cell_id=cell_id,
+            )
+        except (OSError, RuntimeError, TypeError, ValueError):
+            return None
+        if (
+            type(association) is not OwnedAttemptAnchorAssociation
+            or association.job_id != selection.job_id
+            or association.run_id != selection.run_id
+            or association.attempt != selection.attempt
+            or association.job_completed_event.event_id != event.event_id
+            or association.job_completed_event.payload_sha256 != event.payload_sha256
+            or not same_selected_ref(association.anchor_ref, anchor_ref)
+            or association.outcome_kind != selection.hte.kind
+            or not same_selected_ref(association.outcome_ref, selection.hte.hte_outcome_ref)
+            or not same_selected_ref(association.source_data_ref, selection.hte.source_data_ref)
+            or not same_selected_ref(association.method_result_ref, selection.method_result_ref)
+            or not same_selected_ref(association.method_evidence_ref, selection.method_evidence_ref)
+            or not same_selected_ref(association.point_result_ref, selection.hte.point_result_ref)
+            or not same_selected_ref(association.hte_result_ref, selection.hte.hte_result_ref)
+            or not same_selected_ref(
+                association.inference_basis_ref, selection.hte.inference_basis_ref
+            )
+            or not same_selected_ref(
+                association.refusal_diagnostic_ref, selection.hte.refusal_diagnostic_ref
+            )
+            or not same_selected_ref(
+                association.invocation_basis_ref, selection.invocation_basis_ref
+            )
+            or not same_selected_ref(
+                association.search_uncertainty_task_binding_ref,
+                selection.hte.search_uncertainty_task_binding_ref,
+            )
+            or not same_selected_ref(
+                association.materialization_binding_ref,
+                selection.hte.materialization_binding_ref,
+            )
+        ):
+            return None
+        return association
+
+    def resolve_owned_attempt_anchor_refusal_association(
+        self,
+        *,
+        anchor_ref: OwnedAttemptAnchorRef,
+    ) -> OwnedAttemptAnchorRefusalAssociation:
+        """Resolve only a typed refusal anchor selected by the current failed owner event."""
+        from polisyos.core.contracts.owned_attempt_anchor import OwnedAttemptAnchorRef
+        from polisyos.runtime.http.services.control.owned_attempt_anchor import (
+            resolve_owned_attempt_anchor_refusal_association,
+        )
+
+        if type(anchor_ref) is not OwnedAttemptAnchorRef:
+            raise TypeError("method_execution_owned_anchor_ref_invalid")
+        return resolve_owned_attempt_anchor_refusal_association(
+            service=self,
+            anchor_ref=anchor_ref,
+        )
+
+    def resolve_owned_attempt_anchor_projection_association(
+        self,
+        *,
+        run_id: str,
+        expected_job_id: str,
+        tenant_id: str,
+        cell_id: str | None,
+    ) -> _OwnedAttemptAnchorProjectionAssociation:
+        """Reconcile the bounded, worker-admitted summary to the current owner row.
+
+        Unlike the assessment-command association, this path does not load method
+        outputs or numerical arrays. The helper re-reads the selected owner row,
+        completion event, intent lineage, and profiled manifests only.
+        """
+        from polisyos.runtime.http.services.control.owned_attempt_anchor import (
+            resolve_owned_attempt_anchor_projection_association,
+        )
+
+        return resolve_owned_attempt_anchor_projection_association(
+            service=self,
+            run_id=run_id,
+            expected_job_id=expected_job_id,
+            tenant_id=tenant_id,
+            cell_id=cell_id,
+        )
+
     def _validate_direct_method_execution_selection_artifacts(
         self, selection: _DirectMethodExecutionSelection
     ) -> None:
@@ -5373,7 +6766,10 @@ class ControlPlaneService(
             ObservationalRunIntent,
             _expected_content_admitted_limitations,
         )
-        from polisyos.scientist.compute.runner import MethodExecutionWork
+        from polisyos.scientist.compute.runner import (
+            MethodExecutionInputRefusalOutcome,
+            MethodExecutionWork,
+        )
 
         marker = payload.get(_OBSERVATIONAL_METHOD_INTENT_PAYLOAD_KEY)
         if not isinstance(marker, Mapping):
@@ -5414,6 +6810,14 @@ class ControlPlaneService(
             raise wrap_shared_execution_exception(exc, wait_policy) from None
         completion = cast("Any", wait_for_shared_execution(handle, wait_policy))
         outcome = cast("Any", require_shared_execution_value(completion, wait_policy))
+        if type(outcome) is MethodExecutionInputRefusalOutcome:
+            raise ControlProducerExecutionError(
+                resolution=wait_policy,
+                exception_type=("polisyos.foundry.data_plane.bindings.HTEInputPreparationRefusal"),
+                code="observational_input_refused",
+                retryable=False,
+                input_refusal_anchor_ref=outcome.anchor_ref,
+            ) from None
         admitted_intent = ContentAdmittedObservationalRunIntent.model_validate(
             self._read_bounded_intent_artifact(outcome.content_admitted_intent_ref)
         )
@@ -5436,7 +6840,19 @@ class ControlPlaneService(
             or outcome.resource_policy_ref != requested_intent.resource_policy_ref
             or outcome.resource_policy_ref != admitted_intent.resource_policy_ref
             or outcome.resource_policy_digest != self._observational_resource_policy.digest()
-            or type(outcome.candidate_outcome) is not MethodExecutionCandidateOutcome
+            or (
+                outcome.method_version == "2.0.0"
+                and (
+                    outcome.candidate_outcome is not None
+                    or outcome.owned_attempt_anchor_ref is None
+                    or outcome.hte_outcome_ref is None
+                    or outcome.hte_summary is None
+                )
+            )
+            or (
+                outcome.method_version != "2.0.0"
+                and type(outcome.candidate_outcome) is not MethodExecutionCandidateOutcome
+            )
             or admitted_intent.job_id != outcome.job_id
             or admitted_intent.run_id != outcome.run_id
             or admitted_intent.attempt != outcome.attempt
@@ -5448,6 +6864,8 @@ class ControlPlaneService(
             or admitted_intent.contract_target_id != _OBSERVATIONAL_METHOD_CONTRACT_TARGET_ID
             or admitted_intent.contract_target != _OBSERVATIONAL_METHOD_CONTRACT_TARGET
             or admitted_intent.method_fqn != outcome.method_fqn
+            or admitted_intent.owned_hte_request_context
+            != requested_intent.owned_hte_request_context
             or admitted_intent.source_protocol != outcome.source_protocol
             or admitted_intent.normalization != outcome.normalization
             or set(outcome.limitations) != set(producer_limitations)
@@ -5499,6 +6917,15 @@ class ControlPlaneService(
             ),
             candidate_outcome=outcome.candidate_outcome,
             posterior_summary_refs=posterior_refs,
+            owned_attempt_anchor_ref=outcome.owned_attempt_anchor_ref,
+            hte_outcome_ref=outcome.hte_outcome_ref,
+            point_result_ref=outcome.point_result_ref,
+            hte_result_ref=outcome.hte_result_ref,
+            inference_basis_ref=outcome.inference_basis_ref,
+            refusal_diagnostic_ref=outcome.refusal_diagnostic_ref,
+            invocation_basis_ref=outcome.invocation_basis_ref,
+            owned_hte_request_context=admitted_intent.owned_hte_request_context,
+            hte=outcome.hte_summary,
         )
         self._validate_direct_method_execution_selection_artifacts(selection)
         progress = {
@@ -5523,6 +6950,7 @@ class ControlPlaneService(
             expected_lease_owner=job.lease_owner,
             expected_attempt=job.attempt,
         )
+        self._dispatch_search_hte_completion_for_job(job_id=job.job_id)
         terminal_record = self._control_store.get_job(job.job_id)
         terminal_state = terminal_record.state if terminal_record is not None else "completed"
         self._emit_runtime_diagnostic_event(
@@ -5814,6 +7242,7 @@ class ControlPlaneService(
         """
         from pydantic import TypeAdapter
 
+        from polisyos.core.contracts.owned_attempt_anchor import OwnedAttemptAnchorRef
         from polisyos.core.contracts.runtime import (
             ContentAdmittedObservationalRunIntent,
             DirectMethodExecutionRequestSummary,
@@ -5918,7 +7347,14 @@ class ControlPlaneService(
                 or intent.resource_policy_ref is None
                 or intent.resource_policy_ref.manifest_profile_sha256 is None
                 or intent.selection_digest() != selection_digest
-                or intent.method_fqn != f"causal.hte.forest_dr@{intent.method_version}"
+                or (
+                    intent.method_version == "2.0.0"
+                    and intent.method_fqn not in _OBSERVATIONAL_METHOD_FQN_V2
+                )
+                or (
+                    intent.method_version != "2.0.0"
+                    and intent.method_fqn != f"causal.hte.forest_dr@{intent.method_version}"
+                )
             ):
                 return unavailable("execution_outcome_not_established", record=record)
             resolved_params_bytes = json.dumps(
@@ -5935,6 +7371,7 @@ class ControlPlaneService(
                 source_protocol=intent.protocol,
                 method_fqn=intent.method_fqn,
                 method_version=intent.method_version,
+                owned_hte_request_context=intent.owned_hte_request_context,
                 method_abi_digest=intent.method_abi_digest,
                 method_build_digest=intent.method_build_digest,
                 method_build_digest_scope=intent.method_build_digest_scope,
@@ -5952,12 +7389,16 @@ class ControlPlaneService(
         except (OSError, RuntimeError, TypeError, ValueError):
             return unavailable("execution_outcome_not_established", record=record)
 
-        def time_roles(*, admitted_at: datetime | None = None) -> DirectMethodExecutionTimeRoles:
+        def time_roles(
+            *,
+            admitted_at: datetime | None = None,
+            owner_verified_at: datetime | None = None,
+        ) -> DirectMethodExecutionTimeRoles:
             return DirectMethodExecutionTimeRoles(
                 admitted_at=admitted_at,
                 execution_started_at=record.started_at,
                 execution_finished_at=record.finished_at,
-                owner_verified_at=datetime.now(UTC),
+                owner_verified_at=owner_verified_at or datetime.now(UTC),
                 reader_at=reader_at,
             )
 
@@ -5969,24 +7410,51 @@ class ControlPlaneService(
                 limitations=("candidate_execution_pending",),
             )
         if record.state == "failed":
-            failure = record.progress.get("failure")
-            is_typed_refusal = (
-                isinstance(failure, Mapping)
-                and failure.get("code") == "observational_input_refused"
-                and failure.get("exception_type")
-                == "polisyos.foundry.data_plane.bindings.HTEInputPreparationRefusal"
-                and failure.get("phase") == "direct_method_execution"
-                and failure.get("run_id") == run_id
-                and failure.get("job_id") == record.job_id
-                and failure.get("attempt") == record.attempt
-            )
-            if is_typed_refusal:
-                return DirectMethodExecutionRunProjection(
-                    status="input_refused",
+            try:
+                terminal_event = self._control_store.get_job_terminal_source_event_record(
+                    record.job_id
+                )
+                terminal_payload = getattr(terminal_event, "payload", None)
+                if (
+                    getattr(terminal_event, "event_type", None) == "job_failed"
+                    and isinstance(terminal_payload, Mapping)
+                    and terminal_payload.get("owned_attempt_failure_disposition") == "input_refused"
+                ):
+                    anchor_ref = OwnedAttemptAnchorRef.model_validate(
+                        terminal_payload.get("owned_attempt_anchor_ref"), strict=True
+                    )
+                    refusal_association = self.resolve_owned_attempt_anchor_refusal_association(
+                        anchor_ref=anchor_ref
+                    )
+                    if (
+                        refusal_association.job_id != record.job_id
+                        or refusal_association.run_id != run_id
+                        or refusal_association.attempt != record.attempt
+                        or refusal_association.requested_source_ref != requested_source_ref
+                        or refusal_association.observational_run_intent_ref != intent_ref
+                        or refusal_association.resource_policy_ref != intent.resource_policy_ref
+                        or refusal_association.job_failed_event.event_id != terminal_event.event_id
+                        or refusal_association.job_failed_event.payload_sha256
+                        != terminal_event.payload_sha256
+                    ):
+                        return unavailable(
+                            "execution_outcome_not_established",
+                            request=request_summary,
+                            record=record,
+                        )
+                    return DirectMethodExecutionRunProjection(
+                        status="input_refused",
+                        request=request_summary,
+                        input_refusal=refusal_association,
+                        time_roles=time_roles(owner_verified_at=refusal_association.verified_at),
+                        refusal_code="observational_input_refused",
+                        limitations=("input_refused_before_dispatch",),
+                    )
+            except (OSError, RuntimeError, TypeError, ValueError):
+                return unavailable(
+                    "execution_outcome_not_established",
                     request=request_summary,
-                    time_roles=time_roles(),
-                    refusal_code="observational_input_refused",
-                    limitations=("input_refused_before_dispatch",),
+                    record=record,
                 )
             return DirectMethodExecutionRunProjection(
                 status="execution_failed",
@@ -6026,10 +7494,19 @@ class ControlPlaneService(
                     record=record,
                 )
             self._validate_direct_method_execution_selection_artifacts(selection)
-            if (
-                selection.candidate_outcome is None
-                or type(selection.candidate_outcome) is not MethodExecutionCandidateOutcome
-            ):
+            is_successor_selection = selection.method_fqn in _OBSERVATIONAL_METHOD_FQN_V2
+            if is_successor_selection:
+                if (
+                    selection.candidate_outcome is not None
+                    or selection.owned_attempt_anchor_ref is None
+                    or selection.hte is None
+                ):
+                    return unavailable(
+                        "selection_persistence_not_established",
+                        request=request_summary,
+                        record=record,
+                    )
+            elif type(selection.candidate_outcome) is not MethodExecutionCandidateOutcome:
                 return unavailable(
                     "selection_persistence_not_established",
                     request=request_summary,
@@ -6050,6 +7527,82 @@ class ControlPlaneService(
                     request=request_summary,
                     record=record,
                 )
+            if is_successor_selection:
+                if selection.hte is None:
+                    return unavailable(
+                        "selection_persistence_not_established",
+                        request=request_summary,
+                        record=record,
+                    )
+                projection_association = self.resolve_owned_attempt_anchor_projection_association(
+                    run_id=run_id,
+                    expected_job_id=record.job_id,
+                    tenant_id=tenant_id,
+                    cell_id=cell_id,
+                )
+                summary_bytes = json.dumps(
+                    selection.hte.model_dump(mode="json"),
+                    ensure_ascii=False,
+                    allow_nan=False,
+                    sort_keys=True,
+                    separators=(",", ":"),
+                ).encode("utf-8")
+                expected_summary_sha256 = hashlib.sha256(summary_bytes).hexdigest()
+                summary_ref_pairs = (
+                    (
+                        projection_association.anchor_ref,
+                        selection.hte.owned_attempt_anchor_ref,
+                    ),
+                    (projection_association.outcome_ref, selection.hte.hte_outcome_ref),
+                    (projection_association.source_data_ref, selection.hte.source_data_ref),
+                    (
+                        projection_association.resource_policy_ref,
+                        selection.hte.resource_evidence.owner_policy_ref,
+                    ),
+                    (projection_association.method_result_ref, selection.hte.method_result_ref),
+                    (
+                        projection_association.method_evidence_ref,
+                        selection.hte.method_evidence_ref,
+                    ),
+                    (projection_association.point_result_ref, selection.hte.point_result_ref),
+                    (
+                        projection_association.hte_result_ref,
+                        selection.hte.hte_result_ref,
+                    ),
+                    (
+                        projection_association.inference_basis_ref,
+                        selection.hte.inference_basis_ref,
+                    ),
+                    (
+                        projection_association.refusal_diagnostic_ref,
+                        selection.hte.refusal_diagnostic_ref,
+                    ),
+                )
+                if (
+                    projection_association.status != "owner_projection_reconciled"
+                    or projection_association.content_validation_status
+                    != "worker_admitted_not_recomputed"
+                    or projection_association.manifest_identity_status != "independently_reconciled"
+                    or projection_association.job_id != record.job_id
+                    or projection_association.run_id != run_id
+                    or projection_association.attempt != record.attempt
+                    or projection_association.tenant_id != tenant_id
+                    or projection_association.cell_id != cell_id
+                    or projection_association.outcome_kind != selection.hte.kind
+                    or projection_association.selected_summary_sha256 != expected_summary_sha256
+                    or projection_association.job_completed_event.event_type != "job_completed"
+                    or projection_association.job_completed_event.job_id != record.job_id
+                    or projection_association.invocation_basis_ref is not None
+                    or any(
+                        proof_ref.model_dump(mode="json") != summary_ref.model_dump(mode="json")
+                        for proof_ref, summary_ref in summary_ref_pairs
+                    )
+                ):
+                    return unavailable(
+                        "selection_persistence_not_established",
+                        request=request_summary,
+                        record=record,
+                    )
         except (OSError, RuntimeError, TypeError, ValueError):
             return unavailable(
                 "selection_persistence_not_established",
@@ -6129,6 +7682,198 @@ class ControlPlaneService(
             selection=selection,
         )
 
+    def resolve_completed_method_hte_selection(
+        self,
+        *,
+        source_run_id: str,
+        tenant_id: str,
+        cell_id: str | None,
+    ) -> CompletedMethodHTESource | None:
+        """Resolve the exact completed owner-selected HTE summary for a follow-up.
+
+        The run ID is only a lookup key. Runtime admits the source only when a
+        unique completed workflow row, its immutable completion event, the
+        direct-method selection, the bounded owner projection, and every
+        selected HTE ref agree under the requested tenant/cell scope. This
+        route reads no HTE result vectors and does not refit a method.
+
+        Args:
+            source_run_id: Completed source run requested by the caller.
+            tenant_id: Already authorized tenant scope for the current workflow.
+            cell_id: Already authorized cell scope for the current workflow.
+
+        Returns:
+            A frozen scalar HTE summary with exact owner-event provenance, or
+            ``None`` when the requested source cannot be established.
+        """
+        from pydantic import TypeAdapter
+
+        from polisyos.core.contracts.owned_attempt_anchor import (
+            OwnedAttemptAnchorProjectionAssociation,
+        )
+        from polisyos.core.contracts.runtime import (
+            DirectMethodExecutionHTESummary,
+            DirectMethodExecutionSelection,
+            MethodExecutionSelection,
+        )
+
+        if (
+            not isinstance(source_run_id, str)
+            or not source_run_id
+            or not isinstance(tenant_id, str)
+            or not tenant_id
+            or (cell_id is not None and (not isinstance(cell_id, str) or not cell_id))
+        ):
+            return None
+        try:
+            record = self._control_store.get_unique_completed_job_by_run_and_kind(
+                run_id=source_run_id,
+                kind="workflow_run",
+            )
+            if (
+                record is None
+                or record.state != "completed"
+                or record.kind != "workflow_run"
+                or record.run_id != source_run_id
+                or record.method_execution_selection is None
+            ):
+                return None
+            projection = self.get_observational_method_run_projection(
+                run_id=source_run_id,
+                expected_job_id=record.job_id,
+                tenant_id=tenant_id,
+                cell_id=cell_id,
+            )
+            selection = projection.selection
+            if (
+                projection.status != "selected"
+                or type(selection) is not DirectMethodExecutionSelection
+                or selection.method_version != "2.0.0"
+                or selection.hte is None
+                or type(selection.hte) is not DirectMethodExecutionHTESummary
+                or selection.job_id != record.job_id
+                or selection.run_id != source_run_id
+                or selection.attempt != record.attempt
+                or selection.owned_attempt_anchor_ref is None
+            ):
+                return None
+            association = self.resolve_owned_attempt_anchor_projection_association(
+                run_id=source_run_id,
+                expected_job_id=record.job_id,
+                tenant_id=tenant_id,
+                cell_id=cell_id,
+            )
+            if (
+                type(association) is not OwnedAttemptAnchorProjectionAssociation
+                or association.job_id != record.job_id
+                or association.run_id != source_run_id
+                or association.attempt != record.attempt
+                or association.tenant_id != tenant_id
+                or association.cell_id != cell_id
+                or association.job_completed_event.event_type != "job_completed"
+                or association.job_completed_event.job_id != record.job_id
+                or association.outcome_kind != selection.hte.kind
+                or not _same_selected_artifact_ref(
+                    association.anchor_ref,
+                    selection.owned_attempt_anchor_ref,
+                )
+                or not _same_selected_artifact_ref(
+                    association.outcome_ref,
+                    selection.hte.hte_outcome_ref,
+                )
+                or not _same_selected_artifact_ref(
+                    association.source_data_ref,
+                    selection.hte.source_data_ref,
+                )
+                or not _same_selected_artifact_ref(
+                    association.method_result_ref,
+                    selection.method_result_ref,
+                )
+                or not _same_selected_artifact_ref(
+                    association.method_evidence_ref,
+                    selection.method_evidence_ref,
+                )
+                or not _same_optional_selected_artifact_ref(
+                    association.point_result_ref,
+                    selection.hte.point_result_ref,
+                )
+                or not _same_optional_selected_artifact_ref(
+                    association.hte_result_ref,
+                    selection.hte.hte_result_ref,
+                )
+                or not _same_optional_selected_artifact_ref(
+                    association.inference_basis_ref,
+                    selection.hte.inference_basis_ref,
+                )
+                or not _same_optional_selected_artifact_ref(
+                    association.refusal_diagnostic_ref,
+                    selection.hte.refusal_diagnostic_ref,
+                )
+                or not _same_optional_selected_artifact_ref(
+                    association.materialization_binding_ref,
+                    selection.hte.materialization_binding_ref,
+                )
+                or not _same_optional_selected_artifact_ref(
+                    association.search_uncertainty_task_binding_ref,
+                    selection.hte.search_uncertainty_task_binding_ref,
+                )
+            ):
+                return None
+
+            # Re-read the exact immutable completion event and its selection.
+            # A run lookup or current-pointer equality alone is not historical
+            # completion proof, and event IDs are never inferred from the ref.
+            event_ref = association.job_completed_event
+            event = self._control_store.get_job_lifecycle_event_record(
+                job_id=record.job_id,
+                event_id=event_ref.event_id,
+                expected_event_type="job_completed",
+            )
+            event_selection = TypeAdapter(MethodExecutionSelection).validate_python(
+                event.payload.get("method_execution_selection"),
+                strict=True,
+            )
+            if (
+                event.event_id != event_ref.event_id
+                or event.job_id != record.job_id
+                or event.payload_sha256 != event_ref.payload_sha256
+                or event.payload.get("state") != "completed"
+                or event.payload.get("attempt") != record.attempt
+                or type(event.payload.get("attempt")) is not int
+                or type(event_selection) is not DirectMethodExecutionSelection
+                or event_selection.job_id != record.job_id
+                or event_selection.run_id != source_run_id
+                or event_selection.attempt != record.attempt
+                or event_selection.hte is None
+                or event_selection.hte.model_dump(mode="json")
+                != selection.hte.model_dump(mode="json")
+            ):
+                return None
+
+            # Close the read window against a newer/replaced completed row.
+            current = self._control_store.get_unique_completed_job_by_run_and_kind(
+                run_id=source_run_id,
+                kind="workflow_run",
+            )
+            if (
+                current is None
+                or current.job_id != record.job_id
+                or current.attempt != record.attempt
+                or current.method_execution_selection != record.method_execution_selection
+            ):
+                return None
+            return CompletedMethodHTESource(
+                source_run_id=source_run_id,
+                source_job_id=record.job_id,
+                source_attempt=record.attempt,
+                completed_event_id=event.event_id,
+                completed_event_payload_sha256=event.payload_sha256,
+                summary=selection.hte,
+                association=association,
+            )
+        except (OSError, RuntimeError, TypeError, ValueError):
+            return None
+
     def _terminal_experiment_state_ref_for_control_job(
         self,
         *,
@@ -6193,7 +7938,7 @@ class ControlPlaneService(
                 limits=limits,
             )
             if (
-                bounded.effective_ref != finalization_ref
+                not _same_selected_artifact_ref(bounded.effective_ref, finalization_ref)
                 or bounded.manifest.kind != FINALIZATION_KIND
                 or bounded.manifest.media_type != "application/json"
                 or bounded.manifest.artifact_schema

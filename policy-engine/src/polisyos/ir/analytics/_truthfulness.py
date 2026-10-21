@@ -180,7 +180,7 @@ def validate_truthfulness_receipt(
     raise TypeError("truthfulness receipt must be a mapping or TruthfulnessReceipt")
 
 
-def extract_truthfulness_receipt(value: Any) -> TruthfulnessReceipt | None:
+def extract_truthfulness_receipt(value: object) -> TruthfulnessReceipt | None:
     """Extract a truthfulness receipt from common result and artifact shapes."""
 
     if value is None:

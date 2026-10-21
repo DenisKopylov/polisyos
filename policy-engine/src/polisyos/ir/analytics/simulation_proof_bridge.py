@@ -5,7 +5,7 @@ from __future__ import annotations
 from collections.abc import Mapping, Sequence
 from datetime import UTC, datetime
 from enum import Enum
-from typing import Any, Literal, Self
+from typing import Any, Literal, Protocol, Self
 
 from pydantic import BaseModel, ConfigDict, Field, model_validator
 
@@ -51,6 +51,14 @@ from polisyos.ir.registry.refs import (
     SimulationProofBridgeRef,
 )
 
+
+class _ModelDumpable(Protocol):
+    """Describe model-like references accepted by the normalization boundary."""
+
+    def model_dump(self, *, mode: Literal["json"]) -> object: ...
+
+
+ArtifactRefInput = ArtifactRefModel | Mapping[str, object] | _ModelDumpable
 _SCHEMA_VERSION = "1.0"
 
 _UNSPECIFIED_ASSUMPTIONS: dict[str, Literal["unspecified"]] = {
@@ -139,8 +147,8 @@ class SimulationCalibrationReceipt(BaseModel):
         ):
             raise ValueError(
                 "simulation calibration requires an admitted producer/verifier; "
-                "current receipts must remain default_unverified, unaccepted, and runtime/effective "
-                "unverified"
+                "current receipts must remain default_unverified, unaccepted, and "
+                "runtime/effective unverified"
             )
         return self
 
@@ -288,18 +296,18 @@ def build_simulation_proof_bridge_artifacts(
     store: ArtifactStore,
     *,
     run_id: str,
-    simulation_result_ref: Any,
-    metrics_ref: Any | None = None,
-    state_snapshot_ref: Any | None = None,
-    constraint_report_ref: Any | None = None,
-    environment_manifest_ref: Any | None = None,
-    tee_attestation_ref: Any | None = None,
-    sbom_ref: Any | None = None,
-    interface_mapping_ref: Any | None = None,
-    causal_readiness_bundle_ref: Any | None = None,
-    causal_validity_bundle_ref: Any | None = None,
-    causal_query_ref: Any | None = None,
-    base_proof_bundle_ref: Any | None = None,
+    simulation_result_ref: ArtifactRefInput,
+    metrics_ref: ArtifactRefInput | None = None,
+    state_snapshot_ref: ArtifactRefInput | None = None,
+    constraint_report_ref: ArtifactRefInput | None = None,
+    environment_manifest_ref: ArtifactRefInput | None = None,
+    tee_attestation_ref: ArtifactRefInput | None = None,
+    sbom_ref: ArtifactRefInput | None = None,
+    interface_mapping_ref: ArtifactRefInput | None = None,
+    causal_readiness_bundle_ref: ArtifactRefInput | None = None,
+    causal_validity_bundle_ref: ArtifactRefInput | None = None,
+    causal_query_ref: ArtifactRefInput | None = None,
+    base_proof_bundle_ref: ArtifactRefInput | None = None,
     simulation_payload: Mapping[str, Any] | None = None,
     metrics_payload: Mapping[str, Any] | None = None,
     causal_query: str | None = None,
@@ -581,7 +589,7 @@ def build_simulation_proof_bridge_artifacts(
     )
 
 
-def _coerce_ref(value: Any) -> ArtifactRefModel:
+def _coerce_ref(value: ArtifactRefInput) -> ArtifactRefModel:
     if isinstance(value, ArtifactRefModel):
         return value
     if hasattr(value, "model_dump"):
@@ -591,20 +599,22 @@ def _coerce_ref(value: Any) -> ArtifactRefModel:
     raise TypeError("artifact ref must be a mapping or model with model_dump()")
 
 
-def _coerce_optional_ref(value: Any | None) -> ArtifactRefModel | None:
+def _coerce_optional_ref(value: ArtifactRefInput | None) -> ArtifactRefModel | None:
     if value is None:
         return None
     return _coerce_ref(value)
 
 
-def _coerce_typed_optional_ref(model: Any | None, ref_type: type[BaseModel]) -> Any | None:
+def _coerce_typed_optional_ref[RefT: ArtifactRefModel](
+    model: ArtifactRefInput | None, ref_type: type[RefT]
+) -> RefT | None:
     if model is None:
         return None
     ref = _coerce_ref(model)
     return ref_type.model_validate(ref.model_dump(mode="json"))
 
 
-def _input_ref(ref: Any, role: str) -> InputRef:
+def _input_ref(ref: ArtifactRefInput, role: str) -> InputRef:
     normalized = _coerce_ref(ref)
     return InputRef(
         artifact_id=ArtifactID.model_validate(str(normalized.artifact_id)),
@@ -613,7 +623,9 @@ def _input_ref(ref: Any, role: str) -> InputRef:
     )
 
 
-def _lineage_inputs(items: Sequence[tuple[str, Any | None]]) -> list[InputRef]:
+def _lineage_inputs(
+    items: Sequence[tuple[str, ArtifactRefInput | None]],
+) -> list[InputRef]:
     inputs: list[InputRef] = []
     for role, ref in items:
         if ref is not None:
@@ -732,7 +744,7 @@ def _owner_payload_is_valid(
     )
 
 
-def _owner_ref_is_valid(value: Any, *, kind: str) -> bool:
+def _owner_ref_is_valid(value: object, *, kind: str) -> bool:
     if not isinstance(value, Mapping):
         return False
     try:
@@ -841,7 +853,7 @@ def _build_or_extend_proof_bundle(
     base_proof_ref: ProofBundleRef | None,
     query_text: str,
     query_ref: ArtifactRefModel | None,
-    graph_ref: Any | None,
+    graph_ref: ArtifactRefInput | str | None,
     lineage: Mapping[str, Any],
 ) -> tuple[ProofBundle, Literal["identified", "non_identified", "oracle_needed"]]:
     if base_proof_ref is not None:
@@ -988,18 +1000,23 @@ def _validity_failed(payload: Mapping[str, Any] | None) -> bool:
     if not isinstance(payload, Mapping):
         return False
     warnings = payload.get("warnings")
-    if isinstance(warnings, Sequence) and not isinstance(warnings, (str, bytes)):
-        if any(":failed" in str(item) for item in warnings):
-            return True
+    if (
+        isinstance(warnings, Sequence)
+        and not isinstance(warnings, (str, bytes))
+        and any(":failed" in str(item) for item in warnings)
+    ):
+        return True
     return _payload_has_status(payload, {"failed", "block", "blocked"})
 
 
-def _payload_has_status(payload: Any, blocked_values: set[str]) -> bool:
+def _payload_has_status(payload: object, blocked_values: set[str]) -> bool:
     if isinstance(payload, Mapping):
         for key, value in payload.items():
-            if str(key) in {"status", "decision", "readiness_status", "validity_status"}:
-                if str(value).strip().lower() in blocked_values:
-                    return True
+            if (
+                str(key) in {"status", "decision", "readiness_status", "validity_status"}
+                and str(value).strip().lower() in blocked_values
+            ):
+                return True
             if _payload_has_status(value, blocked_values):
                 return True
     elif isinstance(payload, Sequence) and not isinstance(payload, (str, bytes, bytearray)):

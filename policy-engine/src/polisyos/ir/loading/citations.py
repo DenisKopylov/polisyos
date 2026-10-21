@@ -55,12 +55,14 @@ class FragmentLocator(KernelModel):
             raise ValueError("page_start and page_end must be provided together")
         if not (has_anchor or has_offset or has_page):
             raise ValueError("locator requires anchor_path, offsets, or page range")
-        if self.offset_start is not None and self.offset_end is not None:
-            if self.offset_end < self.offset_start:
-                raise ValueError("offset_end must be >= offset_start")
-        if self.page_start is not None and self.page_end is not None:
-            if self.page_end < self.page_start:
-                raise ValueError("page_end must be >= page_start")
+        if (self.offset_start is not None and self.offset_end is not None) and (
+            self.offset_end < self.offset_start
+        ):
+            raise ValueError("offset_end must be >= offset_start")
+        if (self.page_start is not None and self.page_end is not None) and (
+            self.page_end < self.page_start
+        ):
+            raise ValueError("page_end must be >= page_start")
         return self
 
 
@@ -93,9 +95,10 @@ class CitationRef(KernelModel):
     def validate_citation(self) -> CitationRef:
         if self.fragment_id is None and self.locator is None:
             raise ValueError("citation requires fragment_id or locator")
-        if self.locator is not None:
-            if self.doc.doc_version_id is None and self.doc.doc_version_ref is None:
-                raise ValueError("locator requires doc_version_id or doc_version_ref")
+        if (self.locator is not None) and (
+            self.doc.doc_version_id is None and self.doc.doc_version_ref is None
+        ):
+            raise ValueError("locator requires doc_version_id or doc_version_ref")
         return self
 
 

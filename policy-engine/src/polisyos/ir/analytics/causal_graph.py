@@ -9,14 +9,23 @@ from collections.abc import Mapping
 from copy import deepcopy
 from enum import Enum
 from functools import cached_property
-from typing import Any, ClassVar, NoReturn, Protocol, Self, runtime_checkable
+from typing import TYPE_CHECKING, Any, ClassVar, NoReturn, Protocol, Self, runtime_checkable
 
 from pydantic import BaseModel, ConfigDict, Field, model_validator
 
 from polisyos.ir._internal.runtime_protocols import protocol_declared_callables_are_callable
+
+if TYPE_CHECKING:
+    import networkx as nx
 from polisyos.ir.artifacts import ArtifactStore, InputRef, get_json_artifact, put_json_artifact
 from polisyos.ir.model_layer.canon import CanonSpec
 from polisyos.ir.registry.refs import CausalGraphModelRef
+
+
+class _KuzuParameterConnection(Protocol):
+    """Parameter-execution subset required by the graph persistence adapter."""
+
+    def execute(self, statement: str, parameters: Mapping[str, object], /) -> object: ...
 
 
 @runtime_checkable
@@ -118,7 +127,7 @@ def _declared_cached_property_names(model_type: type[BaseModel]) -> frozenset[st
     )
 
 
-def _snapshot_canonical_value(value: Any) -> Any:
+def _snapshot_canonical_value(value: object) -> object:
     """Copy canonical container values without trusting caller-defined iterators."""
     if type(value) in (list, _FrozenList):
         return [_snapshot_canonical_value(item) for item in list.__iter__(value)]
@@ -380,7 +389,7 @@ class _FrozenList(list[Any]):
 
     __slots__ = ()
 
-    def _immutable(self, *_args: Any, **_kwargs: Any) -> NoReturn:
+    def _immutable(self, *_args: object, **_kwargs: object) -> NoReturn:
         raise TypeError("published graph containers are immutable")
 
     __setitem__ = _immutable
@@ -416,7 +425,7 @@ class _FrozenDict(dict[Any, Any]):
 
     __slots__ = ()
 
-    def _immutable(self, *_args: Any, **_kwargs: Any) -> NoReturn:
+    def _immutable(self, *_args: object, **_kwargs: object) -> NoReturn:
         raise TypeError("published graph containers are immutable")
 
     __delitem__ = _immutable
@@ -446,7 +455,7 @@ class _FrozenDict(dict[Any, Any]):
         return copied
 
 
-def _freeze_value(value: Any) -> Any:
+def _freeze_value(value: object) -> object:
     """Recursively freeze standard mutable containers while preserving wire shapes."""
     if isinstance(value, Mapping):
         return _FrozenDict((key, _freeze_value(item)) for key, item in value.items())
@@ -510,7 +519,7 @@ class CausalEdge(BaseModel):
                 raise ValueError(f"{name} must be in [0,1], got {value}")
         return self
 
-    def model_post_init(self, __context: Any) -> None:
+    def model_post_init(self, __context: object) -> None:
         self._freeze_collections()
 
     def _freeze_collections(self) -> None:
@@ -599,17 +608,18 @@ class CausalGraphModel(BaseModel):
                 raise ValueError(f"Edge src '{edge.src}' not in nodes")
             if edge.dst not in node_set:
                 raise ValueError(f"Edge dst '{edge.dst}' not in nodes")
-            if edge.src == edge.dst:
-                if not (
+            if (edge.src == edge.dst) and (
+                not (
                     edge.lag is not None
                     and edge.lag > 0
-                    and edge.mark_src is EdgeMark.TAIL
-                    and edge.mark_dst is EdgeMark.ARROW
-                ):
-                    raise ValueError(
-                        "zero-lag self-loop is not allowed; self-loops require a "
-                        "positive lagged directed edge"
-                    )
+                    and (edge.mark_src is EdgeMark.TAIL)
+                    and (edge.mark_dst is EdgeMark.ARROW)
+                )
+            ):
+                raise ValueError(
+                    "zero-lag self-loop is not allowed; self-loops require a "
+                    "positive lagged directed edge"
+                )
 
         if self.graph_type is GraphType.PAG:
             self._ensure_pag_unique_adjacencies()
@@ -663,7 +673,7 @@ class CausalGraphModel(BaseModel):
                 f"duplicate adjacency ({src!r}, {dst!r})"
             )
 
-    def model_post_init(self, __context: Any) -> None:
+    def model_post_init(self, __context: object) -> None:
         self._freeze_collections()
 
     def _freeze_collections(self) -> None:
@@ -747,7 +757,7 @@ class CausalGraphModel(BaseModel):
             )
         return graph, node_map
 
-    def to_networkx(self) -> Any:
+    def to_networkx(self) -> nx.MultiDiGraph[str, dict[str, object], dict[str, object]]:
         import networkx as nx
 
         graph: nx.MultiDiGraph[str, dict[str, object], dict[str, object]] = nx.MultiDiGraph()
@@ -810,7 +820,7 @@ class CausalGraphModel(BaseModel):
         """Return detached edge rows backed by an immutable preparation cache."""
         return tuple(json.loads(row) for row in self._kuzu_edge_rows_json)
 
-    def to_kuzu(self, kuzu_conn: Any) -> None:
+    def to_kuzu(self, kuzu_conn: _KuzuParameterConnection) -> None:
         for row in self.kuzu_node_rows:
             kuzu_conn.execute("MERGE (v:CausalVar {name: $name})", row)
 

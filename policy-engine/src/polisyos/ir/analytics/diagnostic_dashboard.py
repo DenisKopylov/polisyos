@@ -8,7 +8,7 @@ object intended for the audit UI and downstream quality scoring.
 from __future__ import annotations
 
 import logging
-from typing import Any, TypeGuard
+from typing import Any, Protocol, TypeGuard
 
 from pydantic import BaseModel, ConfigDict
 
@@ -20,6 +20,15 @@ from polisyos.ir.analytics.falsification_report import (
 )
 
 logger = logging.getLogger(__name__)
+
+
+class _JsonModelDump(Protocol):
+    def __call__(self, *, mode: str) -> dict[str, Any]: ...
+
+
+def _model_dump_json(value: object) -> _JsonModelDump:
+    attribute_name = "model_dump"
+    return getattr(value, attribute_name)
 
 
 class DiagnosticDashboardData(BaseModel):
@@ -151,7 +160,10 @@ class DiagnosticDashboardData(BaseModel):
                     except (TypeError, ValueError) as exc:
                         warnings.setdefault(f"covariate_balance_parse_failed:{node_id}", None)
                         logger.warning(
-                            "Diagnostic dashboard failed to parse covariate balance for node '%s': %s",
+                            (
+                                "Diagnostic dashboard failed to parse covariate balance for "
+                                "node '%s': %s"
+                            ),
                             node_id,
                             exc,
                         )
@@ -289,12 +301,12 @@ class DiagnosticDashboardData(BaseModel):
         )
 
 
-def _serialize_sensitivity(sr: Any) -> tuple[dict[str, Any], str | None]:
+def _serialize_sensitivity(sr: object) -> tuple[dict[str, Any], str | None]:
     """Convert a SensitivityResult (or dict) to a plain dict."""
     if isinstance(sr, dict):
         return sr, None
     try:
-        return sr.model_dump(mode="json"), None
+        return _model_dump_json(sr)(mode="json"), None
     except (AttributeError, TypeError, ValueError, RuntimeError) as exc:
         logger.warning(
             "Diagnostic dashboard fell back to attribute-based sensitivity serialization: %s",
@@ -308,7 +320,7 @@ def _serialize_sensitivity(sr: Any) -> tuple[dict[str, Any], str | None]:
         }, "sensitivity_serialize_fallback"
 
 
-def _serialize_raking(value: Any) -> dict[str, Any] | None:
+def _serialize_raking(value: object) -> dict[str, Any] | None:
     """Convert a survey raking diagnostic payload to a plain dict when possible."""
     if value is None:
         return None

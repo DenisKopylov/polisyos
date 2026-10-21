@@ -41,6 +41,7 @@ from polisyos.core.artifacts.write_contract import ArtifactWriteOptions
 from polisyos.core.canon import CanonSpec
 from polisyos.core.components import ENTRY_POINT_GROUP_FOUNDRY_METHODS
 from polisyos.core.components.bootstrap import build_components_index
+from polisyos.core.contracts.owned_attempt_anchor import OwnedAttemptAnchorDispatchContext
 from polisyos.foundry.methods import (
     MethodSignature,
     bootstrap_method_registry_from_components,
@@ -121,9 +122,17 @@ if TYPE_CHECKING:
     from pathlib import Path
 
     from polisyos.core.artifacts.protocol import ArtifactStore
-    from polisyos.core.contracts.runtime import MethodExecutionCandidateOutcome
+    from polisyos.core.contracts.owned_attempt_anchor import (
+        OwnedAttemptAnchorRef,
+        OwnedHTERequestContextV1,
+    )
+    from polisyos.core.contracts.runtime import (
+        DirectMethodExecutionHTESummary,
+        MethodExecutionCandidateOutcome,
+    )
     from polisyos.foundry.data_plane.bindings import (
         HTEInputLimits,
+        HTEInputPreparationRefusal,
         PreparedHTEObservationalInput,
     )
     from polisyos.scientist.nodes.builtins.decide.policy_runtime_method_metrics import (
@@ -393,6 +402,44 @@ class MethodExecutionPosteriorSummaryRef:
         return self._ref.materialize_posterior_summary()
 
 
+@dataclass(frozen=True, slots=True)
+class MethodExecutionInputRefusalOutcome:
+    """Carry one owner-written input-refusal anchor through the shared worker slot."""
+
+    job_id: str
+    run_id: str
+    attempt: int
+    anchor_ref: OwnedAttemptAnchorRef
+    refusal_code: str
+    failure_stage: str | None
+
+    def __post_init__(self) -> None:
+        """Keep the executor result bounded and distinguish it from completed work."""
+        from polisyos.core.contracts.owned_attempt_anchor import OwnedAttemptAnchorRef
+
+        if (
+            type(self.job_id) is not str
+            or not self.job_id
+            or len(self.job_id) > 128
+            or type(self.run_id) is not str
+            or not self.run_id
+            or len(self.run_id) > 128
+            or type(self.attempt) is not int
+            or self.attempt < 1
+            or type(self.anchor_ref) is not OwnedAttemptAnchorRef
+            or type(self.refusal_code) is not str
+            or not re.fullmatch(r"[A-Za-z0-9_.:-]{1,128}", self.refusal_code)
+            or (
+                self.failure_stage is not None
+                and (
+                    type(self.failure_stage) is not str
+                    or not re.fullmatch(r"[A-Za-z0-9_.:-]{1,128}", self.failure_stage)
+                )
+            )
+        ):
+            raise ValueError("method_execution_input_refusal_outcome_invalid")
+
+
 @dataclass(frozen=True, slots=True, init=False)
 class MethodExecutionRefOutcome:
     """Bounded worker result containing only selected CAS refs and scalars."""
@@ -421,7 +468,15 @@ class MethodExecutionRefOutcome:
     ]
     limitations: tuple[str, ...]
     method_dispatch_binding_status: Literal["recomputed", "not_established"]
-    candidate_outcome: MethodExecutionCandidateOutcome
+    candidate_outcome: MethodExecutionCandidateOutcome | None
+    owned_attempt_anchor_ref: OwnedAttemptAnchorRef | None
+    hte_outcome_ref: ArtifactRef | None
+    point_result_ref: ArtifactRef | None
+    hte_result_ref: ArtifactRef | None
+    inference_basis_ref: ArtifactRef | None
+    refusal_diagnostic_ref: ArtifactRef | None
+    invocation_basis_ref: ArtifactRef | None
+    hte_summary: DirectMethodExecutionHTESummary | None
     posterior_summary_refs: tuple[MethodExecutionPosteriorSummaryRef, ...] = ()
 
     def __init__(
@@ -451,13 +506,66 @@ class MethodExecutionRefOutcome:
         ],
         limitations: tuple[str, ...],
         method_dispatch_binding_status: Literal["recomputed", "not_established"],
-        candidate_outcome: MethodExecutionCandidateOutcome,
+        candidate_outcome: MethodExecutionCandidateOutcome | None,
         posterior_summary_refs: tuple[MethodExecutionPosteriorSummaryRef, ...] = (),
+        owned_attempt_anchor_ref: OwnedAttemptAnchorRef | None = None,
+        hte_outcome_ref: ArtifactRef | None = None,
+        point_result_ref: ArtifactRef | None = None,
+        hte_result_ref: ArtifactRef | None = None,
+        inference_basis_ref: ArtifactRef | None = None,
+        refusal_diagnostic_ref: ArtifactRef | None = None,
+        invocation_basis_ref: ArtifactRef | None = None,
+        hte_summary: DirectMethodExecutionHTESummary | None = None,
     ) -> None:
-        from polisyos.core.contracts.runtime import MethodExecutionCandidateOutcome
+        from polisyos.core.contracts.owned_attempt_anchor import OwnedAttemptAnchorRef
+        from polisyos.core.contracts.runtime import (
+            DirectMethodExecutionHTESummary,
+            MethodExecutionCandidateOutcome,
+        )
 
-        if type(candidate_outcome) is not MethodExecutionCandidateOutcome:
-            raise ValueError("method_execution_outcome_requires_typed_candidate_report")
+        successor = method_version == "2.0.0"
+        if successor:
+            if (
+                candidate_outcome is not None
+                or type(owned_attempt_anchor_ref) is not OwnedAttemptAnchorRef
+                or type(hte_outcome_ref) is not ArtifactRef
+                or type(hte_summary) is not DirectMethodExecutionHTESummary
+                or hte_summary.owned_attempt_anchor_ref != owned_attempt_anchor_ref
+                or hte_summary.hte_outcome_ref != hte_outcome_ref
+                or hte_summary.point_result_ref != point_result_ref
+                or hte_summary.hte_result_ref != hte_result_ref
+                or hte_summary.inference_basis_ref != inference_basis_ref
+                or hte_summary.refusal_diagnostic_ref != refusal_diagnostic_ref
+                or hte_summary.method_result_ref != method_result_ref
+                or hte_summary.method_evidence_ref != method_evidence_ref
+            ):
+                raise ValueError("method_execution_hte_outcome_summary_invalid")
+            if hte_summary.kind == "interval_estimate" and (
+                hte_result_ref is None
+                or point_result_ref is not None
+                or inference_basis_ref is None
+            ):
+                raise ValueError("method_execution_hte_interval_refs_incomplete")
+            if hte_summary.kind == "point_estimate" and (
+                point_result_ref is None or hte_result_ref is not None
+            ):
+                raise ValueError("method_execution_hte_point_refs_invalid")
+            if hte_summary.kind == "refusal" and any(
+                ref is not None for ref in (point_result_ref, hte_result_ref, inference_basis_ref)
+            ):
+                raise ValueError("method_execution_hte_refusal_refs_invalid")
+        elif (
+            type(candidate_outcome) is not MethodExecutionCandidateOutcome
+            or owned_attempt_anchor_ref is not None
+            or hte_outcome_ref is not None
+            or point_result_ref is not None
+            or hte_result_ref is not None
+            or inference_basis_ref is not None
+            or refusal_diagnostic_ref is not None
+            or invocation_basis_ref is not None
+            or hte_summary is not None
+        ):
+            raise ValueError("method_execution_legacy_candidate_outcome_invalid")
         for name, value in (
             ("job_id", job_id),
             ("run_id", run_id),
@@ -474,6 +582,14 @@ class MethodExecutionRefOutcome:
             ("method_dispatch_binding_status", method_dispatch_binding_status),
             ("candidate_outcome", candidate_outcome),
             ("posterior_summary_refs", posterior_summary_refs),
+            ("owned_attempt_anchor_ref", owned_attempt_anchor_ref),
+            ("hte_outcome_ref", hte_outcome_ref),
+            ("point_result_ref", point_result_ref),
+            ("hte_result_ref", hte_result_ref),
+            ("inference_basis_ref", inference_basis_ref),
+            ("refusal_diagnostic_ref", refusal_diagnostic_ref),
+            ("invocation_basis_ref", invocation_basis_ref),
+            ("hte_summary", hte_summary),
         ):
             object.__setattr__(self, name, value)
         for name, ref in (
@@ -617,6 +733,7 @@ class MethodExecutionAdmission(Protocol):
     limits: HTEInputLimits
     resource_policy_ref: ArtifactRef
     resource_policy_digest: str
+    owned_hte_request_context: OwnedHTERequestContextV1 | None
     method_abi_digest: str
     method_build_digest: str
 
@@ -636,6 +753,25 @@ class MethodExecutionAdmissionService(Protocol):
         signature: MethodSignature,
         method_class: type,
     ) -> None: ...
+
+    def persist_pre_output_owned_attempt_anchor(
+        self,
+        *,
+        work: MethodExecutionWork,
+        admission: MethodExecutionAdmission,
+        prepared: PreparedHTEObservationalInput,
+        content_admitted_intent_ref: ArtifactRef,
+        method_class: type,
+    ) -> OwnedAttemptAnchorDispatchContext: ...
+
+    def persist_pre_output_hte_input_refusal_anchor(
+        self,
+        *,
+        work: MethodExecutionWork,
+        admission: MethodExecutionAdmission,
+        refusal: HTEInputPreparationRefusal,
+        method_class: type,
+    ) -> OwnedAttemptAnchorRef: ...
 
     def persist_content_admitted_intent(
         self,
@@ -803,7 +939,9 @@ class MethodBackend:
     def submit_method_execution_work(
         self,
         work: MethodExecutionWork,
-    ) -> common_async_tools.SharedExecutionHandle[MethodExecutionRefOutcome]:
+    ) -> common_async_tools.SharedExecutionHandle[
+        MethodExecutionRefOutcome | MethodExecutionInputRefusalOutcome
+    ]:
         """Submit one refs-only observational execution through the shared pool.
 
         Only immutable job identity and full source/intent refs enter the FIFO.
@@ -907,13 +1045,38 @@ class MethodBackend:
         # target validation; the queued descriptor carries no decoded JSON.
         from polisyos.foundry.data_plane.bindings import prepare_hte_observational_input
 
-        prepared: PreparedHTEObservationalInput = prepare_hte_observational_input(
-            store=admission.store,
-            source_ref=requested_source_ref,
-            protocol=admission.protocol,
-            method_fqn=admission.method_fqn,
-            limits=admission.limits,
-        )
+        try:
+            prepared: PreparedHTEObservationalInput = prepare_hte_observational_input(
+                store=admission.store,
+                source_ref=requested_source_ref,
+                protocol=admission.protocol,
+                method_fqn=admission.method_fqn,
+                limits=admission.limits,
+                materialization_binding_version=(
+                    "physical_v1"
+                    if getattr(admission.resource_policy, "revision", None) == "r5"
+                    else None
+                ),
+            )
+        except Exception as exc:
+            from polisyos.foundry.data_plane.bindings import HTEInputPreparationRefusal
+
+            if type(exc) is not HTEInputPreparationRefusal or admission.method_version != "2.0.0":
+                raise
+            refusal_anchor_ref = service.persist_pre_output_hte_input_refusal_anchor(
+                work=work,
+                admission=admission,
+                refusal=exc,
+                method_class=method_class,
+            )
+            return MethodExecutionInputRefusalOutcome(
+                job_id=work.job_id,
+                run_id=work.run_id,
+                attempt=work.attempt,
+                anchor_ref=refusal_anchor_ref,
+                refusal_code=exc.code,
+                failure_stage=exc.failure_stage,
+            )
         if (
             prepared.method_fqn != admission.method_fqn
             or prepared.source_protocol != admission.protocol
@@ -930,6 +1093,33 @@ class MethodBackend:
             raise ValueError("prepared_hte_limitations_must_be_bounded_tuple")
         if any(type(item) is not str or len(item) > 255 for item in prepared.limitations):
             raise ValueError("prepared_hte_limitation_invalid")
+
+        if admission.method_version == "2.0.0" and prepared.data.outcome.shape[0] == 0:
+            from polisyos.foundry.data_plane.bindings import HTEInputPreparationRefusal
+
+            refusal = HTEInputPreparationRefusal(
+                "empty_selected_input",
+                observed_manifest_selection_bytes=prepared.observed_manifest_selection_bytes,
+                observed_manifest_verification_bytes=prepared.observed_manifest_verification_bytes,
+                observed_payload_bytes=prepared.observed_payload_bytes,
+                payload_integrity_verified=prepared.payload_integrity_verified,
+                source_usage_complete=type(prepared.observed_source_bytes) is int,
+                failure_stage="selected_input_validation",
+            )
+            refusal_anchor_ref = service.persist_pre_output_hte_input_refusal_anchor(
+                work=work,
+                admission=admission,
+                refusal=refusal,
+                method_class=method_class,
+            )
+            return MethodExecutionInputRefusalOutcome(
+                job_id=work.job_id,
+                run_id=work.run_id,
+                attempt=work.attempt,
+                anchor_ref=refusal_anchor_ref,
+                refusal_code=refusal.code,
+                failure_stage=refusal.failure_stage,
+            )
 
         submitted_input_ref = _ArtifactRefView.capture(prepared.submitted_ref).materialize()
         effective_input_ref = _ArtifactRefView.capture(prepared.effective_ref).materialize()
@@ -958,6 +1148,18 @@ class MethodBackend:
             )
         ).materialize()
 
+        runtime_context: OwnedAttemptAnchorDispatchContext | None = None
+        if admission.method_version == "2.0.0":
+            runtime_context = service.persist_pre_output_owned_attempt_anchor(
+                work=work,
+                admission=admission,
+                prepared=prepared,
+                content_admitted_intent_ref=content_admitted_intent_ref,
+                method_class=method_class,
+            )
+            if type(runtime_context) is not OwnedAttemptAnchorDispatchContext:
+                raise TypeError("method_execution_owned_anchor_context_invalid")
+
         # The parsed HTE DTO and every ndarray it owns remain in this frame until
         # dispatch, serialization, and all CAS persistence complete.
         input_state = prepared.data
@@ -979,6 +1181,7 @@ class MethodBackend:
                     raise ValueError("prepared_hte_effective_schema_invalid")
                 from polisyos.scientist.methods.autotune.execution_work import (
                     MethodDispatchBinding,
+                    MethodInputValueFingerprint,
                     _fingerprint_method_request_material,
                     fingerprint_method_input_value,
                 )
@@ -995,12 +1198,43 @@ class MethodBackend:
                     "treatment": input_state.treatment,
                 }
                 slot_names = signature.input_slot_names
+                if "hte_data" in slot_names:
+                    from polisyos.core.canon import fingerprint
+                    from polisyos.foundry.methods.catalog.causal._econml_adapter import (
+                        build_hte_data,
+                    )
+
+                    slot_values["hte_data"] = build_hte_data(input_state)
                 if not slot_names or not slot_names.issubset(slot_values):
                     raise ValueError("HTE input slots are not covered by typed observations")
-                state_fingerprints = {
-                    name: fingerprint_method_input_value(slot_values[name])
-                    for name in sorted(slot_names)
-                }
+
+                def _fingerprint_slot(name: str) -> MethodInputValueFingerprint:
+                    value = slot_values[name]
+                    if name != "hte_data":
+                        return fingerprint_method_input_value(value)
+                    # Registered HTE methods may accept the complete typed
+                    # HTEData value, not only its feature matrix. Hash every
+                    # model array plus both ordered name lists under that slot.
+                    slot_data = value
+                    payload = {
+                        "confounder_names": slot_data.confounder_names,
+                        "feature_names": slot_data.feature_names,
+                        "w": (
+                            fingerprint_method_input_value(slot_data.w).model_dump(mode="json")
+                            if slot_data.w is not None
+                            else None
+                        ),
+                        "x": fingerprint_method_input_value(slot_data.x).model_dump(mode="json"),
+                        "y": fingerprint_method_input_value(slot_data.y).model_dump(mode="json"),
+                        "t": fingerprint_method_input_value(slot_data.t).model_dump(mode="json"),
+                    }
+                    return MethodInputValueFingerprint(
+                        dtype="structured-hte-data-v1",
+                        shape=[int(dimension) for dimension in slot_data.x.shape],
+                        sha256=fingerprint(payload, canon_spec=CanonSpec(forbid_floats=False)),
+                    )
+
+                state_fingerprints = {name: _fingerprint_slot(name) for name in sorted(slot_names)}
                 binding = MethodDispatchBinding(
                     schema_version=(
                         "1.2"
@@ -1023,42 +1257,55 @@ class MethodBackend:
             else:
                 dispatch_binding = binding.model_dump(mode="json")
                 dispatch_binding_status = "recomputed"
+            dispatch_kwargs: dict[str, Any] = {}
+            if runtime_context is not None:
+                dispatch_kwargs["runtime_context"] = runtime_context
             return dispatcher.dispatch(
                 method_class=method_class,
                 signature=signature,
                 state=input_state,
                 params=method_params,
                 seed=seed,
+                **dispatch_kwargs,
             )
 
         method_result = _dispatch_at_the_admission_point()
-        from polisyos.core.contracts.runtime import MethodExecutionCandidateOutcome
-        from polisyos.ir.analytics.causal import CausalEffectReport, CausalMethod
-
         raw_output = method_result.output
-        report = raw_output.get("report") if isinstance(raw_output, Mapping) else None
-        if (
-            type(report) is not CausalEffectReport
-            or report.method is not CausalMethod.FOREST_DR
-            or signature.fqn
-            not in {
-                "causal.hte.forest_dr@1.0.0",
-                "causal.hte.forest_dr@1.1.0",
-            }
-        ):
-            raise TypeError("direct_method_execution_requires_typed_forest_dr_report")
-        candidate_outcome = MethodExecutionCandidateOutcome(
-            status=report.status.value,
-            estimand=report.estimand,
-            point_estimate=report.point_estimate,
-            confidence_interval=report.confidence_interval,
-            confidence_level=report.confidence_level,
-            standard_error=report.standard_error,
-            p_value=report.p_value,
-            sample_size=report.sample_size,
-            n_treated=report.n_treated,
-            n_control=report.n_control,
-        )
+        candidate_outcome: MethodExecutionCandidateOutcome | None = None
+        writer_ready: object | None = None
+        if admission.method_version == "2.0.0":
+            if runtime_context is None or not isinstance(raw_output, Mapping):
+                raise TypeError("direct_method_execution_hte_successor_context_missing")
+            writer_ready = raw_output.get("hte_outcome_write_ready")
+            if writer_ready is None:
+                raise TypeError("direct_method_execution_hte_writer_ready_missing")
+        else:
+            from polisyos.core.contracts.runtime import MethodExecutionCandidateOutcome
+            from polisyos.ir.analytics.causal import CausalEffectReport, CausalMethod
+
+            report = raw_output.get("report") if isinstance(raw_output, Mapping) else None
+            if (
+                type(report) is not CausalEffectReport
+                or report.method is not CausalMethod.FOREST_DR
+                or signature.fqn
+                not in {
+                    "causal.hte.forest_dr@1.0.0",
+                    "causal.hte.forest_dr@1.1.0",
+                }
+            ):
+                raise TypeError("direct_method_execution_requires_typed_forest_dr_report")
+            candidate_outcome = MethodExecutionCandidateOutcome(
+                status=report.status.value,
+                estimand=report.estimand,
+                point_estimate=report.point_estimate,
+                confidence_interval=report.confidence_interval,
+                confidence_level=report.confidence_level,
+                standard_error=report.standard_error,
+                p_value=report.p_value,
+                sample_size=report.sample_size,
+                n_treated=report.n_treated,
+                n_control=report.n_control,
+            )
         result_payload = to_python_data(method_result.output, sort_keys=True)
         if not isinstance(result_payload, dict):
             raise TypeError("qualified_method_output_must_be_a_mapping")
@@ -1076,7 +1323,7 @@ class MethodBackend:
             raise ValueError("method result declares native posterior draws without their evidence")
 
         def _lineage_refs() -> list[InputRef]:
-            pairs = (
+            pairs: tuple[tuple[str, ArtifactRef], ...] = (
                 ("requested_source", requested_source_ref),
                 ("observational_run_intent", observational_run_intent_ref),
                 ("content_admitted_intent", content_admitted_intent_ref),
@@ -1084,6 +1331,18 @@ class MethodBackend:
                 ("effective_method_input", effective_input_ref),
                 ("method_resource_policy", resource_policy_ref),
             )
+            if runtime_context is not None:
+                materialization_binding_ref = (
+                    runtime_context.input_capture.materialization_binding_ref
+                )
+                if materialization_binding_ref is not None:
+                    pairs += (
+                        (
+                            "physical_source_materialization_binding",
+                            materialization_binding_ref,
+                        ),
+                    )
+                pairs += (("owned_attempt_anchor", runtime_context.anchor_ref),)
             return [input_ref_from_artifact_ref(ref, role=role) for role, ref in pairs]
 
         result_ref = _ArtifactRefView.capture(
@@ -1141,8 +1400,20 @@ class MethodBackend:
             "artifacts": to_python_data(method_result.artifacts, sort_keys=True),
             "method_result_ref": result_ref.model_dump(mode="json"),
             "method_dispatch_binding_status": dispatch_binding_status,
-            "candidate_outcome": candidate_outcome.model_dump(mode="json"),
+            "candidate_outcome": (
+                candidate_outcome.model_dump(mode="json") if candidate_outcome is not None else None
+            ),
         }
+        if runtime_context is not None:
+            evidence_payload["owned_attempt_anchor_ref"] = runtime_context.anchor_ref.model_dump(
+                mode="json"
+            )
+            if runtime_context.input_capture.materialization_binding_ref is not None:
+                evidence_payload["materialization_binding_ref"] = (
+                    runtime_context.input_capture.materialization_binding_ref.model_dump(
+                        mode="json"
+                    )
+                )
         if dispatch_binding is not None:
             evidence_payload["method_dispatch_binding"] = dispatch_binding
         evidence_ref = _ArtifactRefView.capture(
@@ -1166,6 +1437,20 @@ class MethodBackend:
                 return_selected_profile=True,
             )
         ).materialize()
+
+        finalized_hte = None
+        if runtime_context is not None:
+            from polisyos.scientist.compute.hte_outcome_bridge import (
+                persist_runtime_hte_outcome,
+            )
+
+            finalized_hte = persist_runtime_hte_outcome(
+                store=admission.store,
+                writer_ready=writer_ready,
+                owned_attempt_anchor_context=runtime_context,
+                method_result_ref=result_ref,
+                method_evidence_ref=evidence_ref,
+            )
 
         posterior_summary_refs: list[MethodExecutionPosteriorSummaryRef] = []
         if has_posterior_draw_evidence:
@@ -1213,6 +1498,34 @@ class MethodBackend:
             method_dispatch_binding_status=dispatch_binding_status,
             candidate_outcome=candidate_outcome,
             posterior_summary_refs=tuple(posterior_summary_refs),
+            owned_attempt_anchor_ref=(
+                runtime_context.anchor_ref if runtime_context is not None else None
+            ),
+            hte_outcome_ref=(
+                finalized_hte.artifact_refs.hte_outcome_ref if finalized_hte is not None else None
+            ),
+            point_result_ref=(
+                finalized_hte.artifact_refs.point_result_ref if finalized_hte is not None else None
+            ),
+            hte_result_ref=(
+                finalized_hte.artifact_refs.hte_result_ref if finalized_hte is not None else None
+            ),
+            inference_basis_ref=(
+                finalized_hte.artifact_refs.inference_basis_ref
+                if finalized_hte is not None
+                else None
+            ),
+            refusal_diagnostic_ref=(
+                finalized_hte.artifact_refs.refusal_diagnostic_ref
+                if finalized_hte is not None
+                else None
+            ),
+            invocation_basis_ref=(
+                finalized_hte.artifact_refs.invocation_basis_ref
+                if finalized_hte is not None
+                else None
+            ),
+            hte_summary=(finalized_hte.summary if finalized_hte is not None else None),
         )
 
     def run(

@@ -4,6 +4,7 @@ from __future__ import annotations
 
 import hashlib
 import json
+import math
 import re
 from dataclasses import dataclass, field
 from datetime import UTC, datetime
@@ -427,6 +428,8 @@ class ObservationalRunMethodSelection(BaseModel):
             raise ValueError("observational_method_version_explicit_null")
         if "params" in fields_set and self.params is None:
             raise ValueError("observational_method_params_explicit_null")
+        if self.params is not None and any(name.startswith("__") for name in self.params):
+            raise ValueError("observational_method_reserved_runtime_parameter")
         if not self.fqn.strip() or any(character.isspace() for character in self.fqn):
             raise ValueError("observational_method_fqn_invalid")
         if "@" in self.fqn:
@@ -438,6 +441,94 @@ class ObservationalRunMethodSelection(BaseModel):
         return self
 
 
+class ObservationalHTERequestV1(BaseModel):
+    """Declare the requested HTE target before a successor method is queued.
+
+    These are requested candidate semantics, not source authority. Runtime binds
+    them into its own immutable intent and the worker must reconcile them with
+    the exact selected input before dispatch.
+    """
+
+    model_config = ConfigDict(extra="forbid", frozen=True, strict=True)
+
+    schema_version: Literal["polisyos.runtime.observational_hte_request.v1"]
+    estimand: str = Field(min_length=1, max_length=256)
+    target_scope: str = Field(min_length=1, max_length=256)
+    outcome_variable_id: str = Field(
+        min_length=1,
+        max_length=256,
+    )
+    treatment_variable_id: str = Field(
+        min_length=1,
+        max_length=256,
+    )
+    requested_guarantee: (
+        Literal[
+            "candidate_point",
+            "backend_conditional_interval",
+            "population_sampling_coverage",
+        ]
+        | None
+    ) = None
+    control_value: int | float
+    treated_value: int | float
+    alpha: float = Field(gt=0.0, lt=1.0)
+
+    @model_validator(mode="after")
+    def _require_hte_request_values(self) -> Self:
+        """Reject non-finite, identical, or missing request values before queueing."""
+        if (
+            type(self.control_value) not in {int, float}
+            or type(self.treated_value) not in {int, float}
+            or self.control_value == self.treated_value
+            or not math.isfinite(float(self.control_value))
+            or not math.isfinite(float(self.treated_value))
+        ):
+            raise ValueError("observational_hte_request_contrast_invalid")
+        if type(self.alpha) is not float:
+            raise ValueError("observational_hte_request_alpha_must_be_float")
+        if "requested_guarantee" in self.model_fields_set and self.requested_guarantee is None:
+            raise ValueError("observational_hte_request_guarantee_explicit_null")
+        for name, value in (
+            ("estimand", self.estimand),
+            ("target_scope", self.target_scope),
+            ("outcome_variable_id", self.outcome_variable_id),
+            ("treatment_variable_id", self.treatment_variable_id),
+        ):
+            if not value.strip():
+                raise ValueError(f"observational_hte_request_{name}_invalid")
+        if self.outcome_variable_id == self.treatment_variable_id:
+            raise ValueError("observational_hte_request_outcome_treatment_must_differ")
+        return self
+
+
+class ObservationalHTERequestV2(ObservationalHTERequestV1):
+    """Version-two successor request, frozen into Runtime intent before enqueue."""
+
+    schema_version: Literal["polisyos.runtime.observational_hte_request.v2"]
+    search_uncertainty_task_binding_ref: ArtifactRef | None = Field(
+        default=None,
+        exclude_if=lambda value: value is None,
+    )
+
+    @model_validator(mode="after")
+    def _require_profiled_search_binding(self) -> Self:
+        """Accept only a selected-profile binding owned by Search."""
+        if (
+            "search_uncertainty_task_binding_ref" in self.model_fields_set
+            and self.search_uncertainty_task_binding_ref is None
+        ):
+            raise ValueError("observational_hte_search_binding_explicit_null")
+        binding_ref = self.search_uncertainty_task_binding_ref
+        if binding_ref is not None and (
+            binding_ref.kind != "scientist.search.uncertainty_task_binding"
+            or binding_ref.media_type != "application/json"
+            or binding_ref.manifest_profile_sha256 is None
+        ):
+            raise ValueError("observational_hte_search_binding_ref_invalid")
+        return self
+
+
 class ObservationalRunInput(BaseModel):
     """Bind a selected-profile observation artifact to one direct method run."""
 
@@ -446,10 +537,27 @@ class ObservationalRunInput(BaseModel):
     protocol: Literal["method_input_envelope_v1", "legacy_hte_json_v1"]
     source_ref: ArtifactRef
     method: ObservationalRunMethodSelection
+    hte_request: ObservationalHTERequestV1 | ObservationalHTERequestV2 | None = None
 
     @model_validator(mode="after")
     def _require_selected_source_view(self) -> Self:
         """Require the source kind, media type, and selected manifest profile."""
+        successor_method_fqns = {
+            "causal.hte.causal_forest@2.0.0",
+            "causal.hte.double_ml@2.0.0",
+            "causal.hte.meta_learner@2.0.0",
+            "causal.hte.forest_dr@2.0.0",
+        }
+        method_fqn = self.method.fqn
+        if "@" not in method_fqn and self.method.version is not None:
+            method_fqn = f"{method_fqn}@{self.method.version}"
+        if (
+            method_fqn in successor_method_fqns
+            and type(self.hte_request) is not ObservationalHTERequestV2
+        ):
+            raise ValueError("observational_hte_request_v2_required_for_successor")
+        if self.hte_request is not None and method_fqn not in successor_method_fqns:
+            raise ValueError("observational_hte_request_requires_exact_successor_version")
         expected_kind = (
             "ir.observation_method_input"
             if self.protocol == "method_input_envelope_v1"
@@ -461,6 +569,27 @@ class ObservationalRunInput(BaseModel):
             or self.source_ref.manifest_profile_sha256 is None
         ):
             raise ValueError("observational_input_source_view_invalid")
+        if "hte_request" in self.model_fields_set and self.hte_request is None:
+            raise ValueError("observational_hte_request_explicit_null")
+        method_fqn = self.method.fqn
+        method_version = self.method.version
+        if "@" in method_fqn:
+            method_fqn, _, embedded_version = method_fqn.rpartition("@")
+            if method_version is not None and method_version != embedded_version:
+                raise ValueError("observational_method_version_conflict")
+            method_version = embedded_version
+        is_successor = (
+            method_fqn
+            in {
+                "causal.hte.causal_forest",
+                "causal.hte.double_ml",
+                "causal.hte.meta_learner",
+                "causal.hte.forest_dr",
+            }
+            and method_version == "2.0.0"
+        )
+        if is_successor != (self.hte_request is not None):
+            raise ValueError("observational_hte_successor_request_mismatch")
         return self
 
 
@@ -708,7 +837,15 @@ class RunLaunchResponse(BaseModel):
     observational_run_intent_ref: ArtifactRef | None = None
     observational_selection_digest: str | None = Field(default=None, pattern=r"^[0-9a-f]{64}$")
     observational_method_fqn: (
-        Literal["causal.hte.forest_dr@1.0.0", "causal.hte.forest_dr@1.1.0"] | None
+        Literal[
+            "causal.hte.forest_dr@1.0.0",
+            "causal.hte.forest_dr@1.1.0",
+            "causal.hte.causal_forest@2.0.0",
+            "causal.hte.double_ml@2.0.0",
+            "causal.hte.meta_learner@2.0.0",
+            "causal.hte.forest_dr@2.0.0",
+        ]
+        | None
     ) = None
     observational_contract_target_id: Literal["foundry.causal.hte_observational_data.v1"] | None = (
         None
@@ -2219,6 +2356,8 @@ __all__ = [
     "ModelProfileInfo",
     "ModelProfilesListResponse",
     "NaturalLanguageRunRequest",
+    "ObservationalHTERequestV1",
+    "ObservationalHTERequestV2",
     "ObservationalRunInput",
     "ObservationalRunMethodSelection",
     "OperatorDiagnostic",

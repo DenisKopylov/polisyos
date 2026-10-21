@@ -16,11 +16,14 @@ from collections import Counter
 from collections.abc import Mapping
 from dataclasses import dataclass, field
 from enum import Enum
-from typing import Any, Protocol, cast, runtime_checkable
+from typing import TYPE_CHECKING, Any, Literal, Protocol, cast, runtime_checkable
 
 from polisyos.core.observability import DeterminismTier
 from polisyos.foundry.methods.backends.validated import ValidatedBound
 from polisyos.foundry.methods.base import ComputeBackend, MethodSignature
+
+if TYPE_CHECKING:
+    from polisyos.core.contracts.owned_attempt_anchor import OwnedAttemptAnchorDispatchContext
 
 
 @runtime_checkable
@@ -217,3 +220,33 @@ class MethodRunner(Protocol):
     ) -> MethodResult:
         """Run one method invocation and return a structured result envelope."""
         ...
+
+
+@runtime_checkable
+class RuntimeContextAwareMethod(Protocol):
+    """Expose a method entry point that accepts one owner-bound dispatch context.
+
+    The ordinary ``pure_step`` ABI stays unchanged. Implementations opt into the
+    separate context entry only when the runtime supplies a verified dispatch
+    context for the current call.
+    """
+
+    @staticmethod
+    def pure_step_with_runtime_context(
+        state: Any,
+        params: Mapping[str, Any],
+        *,
+        runtime_context: OwnedAttemptAnchorDispatchContext,
+    ) -> Any: ...
+
+
+class RuntimeContextDispatchError(RuntimeError):
+    """Refuse a context-bound call when the concrete method route cannot consume it."""
+
+    def __init__(
+        self,
+        reason: Literal["invalid_context", "backend_not_supported", "method_not_supported"],
+    ) -> None:
+        self.reason = reason
+        self.code = "runtime_context_dispatch_refused"
+        super().__init__(f"runtime_context_dispatch_refused:{reason}")

@@ -12,29 +12,29 @@ uv run --extra ml polisyos-tools diagnostics gen-schema
 
 ## Summary
 
-- Total IR types: `1616`.
-- Public/root-or-package facade types: `644`.
-- ABI snapshot-backed types: `99`.
+- Total IR types: `1654`.
+- Public/root-or-package facade types: `679`.
+- ABI snapshot-backed types: `103`.
 - Export enumeration covers these public packages:
 
 | Package | Export count |
 | ------- | ------------ |
-| `polisyos.ir` | 496 |
-| `polisyos.ir.analytics` | 288 |
-| `polisyos.ir.kernel` | 53 |
+| `polisyos.ir` | 529 |
+| `polisyos.ir.analytics` | 320 |
+| `polisyos.ir.kernel` | 81 |
 | `polisyos.ir.loading` | 12 |
 | `polisyos.ir.model_layer` | 6 |
-| `polisyos.ir.registry` | 118 |
+| `polisyos.ir.registry` | 130 |
 | `polisyos.ir.world` | 54 |
 
 ## Section Summary
 
 | Section | Type count | Public types | Snapshot-backed |
 | ------- | ---------- | ------------ | ---------------- |
-| `analytics` | 998 | 331 | 41 |
+| `analytics` | 1011 | 341 | 45 |
 | `artifacts` | 26 | 3 | 0 |
 | `governance` | 99 | 27 | 8 |
-| `kernel` | 53 | 41 | 0 |
+| `kernel` | 66 | 54 | 0 |
 | `linker` | 7 | 0 | 0 |
 | `migrations` | 7 | 0 | 0 |
 | `observation` | 138 | 63 | 30 |
@@ -45,7 +45,7 @@ uv run --extra ml polisyos-tools diagnostics gen-schema
 | `loading` | 25 | 19 | 6 |
 | `model_layer` | 30 | 17 | 1 |
 | `passes` | 16 | 0 | 0 |
-| `registry` | 146 | 118 | 0 |
+| `registry` | 158 | 130 | 0 |
 | `schemas` | 6 | 0 | 0 |
 
 ## Analytics
@@ -9749,6 +9749,98 @@ uv run --extra ml polisyos-tools diagnostics gen-schema
 | `title` | `str` | `yes` | `—` | — |
 | `typed_integration_target` | `str` | `yes` | `—` | — |
 
+### `polisyos.ir.analytics.hte.ATEInferenceBasis` { #polisyos-ir-analytics-hte-ateinferencebasis }
+
+- Kind: `pydantic_model`
+- Public status: `root_facade`
+- Current version: `1.0`
+- Exported from: `polisyos.ir.analytics:ATEInferenceBasis`, `polisyos.ir:ATEInferenceBasis`
+- ABI snapshot: `ate_inference_basis` / `schemas/snapshots/ir/ate_inference_basis.schema.json`
+- Compatibility mode: `none`
+- References: `polisyos.ir.analytics.hte.HTEResourceExecutionEvidenceV1`, `polisyos.ir.analytics.hte.HTETargetRelationV1`, `polisyos.ir.registry.refs.ArtifactRefModel`, `polisyos.ir.registry.refs.HTEInputSourceRef`, `polisyos.ir.registry.refs.HTEPhysicalSourceMaterializationBindingRef`, `polisyos.ir.registry.refs.HTEPointResultRef`, `polisyos.ir.registry.refs.HTEResultEvidenceRef`, `polisyos.ir.registry.refs.MethodExecutionEvidenceRef`, `polisyos.ir.registry.refs.MethodResultEvidenceRef`, `polisyos.ir.registry.refs.OwnedAttemptAnchorRef`, `polisyos.ir.registry.refs.SearchUncertaintyTaskBindingRef`
+- Summary: Native EconML mean-inference record, conditional on its declared profile.
+
+| Field | Type | Required | Default | IR refs |
+| ----- | ---- | -------- | ------- | ------- |
+| `alpha` | `float` | `yes` | `—` | — |
+| `ate_inference_method` | `Literal[econml._cate_estimator.TreatmentExpansionMixin.ate_inference]` | `yes` | `—` | — |
+| `computed_target_scope` | `Literal[selected_evaluation_rows]` | `no` | `'selected_evaluation_rows'` | — |
+| `computed_target_scope_status` | `Literal[recomputed]` | `no` | `'recomputed'` | — |
+| `conditional_assumptions` | `tuple[str]` | `yes` | `—` | — |
+| `conf_int_mean_method` | `Literal[econml.inference._inference.PopulationSummaryResults.conf_int_mean]` | `yes` | `—` | — |
+| `confidence_level` | `float` | `yes` | `—` | — |
+| `contrast_status` | `Literal[established, not_established]` | `yes` | `—` | — |
+| `control_value` | `float \| NoneType` | `yes` | `—` | — |
+| `econml_source_profile_sha256` | `str` | `yes` | `—` | — |
+| `econml_version` | `str` | `yes` | `—` | — |
+| `estimator_class` | `str` | `yes` | `—` | — |
+| `estimator_params` | `dict[str, Any]` | `yes` | `—` | — |
+| `estimator_params_sha256` | `str` | `yes` | `—` | — |
+| `eval_rows_sha256` | `str` | `yes` | `—` | — |
+| `fit_eval_relation` | `Literal[same_selected_rows]` | `yes` | `—` | — |
+| `fit_rows_sha256` | `str` | `yes` | `—` | — |
+| `hte_result_ref` | `polisyos.ir.registry.refs.HTEResultEvidenceRef \| NoneType` | `no` | `—` | `polisyos.ir.registry.refs.HTEResultEvidenceRef` |
+| `inference_class` | `str` | `yes` | `—` | — |
+| `inference_profile_id` | `Literal[econml_native_mean_over_selected_x@1.0]` | `yes` | `—` | — |
+| `inference_route` | `Literal[ate_inference.conf_int_mean]` | `yes` | `—` | — |
+| `input_profile_id` | `Literal[all_source_rows_in_input_order@1.0]` | `yes` | `—` | — |
+| `invocation_basis_reason` | `Literal[owner_selected_invocation_basis, no_invocation_basis_artifact_contract] \| NoneType` | `yes` | `—` | — |
+| `invocation_basis_ref` | `polisyos.ir.registry.refs.ArtifactRefModel \| NoneType` | `yes` | `—` | `polisyos.ir.registry.refs.ArtifactRefModel` |
+| `invocation_basis_status` | `Literal[established, not_established]` | `yes` | `—` | — |
+| `materialization_binding_ref` | `polisyos.ir.registry.refs.HTEPhysicalSourceMaterializationBindingRef` | `yes` | `—` | `polisyos.ir.registry.refs.HTEPhysicalSourceMaterializationBindingRef` |
+| `method_abi` | `Literal[2.0.0]` | `yes` | `—` | — |
+| `method_abi_digest` | `str` | `yes` | `—` | — |
+| `method_evidence_ref` | `polisyos.ir.registry.refs.MethodExecutionEvidenceRef` | `yes` | `—` | `polisyos.ir.registry.refs.MethodExecutionEvidenceRef` |
+| `method_fqn` | `Literal[causal.hte.causal_forest@2.0.0, causal.hte.forest_dr@2.0.0]` | `yes` | `—` | — |
+| `method_profile_id` | `Literal[econml.causal_forest_dml.native_mean@2.0, econml.forest_dr.native_mean@2.0]` | `yes` | `—` | — |
+| `method_result_ref` | `polisyos.ir.registry.refs.MethodResultEvidenceRef` | `yes` | `—` | `polisyos.ir.registry.refs.MethodResultEvidenceRef` |
+| `n_selected_rows` | `int` | `yes` | `—` | — |
+| `native_lower_bound` | `float` | `yes` | `—` | — |
+| `native_mean_pred` | `float` | `yes` | `—` | — |
+| `native_mean_pred_stderr` | `float \| NoneType` | `yes` | `—` | — |
+| `native_point` | `float` | `yes` | `—` | — |
+| `native_pred_sha256` | `str` | `yes` | `—` | — |
+| `native_pred_stderr_sha256` | `str` | `yes` | `—` | — |
+| `native_pred_stderr_values` | `tuple[float]` | `yes` | `—` | — |
+| `native_result_class` | `Literal[econml.inference._inference.PopulationSummaryResults]` | `yes` | `—` | — |
+| `native_result_disposition` | `Literal[legacy_hte_result_admitted, legacy_hte_result_unrepresentable]` | `yes` | `—` | — |
+| `native_result_disposition_reason` | `Literal[point_not_contained_in_legacy_interval, native_bounds_unordered] \| NoneType` | `no` | `—` | — |
+| `native_stderr_mean` | `float \| NoneType` | `yes` | `—` | — |
+| `native_upper_bound` | `float` | `yes` | `—` | — |
+| `nuisance_model_classes` | `tuple[str]` | `yes` | `—` | — |
+| `outcome_variable_id` | `str \| NoneType` | `no` | `—` | — |
+| `outcome_variable_status` | `Literal[declared, not_established]` | `yes` | `—` | — |
+| `owned_attempt_anchor_ref` | `polisyos.ir.registry.refs.OwnedAttemptAnchorRef` | `yes` | `—` | `polisyos.ir.registry.refs.OwnedAttemptAnchorRef` |
+| `point_result_ref` | `polisyos.ir.registry.refs.HTEPointResultRef \| NoneType` | `no` | `—` | `polisyos.ir.registry.refs.HTEPointResultRef` |
+| `request_alpha_status` | `Literal[declared, not_established]` | `yes` | `—` | — |
+| `request_estimand` | `str \| NoneType` | `no` | `—` | — |
+| `request_estimand_status` | `Literal[declared, not_established]` | `yes` | `—` | — |
+| `request_target_scope` | `str \| NoneType` | `no` | `—` | — |
+| `request_target_scope_status` | `Literal[declared, not_established]` | `yes` | `—` | — |
+| `requested_alpha` | `float \| NoneType` | `no` | `—` | — |
+| `requested_guarantee` | `Literal[candidate_point, backend_conditional_interval, population_sampling_coverage] \| NoneType` | `yes` | `—` | — |
+| `requested_guarantee_status` | `Literal[declared, not_established]` | `yes` | `—` | — |
+| `resolved_params` | `dict[str, Any]` | `yes` | `—` | — |
+| `resolved_params_sha256` | `str` | `yes` | `—` | — |
+| `resource_evidence` | `polisyos.ir.analytics.hte.HTEResourceExecutionEvidenceV1` | `yes` | `—` | `polisyos.ir.analytics.hte.HTEResourceExecutionEvidenceV1` |
+| `sample_ids_sha256` | `str \| NoneType` | `no` | `—` | — |
+| `sample_ids_status` | `Literal[provided, not_established]` | `yes` | `—` | — |
+| `schema_version` | `Literal[1.0]` | `no` | `'1.0'` | — |
+| `search_uncertainty_task_binding_ref` | `polisyos.ir.registry.refs.SearchUncertaintyTaskBindingRef \| NoneType` | `no` | `—` | `polisyos.ir.registry.refs.SearchUncertaintyTaskBindingRef` |
+| `seed` | `int` | `yes` | `—` | — |
+| `selected_input_sha256` | `str` | `yes` | `—` | — |
+| `selected_row_order_sha256` | `str` | `yes` | `—` | — |
+| `selected_rows_sha256` | `str` | `yes` | `—` | — |
+| `selected_x_sha256` | `str` | `yes` | `—` | — |
+| `source_data_ref` | `polisyos.ir.registry.refs.HTEInputSourceRef` | `yes` | `—` | `polisyos.ir.registry.refs.HTEInputSourceRef` |
+| `source_data_sha256` | `str` | `yes` | `—` | — |
+| `standard_error_source` | `Literal[mean_pred_stderr, rms_pred_stderr]` | `yes` | `—` | — |
+| `standard_error_value` | `float` | `yes` | `—` | — |
+| `target_relation` | `polisyos.ir.analytics.hte.HTETargetRelationV1` | `yes` | `—` | `polisyos.ir.analytics.hte.HTETargetRelationV1` |
+| `treated_value` | `float \| NoneType` | `yes` | `—` | — |
+| `treatment_variable_id` | `str \| NoneType` | `no` | `—` | — |
+| `treatment_variable_status` | `Literal[declared, not_established]` | `yes` | `—` | — |
+
 ### `polisyos.ir.analytics.hte.FeatureImportance` { #polisyos-ir-analytics-hte-featureimportance }
 
 - Kind: `pydantic_model`
@@ -9767,6 +9859,378 @@ uv run --extra ml polisyos-tools diagnostics gen-schema
 | `importance_score` | `float` | `yes` | `—` | — |
 | `metadata` | `dict[str, Any]` | `no` | `—` | — |
 | `method` | `str` | `no` | `'tree_based'` | — |
+
+### `polisyos.ir.analytics.hte.HTEFinalizedArtifactRefs` { #polisyos-ir-analytics-hte-htefinalizedartifactrefs }
+
+- Kind: `pydantic_model`
+- Public status: `internal`
+- Current version: `—`
+- Exported from: —
+- ABI snapshot: `—` / `—`
+- Compatibility mode: `—`
+- References: `polisyos.ir.registry.refs.ATEInferenceBasisRef`, `polisyos.ir.registry.refs.ArtifactRefModel`, `polisyos.ir.registry.refs.HTEOutcomeRef`, `polisyos.ir.registry.refs.HTEPhysicalSourceMaterializationBindingRef`, `polisyos.ir.registry.refs.HTEPointResultRef`, `polisyos.ir.registry.refs.HTERefusalDiagnosticRef`, `polisyos.ir.registry.refs.HTEResultEvidenceRef`, `polisyos.ir.registry.refs.OwnedAttemptAnchorRef`
+- Summary: CAS refs returned after Runtime finalizes and persists one HTE outcome.
+
+| Field | Type | Required | Default | IR refs |
+| ----- | ---- | -------- | ------- | ------- |
+| `hte_outcome_ref` | `polisyos.ir.registry.refs.HTEOutcomeRef` | `yes` | `—` | `polisyos.ir.registry.refs.HTEOutcomeRef` |
+| `hte_result_ref` | `polisyos.ir.registry.refs.HTEResultEvidenceRef \| NoneType` | `no` | `—` | `polisyos.ir.registry.refs.HTEResultEvidenceRef` |
+| `inference_basis_ref` | `polisyos.ir.registry.refs.ATEInferenceBasisRef \| NoneType` | `no` | `—` | `polisyos.ir.registry.refs.ATEInferenceBasisRef` |
+| `invocation_basis_ref` | `polisyos.ir.registry.refs.ArtifactRefModel \| NoneType` | `no` | `—` | `polisyos.ir.registry.refs.ArtifactRefModel` |
+| `materialization_binding_ref` | `polisyos.ir.registry.refs.HTEPhysicalSourceMaterializationBindingRef` | `yes` | `—` | `polisyos.ir.registry.refs.HTEPhysicalSourceMaterializationBindingRef` |
+| `owned_attempt_anchor_ref` | `polisyos.ir.registry.refs.OwnedAttemptAnchorRef` | `yes` | `—` | `polisyos.ir.registry.refs.OwnedAttemptAnchorRef` |
+| `point_result_ref` | `polisyos.ir.registry.refs.HTEPointResultRef \| NoneType` | `no` | `—` | `polisyos.ir.registry.refs.HTEPointResultRef` |
+| `refusal_diagnostic_ref` | `polisyos.ir.registry.refs.HTERefusalDiagnosticRef \| NoneType` | `no` | `—` | `polisyos.ir.registry.refs.HTERefusalDiagnosticRef` |
+
+### `polisyos.ir.analytics.hte.HTEIntervalOutcome` { #polisyos-ir-analytics-hte-hteintervaloutcome }
+
+- Kind: `pydantic_model`
+- Public status: `root_facade`
+- Current version: `1.0`
+- Exported from: `polisyos.ir.analytics:HTEIntervalOutcome`, `polisyos.ir:HTEIntervalOutcome`
+- ABI snapshot: `—` / `—`
+- Compatibility mode: `—`
+- References: `polisyos.ir.analytics.hte.HTEPointEstimate`, `polisyos.ir.analytics.hte.HTEResourceExecutionEvidenceV1`, `polisyos.ir.analytics.hte.HTETargetRelationV1`, `polisyos.ir.registry.refs.ATEInferenceBasisRef`, `polisyos.ir.registry.refs.ArtifactRefModel`, `polisyos.ir.registry.refs.HTEInputSourceRef`, `polisyos.ir.registry.refs.HTEPhysicalSourceMaterializationBindingRef`, `polisyos.ir.registry.refs.HTEResultEvidenceRef`, `polisyos.ir.registry.refs.MethodExecutionEvidenceRef`, `polisyos.ir.registry.refs.MethodResultEvidenceRef`, `polisyos.ir.registry.refs.OwnedAttemptAnchorRef`, `polisyos.ir.registry.refs.SearchUncertaintyTaskBindingRef`
+- Summary: Conditionally qualified native mean confidence interval.
+
+| Field | Type | Required | Default | IR refs |
+| ----- | ---- | -------- | ------- | ------- |
+| `authority_status` | `Literal[candidate]` | `no` | `'candidate'` | — |
+| `confidence_level` | `float` | `yes` | `—` | — |
+| `contrast_status` | `Literal[established, not_established]` | `yes` | `—` | — |
+| `control_value` | `float \| NoneType` | `yes` | `—` | — |
+| `hte_result_ref` | `polisyos.ir.registry.refs.HTEResultEvidenceRef` | `yes` | `—` | `polisyos.ir.registry.refs.HTEResultEvidenceRef` |
+| `inference_basis_ref` | `polisyos.ir.registry.refs.ATEInferenceBasisRef` | `yes` | `—` | `polisyos.ir.registry.refs.ATEInferenceBasisRef` |
+| `inference_status` | `Literal[native_ate_inference_validated]` | `yes` | `—` | — |
+| `input_profile_id` | `Literal[all_source_rows_in_input_order@1.0]` | `yes` | `—` | — |
+| `interval_semantics` | `Literal[native_mean_confidence_interval]` | `yes` | `—` | — |
+| `invocation_basis_reason` | `Literal[owner_selected_invocation_basis, no_invocation_basis_artifact_contract] \| NoneType` | `yes` | `—` | — |
+| `invocation_basis_ref` | `polisyos.ir.registry.refs.ArtifactRefModel \| NoneType` | `yes` | `—` | `polisyos.ir.registry.refs.ArtifactRefModel` |
+| `invocation_basis_status` | `Literal[established, not_established]` | `yes` | `—` | — |
+| `kind` | `Literal[interval_estimate]` | `no` | `'interval_estimate'` | — |
+| `limitations` | `tuple[str]` | `yes` | `—` | — |
+| `lower_bound` | `float` | `yes` | `—` | — |
+| `materialization_binding_ref` | `polisyos.ir.registry.refs.HTEPhysicalSourceMaterializationBindingRef` | `yes` | `—` | `polisyos.ir.registry.refs.HTEPhysicalSourceMaterializationBindingRef` |
+| `method_abi` | `Literal[2.0.0]` | `yes` | `—` | — |
+| `method_abi_digest` | `str` | `yes` | `—` | — |
+| `method_evidence_ref` | `polisyos.ir.registry.refs.MethodExecutionEvidenceRef` | `yes` | `—` | `polisyos.ir.registry.refs.MethodExecutionEvidenceRef` |
+| `method_fqn` | `Literal[causal.hte.causal_forest@2.0.0, causal.hte.double_ml@2.0.0, causal.hte.meta_learner@2.0.0, causal.hte.forest_dr@2.0.0]` | `yes` | `—` | — |
+| `method_profile_id` | `Literal[econml.causal_forest_dml.native_mean@2.0, econml.dml.point_only@2.0, econml.meta_learner.point_only@2.0, econml.forest_dr.native_mean@2.0]` | `yes` | `—` | — |
+| `method_result_ref` | `polisyos.ir.registry.refs.MethodResultEvidenceRef` | `yes` | `—` | `polisyos.ir.registry.refs.MethodResultEvidenceRef` |
+| `n_selected_rows` | `int` | `yes` | `—` | — |
+| `outcome_variable_id` | `str \| NoneType` | `no` | `—` | — |
+| `outcome_variable_status` | `Literal[declared, not_established]` | `yes` | `—` | — |
+| `owned_attempt_anchor_ref` | `polisyos.ir.registry.refs.OwnedAttemptAnchorRef` | `yes` | `—` | `polisyos.ir.registry.refs.OwnedAttemptAnchorRef` |
+| `point_estimate` | `polisyos.ir.analytics.hte.HTEPointEstimate` | `yes` | `—` | `polisyos.ir.analytics.hte.HTEPointEstimate` |
+| `request_alpha_status` | `Literal[declared, not_established]` | `yes` | `—` | — |
+| `request_estimand` | `str \| NoneType` | `no` | `—` | — |
+| `request_estimand_status` | `Literal[declared, not_established]` | `yes` | `—` | — |
+| `request_target_scope` | `str \| NoneType` | `no` | `—` | — |
+| `request_target_scope_status` | `Literal[declared, not_established]` | `yes` | `—` | — |
+| `requested_alpha` | `float \| NoneType` | `no` | `—` | — |
+| `requested_guarantee` | `Literal[candidate_point, backend_conditional_interval, population_sampling_coverage] \| NoneType` | `yes` | `—` | — |
+| `requested_guarantee_status` | `Literal[declared, not_established]` | `yes` | `—` | — |
+| `resolved_params_sha256` | `str` | `yes` | `—` | — |
+| `resource_evidence` | `polisyos.ir.analytics.hte.HTEResourceExecutionEvidenceV1` | `yes` | `—` | `polisyos.ir.analytics.hte.HTEResourceExecutionEvidenceV1` |
+| `schema_version` | `Literal[1.0]` | `no` | `'1.0'` | — |
+| `search_uncertainty_task_binding_ref` | `polisyos.ir.registry.refs.SearchUncertaintyTaskBindingRef \| NoneType` | `no` | `—` | `polisyos.ir.registry.refs.SearchUncertaintyTaskBindingRef` |
+| `selected_input_sha256` | `str` | `yes` | `—` | — |
+| `selected_row_order_sha256` | `str` | `yes` | `—` | — |
+| `selected_rows_sha256` | `str` | `yes` | `—` | — |
+| `selected_x_sha256` | `str` | `yes` | `—` | — |
+| `source_data_ref` | `polisyos.ir.registry.refs.HTEInputSourceRef` | `yes` | `—` | `polisyos.ir.registry.refs.HTEInputSourceRef` |
+| `target_relation` | `polisyos.ir.analytics.hte.HTETargetRelationV1` | `yes` | `—` | `polisyos.ir.analytics.hte.HTETargetRelationV1` |
+| `treated_value` | `float \| NoneType` | `yes` | `—` | — |
+| `treatment_variable_id` | `str \| NoneType` | `no` | `—` | — |
+| `treatment_variable_status` | `Literal[declared, not_established]` | `yes` | `—` | — |
+| `upper_bound` | `float` | `yes` | `—` | — |
+
+### `polisyos.ir.analytics.hte.HTEOutcome` { #polisyos-ir-analytics-hte-hteoutcome }
+
+- Kind: `root_model`
+- Public status: `root_facade`
+- Current version: `—`
+- Exported from: `polisyos.ir.analytics:HTEOutcome`, `polisyos.ir:HTEOutcome`
+- ABI snapshot: `hte_outcome` / `schemas/snapshots/ir/hte_outcome.schema.json`
+- Compatibility mode: `—`
+- References: —
+- Summary: Serialize the strict discriminated HTE outcome union as its branch payload.
+
+| Field | Type | Required | Default | IR refs |
+| ----- | ---- | -------- | ------- | ------- |
+| `root` | `_HTEOutcomeVariant` | `yes` | `—` | — |
+
+### `polisyos.ir.analytics.hte.HTEPointEstimate` { #polisyos-ir-analytics-hte-htepointestimate }
+
+- Kind: `pydantic_model`
+- Public status: `root_facade`
+- Current version: `1.0`
+- Exported from: `polisyos.ir.analytics:HTEPointEstimate`, `polisyos.ir:HTEPointEstimate`
+- ABI snapshot: `—` / `—`
+- Compatibility mode: `—`
+- References: —
+- Summary: Finite point estimate with explicit target and measurement-unit limits.
+
+| Field | Type | Required | Default | IR refs |
+| ----- | ---- | -------- | ------- | ------- |
+| `computed_target_scope` | `Literal[selected_evaluation_rows]` | `no` | `'selected_evaluation_rows'` | — |
+| `computed_target_scope_status` | `Literal[recomputed]` | `no` | `'recomputed'` | — |
+| `estimand` | `Literal[mean_effect_over_selected_x]` | `no` | `'mean_effect_over_selected_x'` | — |
+| `measure_unit` | `str \| NoneType` | `yes` | `—` | — |
+| `measure_unit_status` | `Literal[established, not_established]` | `yes` | `—` | — |
+| `schema_version` | `Literal[1.0]` | `no` | `'1.0'` | — |
+| `value` | `float` | `yes` | `—` | — |
+
+### `polisyos.ir.analytics.hte.HTEPointOutcome` { #polisyos-ir-analytics-hte-htepointoutcome }
+
+- Kind: `pydantic_model`
+- Public status: `root_facade`
+- Current version: `1.0`
+- Exported from: `polisyos.ir.analytics:HTEPointOutcome`, `polisyos.ir:HTEPointOutcome`
+- ABI snapshot: `—` / `—`
+- Compatibility mode: `—`
+- References: `polisyos.ir.analytics.hte.HTEPointEstimate`, `polisyos.ir.analytics.hte.HTEResourceExecutionEvidenceV1`, `polisyos.ir.analytics.hte.HTETargetRelationV1`, `polisyos.ir.registry.refs.ATEInferenceBasisRef`, `polisyos.ir.registry.refs.ArtifactRefModel`, `polisyos.ir.registry.refs.HTEInputSourceRef`, `polisyos.ir.registry.refs.HTEPhysicalSourceMaterializationBindingRef`, `polisyos.ir.registry.refs.HTEPointResultRef`, `polisyos.ir.registry.refs.MethodExecutionEvidenceRef`, `polisyos.ir.registry.refs.MethodResultEvidenceRef`, `polisyos.ir.registry.refs.OwnedAttemptAnchorRef`, `polisyos.ir.registry.refs.SearchUncertaintyTaskBindingRef`
+- Summary: Valid candidate point result whose interval route is unavailable or unqualified.
+
+| Field | Type | Required | Default | IR refs |
+| ----- | ---- | -------- | ------- | ------- |
+| `authority_status` | `Literal[candidate]` | `no` | `'candidate'` | — |
+| `contrast_status` | `Literal[established, not_established]` | `yes` | `—` | — |
+| `control_value` | `float \| NoneType` | `yes` | `—` | — |
+| `inference_basis_ref` | `polisyos.ir.registry.refs.ATEInferenceBasisRef \| NoneType` | `no` | `—` | `polisyos.ir.registry.refs.ATEInferenceBasisRef` |
+| `inference_reason` | `Literal[inference_not_requested, native_inference_unavailable, native_inference_invalid, method_profile_not_qualified, selection_uses_outcomes, contrast_not_established, request_alpha_not_established]` | `yes` | `—` | — |
+| `inference_status` | `Literal[not_requested, unavailable, unsupported, not_qualified, failed]` | `yes` | `—` | — |
+| `input_profile_id` | `Literal[all_source_rows_in_input_order@1.0]` | `yes` | `—` | — |
+| `invocation_basis_reason` | `Literal[owner_selected_invocation_basis, no_invocation_basis_artifact_contract] \| NoneType` | `yes` | `—` | — |
+| `invocation_basis_ref` | `polisyos.ir.registry.refs.ArtifactRefModel \| NoneType` | `yes` | `—` | `polisyos.ir.registry.refs.ArtifactRefModel` |
+| `invocation_basis_status` | `Literal[established, not_established]` | `yes` | `—` | — |
+| `kind` | `Literal[point_estimate]` | `no` | `'point_estimate'` | — |
+| `limitations` | `tuple[str]` | `yes` | `—` | — |
+| `materialization_binding_ref` | `polisyos.ir.registry.refs.HTEPhysicalSourceMaterializationBindingRef` | `yes` | `—` | `polisyos.ir.registry.refs.HTEPhysicalSourceMaterializationBindingRef` |
+| `method_abi` | `Literal[2.0.0]` | `yes` | `—` | — |
+| `method_abi_digest` | `str` | `yes` | `—` | — |
+| `method_evidence_ref` | `polisyos.ir.registry.refs.MethodExecutionEvidenceRef` | `yes` | `—` | `polisyos.ir.registry.refs.MethodExecutionEvidenceRef` |
+| `method_fqn` | `Literal[causal.hte.causal_forest@2.0.0, causal.hte.double_ml@2.0.0, causal.hte.meta_learner@2.0.0, causal.hte.forest_dr@2.0.0]` | `yes` | `—` | — |
+| `method_profile_id` | `Literal[econml.causal_forest_dml.native_mean@2.0, econml.dml.point_only@2.0, econml.meta_learner.point_only@2.0, econml.forest_dr.native_mean@2.0]` | `yes` | `—` | — |
+| `method_result_ref` | `polisyos.ir.registry.refs.MethodResultEvidenceRef` | `yes` | `—` | `polisyos.ir.registry.refs.MethodResultEvidenceRef` |
+| `n_selected_rows` | `int` | `yes` | `—` | — |
+| `outcome_variable_id` | `str \| NoneType` | `no` | `—` | — |
+| `outcome_variable_status` | `Literal[declared, not_established]` | `yes` | `—` | — |
+| `owned_attempt_anchor_ref` | `polisyos.ir.registry.refs.OwnedAttemptAnchorRef` | `yes` | `—` | `polisyos.ir.registry.refs.OwnedAttemptAnchorRef` |
+| `point_estimate` | `polisyos.ir.analytics.hte.HTEPointEstimate` | `yes` | `—` | `polisyos.ir.analytics.hte.HTEPointEstimate` |
+| `point_result_ref` | `polisyos.ir.registry.refs.HTEPointResultRef` | `yes` | `—` | `polisyos.ir.registry.refs.HTEPointResultRef` |
+| `request_alpha_status` | `Literal[declared, not_established]` | `yes` | `—` | — |
+| `request_estimand` | `str \| NoneType` | `no` | `—` | — |
+| `request_estimand_status` | `Literal[declared, not_established]` | `yes` | `—` | — |
+| `request_target_scope` | `str \| NoneType` | `no` | `—` | — |
+| `request_target_scope_status` | `Literal[declared, not_established]` | `yes` | `—` | — |
+| `requested_alpha` | `float \| NoneType` | `no` | `—` | — |
+| `requested_guarantee` | `Literal[candidate_point, backend_conditional_interval, population_sampling_coverage] \| NoneType` | `yes` | `—` | — |
+| `requested_guarantee_status` | `Literal[declared, not_established]` | `yes` | `—` | — |
+| `resolved_params_sha256` | `str` | `yes` | `—` | — |
+| `resource_evidence` | `polisyos.ir.analytics.hte.HTEResourceExecutionEvidenceV1` | `yes` | `—` | `polisyos.ir.analytics.hte.HTEResourceExecutionEvidenceV1` |
+| `schema_version` | `Literal[1.0]` | `no` | `'1.0'` | — |
+| `search_uncertainty_task_binding_ref` | `polisyos.ir.registry.refs.SearchUncertaintyTaskBindingRef \| NoneType` | `no` | `—` | `polisyos.ir.registry.refs.SearchUncertaintyTaskBindingRef` |
+| `selected_input_sha256` | `str` | `yes` | `—` | — |
+| `selected_row_order_sha256` | `str` | `yes` | `—` | — |
+| `selected_rows_sha256` | `str` | `yes` | `—` | — |
+| `selected_x_sha256` | `str` | `yes` | `—` | — |
+| `source_data_ref` | `polisyos.ir.registry.refs.HTEInputSourceRef` | `yes` | `—` | `polisyos.ir.registry.refs.HTEInputSourceRef` |
+| `target_relation` | `polisyos.ir.analytics.hte.HTETargetRelationV1` | `yes` | `—` | `polisyos.ir.analytics.hte.HTETargetRelationV1` |
+| `treated_value` | `float \| NoneType` | `yes` | `—` | — |
+| `treatment_variable_id` | `str \| NoneType` | `no` | `—` | — |
+| `treatment_variable_status` | `Literal[declared, not_established]` | `yes` | `—` | — |
+
+### `polisyos.ir.analytics.hte.HTEPointResult` { #polisyos-ir-analytics-hte-htepointresult }
+
+- Kind: `pydantic_model`
+- Public status: `root_facade`
+- Current version: `1.0`
+- Exported from: `polisyos.ir.analytics:HTEPointResult`, `polisyos.ir:HTEPointResult`
+- ABI snapshot: `hte_point_result` / `schemas/snapshots/ir/hte_point_result.schema.json`
+- Compatibility mode: `none`
+- References: `polisyos.ir.analytics.hte.HTEResourceExecutionEvidenceV1`, `polisyos.ir.registry.refs.HTEInputSourceRef`, `polisyos.ir.registry.refs.HTEPhysicalSourceMaterializationBindingRef`, `polisyos.ir.registry.refs.MethodExecutionEvidenceRef`, `polisyos.ir.registry.refs.MethodResultEvidenceRef`, `polisyos.ir.registry.refs.OwnedAttemptAnchorRef`, `polisyos.ir.registry.refs.SearchUncertaintyTaskBindingRef`
+- Summary: Persist the selected per-row HTE point vector without interval semantics.
+
+| Field | Type | Required | Default | IR refs |
+| ----- | ---- | -------- | ------- | ------- |
+| `cate_values` | `tuple[float]` | `yes` | `—` | — |
+| `input_profile_id` | `Literal[all_source_rows_in_input_order@1.0]` | `yes` | `—` | — |
+| `materialization_binding_ref` | `polisyos.ir.registry.refs.HTEPhysicalSourceMaterializationBindingRef` | `yes` | `—` | `polisyos.ir.registry.refs.HTEPhysicalSourceMaterializationBindingRef` |
+| `method_abi` | `Literal[2.0.0]` | `yes` | `—` | — |
+| `method_abi_digest` | `str` | `yes` | `—` | — |
+| `method_evidence_ref` | `polisyos.ir.registry.refs.MethodExecutionEvidenceRef` | `yes` | `—` | `polisyos.ir.registry.refs.MethodExecutionEvidenceRef` |
+| `method_fqn` | `Literal[causal.hte.causal_forest@2.0.0, causal.hte.double_ml@2.0.0, causal.hte.meta_learner@2.0.0, causal.hte.forest_dr@2.0.0]` | `yes` | `—` | — |
+| `method_profile_id` | `Literal[econml.causal_forest_dml.native_mean@2.0, econml.dml.point_only@2.0, econml.meta_learner.point_only@2.0, econml.forest_dr.native_mean@2.0]` | `yes` | `—` | — |
+| `method_result_ref` | `polisyos.ir.registry.refs.MethodResultEvidenceRef` | `yes` | `—` | `polisyos.ir.registry.refs.MethodResultEvidenceRef` |
+| `n_selected_rows` | `int` | `yes` | `—` | — |
+| `owned_attempt_anchor_ref` | `polisyos.ir.registry.refs.OwnedAttemptAnchorRef` | `yes` | `—` | `polisyos.ir.registry.refs.OwnedAttemptAnchorRef` |
+| `point_estimate` | `float` | `yes` | `—` | — |
+| `resolved_params_sha256` | `str` | `yes` | `—` | — |
+| `resource_evidence` | `polisyos.ir.analytics.hte.HTEResourceExecutionEvidenceV1` | `yes` | `—` | `polisyos.ir.analytics.hte.HTEResourceExecutionEvidenceV1` |
+| `schema_version` | `Literal[1.0]` | `no` | `'1.0'` | — |
+| `search_uncertainty_task_binding_ref` | `polisyos.ir.registry.refs.SearchUncertaintyTaskBindingRef \| NoneType` | `no` | `—` | `polisyos.ir.registry.refs.SearchUncertaintyTaskBindingRef` |
+| `selected_input_sha256` | `str` | `yes` | `—` | — |
+| `selected_row_order_sha256` | `str` | `yes` | `—` | — |
+| `selected_rows_sha256` | `str` | `yes` | `—` | — |
+| `selected_x_sha256` | `str` | `yes` | `—` | — |
+| `source_data_ref` | `polisyos.ir.registry.refs.HTEInputSourceRef` | `yes` | `—` | `polisyos.ir.registry.refs.HTEInputSourceRef` |
+| `source_data_sha256` | `str` | `yes` | `—` | — |
+
+### `polisyos.ir.analytics.hte.HTERefusalDiagnostic` { #polisyos-ir-analytics-hte-hterefusaldiagnostic }
+
+- Kind: `pydantic_model`
+- Public status: `root_facade`
+- Current version: `1.0`
+- Exported from: `polisyos.ir.analytics:HTERefusalDiagnostic`, `polisyos.ir:HTERefusalDiagnostic`
+- ABI snapshot: `hte_refusal_diagnostic` / `schemas/snapshots/ir/hte_refusal_diagnostic.schema.json`
+- Compatibility mode: `none`
+- References: `polisyos.ir.analytics.hte.HTEResourceExecutionEvidenceV1`, `polisyos.ir.registry.refs.HTEPhysicalSourceMaterializationBindingRef`, `polisyos.ir.registry.refs.MethodExecutionEvidenceRef`, `polisyos.ir.registry.refs.MethodResultEvidenceRef`, `polisyos.ir.registry.refs.OwnedAttemptAnchorRef`, `polisyos.ir.registry.refs.SearchUncertaintyTaskBindingRef`
+- Summary: Persist the typed refusal returned by one owned HTE method execution.
+
+| Field | Type | Required | Default | IR refs |
+| ----- | ---- | -------- | ------- | ------- |
+| `diagnostic_code` | `Literal[hte_input_invalid, contrast_not_established, empty_selected_input, econml_unavailable, joblib_unavailable, resource_profile_invalid, dml_profile_invalid, meta_profile_invalid, hte_execution_failed, hte_fit_failed, hte_point_estimate_invalid]` | `yes` | `—` | — |
+| `diagnostic_origin` | `Literal[method_execution]` | `no` | `'method_execution'` | — |
+| `limitations` | `tuple[str]` | `yes` | `—` | — |
+| `materialization_binding_ref` | `polisyos.ir.registry.refs.HTEPhysicalSourceMaterializationBindingRef` | `yes` | `—` | `polisyos.ir.registry.refs.HTEPhysicalSourceMaterializationBindingRef` |
+| `method_abi` | `Literal[2.0.0]` | `yes` | `—` | — |
+| `method_abi_digest` | `str` | `yes` | `—` | — |
+| `method_evidence_ref` | `polisyos.ir.registry.refs.MethodExecutionEvidenceRef` | `yes` | `—` | `polisyos.ir.registry.refs.MethodExecutionEvidenceRef` |
+| `method_fqn` | `Literal[causal.hte.causal_forest@2.0.0, causal.hte.double_ml@2.0.0, causal.hte.meta_learner@2.0.0, causal.hte.forest_dr@2.0.0]` | `yes` | `—` | — |
+| `method_profile_id` | `Literal[econml.causal_forest_dml.native_mean@2.0, econml.dml.point_only@2.0, econml.meta_learner.point_only@2.0, econml.forest_dr.native_mean@2.0]` | `yes` | `—` | — |
+| `method_result_ref` | `polisyos.ir.registry.refs.MethodResultEvidenceRef` | `yes` | `—` | `polisyos.ir.registry.refs.MethodResultEvidenceRef` |
+| `n_selected_rows` | `int \| NoneType` | `no` | `—` | — |
+| `owned_attempt_anchor_ref` | `polisyos.ir.registry.refs.OwnedAttemptAnchorRef` | `yes` | `—` | `polisyos.ir.registry.refs.OwnedAttemptAnchorRef` |
+| `refusal_reason` | `Literal[invalid_point_estimate, method_execution_failed, required_input_unavailable, invalid_selected_input, method_profile_unavailable]` | `yes` | `—` | — |
+| `refusal_stage` | `Literal[prepare, fit, infer]` | `yes` | `—` | — |
+| `resource_evidence` | `polisyos.ir.analytics.hte.HTEResourceExecutionEvidenceV1 \| NoneType` | `yes` | `—` | `polisyos.ir.analytics.hte.HTEResourceExecutionEvidenceV1` |
+| `schema_version` | `Literal[1.0]` | `no` | `'1.0'` | — |
+| `search_uncertainty_task_binding_ref` | `polisyos.ir.registry.refs.SearchUncertaintyTaskBindingRef \| NoneType` | `no` | `—` | `polisyos.ir.registry.refs.SearchUncertaintyTaskBindingRef` |
+| `selected_input_sha256` | `str \| NoneType` | `no` | `—` | — |
+| `selected_row_order_sha256` | `str \| NoneType` | `no` | `—` | — |
+| `selected_rows_sha256` | `str \| NoneType` | `no` | `—` | — |
+| `selected_rows_status` | `Literal[recomputed, not_established]` | `yes` | `—` | — |
+| `selected_x_sha256` | `str \| NoneType` | `no` | `—` | — |
+
+### `polisyos.ir.analytics.hte.HTERefusalOutcome` { #polisyos-ir-analytics-hte-hterefusaloutcome }
+
+- Kind: `pydantic_model`
+- Public status: `root_facade`
+- Current version: `1.0`
+- Exported from: `polisyos.ir.analytics:HTERefusalOutcome`, `polisyos.ir:HTERefusalOutcome`
+- ABI snapshot: `—` / `—`
+- Compatibility mode: `—`
+- References: `polisyos.ir.analytics.hte.HTEResourceExecutionEvidenceV1`, `polisyos.ir.analytics.hte.HTETargetRelationV1`, `polisyos.ir.registry.refs.ArtifactRefModel`, `polisyos.ir.registry.refs.HTEInputSourceRef`, `polisyos.ir.registry.refs.HTEPhysicalSourceMaterializationBindingRef`, `polisyos.ir.registry.refs.HTERefusalDiagnosticRef`, `polisyos.ir.registry.refs.MethodExecutionEvidenceRef`, `polisyos.ir.registry.refs.MethodResultEvidenceRef`, `polisyos.ir.registry.refs.OwnedAttemptAnchorRef`, `polisyos.ir.registry.refs.SearchUncertaintyTaskBindingRef`
+- Summary: Stage-appropriate refusal that does not require successful-fit artifacts.
+
+| Field | Type | Required | Default | IR refs |
+| ----- | ---- | -------- | ------- | ------- |
+| `anchor_status` | `Literal[pre_output_anchor_resolved, not_established]` | `yes` | `—` | — |
+| `authority_status` | `Literal[refusal]` | `no` | `'refusal'` | — |
+| `contrast_status` | `Literal[established, not_established]` | `yes` | `—` | — |
+| `control_value` | `float \| NoneType` | `yes` | `—` | — |
+| `diagnostic_code` | `Literal[hte_input_invalid, contrast_not_established, empty_selected_input, econml_unavailable, joblib_unavailable, resource_profile_invalid, dml_profile_invalid, meta_profile_invalid, hte_execution_failed, hte_fit_failed, hte_point_estimate_invalid, runtime_origin_not_verified]` | `yes` | `—` | — |
+| `input_profile_id` | `Literal[all_source_rows_in_input_order@1.0] \| NoneType` | `yes` | `—` | — |
+| `invocation_basis_reason` | `Literal[owner_selected_invocation_basis, no_invocation_basis_artifact_contract, not_available_at_refusal_stage] \| NoneType` | `yes` | `—` | — |
+| `invocation_basis_ref` | `polisyos.ir.registry.refs.ArtifactRefModel \| NoneType` | `yes` | `—` | `polisyos.ir.registry.refs.ArtifactRefModel` |
+| `invocation_basis_status` | `Literal[established, not_established]` | `yes` | `—` | — |
+| `kind` | `Literal[refusal]` | `no` | `'refusal'` | — |
+| `limitations` | `tuple[str]` | `yes` | `—` | — |
+| `materialization_binding_ref` | `polisyos.ir.registry.refs.HTEPhysicalSourceMaterializationBindingRef` | `yes` | `—` | `polisyos.ir.registry.refs.HTEPhysicalSourceMaterializationBindingRef` |
+| `method_abi` | `Literal[2.0.0]` | `yes` | `—` | — |
+| `method_abi_digest` | `str \| NoneType` | `no` | `—` | — |
+| `method_evidence_ref` | `polisyos.ir.registry.refs.MethodExecutionEvidenceRef \| NoneType` | `yes` | `—` | `polisyos.ir.registry.refs.MethodExecutionEvidenceRef` |
+| `method_evidence_status` | `Literal[available, not_established]` | `yes` | `—` | — |
+| `method_fqn` | `Literal[causal.hte.causal_forest@2.0.0, causal.hte.double_ml@2.0.0, causal.hte.meta_learner@2.0.0, causal.hte.forest_dr@2.0.0]` | `yes` | `—` | — |
+| `method_profile_id` | `Literal[econml.causal_forest_dml.native_mean@2.0, econml.dml.point_only@2.0, econml.meta_learner.point_only@2.0, econml.forest_dr.native_mean@2.0]` | `yes` | `—` | — |
+| `method_result_ref` | `polisyos.ir.registry.refs.MethodResultEvidenceRef \| NoneType` | `yes` | `—` | `polisyos.ir.registry.refs.MethodResultEvidenceRef` |
+| `method_result_status` | `Literal[available, not_established]` | `yes` | `—` | — |
+| `n_selected_rows` | `int \| NoneType` | `no` | `—` | — |
+| `outcome_variable_id` | `str \| NoneType` | `no` | `—` | — |
+| `outcome_variable_status` | `Literal[declared, not_established]` | `yes` | `—` | — |
+| `owned_attempt_anchor_ref` | `polisyos.ir.registry.refs.OwnedAttemptAnchorRef \| NoneType` | `yes` | `—` | `polisyos.ir.registry.refs.OwnedAttemptAnchorRef` |
+| `refusal_diagnostic_ref` | `polisyos.ir.registry.refs.HTERefusalDiagnosticRef` | `yes` | `—` | `polisyos.ir.registry.refs.HTERefusalDiagnosticRef` |
+| `refusal_reason` | `Literal[invalid_point_estimate, method_execution_failed, required_input_unavailable, invalid_selected_input, method_profile_unavailable, runtime_origin_not_verified]` | `yes` | `—` | — |
+| `refusal_stage` | `Literal[prepare, fit, infer, origin_verification]` | `yes` | `—` | — |
+| `request_alpha_status` | `Literal[declared, not_established]` | `yes` | `—` | — |
+| `request_estimand` | `str \| NoneType` | `no` | `—` | — |
+| `request_estimand_status` | `Literal[declared, not_established]` | `yes` | `—` | — |
+| `request_target_scope` | `str \| NoneType` | `no` | `—` | — |
+| `request_target_scope_status` | `Literal[declared, not_established]` | `yes` | `—` | — |
+| `requested_alpha` | `float \| NoneType` | `no` | `—` | — |
+| `requested_guarantee` | `Literal[candidate_point, backend_conditional_interval, population_sampling_coverage] \| NoneType` | `yes` | `—` | — |
+| `requested_guarantee_status` | `Literal[declared, not_established]` | `yes` | `—` | — |
+| `requested_source_ref` | `polisyos.ir.registry.refs.HTEInputSourceRef \| NoneType` | `yes` | `—` | `polisyos.ir.registry.refs.HTEInputSourceRef` |
+| `requested_source_status` | `Literal[declared, not_established]` | `yes` | `—` | — |
+| `resolved_params_sha256` | `str \| NoneType` | `no` | `—` | — |
+| `resource_evidence` | `polisyos.ir.analytics.hte.HTEResourceExecutionEvidenceV1 \| NoneType` | `yes` | `—` | `polisyos.ir.analytics.hte.HTEResourceExecutionEvidenceV1` |
+| `schema_version` | `Literal[1.0]` | `no` | `'1.0'` | — |
+| `search_uncertainty_task_binding_ref` | `polisyos.ir.registry.refs.SearchUncertaintyTaskBindingRef \| NoneType` | `no` | `—` | `polisyos.ir.registry.refs.SearchUncertaintyTaskBindingRef` |
+| `selected_input_sha256` | `str \| NoneType` | `no` | `—` | — |
+| `selected_row_order_sha256` | `str \| NoneType` | `no` | `—` | — |
+| `selected_rows_sha256` | `str \| NoneType` | `no` | `—` | — |
+| `selected_rows_status` | `Literal[recomputed, not_established]` | `yes` | `—` | — |
+| `selected_x_sha256` | `str \| NoneType` | `no` | `—` | — |
+| `source_data_ref` | `polisyos.ir.registry.refs.HTEInputSourceRef \| NoneType` | `yes` | `—` | `polisyos.ir.registry.refs.HTEInputSourceRef` |
+| `source_data_status` | `Literal[content_bound, not_established]` | `yes` | `—` | — |
+| `target_relation` | `polisyos.ir.analytics.hte.HTETargetRelationV1 \| NoneType` | `yes` | `—` | `polisyos.ir.analytics.hte.HTETargetRelationV1` |
+| `treated_value` | `float \| NoneType` | `yes` | `—` | — |
+| `treatment_variable_id` | `str \| NoneType` | `no` | `—` | — |
+| `treatment_variable_status` | `Literal[declared, not_established]` | `yes` | `—` | — |
+
+### `polisyos.ir.analytics.hte.HTEResourceExecutionEvidenceV1` { #polisyos-ir-analytics-hte-hteresourceexecutionevidencev1 }
+
+- Kind: `pydantic_model`
+- Public status: `root_facade`
+- Current version: `1.0`
+- Exported from: `polisyos.ir.analytics:HTEResourceExecutionEvidenceV1`, `polisyos.ir:HTEResourceExecutionEvidenceV1`
+- ABI snapshot: `—` / `—`
+- Compatibility mode: `—`
+- References: `polisyos.ir.registry.refs.HTEResourcePolicyRef`
+- Summary: Bind the selected Runtime policy to its method-specific observed scope.
+
+| Field | Type | Required | Default | IR refs |
+| ----- | ---- | -------- | ------- | ------- |
+| `estimator_after_class_fqn` | `str \| NoneType` | `no` | `—` | — |
+| `estimator_after_n_jobs` | `int \| NoneType` | `no` | `—` | — |
+| `estimator_after_params_sha256` | `str \| NoneType` | `no` | `—` | — |
+| `estimator_before_class_fqn` | `str \| NoneType` | `no` | `—` | — |
+| `estimator_before_n_jobs` | `int \| NoneType` | `no` | `—` | — |
+| `estimator_before_params_sha256` | `str \| NoneType` | `no` | `—` | — |
+| `estimator_observation_status` | `Literal[recomputed, not_applicable, not_established]` | `yes` | `—` | — |
+| `execution_status` | `Literal[not_started, returned, raised]` | `yes` | `—` | — |
+| `joblib_entry_backend_fqn` | `str \| NoneType` | `no` | `—` | — |
+| `joblib_entry_config_sha256` | `str \| NoneType` | `no` | `—` | — |
+| `joblib_entry_effective_jobs` | `int \| NoneType` | `no` | `—` | — |
+| `joblib_entry_implementation_version` | `str \| NoneType` | `no` | `—` | — |
+| `joblib_exit_backend_fqn` | `str \| NoneType` | `no` | `—` | — |
+| `joblib_exit_config_sha256` | `str \| NoneType` | `no` | `—` | — |
+| `joblib_exit_effective_jobs` | `int \| NoneType` | `no` | `—` | — |
+| `joblib_exit_implementation_version` | `str \| NoneType` | `no` | `—` | — |
+| `joblib_exit_status` | `Literal[not_started, returned, raised]` | `yes` | `—` | — |
+| `joblib_finished` | `bool` | `yes` | `—` | — |
+| `joblib_implementation` | `Literal[joblib.parallel_config] \| NoneType` | `yes` | `—` | — |
+| `joblib_implementation_version` | `str \| NoneType` | `no` | `—` | — |
+| `joblib_max_jobs` | `Literal[1] \| NoneType` | `yes` | `—` | — |
+| `joblib_observation_status` | `Literal[recomputed, not_applicable, not_established]` | `yes` | `—` | — |
+| `joblib_profile_id` | `Literal[joblib.parallel_config.current_thread@1.0] \| NoneType` | `yes` | `—` | — |
+| `joblib_profile_revision` | `Literal[1.0] \| NoneType` | `yes` | `—` | — |
+| `joblib_scope` | `Literal[current_thread_joblib] \| NoneType` | `yes` | `—` | — |
+| `joblib_started` | `bool` | `yes` | `—` | — |
+| `owner_policy_digest` | `str` | `yes` | `—` | — |
+| `owner_policy_execution_scope` | `Literal[producer_scoped_joblib_parallelism_one]` | `yes` | `—` | — |
+| `owner_policy_manifest_schema_version` | `Literal[1.0]` | `no` | `'1.0'` | — |
+| `owner_policy_max_jobs` | `Literal[1]` | `yes` | `—` | — |
+| `owner_policy_method_fqn` | `Literal[causal.hte.causal_forest@2.0.0, causal.hte.double_ml@2.0.0, causal.hte.meta_learner@2.0.0, causal.hte.forest_dr@2.0.0]` | `yes` | `—` | — |
+| `owner_policy_method_profile_id` | `Literal[econml.causal_forest_dml.native_mean@2.0, econml.dml.point_only@2.0, econml.meta_learner.point_only@2.0, econml.forest_dr.native_mean@2.0]` | `yes` | `—` | — |
+| `owner_policy_ref` | `polisyos.ir.registry.refs.HTEResourcePolicyRef` | `yes` | `—` | `polisyos.ir.registry.refs.HTEResourcePolicyRef` |
+| `owner_policy_required_estimator_n_jobs` | `Literal[1] \| NoneType` | `yes` | `—` | — |
+| `owner_policy_revision` | `Literal[r5]` | `yes` | `—` | — |
+| `owner_policy_schema_version` | `Literal[polisyos.runtime.observational_input_resource_policy.v5]` | `yes` | `—` | — |
+| `physical_thread_limit` | `NoneType` | `no` | `—` | — |
+| `physical_thread_limit_status` | `Literal[not_established]` | `no` | `'not_established'` | — |
+| `schema_version` | `Literal[1.0]` | `no` | `'1.0'` | — |
 
 ### `polisyos.ir.analytics.hte.HTEResult` { #polisyos-ir-analytics-hte-hteresult }
 
@@ -9807,6 +10271,38 @@ uv run --extra ml polisyos-tools diagnostics gen-schema
 | `n_treated` | `int` | `no` | `0` | — |
 | `schema_version` | `str` | `no` | `'1.0'` | — |
 | `subgroup_effects` | `list[polisyos.ir.analytics.hte.SubgroupEffect]` | `no` | `—` | `polisyos.ir.analytics.hte.SubgroupEffect` |
+
+### `polisyos.ir.analytics.hte.HTETargetRelationV1` { #polisyos-ir-analytics-hte-htetargetrelationv1 }
+
+- Kind: `pydantic_model`
+- Public status: `root_facade`
+- Current version: `1.0`
+- Exported from: `polisyos.ir.analytics:HTETargetRelationV1`, `polisyos.ir:HTETargetRelationV1`
+- ABI snapshot: `—` / `—`
+- Compatibility mode: `—`
+- References: —
+- Summary: Keep the requested target separate from the computed row frame and guarantee.
+
+| Field | Type | Required | Default | IR refs |
+| ----- | ---- | -------- | ------- | ------- |
+| `alpha_status` | `Literal[recomputed, not_applicable, not_established]` | `yes` | `—` | — |
+| `computed_guarantee` | `Literal[candidate_point, backend_conditional_interval] \| NoneType` | `yes` | `—` | — |
+| `computed_guarantee_status` | `Literal[computed, not_established]` | `yes` | `—` | — |
+| `computed_scope` | `Literal[selected_evaluation_rows] \| NoneType` | `yes` | `—` | — |
+| `computed_scope_status` | `Literal[recomputed, not_established]` | `yes` | `—` | — |
+| `contrast_status` | `Literal[recomputed, not_established]` | `yes` | `—` | — |
+| `estimand_status` | `Literal[not_established]` | `no` | `'not_established'` | — |
+| `guarantee_disposition` | `Literal[satisfied, requested_claim_not_satisfied, not_established]` | `yes` | `—` | — |
+| `overall_disposition` | `Literal[satisfied, requested_claim_not_satisfied, not_established]` | `yes` | `—` | — |
+| `profile_status` | `Literal[qualified, point_only, not_established]` | `yes` | `—` | — |
+| `requested_guarantee` | `Literal[candidate_point, backend_conditional_interval, population_sampling_coverage] \| NoneType` | `yes` | `—` | — |
+| `requested_guarantee_status` | `Literal[declared, not_established]` | `yes` | `—` | — |
+| `requested_scope` | `str \| NoneType` | `no` | `—` | — |
+| `requested_scope_status` | `Literal[declared, not_established]` | `yes` | `—` | — |
+| `row_order_status` | `Literal[recomputed, not_established]` | `yes` | `—` | — |
+| `schema_version` | `Literal[1.0]` | `no` | `'1.0'` | — |
+| `scope_disposition` | `Literal[satisfied, requested_claim_not_satisfied, not_established]` | `yes` | `—` | — |
+| `source_content_status` | `Literal[content_bound, not_established]` | `yes` | `—` | — |
 
 ### `polisyos.ir.analytics.hte.PolicyRecommendation` { #polisyos-ir-analytics-hte-policyrecommendation }
 
@@ -14880,6 +15376,31 @@ uv run --extra ml polisyos-tools diagnostics gen-schema
 | `target_context` | `polisyos.ir.analytics.context.ContextProfile` | `yes` | `—` | `polisyos.ir.analytics.context.ContextProfile` |
 | `unsupported_parameters` | `list[str]` | `no` | `—` | — |
 
+### `polisyos.ir.analytics.parameters.ContextAdaptiveParameterBundleV12` { #polisyos-ir-analytics-parameters-contextadaptiveparameterbundlev12 }
+
+- Kind: `pydantic_model`
+- Public status: `internal`
+- Current version: `1.2`
+- Exported from: —
+- ABI snapshot: `—` / `—`
+- Compatibility mode: `—`
+- References: `polisyos.ir.analytics.context.ContextProfile`, `polisyos.ir.analytics.literature.EvidenceParameter`, `polisyos.ir.analytics.parameters.ParameterApplicability`, `polisyos.ir.registry.refs.CrossGraphEvidenceProfileRef`
+- Summary: Source-bound bundle requiring an exact retained SKG descriptor.
+
+| Field | Type | Required | Default | IR refs |
+| ----- | ---- | -------- | ------- | ------- |
+| `applicability` | `dict[str, polisyos.ir.analytics.parameters.ParameterApplicability]` | `no` | `—` | `polisyos.ir.analytics.parameters.ParameterApplicability` |
+| `parameters` | `dict[str, polisyos.ir.analytics.literature.EvidenceParameter]` | `no` | `—` | `polisyos.ir.analytics.literature.EvidenceParameter` |
+| `schema_version` | `Literal[1.2]` | `no` | `'1.2'` | — |
+| `selected_cross_graph_profile_ref` | `polisyos.ir.registry.refs.CrossGraphEvidenceProfileRef \| NoneType` | `yes` | `—` | `polisyos.ir.registry.refs.CrossGraphEvidenceProfileRef` |
+| `selected_skg_source` | `RetainedSKGSourceBinding` | `yes` | `—` | — |
+| `selection_timestamp` | `str` | `no` | `''` | — |
+| `simulation_domain` | `str` | `yes` | `—` | — |
+| `skg_snapshot_ref` | `str` | `no` | `''` | — |
+| `skg_version_id` | `int \| NoneType` | `no` | `—` | — |
+| `target_context` | `polisyos.ir.analytics.context.ContextProfile` | `yes` | `—` | `polisyos.ir.analytics.context.ContextProfile` |
+| `unsupported_parameters` | `list[str]` | `no` | `—` | — |
+
 ### `polisyos.ir.analytics.parameters.ParameterApplicability` { #polisyos-ir-analytics-parameters-parameterapplicability }
 
 - Kind: `pydantic_model`
@@ -19614,9 +20135,10 @@ uv run --extra ml polisyos-tools diagnostics gen-schema
 - Current version: `1.2`
 - Exported from: `polisyos.ir.analytics:StructuralCausalModelSpec`, `polisyos.ir:StructuralCausalModelSpec`
 - ABI snapshot: `structural_causal_model_spec` / `schemas/snapshots/ir/structural_causal_model_spec.schema.json`
-- Compatibility mode: `—`
+- Compatibility mode: `backward`
 - References: `polisyos.ir.analytics.causal_graph.CausalGraphModel`, `polisyos.ir.analytics.causal_graph.GraphProjectionDisposition`, `polisyos.ir.analytics.structural_causal_model.NodeMechanism`, `polisyos.ir.analytics.structural_causal_model.SCMFitProvenance`, `polisyos.ir.analytics.structural_causal_model.SCMTrainingRows`
 - Summary: Serializable structural causal model with graph and node mechanisms.
+- Declared readable versions: `1.0, 1.1`
 
 | Field | Type | Required | Default | IR refs |
 | ----- | ---- | -------- | ------- | ------- |
@@ -20772,6 +21294,27 @@ uv run --extra ml polisyos-tools diagnostics gen-schema
 | ----- | ---- | -------- | ------- | ------- |
 | `envelope` | `UncertaintyEnvelope \| None` | `yes` | `—` | — |
 | `limitation_codes` | `tuple[str, ...]` | `no` | `()` | — |
+
+### `polisyos.ir.analytics.uncertainty.PersistedUncertaintySubjectProjection` { #polisyos-ir-analytics-uncertainty-persisteduncertaintysubjectprojection }
+
+- Kind: `dataclass`
+- Public status: `internal`
+- Current version: `—`
+- Exported from: —
+- ABI snapshot: `—` / `—`
+- Compatibility mode: `—`
+- References: —
+- Summary: Expose one freshly resolved uncertainty envelope without granting authority.
+
+| Field | Type | Required | Default | IR refs |
+| ----- | ---- | -------- | ------- | ------- |
+| `subject_kind` | `Literal['metric', 'state_slot']` | `yes` | `—` | — |
+| `subject_id` | `str` | `yes` | `—` | — |
+| `envelope` | `UncertaintyEnvelope \| None` | `yes` | `—` | — |
+| `envelope_ref` | `UncertaintyEnvelopeRef \| None` | `yes` | `—` | — |
+| `limitation_codes` | `tuple[str, ...]` | `no` | `()` | — |
+| `candidate_only` | `Literal[True]` | `no` | `True` | — |
+| `gate_eligible` | `Literal[False]` | `no` | `False` | — |
 
 ### `polisyos.ir.analytics.uncertainty.PosteriorSamplesCarrier` { #polisyos-ir-analytics-uncertainty-posteriorsamplescarrier }
 
@@ -24035,6 +24578,288 @@ uv run --extra ml polisyos-tools diagnostics gen-schema
 | `kind` | `polisyos.ir.kernel.merge_rules.MergeRuleKind` | `yes` | `—` | `polisyos.ir.kernel.merge_rules.MergeRuleKind` |
 | `rule_id` | `str` | `yes` | `—` | — |
 
+### `polisyos.ir.kernel.method_metrics.MethodMetricBackendAttempt` { #polisyos-ir-kernel-method-metrics-methodmetricbackendattempt }
+
+- Kind: `pydantic_model`
+- Public status: `package_facade`
+- Current version: `—`
+- Exported from: `polisyos.ir.kernel:MethodMetricBackendAttempt`
+- ABI snapshot: `—` / `—`
+- Compatibility mode: `—`
+- References: —
+- Summary: One backend attempt copied from the selected dispatch trace.
+
+| Field | Type | Required | Default | IR refs |
+| ----- | ---- | -------- | ------- | ------- |
+| `backend` | `str` | `yes` | `—` | — |
+| `outcome` | `str` | `yes` | `—` | — |
+
+### `polisyos.ir.kernel.method_metrics.MethodMetricCapturedInputArray` { #polisyos-ir-kernel-method-metrics-methodmetriccapturedinputarray }
+
+- Kind: `pydantic_model`
+- Public status: `package_facade`
+- Current version: `—`
+- Exported from: `polisyos.ir.kernel:MethodMetricCapturedInputArray`
+- ABI snapshot: `—` / `—`
+- Compatibility mode: `—`
+- References: `polisyos.ir.kernel.method_metrics.MethodMetricSourceUnit`
+- Summary: Law-required numeric input retained once with its exact runtime layout.
+
+| Field | Type | Required | Default | IR refs |
+| ----- | ---- | -------- | ------- | ------- |
+| `dtype` | `str` | `yes` | `—` | — |
+| `shape` | `tuple[int]` | `yes` | `—` | — |
+| `slot_id` | `str` | `yes` | `—` | — |
+| `unit` | `polisyos.ir.kernel.method_metrics.MethodMetricSourceUnit \| NoneType` | `no` | `—` | `polisyos.ir.kernel.method_metrics.MethodMetricSourceUnit` |
+| `value_sha256` | `str` | `yes` | `—` | — |
+| `values` | `tuple[int \| float]` | `yes` | `—` | — |
+
+### `polisyos.ir.kernel.method_metrics.MethodMetricExecutionContext` { #polisyos-ir-kernel-method-metrics-methodmetricexecutioncontext }
+
+- Kind: `pydantic_model`
+- Public status: `package_facade`
+- Current version: `—`
+- Exported from: `polisyos.ir.kernel:MethodMetricExecutionContext`
+- ABI snapshot: `—` / `—`
+- Compatibility mode: `—`
+- References: `polisyos.ir.kernel.method_metrics.MethodMetricBackendAttempt`, `polisyos.ir.kernel.method_metrics.MethodMetricInputContext`, `polisyos.ir.kernel.method_metrics.MethodMetricInputRoleContext`, `polisyos.ir.kernel.method_metrics.MethodMetricParameterContext`
+- Summary: Strict replay context the registered output law requires before observation.
+
+| Field | Type | Required | Default | IR refs |
+| ----- | ---- | -------- | ------- | ------- |
+| `actual_backend` | `str \| NoneType` | `no` | `—` | — |
+| `backend_attempts` | `tuple[polisyos.ir.kernel.method_metrics.MethodMetricBackendAttempt]` | `yes` | `—` | `polisyos.ir.kernel.method_metrics.MethodMetricBackendAttempt` |
+| `backend_identity_status` | `Literal[reconciled, mismatch, not_established]` | `yes` | `—` | — |
+| `backend_selection_reason` | `str \| NoneType` | `no` | `—` | — |
+| `backend_trace_status` | `Literal[captured, not_established, not_started]` | `yes` | `—` | — |
+| `completed_at` | `datetime \| NoneType` | `no` | `—` | — |
+| `dispatch_elapsed_ms` | `float \| NoneType` | `no` | `—` | — |
+| `dispatch_outcome` | `Literal[succeeded, failed, not_run]` | `yes` | `—` | — |
+| `fallback_status` | `Literal[fell_back, not_fell_back, not_established, not_started]` | `yes` | `—` | — |
+| `graph_input_ids` | `tuple[str]` | `yes` | `—` | — |
+| `input_role_values` | `tuple[polisyos.ir.kernel.method_metrics.MethodMetricInputRoleContext]` | `yes` | `—` | `polisyos.ir.kernel.method_metrics.MethodMetricInputRoleContext` |
+| `input_slot_values` | `tuple[polisyos.ir.kernel.method_metrics.MethodMetricInputContext]` | `yes` | `—` | `polisyos.ir.kernel.method_metrics.MethodMetricInputContext` |
+| `method_abi_digest` | `str` | `yes` | `—` | — |
+| `method_abi_digest_algorithm` | `Literal[blake2b]` | `yes` | `—` | — |
+| `method_build_digest` | `str \| NoneType` | `no` | `—` | — |
+| `method_build_digest_scope` | `Literal[class_source_only, unavailable]` | `no` | `'unavailable'` | — |
+| `method_fqn` | `str` | `yes` | `—` | — |
+| `method_key_words` | `tuple[int]` | `yes` | `—` | — |
+| `method_seed` | `int \| NoneType` | `no` | `—` | — |
+| `method_version` | `str` | `yes` | `—` | — |
+| `output_slot_id` | `str` | `yes` | `—` | — |
+| `output_value_path` | `tuple[str]` | `no` | `—` | — |
+| `parameter_resolution_status` | `Literal[captured, not_established]` | `yes` | `—` | — |
+| `parameter_values` | `tuple[polisyos.ir.kernel.method_metrics.MethodMetricParameterContext]` | `yes` | `—` | `polisyos.ir.kernel.method_metrics.MethodMetricParameterContext` |
+| `prestate_identity_sha256` | `str \| NoneType` | `no` | `—` | — |
+| `prestate_identity_status` | `Literal[captured, not_established]` | `yes` | `—` | — |
+| `reproducibility_seed` | `int \| NoneType` | `no` | `—` | — |
+| `requested_backend` | `str \| NoneType` | `no` | `—` | — |
+| `rng_state_status` | `Literal[key_captured, runner_rng_state_not_retained]` | `yes` | `—` | — |
+| `root_seed` | `int \| NoneType` | `no` | `—` | — |
+| `runner_compile_time_ms` | `float \| NoneType` | `no` | `—` | — |
+| `runner_cpu_time_ms` | `float \| NoneType` | `no` | `—` | — |
+| `runner_wall_time_ms` | `float \| NoneType` | `no` | `—` | — |
+| `seed_status` | `Literal[reconciled, mismatch, not_established]` | `yes` | `—` | — |
+| `selected_backend` | `str \| NoneType` | `no` | `—` | — |
+| `signature_input_slot_ids` | `tuple[str]` | `yes` | `—` | — |
+| `signature_output_slot_ids` | `tuple[str]` | `yes` | `—` | — |
+| `signature_parameter_names` | `tuple[str]` | `yes` | `—` | — |
+| `started_at` | `datetime \| NoneType` | `no` | `—` | — |
+| `step` | `int \| NoneType` | `no` | `—` | — |
+
+### `polisyos.ir.kernel.method_metrics.MethodMetricInputContext` { #polisyos-ir-kernel-method-metrics-methodmetricinputcontext }
+
+- Kind: `pydantic_model`
+- Public status: `package_facade`
+- Current version: `—`
+- Exported from: `polisyos.ir.kernel:MethodMetricInputContext`
+- ABI snapshot: `—` / `—`
+- Compatibility mode: `—`
+- References: —
+- Summary: Captured actual content identity for one method input slot.
+
+| Field | Type | Required | Default | IR refs |
+| ----- | ---- | -------- | ------- | ------- |
+| `method_input_slot_id` | `str` | `yes` | `—` | — |
+| `status` | `Literal[captured, not_established]` | `yes` | `—` | — |
+| `value_sha256` | `str \| NoneType` | `no` | `—` | — |
+
+### `polisyos.ir.kernel.method_metrics.MethodMetricInputRole` { #polisyos-ir-kernel-method-metrics-methodmetricinputrole }
+
+- Kind: `pydantic_model`
+- Public status: `package_facade`
+- Current version: `—`
+- Exported from: `polisyos.ir.kernel:MethodMetricInputRole`
+- ABI snapshot: `—` / `—`
+- Compatibility mode: `—`
+- References: —
+- Summary: A declared method input role that would be required to establish an output.
+
+| Field | Type | Required | Default | IR refs |
+| ----- | ---- | -------- | ------- | ------- |
+| `method_input_slot_id` | `str` | `yes` | `—` | — |
+| `role_id` | `str` | `yes` | `—` | — |
+
+### `polisyos.ir.kernel.method_metrics.MethodMetricInputRoleContext` { #polisyos-ir-kernel-method-metrics-methodmetricinputrolecontext }
+
+- Kind: `pydantic_model`
+- Public status: `package_facade`
+- Current version: `—`
+- Exported from: `polisyos.ir.kernel:MethodMetricInputRoleContext`
+- ABI snapshot: `—` / `—`
+- Compatibility mode: `—`
+- References: —
+- Summary: Reconciled semantic role to actual ABI slot and captured input identity.
+
+| Field | Type | Required | Default | IR refs |
+| ----- | ---- | -------- | ------- | ------- |
+| `method_input_slot_id` | `str` | `yes` | `—` | — |
+| `role_id` | `str` | `yes` | `—` | — |
+| `value_sha256` | `str` | `yes` | `—` | — |
+
+### `polisyos.ir.kernel.method_metrics.MethodMetricParameterContext` { #polisyos-ir-kernel-method-metrics-methodmetricparametercontext }
+
+- Kind: `pydantic_model`
+- Public status: `package_facade`
+- Current version: `—`
+- Exported from: `polisyos.ir.kernel:MethodMetricParameterContext`
+- ABI snapshot: `—` / `—`
+- Compatibility mode: `—`
+- References: —
+- Summary: Captured effective parameter identity and default/request provenance.
+
+| Field | Type | Required | Default | IR refs |
+| ----- | ---- | -------- | ------- | ------- |
+| `name` | `str` | `yes` | `—` | — |
+| `source` | `Literal[requested, signature_default, signature_default_unresolved, requested_unresolved]` | `yes` | `—` | — |
+| `status` | `Literal[captured, unsupported_codec]` | `yes` | `—` | — |
+| `value_sha256` | `str \| NoneType` | `no` | `—` | — |
+
+### `polisyos.ir.kernel.method_metrics.MethodMetricPredicateEvidence` { #polisyos-ir-kernel-method-metrics-methodmetricpredicateevidence }
+
+- Kind: `pydantic_model`
+- Public status: `package_facade`
+- Current version: `—`
+- Exported from: `polisyos.ir.kernel:MethodMetricPredicateEvidence`
+- ABI snapshot: `—` / `—`
+- Compatibility mode: `—`
+- References: —
+- Summary: Owner-computed evidence for one semantic predicate of a metric law.
+
+| Field | Type | Required | Default | IR refs |
+| ----- | ---- | -------- | ------- | ------- |
+| `classification` | `Literal[recomputed, independently_reconciled, not_established]` | `yes` | `—` | — |
+| `evidence_sha256` | `str \| NoneType` | `no` | `—` | — |
+| `limitation` | `str \| NoneType` | `no` | `—` | — |
+| `predicate_id` | `str` | `yes` | `—` | — |
+
+### `polisyos.ir.kernel.method_metrics.MethodMetricSemanticContract` { #polisyos-ir-kernel-method-metrics-methodmetricsemanticcontract }
+
+- Kind: `pydantic_model`
+- Public status: `package_facade`
+- Current version: `—`
+- Exported from: `polisyos.ir.kernel:MethodMetricSemanticContract`
+- ABI snapshot: `—` / `—`
+- Compatibility mode: `—`
+- References: `polisyos.ir.kernel.method_metrics.MethodMetricInputRole`
+- Summary: Declared meaning of a method output, kept distinct from its numeric value.
+
+| Field | Type | Required | Default | IR refs |
+| ----- | ---- | -------- | ------- | ------- |
+| `axes` | `tuple[str]` | `yes` | `—` | — |
+| `denominator_id` | `str \| NoneType` | `no` | `—` | — |
+| `input_roles` | `tuple[polisyos.ir.kernel.method_metrics.MethodMetricInputRole]` | `no` | `()` | `polisyos.ir.kernel.method_metrics.MethodMetricInputRole` |
+| `output_value_path` | `tuple[str]` | `no` | `()` | — |
+| `population_id` | `str` | `yes` | `—` | — |
+| `producer_contract_id` | `str` | `yes` | `—` | — |
+| `quantity_kind` | `str` | `yes` | `—` | — |
+| `quantity_role` | `str` | `yes` | `—` | — |
+| `time_role` | `str` | `yes` | `—` | — |
+
+### `polisyos.ir.kernel.method_metrics.MethodMetricSourceUnit` { #polisyos-ir-kernel-method-metrics-methodmetricsourceunit }
+
+- Kind: `pydantic_model`
+- Public status: `package_facade`
+- Current version: `—`
+- Exported from: `polisyos.ir.kernel:MethodMetricSourceUnit`
+- ABI snapshot: `—` / `—`
+- Compatibility mode: `—`
+- References: —
+- Summary: Exact unit descriptor taken from a method ABI output slot.
+
+| Field | Type | Required | Default | IR refs |
+| ----- | ---- | -------- | ------- | ------- |
+| `dimension` | `str` | `yes` | `—` | — |
+| `scale` | `int \| float` | `yes` | `—` | — |
+| `symbol` | `str` | `yes` | `—` | — |
+
+### `polisyos.ir.kernel.method_metrics.RegisteredMethodMetricLawResult` { #polisyos-ir-kernel-method-metrics-registeredmethodmetriclawresult }
+
+- Kind: `pydantic_model`
+- Public status: `package_facade`
+- Current version: `—`
+- Exported from: `polisyos.ir.kernel:RegisteredMethodMetricLawResult`
+- ABI snapshot: `—` / `—`
+- Compatibility mode: `—`
+- References: `polisyos.ir.kernel.method_metrics.MethodMetricPredicateEvidence`
+- Summary: Finite direct output with exact rational identity or a typed limitation.
+
+| Field | Type | Required | Default | IR refs |
+| ----- | ---- | -------- | ------- | ------- |
+| `code_digest` | `str` | `yes` | `—` | — |
+| `exact_value_denominator` | `int \| NoneType` | `no` | `—` | — |
+| `exact_value_numerator` | `int \| NoneType` | `no` | `—` | — |
+| `law_id` | `str` | `yes` | `—` | — |
+| `law_version` | `str` | `yes` | `—` | — |
+| `limitation` | `str \| NoneType` | `no` | `—` | — |
+| `predicate_evidence` | `tuple[polisyos.ir.kernel.method_metrics.MethodMetricPredicateEvidence]` | `no` | `()` | `polisyos.ir.kernel.method_metrics.MethodMetricPredicateEvidence` |
+| `status` | `Literal[available, unavailable]` | `yes` | `—` | — |
+| `value` | `int \| float \| NoneType` | `no` | `—` | — |
+
+### `polisyos.ir.kernel.method_metrics.RegisteredMethodMetricUnitAdapter` { #polisyos-ir-kernel-method-metrics-registeredmethodmetricunitadapter }
+
+- Kind: `pydantic_model`
+- Public status: `package_facade`
+- Current version: `—`
+- Exported from: `polisyos.ir.kernel:RegisteredMethodMetricUnitAdapter`
+- ABI snapshot: `—` / `—`
+- Compatibility mode: `—`
+- References: —
+- Summary: Owner-computed outcome of exact source-to-target unit admission.
+
+| Field | Type | Required | Default | IR refs |
+| ----- | ---- | -------- | ------- | ------- |
+| `adapter_id` | `str` | `yes` | `—` | — |
+| `adapter_version` | `str` | `yes` | `—` | — |
+| `code_digest` | `str` | `yes` | `—` | — |
+| `factor_denominator` | `int \| NoneType` | `no` | `—` | — |
+| `factor_numerator` | `int \| NoneType` | `no` | `—` | — |
+| `limitation` | `str \| NoneType` | `no` | `—` | — |
+| `operation` | `Literal[identity, ratio_to_percent, percent_to_ratio, unsupported]` | `yes` | `—` | — |
+
+### `polisyos.ir.kernel.method_metrics.RegisteredMethodMetricUnitResult` { #polisyos-ir-kernel-method-metrics-registeredmethodmetricunitresult }
+
+- Kind: `pydantic_model`
+- Public status: `package_facade`
+- Current version: `—`
+- Exported from: `polisyos.ir.kernel:RegisteredMethodMetricUnitResult`
+- ABI snapshot: `—` / `—`
+- Compatibility mode: `—`
+- References: —
+- Summary: Exact converted quantity, available as float only when conversion is exact.
+
+| Field | Type | Required | Default | IR refs |
+| ----- | ---- | -------- | ------- | ------- |
+| `adapter_id` | `str` | `yes` | `—` | — |
+| `adapter_version` | `str` | `yes` | `—` | — |
+| `code_digest` | `str` | `yes` | `—` | — |
+| `exact_value_denominator` | `int \| NoneType` | `no` | `—` | — |
+| `exact_value_numerator` | `int \| NoneType` | `no` | `—` | — |
+| `limitation` | `str \| NoneType` | `no` | `—` | — |
+| `status` | `Literal[available, unavailable]` | `yes` | `—` | — |
+| `value` | `float \| NoneType` | `no` | `—` | — |
+
 ### `polisyos.ir.kernel.metrics.MetricCanonicalizationResult` { #polisyos-ir-kernel-metrics-metriccanonicalizationresult }
 
 - Kind: `dataclass`
@@ -24067,7 +24892,7 @@ uv run --extra ml polisyos-tools diagnostics gen-schema
 | ----- | ---- | -------- | ------- | ------- |
 | `metrics` | `dict[str, polisyos.ir.kernel.metrics.MetricSpec]` | `no` | `—` | `polisyos.ir.kernel.metrics.MetricSpec` |
 | `notes` | `list[str]` | `no` | `—` | — |
-| `schema_version` | `str` | `no` | `'1.0'` | — |
+| `schema_version` | `Literal[1.0, 1.1]` | `no` | `'1.0'` | — |
 
 ### `polisyos.ir.kernel.metrics.MetricSpec` { #polisyos-ir-kernel-metrics-metricspec }
 
@@ -24077,12 +24902,13 @@ uv run --extra ml polisyos-tools diagnostics gen-schema
 - Exported from: `polisyos.ir.kernel:MetricSpec`
 - ABI snapshot: `—` / `—`
 - Compatibility mode: `—`
-- References: —
+- References: `polisyos.ir.kernel.method_metrics.MethodMetricSemanticContract`
 - Summary: Describe a named metric id plus the unit and semantics other contracts should reuse.
 
 | Field | Type | Required | Default | IR refs |
 | ----- | ---- | -------- | ------- | ------- |
 | `description` | `str \| NoneType` | `no` | `—` | — |
+| `method_semantics` | `polisyos.ir.kernel.method_metrics.MethodMetricSemanticContract \| NoneType` | `no` | `—` | `polisyos.ir.kernel.method_metrics.MethodMetricSemanticContract` |
 | `metric_id` | `str` | `yes` | `—` | — |
 | `unit_id` | `str \| NoneType` | `no` | `—` | — |
 
@@ -30354,6 +31180,24 @@ uv run --extra ml polisyos-tools diagnostics gen-schema
 | `manifest_profile_sha256` | `str \| NoneType` | `no` | `—` | — |
 | `media_type` | `Literal[application/json]` | `no` | `'application/json'` | — |
 
+### `polisyos.ir.registry.refs.ATEInferenceBasisRef` { #polisyos-ir-registry-refs-ateinferencebasisref }
+
+- Kind: `pydantic_model`
+- Public status: `root_facade`
+- Current version: `—`
+- Exported from: `polisyos.ir.analytics:ATEInferenceBasisRef`, `polisyos.ir.registry:ATEInferenceBasisRef`, `polisyos.ir:ATEInferenceBasisRef`
+- ABI snapshot: `—` / `—`
+- Compatibility mode: `—`
+- References: `polisyos.ir.artifacts.contracts.ArtifactID`
+- Summary: Selected reference to native mean-inference provenance and witnesses.
+
+| Field | Type | Required | Default | IR refs |
+| ----- | ---- | -------- | ------- | ------- |
+| `artifact_id` | `polisyos.ir.artifacts.contracts.ArtifactID` | `yes` | `—` | `polisyos.ir.artifacts.contracts.ArtifactID` |
+| `kind` | `Literal[ir.ate_inference_basis]` | `no` | `'ir.ate_inference_basis'` | — |
+| `manifest_profile_sha256` | `str` | `yes` | `—` | — |
+| `media_type` | `Literal[application/json]` | `no` | `'application/json'` | — |
+
 ### `polisyos.ir.registry.refs.AbstractionCertificateRef` { #polisyos-ir-registry-refs-abstractioncertificateref }
 
 - Kind: `pydantic_model`
@@ -31254,6 +32098,132 @@ uv run --extra ml polisyos-tools diagnostics gen-schema
 | `manifest_profile_sha256` | `str \| NoneType` | `no` | `—` | — |
 | `media_type` | `Literal[application/json]` | `no` | `'application/json'` | — |
 
+### `polisyos.ir.registry.refs.HTEInputSourceRef` { #polisyos-ir-registry-refs-hteinputsourceref }
+
+- Kind: `pydantic_model`
+- Public status: `root_facade`
+- Current version: `—`
+- Exported from: `polisyos.ir.analytics:HTEInputSourceRef`, `polisyos.ir.registry:HTEInputSourceRef`, `polisyos.ir:HTEInputSourceRef`
+- ABI snapshot: `—` / `—`
+- Compatibility mode: `—`
+- References: `polisyos.ir.artifacts.contracts.ArtifactID`
+- Summary: Selected source-data ref retained by an HTE outcome.
+
+| Field | Type | Required | Default | IR refs |
+| ----- | ---- | -------- | ------- | ------- |
+| `artifact_id` | `polisyos.ir.artifacts.contracts.ArtifactID` | `yes` | `—` | `polisyos.ir.artifacts.contracts.ArtifactID` |
+| `kind` | `str` | `yes` | `—` | — |
+| `manifest_profile_sha256` | `str` | `yes` | `—` | — |
+| `media_type` | `Literal[application/json]` | `no` | `'application/json'` | — |
+
+### `polisyos.ir.registry.refs.HTEOutcomeRef` { #polisyos-ir-registry-refs-hteoutcomeref }
+
+- Kind: `pydantic_model`
+- Public status: `root_facade`
+- Current version: `—`
+- Exported from: `polisyos.ir.analytics:HTEOutcomeRef`, `polisyos.ir.registry:HTEOutcomeRef`, `polisyos.ir:HTEOutcomeRef`
+- ABI snapshot: `—` / `—`
+- Compatibility mode: `—`
+- References: `polisyos.ir.artifacts.contracts.ArtifactID`
+- Summary: Selected reference to the discriminated typed HTE outcome.
+
+| Field | Type | Required | Default | IR refs |
+| ----- | ---- | -------- | ------- | ------- |
+| `artifact_id` | `polisyos.ir.artifacts.contracts.ArtifactID` | `yes` | `—` | `polisyos.ir.artifacts.contracts.ArtifactID` |
+| `kind` | `Literal[ir.hte_outcome]` | `no` | `'ir.hte_outcome'` | — |
+| `manifest_profile_sha256` | `str` | `yes` | `—` | — |
+| `media_type` | `Literal[application/json]` | `no` | `'application/json'` | — |
+
+### `polisyos.ir.registry.refs.HTEPhysicalSourceMaterializationBindingRef` { #polisyos-ir-registry-refs-htephysicalsourcematerializationbindingref }
+
+- Kind: `pydantic_model`
+- Public status: `root_facade`
+- Current version: `—`
+- Exported from: `polisyos.ir.analytics:HTEPhysicalSourceMaterializationBindingRef`, `polisyos.ir.registry:HTEPhysicalSourceMaterializationBindingRef`, `polisyos.ir:HTEPhysicalSourceMaterializationBindingRef`
+- ABI snapshot: `—` / `—`
+- Compatibility mode: `—`
+- References: `polisyos.ir.artifacts.contracts.ArtifactID`
+- Summary: Selected-profile reference to Foundry's physical HTE input binding.
+
+| Field | Type | Required | Default | IR refs |
+| ----- | ---- | -------- | ------- | ------- |
+| `artifact_id` | `polisyos.ir.artifacts.contracts.ArtifactID` | `yes` | `—` | `polisyos.ir.artifacts.contracts.ArtifactID` |
+| `kind` | `Literal[foundry.hte.physical_source_materialization_binding]` | `no` | `'foundry.hte.physical_source_materialization_binding'` | — |
+| `manifest_profile_sha256` | `str` | `yes` | `—` | — |
+| `media_type` | `Literal[application/json]` | `no` | `'application/json'` | — |
+
+### `polisyos.ir.registry.refs.HTEPointResultRef` { #polisyos-ir-registry-refs-htepointresultref }
+
+- Kind: `pydantic_model`
+- Public status: `root_facade`
+- Current version: `—`
+- Exported from: `polisyos.ir.analytics:HTEPointResultRef`, `polisyos.ir.registry:HTEPointResultRef`, `polisyos.ir:HTEPointResultRef`
+- ABI snapshot: `—` / `—`
+- Compatibility mode: `—`
+- References: `polisyos.ir.artifacts.contracts.ArtifactID`
+- Summary: Selected reference to one source-bound per-row HTE point vector.
+
+| Field | Type | Required | Default | IR refs |
+| ----- | ---- | -------- | ------- | ------- |
+| `artifact_id` | `polisyos.ir.artifacts.contracts.ArtifactID` | `yes` | `—` | `polisyos.ir.artifacts.contracts.ArtifactID` |
+| `kind` | `Literal[ir.hte_point_result]` | `no` | `'ir.hte_point_result'` | — |
+| `manifest_profile_sha256` | `str` | `yes` | `—` | — |
+| `media_type` | `Literal[application/json]` | `no` | `'application/json'` | — |
+
+### `polisyos.ir.registry.refs.HTERefusalDiagnosticRef` { #polisyos-ir-registry-refs-hterefusaldiagnosticref }
+
+- Kind: `pydantic_model`
+- Public status: `root_facade`
+- Current version: `—`
+- Exported from: `polisyos.ir.analytics:HTERefusalDiagnosticRef`, `polisyos.ir.registry:HTERefusalDiagnosticRef`, `polisyos.ir:HTERefusalDiagnosticRef`
+- ABI snapshot: `—` / `—`
+- Compatibility mode: `—`
+- References: `polisyos.ir.artifacts.contracts.ArtifactID`
+- Summary: Selected reference to a bounded diagnostic for an HTE method refusal.
+
+| Field | Type | Required | Default | IR refs |
+| ----- | ---- | -------- | ------- | ------- |
+| `artifact_id` | `polisyos.ir.artifacts.contracts.ArtifactID` | `yes` | `—` | `polisyos.ir.artifacts.contracts.ArtifactID` |
+| `kind` | `Literal[ir.hte_refusal_diagnostic]` | `no` | `'ir.hte_refusal_diagnostic'` | — |
+| `manifest_profile_sha256` | `str` | `yes` | `—` | — |
+| `media_type` | `Literal[application/json]` | `no` | `'application/json'` | — |
+
+### `polisyos.ir.registry.refs.HTEResourcePolicyRef` { #polisyos-ir-registry-refs-hteresourcepolicyref }
+
+- Kind: `pydantic_model`
+- Public status: `root_facade`
+- Current version: `—`
+- Exported from: `polisyos.ir.analytics:HTEResourcePolicyRef`, `polisyos.ir.registry:HTEResourcePolicyRef`, `polisyos.ir:HTEResourcePolicyRef`
+- ABI snapshot: `—` / `—`
+- Compatibility mode: `—`
+- References: `polisyos.ir.artifacts.contracts.ArtifactID`
+- Summary: Selected Runtime resource policy reference for an HTE method execution.
+
+| Field | Type | Required | Default | IR refs |
+| ----- | ---- | -------- | ------- | ------- |
+| `artifact_id` | `polisyos.ir.artifacts.contracts.ArtifactID` | `yes` | `—` | `polisyos.ir.artifacts.contracts.ArtifactID` |
+| `kind` | `Literal[runtime.observational_input_resource_policy]` | `no` | `'runtime.observational_input_resource_policy'` | — |
+| `manifest_profile_sha256` | `str` | `yes` | `—` | — |
+| `media_type` | `Literal[application/json]` | `no` | `'application/json'` | — |
+
+### `polisyos.ir.registry.refs.HTEResultEvidenceRef` { #polisyos-ir-registry-refs-hteresultevidenceref }
+
+- Kind: `pydantic_model`
+- Public status: `root_facade`
+- Current version: `—`
+- Exported from: `polisyos.ir.analytics:HTEResultEvidenceRef`, `polisyos.ir.registry:HTEResultEvidenceRef`, `polisyos.ir:HTEResultEvidenceRef`
+- ABI snapshot: `—` / `—`
+- Compatibility mode: `—`
+- References: `polisyos.ir.artifacts.contracts.ArtifactID`
+- Summary: Selected-profile HTEResult v1 ref used by native inference outcomes.
+
+| Field | Type | Required | Default | IR refs |
+| ----- | ---- | -------- | ------- | ------- |
+| `artifact_id` | `polisyos.ir.artifacts.contracts.ArtifactID` | `yes` | `—` | `polisyos.ir.artifacts.contracts.ArtifactID` |
+| `kind` | `Literal[ir.hte_result]` | `no` | `'ir.hte_result'` | — |
+| `manifest_profile_sha256` | `str` | `yes` | `—` | — |
+| `media_type` | `Literal[application/json]` | `no` | `'application/json'` | — |
+
 ### `polisyos.ir.registry.refs.HTEResultRef` { #polisyos-ir-registry-refs-hteresultref }
 
 - Kind: `pydantic_model`
@@ -31614,6 +32584,42 @@ uv run --extra ml polisyos-tools diagnostics gen-schema
 | `manifest_profile_sha256` | `str \| NoneType` | `no` | `—` | — |
 | `media_type` | `Literal[application/json]` | `no` | `'application/json'` | — |
 
+### `polisyos.ir.registry.refs.MethodExecutionEvidenceRef` { #polisyos-ir-registry-refs-methodexecutionevidenceref }
+
+- Kind: `pydantic_model`
+- Public status: `root_facade`
+- Current version: `—`
+- Exported from: `polisyos.ir.analytics:MethodExecutionEvidenceRef`, `polisyos.ir.registry:MethodExecutionEvidenceRef`, `polisyos.ir:MethodExecutionEvidenceRef`
+- ABI snapshot: `—` / `—`
+- Compatibility mode: `—`
+- References: `polisyos.ir.artifacts.contracts.ArtifactID`
+- Summary: Profile-bound Scientist method execution evidence selected by Runtime.
+
+| Field | Type | Required | Default | IR refs |
+| ----- | ---- | -------- | ------- | ------- |
+| `artifact_id` | `polisyos.ir.artifacts.contracts.ArtifactID` | `yes` | `—` | `polisyos.ir.artifacts.contracts.ArtifactID` |
+| `kind` | `Literal[scientist.method_evidence]` | `no` | `'scientist.method_evidence'` | — |
+| `manifest_profile_sha256` | `str` | `yes` | `—` | — |
+| `media_type` | `Literal[application/json]` | `no` | `'application/json'` | — |
+
+### `polisyos.ir.registry.refs.MethodResultEvidenceRef` { #polisyos-ir-registry-refs-methodresultevidenceref }
+
+- Kind: `pydantic_model`
+- Public status: `root_facade`
+- Current version: `—`
+- Exported from: `polisyos.ir.analytics:MethodResultEvidenceRef`, `polisyos.ir.registry:MethodResultEvidenceRef`, `polisyos.ir:MethodResultEvidenceRef`
+- ABI snapshot: `—` / `—`
+- Compatibility mode: `—`
+- References: `polisyos.ir.artifacts.contracts.ArtifactID`
+- Summary: Profile-bound Scientist method result selected by the Runtime owner.
+
+| Field | Type | Required | Default | IR refs |
+| ----- | ---- | -------- | ------- | ------- |
+| `artifact_id` | `polisyos.ir.artifacts.contracts.ArtifactID` | `yes` | `—` | `polisyos.ir.artifacts.contracts.ArtifactID` |
+| `kind` | `Literal[scientist.method_result.causal.hte]` | `no` | `'scientist.method_result.causal.hte'` | — |
+| `manifest_profile_sha256` | `str` | `yes` | `—` | — |
+| `media_type` | `Literal[application/json]` | `no` | `'application/json'` | — |
+
 ### `polisyos.ir.registry.refs.MetricValidationReportRef` { #polisyos-ir-registry-refs-metricvalidationreportref }
 
 - Kind: `pydantic_model`
@@ -31810,6 +32816,24 @@ uv run --extra ml polisyos-tools diagnostics gen-schema
 | `artifact_id` | `polisyos.ir.artifacts.contracts.ArtifactID` | `yes` | `—` | `polisyos.ir.artifacts.contracts.ArtifactID` |
 | `kind` | `Literal[ir.ordinal_poverty_report]` | `no` | `'ir.ordinal_poverty_report'` | — |
 | `manifest_profile_sha256` | `str \| NoneType` | `no` | `—` | — |
+| `media_type` | `Literal[application/json]` | `no` | `'application/json'` | — |
+
+### `polisyos.ir.registry.refs.OwnedAttemptAnchorRef` { #polisyos-ir-registry-refs-ownedattemptanchorref }
+
+- Kind: `pydantic_model`
+- Public status: `root_facade`
+- Current version: `—`
+- Exported from: `polisyos.ir.analytics:OwnedAttemptAnchorRef`, `polisyos.ir.registry:OwnedAttemptAnchorRef`, `polisyos.ir:OwnedAttemptAnchorRef`
+- ABI snapshot: `—` / `—`
+- Compatibility mode: `—`
+- References: `polisyos.ir.artifacts.contracts.ArtifactID`
+- Summary: IR-side selected reference to the Runtime-owned HTE attempt anchor.
+
+| Field | Type | Required | Default | IR refs |
+| ----- | ---- | -------- | ------- | ------- |
+| `artifact_id` | `polisyos.ir.artifacts.contracts.ArtifactID` | `yes` | `—` | `polisyos.ir.artifacts.contracts.ArtifactID` |
+| `kind` | `Literal[runtime.owned_attempt_anchor]` | `no` | `'runtime.owned_attempt_anchor'` | — |
+| `manifest_profile_sha256` | `str` | `yes` | `—` | — |
 | `media_type` | `Literal[application/json]` | `no` | `'application/json'` | — |
 
 ### `polisyos.ir.registry.refs.PolicyRecommendationRef` { #polisyos-ir-registry-refs-policyrecommendationref }
@@ -32044,6 +33068,24 @@ uv run --extra ml polisyos-tools diagnostics gen-schema
 | `artifact_id` | `polisyos.ir.artifacts.contracts.ArtifactID` | `yes` | `—` | `polisyos.ir.artifacts.contracts.ArtifactID` |
 | `kind` | `Literal[ir.scm_fragment]` | `no` | `'ir.scm_fragment'` | — |
 | `manifest_profile_sha256` | `str \| NoneType` | `no` | `—` | — |
+| `media_type` | `Literal[application/json]` | `no` | `'application/json'` | — |
+
+### `polisyos.ir.registry.refs.SearchUncertaintyTaskBindingRef` { #polisyos-ir-registry-refs-searchuncertaintytaskbindingref }
+
+- Kind: `pydantic_model`
+- Public status: `root_facade`
+- Current version: `—`
+- Exported from: `polisyos.ir.analytics:SearchUncertaintyTaskBindingRef`, `polisyos.ir.registry:SearchUncertaintyTaskBindingRef`, `polisyos.ir:SearchUncertaintyTaskBindingRef`
+- ABI snapshot: `—` / `—`
+- Compatibility mode: `—`
+- References: `polisyos.ir.artifacts.contracts.ArtifactID`
+- Summary: Selected Runtime-to-Search task binding carried by an HTE outcome.
+
+| Field | Type | Required | Default | IR refs |
+| ----- | ---- | -------- | ------- | ------- |
+| `artifact_id` | `polisyos.ir.artifacts.contracts.ArtifactID` | `yes` | `—` | `polisyos.ir.artifacts.contracts.ArtifactID` |
+| `kind` | `Literal[scientist.search.uncertainty_task_binding]` | `no` | `'scientist.search.uncertainty_task_binding'` | — |
+| `manifest_profile_sha256` | `str` | `yes` | `—` | — |
 | `media_type` | `Literal[application/json]` | `no` | `'application/json'` | — |
 
 ### `polisyos.ir.registry.refs.SensitivityAnalysisBundleRef` { #polisyos-ir-registry-refs-sensitivityanalysisbundleref }

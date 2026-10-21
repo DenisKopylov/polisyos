@@ -23,7 +23,7 @@ if TYPE_CHECKING:
 _SHA256_HEX_RE = re.compile(r"^[0-9a-f]{64}$")
 
 
-def _is_string_root_model(value: Any) -> bool:
+def _is_string_root_model(value: object) -> bool:
     """Return whether a value is a Pydantic scalar root whose only field is ``str``."""
     model_fields = getattr(type(value), "model_fields", None)
     root_field = model_fields.get("root") if isinstance(model_fields, Mapping) else None
@@ -35,7 +35,7 @@ def _is_string_root_model(value: Any) -> bool:
     )
 
 
-def _normalize_scalar_artifact_id(value: Any) -> ArtifactID:
+def _normalize_scalar_artifact_id(value: object) -> ArtifactID:
     """Normalize a string ID, native IR ID, or exact scalar root-model ID."""
     if isinstance(value, str):
         return ArtifactID.model_validate(value)
@@ -59,7 +59,7 @@ class ArtifactID(RootModel[str]):
 
     @field_validator("root", mode="before")
     @classmethod
-    def validate_root(cls, value: Any) -> str:
+    def validate_root(cls, value: object) -> str:
         if not isinstance(value, str):
             value = str(value)
         if not value.startswith(cls.prefix):
@@ -199,16 +199,16 @@ class ArtifactStore(Protocol):
 
     def put_json(
         self,
-        obj: Any,
+        obj: object,
         opts: StorePutOptions | Mapping[str, Any],
         canon_spec: CanonSpec | None = None,
         *,
         return_selected_profile: bool = False,
-    ) -> Any: ...
+    ) -> object: ...
 
     def get_bytes(self, artifact_id: ArtifactSelector) -> bytes: ...
 
-    def get_manifest(self, artifact_id: ArtifactSelector) -> Any: ...
+    def get_manifest(self, artifact_id: ArtifactSelector) -> object: ...
 
     def get_raw_manifest_bytes(self, artifact_id: ArtifactSelector) -> bytes:
         """Return exact selected raw sidecar bytes before typed model construction."""
@@ -221,7 +221,7 @@ class ArtifactStore(Protocol):
     def iter_artifact_ids(self) -> list[Any]: ...
 
 
-def _as_payload(value: Any) -> dict[str, Any]:
+def _as_payload(value: object) -> dict[str, Any]:
     if isinstance(value, dict):
         return dict(value)
     model_dump = getattr(value, "model_dump", None)
@@ -234,7 +234,7 @@ def _as_payload(value: Any) -> dict[str, Any]:
     }
 
 
-def normalize_input_refs(inputs: Sequence[Any] | None) -> list[InputRef]:
+def normalize_input_refs(inputs: Sequence[object] | None) -> list[InputRef]:
     """Coerce loose lineage inputs into validated ``InputRef`` records before persistence."""
     if not inputs:
         return []
@@ -271,7 +271,7 @@ def to_store_put_options(opts: PutOptions) -> StorePutOptions:
     )
 
 
-def normalize_artifact_ref(ref: Any) -> dict[str, str]:
+def normalize_artifact_ref(ref: object) -> dict[str, str]:
     """Normalize a store-specific artifact handle into the stable IR ref mapping boundary."""
     from polisyos.ir.registry.refs import ArtifactRefModel
 
@@ -313,7 +313,7 @@ def normalize_artifact_ref(ref: Any) -> dict[str, str]:
     return {key: str(value) for key, value in dict(validated).items()}
 
 
-def _declared_public_fields(value: Any) -> set[str]:
+def _declared_public_fields(value: object) -> set[str]:
     """Return declared annotations, properties, and slots for a structural ref."""
     names: set[str] = set()
     for cls in type(value).__mro__:
@@ -334,7 +334,7 @@ def _declared_public_fields(value: Any) -> set[str]:
     return names
 
 
-def _selector_public_fields(value: Any) -> set[str]:
+def _selector_public_fields(value: object) -> set[str]:
     """Collect public selector fields before projecting a supported ref shape."""
     names = _declared_public_fields(value)
     if isinstance(value, Mapping):
@@ -347,7 +347,7 @@ def _selector_public_fields(value: Any) -> set[str]:
 
 
 def _structural_artifact_ref_payload(
-    ref: Any,
+    ref: object,
     model_fields: Mapping[str, Any],
 ) -> dict[str, Any]:
     """Project only an exact structural ref, rejecting declared extensions."""

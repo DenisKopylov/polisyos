@@ -26,6 +26,7 @@ from polisyos.core.artifacts import (
     read_core_json_artifact_bounded,
     read_core_manifest_profile,
 )
+from polisyos.core.artifacts.canonical_profile import CoreJsonReadBoundsRefusalError
 from polisyos.core.canon.canon_json import CORE_TAG_POLICY_ID
 from polisyos.core.contracts.runtime import (
     ArtifactContentPreview,
@@ -39,6 +40,7 @@ from polisyos.core.contracts.runtime import (
     DecisionPacketMetricSignificance,
     DecisionPacketOutlineEntry,
     DecisionPacketPreview,
+    DirectMethodExecutionHTESummary,
     PredictiveCoverageDiagnosticPreview,
     PredictiveCoverageScenarioPreview,
     PreviewMode,
@@ -98,8 +100,47 @@ def _read_inspector_semantic_json(
     profiled = bounded.profile_read
     if profiled.reader_policy_id != CORE_TAG_POLICY_ID:
         raise CanonicalProfileRefusalError("canon_profile_reader_policy_mismatch")
-    _ = profiled.value
     return profiled
+
+
+def _is_predictive_coverage_source_byte_cap_refusal(
+    error: CoreJsonReadBoundsRefusalError,
+) -> bool:
+    """Recognize only a complete Core owner measurement of this preview's byte cap.
+
+    The Core bounded reader can establish the same byte-limit refusal either by
+    checking the selected member size before streaming or while enforcing its
+    streaming bound. The stage is diagnostic; the typed limit and exact owner
+    measurements determine whether this preview can safely return no diagnostic.
+    """
+    limits = error.limits
+    observed_payload_bytes = error.observed_payload_bytes
+    observed_payload_size = error.observed_payload_size
+    cap = _MAX_PREDICTIVE_COVERAGE_SOURCE_BYTES
+    return (
+        error.code == "canon_profile_bounded_bytes_exceeded"
+        and error.limit_name == "max_bytes"
+        and type(limits) is CoreJsonReadLimits
+        and limits.max_bytes == cap
+        and limits.max_manifest_bytes == INSPECTOR_MANIFEST_MAX_BYTES
+        and error.max_manifest_bytes == INSPECTOR_MANIFEST_MAX_BYTES
+        and error.limit_value == cap
+        and error.source_usage_complete is True
+        and type(error.observed_manifest_selection_bytes) is int
+        and error.observed_manifest_selection_bytes >= 0
+        and type(error.observed_manifest_verification_bytes) is int
+        and error.observed_manifest_verification_bytes >= 0
+        and type(observed_payload_bytes) is int
+        and 0 <= observed_payload_bytes <= cap
+        and type(observed_payload_size) is int
+        and observed_payload_size > cap
+        and observed_payload_bytes < observed_payload_size
+        and error.observed_source_bytes is not None
+        and error.payload_integrity_verified is False
+        and error.cleanup_failure_stage is None
+        and error.cleanup_exception_type is None
+        and error.cleanup_exception_code is None
+    )
 
 
 def _coverage_number(value: object) -> float | None:
@@ -592,6 +633,13 @@ def _build_decision_packet_preview(payload: object) -> DecisionPacketPreview | N
     if not isinstance(payload, dict):
         return None
     normalized = dict(payload)
+    if "hte" in payload:
+        hte_payload = payload["hte"]
+        normalized["hte"] = (
+            DirectMethodExecutionHTESummary.model_validate(hte_payload).model_dump(mode="json")
+            if hte_payload is not None
+            else None
+        )
     normalized["document_outline"] = _normalize_outline(payload.get("document_outline"))
     normalized["metric_validation_comparison_rows"] = _normalize_metric_comparison_rows(
         payload.get("metric_validation_comparison_rows")
@@ -723,6 +771,10 @@ class ArtifactInspectorService:
             )
             payload = profiled.value
             canon_read_status = profiled.status
+        except CoreJsonReadBoundsRefusalError as exc:
+            if _is_predictive_coverage_source_byte_cap_refusal(exc):
+                return None
+            raise
         except CanonicalProfileRefusalError:
             raise
         except (
@@ -908,8 +960,9 @@ class ArtifactInspectorService:
                     manifest_read=manifest_read,
                 )
                 canon_read_status = profiled.status
-                if isinstance(profiled.value, dict):
-                    top_keys = sorted(str(key) for key in profiled.value)
+                payload = profiled.value
+                if isinstance(payload, dict):
+                    top_keys = sorted(str(key) for key in payload)
             except CanonicalProfileRefusalError:
                 raise
             except (TypeError, ValueError) as exc:

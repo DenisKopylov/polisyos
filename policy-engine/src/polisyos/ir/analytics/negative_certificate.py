@@ -11,7 +11,7 @@ This is the public, JSON-serializable counterpart of the internal
 from __future__ import annotations
 
 from enum import Enum
-from typing import Any
+from typing import Any, Protocol
 
 from pydantic import BaseModel, ConfigDict, Field, model_validator
 
@@ -26,6 +26,26 @@ from polisyos.ir.analytics.proximal import BridgeFailureMode, BridgePlausibility
 from polisyos.ir.artifacts import ArtifactStore, InputRef, get_json_artifact, put_json_artifact
 from polisyos.ir.model_layer.canon import CanonSpec
 from polisyos.ir.registry.refs import NegativeCertificateRef
+
+
+class _HedgeCertificateLike(Protocol):
+    """Structural contract consumed from the ID engine's hedge certificate."""
+
+    description: str
+    hedge_forest: frozenset[str]
+    hedge_root: frozenset[str]
+    minimal_required_s_nodes: frozenset[str]
+
+
+class _TransportResultLike(Protocol):
+    """Structural transport result consumed by negative-certificate projection."""
+
+    @property
+    def blocking_s_nodes(self) -> object: ...
+
+    partial_identification_result: PartialIdentificationResult | None
+    unsupported_reason: str | None
+    final_confidence: float
 
 
 class BlockingType(str, Enum):
@@ -53,7 +73,8 @@ class BlockingType(str, Enum):
     """The cyclic or dynamic SCM does not yet have a certified intervention semantics."""
 
     COUPLING_NOT_IDENTIFIED = "coupling_not_identified"
-    """Marginal counterfactual laws are available, but the joint/coupling object is not causally identified."""
+    """Marginal counterfactual laws are available, but the joint/coupling object is not causally \
+identified."""
 
     INTERVENTION_TYPECHECK = "intervention_typecheck"
     """The requested intervention expression or composition is ill-typed."""
@@ -453,9 +474,10 @@ class NegativeCertificate(BaseModel):
                     required_variables=missing_vars,
                     design_type="observational",
                     description=(
-                        "To identify the coupling or joint counterfactual law, collect panel-linked "
-                        "outcomes across worlds if available, or add explicit cross-world assumptions "
-                        "such as rank invariance, monotone response, or a justified transport model."
+                        "To identify the coupling or joint counterfactual law, collect "
+                        "panel-linked outcomes across worlds if available, or add "
+                        "explicit cross-world assumptions such as rank invariance, "
+                        "monotone response, or a justified transport model."
                     ),
                 ),
             )
@@ -535,9 +557,9 @@ class NegativeCertificate(BaseModel):
                     required_variables=missing_vars,
                     design_type="observational",
                     description=(
-                        "Re-specify the causal design before estimation: audit instrument validity, "
-                        "measure the confounding path directly, or switch to a different admissible "
-                        "identification/bounds family."
+                        "Re-specify the causal design before estimation: audit "
+                        "instrument validity, measure the confounding path directly, or "
+                        "switch to a different admissible identification/bounds family."
                     ),
                 ),
             )
@@ -552,7 +574,7 @@ class NegativeCertificate(BaseModel):
         unresolved_s_nodes: frozenset[str],
         available_domains: list[str],
         missing_domains: list[str] | None = None,
-        hedge_certificate: Any = None,
+        hedge_certificate: _HedgeCertificateLike | None = None,
         partial_bounds: PartialIdentificationResult | None = None,
     ) -> NegativeCertificate:
         """Build a NegativeCertificate for an mz-ID algorithm failure.
@@ -736,7 +758,7 @@ def recovery_plan_from_negative_certificate(
 
 def negative_certificate_from_transport_result(
     *,
-    result: Any,
+    result: _TransportResultLike,
     treatment: str,
     outcome: str,
 ) -> NegativeCertificate:

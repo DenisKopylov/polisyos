@@ -36,7 +36,11 @@ else:
     from datetime import datetime
 
 
-def _coerce_python_numeric(value: Any) -> Any:
+type _NormalizedNumericPayload = float | tuple[_NormalizedNumericPayload, ...]
+type _NumericPayloadShape = tuple[int | str | _NumericPayloadShape, ...]
+
+
+def _coerce_python_numeric(value: object) -> object:
     if isinstance(value, (str, bytes)):
         return value
     if hasattr(value, "tolist") and not isinstance(value, (list, tuple, dict)):
@@ -65,7 +69,9 @@ def _canonicalize_required_float(value: float, policy: NumericPolicySpec) -> flo
     return canonical
 
 
-def _normalize_numeric_payload(value: Any, policy: NumericPolicySpec) -> Any:
+def _normalize_numeric_payload(
+    value: object, policy: NumericPolicySpec
+) -> _NormalizedNumericPayload:
     value = _coerce_python_numeric(value)
     if isinstance(value, (list, tuple)):
         if not value:
@@ -80,7 +86,7 @@ def _normalize_numeric_payload(value: Any, policy: NumericPolicySpec) -> Any:
     return numeric
 
 
-def _shape_signature(value: Any) -> tuple[Any, ...]:
+def _shape_signature(value: _NormalizedNumericPayload) -> _NumericPayloadShape:
     if isinstance(value, tuple):
         child = _shape_signature(value[0])
         for item in value[1:]:
@@ -90,7 +96,7 @@ def _shape_signature(value: Any) -> tuple[Any, ...]:
     return ("scalar",)
 
 
-def _flatten_numeric_payload(value: Any) -> list[float]:
+def _flatten_numeric_payload(value: _NormalizedNumericPayload) -> list[float]:
     if isinstance(value, tuple):
         flattened: list[float] = []
         for item in value:
@@ -420,7 +426,7 @@ class ForecastingUncertaintyBundle(BaseModel):
 
     @model_validator(mode="before")
     @classmethod
-    def _canonicalize_payload(cls, value: Any) -> Any:
+    def _canonicalize_payload(cls, value: object) -> object:
         if isinstance(value, ForecastingUncertaintyBundle):
             return value
         if not isinstance(value, dict):
@@ -561,7 +567,9 @@ class ForecastingUncertaintyBundle(BaseModel):
             ),
             "empirical_coverage_by_horizon": self.coverage_diagnostic.empirical_coverage_by_horizon,
             "coverage_gap_by_horizon": self.coverage_diagnostic.coverage_gap_by_horizon,
-            "mean_interval_width_by_horizon": self.coverage_diagnostic.mean_interval_width_by_horizon,
+            (
+                "mean_interval_width_by_horizon"
+            ): self.coverage_diagnostic.mean_interval_width_by_horizon,
             "conditional_coverage_pvalue_by_horizon": (
                 self.coverage_diagnostic.conditional_coverage_pvalue_by_horizon
             ),

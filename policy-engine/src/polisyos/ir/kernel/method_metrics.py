@@ -12,13 +12,15 @@ import hashlib
 import json
 import math
 import struct
-from collections.abc import Sequence
 from datetime import datetime
 from fractions import Fraction
 from pathlib import Path
-from typing import Any, Literal
+from typing import TYPE_CHECKING, Literal
 
 from pydantic import Field, StrictFloat, StrictInt, StrictStr, model_validator
+
+if TYPE_CHECKING:
+    from collections.abc import Sequence
 
 from .base import KernelModel
 from .units import GenericUnit, RateUnit, UnitSpecType
@@ -671,7 +673,7 @@ def resolve_registered_method_metric_unit_adapter(
 
 
 def apply_registered_direct_output_law(
-    value: Any,
+    value: object,
     semantics: MethodMetricSemanticContract,
     *,
     execution_context: MethodMetricExecutionContext | None = None,
@@ -754,7 +756,7 @@ def _ex_ante_external_predicates() -> tuple[MethodMetricPredicateEvidence, ...]:
 
 
 def apply_registered_ex_ante_mean_change_law(
-    value: Any,
+    value: float,
     semantics: MethodMetricSemanticContract,
     *,
     execution_context: MethodMetricExecutionContext,

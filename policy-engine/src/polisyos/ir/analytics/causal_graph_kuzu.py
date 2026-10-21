@@ -10,7 +10,7 @@ import shutil
 import tempfile
 from collections.abc import Callable
 from pathlib import Path
-from typing import TYPE_CHECKING, Any, Protocol, SupportsIndex, runtime_checkable
+from typing import TYPE_CHECKING, Protocol, SupportsIndex, runtime_checkable
 
 from polisyos.ir._internal.runtime_protocols import protocol_declared_callables_are_callable
 
@@ -248,7 +248,7 @@ def _iter_ddl_statements(ddl_text: str) -> list[str]:
     return statements
 
 
-def _copy_kuzu_table(conn: Any, table_name: str, csv_path: Path) -> None:
+def _copy_kuzu_table(conn: _KuzuConnection, table_name: str, csv_path: Path) -> None:
     path_sql = _sql_literal(str(csv_path))
     try:
         conn.execute(f"COPY {table_name} FROM {path_sql} (HEADER=true);")

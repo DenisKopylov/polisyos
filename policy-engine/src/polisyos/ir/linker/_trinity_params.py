@@ -18,6 +18,8 @@ from polisyos.ir.kernel.values import CountValue, DurationValue, MoneyValue, Rat
 from .reports import LinkIssue, LinkIssueCode, LinkSeverity
 
 if TYPE_CHECKING:
+    from collections.abc import Mapping
+
     from polisyos.ir.governance.policy_spec import InterventionSpec
     from polisyos.ir.kernel.mechanisms import MechanismTypeSpec, ParamSpec
 
@@ -32,7 +34,7 @@ class _ParamPathError(ValueError):
 
 
 def _validate_param_structure(
-    value: Any,
+    value: object,
     issues: list[LinkIssue],
     *,
     path: list[str | int],
@@ -87,7 +89,7 @@ def _validate_param_structure(
                 )
 
 
-def _get_param_value(params: dict[str, Any], path: str) -> Any:
+def _get_param_value(params: Mapping[str, object], path: str) -> object:
     if not path or path.startswith(".") or path.endswith(".") or ".." in path:
         raise _ParamPathError(path=path, message=f"Invalid param path '{path}'")
     parts = path.split(".")
@@ -104,7 +106,7 @@ def _get_param_value(params: dict[str, Any], path: str) -> Any:
     return current
 
 
-def _as_decimal(value: Any) -> Decimal | None:
+def _as_decimal(value: object) -> Decimal | None:
     if isinstance(value, RateValue):
         return value.as_ratio()
     if isinstance(value, MoneyValue):
@@ -125,7 +127,7 @@ def _as_decimal(value: Any) -> Decimal | None:
     return None
 
 
-def _as_rate_decimal(value: Any) -> Decimal | None:
+def _as_rate_decimal(value: object) -> Decimal | None:
     if isinstance(value, RateValue):
         return value.as_ratio()
     if isinstance(value, Decimal):
@@ -224,7 +226,7 @@ def _validate_params(
 
 
 def _validate_param_value(
-    value: Any,
+    value: object,
     spec: ParamSpec,
     issues: list[LinkIssue],
     path: list[str | int],
@@ -321,18 +323,19 @@ def _validate_param_value(
                 )
             return
 
-    if spec.value_type in {ParamType.INT, ParamType.COUNT, ParamType.DURATION}:
-        if numeric != numeric.to_integral_value():
-            issues.append(
-                LinkIssue(
-                    severity=LinkSeverity.ERROR,
-                    code=LinkIssueCode.PARAM_TYPE,
-                    message=f"Param '{spec.param_id}' expects integer value",
-                    path=path,
-                    ids=ids,
-                )
+    if (spec.value_type in {ParamType.INT, ParamType.COUNT, ParamType.DURATION}) and (
+        numeric != numeric.to_integral_value()
+    ):
+        issues.append(
+            LinkIssue(
+                severity=LinkSeverity.ERROR,
+                code=LinkIssueCode.PARAM_TYPE,
+                message=f"Param '{spec.param_id}' expects integer value",
+                path=path,
+                ids=ids,
             )
-            return
+        )
+        return
 
     if spec.min_value is not None and numeric < spec.min_value:
         issues.append(
@@ -357,7 +360,7 @@ def _validate_param_value(
 
 
 def _validate_param_unit(
-    value: Any,
+    value: object,
     spec: ParamSpec,
     issues: list[LinkIssue],
     path: list[str | int],
@@ -446,21 +449,22 @@ def _validate_param_unit(
             )
         )
         return
-    if spec.value_type == ParamType.RATE and isinstance(value, RateValue):
-        if isinstance(unit, RateUnit) and value.base != unit.base:
-            issues.append(
-                LinkIssue(
-                    severity=LinkSeverity.ERROR,
-                    code=LinkIssueCode.INCOMPATIBLE_CONSTRAINT,
-                    message=(
-                        f"Param '{spec.param_id}' rate base '{value.base}' does not match "
-                        f"unit '{unit.base}'"
-                    ),
-                    path=path,
-                    ids=ids,
-                    data={"expected": unit.base, "actual": value.base},
-                )
+    if (spec.value_type == ParamType.RATE and isinstance(value, RateValue)) and (
+        isinstance(unit, RateUnit) and value.base != unit.base
+    ):
+        issues.append(
+            LinkIssue(
+                severity=LinkSeverity.ERROR,
+                code=LinkIssueCode.INCOMPATIBLE_CONSTRAINT,
+                message=(
+                    f"Param '{spec.param_id}' rate base '{value.base}' does not match "
+                    f"unit '{unit.base}'"
+                ),
+                path=path,
+                ids=ids,
+                data={"expected": unit.base, "actual": value.base},
             )
+        )
     if spec.value_type == ParamType.DURATION and not isinstance(unit, DurationUnit):
         issues.append(
             LinkIssue(

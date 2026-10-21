@@ -9,7 +9,7 @@ kind/media type so callers can validate the boundary before loading payloads.
 from __future__ import annotations
 
 from collections.abc import Iterator, Mapping
-from typing import Literal
+from typing import ClassVar, Literal
 
 from pydantic import BaseModel, ConfigDict, Field
 
@@ -60,7 +60,8 @@ class EvidenceBundleRef(ArtifactRefModel):
 
 
 class UncertaintyEnvelopeRef(ArtifactRefModel):
-    """Stable handle for a persisted uncertainty envelope produced by estimators and read by reporting layers."""
+    """Stable handle for a persisted uncertainty envelope produced by \
+estimators and read by reporting layers."""
 
     kind: Literal["ir.uncertainty_envelope"] = "ir.uncertainty_envelope"
     media_type: Literal["application/json"] = "application/json"
@@ -171,29 +172,152 @@ class OperatorEffectBundleRef(ArtifactRefModel):
     media_type: Literal["application/json"] = "application/json"
 
 
+class _ProfiledArtifactRef(ArtifactRefModel):
+    """Require a profile-bound selected manifest for newly persisted HTE refs."""
+
+    model_config = ConfigDict(extra="forbid", frozen=True, strict=True)
+    manifest_profile_sha256: str = Field(pattern=r"^sha256:[0-9a-f]{64}$")
+
+
+class OwnedAttemptAnchorRef(_ProfiledArtifactRef):
+    """IR-side selected reference to the Runtime-owned HTE attempt anchor."""
+
+    kind: Literal["runtime.owned_attempt_anchor"] = "runtime.owned_attempt_anchor"
+    media_type: Literal["application/json"] = "application/json"
+    ARTIFACT_SCHEMA_NAME: ClassVar[str] = "polisyos.runtime.OwnedAttemptAnchor"
+    ARTIFACT_SCHEMA_VERSION: ClassVar[str] = "1.0"
+
+
+class HTEPhysicalSourceMaterializationBindingRef(_ProfiledArtifactRef):
+    """Selected-profile reference to Foundry's physical HTE input binding."""
+
+    kind: Literal["foundry.hte.physical_source_materialization_binding"] = (
+        "foundry.hte.physical_source_materialization_binding"
+    )
+    media_type: Literal["application/json"] = "application/json"
+    ARTIFACT_SCHEMA_NAME: ClassVar[str] = "polisyos.foundry.HTEPhysicalSourceMaterializationBinding"
+    ARTIFACT_SCHEMA_VERSION: ClassVar[str] = "1.0"
+
+
+class HTEPointResultRef(_ProfiledArtifactRef):
+    """Selected reference to one source-bound per-row HTE point vector."""
+
+    kind: Literal["ir.hte_point_result"] = "ir.hte_point_result"
+    media_type: Literal["application/json"] = "application/json"
+    ARTIFACT_SCHEMA_NAME: ClassVar[str] = "polisyos.ir.HTEPointResult"
+    ARTIFACT_SCHEMA_VERSION: ClassVar[str] = "1.0"
+
+
+class ATEInferenceBasisRef(_ProfiledArtifactRef):
+    """Selected reference to native mean-inference provenance and witnesses."""
+
+    kind: Literal["ir.ate_inference_basis"] = "ir.ate_inference_basis"
+    media_type: Literal["application/json"] = "application/json"
+    ARTIFACT_SCHEMA_NAME: ClassVar[str] = "polisyos.ir.ATEInferenceBasis"
+    ARTIFACT_SCHEMA_VERSION: ClassVar[str] = "1.0"
+
+
+class HTEOutcomeRef(_ProfiledArtifactRef):
+    """Selected reference to the discriminated typed HTE outcome."""
+
+    kind: Literal["ir.hte_outcome"] = "ir.hte_outcome"
+    media_type: Literal["application/json"] = "application/json"
+    ARTIFACT_SCHEMA_NAME: ClassVar[str] = "polisyos.ir.HTEOutcome"
+    ARTIFACT_SCHEMA_VERSION: ClassVar[str] = "1.0"
+
+
+class HTERefusalDiagnosticRef(_ProfiledArtifactRef):
+    """Selected reference to a bounded diagnostic for an HTE method refusal."""
+
+    kind: Literal["ir.hte_refusal_diagnostic"] = "ir.hte_refusal_diagnostic"
+    media_type: Literal["application/json"] = "application/json"
+    ARTIFACT_SCHEMA_NAME: ClassVar[str] = "polisyos.ir.HTERefusalDiagnostic"
+    ARTIFACT_SCHEMA_VERSION: ClassVar[str] = "1.0"
+
+
+class SearchUncertaintyTaskBindingRef(_ProfiledArtifactRef):
+    """Selected Runtime-to-Search task binding carried by an HTE outcome."""
+
+    kind: Literal["scientist.search.uncertainty_task_binding"] = (
+        "scientist.search.uncertainty_task_binding"
+    )
+    media_type: Literal["application/json"] = "application/json"
+    ARTIFACT_SCHEMA_NAME: ClassVar[str] = "polisyos.scientist.SearchUncertaintyTaskBinding"
+    ARTIFACT_SCHEMA_VERSION: ClassVar[str] = "1.0"
+
+
+class HTEInputSourceRef(_ProfiledArtifactRef):
+    """Selected source-data ref retained by an HTE outcome."""
+
+    kind: str = Field(min_length=1)
+    media_type: Literal["application/json"] = "application/json"
+
+
+class HTEResourcePolicyRef(_ProfiledArtifactRef):
+    """Selected Runtime resource policy reference for an HTE method execution."""
+
+    kind: Literal["runtime.observational_input_resource_policy"] = (
+        "runtime.observational_input_resource_policy"
+    )
+    media_type: Literal["application/json"] = "application/json"
+    ARTIFACT_SCHEMA_NAME: ClassVar[str] = "polisyos.runtime.ObservationalInputResourcePolicy"
+    ARTIFACT_SCHEMA_VERSION: ClassVar[str] = "1.0"
+
+
+class MethodResultEvidenceRef(_ProfiledArtifactRef):
+    """Profile-bound Scientist method result selected by the Runtime owner."""
+
+    kind: Literal["scientist.method_result.causal.hte"] = "scientist.method_result.causal.hte"
+    media_type: Literal["application/json"] = "application/json"
+    ARTIFACT_SCHEMA_NAME: ClassVar[str] = "polisyos.scientist.MethodResult"
+    ARTIFACT_SCHEMA_VERSION: ClassVar[str] = "0.1.0"
+
+
+class MethodExecutionEvidenceRef(_ProfiledArtifactRef):
+    """Profile-bound Scientist method execution evidence selected by Runtime."""
+
+    kind: Literal["scientist.method_evidence"] = "scientist.method_evidence"
+    media_type: Literal["application/json"] = "application/json"
+    ARTIFACT_SCHEMA_NAME: ClassVar[str] = "polisyos.scientist.MethodExecutionEvidence"
+    ARTIFACT_SCHEMA_VERSION: ClassVar[str] = "0.1.0"
+
+
 class HTEResultRef(ArtifactRefModel):
-    """Stable handle for persisted heterogeneous-treatment-effect results used by subgroup and equity analyses."""
+    """Stable handle for persisted heterogeneous-treatment-effect results used \
+by subgroup and equity analyses."""
 
     kind: Literal["ir.hte_result"] = "ir.hte_result"
     media_type: Literal["application/json"] = "application/json"
 
 
+class HTEResultEvidenceRef(_ProfiledArtifactRef):
+    """Selected-profile HTEResult v1 ref used by native inference outcomes."""
+
+    kind: Literal["ir.hte_result"] = "ir.hte_result"
+    media_type: Literal["application/json"] = "application/json"
+    ARTIFACT_SCHEMA_NAME: ClassVar[str] = "ir.hte_result"
+    ARTIFACT_SCHEMA_VERSION: ClassVar[str] = "1.0"
+
+
 class PolicyRecommendationRef(ArtifactRefModel):
-    """Stable handle for a persisted policy recommendation once decision synthesis has frozen the artifact."""
+    """Stable handle for a persisted policy recommendation once decision \
+synthesis has frozen the artifact."""
 
     kind: Literal["ir.policy_recommendation"] = "ir.policy_recommendation"
     media_type: Literal["application/json"] = "application/json"
 
 
 class CausalEffectReportRef(ArtifactRefModel):
-    """Stable handle for persisted causal-effect estimates consumed by governance, briefs, and downstream runners."""
+    """Stable handle for persisted causal-effect estimates consumed by \
+governance, briefs, and downstream runners."""
 
     kind: Literal["ir.causal_effect_report"] = "ir.causal_effect_report"
     media_type: Literal["application/json"] = "application/json"
 
 
 class ProofBundleRef(ArtifactRefModel):
-    """Stable handle for persisted identification or proof bundles reviewed by governance and auditors."""
+    """Stable handle for persisted identification or proof bundles reviewed by \
+governance and auditors."""
 
     kind: Literal["ir.proof_bundle"] = "ir.proof_bundle"
     media_type: Literal["application/json"] = "application/json"
@@ -214,7 +338,7 @@ class SimulationProofBridgeRef(ArtifactRefModel):
 
 
 class FrontierSketchRef(ArtifactRefModel):
-    """Stable handle for persisted research-boundary sketches attached to Phase-closure artifacts."""
+    "Stable handle for persisted research-boundary sketches attached to Phase-closure artifacts."
 
     kind: Literal["ir.frontier_sketch"] = "ir.frontier_sketch"
     media_type: Literal["application/json"] = "application/json"
@@ -228,7 +352,8 @@ class DPRobustnessCertificateRef(ArtifactRefModel):
 
 
 class DataReadinessReportRef(ArtifactRefModel):
-    """Stable handle for persisted data-readiness reports emitted before execution is allowed to proceed."""
+    """Stable handle for persisted data-readiness reports emitted before \
+execution is allowed to proceed."""
 
     kind: Literal["ir.data_readiness_report"] = "ir.data_readiness_report"
     media_type: Literal["application/json"] = "application/json"
@@ -319,7 +444,8 @@ class MobilityReportRef(ArtifactRefModel):
 
 
 class BoundsBundleRef(ArtifactRefModel):
-    """Stable handle for persisted partial-identification outputs consumed by readiness checks and reporting."""
+    """Stable handle for persisted partial-identification outputs consumed by \
+readiness checks and reporting."""
 
     kind: Literal["ir.bounds_bundle"] = "ir.bounds_bundle"
     media_type: Literal["application/json"] = "application/json"
@@ -340,7 +466,7 @@ class DualCertificateRef(ArtifactRefModel):
 
 
 class ProximalIdentificationCertificateRef(ArtifactRefModel):
-    """Stable handle for persisted proximal identification certificates consumed by proof bundles."""
+    "Stable handle for persisted proximal identification certificates consumed by proof bundles."
 
     kind: Literal["ir.proximal_identification_certificate"] = (
         "ir.proximal_identification_certificate"
@@ -365,7 +491,8 @@ class LocalIndependenceWeightingCertificateRef(ArtifactRefModel):
 
 
 class RecoverabilityCertificateRef(ArtifactRefModel):
-    """Stable handle for persisted recoverability certificates consumed by readiness and proof layers."""
+    """Stable handle for persisted recoverability certificates consumed by \
+readiness and proof layers."""
 
     kind: Literal["ir.recoverability_certificate"] = "ir.recoverability_certificate"
     media_type: Literal["application/json"] = "application/json"
@@ -386,21 +513,24 @@ class NegativeCertificateRef(ArtifactRefModel):
 
 
 class CausalGraphModelRef(ArtifactRefModel):
-    """Stable handle for a persisted causal graph model once discovery or linking has frozen the structure."""
+    """Stable handle for a persisted causal graph model once discovery or \
+linking has frozen the structure."""
 
     kind: Literal["ir.causal_graph_model"] = "ir.causal_graph_model"
     media_type: Literal["application/json"] = "application/json"
 
 
 class LiteratureCausalPriorRef(ArtifactRefModel):
-    """Stable handle for persisted literature priors produced by academic synthesis and consumed by calibration."""
+    """Stable handle for persisted literature priors produced by academic \
+synthesis and consumed by calibration."""
 
     kind: Literal["ir.literature_causal_prior"] = "ir.literature_causal_prior"
     media_type: Literal["application/json"] = "application/json"
 
 
 class CausalDiscoveryReportRef(ArtifactRefModel):
-    """Stable handle for persisted discovery diagnostics used when selecting or auditing graph structure."""
+    """Stable handle for persisted discovery diagnostics used when selecting or \
+auditing graph structure."""
 
     kind: Literal["ir.causal_discovery_report"] = "ir.causal_discovery_report"
     media_type: Literal["application/json"] = "application/json"
@@ -416,14 +546,15 @@ class RegimeShiftIdentificationCertificateRef(ArtifactRefModel):
 
 
 class CausalSensitivityResultRef(ArtifactRefModel):
-    """Stable handle for persisted sensitivity-analysis output consumed by robustness and governance checks."""
+    """Stable handle for persisted sensitivity-analysis output consumed by \
+robustness and governance checks."""
 
     kind: Literal["ir.sensitivity_result"] = "ir.sensitivity_result"
     media_type: Literal["application/json"] = "application/json"
 
 
 class ABMAlignmentReportRef(ArtifactRefModel):
-    """Stable handle for persisted ABM-alignment diagnostics consumed during model-selection review."""
+    "Stable handle for persisted ABM-alignment diagnostics consumed during model-selection review."
 
     kind: Literal["ir.abm_alignment_report"] = "ir.abm_alignment_report"
     media_type: Literal["application/json"] = "application/json"
@@ -453,7 +584,8 @@ class CausalCapabilityContractRef(ArtifactRefModel):
 
 
 class ContextAdaptiveParameterBundleRef(ArtifactRefModel):
-    """Stable handle for persisted context-adapted parameter bundles used by transport and calibration stages."""
+    """Stable handle for persisted context-adapted parameter bundles used by \
+transport and calibration stages."""
 
     kind: Literal["ir.context_adaptive_parameter_bundle"] = "ir.context_adaptive_parameter_bundle"
     media_type: Literal["application/json"] = "application/json"
@@ -467,35 +599,39 @@ class CrossGraphEvidenceProfileRef(ArtifactRefModel):
 
 
 class SCMFragmentRef(ArtifactRefModel):
-    """Stable handle for persisted SCM fragments produced before composition into a full causal model."""
+    """Stable handle for persisted SCM fragments produced before composition \
+into a full causal model."""
 
     kind: Literal["ir.scm_fragment"] = "ir.scm_fragment"
     media_type: Literal["application/json"] = "application/json"
 
 
 class VariableAlignmentCertificateRef(ArtifactRefModel):
-    """Stable handle for persisted variable-alignment certificates consumed by merge and reuse pipelines."""
+    """Stable handle for persisted variable-alignment certificates consumed by \
+merge and reuse pipelines."""
 
     kind: Literal["ir.variable_alignment_certificate"] = "ir.variable_alignment_certificate"
     media_type: Literal["application/json"] = "application/json"
 
 
 class LatentBridgeHypothesisRef(ArtifactRefModel):
-    """Stable handle for persisted automatic latent-bridge hypotheses used by alignment certification."""
+    """Stable handle for persisted automatic latent-bridge hypotheses used by \
+alignment certification."""
 
     kind: Literal["ir.latent_bridge_hypothesis"] = "ir.latent_bridge_hypothesis"
     media_type: Literal["application/json"] = "application/json"
 
 
 class AlignmentReportRef(ArtifactRefModel):
-    """Stable handle for persisted alignment reports reviewed by governance and composition passes."""
+    "Stable handle for persisted alignment reports reviewed by governance and composition passes."
 
     kind: Literal["ir.alignment_report"] = "ir.alignment_report"
     media_type: Literal["application/json"] = "application/json"
 
 
 class InterfaceMappingRef(ArtifactRefModel):
-    """Stable handle for persisted interface mappings that bridge artifacts across package boundaries."""
+    """Stable handle for persisted interface mappings that bridge artifacts \
+across package boundaries."""
 
     kind: Literal["ir.interface_mapping"] = "ir.interface_mapping"
     media_type: Literal["application/json"] = "application/json"
@@ -530,14 +666,16 @@ class ProofComposabilityCertificateRef(ArtifactRefModel):
 
 
 class CompositionFailureCardBundleRef(ArtifactRefModel):
-    """Stable handle for persisted composition failure cards returned to authoring and governance loops."""
+    """Stable handle for persisted composition failure cards returned to \
+authoring and governance loops."""
 
     kind: Literal["ir.composition_failure_card_bundle"] = "ir.composition_failure_card_bundle"
     media_type: Literal["application/json"] = "application/json"
 
 
 class StructuralCausalModelSpecRef(ArtifactRefModel):
-    """Stable handle for a persisted structural causal model spec consumed by query planning and execution."""
+    """Stable handle for a persisted structural causal model spec consumed by \
+query planning and execution."""
 
     kind: Literal["ir.structural_causal_model_spec"] = "ir.structural_causal_model_spec"
     media_type: Literal["application/json"] = "application/json"
@@ -558,7 +696,7 @@ class ContinuousTimeQueryRef(ArtifactRefModel):
 
 
 class TemporalInterventionTrajectoryRef(ArtifactRefModel):
-    """Stable handle for persisted intervention trajectories consumed by temporal execution runners."""
+    "Stable handle for persisted intervention trajectories consumed by temporal execution runners."
 
     kind: Literal["ir.temporal_intervention_trajectory"] = "ir.temporal_intervention_trajectory"
     media_type: Literal["application/json"] = "application/json"
@@ -572,7 +710,7 @@ class DynamicTreatmentRegimeRef(ArtifactRefModel):
 
 
 class EffectTrajectoryBundleRef(ArtifactRefModel):
-    """Stable handle for persisted effect trajectories used by forecasting and temporal reporting."""
+    "Stable handle for persisted effect trajectories used by forecasting and temporal reporting."
 
     kind: Literal["ir.effect_trajectory_bundle"] = "ir.effect_trajectory_bundle"
     media_type: Literal["application/json"] = "application/json"
@@ -597,7 +735,7 @@ class RoughPathInterventionCertificateRef(ArtifactRefModel):
 
 
 class InteractionComplexRef(ArtifactRefModel):
-    """Stable handle for persisted interaction-complex artifacts used by interference-aware analysis."""
+    "Stable handle for persisted interaction-complex artifacts used by interference-aware analysis."
 
     kind: Literal["ir.interaction_complex"] = "ir.interaction_complex"
     media_type: Literal["application/json"] = "application/json"
@@ -611,7 +749,8 @@ class InterferenceCertificateRef(ArtifactRefModel):
 
 
 class MAUPInvarianceCertificateRef(ArtifactRefModel):
-    """Stable handle for persisted MAUP invariance certificates used by spatial spillover diagnostics."""
+    """Stable handle for persisted MAUP invariance certificates used by spatial \
+spillover diagnostics."""
 
     kind: Literal["ir.maup_invariance_certificate"] = "ir.maup_invariance_certificate"
     media_type: Literal["application/json"] = "application/json"
@@ -653,7 +792,8 @@ class CausalModelEnsembleRef(ArtifactRefModel):
 
 
 class DistributionalReportRef(ArtifactRefModel):
-    """Stable handle for persisted distributional-impact reports read by equity and policy-governance workflows."""
+    """Stable handle for persisted distributional-impact reports read by equity \
+and policy-governance workflows."""
 
     kind: Literal["ir.distributional_report"] = "ir.distributional_report"
     media_type: Literal["application/json"] = "application/json"
@@ -832,7 +972,8 @@ class NormativeArbitrationResultRef(ArtifactRefModel):
 
 
 class BacktestReportRef(ArtifactRefModel):
-    """Stable handle for persisted backtest reports consumed by Scientist governance and readiness review."""
+    """Stable handle for persisted backtest reports consumed by Scientist \
+governance and readiness review."""
 
     kind: Literal["ir.backtest_report"] = "ir.backtest_report"
     media_type: Literal["application/json"] = "application/json"
@@ -894,6 +1035,7 @@ class OptimalRecourseInterventionBundleRef(ArtifactRefModel):
 __all__ = [
     "ABMAlignmentReportRef",
     "ABMResultRef",
+    "ATEInferenceBasisRef",
     "AbstractionCertificateRef",
     "AlignmentReportRef",
     "ArtifactRefModel",
@@ -943,6 +1085,12 @@ __all__ = [
     "ForecastingUncertaintyBundleRef",
     "FrontierSketchRef",
     "GEUncertaintyBundleRef",
+    "HTEInputSourceRef",
+    "HTEOutcomeRef",
+    "HTEPhysicalSourceMaterializationBindingRef",
+    "HTEPointResultRef",
+    "HTERefusalDiagnosticRef",
+    "HTEResourcePolicyRef",
     "HTEResultRef",
     "IncentiveCompatibilityCertificateRef",
     "InteractionComplexRef",
@@ -963,6 +1111,8 @@ __all__ = [
     "MeanFieldPerturbationSpecRef",
     "MechanismFamilySpecRef",
     "MechanismWelfareLossBoundRef",
+    "MethodExecutionEvidenceRef",
+    "MethodResultEvidenceRef",
     "MetricValidationReportRef",
     "MicrosimCalibrationReportRef",
     "MobilityReportRef",
@@ -974,6 +1124,7 @@ __all__ = [
     "OptimalRecourseInterventionQueryRef",
     "OptimizationAmbiguityCertificateRef",
     "OrdinalPovertyReportRef",
+    "OwnedAttemptAnchorRef",
     "PolicyRecommendationRef",
     "PrivacyAwareTransportCertificateRef",
     "ProofBundleRef",

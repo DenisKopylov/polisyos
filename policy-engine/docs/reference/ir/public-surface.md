@@ -10,18 +10,21 @@ whole dependency trees. Root exports and package facades describe current
 supported imports; they do not imply that deprecated module paths are
 registered as compatibility aliases.
 
-Freshness: 2026-10-14
+Freshness: 2026-10-21
 Owner: `@ir-owners`
 Source of truth: `src/polisyos/ir/api.py`, `src/polisyos/ir/__init__.py`, `src/polisyos/ir/analytics/__init__.py`, `src/polisyos/ir/kernel/__init__.py`, `src/polisyos/ir/world/__init__.py`, `tests/unit/ir/test_public_surface.py`
-Snapshot and evidence level: the three facade counts were statically enumerated from the literal maps in `src/polisyos/ir/api.py` at commit `bafca83bff9ff49eef1466bc491a8420b5cd1dbb`; the maps have no duplicate names. `tests/unit/ir/test_public_surface.py` was read but not run; it checks these table counts against the export manifest, checks package `__all__` values against that manifest, and exercises lazy import behavior. Those checks cover documentation/manifest consistency and import mechanics, not runtime semantics or authority/admissibility proof.
+Snapshot and evidence level: all six table counts below were recomputed from the complete facade maps in canonical `src/polisyos/ir/api.py` (SHA-256 `4754f7212fde5a35ecc00079c1fd0596301afb64c3dc4dfac14d2bfdbb40fa18`). The full package-map census is retained in the E02 source-composition receipt. `tests/unit/ir/test_public_surface.py` checks these table counts against the export manifest, package `__all__` identity, and lazy import behavior. Those checks establish documentation/manifest consistency and import mechanics; they do not establish runtime semantics or authority/admissibility.
 Source plan phase: D1-L4 Phase 3 public surface cleanup and hot-path import optimization.
 
 ## Facade Inventory
 
 | Facade | Symbol count | Import policy |
 | --- | --- | --- |
-| `polisyos.ir.analytics` | 285 | curated lazy facade |
-| `polisyos.ir.kernel` | 52 | full lazy facade |
+| `polisyos.ir.analytics` | 320 | curated lazy facade |
+| `polisyos.ir.kernel` | 81 | full lazy facade |
+| `polisyos.ir.loading` | 12 | owner-curated lazy facade |
+| `polisyos.ir.model_layer` | 6 | owner-curated lazy facade |
+| `polisyos.ir.registry` | 130 | full typed-reference lazy facade |
 | `polisyos.ir.world` | 54 | full lazy facade |
 
 Advanced or module-specific APIs should be imported from their defining
@@ -41,7 +44,7 @@ submodules, for example `polisyos.ir.analytics.causal_graph`,
 ## Export Audit
 
 - The source of truth for package facades lives in `polisyos.ir.api`; the table
-  counts are a static census of its three literal facade maps.
+  counts enumerate all six maps.
 - `tests/unit/ir/test_public_surface.py` verifies that the table counts match
   the export manifest, package `__all__` values match that manifest, and the
   facades retain their lazy-import behavior. These are documentation/manifest

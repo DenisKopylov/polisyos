@@ -80,7 +80,8 @@ class SlotSpec(KernelModel):
 
 
 class SlotRegistry(KernelModel):
-    """Registry of runtime slots that policy bundles reference when binding reads, writes, and units."""
+    """Registry of runtime slots that policy bundles reference when binding reads, writes, and \
+units."""
 
     schema_version: str = Field("1.0", pattern=r"^\d+\.\d+$")
     slots: dict[str, SlotSpec] = Field(default_factory=dict)

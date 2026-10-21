@@ -3,7 +3,7 @@
 from __future__ import annotations
 
 import re
-from collections.abc import Callable
+from typing import TYPE_CHECKING
 
 from polisyos.ir.migrations.base import (
     CompatibilityMode,
@@ -20,6 +20,9 @@ from polisyos.ir.migrations.policy_ir import POLICY_IR_CURRENT_VERSION
 from polisyos.ir.trinity import TrinityBundle
 
 from . import schema_registry as _schema_registry  # noqa: F401
+
+if TYPE_CHECKING:
+    from collections.abc import Callable
 
 IR_ARTIFACT = "policy_ir"
 IR_CURRENT_VERSION = POLICY_IR_CURRENT_VERSION

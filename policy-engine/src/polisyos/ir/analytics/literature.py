@@ -6,11 +6,11 @@ import hashlib
 import importlib
 import json
 import re
-from collections.abc import Callable, Mapping, Sequence
+from collections.abc import Awaitable, Callable, Mapping, Sequence
 from datetime import datetime, timedelta
 from enum import Enum
 from pathlib import Path
-from typing import TYPE_CHECKING, Any, Literal, TypedDict
+from typing import TYPE_CHECKING, Any, Literal, Protocol, TypedDict
 
 from pydantic import BaseModel, ConfigDict, Field, model_validator
 
@@ -40,6 +40,20 @@ if TYPE_CHECKING:
     from polisyos.ir.analytics.context import ContextProfile
 else:
     from polisyos.ir.analytics.context import ContextProfile
+
+
+class _SpanSupportClient(Protocol):
+    """Structural contract for the injected span-support judge client."""
+
+    def generate(
+        self,
+        *,
+        messages: list[dict[str, object]],
+        tools: list[dict[str, object]],
+        temperature: float | None = None,
+        seed: int | None = None,
+    ) -> Awaitable[object]:
+        """Return the bounded-agent response consumed by the span evaluator."""
 
 
 class ParameterType(str, Enum):
@@ -312,9 +326,10 @@ class EvidenceSpan(BaseModel):
 
     @model_validator(mode="after")
     def _validate_offsets(self) -> EvidenceSpan:
-        if self.start_char is not None and self.end_char is not None:
-            if self.end_char < self.start_char:
-                raise ValueError("end_char must be >= start_char")
+        if (self.start_char is not None and self.end_char is not None) and (
+            self.end_char < self.start_char
+        ):
+            raise ValueError("end_char must be >= start_char")
         return self
 
 
@@ -636,7 +651,7 @@ class EvidenceParameter(BaseModel):
 
     @model_validator(mode="before")
     @classmethod
-    def _retain_unresolved_strength_origin(cls, value: Any) -> Any:
+    def _retain_unresolved_strength_origin(cls, value: object) -> object:
         if not isinstance(value, dict):
             return value
         if "evidence_strength_origin" not in value and "evidence_strength" in value:
@@ -1191,7 +1206,7 @@ def extract_span_grounded_claims_from_openalex_work(
     *,
     query: str,
     max_claims: int = 3,
-    span_support_client: Any | None = None,
+    span_support_client: _SpanSupportClient | None = None,
 ) -> list[CausalClaim]:
     """Extract source-bound candidates without assigning semantic authority.
 
@@ -1353,7 +1368,7 @@ def validate_causal_claim_span_grounding(
     work: OpenAlexWorkText,
     claim: CausalClaim,
     *,
-    span_support_client: Any | None = None,
+    span_support_client: _SpanSupportClient | None = None,
 ) -> SpanGroundingResult:
     """Resolve a claim span to OpenAlex source text and require semantic support."""
 
@@ -1428,7 +1443,7 @@ def evaluate_openalex_claim_extractor_accuracy(
     gold_set: ClaimSpanGoldSet | None = None,
     *,
     extractor: Callable[[OpenAlexWorkText, str], Sequence[CausalClaim]] | None = None,
-    span_support_client: Any | None = None,
+    span_support_client: object | None = None,
     cases: Sequence[OpenAlexExtractionCase] | None = None,
 ) -> ExtractorAccuracyReport:
     """Run the extractor and constructed negatives without a positive accuracy claim.
@@ -1571,7 +1586,7 @@ def evaluate_openalex_claim_extractor_accuracy(
 def _evaluate_gold_span_support_accuracy(
     gold_set: ClaimSpanGoldSet,
     *,
-    span_support_client: Any | None,
+    span_support_client: object | None,
 ) -> LegacyExtractorAccuracyReportV1:
     """Fence the former default; historical report bytes remain readable in v1."""
 
@@ -1953,7 +1968,7 @@ def _evaluate_span_claim_entailment(
     *,
     claim: dict[str, Any],
     evidence: dict[str, Any],
-    client: Any | None = None,
+    client: _SpanSupportClient | None = None,
 ) -> dict[str, Any]:
     module = importlib.import_module("polisyos.scientist.validation.citation_faithfulness")
     evaluator = module.evaluate_span_claim_entailment

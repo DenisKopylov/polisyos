@@ -26,8 +26,6 @@ if TYPE_CHECKING:
     from polisyos.ir.governance.policy_spec import InterventionSpec
     from polisyos.ir.governance.problem_frame import ConstraintSpec
     from polisyos.ir.kernel.selector_fields import SelectorFieldRegistry
-else:
-    from polisyos.ir.governance.policy_spec import InterventionSpec
 
 
 def _validate_mechanism_slots(
@@ -215,8 +213,13 @@ def _validate_constraint_unit(
                         severity=LinkSeverity.ERROR,
                         code=LinkIssueCode.INCOMPATIBLE_CONSTRAINT,
                         message=(
-                            f"Constraint '{constraint.constraint_id}' rate base '{constraint.value.base}' "
-                            f"does not match '{unit.base}'"
+                            "Constraint '"
+                            f"{constraint.constraint_id}"
+                            "' rate base '"
+                            f"{constraint.value.base}"
+                            "' does not match '"
+                            f"{unit.base}"
+                            "'"
                         ),
                         path=path,
                         ids=ids,
@@ -231,7 +234,9 @@ def _validate_constraint_unit(
                     severity=LinkSeverity.ERROR,
                     code=LinkIssueCode.INCOMPATIBLE_CONSTRAINT,
                     message=(
-                        f"Constraint '{constraint.constraint_id}' requires RateValue or numeric scalar"
+                        "Constraint '"
+                        f"{constraint.constraint_id}"
+                        "' requires RateValue or numeric scalar"
                     ),
                     path=path,
                     ids=ids,

@@ -44,7 +44,7 @@ class EvidenceFingerprintError(ValueError):
     """Raised when audit evidence cannot be reduced to a stable fingerprint."""
 
 
-def _normalize_fingerprint_value(value: Any, *, path: str = "$", depth: int = 0) -> Any:
+def _normalize_fingerprint_value(value: object, *, path: str = "$", depth: int = 0) -> object:
     if depth > MAX_FINGERPRINT_DEPTH:
         raise EvidenceFingerprintError(
             f"Fingerprint payload exceeds max depth {MAX_FINGERPRINT_DEPTH} at {path}"
@@ -97,7 +97,7 @@ def _normalize_fingerprint_value(value: Any, *, path: str = "$", depth: int = 0)
     )
 
 
-def _fingerprint(data: Any) -> str:
+def _fingerprint(data: object) -> str:
     """Return a 16-char SHA-256 hex fingerprint of JSON-serializable data."""
     content = json.dumps(
         _normalize_fingerprint_value(data),
@@ -129,7 +129,8 @@ class ProofStep(BaseModel):
     """Compact description of the graph scope at this step."""
 
     rule_formal_name: str = ""
-    """Formal name of the rule in do-calculus literature (e.g. 'do-calculus rule 3', 'c-component factorization')."""
+    """Formal name of the rule in do-calculus literature (e.g. 'do-calculus rule 3', \
+'c-component factorization')."""
 
     applicable_theorem: str = ""
     """Theorem or lemma reference (e.g. 'do-calculus-R3', 'ID-algorithm', 'hedge-certificate')."""
@@ -306,7 +307,8 @@ class EvidenceBundle(BaseModel):
 
     diagnostic_dashboard: dict[str, Any] | None = None
     """Serialised DiagnosticDashboardData.  Stored as dict to avoid circular
-    imports; reconstruct with DiagnosticDashboardData.model_validate(bundle.diagnostic_dashboard)."""
+    imports; reconstruct with DiagnosticDashboardData.model_validate(bundle.diagnostic_dashboard)\
+."""
 
     # ------------------------------------------------------------------
     # 5.4 — quality report

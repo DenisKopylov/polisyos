@@ -2,7 +2,7 @@
 
 from __future__ import annotations
 
-from typing import TYPE_CHECKING, Any
+from typing import TYPE_CHECKING
 
 from pydantic import BaseModel, Field, ValidationError
 
@@ -22,6 +22,7 @@ from polisyos.ir.registry.refs import ArtifactRefModel
 from polisyos.ir.registry.registry_fragments import (
     RegistryBundle,
     RegistryComposeRequest,
+    RegistryConflict,
     compose_registry_fragments,
 )
 from polisyos.ir.trinity import TrinityBundle
@@ -73,7 +74,7 @@ def _sorted_diagnostics(diagnostics: Iterable[PassDiagnostic]) -> tuple[PassDiag
     )
 
 
-def _registry_conflict_severity(conflict: Any) -> str:
+def _registry_conflict_severity(conflict: RegistryConflict) -> str:
     if conflict.conflict_kind == "duplicate_identical":
         return "info"
     if conflict.conflict_kind == "duplicate_different" and conflict.resolution != "none":
@@ -82,14 +83,14 @@ def _registry_conflict_severity(conflict: Any) -> str:
 
 
 def _iter_artifact_refs(
-    value: Any,
+    value: object,
     *,
     path: tuple[str | int, ...] = (),
 ) -> Iterable[tuple[tuple[str | int, ...], ArtifactRefModel]]:
     seen: set[int] = set()
 
     def _walk(
-        candidate: Any,
+        candidate: object,
         current_path: tuple[str | int, ...],
     ) -> Iterable[tuple[tuple[str | int, ...], ArtifactRefModel]]:
         obj_id = id(candidate)
@@ -125,7 +126,7 @@ def _iter_artifact_refs(
     return _walk(value, path)
 
 
-def _coerce_estimand(value: Any) -> EstimandAST | None:
+def _coerce_estimand(value: object) -> EstimandAST | None:
     if value is None:
         return None
     if isinstance(value, EstimandAST):

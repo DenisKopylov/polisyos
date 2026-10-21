@@ -8,6 +8,7 @@ from polisyos.common.async_tools import SharedExecutorWaitTimeoutError
 
 if TYPE_CHECKING:
     from polisyos.core.contracts.bounded_liveness import BoundedLivenessResolution
+    from polisyos.core.contracts.owned_attempt_anchor import OwnedAttemptAnchorRef
 
 
 class _WaitHandle(Protocol):
@@ -26,6 +27,7 @@ class ControlProducerExecutionError(RuntimeError):
         exception_type: str,
         code: str,
         retryable: bool,
+        input_refusal_anchor_ref: OwnedAttemptAnchorRef | None = None,
     ) -> None:
         if (
             not exception_type
@@ -46,6 +48,16 @@ class ControlProducerExecutionError(RuntimeError):
         self.exception_type = exception_type
         self.code = code
         self.retryable = retryable
+        if input_refusal_anchor_ref is not None:
+            from polisyos.core.contracts.owned_attempt_anchor import OwnedAttemptAnchorRef
+
+            if (
+                type(input_refusal_anchor_ref) is not OwnedAttemptAnchorRef
+                or code != "observational_input_refused"
+                or retryable
+            ):
+                raise ValueError("input_refusal_failure_binding_invalid")
+        self.input_refusal_anchor_ref = input_refusal_anchor_ref
 
     def diagnostic(self) -> dict[str, object]:
         """Return bounded executor identity without an untrusted message excerpt."""
@@ -86,11 +98,6 @@ def require_shared_execution_value(
     failure = getattr(completion, "failure", None)
     exception_type = getattr(failure, "exception_type", "not_established")
     code = getattr(failure, "code", "shared_execution_failed")
-    if (
-        resolution.producer_key == "runtime.observational_method_execution"
-        and exception_type == "polisyos.foundry.data_plane.bindings.HTEInputPreparationRefusal"
-    ):
-        code = "observational_input_refused"
     retryable = getattr(failure, "retryable", False)
     raise ControlProducerExecutionError(
         resolution=resolution,

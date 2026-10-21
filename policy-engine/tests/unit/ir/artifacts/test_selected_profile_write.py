@@ -199,3 +199,54 @@ def test_ir_json_read_refuses_bytes_that_violate_the_selected_profile() -> None:
         match="ir_artifact_bytes_do_not_conform_to_persisted_canon_profile",
     ):
         get_json_artifact(RawProfiledReader(), ArtifactID.model_validate(artifact_id))
+
+
+def test_ir_json_read_reconciles_selected_profile_with_typed_manifest(tmp_path) -> None:
+    cas = FileSystemCAS(tmp_path / "cas")
+    ir_store = ensure_ir_artifact_store(cas)
+    payload = {"value": 1}
+    first_ref = put_json_artifact(
+        ir_store,
+        payload,
+        kind="test.ir_profile_identity",
+        schema_name="test.ProfileA",
+        schema_version="1.0",
+        return_selected_profile=True,
+    )
+    selected_ref = put_json_artifact(
+        ir_store,
+        payload,
+        kind="test.ir_profile_identity",
+        schema_name="test.ProfileB",
+        schema_version="1.0",
+        return_selected_profile=True,
+    )
+
+    assert first_ref["artifact_id"] == selected_ref["artifact_id"]
+    assert first_ref["manifest_profile_sha256"] != selected_ref["manifest_profile_sha256"]
+    assert get_json_artifact(ir_store, selected_ref) == payload
+
+    class DefaultViewIgnoringSelector:
+        """Expose real CAS bytes while deliberately discarding view selectors."""
+
+        def __init__(self):
+            self.payload_reads = 0
+
+        @staticmethod
+        def _artifact_id(selector):
+            return selector["artifact_id"] if isinstance(selector, dict) else selector
+
+        def get_manifest_bytes(self, selector):
+            return cas.get_manifest_bytes(self._artifact_id(selector))
+
+        def get_manifest(self, selector):
+            return cas.get_manifest(self._artifact_id(selector))
+
+        def get_bytes(self, selector):
+            self.payload_reads += 1
+            return cas.get_bytes(self._artifact_id(selector))
+
+    reader = DefaultViewIgnoringSelector()
+    with pytest.raises(CanonViolation, match="ir_artifact_selected_profile_mismatch"):
+        get_json_artifact(reader, selected_ref)
+    assert reader.payload_reads == 0

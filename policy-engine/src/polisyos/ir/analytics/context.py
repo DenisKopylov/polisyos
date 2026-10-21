@@ -275,7 +275,7 @@ def _invalid_payload_result(
     source: str,
     context_id: str,
     year: int,
-    payload: Any,
+    payload: object,
 ) -> _DatasourceFetchResult:
     payload_type = type(payload).__name__
     logger.warning(
@@ -426,7 +426,7 @@ def _safe_get_wvs_indicators(client: Any, context_id: str, year: int) -> _Dataso
     return _DatasourceFetchResult(payload=payload, issues=tuple(issues))
 
 
-def _coalesce_numeric(candidate: Any, fallback: float | None) -> float | None:
+def _coalesce_numeric(candidate: object, fallback: float | None) -> float | None:
     if candidate is None:
         return fallback
     try:

@@ -41,7 +41,7 @@ class _IRLegacyModuleAliasLoader(importlib.abc.Loader):
         self._target_fqn = target_fqn
         self._package_alias = package_alias
 
-    def create_module(self, spec: importlib.machinery.ModuleSpec) -> Any:
+    def create_module(self, spec: importlib.machinery.ModuleSpec) -> ModuleType:
         _warn_ir_legacy_import(self._alias_fqn, self._target_fqn)
         module = importlib.import_module(self._target_fqn)
         if self._package_alias and not hasattr(module, "__path__"):
@@ -49,7 +49,7 @@ class _IRLegacyModuleAliasLoader(importlib.abc.Loader):
         sys.modules[spec.name] = module
         return module
 
-    def exec_module(self, module: Any) -> None:
+    def exec_module(self, module: ModuleType) -> None:
         return None
 
 
@@ -79,7 +79,7 @@ class _IRLegacyAggregateLoader(importlib.abc.Loader):
         sys.modules[spec.name] = module
         return module
 
-    def exec_module(self, module: Any) -> None:
+    def exec_module(self, module: ModuleType) -> None:
         return None
 
 
@@ -139,7 +139,7 @@ def resolve_lazy_export(
     *,
     namespace: dict[str, Any],
     exports: LazyExportMap,
-) -> Any:
+) -> object:
     """Resolve one lazily-exported symbol and memoize it in ``namespace``."""
     try:
         module_name, attr_name = exports[name]
@@ -368,9 +368,34 @@ ANALYTICS_FACADE_EXPORTS: dict[str, tuple[str, str]] = {
         "polisyos.ir.analytics.literature",
         "SupportStatus",
     ),
+    "load_ate_inference_basis": (
+        "polisyos.ir.analytics.hte",
+        "load_ate_inference_basis",
+    ),
+    "load_hte_outcome": ("polisyos.ir.analytics.hte", "load_hte_outcome"),
+    "load_hte_result_v2": ("polisyos.ir.analytics.hte", "load_hte_result_v2"),
+    "load_hte_point_result": ("polisyos.ir.analytics.hte", "load_hte_point_result"),
+    "load_hte_refusal_diagnostic": (
+        "polisyos.ir.analytics.hte",
+        "load_hte_refusal_diagnostic",
+    ),
     "load_dependent_sensitivity_result": (
         "polisyos.ir.analytics.dependent_sensitivity",
         "load_dependent_sensitivity_result",
+    ),
+    "persist_ate_inference_basis": (
+        "polisyos.ir.analytics.hte",
+        "persist_ate_inference_basis",
+    ),
+    "persist_hte_outcome": ("polisyos.ir.analytics.hte", "persist_hte_outcome"),
+    "persist_hte_result_v2": ("polisyos.ir.analytics.hte", "persist_hte_result_v2"),
+    "persist_hte_point_result": (
+        "polisyos.ir.analytics.hte",
+        "persist_hte_point_result",
+    ),
+    "persist_hte_refusal_diagnostic": (
+        "polisyos.ir.analytics.hte",
+        "persist_hte_refusal_diagnostic",
     ),
     "persist_dependent_sensitivity_result": (
         "polisyos.ir.analytics.dependent_sensitivity",
@@ -515,6 +540,37 @@ ANALYTICS_FACADE_EXPORTS: dict[str, tuple[str, str]] = {
         "RepresentationModelFamily",
     ),
     "GraphType": ("polisyos.ir.analytics.causal_graph", "GraphType"),
+    "ATEInferenceBasis": ("polisyos.ir.analytics.hte", "ATEInferenceBasis"),
+    "HTEIntervalOutcome": ("polisyos.ir.analytics.hte", "HTEIntervalOutcome"),
+    "HTEOutcome": ("polisyos.ir.analytics.hte", "HTEOutcome"),
+    "HTEPointEstimate": ("polisyos.ir.analytics.hte", "HTEPointEstimate"),
+    "HTEPointOutcome": ("polisyos.ir.analytics.hte", "HTEPointOutcome"),
+    "HTEPointResult": ("polisyos.ir.analytics.hte", "HTEPointResult"),
+    "HTEResultEvidenceRef": ("polisyos.ir.registry.refs", "HTEResultEvidenceRef"),
+    "HTERefusalDiagnostic": ("polisyos.ir.analytics.hte", "HTERefusalDiagnostic"),
+    "HTERefusalOutcome": ("polisyos.ir.analytics.hte", "HTERefusalOutcome"),
+    "HTEResourceExecutionEvidenceV1": (
+        "polisyos.ir.analytics.hte",
+        "HTEResourceExecutionEvidenceV1",
+    ),
+    "HTETargetRelationV1": ("polisyos.ir.analytics.hte", "HTETargetRelationV1"),
+    "ATEInferenceBasisRef": ("polisyos.ir.registry.refs", "ATEInferenceBasisRef"),
+    "HTEInputSourceRef": ("polisyos.ir.registry.refs", "HTEInputSourceRef"),
+    "HTEOutcomeRef": ("polisyos.ir.registry.refs", "HTEOutcomeRef"),
+    "HTEPhysicalSourceMaterializationBindingRef": (
+        "polisyos.ir.registry.refs",
+        "HTEPhysicalSourceMaterializationBindingRef",
+    ),
+    "HTEPointResultRef": ("polisyos.ir.registry.refs", "HTEPointResultRef"),
+    "HTEResourcePolicyRef": ("polisyos.ir.registry.refs", "HTEResourcePolicyRef"),
+    "HTERefusalDiagnosticRef": ("polisyos.ir.registry.refs", "HTERefusalDiagnosticRef"),
+    "MethodExecutionEvidenceRef": ("polisyos.ir.registry.refs", "MethodExecutionEvidenceRef"),
+    "MethodResultEvidenceRef": ("polisyos.ir.registry.refs", "MethodResultEvidenceRef"),
+    "OwnedAttemptAnchorRef": ("polisyos.ir.registry.refs", "OwnedAttemptAnchorRef"),
+    "SearchUncertaintyTaskBindingRef": (
+        "polisyos.ir.registry.refs",
+        "SearchUncertaintyTaskBindingRef",
+    ),
     "HTEResult": ("polisyos.ir.analytics.hte", "HTEResult"),
     "ImpactDirection": ("polisyos.ir.analytics.distributional", "ImpactDirection"),
     "EnvironmentShiftType": (
@@ -1488,6 +1544,36 @@ REGISTRY_FACADE_EXPORTS: dict[str, tuple[str, str]] = {
     ),
     "FrontierSketchRef": ("polisyos.ir.registry.refs", "FrontierSketchRef"),
     "GEUncertaintyBundleRef": ("polisyos.ir.registry.refs", "GEUncertaintyBundleRef"),
+    "ATEInferenceBasisRef": ("polisyos.ir.registry.refs", "ATEInferenceBasisRef"),
+    "HTEInputSourceRef": ("polisyos.ir.registry.refs", "HTEInputSourceRef"),
+    "HTEOutcomeRef": ("polisyos.ir.registry.refs", "HTEOutcomeRef"),
+    "HTEPhysicalSourceMaterializationBindingRef": (
+        "polisyos.ir.registry.refs",
+        "HTEPhysicalSourceMaterializationBindingRef",
+    ),
+    "HTEPointResultRef": ("polisyos.ir.registry.refs", "HTEPointResultRef"),
+    "HTEResourcePolicyRef": ("polisyos.ir.registry.refs", "HTEResourcePolicyRef"),
+    "HTEResultEvidenceRef": ("polisyos.ir.registry.refs", "HTEResultEvidenceRef"),
+    "HTERefusalDiagnosticRef": (
+        "polisyos.ir.registry.refs",
+        "HTERefusalDiagnosticRef",
+    ),
+    "SearchUncertaintyTaskBindingRef": (
+        "polisyos.ir.registry.refs",
+        "SearchUncertaintyTaskBindingRef",
+    ),
+    "MethodExecutionEvidenceRef": (
+        "polisyos.ir.registry.refs",
+        "MethodExecutionEvidenceRef",
+    ),
+    "MethodResultEvidenceRef": (
+        "polisyos.ir.registry.refs",
+        "MethodResultEvidenceRef",
+    ),
+    "OwnedAttemptAnchorRef": (
+        "polisyos.ir.registry.refs",
+        "OwnedAttemptAnchorRef",
+    ),
     "HTEResultRef": ("polisyos.ir.registry.refs", "HTEResultRef"),
     "IncentiveCompatibilityCertificateRef": (
         "polisyos.ir.registry.refs",

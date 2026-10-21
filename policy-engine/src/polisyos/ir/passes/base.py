@@ -18,7 +18,7 @@ from pydantic import BaseModel
 from polisyos.ir.model_layer.canon import CanonSpec, content_hash, to_canonical_bytes
 
 
-def _normalize_surface_payload(value: Any) -> Any:
+def _normalize_surface_payload(value: object) -> object:
     if isinstance(value, BaseModel):
         return value.model_dump(mode="python", round_trip=True)
     if is_dataclass(value) and not isinstance(value, type):
@@ -50,7 +50,7 @@ def _normalize_surface_payload(value: Any) -> Any:
     return {"python_type": type(value).__qualname__, "repr": repr(value)}
 
 
-def stable_surface_fingerprint(value: Any) -> str:
+def stable_surface_fingerprint(value: object) -> str:
     """Return a deterministic digest for a pass surface or analysis value."""
     normalized = _normalize_surface_payload(value)
     return content_hash(
@@ -105,12 +105,12 @@ class PassContext:
     _surface_fingerprints: Mapping[str, str] = field(default_factory=dict)
     _analysis_fingerprints: Mapping[str, str] = field(default_factory=dict)
 
-    def get(self, name: str, default: Any = None) -> Any:
+    def get(self, name: str, default: object = None) -> object:
         if name in self.analyses:
             return self.analyses[name]
         return self.surfaces.get(name, default)
 
-    def require(self, name: str) -> Any:
+    def require(self, name: str) -> object:
         if name in self.analyses:
             return self.analyses[name]
         if name in self.surfaces:
@@ -127,7 +127,7 @@ class PassContext:
     def with_surface(
         self,
         name: str,
-        value: Any,
+        value: object,
         *,
         fingerprint: str | None = None,
     ) -> PassContext:
@@ -146,7 +146,7 @@ class PassContext:
     def with_analysis(
         self,
         name: str,
-        value: Any,
+        value: object,
         *,
         fingerprint: str | None = None,
     ) -> PassContext:

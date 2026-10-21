@@ -196,9 +196,10 @@ class ObservationRecord(KernelModel):
         ):
             raise ValueError("proxy_source_id is required for proxy_identified observations")
 
-        if self.entity_scope in {EntityScope.AGENT, EntityScope.FIRM, EntityScope.HOUSEHOLD}:
-            if not self.entity_id:
-                raise ValueError(f"entity_id is required for scope={self.entity_scope.value}")
+        if (self.entity_scope in {EntityScope.AGENT, EntityScope.FIRM, EntityScope.HOUSEHOLD}) and (
+            not self.entity_id
+        ):
+            raise ValueError(f"entity_id is required for scope={self.entity_scope.value}")
         if self.entity_scope in {EntityScope.CELL, EntityScope.HOUSEHOLD_CELL} and not self.cell_id:
             raise ValueError(f"cell_id is required for scope={self.entity_scope.value}")
         if self.entity_scope == EntityScope.REGION and not self.region_code:
@@ -228,7 +229,10 @@ class ObservationPanel(KernelModel):
         for record in self.records:
             if record.family != self.family:
                 raise ValueError(
-                    f"record family mismatch: expected {self.family.value}, got {record.family.value}"
+                    "record family mismatch: expected "
+                    f"{self.family.value}"
+                    ", got "
+                    f"{record.family.value}"
                 )
             if record.time_grain != self.time_grain:
                 raise ValueError(

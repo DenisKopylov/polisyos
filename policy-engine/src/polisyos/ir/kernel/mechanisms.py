@@ -73,7 +73,13 @@ class MechanismTypeRegistry(KernelModel):
             for param_key, param in spec.params.items():
                 if param_key != param.param_id:
                     raise ValueError(
-                        f"param id mismatch for mechanism '{key}': '{param_key}' != '{param.param_id}'"
+                        "param id mismatch for mechanism '"
+                        f"{key}"
+                        "': '"
+                        f"{param_key}"
+                        "' != '"
+                        f"{param.param_id}"
+                        "'"
                     )
         return self
 

@@ -2,7 +2,7 @@
 
 from __future__ import annotations
 
-from typing import Any, ClassVar, Literal
+from typing import Any, ClassVar, Literal, Protocol
 
 from pydantic import BaseModel, ConfigDict, Field, model_validator
 
@@ -53,6 +53,44 @@ ShiftGlobalVerdict = Literal[
 ]
 LabelAvailability = Literal["none", "proxy", "delayed", "current"]
 DecisionContext = Literal["standard", "high_stakes"]
+
+
+class _ShiftComponentView(Protocol):
+    """Fields needed to derive the readiness downgrade."""
+
+    @property
+    def status(self) -> ShiftStatus: ...
+
+    @property
+    def severity_bucket(self) -> SeverityBucket: ...
+
+
+class _ShiftReadinessView(Protocol):
+    """Producer-neutral view consumed by the readiness mapping."""
+
+    @property
+    def schema_shift(self) -> _ShiftComponentView: ...
+
+    @property
+    def concept_shift(self) -> _ShiftComponentView: ...
+
+    @property
+    def support_shift(self) -> _ShiftComponentView: ...
+
+    @property
+    def harmful_shift_risk(self) -> _ShiftComponentView: ...
+
+    @property
+    def marginal_shift(self) -> _ShiftComponentView: ...
+
+    @property
+    def label_prior_shift(self) -> _ShiftComponentView: ...
+
+    @property
+    def power_status(self) -> Literal["sufficient", "insufficient", "unknown"]: ...
+
+    @property
+    def decision_context(self) -> DecisionContext: ...
 
 
 READINESS_ORDER: tuple[ReadinessBand, ...] = ("ready", "monitor", "restricted", "blocked")
@@ -424,7 +462,7 @@ def readiness_after_downgrade(
     return READINESS_ORDER[min(index + int(downgrade_level), len(READINESS_ORDER) - 1)]
 
 
-def readiness_downgrade(report: ShiftDiagnosticReport | Any) -> int:
+def readiness_downgrade(report: _ShiftReadinessView) -> int:
     """Map shift subtype evidence to the Phase-5 readiness downgrade ladder."""
 
     if report.schema_shift.severity_bucket in {"high", "severe"}:

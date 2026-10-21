@@ -196,7 +196,7 @@ def _mapping_to_json_dict(value: Mapping[str, Any] | None) -> dict[str, Any]:
     return {str(key): _json_value(item) for key, item in value.items()}
 
 
-def _json_value(value: Any) -> Any:
+def _json_value(value: object) -> object:
     if isinstance(value, Mapping):
         return {str(key): _json_value(item) for key, item in value.items()}
     if isinstance(value, tuple | list):

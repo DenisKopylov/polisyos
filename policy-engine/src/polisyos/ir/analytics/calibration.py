@@ -217,7 +217,9 @@ class TargetAlignConfig(BaseModel):
     )
     fill_value: float | None = Field(
         None,
-        description="Чем заполнить пропуски (если None — использовать крайние значения/интерполяцию).",
+        description=(
+            "Чем заполнить пропуски (если None — использовать крайние значения/интерполяцию)."
+        ),
     )
     steps: int | None = Field(
         None, ge=1, description="Явное количество шагов симуляции для данного таргета."
@@ -334,7 +336,9 @@ class CalibrationTarget(BaseModel):
     )
     fabric_query: dict[str, Any] | None = Field(
         None,
-        description="Запрос/спецификация к Fabric/UDF. В preflight должен быть разрешён в массив значений.",
+        description=(
+            "Запрос/спецификация к Fabric/UDF. В preflight должен быть разрешён в массив значений."
+        ),
     )
     fabric_metric: str | None = Field(
         None,
@@ -415,7 +419,9 @@ class CalibrationConfig(BaseModel):
     targets: list[CalibrationTarget] = Field(default_factory=list)
     trainables: list[TrainableParamRef] = Field(
         default_factory=list,
-        description="Необязательный явный список параметров; если пусто — использовать ParamSpec.trainable.",
+        description=(
+            "Необязательный явный список параметров; если пусто — использовать ParamSpec.trainable."
+        ),
     )
     steps: int | None = Field(
         None,

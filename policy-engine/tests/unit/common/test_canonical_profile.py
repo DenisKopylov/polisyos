@@ -6,6 +6,8 @@ import pytest
 
 from polisyos.common.canonical_profile import (
     CanonicalProfileRefusalError,
+    _manifest_profile_projection,
+    _manifest_profile_sha256,
     read_canonical_profiled_bytes,
     require_declared_profile,
 )
@@ -208,3 +210,60 @@ def test_profile_refusal_keeps_existing_value_error_boundary_compatibility() -> 
     from polisyos.common.canonical_profile import CanonicalProfileRefusalError
 
     assert issubclass(CanonicalProfileRefusalError, ValueError)
+
+
+def test_shared_manifest_profile_projection_preserves_v1_v2_v3_goldens() -> None:
+    canon = {
+        "name": "polisyos.canon.json",
+        "version": "0.2.0",
+        "forbid_floats": True,
+        "forbid_nan_inf": True,
+        "exclude_none": True,
+        "max_depth": 128,
+        "sort_keys": True,
+        "separators": [",", ":"],
+        "ensure_ascii": False,
+    }
+    common = {
+        "artifact_id": "sha256:" + "a" * 64,
+        "kind": "test.profile_golden",
+        "media_type": "application/json",
+        "byte_size": 42,
+        "created_at": "2020-01-02T03:04:05Z",
+        "schema": {"name": "test.Golden", "version": "1.0"},
+        "canon": canon,
+        "inputs": [],
+        "integrity": {
+            "sha256": "b" * 64,
+            "optional": {"digest": "c" * 64},
+        },
+        "warnings": [],
+    }
+    expected = {
+        "v1": "sha256:becce32c7823c3bcd2f5d9e26f706cb2094bbbf1803a3268f22641e0a6b84bdb",
+        "v2": "sha256:1694daeaf2a39d255ce1c7848ff99ab502851c8d4983edfd59c22e7f82bb4fc2",
+        "v3": "sha256:5592dadc32c55a1406eb2d813237e3e150209f74f5be22c276bffd97600b8fdc",
+    }
+
+    for version, digest in expected.items():
+        manifest = dict(common)
+        if version != "v1":
+            manifest["manifest_schema_version"] = version
+        projection = _manifest_profile_projection(manifest)
+
+        assert _manifest_profile_sha256(manifest) == digest
+        assert "artifact_id" not in projection
+        assert "byte_size" not in projection
+        assert "created_at" not in projection
+        if version in {"v1", "v2"}:
+            assert "integrity" not in projection
+        else:
+            assert projection["integrity"] == {"optional": {"digest": "c" * 64}}
+
+
+def test_shared_manifest_profile_projection_refuses_unknown_version() -> None:
+    with pytest.raises(
+        CanonicalProfileRefusalError,
+        match="manifest_profile_schema_version_invalid",
+    ):
+        _manifest_profile_projection({"manifest_schema_version": "v4"})

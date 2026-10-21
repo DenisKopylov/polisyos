@@ -517,9 +517,10 @@ class ObservationContractSuiteResult:
 
 
 def _entity_locator(record: ObservationRecord) -> str:
-    if record.entity_scope in {EntityScope.AGENT, EntityScope.FIRM, EntityScope.HOUSEHOLD}:
-        if record.entity_id:
-            return record.entity_id
+    if (record.entity_scope in {EntityScope.AGENT, EntityScope.FIRM, EntityScope.HOUSEHOLD}) and (
+        record.entity_id
+    ):
+        return record.entity_id
     if record.entity_scope in {EntityScope.CELL, EntityScope.HOUSEHOLD_CELL}:
         if record.entity_id:
             return record.entity_id
@@ -688,7 +689,7 @@ def _finite_list(values: Sequence[float]) -> list[float]:
     return [float(value) for value in values]
 
 
-def _json_payload_value(value: Any) -> Any:
+def _json_payload_value(value: object) -> object:
     """Normalize one neutral method payload value without importing its consumer DTO."""
 
     if isinstance(value, np.ndarray):
@@ -706,7 +707,7 @@ def _json_payload_value(value: Any) -> Any:
     return value
 
 
-def _method_contract_payload(**values: Any) -> dict[str, Any]:
+def _method_contract_payload(**values: object) -> dict[str, Any]:
     """Return a deterministic JSON payload for upper-layer method materialization."""
 
     return {key: _json_payload_value(value) for key, value in values.items()}
@@ -809,7 +810,7 @@ class ObservationCompilerContext:
         measurement_registry: MeasurementRegistry | None = None,
         identification_router: IdentificationModeRouter | None = None,
         schema_regime_registry: SchemaRegimeRegistry | None = None,
-        splitter: Any | None = None,
+        splitter: object | None = None,
     ) -> None:
         self.measurement_registry = measurement_registry or MeasurementRegistry.default()
         self.identification_router = identification_router or IdentificationModeRouter(

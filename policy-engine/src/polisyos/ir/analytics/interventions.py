@@ -1237,7 +1237,14 @@ def render_intervention_query(query: InterventionQuery) -> str:
 
     target = ",".join(query.target.outcome_variables)
     conditioning = f" | {','.join(query.target.conditioning)}" if query.target.conditioning else ""
-    return f"{query.target.target_kind.value}:{target}{conditioning} <- {_render_intervention_expr(query.intervention)}"
+    return (
+        f"{query.target.target_kind.value}"
+        ":"
+        f"{target}"
+        f"{conditioning}"
+        " <- "
+        f"{_render_intervention_expr(query.intervention)}"
+    )
 
 
 def persist_intervention_query(

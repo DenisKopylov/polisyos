@@ -3,9 +3,8 @@
 from __future__ import annotations
 
 import math
-from collections.abc import Sequence
 from enum import Enum
-from typing import Any, ClassVar, overload
+from typing import TYPE_CHECKING, Any, ClassVar, overload
 
 from pydantic import BaseModel, ConfigDict, Field, model_validator
 
@@ -22,6 +21,10 @@ from polisyos.ir.analytics.uncertainty import (
 )
 from polisyos.ir.artifacts import ArtifactStore, InputRef, get_json_artifact, put_json_artifact
 from polisyos.ir.model_layer.canon import CanonSpec
+
+if TYPE_CHECKING:
+    from collections.abc import Sequence
+
 from polisyos.ir.registry.refs import (
     ArtifactRefModel,
     CausalAssumptionCardRef,
@@ -794,7 +797,8 @@ class DistributionalBoundsBundle(BaseModel):
                 lower > upper for lower, upper in zip(consensus_lower, consensus_upper, strict=True)
             ):
                 warnings.append(
-                    "Consensus envelope is empty at one or more grid points; inspect method-specific bounds."
+                    "Consensus envelope is empty at one or more grid points; inspect "
+                    "method-specific bounds."
                 )
             else:
                 consensus_bounds = FunctionalBounds(

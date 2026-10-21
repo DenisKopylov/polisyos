@@ -472,6 +472,12 @@ def register_causal_methods() -> Sequence[type]:
     try:
         from polisyos.foundry.methods.catalog.causal.cate import CausalForestEstimator
         from polisyos.foundry.methods.catalog.causal.dml import DoubleMachineLearning
+        from polisyos.foundry.methods.catalog.causal.hte_v2 import (
+            CausalForestEstimatorV2,
+            DoubleMachineLearningV2,
+            ForestDRLearnerEstimatorV2,
+            MetaLearnerEstimatorV2,
+        )
         from polisyos.foundry.methods.catalog.causal.meta_learners import (
             MetaLearnerEstimator,
         )
@@ -482,8 +488,12 @@ def register_causal_methods() -> Sequence[type]:
         methods.extend(
             [
                 CausalForestEstimator,
+                CausalForestEstimatorV2,
                 DoubleMachineLearning,
+                DoubleMachineLearningV2,
                 MetaLearnerEstimator,
+                MetaLearnerEstimatorV2,
+                ForestDRLearnerEstimatorV2,
                 OptimalPolicyLearner,
             ]
         )

@@ -20,13 +20,11 @@ from typing import TYPE_CHECKING, Any
 
 from pydantic import BaseModel, ConfigDict, Field, field_validator, model_validator
 
+from polisyos.ir._internal.validation import coerce_float
 from polisyos.ir.analytics.causal_queries import (
     CausalEstimatorInterval,
     CausalResultKind,
     _causal_distribution_envelope,
-)
-from polisyos.ir.analytics.uncertainty import (
-    UncertaintyEnvelope,
 )
 from polisyos.ir.artifacts import ArtifactStore, InputRef, get_json_artifact, put_json_artifact
 from polisyos.ir.model_layer.canon import CanonSpec
@@ -34,6 +32,7 @@ from polisyos.ir.registry.refs import TwinNetworkResultRef
 
 if TYPE_CHECKING:
     from polisyos.ir.analytics.causal_queries import InterventionSpec
+    from polisyos.ir.analytics.uncertainty import UncertaintyEnvelope
 else:
     from polisyos.ir.analytics.causal_queries import InterventionSpec
 
@@ -54,8 +53,8 @@ class TwinWorldSample(BaseModel):
 
     @field_validator("individual_treatment_effect", mode="before")
     @classmethod
-    def _coerce_ite(cls, value: Any) -> Any:
-        casted = float(value)
+    def _coerce_ite(cls, value: object) -> float:
+        casted = coerce_float(value)
         if not math.isfinite(casted):
             raise ValueError("individual_treatment_effect must be finite")
         return casted
@@ -74,7 +73,7 @@ class TwinNetworkResult(BaseModel):
 
     @model_validator(mode="before")
     @classmethod
-    def _normalize_historical_result(cls, value: Any) -> Any:
+    def _normalize_historical_result(cls, value: object) -> object:
         if isinstance(value, dict):
             version = value.get("schema_version", "1.1")
             if version not in {"1.0", "1.1"}:
@@ -150,27 +149,27 @@ class TwinNetworkResult(BaseModel):
         mode="before",
     )
     @classmethod
-    def _coerce_scalar(cls, value: Any) -> Any:
-        casted = float(value)
+    def _coerce_scalar(cls, value: object) -> float:
+        casted = coerce_float(value)
         if not math.isfinite(casted):
             raise ValueError("numeric fields must be finite")
         return casted
 
     @field_validator("ite_ci", mode="before")
     @classmethod
-    def _coerce_ci(cls, value: Any) -> Any:
+    def _coerce_ci(cls, value: object) -> tuple[float, float]:
         if not isinstance(value, (tuple, list)) or len(value) != 2:
             raise ValueError("ite_ci must be a 2-element tuple/list")
-        lo = float(value[0])
-        hi = float(value[1])
+        lo = coerce_float(value[0])
+        hi = coerce_float(value[1])
         if not math.isfinite(lo) or not math.isfinite(hi):
             raise ValueError("ite_ci bounds must be finite")
         return (lo, hi)
 
     @field_validator("po_correlation", mode="before")
     @classmethod
-    def _coerce_correlation(cls, value: Any) -> Any:
-        casted = float(value)
+    def _coerce_correlation(cls, value: object) -> float:
+        casted = coerce_float(value)
         if not math.isfinite(casted):
             raise ValueError("po_correlation must be finite")
         return float(max(-1.0, min(1.0, casted)))
@@ -179,14 +178,14 @@ class TwinNetworkResult(BaseModel):
         "ite_distribution", "po_factual_distribution", "po_counter_distribution", mode="before"
     )
     @classmethod
-    def _coerce_distribution(cls, value: Any) -> Any:
+    def _coerce_distribution(cls, value: object) -> list[float] | None:
         if value is None:
             return None
         if not isinstance(value, list):
             raise ValueError("distribution fields must be lists of floats")
         normalized: list[float] = []
         for item in value:
-            casted = float(item)
+            casted = coerce_float(item)
             if not math.isfinite(casted):
                 raise ValueError("distribution values must be finite")
             normalized.append(casted)

@@ -364,7 +364,8 @@ class RegimeShiftIdentifiabilityWitness(BaseModel):
         overlap = set(self.informative_envs) & set(self.redundant_envs)
         if overlap:
             raise ValueError(
-                f"identifiability witness informative_envs and redundant_envs overlap {sorted(overlap)}"
+                "identifiability witness informative_envs and redundant_envs overlap "
+                f"{sorted(overlap)}"
             )
         return self
 
@@ -603,7 +604,8 @@ class RegimeShiftComputationalFeasibility(BaseModel):
             observed_max = max(self.candidate_parent_sizes.values())
             if self.max_candidate_parents < observed_max:
                 raise ValueError(
-                    "max_candidate_parents must be at least the maximum candidate_parent_sizes value"
+                    "max_candidate_parents must be at least the maximum "
+                    "candidate_parent_sizes value"
                 )
         ensure_unique_ids(
             self.hard_required_edges,
@@ -1093,7 +1095,9 @@ class RegimeShiftIdentificationCertificate(BaseModel):
                 )
             suppressed_variables = {
                 variable
-                for values in self.computational_feasibility.track7.suppressed_candidates_by_target.values()
+                for values in (
+                    self.computational_feasibility.track7.suppressed_candidates_by_target.values()
+                )
                 for variable in values
             }
             unknown_suppressed_variables = suppressed_variables - variables
@@ -1110,8 +1114,9 @@ class RegimeShiftIdentificationCertificate(BaseModel):
             )
             if unknown_group_targets:
                 raise ValueError(
-                    "computational_feasibility.track7.mutually_exclusive_candidate_groups_by_target "
-                    f"references unknown targets {sorted(unknown_group_targets)}"
+                    "computational_feasibility.track7.mutually_exclusive_candidate_groups"
+                    "_by_target references unknown targets "
+                    f"{sorted(unknown_group_targets)}"
                 )
             grouped_variables = {
                 variable
@@ -1124,8 +1129,9 @@ class RegimeShiftIdentificationCertificate(BaseModel):
             unknown_grouped_variables = grouped_variables - variables
             if unknown_grouped_variables:
                 raise ValueError(
-                    "computational_feasibility.track7.mutually_exclusive_candidate_groups_by_target "
-                    f"references unknown variables {sorted(unknown_grouped_variables)}"
+                    "computational_feasibility.track7.mutually_exclusive_candidate_groups"
+                    "_by_target references unknown variables "
+                    f"{sorted(unknown_grouped_variables)}"
                 )
         return self
 

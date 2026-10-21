@@ -483,7 +483,7 @@ def _fields_for(obj: type[Any]) -> tuple[IRFieldInfo, ...]:
     )
 
 
-def _default_repr(value: Any) -> str | None:
+def _default_repr(value: object) -> str | None:
     if value is None or repr(value) == "PydanticUndefined":
         return None
     return _stable_repr(value)
@@ -500,11 +500,11 @@ def _dataclass_default_repr(field: dataclasses.Field[Any]) -> str | None:
     return None
 
 
-def _stable_repr(value: Any) -> str:
+def _stable_repr(value: object) -> str:
     return _MEMORY_ADDRESS_RE.sub("", repr(value))
 
 
-def _format_annotation(annotation: Any) -> str:
+def _format_annotation(annotation: object) -> str:
     if annotation is None:
         return "None"
     if isinstance(annotation, str):
@@ -544,7 +544,7 @@ def _format_annotation(annotation: Any) -> str:
     return f"{_format_annotation(origin)}[{inner}]"
 
 
-def _collect_ir_refs(annotation: Any) -> set[str]:
+def _collect_ir_refs(annotation: object) -> set[str]:
     refs: set[str] = set()
     if annotation is None:
         return refs

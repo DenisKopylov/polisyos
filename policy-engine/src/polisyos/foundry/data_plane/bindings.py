@@ -262,6 +262,7 @@ class HTEInputPreparationRefusal(ValueError):
             else None
         )
         self.payload_integrity_verified = payload_integrity_verified
+        self.source_usage_complete = source_usage_complete
         self.failure_stage = failure_stage
         self.cleanup_failure_stage = cleanup_failure_stage
         self.cleanup_exception_type = cleanup_exception_type

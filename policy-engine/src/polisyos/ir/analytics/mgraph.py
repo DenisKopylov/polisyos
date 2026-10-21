@@ -245,7 +245,11 @@ def build_mgraph(
         target_var = dst[2:]
         if target_var not in subst_set:
             raise ValueError(
-                f"missingness edge target '{dst}' refers to unknown substantive variable '{target_var}'"
+                "missingness edge target '"
+                f"{dst}"
+                "' refers to unknown substantive variable '"
+                f"{target_var}"
+                "'"
             )
         normalised_missingness_edges.append((src, dst))
 

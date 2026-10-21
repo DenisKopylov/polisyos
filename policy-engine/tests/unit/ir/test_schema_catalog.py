@@ -132,9 +132,20 @@ def test_pre_move_abi_pickle_loads_before_the_live_catalog_consumer() -> None:
         )
     )
     assert entry in ABI_MODELS
-    assert len(ABI_MODELS) == fixture["baseline"]["abi_count"]
+    additive_abi_keys = {
+        "ate_inference_basis",
+        "hte_outcome",
+        "hte_point_result",
+        "hte_refusal_diagnostic",
+        "retained_skg_snapshot_v1_1",
+    }
+    assert additive_abi_keys <= {model.abi_key for model in ABI_MODELS}
+    baseline_abi_models = tuple(
+        model for model in ABI_MODELS if model.abi_key not in additive_abi_keys
+    )
+    assert len(baseline_abi_models) == fixture["baseline"]["abi_count"]
     abi_payload = json.dumps(
-        [row.__dict__ for row in ABI_MODELS],
+        [row.__dict__ for row in baseline_abi_models],
         sort_keys=True,
         separators=(",", ":"),
         default=lambda value: value.value,

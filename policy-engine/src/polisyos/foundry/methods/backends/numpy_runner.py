@@ -5,7 +5,7 @@ from __future__ import annotations
 import json
 import time
 from collections.abc import Mapping
-from typing import Any
+from typing import TYPE_CHECKING, Any
 
 import numpy as np
 
@@ -16,6 +16,7 @@ from polisyos.foundry.methods.backends.protocol import (
     MethodRunner,
     MethodTiming,
     ReproducibilityInfo,
+    RuntimeContextDispatchError,
 )
 from polisyos.foundry.methods.backends.runtime_fingerprint import (
     capture_backend_runtime_fingerprint,
@@ -25,6 +26,9 @@ from polisyos.foundry.methods.backends.runtime_fingerprint import (
 from polisyos.foundry.methods.backends.validated import VALIDATED_EXECUTION_PARAM_NAMES
 from polisyos.foundry.methods.base import ComputeBackend, MethodSignature
 from polisyos.foundry.methods.components.io import dematerialize_method_output
+
+if TYPE_CHECKING:
+    from polisyos.core.contracts.owned_attempt_anchor import OwnedAttemptAnchorDispatchContext
 
 
 def _resolve_params(signature: MethodSignature, params: Mapping[str, Any]) -> dict[str, Any]:
@@ -56,6 +60,7 @@ class NumpyRunner(MethodRunner):
         state: Any,
         params: Mapping[str, Any],
         seed: int,
+        runtime_context: OwnedAttemptAnchorDispatchContext | None = None,
     ) -> MethodResult:
         resolved = _resolve_params(signature, params)
         rng = np.random.default_rng(seed)
@@ -63,7 +68,34 @@ class NumpyRunner(MethodRunner):
         resolved["__seed__"] = seed
 
         started = time.perf_counter()
-        output = method_class.pure_step(state, resolved)
+        if runtime_context is None:
+            output = method_class.pure_step(state, resolved)
+        else:
+            from polisyos.core.contracts.owned_attempt_anchor import (
+                OwnedAttemptAnchorDispatchContext,
+            )
+
+            if not isinstance(runtime_context, OwnedAttemptAnchorDispatchContext):
+                raise RuntimeContextDispatchError("invalid_context")
+            capture = runtime_context.input_capture
+            if (
+                signature.fqn
+                not in {
+                    "causal.hte.causal_forest@2.0.0",
+                    "causal.hte.double_ml@2.0.0",
+                    "causal.hte.meta_learner@2.0.0",
+                    "causal.hte.forest_dr@2.0.0",
+                }
+                or getattr(method_class, "owned_hte_method_fqn", None) != signature.fqn
+                or getattr(method_class, "owned_hte_method_abi", None) != "2.0.0"
+                or getattr(capture, "method_fqn", None) != signature.fqn
+                or getattr(capture, "method_abi", None) != "2.0.0"
+            ):
+                raise RuntimeContextDispatchError("method_identity_mismatch")
+            context_entry = getattr(method_class, "pure_step_with_runtime_context", None)
+            if not callable(context_entry):
+                raise RuntimeContextDispatchError("method_not_supported")
+            output = context_entry(state, resolved, runtime_context=runtime_context)
         postprocess = getattr(method_class, "postprocess_output", None)
         if callable(postprocess):
             output = postprocess(output=output, state=state, params=resolved)

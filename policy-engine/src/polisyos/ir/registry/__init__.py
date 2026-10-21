@@ -23,6 +23,9 @@ if TYPE_CHECKING:
         ArtifactRefModel as ArtifactRefModel,
     )
     from polisyos.ir.registry.refs import (
+        ATEInferenceBasisRef as ATEInferenceBasisRef,
+    )
+    from polisyos.ir.registry.refs import (
         BacktestReportRef as BacktestReportRef,
     )
     from polisyos.ir.registry.refs import (
@@ -164,6 +167,27 @@ if TYPE_CHECKING:
         GEUncertaintyBundleRef as GEUncertaintyBundleRef,
     )
     from polisyos.ir.registry.refs import (
+        HTEInputSourceRef as HTEInputSourceRef,
+    )
+    from polisyos.ir.registry.refs import (
+        HTEOutcomeRef as HTEOutcomeRef,
+    )
+    from polisyos.ir.registry.refs import (
+        HTEPhysicalSourceMaterializationBindingRef as HTEPhysicalSourceMaterializationBindingRef,
+    )
+    from polisyos.ir.registry.refs import (
+        HTEPointResultRef as HTEPointResultRef,
+    )
+    from polisyos.ir.registry.refs import (
+        HTERefusalDiagnosticRef as HTERefusalDiagnosticRef,
+    )
+    from polisyos.ir.registry.refs import (
+        HTEResourcePolicyRef as HTEResourcePolicyRef,
+    )
+    from polisyos.ir.registry.refs import (
+        HTEResultEvidenceRef as HTEResultEvidenceRef,
+    )
+    from polisyos.ir.registry.refs import (
         HTEResultRef as HTEResultRef,
     )
     from polisyos.ir.registry.refs import (
@@ -224,6 +248,12 @@ if TYPE_CHECKING:
         MechanismWelfareLossBoundRef as MechanismWelfareLossBoundRef,
     )
     from polisyos.ir.registry.refs import (
+        MethodExecutionEvidenceRef as MethodExecutionEvidenceRef,
+    )
+    from polisyos.ir.registry.refs import (
+        MethodResultEvidenceRef as MethodResultEvidenceRef,
+    )
+    from polisyos.ir.registry.refs import (
         MetricValidationReportRef as MetricValidationReportRef,
     )
     from polisyos.ir.registry.refs import (
@@ -255,6 +285,9 @@ if TYPE_CHECKING:
     )
     from polisyos.ir.registry.refs import (
         OrdinalPovertyReportRef as OrdinalPovertyReportRef,
+    )
+    from polisyos.ir.registry.refs import (
+        OwnedAttemptAnchorRef as OwnedAttemptAnchorRef,
     )
     from polisyos.ir.registry.refs import (
         PolicyRecommendationRef as PolicyRecommendationRef,
@@ -294,6 +327,9 @@ if TYPE_CHECKING:
     )
     from polisyos.ir.registry.refs import (
         SCMFragmentRef as SCMFragmentRef,
+    )
+    from polisyos.ir.registry.refs import (
+        SearchUncertaintyTaskBindingRef as SearchUncertaintyTaskBindingRef,
     )
     from polisyos.ir.registry.refs import (
         SensitivityAnalysisBundleRef as SensitivityAnalysisBundleRef,

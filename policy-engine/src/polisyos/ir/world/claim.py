@@ -72,7 +72,7 @@ class Claim(KernelModel):
 
     @model_validator(mode="before")
     @classmethod
-    def reject_floats(cls, value: Any) -> Any:
+    def reject_floats(cls, value: object) -> object:
         reject_floats_deep(value)
         return value
 
@@ -94,9 +94,10 @@ class Claim(KernelModel):
         else:
             if len(self.source_artifacts) == 0:
                 raise ValueError("non-doc claims require source_artifacts")
-        if self.valid_from is not None and self.valid_to is not None:
-            if self.valid_to < self.valid_from:
-                raise ValueError("valid_to must be >= valid_from")
+        if (self.valid_from is not None and self.valid_to is not None) and (
+            self.valid_to < self.valid_from
+        ):
+            raise ValueError("valid_to must be >= valid_from")
         return self
 
 

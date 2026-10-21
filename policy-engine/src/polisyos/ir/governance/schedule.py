@@ -1,4 +1,5 @@
-"""Inclusive step-range scheduling primitives shared by policy interventions and linker validation."""
+"""Inclusive step-range scheduling primitives shared by policy interventions and linker \
+validation."""
 
 from __future__ import annotations
 

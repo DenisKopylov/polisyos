@@ -173,7 +173,7 @@ class AlgebraicBlockSpec(BaseModel):
     certificate_ref: ArtifactRefModel | None = None
     precomputed_violation_score: float | None = Field(default=None, ge=0.0, le=1.0)
 
-    def model_post_init(self, __context: Any) -> None:
+    def model_post_init(self, __context: object) -> None:
         del __context
         if not self.variables:
             raise ValueError("algebraic blocks require at least one variable")
@@ -213,7 +213,8 @@ class AlgebraicBlockSpec(BaseModel):
                 or self.precomputed_violation_score is not None
             ):
                 raise ValueError(
-                    "trek-rank, nested-Verma, and algebraic-geometry fields are not valid for tetrad blocks"
+                    "trek-rank, nested-Verma, and algebraic-geometry fields are not "
+                    "valid for tetrad blocks"
                 )
         elif self.family is AlgebraicConstraintFamily.OVERCOMPLETE:
             if self.expected_rank is None:
@@ -230,7 +231,8 @@ class AlgebraicBlockSpec(BaseModel):
                 or self.right_choke_set
             ):
                 raise ValueError(
-                    "row_variables/col_variables/max_rank/choke sets are only valid for trek_rank blocks"
+                    "row_variables/col_variables/max_rank/choke sets are only valid for "
+                    "trek_rank blocks"
                 )
             if (
                 self.cadmg_scope is not None
@@ -249,7 +251,8 @@ class AlgebraicBlockSpec(BaseModel):
                 or self.precomputed_violation_score is not None
             ):
                 raise ValueError(
-                    "algebraic-geometry fields are only valid for algebraic_geometry_invariant blocks"
+                    "algebraic-geometry fields are only valid for "
+                    "algebraic_geometry_invariant blocks"
                 )
         elif self.family is AlgebraicConstraintFamily.TREK_RANK:
             if self.expected_rank is not None:
@@ -270,7 +273,8 @@ class AlgebraicBlockSpec(BaseModel):
                 raise ValueError("trek_rank blocks require max_rank")
             if min(len(self.row_variables), len(self.col_variables)) <= self.max_rank:
                 raise ValueError(
-                    "trek_rank blocks require max_rank to be smaller than the tested submatrix dimension"
+                    "trek_rank blocks require max_rank to be smaller than the tested "
+                    "submatrix dimension"
                 )
             declared = set(self.variables)
             if not (set(self.row_variables) | set(self.col_variables)).issubset(declared):
@@ -294,14 +298,16 @@ class AlgebraicBlockSpec(BaseModel):
                 or self.precomputed_violation_score is not None
             ):
                 raise ValueError(
-                    "algebraic-geometry fields are only valid for algebraic_geometry_invariant blocks"
+                    "algebraic-geometry fields are only valid for "
+                    "algebraic_geometry_invariant blocks"
                 )
         elif self.family is AlgebraicConstraintFamily.NESTED_VERMA:
             if self.quadruples:
                 raise ValueError("quadruples are only valid for tetrad blocks")
             if self.expected_rank is not None or self.max_residual_energy is not None:
                 raise ValueError(
-                    "expected_rank/max_residual_energy are only valid for low-rank covariance blocks"
+                    "expected_rank/max_residual_energy are only valid for low-rank "
+                    "covariance blocks"
                 )
             if (
                 self.row_variables
@@ -311,7 +317,8 @@ class AlgebraicBlockSpec(BaseModel):
                 or self.right_choke_set
             ):
                 raise ValueError(
-                    "row_variables/col_variables/max_rank/choke sets are only valid for trek_rank blocks"
+                    "row_variables/col_variables/max_rank/choke sets are only valid for "
+                    "trek_rank blocks"
                 )
             if self.cadmg_scope is None:
                 raise ValueError("nested_verma blocks require cadmg_scope")
@@ -329,7 +336,8 @@ class AlgebraicBlockSpec(BaseModel):
                 or self.precomputed_violation_score is not None
             ):
                 raise ValueError(
-                    "algebraic-geometry fields are only valid for algebraic_geometry_invariant blocks"
+                    "algebraic-geometry fields are only valid for "
+                    "algebraic_geometry_invariant blocks"
                 )
         elif self.family is AlgebraicConstraintFamily.ALGEBRAIC_GEOMETRY_INVARIANT:
             if self.quadruples:
@@ -344,7 +352,8 @@ class AlgebraicBlockSpec(BaseModel):
                 or self.right_choke_set
             ):
                 raise ValueError(
-                    "low-rank covariance and trek-rank fields are only valid for trek-rank style blocks"
+                    "low-rank covariance and trek-rank fields are only valid for "
+                    "trek-rank style blocks"
                 )
             if (
                 self.cadmg_scope is not None
@@ -362,11 +371,13 @@ class AlgebraicBlockSpec(BaseModel):
                 and self.derivation_method not in _ALGORITHMIC_ALGEBRAIC_GEOMETRY_METHODS
             ):
                 raise ValueError(
-                    "algebraic_geometry_invariant blocks require at least one invariant statement or certificate_ref"
+                    "algebraic_geometry_invariant blocks require at least one invariant "
+                    "statement or certificate_ref"
                 )
         else:
             raise ValueError(
-                "AlgebraicBlockSpec only supports explicit ci-adjacent, trek-rank, nested-Verma, and algebraic-geometry block families"
+                "AlgebraicBlockSpec only supports explicit ci-adjacent, trek-rank, "
+                "nested-Verma, and algebraic-geometry block families"
             )
 
 
@@ -646,7 +657,8 @@ class LatentCardinalityIdentificationSpec(BaseModel):
     def _validate_block_layout(self) -> Self:
         if any(block.status is LatentBlockStatus.SUSPECTED_ONLY for block in self.latent_blocks):
             raise ValueError(
-                "suspected-only latent blocks must be stored in latent_candidates, not latent_blocks"
+                "suspected-only latent blocks must be stored in latent_candidates, not "
+                "latent_blocks"
             )
         if self.model_class != "ME-LiNGLaH-S-Int" and any(
             block.status is LatentBlockStatus.IDENTIFIED
@@ -930,7 +942,7 @@ class CausalDiscoveryReport(BaseModel):
 
     @model_validator(mode="before")
     @classmethod
-    def _adapt_historical_graph_projection(cls, value: Any) -> Any:
+    def _adapt_historical_graph_projection(cls, value: object) -> object:
         if not isinstance(value, Mapping) or "projection_disposition" in value:
             return value
         if "graph" not in value or not _allows_legacy_graph_projection_adaptation(value):

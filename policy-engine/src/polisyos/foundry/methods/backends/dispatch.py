@@ -12,7 +12,7 @@ import threading
 import time as _time
 from collections.abc import Mapping
 from dataclasses import dataclass, replace
-from typing import Any, Protocol, runtime_checkable
+from typing import TYPE_CHECKING, Any, Protocol, runtime_checkable
 
 from polisyos.core.backends import BackendDispatcher
 from polisyos.core.backends import BackendNotAvailableError as CoreBackendNotAvailableError
@@ -22,7 +22,12 @@ from polisyos.foundry.methods.backends.circuit_breaker import (
     BackendCircuitOpenError,
     get_circuit_breaker_registry,
 )
-from polisyos.foundry.methods.backends.protocol import MethodResult, MethodRunner, MethodTiming
+from polisyos.foundry.methods.backends.protocol import (
+    MethodResult,
+    MethodRunner,
+    MethodTiming,
+    RuntimeContextDispatchError,
+)
 from polisyos.foundry.methods.backends.runtime_fingerprint import (
     augment_observed_tolerance_budget,
     capture_backend_runtime_fingerprint,
@@ -56,7 +61,18 @@ from polisyos.foundry.methods.selection.history import (
 )
 from polisyos.ir.analytics import extract_truthfulness_receipt
 
+if TYPE_CHECKING:
+    from polisyos.core.contracts.owned_attempt_anchor import OwnedAttemptAnchorDispatchContext
+
 _log = get_foundry_logger("foundry.backends.dispatch")
+_OWNER_CONTEXT_METHOD_FQNS = frozenset(
+    {
+        "causal.hte.causal_forest@2.0.0",
+        "causal.hte.double_ml@2.0.0",
+        "causal.hte.meta_learner@2.0.0",
+        "causal.hte.forest_dr@2.0.0",
+    }
+)
 _USD_PER_MS = {
     ComputeBackend.NUMPY: 5.0e-7,
     ComputeBackend.JAX: 8.0e-7,
@@ -113,6 +129,17 @@ def _infer_data_characteristics(state: Any, n_obs: int | None) -> dict[str, Any]
                 characteristics["n_features"] = int(shape[-1])
                 break
     return characteristics
+
+
+def _validate_runtime_context(
+    runtime_context: OwnedAttemptAnchorDispatchContext,
+) -> OwnedAttemptAnchorDispatchContext:
+    """Require the Core-owned dispatch-context model at the backend boundary."""
+    from polisyos.core.contracts.owned_attempt_anchor import OwnedAttemptAnchorDispatchContext
+
+    if not isinstance(runtime_context, OwnedAttemptAnchorDispatchContext):
+        raise RuntimeContextDispatchError("invalid_context")
+    return runtime_context
 
 
 def _record_execution(
@@ -487,6 +514,7 @@ class MethodDispatcher:
         state: Any,
         params: Mapping[str, Any],
         seed: int,
+        runtime_context: OwnedAttemptAnchorDispatchContext | None = None,
     ) -> MethodResult:
         """Dispatch one method invocation to the declared backend with fallback.
 
@@ -496,6 +524,9 @@ class MethodDispatcher:
             state: Materialized input payload/state for the method.
             params: Runtime parameters merged by the caller.
             seed: Backend seed used for reproducible stochastic execution.
+            runtime_context: Optional Core-owned context for the current
+                invocation. When present, dispatch requires the declared NumPy
+                route and a method-specific context-aware entry point.
 
         Returns:
             `MethodResult` from the selected runner.
@@ -511,12 +542,36 @@ class MethodDispatcher:
         method_params, advisor_context = split_advisor_execution_params(params)
         method_params, validated_policy = split_validated_execution_params(method_params)
         n_obs = _infer_n_obs(state)
-        decision = self._select_backend(
-            method_class=method_class,
-            signature=signature,
-            state=state,
-            n_obs=n_obs,
-        )
+        if runtime_context is None:
+            decision = self._select_backend(
+                method_class=method_class,
+                signature=signature,
+                state=state,
+                n_obs=n_obs,
+            )
+        else:
+            runtime_context = _validate_runtime_context(runtime_context)
+            capture = runtime_context.input_capture
+            if (
+                signature.fqn not in _OWNER_CONTEXT_METHOD_FQNS
+                or getattr(method_class, "owned_hte_method_fqn", None) != signature.fqn
+                or getattr(method_class, "owned_hte_method_abi", None) != "2.0.0"
+                or getattr(capture, "method_fqn", None) != signature.fqn
+                or getattr(capture, "method_abi", None) != "2.0.0"
+            ):
+                raise RuntimeContextDispatchError("method_identity_mismatch")
+            if signature.backend is not ComputeBackend.NUMPY:
+                raise RuntimeContextDispatchError("backend_not_supported")
+            if not callable(getattr(method_class, "pure_step_with_runtime_context", None)):
+                raise RuntimeContextDispatchError("method_not_supported")
+            # An owner-bound context is per-invocation evidence. Keep this call
+            # on its declared NumPy route and never let runtime profiling/fallback
+            # move it to a runner that cannot consume the context.
+            decision = DispatchDecision(
+                requested_backend=signature.backend,
+                selected_backend=ComputeBackend.NUMPY,
+                reason="owner_context_requires_declared_numpy_route",
+            )
         backend_used = decision.selected_backend
         tracer = get_tracer()
         metrics = get_metrics()
@@ -551,6 +606,7 @@ class MethodDispatcher:
                     seed=seed,
                     preferred_backend=decision.selected_backend,
                     attempts=attempts,
+                    runtime_context=runtime_context,
                 )
                 if attempts:
                     backend_used = attempts[-1][0]
@@ -804,12 +860,14 @@ class MethodDispatcher:
         seed: int,
         preferred_backend: ComputeBackend,
         attempts: list[tuple[ComputeBackend, str]],
+        runtime_context: OwnedAttemptAnchorDispatchContext | None = None,
     ) -> MethodResult:
         last_exc: Exception | None = None
         for backend in self._candidate_backends(
             method_class=method_class,
             signature=signature,
             preferred_backend=preferred_backend,
+            runtime_context=runtime_context,
         ):
             try:
                 result = self._execute_on_backend(
@@ -819,6 +877,7 @@ class MethodDispatcher:
                     state=state,
                     params=params,
                     seed=seed,
+                    runtime_context=runtime_context,
                 )
                 attempts.append((backend, "success"))
                 return result
@@ -850,7 +909,10 @@ class MethodDispatcher:
         method_class: type,
         signature: MethodSignature,
         preferred_backend: ComputeBackend,
+        runtime_context: OwnedAttemptAnchorDispatchContext | None = None,
     ) -> tuple[ComputeBackend, ...]:
+        if runtime_context is not None:
+            return (ComputeBackend.NUMPY,)
         ordered: list[ComputeBackend] = [preferred_backend]
         if preferred_backend != signature.backend:
             ordered.append(signature.backend)
@@ -872,11 +934,27 @@ class MethodDispatcher:
         state: Any,
         params: Mapping[str, Any],
         seed: int,
+        runtime_context: OwnedAttemptAnchorDispatchContext | None = None,
     ) -> MethodResult:
         runner = self._resolve_runner(backend)
         breaker = get_circuit_breaker_registry().get(backend.value)
 
         def _execute() -> MethodResult:
+            if runtime_context is not None:
+                if backend is not ComputeBackend.NUMPY:
+                    raise RuntimeContextDispatchError("backend_not_supported")
+                from polisyos.foundry.methods.backends.numpy_runner import NumpyRunner
+
+                if not isinstance(runner, NumpyRunner):
+                    raise RuntimeContextDispatchError("backend_not_supported")
+                return runner.execute(
+                    method_class=method_class,
+                    signature=signature,
+                    state=state,
+                    params=params,
+                    seed=seed,
+                    runtime_context=runtime_context,
+                )
             return runner.execute(
                 method_class=method_class,
                 signature=signature,

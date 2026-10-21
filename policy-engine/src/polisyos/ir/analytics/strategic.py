@@ -1,4 +1,7 @@
-"""Represent strategic-response games, admissibility descriptors, and persisted closure artifacts."""
+(
+    """Represent strategic-response games, admissibility descriptors, and """
+    """persisted closure artifacts."""
+)
 
 from __future__ import annotations
 
@@ -8,9 +11,13 @@ from dataclasses import dataclass
 from enum import Enum
 from typing import Any
 
-from pydantic import BaseModel, ConfigDict, Field, field_validator, model_validator
+from pydantic import BaseModel, ConfigDict, Field, ValidationInfo, field_validator, model_validator
 
-from polisyos.ir._internal.validation import ensure_finite_numeric, ensure_unique_ids
+from polisyos.ir._internal.validation import (
+    coerce_float,
+    ensure_finite_numeric,
+    ensure_unique_ids,
+)
 from polisyos.ir.analytics.abstraction import AbstractionPreservationType
 from polisyos.ir.analytics.causal_queries import InterventionSpec, InterventionType
 from polisyos.ir.analytics.dynamic_regime import RuntimeSupportStatus
@@ -73,7 +80,7 @@ def _ensure_finite(value: float, *, field_name: str) -> float:
     return float(value)
 
 
-def _normalize_string_tuple(value: Any, *, field_name: str) -> tuple[str, ...]:
+def _normalize_string_tuple(value: object, *, field_name: str) -> tuple[str, ...]:
     if value is None:
         return ()
     if isinstance(value, str):
@@ -722,7 +729,7 @@ class StrategicEquilibriumDescriptor(BaseModel):
 
     @model_validator(mode="before")
     @classmethod
-    def _coerce_descriptor_payload(cls, value: Any) -> Any:
+    def _coerce_descriptor_payload(cls, value: object) -> object:
         if isinstance(value, StrategicEquilibriumDescriptor):
             return value.model_dump(mode="python")
         if isinstance(value, StrategicEquilibriumConcept):
@@ -764,29 +771,29 @@ class StrategicEquilibriumDescriptor(BaseModel):
 
     @field_validator("existence_assumptions", "uniqueness_assumptions", mode="before")
     @classmethod
-    def _validate_assumption_tuple(cls, value: Any, info: Any) -> tuple[str, ...]:
+    def _validate_assumption_tuple(cls, value: object, info: ValidationInfo) -> tuple[str, ...]:
         return _normalize_string_tuple(value, field_name=str(info.field_name))
 
     @field_validator("approximation_epsilon", mode="before")
     @classmethod
-    def _validate_approximation_epsilon(cls, value: Any) -> Any:
+    def _validate_approximation_epsilon(cls, value: object) -> float | None:
         if value is None:
             return None
-        candidate = _ensure_finite(float(value), field_name="approximation_epsilon")
+        candidate = _ensure_finite(coerce_float(value), field_name="approximation_epsilon")
         if candidate <= 0.0:
             raise ValueError("approximation_epsilon must be strictly positive")
         return candidate
 
     @field_validator("tie_breaking_rule", mode="before")
     @classmethod
-    def _validate_tie_breaking_rule(cls, value: Any) -> Any:
+    def _validate_tie_breaking_rule(cls, value: object) -> str | None:
         if value is None:
             return None
         return _ensure_non_empty(str(value), field_name="tie_breaking_rule")
 
     @field_validator("existence_theorem", mode="before")
     @classmethod
-    def _validate_existence_theorem(cls, value: Any) -> str:
+    def _validate_existence_theorem(cls, value: object) -> str:
         return _ensure_non_empty(str(value), field_name="existence_theorem")
 
     @model_validator(mode="after")
@@ -865,7 +872,7 @@ class FiniteStrategicPayoffTable(BaseModel):
 
     @field_validator("agent", mode="before")
     @classmethod
-    def _validate_agent(cls, value: Any) -> str:
+    def _validate_agent(cls, value: object) -> str:
         return _ensure_non_empty(str(value), field_name="agent")
 
     @model_validator(mode="after")
@@ -938,7 +945,7 @@ class StrategicSCM(BaseModel):
 
     @model_validator(mode="before")
     @classmethod
-    def _normalize_equilibrium_spec(cls, value: Any) -> Any:
+    def _normalize_equilibrium_spec(cls, value: object) -> object:
         if not isinstance(value, Mapping):
             return value
         payload = dict(value)
@@ -1060,7 +1067,7 @@ class StrategicClosureSummary(BaseModel):
         mode="before",
     )
     @classmethod
-    def _validate_strings(cls, value: Any, info: Any) -> Any:
+    def _validate_strings(cls, value: object, info: ValidationInfo) -> str | None:
         if value is None:
             return None
         return _ensure_non_empty(str(value), field_name=str(info.field_name))
@@ -1079,7 +1086,7 @@ class EquilibriumSetSummary(BaseModel):
 
     @field_validator("multiplicity_note", mode="before")
     @classmethod
-    def _validate_multiplicity_note(cls, value: Any) -> Any:
+    def _validate_multiplicity_note(cls, value: object) -> str | None:
         if value is None:
             return None
         return _ensure_non_empty(str(value), field_name="multiplicity_note")
@@ -1103,7 +1110,7 @@ class EquilibriumSelectionSummary(BaseModel):
 
     @field_validator("equilibrium_selection_dependence", mode="before")
     @classmethod
-    def _validate_selection_dependence(cls, value: Any) -> str:
+    def _validate_selection_dependence(cls, value: object) -> str:
         return _ensure_non_empty(str(value), field_name="equilibrium_selection_dependence")
 
     @model_validator(mode="after")
@@ -1309,7 +1316,7 @@ class MeanFieldPerturbationSpec(BaseModel):
 
     @field_validator("causal_background_assumption", mode="before")
     @classmethod
-    def _validate_causal_background_assumption(cls, value: Any) -> str:
+    def _validate_causal_background_assumption(cls, value: object) -> str:
         candidate = _ensure_non_empty(str(value), field_name="causal_background_assumption")
         if candidate != "endogenous_mean_field":
             raise ValueError("causal_background_assumption must be 'endogenous_mean_field'")
@@ -1317,7 +1324,7 @@ class MeanFieldPerturbationSpec(BaseModel):
 
     @field_validator("notes", mode="before")
     @classmethod
-    def _validate_notes(cls, value: Any) -> tuple[str, ...]:
+    def _validate_notes(cls, value: object) -> tuple[str, ...]:
         return _normalize_string_tuple(value, field_name="notes")
 
     @model_validator(mode="after")
@@ -1360,7 +1367,8 @@ class MeanFieldPerturbationSpec(BaseModel):
         else:
             if not self.representative_agent_channels or not self.population_channels:
                 raise ValueError(
-                    "mixed interventions require both representative_agent_channels and population_channels"
+                    "mixed interventions require both representative_agent_channels and "
+                    "population_channels"
                 )
         if self.policy_kernel_overlap_required and (
             MeanFieldPerturbationChannel.POLICY_KERNEL not in self.population_channels
@@ -1399,17 +1407,17 @@ class MeanFieldMacroSimulationConfig(BaseModel):
 
     @field_validator("time_horizon", mode="before")
     @classmethod
-    def _coerce_optional_time_horizon(cls, value: Any) -> Any:
+    def _coerce_optional_time_horizon(cls, value: object) -> float | None:
         if value is None:
             return None
-        casted = _ensure_finite(float(value), field_name="time_horizon")
+        casted = _ensure_finite(coerce_float(value), field_name="time_horizon")
         if casted <= 0.0:
             raise ValueError("time_horizon must be > 0")
         return casted
 
     @field_validator("state_grid_shape", mode="before")
     @classmethod
-    def _validate_state_grid_shape(cls, value: Any) -> tuple[int, ...]:
+    def _validate_state_grid_shape(cls, value: object) -> tuple[int, ...]:
         if value in (None, (), []):
             return ()
         if not isinstance(value, (tuple, list)):
@@ -1523,7 +1531,7 @@ class MeanFieldWellPosednessSummary(BaseModel):
 
     @field_validator("regularity_scope", mode="before")
     @classmethod
-    def _validate_regularity_scope(cls, value: Any) -> str:
+    def _validate_regularity_scope(cls, value: object) -> str:
         return _ensure_non_empty(str(value), field_name="regularity_scope")
 
     @model_validator(mode="after")
@@ -1544,7 +1552,7 @@ class MeanFieldIdentificationSummary(BaseModel):
 
     @field_validator("identified_estimands", mode="before")
     @classmethod
-    def _validate_identified_estimands(cls, value: Any) -> tuple[str, ...]:
+    def _validate_identified_estimands(cls, value: object) -> tuple[str, ...]:
         return _normalize_string_tuple(value, field_name="identified_estimands")
 
     @model_validator(mode="after")
@@ -1752,7 +1760,7 @@ class MeanFieldSolveInput(BaseModel):
     @classmethod
     def _normalize_reward_matrix(
         cls,
-        value: Any,
+        value: object,
     ) -> tuple[tuple[float, ...], ...]:
         if not isinstance(value, (tuple, list)) or not value:
             raise ValueError("reward_matrix must be a non-empty matrix")
@@ -1763,7 +1771,7 @@ class MeanFieldSolveInput(BaseModel):
                 raise ValueError("reward_matrix rows must be non-empty sequences")
             casted_row = tuple(
                 _ensure_finite(
-                    float(cell),
+                    coerce_float(cell),
                     field_name=f"reward_matrix[{row_index}]",
                 )
                 for cell in row
@@ -1779,7 +1787,7 @@ class MeanFieldSolveInput(BaseModel):
     @classmethod
     def _normalize_transition_tensor(
         cls,
-        value: Any,
+        value: object,
     ) -> tuple[tuple[tuple[float, ...], ...], ...]:
         if not isinstance(value, (tuple, list)) or not value:
             raise ValueError("transition_tensor must be a non-empty rank-3 tensor")
@@ -1794,7 +1802,7 @@ class MeanFieldSolveInput(BaseModel):
                     raise ValueError("transition_tensor rows must be non-empty sequences")
                 casted_row = tuple(
                     _ensure_finite(
-                        float(cell),
+                        coerce_float(cell),
                         field_name=f"transition_tensor[{action_index}][{row_index}]",
                     )
                     for cell in row
@@ -1811,13 +1819,15 @@ class MeanFieldSolveInput(BaseModel):
     @classmethod
     def _normalize_congestion_costs(
         cls,
-        value: Any,
+        value: object,
     ) -> tuple[float, ...]:
         if value in (None, (), []):
             return ()
         if not isinstance(value, (tuple, list)):
             raise ValueError("congestion_costs must be a vector")
-        return tuple(_ensure_finite(float(cell), field_name="congestion_costs") for cell in value)
+        return tuple(
+            _ensure_finite(coerce_float(cell), field_name="congestion_costs") for cell in value
+        )
 
     @model_validator(mode="after")
     def _validate_mean_field_solve_input(self) -> MeanFieldSolveInput:
@@ -1850,7 +1860,8 @@ class MeanFieldSolveInput(BaseModel):
             and self.provenance.numerics_config_ref is not None
         ):
             raise ValueError(
-                "macro_simulation_config must be omitted when provenance already carries numerics_config_ref"
+                "macro_simulation_config must be omitted when "
+                "provenance already carries numerics_config_ref"
             )
         return self
 
@@ -1875,7 +1886,7 @@ class MeanFieldEquilibriumCertificate(BaseModel):
 
     @field_validator("equilibrium_concept", mode="before")
     @classmethod
-    def _validate_equilibrium_concept(cls, value: Any) -> str:
+    def _validate_equilibrium_concept(cls, value: object) -> str:
         candidate = _ensure_non_empty(str(value), field_name="equilibrium_concept")
         if candidate != "mean_field_equilibrium":
             raise ValueError("equilibrium_concept must be 'mean_field_equilibrium'")
@@ -1930,7 +1941,7 @@ class PostAdaptationPolicyValueSummary(BaseModel):
 
     @field_validator("blocked_reason", mode="before")
     @classmethod
-    def _validate_blocked_reason(cls, value: Any) -> Any:
+    def _validate_blocked_reason(cls, value: object) -> str | None:
         if value is None:
             return None
         return _ensure_non_empty(str(value), field_name="blocked_reason")
@@ -1989,7 +2000,7 @@ class StrategicDecompositionCertificate(BaseModel):
 
     @field_validator("theorem_family", mode="before")
     @classmethod
-    def _validate_theorem_family(cls, value: Any) -> str:
+    def _validate_theorem_family(cls, value: object) -> str:
         return _ensure_non_empty(str(value), field_name="theorem_family")
 
     @model_validator(mode="after")
@@ -2005,7 +2016,8 @@ class StrategicDecompositionCertificate(BaseModel):
             and not self.cross_world_anchor_defined
         ):
             raise ValueError(
-                "cross_world_anchor_defined is required for exact or selector_invariant decomposition"
+                "cross_world_anchor_defined is required for exact or selector_invariant "
+                "decomposition"
             )
         if (
             self.decomposition_status is StrategicDecompositionStatus.SELECTOR_INVARIANT
@@ -2043,7 +2055,7 @@ class StrategicDecompositionFailureCard(BaseModel):
         mode="before",
     )
     @classmethod
-    def _validate_failure_strings(cls, value: Any, info: Any) -> Any:
+    def _validate_failure_strings(cls, value: object, info: ValidationInfo) -> str | None:
         if value is None:
             return None
         return _ensure_non_empty(str(value), field_name=str(info.field_name))
@@ -2109,7 +2121,7 @@ class StrategicResponseBundle(BaseModel):
         mode="before",
     )
     @classmethod
-    def _validate_strings(cls, value: Any, info: Any) -> Any:
+    def _validate_strings(cls, value: object, info: ValidationInfo) -> str | None:
         if value is None:
             return None
         return _ensure_non_empty(str(value), field_name=str(info.field_name))
@@ -2201,7 +2213,8 @@ class StrategicResponseBundle(BaseModel):
                 )
             if self.decomposition_certificate_ref is not None:
                 raise ValueError(
-                    "decomposition_certificate_ref must be omitted when decomposition_status=blocked"
+                    "decomposition_certificate_ref must be omitted when "
+                    "decomposition_status=blocked"
                 )
             if (
                 self.causal_component_bounds_ref is not None
@@ -2220,27 +2233,32 @@ class StrategicResponseBundle(BaseModel):
                 )
             if self.decomposition_failure_card_ref is not None:
                 raise ValueError(
-                    "decomposition_failure_card_ref must be omitted when decomposition_status=bounded"
+                    "decomposition_failure_card_ref must be omitted when "
+                    "decomposition_status=bounded"
                 )
         else:
             if self.decomposition_certificate_ref is None:
                 raise ValueError(
-                    "decomposition_certificate_ref is required for exact or selector_invariant decomposition"
+                    "decomposition_certificate_ref is required for exact or selector_invariant "
+                    "decomposition"
                 )
             if self.anchor_equilibrium_ref is None:
                 raise ValueError(
-                    "anchor_equilibrium_ref is required for exact or selector_invariant decomposition"
+                    "anchor_equilibrium_ref is required for exact or selector_invariant "
+                    "decomposition"
                 )
             if self.decomposition_failure_card_ref is not None:
                 raise ValueError(
-                    "decomposition_failure_card_ref must be omitted for exact or selector_invariant decomposition"
+                    "decomposition_failure_card_ref must be omitted for exact or "
+                    "selector_invariant decomposition"
                 )
             if (
                 self.causal_component_bounds_ref is not None
                 or self.strategic_component_bounds_ref is not None
             ):
                 raise ValueError(
-                    "component bounds refs must be omitted for exact or selector_invariant decomposition"
+                    "component bounds refs must be omitted for exact or selector_invariant "
+                    "decomposition"
                 )
         return self
 

@@ -190,22 +190,23 @@ class EndogenousGroupInequalityDecompositionResult(BaseModel):
                 or self.structural_effect is None
             ):
                 raise ValueError(
-                    "identified/trimmed results require total, compositional, and structural effects"
+                    "identified/trimmed results require total, compositional, and "
+                    "structural effects"
                 )
         if (
             self.shapley_compositional_effect is not None
             or self.shapley_structural_effect is not None
         ) and CounterfactualLawLabel.F_01 not in set(law_labels):
             raise ValueError("Shapley effects require the F_01 counterfactual law")
-        if self.status is EndogenousGroupDecompositionStatus.BOUNDED:
-            if (
-                self.bounds_bundle is None
-                and self.distributional_bounds_bundle is None
-                and self.negative_certificate is None
-            ):
-                raise ValueError(
-                    "bounded results require bounds_bundle, distributional_bounds_bundle, or negative_certificate"
-                )
+        if (self.status is EndogenousGroupDecompositionStatus.BOUNDED) and (
+            self.bounds_bundle is None
+            and self.distributional_bounds_bundle is None
+            and (self.negative_certificate is None)
+        ):
+            raise ValueError(
+                "bounded results require bounds_bundle, distributional_bounds_bundle, or "
+                "negative_certificate"
+            )
         if (
             self.status is EndogenousGroupDecompositionStatus.BLOCKED
             and self.negative_certificate is None

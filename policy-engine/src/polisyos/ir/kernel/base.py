@@ -2,8 +2,6 @@
 
 from __future__ import annotations
 
-from typing import Any
-
 from pydantic import BaseModel, ConfigDict, Field
 
 # Generic IR identifiers allow dots and hyphens for namespaced registry ids,
@@ -31,14 +29,14 @@ class ComputeBudget(BaseModel):
     max_wall_time_s: float = Field(default=120.0, ge=0)
 
 
-def reject_float(value: Any) -> Any:
+def reject_float(value: object) -> object:
     """Reject float helper."""
     if isinstance(value, float):
         raise ValueError("float forbidden; use string or int")
     return value
 
 
-def reject_floats_deep(value: Any, *, max_depth: int = 128, _depth: int = 0) -> Any:
+def reject_floats_deep(value: object, *, max_depth: int = 128, _depth: int = 0) -> object:
     """Reject floats deep helper."""
     if _depth > max_depth:
         raise ValueError(f"float validation depth exceeds max_depth={max_depth}")

@@ -68,11 +68,10 @@ class TransportDescriptor(BaseModel):
 
     @model_validator(mode="after")
     def validate_descriptor(self) -> TransportDescriptor:
-        if self.mode is TransportMode.OPTIONAL_BINARY:
-            if self.binary_media_type is None or self.wire_format is None:
-                raise ValueError(
-                    "optional binary transport requires binary_media_type and wire_format"
-                )
+        if (self.mode is TransportMode.OPTIONAL_BINARY) and (
+            self.binary_media_type is None or self.wire_format is None
+        ):
+            raise ValueError("optional binary transport requires binary_media_type and wire_format")
         return self
 
 
@@ -186,9 +185,10 @@ class ObservationStreamEntry(BaseModel):
     def validate_stream_entry(self) -> ObservationStreamEntry:
         if self.operation is StreamUpdateOperation.UPSERT and self.record is None:
             raise ValueError("upsert stream entries require a record payload")
-        if self.operation is StreamUpdateOperation.RETRACT and self.record is None:
-            if self.prior_artifact_id is None:
-                raise ValueError("retract stream entries require record or prior_artifact_id")
+        if (self.operation is StreamUpdateOperation.RETRACT and self.record is None) and (
+            self.prior_artifact_id is None
+        ):
+            raise ValueError("retract stream entries require record or prior_artifact_id")
         return self
 
 

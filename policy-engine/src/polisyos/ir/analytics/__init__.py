@@ -10,7 +10,7 @@ imported from their defining submodules.
 from __future__ import annotations
 
 import importlib
-from typing import TYPE_CHECKING, Any
+from typing import TYPE_CHECKING
 
 from polisyos.ir.api import ANALYTICS_FACADE_EXPORTS, lazy_dir, resolve_lazy_export
 
@@ -28,7 +28,7 @@ if TYPE_CHECKING:
 __all__ = sorted(ANALYTICS_FACADE_EXPORTS)
 
 
-def __getattr__(name: str) -> Any:
+def __getattr__(name: str) -> object:
     if name not in ANALYTICS_FACADE_EXPORTS:
         try:
             module = importlib.import_module(f"{__name__}.{name}")

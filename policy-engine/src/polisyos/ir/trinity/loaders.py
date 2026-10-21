@@ -4,14 +4,16 @@ from __future__ import annotations
 
 import json
 from collections.abc import Mapping
-from typing import Any
+from typing import TYPE_CHECKING, Any
 
-from polisyos.ir.artifacts.contracts import ArtifactSelector, ArtifactStore
 from polisyos.ir.artifacts.io import get_json_artifact
 from polisyos.ir.governance.policy_spec import PolicySpec
 from polisyos.ir.governance.problem_frame import ProblemFrame
 from polisyos.ir.model_layer.model_spec import ModelSpec
 from polisyos.ir.trinity import TRINITY_BUNDLE_SCHEMA_VERSION, TrinityBundle
+
+if TYPE_CHECKING:
+    from polisyos.ir.artifacts.contracts import ArtifactSelector, ArtifactStore
 
 
 class TrinityLoadError(ValueError):
@@ -20,7 +22,7 @@ class TrinityLoadError(ValueError):
     pass
 
 
-def _parse_str_payload(payload: str, *, fmt: str) -> Any:
+def _parse_str_payload(payload: str, *, fmt: str) -> object:
     text = payload.strip()
     if fmt == "json":
         return json.loads(text)
@@ -37,7 +39,7 @@ def _parse_str_payload(payload: str, *, fmt: str) -> Any:
         return yaml.safe_load(text)
 
 
-def _parse_bytes_payload(payload: bytes, *, fmt: str) -> Any:
+def _parse_bytes_payload(payload: bytes, *, fmt: str) -> object:
     try:
         text = payload.decode("utf-8")
     except UnicodeDecodeError as exc:
@@ -45,7 +47,7 @@ def _parse_bytes_payload(payload: bytes, *, fmt: str) -> Any:
     return _parse_str_payload(text, fmt=fmt)
 
 
-def _normalize_payload(payload: Any, *, fmt: str) -> Any:
+def _normalize_payload(payload: object, *, fmt: str) -> object:
     if isinstance(payload, (str, bytes)):
         return (
             _parse_str_payload(payload, fmt=fmt)
@@ -55,7 +57,7 @@ def _normalize_payload(payload: Any, *, fmt: str) -> Any:
     return payload
 
 
-def _ensure_mapping(payload: Any, *, label: str) -> Mapping[str, Any]:
+def _ensure_mapping(payload: object, *, label: str) -> Mapping[str, Any]:
     if not isinstance(payload, Mapping):
         raise TrinityLoadError(f"{label} payload must be a mapping")
     return payload
@@ -79,7 +81,11 @@ def load_problem_frame(
     if isinstance(payload, ProblemFrame):
         if payload.schema_version != target_schema_version:
             raise TrinityLoadError(
-                f"Unsupported schema_version '{payload.schema_version}'; expected '{target_schema_version}'"
+                "Unsupported schema_version '"
+                f"{payload.schema_version}"
+                "'; expected '"
+                f"{target_schema_version}"
+                "'"
             )
         return payload
     parsed = _normalize_payload(payload, fmt=fmt)
@@ -98,7 +104,11 @@ def load_policy_spec(
     if isinstance(payload, PolicySpec):
         if payload.schema_version != target_schema_version:
             raise TrinityLoadError(
-                f"Unsupported schema_version '{payload.schema_version}'; expected '{target_schema_version}'"
+                "Unsupported schema_version '"
+                f"{payload.schema_version}"
+                "'; expected '"
+                f"{target_schema_version}"
+                "'"
             )
         return payload
     parsed = _normalize_payload(payload, fmt=fmt)
@@ -117,7 +127,11 @@ def load_model_spec(
     if isinstance(payload, ModelSpec):
         if payload.schema_version != target_schema_version:
             raise TrinityLoadError(
-                f"Unsupported schema_version '{payload.schema_version}'; expected '{target_schema_version}'"
+                "Unsupported schema_version '"
+                f"{payload.schema_version}"
+                "'; expected '"
+                f"{target_schema_version}"
+                "'"
             )
         return payload
     parsed = _normalize_payload(payload, fmt=fmt)
@@ -136,7 +150,11 @@ def load_trinity_bundle(
     if isinstance(payload, TrinityBundle):
         if payload.schema_version != target_schema_version:
             raise TrinityLoadError(
-                f"Unsupported schema_version '{payload.schema_version}'; expected '{target_schema_version}'"
+                "Unsupported schema_version '"
+                f"{payload.schema_version}"
+                "'; expected '"
+                f"{target_schema_version}"
+                "'"
             )
         return payload
     parsed = _normalize_payload(payload, fmt=fmt)
@@ -145,7 +163,7 @@ def load_trinity_bundle(
     return TrinityBundle.model_validate(mapping)
 
 
-def _manifest_value(manifest: Any, field: str, *, model_attribute: str | None = None) -> Any:
+def _manifest_value(manifest: object, field: str, *, model_attribute: str | None = None) -> object:
     if isinstance(manifest, Mapping):
         if field in manifest:
             return manifest[field]

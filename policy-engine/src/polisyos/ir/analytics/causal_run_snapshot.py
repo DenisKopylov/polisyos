@@ -18,10 +18,13 @@ import hashlib
 import json
 import logging
 import sys
+
+# Keep the public factory annotations resolvable for runtime signature inspection.
+from collections.abc import Iterable, Sequence
 from datetime import UTC, datetime
 from functools import cached_property
 from pathlib import Path
-from typing import Any
+from typing import Any, Literal, Protocol
 
 import pandas as pd
 from pydantic import BaseModel, ConfigDict, Field, ValidationError
@@ -31,6 +34,12 @@ from polisyos.ir.analytics.evidence_bundle import EvidenceFingerprintError, _fin
 from polisyos.ir.data.versioning import version_dataset
 
 logger = logging.getLogger(__name__)
+
+
+class _JsonModelDump(Protocol):
+    """Structural graph contract needed to build a causal run snapshot."""
+
+    def model_dump(self, *, mode: Literal["json"]) -> dict[str, Any]: ...
 
 
 # ---------------------------------------------------------------------------
@@ -165,14 +174,14 @@ class CausalRunSnapshot(BaseModel):
         cls,
         *,
         run_id: str,
-        graph: Any | None = None,
+        graph: _JsonModelDump | None = None,
         estimand_ast_dict: dict[str, Any] | None = None,
         estimand_shape: str = "",
         query_str: str = "",
-        estimation_steps: Any = (),  # tuple[EstimationStep, ...]
+        estimation_steps: Iterable[object] = (),
         data_dict: dict[str, Any] | None = None,
         algorithm_version: str = "",
-        compilation_steps: Any = (),  # tuple[CompilationStep, ...]
+        compilation_steps: Sequence[object] = (),
     ) -> CausalRunSnapshot:
         """Factory: build from CausalEngine.run() artefacts."""
         warnings: dict[str, None] = {}

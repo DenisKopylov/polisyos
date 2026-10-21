@@ -8,6 +8,7 @@ from pathlib import Path
 import polisyos.ir as ir
 import polisyos.ir.analytics as analytics
 import polisyos.ir.kernel as kernel
+import polisyos.ir.registry as registry
 import polisyos.ir.world as world
 from polisyos.ir.api import PACKAGE_FACADE_EXPORTS, PACKAGE_FACADE_IMPORT_POLICY
 
@@ -119,6 +120,59 @@ def test_analytics_facade_exports_performative_loop_contracts() -> None:
     assert "PerformativeShiftSummary" in analytics.__all__
     assert analytics.PerformativeLoopCertificate.__name__ == "PerformativeLoopCertificate"
     assert analytics.PerformativeShiftSummary.__name__ == "PerformativeShiftSummary"
+
+
+def test_hte_successor_contracts_preserve_identity_across_public_facades() -> None:
+    """Expose the HTE producer and artifact refs through their stable owners."""
+    from polisyos.ir.analytics import hte
+    from polisyos.ir.registry import refs
+
+    analytics_models = {
+        "ATEInferenceBasis",
+        "HTEIntervalOutcome",
+        "HTEResult",
+        "HTEOutcome",
+        "HTEPointOutcome",
+        "HTEPointResult",
+        "HTERefusalDiagnostic",
+        "HTERefusalOutcome",
+        "HTEResourceExecutionEvidenceV1",
+        "HTETargetRelationV1",
+        "load_ate_inference_basis",
+        "load_hte_result_v2",
+        "load_hte_outcome",
+        "load_hte_point_result",
+        "load_hte_refusal_diagnostic",
+        "persist_ate_inference_basis",
+        "persist_hte_result_v2",
+        "persist_hte_outcome",
+        "persist_hte_point_result",
+        "persist_hte_refusal_diagnostic",
+    }
+    registry_refs = {
+        "ATEInferenceBasisRef",
+        "HTEResultEvidenceRef",
+        "HTEOutcomeRef",
+        "HTEPhysicalSourceMaterializationBindingRef",
+        "HTEPointResultRef",
+        "HTEResourcePolicyRef",
+        "HTERefusalDiagnosticRef",
+        "MethodExecutionEvidenceRef",
+        "MethodResultEvidenceRef",
+        "OwnedAttemptAnchorRef",
+        "SearchUncertaintyTaskBindingRef",
+    }
+
+    assert analytics_models <= set(analytics.__all__)
+    assert analytics_models <= set(ir.__all__)
+    assert registry_refs <= set(registry.__all__)
+    assert registry_refs <= set(ir.__all__)
+    for name in analytics_models:
+        assert getattr(analytics, name) is getattr(hte, name)
+        assert getattr(ir, name) is getattr(hte, name)
+    for name in registry_refs:
+        assert getattr(registry, name) is getattr(refs, name)
+        assert getattr(ir, name) is getattr(refs, name)
 
 
 def test_analytics_facade_exports_privacy_transportability_contracts() -> None:

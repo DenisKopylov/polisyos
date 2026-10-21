@@ -171,7 +171,9 @@ class MechanismPriorSpec(KernelModel):
             for player_prior in self.player_priors:
                 if not player_prior.probabilities:
                     raise ValueError(
-                        f"independent_exact prior for '{player_prior.player_id}' requires probabilities"
+                        "independent_exact prior for '"
+                        f"{player_prior.player_id}"
+                        "' requires probabilities"
                     )
                 total = Fraction(0)
                 for value in player_prior.probabilities.values():
@@ -520,8 +522,9 @@ class MechanismSemanticsSpec(KernelModel):
             for player_prior in self.prior.player_priors:
                 if set(player_prior.probabilities) != set(type_spaces[player_prior.player_id]):
                     raise ValueError(
-                        f"independent_exact prior for '{player_prior.player_id}' must match the declared "
-                        "type labels exactly"
+                        "independent_exact prior for '"
+                        f"{player_prior.player_id}"
+                        "' must match the declared type labels exactly"
                     )
         if self.prior is not None and self.prior.kind is MechanismPriorKind.JOINT_EXACT_TABLE:
             for joint_entry in self.prior.joint_support:

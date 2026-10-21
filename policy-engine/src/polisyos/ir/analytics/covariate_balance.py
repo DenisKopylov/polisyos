@@ -7,9 +7,12 @@ after weighting / matching, or computed directly from raw covariate data.
 
 from __future__ import annotations
 
-from typing import Any
+from typing import TYPE_CHECKING
 
 from pydantic import BaseModel, ConfigDict, Field
+
+if TYPE_CHECKING:
+    from numpy.typing import ArrayLike
 
 
 class CovariateBalanceReport(BaseModel):
@@ -22,7 +25,8 @@ class CovariateBalanceReport(BaseModel):
     model_config = ConfigDict(frozen=True, extra="forbid")
 
     variable_smd: dict[str, float] = Field(default_factory=dict)
-    """Map from covariate name to its standardised mean difference (|treated_mean - control_mean| / pooled_sd)."""
+    """Map from covariate name to its standardised mean difference (|treated_mean - \
+control_mean| / pooled_sd)."""
 
     max_smd: float = 0.0
     """Maximum SMD across all variables."""
@@ -50,8 +54,8 @@ class CovariateBalanceReport(BaseModel):
 
 
 def compute_smd(
-    x_treated: Any,  # array-like (n_treated, p)
-    x_control: Any,  # array-like (n_control, p)
+    x_treated: ArrayLike,  # array-like (n_treated, p)
+    x_control: ArrayLike,  # array-like (n_control, p)
     *,
     column_names: list[str] | None = None,
     threshold: float = 0.1,

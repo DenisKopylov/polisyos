@@ -207,7 +207,8 @@ class GEUncertaintyBundle(BaseModel):
             raise ValueError("multiplier_shape must contain positive dimensions")
         if (self.lower_multiplier_ref is None) != (self.upper_multiplier_ref is None):
             raise ValueError(
-                "lower_multiplier_ref and upper_multiplier_ref must either both be set or both be null"
+                "lower_multiplier_ref and upper_multiplier_ref must either both be set "
+                "or both be null"
             )
         for field_name in (
             "point_multiplier_ref",
@@ -718,9 +719,10 @@ def build_channel_decomposition_ref(
     degrade_reasons: list[str] = []
     if behavioral_candidate is None or not behavior_stage_ok:
         degrade_reasons.append("behavioral_channel_unidentified")
-    if behavior_stage_ok and behavioral_candidate is not None:
-        if fiscal_candidate is None or not fiscal_stage_ok:
-            degrade_reasons.append("fiscal_feedback_channel_unidentified")
+    if (behavior_stage_ok and behavioral_candidate is not None) and (
+        fiscal_candidate is None or not fiscal_stage_ok
+    ):
+        degrade_reasons.append("fiscal_feedback_channel_unidentified")
 
     partial_id_only = bool(bounds_only_reasons)
     strict_failure_present = bool(strict_failures)
@@ -838,7 +840,7 @@ def _load_artifact_mapping(
     return dict(payload)
 
 
-def _coerce_str_tuple(value: Any, *, field_name: str) -> tuple[str, ...]:
+def _coerce_str_tuple(value: object, *, field_name: str) -> tuple[str, ...]:
     if not isinstance(value, Sequence) or isinstance(value, (str, bytes, bytearray)):
         raise ValueError(f"{field_name} must be a non-empty sequence of strings")
     items: list[str] = []
@@ -852,7 +854,7 @@ def _coerce_str_tuple(value: Any, *, field_name: str) -> tuple[str, ...]:
     return tuple(items)
 
 
-def _coerce_float_tuple(value: Any, *, field_name: str) -> tuple[float, ...]:
+def _coerce_float_tuple(value: object, *, field_name: str) -> tuple[float, ...]:
     if not isinstance(value, Sequence) or isinstance(value, (str, bytes, bytearray)):
         raise ValueError(f"{field_name} must be a non-empty sequence of finite numbers")
     items: list[float] = []
@@ -1106,7 +1108,7 @@ def _collect_string_lists(*payloads: Mapping[str, Any] | None, key: str) -> list
     return _dedupe_strings(collected)
 
 
-def _coerce_bool(value: Any) -> bool:
+def _coerce_bool(value: object) -> bool:
     if isinstance(value, bool):
         return value
     if value is None:

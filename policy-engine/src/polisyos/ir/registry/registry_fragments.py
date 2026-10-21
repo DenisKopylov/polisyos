@@ -2,6 +2,7 @@
 
 from __future__ import annotations
 
+from collections.abc import Iterable
 from typing import TYPE_CHECKING, Annotated, Any, Literal
 
 from pydantic import Field
@@ -127,6 +128,24 @@ class RegistryBundle(KernelModel):
     actors: ActorRegistry | None = None
     concepts: ConceptRegistry | None = None
     notes: list[str] = Field(default_factory=list)
+
+
+type _RegistryValue = (
+    UnitsRegistry
+    | TrustRegistry
+    | PredicateRegistry
+    | PrivacyPolicyRegistry
+    | MetricRegistry
+    | MechanismTypeRegistry
+    | SlotRegistry
+    | SelectorFieldRegistry
+    | MergeRuleRegistry
+    | ConstraintRegistry
+    | TimeAxisRegistry
+    | GeoRegistry
+    | ActorRegistry
+    | ConceptRegistry
+)
 
 
 class UnitsFragment(KernelModel):
@@ -308,7 +327,7 @@ class RegistryComposeResult(KernelModel):
     deterministic_hash: str | None = None
 
 
-def _hash_item(value: Any) -> str:
+def _hash_item(value: object) -> str:
     canonical = to_canonical_bytes(value)
     return content_hash(canonical, prefix=True)
 
@@ -417,41 +436,44 @@ def _strongly_connected_components(
     return components
 
 
-def _registry_items(registry: Any, *, kind: str) -> list[tuple[str, str, Any]]:
+def _registry_items(registry: object | None, *, kind: str) -> list[tuple[str, str, object]]:
     """Return list of (registry_kind, item_key, item_value)."""
-    items: list[tuple[str, str, Any]] = []
+    items: list[tuple[str, str, object]] = []
     if registry is None:
         return items
 
+    def _items(attribute: str) -> Iterable[tuple[str, object]]:
+        return getattr(registry, attribute).items()
+
     if kind == "units":
-        items.extend(("units", key, value) for key, value in registry.units.items())
+        items.extend(("units", key, value) for key, value in _items("units"))
     elif kind == "trust":
-        items.extend(("trust", key, value) for key, value in registry.policies.items())
+        items.extend(("trust", key, value) for key, value in _items("policies"))
     elif kind == "predicates":
-        items.extend(("predicates.scalars", key, value) for key, value in registry.scalars.items())
-        items.extend(("predicates.edges", key, value) for key, value in registry.edges.items())
+        items.extend(("predicates.scalars", key, value) for key, value in _items("scalars"))
+        items.extend(("predicates.edges", key, value) for key, value in _items("edges"))
     elif kind == "privacy":
-        items.extend(("privacy", key, value) for key, value in registry.policies.items())
+        items.extend(("privacy", key, value) for key, value in _items("policies"))
     elif kind == "metrics":
-        items.extend(("metrics", key, value) for key, value in registry.metrics.items())
+        items.extend(("metrics", key, value) for key, value in _items("metrics"))
     elif kind == "mechanisms":
-        items.extend(("mechanisms", key, value) for key, value in registry.mechanisms.items())
+        items.extend(("mechanisms", key, value) for key, value in _items("mechanisms"))
     elif kind == "slots":
-        items.extend(("slots", key, value) for key, value in registry.slots.items())
+        items.extend(("slots", key, value) for key, value in _items("slots"))
     elif kind == "selector_fields":
-        items.extend(("selector_fields", key, value) for key, value in registry.fields.items())
+        items.extend(("selector_fields", key, value) for key, value in _items("fields"))
     elif kind == "merge_rules":
-        items.extend(("merge_rules", key, value) for key, value in registry.rules.items())
+        items.extend(("merge_rules", key, value) for key, value in _items("rules"))
     elif kind == "constraints":
-        items.extend(("constraints", key, value) for key, value in registry.constraints.items())
+        items.extend(("constraints", key, value) for key, value in _items("constraints"))
     elif kind == "time":
-        items.extend(("time", key, value) for key, value in registry.axes.items())
+        items.extend(("time", key, value) for key, value in _items("axes"))
     elif kind == "geo":
-        items.extend(("geo", key, value) for key, value in registry.areas.items())
+        items.extend(("geo", key, value) for key, value in _items("areas"))
     elif kind == "actors":
-        items.extend(("actors", key, value) for key, value in registry.actor_types.items())
+        items.extend(("actors", key, value) for key, value in _items("actor_types"))
     elif kind == "concepts":
-        items.extend(("concepts", key, value) for key, value in registry.concepts.items())
+        items.extend(("concepts", key, value) for key, value in _items("concepts"))
 
     return items
 
@@ -567,9 +589,13 @@ def _build_composed_bundle(
     )
 
 
-def _apply_items_to_registry(registry: Any, *, kind: str, items: dict[str, Any]) -> Any:
+def _apply_items_to_registry(
+    registry: _RegistryValue | None, *, kind: str, items: dict[str, Any]
+) -> _RegistryValue | None:
     if registry is None:
         registry = _empty_registry_for_kind(kind)
+    if registry is None:
+        return None
     if kind == "units":
         return UnitsRegistry(units=items, notes=list(registry.notes))
     if kind == "trust":
@@ -603,7 +629,7 @@ def _apply_items_to_registry(registry: Any, *, kind: str, items: dict[str, Any])
     return registry
 
 
-def _empty_registry_for_kind(kind: str) -> Any:
+def _empty_registry_for_kind(kind: str) -> _RegistryValue | None:
     if kind == "units":
         return UnitsRegistry()
     if kind == "trust":
@@ -878,7 +904,7 @@ def compose_registry_fragments(request: RegistryComposeRequest) -> RegistryCompo
     registry_item_sources: dict[str, dict[str, str]] = {}
     registry_item_priorities: dict[str, dict[str, int]] = {}
 
-    def _seed_base(kind: str, registry: Any) -> None:
+    def _seed_base(kind: str, registry: _RegistryValue | None) -> None:
         for registry_kind, key, value in _registry_items(registry, kind=kind):
             bucket = registry_item_buckets.setdefault(registry_kind, {})
             bucket[key] = value

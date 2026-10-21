@@ -2,14 +2,12 @@
 
 from __future__ import annotations
 
-from typing import Any
-
 from polisyos.ir.api import WORLD_FACADE_EXPORTS, lazy_dir, resolve_lazy_export
 
 __all__ = sorted(WORLD_FACADE_EXPORTS)
 
 
-def __getattr__(name: str) -> Any:
+def __getattr__(name: str) -> object:
     return resolve_lazy_export(
         name,
         namespace=globals(),

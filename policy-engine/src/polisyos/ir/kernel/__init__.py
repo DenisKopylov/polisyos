@@ -8,7 +8,7 @@ for registry-aware runtime code.
 
 from __future__ import annotations
 
-from typing import TYPE_CHECKING, Any
+from typing import TYPE_CHECKING
 
 from polisyos.ir.api import KERNEL_FACADE_EXPORTS, lazy_dir, resolve_lazy_export
 
@@ -18,7 +18,7 @@ if TYPE_CHECKING:
 __all__ = sorted(KERNEL_FACADE_EXPORTS)
 
 
-def __getattr__(name: str) -> Any:
+def __getattr__(name: str) -> object:
     return resolve_lazy_export(
         name,
         namespace=globals(),

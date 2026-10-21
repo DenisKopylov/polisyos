@@ -14,6 +14,9 @@ models, and provenance payloads that let `fabric`, `foundry`, `scientist`, `lex`
 
 - **Typed refs** - every artifact family uses explicit `kind` and `media_type` checks.
 - **Runtime/control DTOs** - HTTP and orchestration payloads live here so routes stay thin.
+- **Owned HTE attempt anchors** - `owned_attempt_anchor.py` defines the profiled pre-output capture and ephemeral completed-owner association. The stable facade exports the ref and associated DTOs because Runtime, Scientist Search, and audit consumers share this typed boundary; an association reconciles one exact owner event but grants no scientific or publication authority.
+- **Physical HTE materialization binding** - `OwnedAttemptPhysicalSourceBindingRef` carries one selected Foundry physical source-to-array binding into the Runtime anchor and its completed/projection associations. It establishes only physical materialization; variable identity, units, population, and causal alignment remain separately `not_established`.
+- **Search HTE delivery** - `runtime.py` defines the strict `RuntimeSearchHTECompletionDeliveryV1` retry envelope. It binds a Search delivery to the immutable completed-event id and digest; the Search owner CAS remains the assessment source of truth.
 - **Catalog-run profile** - `control.py` defines `CatalogRunProfile`, the typed selector for catalog execution profiles; the stable `polisyos.core.contracts` facade re-exports the same type.
 - **Policy Design Case projections** - typed non-authoritative PDC views carry closeout truth,
   projection gaps, contested records, recourse pointers, deficits, and invariant summaries to API
@@ -77,6 +80,7 @@ Main ref families:
 - `trinity.py`, `compiler.py`, `lex.py`, `execution_plan.py`
 - `foundry.py` includes the opt-in source-basis artifact/ref alongside existing compile and execute DTOs.
 - `runtime.py`, `control.py`, `cursor.py`
+- `owned_attempt_anchor.py` (stable lazy-facade exports are part of the public Core contract surface)
 - `provenance.py`
 - `bounded_liveness.py`
 - `chronology.py` (re-exported from the admitted `polisyos.core` root facade)

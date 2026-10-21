@@ -152,16 +152,20 @@ class InstrumentedDispatcher:
         state: Any,
         params: Any,
         seed: int = 0,
+        runtime_context: Any | None = None,
     ) -> Any:
         """Dispatch with OTel tracing + metrics."""
+        dispatch_kwargs: dict[str, Any] = {
+            "method_class": method_class,
+            "signature": signature,
+            "state": state,
+            "params": params,
+            "seed": seed,
+        }
+        if runtime_context is not None:
+            dispatch_kwargs["runtime_context"] = runtime_context
         if not _OTEL_AVAILABLE or _tracer is None:
-            return self._inner.dispatch(
-                method_class=method_class,
-                signature=signature,
-                state=state,
-                params=params,
-                seed=seed,
-            )
+            return self._inner.dispatch(**dispatch_kwargs)
 
         from opentelemetry.trace import StatusCode
 
@@ -171,13 +175,7 @@ class InstrumentedDispatcher:
         with _tracer.start_as_current_span(span_name, attributes=attrs) as span:
             t0 = time.perf_counter()
             try:
-                result = self._inner.dispatch(
-                    method_class=method_class,
-                    signature=signature,
-                    state=state,
-                    params=params,
-                    seed=seed,
-                )
+                result = self._inner.dispatch(**dispatch_kwargs)
                 span.set_status(StatusCode.OK)
                 return result
             except Exception as exc:

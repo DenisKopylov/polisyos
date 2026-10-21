@@ -234,14 +234,14 @@ class VariableAlignmentCertificate(BaseModel):
 
     @model_validator(mode="after")
     def _enforce_latent_bridge_invariants(self) -> VariableAlignmentCertificate:
-        if self.alignment_type is AlignmentType.LATENT_BRIDGE:
-            if self.latent_bridge_hypothesis_ref is None and not (
-                self.latent_bridge_ref and str(self.latent_bridge_ref).strip()
-            ):
-                raise ValueError(
-                    "latent_bridge_hypothesis_ref or latent_bridge_ref must be non-empty "
-                    "when alignment_type is LATENT_BRIDGE"
-                )
+        if (self.alignment_type is AlignmentType.LATENT_BRIDGE) and (
+            self.latent_bridge_hypothesis_ref is None
+            and (not (self.latent_bridge_ref and str(self.latent_bridge_ref).strip()))
+        ):
+            raise ValueError(
+                "latent_bridge_hypothesis_ref or latent_bridge_ref must be non-empty "
+                "when alignment_type is LATENT_BRIDGE"
+            )
         return self
 
 
@@ -276,7 +276,7 @@ class AlignmentReport(BaseModel):
 
     @model_validator(mode="before")
     @classmethod
-    def _backfill_review_status(cls, payload: Any) -> Any:
+    def _backfill_review_status(cls, payload: object) -> object:
         if not isinstance(payload, dict):
             return payload
         normalized = dict(payload)
@@ -696,8 +696,8 @@ def _default_metadata_comparator(key: str) -> str:
 def _run_metadata_comparator(
     *,
     key: str,
-    left_value: Any,
-    right_value: Any,
+    left_value: object,
+    right_value: object,
     comparator: str,
 ) -> VariableMetadataCheck:
     if comparator == "normalized_equality":
@@ -719,8 +719,8 @@ def _run_metadata_comparator(
 def _normalized_equality_check(
     *,
     key: str,
-    left_value: Any,
-    right_value: Any,
+    left_value: object,
+    right_value: object,
 ) -> VariableMetadataCheck:
     if left_value is None and right_value is None:
         return VariableMetadataCheck(
@@ -758,8 +758,8 @@ def _normalized_equality_check(
 def _geography_warning_check(
     *,
     key: str,
-    left_value: Any,
-    right_value: Any,
+    left_value: object,
+    right_value: object,
 ) -> VariableMetadataCheck:
     if left_value is None and right_value is None:
         return VariableMetadataCheck(
@@ -799,8 +799,8 @@ def _geography_warning_check(
 def _time_window_check(
     *,
     key: str,
-    left_value: Any,
-    right_value: Any,
+    left_value: object,
+    right_value: object,
 ) -> VariableMetadataCheck:
     if left_value is None and right_value is None:
         return VariableMetadataCheck(
@@ -854,7 +854,7 @@ def _time_window_check(
     )
 
 
-def _normalize_metadata_value(value: Any) -> str:
+def _normalize_metadata_value(value: object) -> str:
     if value is None:
         return ""
     if isinstance(value, str):
@@ -875,7 +875,7 @@ def _normalize_metadata_value(value: Any) -> str:
     return str(value).strip().lower()
 
 
-def _parse_time_window_bounds(value: Any) -> tuple[datetime, datetime] | None:
+def _parse_time_window_bounds(value: object) -> tuple[datetime, datetime] | None:
     if isinstance(value, dict):
         start = value.get("start", value.get("from"))
         end = value.get("end", value.get("to"))
@@ -902,7 +902,7 @@ def _parse_time_window_bounds(value: Any) -> tuple[datetime, datetime] | None:
     return None
 
 
-def _parse_datetime_like(value: Any) -> datetime | None:
+def _parse_datetime_like(value: object) -> datetime | None:
     if isinstance(value, datetime):
         return value
     if isinstance(value, date):
@@ -929,7 +929,7 @@ def _parse_iso_date(value: str) -> date:
 
 
 def _coerce_latent_bridge_hypothesis_ref(
-    payload: Any,
+    payload: object,
 ) -> LatentBridgeHypothesisRef | None:
     if payload in (None, ""):
         return None
@@ -944,7 +944,7 @@ def _coerce_latent_bridge_hypothesis_ref(
         return None
 
 
-def _canonical_content_hash(payload: Any) -> str:
+def _canonical_content_hash(payload: object) -> str:
     encoded = to_canonical_bytes(payload, CanonSpec(forbid_floats=False))
     return f"sha256:{hashlib.sha256(encoded).hexdigest()}"
 
@@ -1245,13 +1245,12 @@ def _classify_pair(
             evidence=evidence,
             policy=config.latent_bridge_policy,
         )
-    if governed_input is not None and governed_input.source_ref is None:
-        if auto_latent_bridge_hypothesis is None or _canonical_content_hash(
-            _latent_candidate_payload(auto_latent_bridge_hypothesis)
-        ) != _canonical_content_hash(
-            _latent_candidate_payload(governed_input.candidate_hypothesis)
-        ):
-            governed_input = None
+    if (governed_input is not None and governed_input.source_ref is None) and (
+        auto_latent_bridge_hypothesis is None
+        or _canonical_content_hash(_latent_candidate_payload(auto_latent_bridge_hypothesis))
+        != _canonical_content_hash(_latent_candidate_payload(governed_input.candidate_hypothesis))
+    ):
+        governed_input = None
     governance_snapshot_supplied = pair_key in governance_by_pair
     governed_latent_bridge_hypothesis = (
         governed_input.governed_hypothesis if governed_input is not None else None

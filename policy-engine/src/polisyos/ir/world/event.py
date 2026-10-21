@@ -120,7 +120,8 @@ class WorldObjectRef(KernelModel):
 
 
 class WorldEvent(KernelModel):
-    """Capture one immutable pipeline event after its ids, inputs, and outputs are stable enough to persist."""
+    """Capture one immutable pipeline event after its ids, inputs, and outputs are stable enough \
+to persist."""
 
     schema_version: str = Field("1.0", pattern=SCHEMA_VERSION_PATTERN)
     event_id: str = Field(..., pattern=ID_PATTERN)

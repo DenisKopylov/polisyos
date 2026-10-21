@@ -20,7 +20,7 @@ from polisyos.ir.model_layer.canon import CanonSpec
 from polisyos.ir.registry.refs import ArtifactRefModel, StructuralCausalModelSpecRef
 
 
-def _normalize_json_value(value: Any) -> Any:
+def _normalize_json_value(value: object) -> object:
     if isinstance(value, np.ndarray):
         return value.tolist()
     if isinstance(value, np.generic):
@@ -34,7 +34,7 @@ def _normalize_json_value(value: Any) -> Any:
     return value
 
 
-def _ensure_json_serializable(field_name: str, value: Any) -> Any:
+def _ensure_json_serializable(field_name: str, value: object) -> object:
     normalized = _normalize_json_value(value)
     try:
         json.dumps(normalized, sort_keys=True)
@@ -63,7 +63,7 @@ class MechanismSource(str, Enum):
     DEFAULT = "default"
 
 
-def _payload_digest(value: Any) -> str:
+def _payload_digest(value: object) -> str:
     """Hash the finite JSON basis used by the selected worker protocol."""
     return hashlib.sha256(
         json.dumps(
@@ -210,9 +210,10 @@ class StructuralCausalModelSpec(BaseModel):
             )
             if admitted is None:
                 raise ValueError("SCM cannot be fitted from an unavailable source graph")
-        if self.schema_version == "1.2" and self.fit_method in {"gcm", "native_hybrid"}:
-            if self.source_graph is None or self.graph_projection is None:
-                raise ValueError("SCM 1.2 fitted artifacts require their graph source disposition")
+        if (self.schema_version == "1.2" and self.fit_method in {"gcm", "native_hybrid"}) and (
+            self.source_graph is None or self.graph_projection is None
+        ):
+            raise ValueError("SCM 1.2 fitted artifacts require their graph source disposition")
         mech_vars = {m.variable for m in self.mechanisms}
         graph_vars = set(self.graph.nodes)
 
@@ -294,11 +295,12 @@ class StructuralCausalModelSpec(BaseModel):
                 or len(carrier_groups) != 1
             ):
                 raise ValueError("Observed root carriers must share provenance and alignment")
-        if self.schema_version in {"1.1", "1.2"} and self.fit_method == "gcm":
-            if self.training_rows is None or self.fit_provenance is None:
-                raise ValueError(
-                    "selected GCM fit requires training rows and observed worker provenance"
-                )
+        if (self.schema_version in {"1.1", "1.2"} and self.fit_method == "gcm") and (
+            self.training_rows is None or self.fit_provenance is None
+        ):
+            raise ValueError(
+                "selected GCM fit requires training rows and observed worker provenance"
+            )
         if self.training_rows is not None:
             rows = self.training_rows
             graph_payload = {

@@ -7,7 +7,7 @@ from typing import TYPE_CHECKING, Any
 
 from pydantic import BaseModel, ConfigDict, Field
 
-from polisyos.ir.artifacts.contracts import ArtifactID
+from polisyos.ir.artifacts.contracts import ArtifactID, ArtifactStore
 
 if TYPE_CHECKING:
     from collections.abc import Iterable
@@ -160,7 +160,7 @@ def _task_node_id(task_id: str) -> str:
 
 
 def build_artifact_lineage_graph(
-    store: Any,
+    store: ArtifactStore,
     *,
     artifact_ids: Iterable[ArtifactID | str] | None = None,
     task_bindings: Iterable[ArtifactTaskBinding] | None = None,

@@ -6,6 +6,10 @@ import hashlib
 from datetime import datetime
 from typing import TYPE_CHECKING
 
+from polisyos.common.canonical_profile import (
+    _manifest_profile_projection,
+    _manifest_profile_sha256,
+)
 from polisyos.common.serialization import fast_json_dumps_bytes
 
 from .manifest import ArtifactManifest, IntegrityInfo, _coerce_input_ref
@@ -144,31 +148,14 @@ class ManifestLifecycle:
         complete integrity object. V3 binds consumer-visible optional integrity
         metadata while excluding only the content-derived SHA-256 value.
         """
-        excluded: dict[str, object] = {
-            "artifact_id": True,
-            "byte_size": True,
-            "created_at": True,
-        }
-        if manifest.manifest_schema_version in {"v1", "v2"}:
-            excluded["integrity"] = True
-        else:
-            excluded["integrity"] = {"sha256"}
-        return manifest.model_dump(
-            mode="json",
-            by_alias=True,
-            exclude_none=True,
-            exclude=excluded,
-        )
+        normalized = manifest.model_dump(mode="json", by_alias=True, exclude_none=True)
+        return _manifest_profile_projection(normalized)
 
     @classmethod
     def profile_sha256(cls, manifest: ArtifactManifest) -> str:
         """Compute the historical v1 or v3-projection v2 digest for a persisted view."""
-        projection = cls.profile_projection(manifest)
-        payload = fast_json_dumps_bytes(projection, sort_keys=True)
-        profile_version = "v2" if manifest.manifest_schema_version == "v3" else "v1"
-        domain = f"polisyos.cas.manifest-profile.{profile_version}\0".encode("ascii")
-        digest = hashlib.sha256(domain + payload).hexdigest()
-        return f"sha256:{digest}"
+        normalized = manifest.model_dump(mode="json", by_alias=True, exclude_none=True)
+        return _manifest_profile_sha256(normalized)
 
     @staticmethod
     def read(path: Path) -> ArtifactManifest:

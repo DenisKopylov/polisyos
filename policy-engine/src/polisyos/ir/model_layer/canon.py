@@ -3,7 +3,6 @@
 from __future__ import annotations
 
 from dataclasses import dataclass
-from typing import Any
 
 from polisyos.common.canonical import (
     CanonSpec as _SharedCanonSpec,
@@ -52,7 +51,7 @@ class CanonSpec(_SharedCanonSpec):
     """Canon spec data model for the IR profile."""
 
 
-def _encode_ir_canonical_bytes_raw(obj: Any, spec: CanonSpec) -> bytes:
+def _encode_ir_canonical_bytes_raw(obj: object, spec: CanonSpec) -> bytes:
     """Encode with IR's selected typed-tag set without public admission or re-entry."""
     return _to_canonical_bytes(
         obj,
@@ -62,7 +61,7 @@ def _encode_ir_canonical_bytes_raw(obj: Any, spec: CanonSpec) -> bytes:
     )
 
 
-def to_canonical_bytes(obj: Any, spec: CanonSpec | None = None) -> bytes:
+def to_canonical_bytes(obj: object, spec: CanonSpec | None = None) -> bytes:
     """Emit bytes that round-trip under IR's selected canonical profile."""
     selected_spec = CanonSpec() if spec is None else spec
     data = _encode_ir_canonical_bytes_raw(obj, selected_spec)
@@ -73,7 +72,7 @@ def to_canonical_bytes(obj: Any, spec: CanonSpec | None = None) -> bytes:
     return data
 
 
-def from_canonical_obj(obj: Any, *, max_depth: int = 128, _depth: int = 0) -> Any:
+def from_canonical_obj(obj: object, *, max_depth: int = 128, _depth: int = 0) -> object:
     """Create an IR value from a canonical object."""
     return _from_canonical_obj(
         obj,
@@ -84,7 +83,7 @@ def from_canonical_obj(obj: Any, *, max_depth: int = 128, _depth: int = 0) -> An
     )
 
 
-def from_canonical_bytes(data: bytes, *, max_depth: int = 128) -> Any:
+def from_canonical_bytes(data: bytes, *, max_depth: int = 128) -> object:
     """Create an IR value from canonical bytes."""
     return _from_canonical_bytes(
         data,

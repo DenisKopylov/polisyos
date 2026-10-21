@@ -8,6 +8,7 @@ from typing import Any
 
 from pydantic import BaseModel, ConfigDict, Field, field_validator
 
+from polisyos.ir._internal.validation import coerce_float
 from polisyos.ir.artifacts import ArtifactStore, InputRef, get_json_artifact, put_json_artifact
 from polisyos.ir.model_layer.canon import CanonSpec
 from polisyos.ir.registry.refs import ABMAlignmentReportRef
@@ -61,10 +62,10 @@ class MacroMicroMapping(BaseModel):
 
     @field_validator("tolerance", mode="before")
     @classmethod
-    def _validate_optional_tolerance(cls, value: Any) -> Any:
+    def _validate_optional_tolerance(cls, value: object) -> float | None:
         if value is None:
             return None
-        casted = float(value)
+        casted = coerce_float(value)
         if not math.isfinite(casted):
             raise ValueError("tolerance must be finite")
         if casted < 0.0:
@@ -87,10 +88,10 @@ class AlignmentResult(BaseModel):
 
     @field_validator("scm_effect", "abm_effect", "tolerance_used", "delta", mode="before")
     @classmethod
-    def _validate_optional_finite_float(cls, value: Any) -> Any:
+    def _validate_optional_finite_float(cls, value: object) -> float | None:
         if value is None:
             return None
-        casted = float(value)
+        casted = coerce_float(value)
         if not math.isfinite(casted):
             raise ValueError("numeric fields must be finite")
         return casted
@@ -117,10 +118,10 @@ class PhaseTransition(BaseModel):
 
     @field_validator("threshold_value", "jump_value", mode="before")
     @classmethod
-    def _validate_float_fields(cls, value: Any) -> Any:
+    def _validate_float_fields(cls, value: object) -> float | None:
         if value is None:
             return None
-        casted = float(value)
+        casted = coerce_float(value)
         if not math.isfinite(casted):
             raise ValueError("numeric fields must be finite")
         return casted

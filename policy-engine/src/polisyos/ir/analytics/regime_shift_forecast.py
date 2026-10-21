@@ -161,9 +161,10 @@ class RegimeShiftForecastBundle(ForecastingUncertaintyBundle):
             if self.benchmark_status is not RegimeBenchmarkStatus.GREEN:
                 raise ValueError("calibrated regime status requires a green benchmark")
 
-        if self._max_declared_horizon() > 12:
-            if self.regime_status is not RegimeForecastCalibrationStatus.CALIBRATED:
-                raise ValueError("forecasts beyond horizon 12 require calibrated regime status")
+        if (self._max_declared_horizon() > 12) and (
+            self.regime_status is not RegimeForecastCalibrationStatus.CALIBRATED
+        ):
+            raise ValueError("forecasts beyond horizon 12 require calibrated regime status")
 
         return self
 

@@ -503,9 +503,9 @@ class DynamicMicrosimValidationError(ValueError):
 
 
 def build_dynamic_microsim_validation_report(
-    diagnostic: Any,
+    diagnostic: object,
     *,
-    diagnostic_ref: Any | None = None,
+    diagnostic_ref: object | None = None,
     microsim_calibration_report_ref: MicrosimCalibrationReportRef | Mapping[str, Any] | None = None,
     metadata: Mapping[str, Any] | None = None,
 ) -> DynamicMicrosimValidationReport:
@@ -609,8 +609,8 @@ class SpaceTimeCausalCertificate(BaseModel):
 
 def build_temporal_graph_causal_certificate(
     *,
-    temporal_identification_certificate: Any | None,
-    local_independence_certificate: Any | None,
+    temporal_identification_certificate: object | None,
+    local_independence_certificate: object | None,
     warnings: tuple[str, ...] = (),
     metadata: Mapping[str, Any] | None = None,
 ) -> TemporalGraphCausalCertificate:
@@ -639,7 +639,7 @@ def build_temporal_graph_causal_certificate(
 
 
 def build_space_time_causal_certificate(
-    identification_certificate: Any,
+    identification_certificate: object,
     *,
     metadata: Mapping[str, Any] | None = None,
 ) -> SpaceTimeCausalCertificate:
@@ -800,7 +800,7 @@ def _coerce_regime_shift_forecast_bundle_ref(
     return RegimeShiftForecastBundleRef.model_validate(payload)
 
 
-def _ref_artifact_id(value: Any) -> str | None:
+def _ref_artifact_id(value: object) -> str | None:
     if value is None:
         return None
     if isinstance(value, str):
@@ -812,7 +812,7 @@ def _ref_artifact_id(value: Any) -> str | None:
     return None
 
 
-def _red_horizons(policy: Any, requested_horizon: int) -> list[int]:
+def _red_horizons(policy: object, requested_horizon: int) -> list[int]:
     if policy is None:
         return []
     red: list[int] = []
@@ -838,7 +838,7 @@ def _dynamic_validation_status(source_status: str) -> Literal["green", "amber", 
     return "red"
 
 
-def _artifact_ref_model(value: Any | None) -> ArtifactRefModel | None:
+def _artifact_ref_model(value: object | None) -> ArtifactRefModel | None:
     if value is None:
         return None
     if isinstance(value, ArtifactRefModel):
@@ -847,13 +847,13 @@ def _artifact_ref_model(value: Any | None) -> ArtifactRefModel | None:
     return ArtifactRefModel.model_validate(payload)
 
 
-def _get_attr(value: Any, name: str, default: Any = None) -> Any:
+def _get_attr(value: object, name: str, default: object = None) -> object:
     if isinstance(value, Mapping):
         return value.get(name, default)
     return getattr(value, name, default)
 
 
-def _coerce_ref(value: Any | None, cls: type[Any]) -> Any | None:
+def _coerce_ref[T: BaseModel](value: object | None, cls: type[T]) -> T | None:
     if value is None:
         return None
     if isinstance(value, cls):
@@ -862,7 +862,7 @@ def _coerce_ref(value: Any | None, cls: type[Any]) -> Any | None:
     return cls.model_validate(payload)
 
 
-def _model_payload(value: Any | None) -> dict[str, Any] | None:
+def _model_payload(value: object | None) -> dict[str, Any] | None:
     if value is None:
         return None
     if isinstance(value, _JsonModelDumper):
@@ -882,7 +882,7 @@ def _coerce_strangle_receipt(
     return StrangleReceipt.model_validate(value)
 
 
-def _stable_hash(value: Any) -> str:
+def _stable_hash(value: object) -> str:
     payload = json.dumps(
         _json_ready(value),
         sort_keys=True,
@@ -892,7 +892,7 @@ def _stable_hash(value: Any) -> str:
     return "sha256:" + hashlib.sha256(payload).hexdigest()
 
 
-def _json_ready(value: Any) -> Any:
+def _json_ready(value: object) -> object:
     if isinstance(value, BaseModel):
         return value.model_dump(mode="json")
     if isinstance(value, Mapping):
@@ -902,7 +902,7 @@ def _json_ready(value: Any) -> Any:
     return value
 
 
-def _enum_value(value: Any) -> str | None:
+def _enum_value(value: object) -> str | None:
     if value is None:
         return None
     return str(getattr(value, "value", value))

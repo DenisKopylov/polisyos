@@ -304,7 +304,8 @@ class DataKnowledgeBase(BaseModel):
         source_domain: DistributionDomain = DistributionDomain.SOURCE,
         target_domain: DistributionDomain = DistributionDomain.TARGET,
     ) -> DataKnowledgeBase:
-        """Build a DataKnowledgeBase from a :class:`~polisyos.ir.data.harmonizer.HarmonizationReport`.
+        """Build a DataKnowledgeBase from a :class:`~polisyos.ir.data.harmonizer.HarmonizationRep\
+ort`.
 
         Automatically derives data availability from the harmonization outcome:
 

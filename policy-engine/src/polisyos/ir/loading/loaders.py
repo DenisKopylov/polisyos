@@ -10,6 +10,8 @@ from pydantic import ValidationError
 
 from polisyos.ir.trinity import TrinityBundle
 
+type _PolicyPayload = TrinityBundle | Mapping[str, Any] | str | bytes
+
 
 class PolicyLoadError(ValueError):
     """Raise when a payload cannot be parsed or validated as a Trinity bundle."""
@@ -17,7 +19,7 @@ class PolicyLoadError(ValueError):
     pass
 
 
-def _parse_str_payload(payload: str, *, fmt: str) -> Any:
+def _parse_str_payload(payload: str, *, fmt: str) -> object:
     text = payload.strip()
     if fmt == "json":
         return json.loads(text)
@@ -33,7 +35,7 @@ def _parse_str_payload(payload: str, *, fmt: str) -> Any:
         return yaml.safe_load(text)
 
 
-def _parse_bytes_payload(payload: bytes, *, fmt: str) -> Any:
+def _parse_bytes_payload(payload: bytes, *, fmt: str) -> object:
     try:
         text = payload.decode("utf-8")
     except UnicodeDecodeError as exc:
@@ -41,7 +43,7 @@ def _parse_bytes_payload(payload: bytes, *, fmt: str) -> Any:
     return _parse_str_payload(text, fmt=fmt)
 
 
-def _normalize_payload(payload: Any, *, fmt: str) -> Any:
+def _normalize_payload(payload: object, *, fmt: str) -> object:
     if isinstance(payload, str):
         return _parse_str_payload(payload, fmt=fmt)
     if isinstance(payload, bytes):
@@ -49,14 +51,14 @@ def _normalize_payload(payload: Any, *, fmt: str) -> Any:
     return payload
 
 
-def _ensure_mapping(payload: Any) -> Mapping[str, Any]:
+def _ensure_mapping(payload: object) -> Mapping[str, Any]:
     if not isinstance(payload, Mapping):
         raise PolicyLoadError(f"Unsupported policy payload type: {type(payload)}")
     return payload
 
 
 def load_policy(
-    payload: Any,
+    payload: _PolicyPayload,
     *,
     auto_migrate: bool = True,
     fmt: str = "auto",
@@ -85,7 +87,7 @@ def load_policy(
 
 
 def load_trinity_bundle(
-    payload: Any,
+    payload: _PolicyPayload,
     *,
     fmt: str = "auto",
     auto_migrate: bool = True,
@@ -105,7 +107,7 @@ def load_trinity_bundle(
         raise PolicyLoadError("Unsupported policy payload for TrinityBundle loader") from exc
 
 
-def load_trinity(payload: Any, *, fmt: str = "auto") -> TrinityBundle:
+def load_trinity(payload: _PolicyPayload, *, fmt: str = "auto") -> TrinityBundle:
     """Convenience function to always load as canonical Trinity bundle."""
     bundle, _ = load_trinity_bundle(payload, fmt=fmt)
     return bundle

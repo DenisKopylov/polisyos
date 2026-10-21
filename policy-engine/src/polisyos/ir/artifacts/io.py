@@ -6,12 +6,13 @@ import hashlib
 import inspect
 import json
 from collections.abc import Mapping
-from typing import TYPE_CHECKING, Any, Protocol
+from typing import TYPE_CHECKING, Any, NoReturn, Protocol
 
 from pydantic import ValidationError
 
 from polisyos.common.canonical_profile import (
     CanonicalProfileRefusalError,
+    _manifest_profile_sha256,
     _normalize_canonical_profile_mapping,
     decode_profiled_canonical_bytes,
     parse_canonical_profile,
@@ -53,7 +54,7 @@ def _duplicate_key_rejector(pairs: list[tuple[str, Any]]) -> dict[str, Any]:
     return result
 
 
-def _reject_json_constant(value: str) -> Any:
+def _reject_json_constant(value: str) -> NoReturn:
     """Reject non-JSON numeric constants in a persisted sidecar."""
     raise ValueError(f"invalid JSON numeric constant: {value}")
 
@@ -68,7 +69,7 @@ class _ProfiledJSONReader(Protocol):
 
 def put_json_artifact(
     store: ArtifactStore,
-    payload: Any,
+    payload: object,
     *,
     kind: str,
     schema_name: str,
@@ -122,7 +123,7 @@ def put_json_artifact(
     return normalized
 
 
-def _validated_ir_canon_info(value: Any) -> CanonInfo:
+def _validated_ir_canon_info(value: object) -> CanonInfo:
     """Validate a complete profile mapping parsed from the raw persisted sidecar."""
     if not isinstance(value, Mapping):
         raise CanonViolation("unsupported_ir_canon_profile")
@@ -266,6 +267,15 @@ def _get_json_artifact_with_bytes(
             typed_canon = typed_canon_dump(mode="python")
         if _validated_ir_canon_info(typed_canon) != profile:
             raise CanonViolation("ir_artifact_selected_profile_mismatch")
+        if selected_profile is not None:
+            try:
+                actual_profile = _manifest_profile_sha256(typed_manifest)
+            except CanonicalProfileRefusalError as exc:
+                raise CanonViolation("ir_artifact_selected_manifest_invalid") from exc
+            except (TypeError, ValueError) as exc:
+                raise CanonViolation("ir_artifact_selected_manifest_invalid") from exc
+            if actual_profile != selected_profile:
+                raise CanonViolation("ir_artifact_selected_profile_mismatch")
     elif selected_profile is not None:
         # A raw-only reader can prove ID-selected bytes, but cannot resolve a
         # profile-bearing view without an exact typed selector capability.
@@ -308,7 +318,7 @@ def _get_json_artifact_with_bytes(
 get_json_artifact_with_bytes = _get_json_artifact_with_bytes
 
 
-def get_json_artifact(store: ArtifactStore, artifact_id: ArtifactSelector) -> Any:
+def get_json_artifact(store: ArtifactStore, artifact_id: ArtifactSelector) -> object:
     """Read and return JSON after selected-profile and same-byte conformance checks."""
     value, _raw_bytes = _get_json_artifact_with_bytes(store, artifact_id)
     return value

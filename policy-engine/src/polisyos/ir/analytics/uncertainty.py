@@ -25,6 +25,7 @@ from polisyos.ir.artifacts import (
     put_json_artifact,
 )
 from polisyos.ir.artifacts.contracts import (
+    ArtifactSelector,
     _is_string_root_model,
     _normalize_scalar_artifact_id,
 )
@@ -764,7 +765,7 @@ def _canonicalize_distribution_payload(
     return normalized
 
 
-def _canonicalize_nested_numbers(value: Any, policy: NumericPolicySpec) -> Any:
+def _canonicalize_nested_numbers(value: object, policy: NumericPolicySpec) -> object:
     if isinstance(value, float):
         return policy.canonicalize(value)
     if isinstance(value, list):
@@ -1399,7 +1400,7 @@ class UncertaintyEnvelope(BaseModel):
 
     @model_validator(mode="before")
     @classmethod
-    def _canonicalize_numeric_payload(cls, value: Any) -> Any:
+    def _canonicalize_numeric_payload(cls, value: object) -> object:
         if isinstance(value, UncertaintyEnvelope):
             return value
         if not isinstance(value, dict):
@@ -2208,7 +2209,7 @@ _PROPAGATION_COMPONENT = "scientist.node_propagate_uncertainty@1.0.0"
 
 def load_simulation_result_uncertainty_admission(
     store: ArtifactStore,
-    simulation_result_ref: Any,
+    simulation_result_ref: ArtifactSelector,
     metric_id: str,
 ) -> PersistedUncertaintyAdmission:
     """Resolve and conservatively admit one propagated metric envelope.
@@ -2375,7 +2376,7 @@ def load_simulation_result_uncertainty_admission(
 
 def load_simulation_result_subject_uncertainty_projection(
     store: ArtifactStore,
-    simulation_result_ref: Any,
+    simulation_result_ref: ArtifactSelector,
     *,
     subject_kind: Literal["metric", "state_slot"],
     subject_id: str,
@@ -2437,7 +2438,7 @@ def load_simulation_result_subject_uncertainty_projection(
 
 def _load_state_slot_uncertainty_projection(
     store: ArtifactStore,
-    simulation_result_ref: Any,
+    simulation_result_ref: ArtifactSelector,
     *,
     subject_id: str,
 ) -> PersistedUncertaintySubjectProjection:
@@ -2596,7 +2597,7 @@ def _state_slot_projection_failure(
 
 
 def _check_state_slot_simulation_lineage(
-    manifest: Any,
+    manifest: object,
     *,
     simulation_payload: dict[str, Any],
     report_payload: dict[str, Any],
@@ -2656,11 +2657,11 @@ def _check_state_slot_simulation_lineage(
 
 def _check_state_slot_report_projection(
     store: ArtifactStore,
-    manifest: Any,
+    manifest: object,
     *,
     report_payload: dict[str, Any],
     envelope: UncertaintyEnvelope,
-    envelope_manifest: Any,
+    envelope_manifest: object,
     subject_id: str,
     envelope_reference: dict[str, str],
     limitations: list[str],
@@ -2781,8 +2782,8 @@ def _check_response_context_input_roster(
     store: ArtifactStore,
     candidate: dict[str, Any],
     *,
-    report_manifest: Any,
-    envelope_manifest: Any,
+    report_manifest: object,
+    envelope_manifest: object,
     limitations: list[str],
 ) -> None:
     """Reconcile every response-context input with its selected CAS content."""
@@ -2870,7 +2871,7 @@ def _check_response_context_input_roster(
             )
 
 
-def _normalized_artifact_reference(store: ArtifactStore, ref: Any) -> dict[str, str]:
+def _normalized_artifact_reference(store: ArtifactStore, ref: ArtifactSelector) -> dict[str, str]:
     """Normalize a typed ref or resolve an ID through its stored manifest."""
     if isinstance(ref, (str, ArtifactID)) or _is_string_root_model(ref):
         artifact_id = _normalize_scalar_artifact_id(ref)
@@ -2884,7 +2885,7 @@ def _normalized_artifact_reference(store: ArtifactStore, ref: Any) -> dict[str, 
 
 
 def _check_persisted_artifact_identity(
-    manifest: Any,
+    manifest: object,
     reference: dict[str, str],
     *,
     expected_kind: str,
@@ -2916,7 +2917,7 @@ def _check_persisted_artifact_identity(
         limitations.append(f"{prefix}_schema_version_mismatch")
 
 
-def _check_producer_identity(manifest: Any, *, prefix: str, limitations: list[str]) -> None:
+def _check_producer_identity(manifest: object, *, prefix: str, limitations: list[str]) -> None:
     """Record producer identity gaps without treating labels as verification."""
     producer = getattr(manifest, "producer", None)
     if producer is None:
@@ -2928,7 +2929,7 @@ def _check_producer_identity(manifest: Any, *, prefix: str, limitations: list[st
         limitations.append(f"{prefix}_producer_provenance_mismatch")
 
 
-def _manifest_inputs(manifest: Any) -> list[tuple[str, str, str | None]]:
+def _manifest_inputs(manifest: object) -> list[tuple[str, str, str | None]]:
     """Return persisted input role/content/view identities from one CAS manifest."""
     inputs = getattr(manifest, "inputs", ())
     if not isinstance(inputs, (list, tuple)):
@@ -2949,7 +2950,7 @@ def _artifact_reference_identity(reference: dict[str, str]) -> tuple[str, str | 
 
 
 def _check_simulation_result_lineage(
-    manifest: Any,
+    manifest: object,
     *,
     metric_id: str,
     envelope_reference: dict[str, str],
@@ -2976,7 +2977,7 @@ def _check_simulation_result_lineage(
 
 
 def _check_report_lineage(
-    manifest: Any,
+    manifest: object,
     *,
     metric_id: str,
     envelope_reference: dict[str, str],
@@ -3169,7 +3170,7 @@ def _check_propagation_report(
         limitations.append("propagation_implementation_identity_not_established")
 
 
-def _nonnegative_int(value: Any) -> int | None:
+def _nonnegative_int(value: object) -> int | None:
     if type(value) is not int or value < 0:
         return None
     return value

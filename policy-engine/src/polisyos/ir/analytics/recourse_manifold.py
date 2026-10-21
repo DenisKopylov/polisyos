@@ -803,10 +803,11 @@ def build_feasibility_certificate(
             if domain.upper is not None and numeric > domain.upper:
                 domain_ok = False
                 break
-        elif domain.kind == "finite_policy":
-            if not step.policy_ref or step.policy_ref not in domain.policy_refs:
-                domain_ok = False
-                break
+        elif (domain.kind == "finite_policy") and (
+            not step.policy_ref or step.policy_ref not in domain.policy_refs
+        ):
+            domain_ok = False
+            break
 
     available_prereqs = _available_prerequisite_refs(action=action, manifold=manifold)
     prerequisites_ok = available_prereqs is not None

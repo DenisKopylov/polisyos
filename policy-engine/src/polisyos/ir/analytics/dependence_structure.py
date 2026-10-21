@@ -2,13 +2,15 @@
 
 from __future__ import annotations
 
-from typing import TYPE_CHECKING, Any, Literal
+from typing import TYPE_CHECKING, Any, Literal, cast
 
 from pydantic import ConfigDict, Field
 
 from polisyos.ir.kernel.base import KernelModel
 
 if TYPE_CHECKING:
+    from collections.abc import Iterable, Mapping
+
     from polisyos.ir.artifacts.contracts import ArtifactStore, InputRef
     from polisyos.ir.registry.refs import DependenceStructureRef
 
@@ -61,7 +63,7 @@ def build_dependence_structure(
 
 
 def dependence_structure_from_econometrics(
-    diagnostic: Any,
+    diagnostic: object,
     *,
     source_method: str,
 ) -> DependenceStructure:
@@ -125,7 +127,7 @@ def dependence_structure_from_econometrics(
 
 
 def dependence_structure_from_graph_diagnostic(
-    diagnostic: Any,
+    diagnostic: object,
     *,
     regime: Literal["areal", "network_adjacent"] = "areal",
     source_method: str,
@@ -135,7 +137,7 @@ def dependence_structure_from_graph_diagnostic(
     payload = (
         diagnostic.model_dump(mode="python")
         if hasattr(diagnostic, "model_dump")
-        else dict(diagnostic)
+        else dict(cast("Mapping[str, object] | Iterable[tuple[str, object]]", diagnostic))
     )
     decision = str(payload.get("decision", "fallback_independent") or "fallback_independent")
     identifiable = bool(payload.get("identifiable", False))
@@ -223,7 +225,7 @@ def load_dependence_structure(
     return DependenceStructure.model_validate(payload)
 
 
-def _enum_or_string(value: Any, *, default: str) -> str:
+def _enum_or_string(value: object, *, default: str) -> str:
     if value is None:
         return default
     resolved = getattr(value, "value", value)

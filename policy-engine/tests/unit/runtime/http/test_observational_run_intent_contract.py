@@ -6,10 +6,12 @@ import pytest
 from pydantic import TypeAdapter, ValidationError
 
 from polisyos.core.artifacts.manifest import ArtifactRef
+from polisyos.core.contracts.bounded_liveness import BoundedLivenessResolution
 from polisyos.core.contracts.control import (
     _OBSERVATIONAL_INPUT_CONSUMED_REQUEST_FIELDS,
     WorkflowRunRequest,
 )
+from polisyos.core.contracts.owned_attempt_anchor import OwnedHTERequestContextV1
 from polisyos.core.contracts.runtime import (
     ContentAdmittedObservationalRunIntent,
     DirectMethodExecutionSelection,
@@ -445,6 +447,84 @@ def test_run_intent_preserves_r1_history_and_requires_r2_serial_parameter() -> N
         )
         with pytest.raises(ValidationError):
             ObservationalRunIntent.model_validate(invalid)
+
+
+def test_successor_run_intent_binds_typed_request_context_and_alpha() -> None:
+    """Require the same exact Core request context that the worker anchor reads."""
+    method_fqn = "causal.hte.double_ml@2.0.0"
+    target = "polisyos.foundry.methods.catalog.causal.protocols.HTEObservationalData"
+    context = OwnedHTERequestContextV1(
+        request_estimand_status="declared",
+        request_estimand="average_treatment_effect",
+        request_target_scope_status="declared",
+        request_target_scope="selected_evaluation_rows",
+        outcome_variable_status="declared",
+        outcome_variable_id="outcome",
+        treatment_variable_status="declared",
+        treatment_variable_id="treatment",
+        contrast_status="declared",
+        control_value=0.0,
+        treated_value=1.0,
+        request_alpha_status="declared",
+        requested_alpha=0.05,
+        requested_guarantee_status="not_established",
+        requested_guarantee=None,
+    )
+    policy = ObservationalInputResourcePolicy(
+        schema_version="polisyos.runtime.observational_input_resource_policy.v5",
+        revision="r5",
+        method_contract_target=target,
+        method_execution_wait_policy=BoundedLivenessResolution(
+            producer_key="runtime.observational_method_execution",
+            deadline_s=60.0,
+            retry_ceiling=0,
+            config_id="runtime-test",
+            config_version="1",
+            owner="runtime-test",
+            feature_flag="runtime-test",
+        ),
+        required_estimator_n_jobs=None,
+        method_fqn=method_fqn,
+        method_profile_id="econml.dml.point_only@2.0",
+        execution_scope="producer_scoped_joblib_parallelism_one",
+        max_jobs=1,
+    )
+    payload = _requested_intent(
+        method_fqn=method_fqn,
+        method_version="2.0.0",
+        resource_policy=policy,
+        resolved_params={"alpha": 0.05},
+    )
+    payload.update(
+        {
+            "schema_version": "polisyos.runtime.observational_run_intent.v2",
+            "owned_hte_request_context": context.model_dump(mode="json"),
+            "resource_policy_ref": _ref(
+                "runtime.observational_input_resource_policy", "f"
+            ).model_dump(mode="json"),
+            "contract_target_id": "foundry.causal.hte_observational_data.v1",
+            "contract_target_fqn": target,
+        }
+    )
+
+    admitted = ObservationalRunIntent.model_validate(payload)
+
+    assert admitted.owned_hte_request_context == context
+    assert admitted.selection_digest() != ""
+
+    mismatched_alpha = dict(payload, resolved_params={"alpha": 0.1})
+    with pytest.raises(
+        ValidationError,
+        match="observational_run_intent_hte_successor_context_invalid",
+    ):
+        ObservationalRunIntent.model_validate(mismatched_alpha)
+
+    misspelled_context = dict(context.model_dump(mode="json"))
+    misspelled_context["request_guarantee_status"] = "not_established"
+    with pytest.raises(ValidationError):
+        ObservationalRunIntent.model_validate(
+            dict(payload, owned_hte_request_context=misspelled_context)
+        )
 
 
 def test_observational_method_seed_is_pinned_by_runtime_not_request() -> None:

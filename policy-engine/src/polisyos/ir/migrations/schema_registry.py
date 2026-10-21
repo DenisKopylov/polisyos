@@ -51,8 +51,14 @@ def register_default_schema_rules() -> None:
         readable_versions=("1.0", "1.1"),
         additive_optional_fields=("source_graph", "source_graph_ref", "graph_projection"),
         notes=(
-            "The 1.2 reader accepts and preserves exact historical 1.0/1.1 payload versions without rewriting or upgrading their fit provenance.",
-            "Schema 1.2 fitted GCM/native_hybrid artifacts require a typed source-graph disposition; older strict readers do not declare compatibility with 1.2.",
+            (
+                "The 1.2 reader accepts and preserves exact historical 1.0/1.1 payload "
+                "versions without rewriting or upgrading their fit provenance."
+            ),
+            (
+                "Schema 1.2 fitted GCM/native_hybrid artifacts require a typed source-graph "
+                "disposition; older strict readers do not declare compatibility with 1.2."
+            ),
         ),
     )
     register_schema_version(
@@ -67,6 +73,20 @@ def register_default_schema_rules() -> None:
         compatibility=CompatibilityMode.FULL,
         notes=("HTE 1.0 has no declared schema successors yet.",),
     )
+    for hte_schema, label in (
+        ("hte_point_result", "Source-bound HTE point result"),
+        ("ate_inference_basis", "ATE native inference basis"),
+        ("hte_outcome", "Discriminated HTE outcome"),
+        ("hte_refusal_diagnostic", "HTE method refusal diagnostic"),
+    ):
+        register_schema_version(
+            hte_schema,
+            "1.0",
+            compatibility=CompatibilityMode.NONE,
+            notes=(
+                f"{label} 1.0 is a distinct profile-bound artifact; it does not migrate or reinterpret legacy HTE result 1.0.",
+            ),
+        )
     register_schema_version(
         "policy_recommendation",
         "1.0",

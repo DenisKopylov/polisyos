@@ -39,8 +39,14 @@ through the root facade; linker entry points are in
 | `polisyos.ir.ObservationRecord`, `ObservationPanel`                       | Use the base observation surface for record/panel payloads                   | [`observation/contracts.py`](./observation/contracts.py) |
 | `polisyos.ir.CausalReadinessBundle`, `CausalExecutionBundle`              | Use readiness/execution bundles for downstream Foundry/Scientist execution   | [`observation`](./observation/README.md)                 |
 | `polisyos.ir.CausalEffectReport`, `TransportabilityResult`, `HTEResult`   | Use the canonical analytics result models                                    | [`analytics`](./analytics/README.md)                     |
+| `polisyos.ir.HTEOutcome`, `HTEPointResultRef`, `HTEResultEvidenceRef`   | Read a selected-profile candidate HTE outcome and its point/native-inference evidence | [`analytics/hte.py`](./analytics/hte.py)           |
 | `polisyos.ir.TrinityBundle`                                               | Use the canonical Trinity container                                          | [`trinity/__init__.py`](./trinity/__init__.py)           |
 | `polisyos.ir.linker.link_trinity()`                                       | Link a Trinity payload to the registry surface before compilation/runtime    | [`linker/README.md`](./linker/README.md)                 |
+
+The HTE physical materialization-binding reference records selected input
+array positions, payload digests, and row order. It does not establish that a
+requested variable ID names an outcome or treatment array, nor does it
+establish units, query semantics, or population coverage.
 
 ## Internal Layout
 
@@ -190,3 +196,23 @@ semantics are duplicated.
 ## R2075 exact-consumer compatibility routes
 
 The `polisyos.ir` root lazy facade is the stable compatibility route for the cross-owner consumer symbols previously imported from deep analytics, registry, kernel, governance, and artifact modules. Each added export is an exact lazy alias to its defining owner binding; it does not define a second model or codec. The distinct `MechanismDesignFamily` and `ModelQueryDataViewRequest` aliases preserve their separate contracts from the existing `MechanismFamily` and `DataViewRequest` root bindings. `get_json_artifact_with_bytes` preserves selected-profile validation and the verified persisted bytes needed for content identity.
+
+
+## Successor HTE outcome chain
+
+The stable facade exposes the strict HTE successor models, typed refs, and CAS
+readers while preserving defining-object identity. `HTEPointResult`,
+`ATEInferenceBasis`, `HTERefusalDiagnostic`, and `HTEOutcome` are profile-selected
+and versioned. An admitted interval uses the existing `ir.hte_result@1.0` artifact
+as its sole CATE-vector and interval carrier, paired with `ATEInferenceBasis`.
+A valid point whose native interval cannot satisfy the HTEResult v1 contract is
+persisted as a point result with a basis that retains the rejected native bounds.
+The discriminated outcome carries explicit request and computed scope/guarantee
+fields and remains candidate-only.
+
+An optional `SearchUncertaintyTaskBindingRef` is included only when the owning
+Runtime request already contains that selected profiled ref. The IR producer
+requires the same ref in each emitted model and its CAS input lineage; absent
+means no Search task binding. Public consumers can inspect scalar summaries
+without reading the full CATE vector, then use the strict artifact loaders for
+content that their read path is allowed to resolve.

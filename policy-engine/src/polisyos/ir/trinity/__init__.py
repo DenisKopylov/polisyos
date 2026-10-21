@@ -8,7 +8,7 @@ loading, validation, and migration-safe persistence.
 
 from __future__ import annotations
 
-from typing import TYPE_CHECKING, Any, ClassVar, Literal
+from typing import TYPE_CHECKING, ClassVar, Literal
 
 from pydantic import Field
 
@@ -50,7 +50,7 @@ __all__ = [
 ]
 
 
-def __getattr__(name: str) -> Any:
+def __getattr__(name: str) -> object:
     if name == "load_trinity_bundle_artifact":
         from polisyos.ir.trinity.loaders import load_trinity_bundle_artifact
 

@@ -16,7 +16,7 @@ import re
 from pathlib import Path
 from typing import TYPE_CHECKING, Any, Literal
 
-from pydantic import BaseModel, ConfigDict, Field, field_validator, model_validator
+from pydantic import BaseModel, ConfigDict, Field, ValidationInfo, field_validator, model_validator
 
 from polisyos.ir.artifacts import ArtifactStore, InputRef, get_json_artifact, put_json_artifact
 from polisyos.ir.model_layer.canon import CanonSpec
@@ -163,7 +163,7 @@ class PhaseStageDeclaration(BaseModel):
         mode="before",
     )
     @classmethod
-    def _validate_non_empty_string(cls, value: object, info: Any) -> str:
+    def _validate_non_empty_string(cls, value: object, info: ValidationInfo) -> str:
         return _clean_stage_token(value, field_name=str(info.field_name))
 
     @field_validator(
@@ -173,17 +173,17 @@ class PhaseStageDeclaration(BaseModel):
         mode="before",
     )
     @classmethod
-    def _validate_non_empty_items(cls, value: object, info: Any) -> tuple[str, ...]:
+    def _validate_non_empty_items(cls, value: object, info: ValidationInfo) -> tuple[str, ...]:
         return _clean_non_empty_list(value, field_name=str(info.field_name))
 
     @field_validator("evidence_docs", "evidence_contracts", mode="before")
     @classmethod
-    def _validate_optional_items(cls, value: object, info: Any) -> tuple[str, ...]:
+    def _validate_optional_items(cls, value: object, info: ValidationInfo) -> tuple[str, ...]:
         return _clean_optional_non_empty_list(value, field_name=str(info.field_name))
 
     @field_validator("boundary_reason", "downstream_promotion_rule", "kill_rule", mode="before")
     @classmethod
-    def _validate_optional_string_fields(cls, value: object, info: Any) -> str | None:
+    def _validate_optional_string_fields(cls, value: object, info: ValidationInfo) -> str | None:
         return _clean_optional_string(value, field_name=str(info.field_name))
 
     @model_validator(mode="after")
@@ -212,7 +212,7 @@ class PhaseClosureManifest(BaseModel):
 
     @field_validator("phase_id", "execution_intent", "phase_gate", mode="before")
     @classmethod
-    def _validate_manifest_strings(cls, value: object, info: Any) -> str:
+    def _validate_manifest_strings(cls, value: object, info: ValidationInfo) -> str:
         return _clean_stage_token(value, field_name=str(info.field_name))
 
     @field_validator("stages", mode="before")
@@ -271,7 +271,7 @@ class FrontierSketch(BaseModel):
         mode="before",
     )
     @classmethod
-    def _validate_strings(cls, value: object, info: Any) -> str:
+    def _validate_strings(cls, value: object, info: ValidationInfo) -> str:
         return _clean_stage_token(value, field_name=str(info.field_name))
 
     @field_validator(
@@ -281,7 +281,7 @@ class FrontierSketch(BaseModel):
         mode="before",
     )
     @classmethod
-    def _validate_tuple_payloads(cls, value: object, info: Any) -> tuple[str, ...]:
+    def _validate_tuple_payloads(cls, value: object, info: ValidationInfo) -> tuple[str, ...]:
         return _clean_non_empty_list(value, field_name=str(info.field_name))
 
 
@@ -539,7 +539,9 @@ PHASE1_CLOSURE_MANIFEST = PhaseClosureManifest.model_validate(
                     "proof attachment for proximal pipelines",
                     "bounds fallback integration on infeasible or weak-completeness paths",
                 ],
-                canonical_contract_surface="BridgePlausibilityReportRef + BoundsBundle metadata fallback",
+                canonical_contract_surface=(
+                    "BridgePlausibilityReportRef + BoundsBundle metadata fallback"
+                ),
                 scope_statement=(
                     "Phase 1 closes typed bridge-plausibility diagnostics plus the canonical "
                     "bounds/negative fallback ladder when bridge existence or completeness is not "
@@ -921,12 +923,14 @@ PHASE2_CLOSURE_MANIFEST = PhaseClosureManifest.model_validate(
                 ),
                 closure_state="narrow_accepted",
                 boundary_reason=(
-                    "The current topology lane is theorem-backed for the supported pairwise/cluster "
-                    "slice, with explicit degradation from richer full-complex structures."
+                    "The current topology lane is theorem-backed for the supported "
+                    "pairwise/cluster slice, with explicit degradation from richer "
+                    "full-complex structures."
                 ),
                 downstream_promotion_rule=(
-                    "Promote interference certificates only when the topology scope and degradation "
-                    "status are explicitly persisted and accepted by the downstream policy path."
+                    "Promote interference certificates only when the topology scope and "
+                    "degradation status are explicitly persisted and accepted by the "
+                    "downstream policy path."
                 ),
                 kill_rule=(
                     "Do not claim full simplicial-complex identification when the runtime has "
@@ -961,7 +965,9 @@ PHASE2_CLOSURE_MANIFEST = PhaseClosureManifest.model_validate(
             ),
             _stage_declaration_data(
                 stage_id="13.2",
-                title="Identification and estimation for stochastic and modified treatment policies",
+                title=(
+                    "Identification and estimation for stochastic and modified treatment policies"
+                ),
                 benchmark_proxy=[
                     "single-target stochastic policy positive",
                     "out-of-scope policy sentinel",

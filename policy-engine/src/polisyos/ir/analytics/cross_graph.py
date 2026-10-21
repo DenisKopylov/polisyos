@@ -5,7 +5,6 @@ from __future__ import annotations
 import hashlib
 import json
 from enum import Enum
-from pathlib import Path
 from typing import TYPE_CHECKING, Any, Literal
 
 from pydantic import BaseModel, ConfigDict, Field, model_validator
@@ -22,6 +21,7 @@ from polisyos.ir.registry.refs import (
 
 if TYPE_CHECKING:
     from collections.abc import Sequence
+    from pathlib import Path
 
     from polisyos.ir.analytics.context import ContextProfile
 else:
@@ -298,7 +298,7 @@ class SCMFragment(BaseModel):
 
     @model_validator(mode="before")
     @classmethod
-    def _backfill_cycle_contract_defaults(cls, payload: Any) -> Any:
+    def _backfill_cycle_contract_defaults(cls, payload: object) -> object:
         if not isinstance(payload, dict):
             return payload
 
@@ -709,7 +709,7 @@ class CompositionCertificate(BaseModel):
 
     @model_validator(mode="before")
     @classmethod
-    def _backfill_status_fields(cls, payload: Any) -> Any:
+    def _backfill_status_fields(cls, payload: object) -> object:
         if not isinstance(payload, dict):
             return payload
 

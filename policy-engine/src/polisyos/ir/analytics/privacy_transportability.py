@@ -209,7 +209,9 @@ class DPUtilityManifest(BaseModel):
         for bound in self.private_factor_bounds:
             if bound.domain_id not in known_domains:
                 raise ValueError(
-                    f"private factor bound domain_id={bound.domain_id!r} is not in source/target domains"
+                    "private factor bound domain_id="
+                    f"{bound.domain_id!r}"
+                    " is not in source/target domains"
                 )
         if len(set(self.privacy_mismatch_variables)) != len(self.privacy_mismatch_variables):
             raise ValueError("privacy_mismatch_variables must be unique")
@@ -257,7 +259,9 @@ class PrivacyAwareTransportCertificate(BaseModel):
         for bound in self.private_factor_bounds:
             if bound.domain_id not in known_domains:
                 raise ValueError(
-                    f"private factor bound domain_id={bound.domain_id!r} is not in source/target domains"
+                    "private factor bound domain_id="
+                    f"{bound.domain_id!r}"
+                    " is not in source/target domains"
                 )
         if self.privacy_observed_mode is not PrivacyObservedMode.BLOCKED and not self.dp_scope:
             raise ValueError("non-blocked privacy-aware transport certificates require dp_scope")
@@ -327,12 +331,20 @@ class TransportPrivacyContext(BaseModel):
             )
         if self.utility_manifest is not None and self.privacy_transport_certificate is not None:
             raise ValueError(
-                "TransportPrivacyContext accepts either utility_manifest or privacy_transport_certificate, not both"
+                "TransportPrivacyContext accepts either utility_manifest or "
+                "privacy_transport_certificate, not both"
             )
         return self
 
 
-def coerce_dp_utility_manifest(payload: Any | None) -> DPUtilityManifest | None:
+def _materialize_json_payload(payload: object) -> object:
+    method_name = "model_dump"
+    if hasattr(payload, method_name):
+        return getattr(payload, method_name)(mode="json")
+    return payload
+
+
+def coerce_dp_utility_manifest(payload: object | None) -> DPUtilityManifest | None:
     """Normalize DP utility manifests from dicts or nested metadata payloads."""
 
     if payload is None:
@@ -340,7 +352,7 @@ def coerce_dp_utility_manifest(payload: Any | None) -> DPUtilityManifest | None:
     if isinstance(payload, DPUtilityManifest):
         return payload
 
-    candidate = payload.model_dump(mode="json") if hasattr(payload, "model_dump") else payload
+    candidate = _materialize_json_payload(payload)
     if not isinstance(candidate, dict):
         return None
 
@@ -359,7 +371,7 @@ def coerce_dp_utility_manifest(payload: Any | None) -> DPUtilityManifest | None:
 
 
 def coerce_privacy_aware_transport_certificate(
-    payload: Any | None,
+    payload: object | None,
 ) -> PrivacyAwareTransportCertificate | None:
     """Normalize privacy-aware transport payloads from nested dicts or instances."""
 
@@ -368,7 +380,7 @@ def coerce_privacy_aware_transport_certificate(
     if isinstance(payload, PrivacyAwareTransportCertificate):
         return payload
 
-    candidate = payload.model_dump(mode="json") if hasattr(payload, "model_dump") else payload
+    candidate = _materialize_json_payload(payload)
     if not isinstance(candidate, dict):
         return None
 
@@ -394,7 +406,7 @@ def coerce_privacy_aware_transport_certificate(
 
 
 def coerce_transport_privacy_context(
-    payload: Any | None,
+    payload: object | None,
 ) -> TransportPrivacyContext | None:
     """Normalize transport privacy context payloads from dicts or nested payloads."""
 
@@ -403,7 +415,7 @@ def coerce_transport_privacy_context(
     if isinstance(payload, TransportPrivacyContext):
         return payload
 
-    candidate = payload.model_dump(mode="json") if hasattr(payload, "model_dump") else payload
+    candidate = _materialize_json_payload(payload)
     if not isinstance(candidate, Mapping):
         manifest = coerce_dp_utility_manifest(payload)
         if manifest is not None:

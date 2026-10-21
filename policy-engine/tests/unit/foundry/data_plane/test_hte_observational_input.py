@@ -574,6 +574,7 @@ def test_hte_refusal_preserves_unknown_usage_from_attempted_core_open(
     assert refusal.observed_manifest_verification_bytes is None
     assert refusal.observed_payload_bytes is None
     assert refusal.observed_source_bytes is None
+    assert refusal.source_usage_complete is False
     assert refusal.payload_integrity_verified is False
     assert refusal.original_exception_type == "TypeError"
     assert isinstance(refusal.__cause__, CoreJsonReadBoundsRefusalError)
@@ -609,10 +610,31 @@ def test_hte_semantic_refusal_after_verified_full_read_keeps_usage_without_outpu
         + len(source_payload)
     )
     assert refusal.payload_integrity_verified is True
+    assert refusal.source_usage_complete is True
     assert refusal.failure_stage == "hte_selected_source_validation"
     assert refusal.cleanup_failure_stage is None
     assert refusal.cleanup_exception_type is None
     assert _artifact_id_strings(store) == ids_before
+
+
+@pytest.mark.parametrize(
+    ("source_usage_complete", "expected_source_bytes"),
+    [(True, 23), (False, None)],
+)
+def test_hte_refusal_retains_source_usage_completion_without_inference(
+    source_usage_complete: bool,
+    expected_source_bytes: int | None,
+) -> None:
+    refusal = HTEInputPreparationRefusal(
+        "injected_source_usage_status",
+        observed_manifest_selection_bytes=5,
+        observed_manifest_verification_bytes=7,
+        observed_payload_bytes=11,
+        source_usage_complete=source_usage_complete,
+    )
+
+    assert refusal.source_usage_complete is source_usage_complete
+    assert refusal.observed_source_bytes == expected_source_bytes
 
 
 @pytest.mark.parametrize(

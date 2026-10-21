@@ -8,12 +8,25 @@ Covers partial interference (Hudgens & Halloran 2008), general network AIPW
 from __future__ import annotations
 
 import math
+from collections.abc import Buffer
 from enum import Enum
-from typing import Any, Literal
+from typing import Any, Literal, SupportsFloat, SupportsIndex, cast
 
-from pydantic import BaseModel, ConfigDict, Field, field_validator, model_validator
+from pydantic import (
+    BaseModel,
+    ConfigDict,
+    Field,
+    ValidationInfo,
+    field_validator,
+    model_validator,
+)
 
-from polisyos.ir.artifacts import ArtifactStore, InputRef, get_json_artifact, put_json_artifact
+from polisyos.ir.artifacts import (
+    ArtifactStore,
+    InputRef,
+    get_json_artifact,
+    put_json_artifact,
+)
 from polisyos.ir.model_layer.canon import CanonSpec
 from polisyos.ir.registry.refs import (
     ArtifactRefModel,
@@ -33,7 +46,7 @@ _SPATIAL_HODGE_DIAGNOSTICS_SCHEMA_NAME = "ir.spatial_hodge_diagnostics"
 _SPATIAL_HODGE_DIAGNOSTICS_SCHEMA_VERSION = "1.0"
 
 
-def _ensure_non_empty_string(value: Any, *, field_name: str) -> str:
+def _ensure_non_empty_string(value: object, *, field_name: str) -> str:
     candidate = str(value).strip()
     if not candidate:
         raise ValueError(f"{field_name} must be non-empty")
@@ -48,13 +61,13 @@ def _validate_artifact_ref(ref: ArtifactRefModel, *, field_name: str) -> Artifac
     return ref
 
 
-def _coerce_string_tuple(value: Any, *, field_name: str) -> tuple[str, ...]:
+def _coerce_string_tuple(value: object, *, field_name: str) -> tuple[str, ...]:
     if not isinstance(value, (list, tuple)):
         raise ValueError(f"{field_name} must be a list/tuple of non-empty strings")
     return tuple(_ensure_non_empty_string(item, field_name=field_name) for item in value)
 
 
-def _coerce_nested_string_tuples(value: Any, *, field_name: str) -> tuple[tuple[str, ...], ...]:
+def _coerce_nested_string_tuples(value: object, *, field_name: str) -> tuple[tuple[str, ...], ...]:
     if value in (None, ()):
         return ()
     if not isinstance(value, (list, tuple)):
@@ -66,7 +79,7 @@ def _coerce_nested_string_tuples(value: Any, *, field_name: str) -> tuple[tuple[
 
 
 def _coerce_estimability_checks(
-    value: Any,
+    value: object,
     *,
     field_name: str,
 ) -> dict[str, Literal["pass", "fail", "not_applicable"]]:
@@ -84,6 +97,14 @@ def _coerce_estimability_checks(
     return normalized
 
 
+type _FloatConvertible = str | Buffer | SupportsFloat | SupportsIndex
+
+
+def _coerce_float(value: object) -> float:
+    """Delegate float input acceptance and conversion errors to Python."""
+    return float(cast("_FloatConvertible", value))
+
+
 class InteractionComplex(BaseModel):
     """Topology contract reserved for future hypergraph interference reasoning."""
 
@@ -98,7 +119,7 @@ class InteractionComplex(BaseModel):
 
     @field_validator("nodes", mode="before")
     @classmethod
-    def _validate_nodes(cls, value: Any) -> tuple[str, ...]:
+    def _validate_nodes(cls, value: object) -> tuple[str, ...]:
         nodes = _coerce_string_tuple(value, field_name="nodes")
         if not nodes:
             raise ValueError("nodes must be non-empty")
@@ -108,7 +129,9 @@ class InteractionComplex(BaseModel):
 
     @field_validator("hyperedges", "simplices", mode="before")
     @classmethod
-    def _validate_node_groups(cls, value: Any, info: Any) -> tuple[tuple[str, ...], ...]:
+    def _validate_node_groups(
+        cls, value: object, info: ValidationInfo
+    ) -> tuple[tuple[str, ...], ...]:
         groups = _coerce_nested_string_tuples(value, field_name=str(info.field_name))
         normalized: list[tuple[str, ...]] = []
         seen: set[tuple[str, ...]] = set()
@@ -161,12 +184,12 @@ class InterferenceCertificate(BaseModel):
 
     @field_validator("supported_query_family", mode="before")
     @classmethod
-    def _validate_supported_query_family(cls, value: Any) -> str:
+    def _validate_supported_query_family(cls, value: object) -> str:
         return _ensure_non_empty_string(value, field_name="supported_query_family")
 
     @field_validator("exposure_assumptions", mode="before")
     @classmethod
-    def _validate_exposure_assumptions(cls, value: Any) -> tuple[str, ...]:
+    def _validate_exposure_assumptions(cls, value: object) -> tuple[str, ...]:
         assumptions = _coerce_string_tuple(
             () if value is None else value,
             field_name="exposure_assumptions",
@@ -182,7 +205,7 @@ class InterferenceCertificate(BaseModel):
 
     @field_validator("fallback_reason_codes", mode="before")
     @classmethod
-    def _validate_fallback_reason_codes(cls, value: Any) -> tuple[str, ...]:
+    def _validate_fallback_reason_codes(cls, value: object) -> tuple[str, ...]:
         reasons = _coerce_string_tuple(
             () if value is None else value,
             field_name="fallback_reason_codes",
@@ -200,16 +223,16 @@ class InterferenceCertificate(BaseModel):
     @classmethod
     def _validate_estimability_checks(
         cls,
-        value: Any,
+        value: object,
     ) -> dict[str, Literal["pass", "fail", "not_applicable"]]:
         return _coerce_estimability_checks(value, field_name="estimability_checks")
 
     @field_validator("reduction_error_bound", mode="before")
     @classmethod
-    def _validate_reduction_error_bound(cls, value: Any) -> float | None:
+    def _validate_reduction_error_bound(cls, value: object) -> float | None:
         if value is None:
             return None
-        casted = float(value)
+        casted = _coerce_float(value)
         if not math.isfinite(casted):
             raise ValueError("reduction_error_bound must be finite when provided")
         return casted
@@ -548,19 +571,19 @@ class MAUPPartitionCheck(BaseModel):
 
     @field_validator("partition_id", mode="before")
     @classmethod
-    def _validate_partition_id(cls, value: Any) -> str:
+    def _validate_partition_id(cls, value: object) -> str:
         return _ensure_non_empty_string(value, field_name="partition_id")
 
     @field_validator("scale_label", "zoning_label", mode="before")
     @classmethod
-    def _validate_optional_labels(cls, value: Any, info: Any) -> str | None:
+    def _validate_optional_labels(cls, value: object, info: ValidationInfo) -> str | None:
         if value is None:
             return None
         return _ensure_non_empty_string(value, field_name=str(info.field_name))
 
     @field_validator("blocker_codes", "warnings", mode="before")
     @classmethod
-    def _validate_string_tuples(cls, value: Any, info: Any) -> tuple[str, ...]:
+    def _validate_string_tuples(cls, value: object, info: ValidationInfo) -> tuple[str, ...]:
         return _coerce_string_tuple(
             () if value in (None, ()) else value,
             field_name=str(info.field_name),
@@ -601,7 +624,7 @@ class MAUPInvarianceCertificate(BaseModel):
     @classmethod
     def _validate_partition_checks(
         cls,
-        value: Any,
+        value: object,
     ) -> tuple[MAUPPartitionCheck, ...]:
         if value in (None, ()):
             return ()
@@ -616,7 +639,7 @@ class MAUPInvarianceCertificate(BaseModel):
 
     @field_validator("blocker_codes", "warnings", mode="before")
     @classmethod
-    def _validate_string_tuples(cls, value: Any, info: Any) -> tuple[str, ...]:
+    def _validate_string_tuples(cls, value: object, info: ValidationInfo) -> tuple[str, ...]:
         return _coerce_string_tuple(
             () if value in (None, ()) else value,
             field_name=str(info.field_name),
@@ -626,8 +649,8 @@ class MAUPInvarianceCertificate(BaseModel):
     @classmethod
     def _validate_optional_refs(
         cls,
-        value: Any,
-        info: Any,
+        value: object,
+        info: ValidationInfo,
     ) -> ArtifactRefModel | None:
         if value is None:
             return None
@@ -684,12 +707,12 @@ class SpatialHodgeScaleProfile(BaseModel):
         mode="before",
     )
     @classmethod
-    def _validate_required_strings(cls, value: Any, info: Any) -> str:
+    def _validate_required_strings(cls, value: object, info: ValidationInfo) -> str:
         return _ensure_non_empty_string(value, field_name=str(info.field_name))
 
     @field_validator("warnings", mode="before")
     @classmethod
-    def _validate_warnings(cls, value: Any) -> tuple[str, ...]:
+    def _validate_warnings(cls, value: object) -> tuple[str, ...]:
         return _coerce_string_tuple(() if value in (None, ()) else value, field_name="warnings")
 
     @model_validator(mode="after")
@@ -743,12 +766,12 @@ class SpatialHodgeDiagnostics(BaseModel):
         mode="before",
     )
     @classmethod
-    def _validate_required_strings(cls, value: Any, info: Any) -> str:
+    def _validate_required_strings(cls, value: object, info: ValidationInfo) -> str:
         return _ensure_non_empty_string(value, field_name=str(info.field_name))
 
     @field_validator("candidate_partition_ids", "blocker_codes", "warnings", mode="before")
     @classmethod
-    def _validate_string_tuples(cls, value: Any, info: Any) -> tuple[str, ...]:
+    def _validate_string_tuples(cls, value: object, info: ValidationInfo) -> tuple[str, ...]:
         return _coerce_string_tuple(
             () if value in (None, ()) else value,
             field_name=str(info.field_name),
@@ -756,7 +779,7 @@ class SpatialHodgeDiagnostics(BaseModel):
 
     @field_validator("profiles", mode="before")
     @classmethod
-    def _validate_profiles(cls, value: Any) -> tuple[SpatialHodgeScaleProfile, ...]:
+    def _validate_profiles(cls, value: object) -> tuple[SpatialHodgeScaleProfile, ...]:
         if value in (None, ()):
             return ()
         if not isinstance(value, (list, tuple)):

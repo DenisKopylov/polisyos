@@ -52,18 +52,18 @@ def stable_world_id_from_canon(*, prefix: str, payload: dict[str, Any]) -> str:
     return f"{prefix}.sha256_{digest}"
 
 
-def _enum_value(value: Any) -> Any:
+def _enum_value(value: object) -> object:
     if isinstance(value, Enum):
         return value.value
     return value
 
 
 def _normalize_payload_value(
-    value: Any,
+    value: object,
     *,
     max_depth: int = _MAX_WORLD_ID_PAYLOAD_DEPTH,
     _depth: int = 0,
-) -> Any:
+) -> object:
     if _depth > max_depth:
         raise CanonViolation(f"World ID payload depth exceeds max_depth={max_depth}")
     value = _enum_value(value)

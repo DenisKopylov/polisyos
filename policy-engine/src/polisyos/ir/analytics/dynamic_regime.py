@@ -17,8 +17,9 @@ import math
 from enum import Enum
 from typing import Any, Literal
 
-from pydantic import BaseModel, ConfigDict, Field, field_validator, model_validator
+from pydantic import BaseModel, ConfigDict, Field, ValidationInfo, field_validator, model_validator
 
+from polisyos.ir._internal.validation import coerce_float
 from polisyos.ir.analytics.rough_path_semantics import (
     PathLiftMethod,
     RoughPathIdentificationStatus,
@@ -58,21 +59,21 @@ def _validate_non_empty_ref(ref: ArtifactRefModel, *, field_name: str) -> Artifa
     return ref
 
 
-def _coerce_finite_float(value: Any, *, field_name: str) -> float:
-    casted = float(value)
+def _coerce_finite_float(value: object, *, field_name: str) -> float:
+    casted = coerce_float(value)
     if not math.isfinite(casted):
         raise ValueError(f"{field_name} must be finite")
     return casted
 
 
-def _coerce_python_bool(value: Any, *, field_name: str) -> bool:
+def _coerce_python_bool(value: object, *, field_name: str) -> bool:
     try:
         return bool(value)
     except Exception as exc:  # pragma: no cover - defensive normalization
         raise ValueError(f"{field_name} must be coercible to bool") from exc
 
 
-def _coerce_string_tuple(value: Any, *, field_name: str) -> tuple[str, ...]:
+def _coerce_string_tuple(value: object, *, field_name: str) -> tuple[str, ...]:
     if value in (None, ""):
         return ()
     if not isinstance(value, (tuple, list, set)):
@@ -83,7 +84,7 @@ def _coerce_string_tuple(value: Any, *, field_name: str) -> tuple[str, ...]:
     return normalized
 
 
-def _coerce_float_tuple(value: Any, *, field_name: str) -> tuple[float, ...]:
+def _coerce_float_tuple(value: object, *, field_name: str) -> tuple[float, ...]:
     if value in (None, ""):
         return ()
     if not isinstance(value, (tuple, list)):
@@ -212,12 +213,12 @@ class CausalTranslationScope(BaseModel):
 
     @field_validator("query_functionals_covered", "variables_covered", mode="before")
     @classmethod
-    def _normalize_string_fields(cls, value: Any, info: Any) -> tuple[str, ...]:
+    def _normalize_string_fields(cls, value: object, info: ValidationInfo) -> tuple[str, ...]:
         return _coerce_string_tuple(value, field_name=str(info.field_name))
 
     @field_validator("time_grid_covered", mode="before")
     @classmethod
-    def _normalize_time_grid(cls, value: Any) -> tuple[float, ...]:
+    def _normalize_time_grid(cls, value: object) -> tuple[float, ...]:
         grid = _coerce_float_tuple(value, field_name="time_grid_covered")
         if len(grid) < 2:
             raise ValueError("time_grid_covered must contain at least two time points")
@@ -234,7 +235,7 @@ class CausalTranslationValueQuantization(BaseModel):
 
     @field_validator("bin_edges", mode="before")
     @classmethod
-    def _normalize_bin_edges(cls, value: Any) -> tuple[float, ...] | None:
+    def _normalize_bin_edges(cls, value: object) -> tuple[float, ...] | None:
         if value in (None, ""):
             return None
         edges = _coerce_float_tuple(value, field_name="bin_edges")
@@ -262,7 +263,7 @@ class CausalTranslationTauMapping(BaseModel):
 
     @field_validator("sampling_times", mode="before")
     @classmethod
-    def _normalize_sampling_times(cls, value: Any) -> tuple[float, ...]:
+    def _normalize_sampling_times(cls, value: object) -> tuple[float, ...]:
         times = _coerce_float_tuple(value, field_name="sampling_times")
         if len(times) < 2:
             raise ValueError("sampling_times must contain at least two points")
@@ -282,7 +283,7 @@ class CausalTranslationOmegaMapping(BaseModel):
 
     @field_validator("knot_times", "knot_values", mode="before")
     @classmethod
-    def _normalize_knots(cls, value: Any, info: Any) -> tuple[float, ...]:
+    def _normalize_knots(cls, value: object, info: ValidationInfo) -> tuple[float, ...]:
         knots = _coerce_float_tuple(value, field_name=str(info.field_name))
         if len(knots) < 2:
             raise ValueError(f"{info.field_name} must contain at least two points")
@@ -319,7 +320,7 @@ class CausalTranslationSufficientConditions(BaseModel):
         mode="before",
     )
     @classmethod
-    def _normalize_bool_fields(cls, value: Any, info: Any) -> bool:
+    def _normalize_bool_fields(cls, value: object, info: ValidationInfo) -> bool:
         return _coerce_python_bool(value, field_name=str(info.field_name))
 
 
@@ -342,7 +343,7 @@ class CausalTranslationCertificate(BaseModel):
 
     @field_validator("assumptions_introduced", "failure_reasons", mode="before")
     @classmethod
-    def _normalize_string_lists(cls, value: Any, info: Any) -> tuple[str, ...]:
+    def _normalize_string_lists(cls, value: object, info: ValidationInfo) -> tuple[str, ...]:
         return _coerce_string_tuple(value, field_name=str(info.field_name))
 
     @property
@@ -394,7 +395,7 @@ class TemporalInterventionTrajectory(BaseModel):
 
     @field_validator("time_points", "values", mode="before")
     @classmethod
-    def _coerce_float_tuple(cls, value: Any, info: Any) -> tuple[float, ...]:
+    def _coerce_float_tuple(cls, value: object, info: ValidationInfo) -> tuple[float, ...]:
         if not isinstance(value, (tuple, list)):
             raise ValueError(f"{info.field_name} must be a tuple/list of finite floats")
         result = tuple(
@@ -453,7 +454,7 @@ class TemporalIdentificationCertificate(BaseModel):
 
     @field_validator("identified_functionals", "assumptions", mode="before")
     @classmethod
-    def _coerce_string_collections(cls, value: Any, info: Any) -> Any:
+    def _coerce_string_collections(cls, value: object, info: ValidationInfo) -> tuple[object, ...]:
         if info.field_name == "identified_functionals":
             if not isinstance(value, (tuple, list)):
                 raise ValueError(
@@ -478,7 +479,8 @@ class TemporalIdentificationCertificate(BaseModel):
                 TemporalLawObject.SEMIMARTINGALE_CHARACTERISTICS,
             }:
                 raise ValueError(
-                    "nsde_fixed_observed_channel_v1 requires generator or semimartingale_characteristics"
+                    "nsde_fixed_observed_channel_v1 requires generator or "
+                    "semimartingale_characteristics"
                 )
             if self.canonical_control_required:
                 raise ValueError(
@@ -499,11 +501,13 @@ class TemporalIdentificationCertificate(BaseModel):
                 is not TemporalInterventionSemantics.INTENSITY_REPLACEMENT
             ):
                 raise ValueError(
-                    "local_independence_weighting_v1 requires intervention_semantics=intensity_replacement"
+                    "local_independence_weighting_v1 requires "
+                    "intervention_semantics=intensity_replacement"
                 )
             if self.observability_regime is not TemporalObservabilityRegime.OBSERVED_FILTRATION:
                 raise ValueError(
-                    "local_independence_weighting_v1 requires observability_regime=observed_filtration"
+                    "local_independence_weighting_v1 requires "
+                    "observability_regime=observed_filtration"
                 )
             if self.law_object is not TemporalLawObject.INTENSITY_COMPENSATOR:
                 raise ValueError(
@@ -634,21 +638,26 @@ def _rough_path_scope_errors(
         or certificate.sampling_ignorability_ref is None
     ):
         blockers.append("research_gated_sampling_ignorability_unchecked")
-    if attachment.semantics_scope is TemporalPathSemanticsScope.LATENT_PATH:
-        if not attachment.lift_faithfulness_checked or certificate.lift_faithfulness_ref is None:
-            blockers.append("research_gated_lift_faithfulness_unchecked")
-    if preferred_backend == TemporalPathRepresentation.TRUNCATED_SIGNATURE.value:
-        if attachment.lift_method is not PathLiftMethod.LOGSIGNATURE:
-            blockers.append("unsupported_path_semantics")
-    if preferred_backend == TemporalPathRepresentation.CADLAG_ROUGH_PATH.value:
-        if attachment.topology is not RoughPathTopology.SKOROKHOD:
-            blockers.append("unsupported_path_semantics")
+    if attachment.semantics_scope is TemporalPathSemanticsScope.LATENT_PATH and (
+        not attachment.lift_faithfulness_checked or certificate.lift_faithfulness_ref is None
+    ):
+        blockers.append("research_gated_lift_faithfulness_unchecked")
+    if (
+        preferred_backend == TemporalPathRepresentation.TRUNCATED_SIGNATURE.value
+        and attachment.lift_method is not PathLiftMethod.LOGSIGNATURE
+    ):
+        blockers.append("unsupported_path_semantics")
+    if (
+        preferred_backend == TemporalPathRepresentation.CADLAG_ROUGH_PATH.value
+        and attachment.topology is not RoughPathTopology.SKOROKHOD
+    ):
+        blockers.append("unsupported_path_semantics")
     if certificate.status is RoughPathIdentificationStatus.BLOCKED:
         blockers.append("blocked_rough_path_identification")
     return tuple(blockers)
 
 
-def _coerce_temporal_target_functional(value: Any) -> TemporalTargetFunctional | None:
+def _coerce_temporal_target_functional(value: object) -> TemporalTargetFunctional | None:
     if isinstance(value, TemporalTargetFunctional):
         return value
     try:
@@ -657,7 +666,7 @@ def _coerce_temporal_target_functional(value: Any) -> TemporalTargetFunctional |
         return None
 
 
-def _coerce_temporal_query_mode(value: Any) -> TemporalQueryMode | None:
+def _coerce_temporal_query_mode(value: object) -> TemporalQueryMode | None:
     if isinstance(value, TemporalQueryMode):
         return value
     try:
@@ -666,7 +675,7 @@ def _coerce_temporal_query_mode(value: Any) -> TemporalQueryMode | None:
         return None
 
 
-def _coerce_sampling_scheme(value: Any) -> TemporalSamplingScheme | None:
+def _coerce_sampling_scheme(value: object) -> TemporalSamplingScheme | None:
     if isinstance(value, TemporalSamplingScheme):
         return value
     try:
@@ -675,7 +684,7 @@ def _coerce_sampling_scheme(value: Any) -> TemporalSamplingScheme | None:
         return None
 
 
-def _coerce_interpolation_policy(value: Any) -> InterventionInterpolationPolicy | None:
+def _coerce_interpolation_policy(value: object) -> InterventionInterpolationPolicy | None:
     if isinstance(value, InterventionInterpolationPolicy):
         return value
     try:
@@ -684,7 +693,7 @@ def _coerce_interpolation_policy(value: Any) -> InterventionInterpolationPolicy 
         return None
 
 
-def _coerce_intervention_semantics(value: Any) -> TemporalInterventionSemantics | None:
+def _coerce_intervention_semantics(value: object) -> TemporalInterventionSemantics | None:
     if isinstance(value, TemporalInterventionSemantics):
         return value
     try:
@@ -693,7 +702,7 @@ def _coerce_intervention_semantics(value: Any) -> TemporalInterventionSemantics 
         return None
 
 
-def _coerce_observability_regime(value: Any) -> TemporalObservabilityRegime | None:
+def _coerce_observability_regime(value: object) -> TemporalObservabilityRegime | None:
     if isinstance(value, TemporalObservabilityRegime):
         return value
     try:
@@ -702,7 +711,7 @@ def _coerce_observability_regime(value: Any) -> TemporalObservabilityRegime | No
         return None
 
 
-def _coerce_law_object(value: Any) -> TemporalLawObject | None:
+def _coerce_law_object(value: object) -> TemporalLawObject | None:
     if isinstance(value, TemporalLawObject):
         return value
     try:
@@ -711,7 +720,7 @@ def _coerce_law_object(value: Any) -> TemporalLawObject | None:
         return None
 
 
-def _coerce_theorem_family(value: Any) -> TemporalIdentificationTheoremFamily | None:
+def _coerce_theorem_family(value: object) -> TemporalIdentificationTheoremFamily | None:
     if isinstance(value, TemporalIdentificationTheoremFamily):
         return value
     try:
@@ -723,19 +732,19 @@ def _coerce_theorem_family(value: Any) -> TemporalIdentificationTheoremFamily | 
 def _neural_identification_scope_errors(
     *,
     preferred_backend: str,
-    theorem_family: Any,
-    identified_functionals: tuple[Any, ...],
-    intervention_semantics: Any,
-    observability_regime: Any,
+    theorem_family: object,
+    identified_functionals: tuple[object, ...],
+    intervention_semantics: object,
+    observability_regime: object,
     law_invariant: bool,
-    law_object: Any,
+    law_object: object,
     canonical_control_required: bool,
-    control_canonicalization: Any,
-    query_mode: Any,
-    sampling_scheme: Any,
-    target_functional: Any,
-    interpolation_policy: Any,
-    strategic_adaptation_mode: Any,
+    control_canonicalization: object,
+    query_mode: object,
+    sampling_scheme: object,
+    target_functional: object,
+    interpolation_policy: object,
+    strategic_adaptation_mode: object,
 ) -> tuple[str, ...]:
     blockers: list[str] = []
     normalized_backend = str(preferred_backend).strip().lower()
@@ -844,7 +853,7 @@ class ContinuousTimeQuery(BaseModel):
 
     @field_validator("horizon_start", "horizon_end", mode="before")
     @classmethod
-    def _validate_horizon_value(cls, value: Any, info: Any) -> float:
+    def _validate_horizon_value(cls, value: object, info: ValidationInfo) -> float:
         return _coerce_finite_float(value, field_name=str(info.field_name))
 
     @model_validator(mode="after")
@@ -996,7 +1005,7 @@ class EffectTrajectoryBundle(BaseModel):
 
     @field_validator("discretization_error", mode="before")
     @classmethod
-    def _validate_discretization_error(cls, value: Any) -> Any:
+    def _validate_discretization_error(cls, value: object) -> float | None:
         if value is None:
             return None
         casted = _coerce_finite_float(value, field_name="discretization_error")
@@ -1024,7 +1033,8 @@ class EffectTrajectoryBundle(BaseModel):
                 )
             if self.discretization_note is None:
                 raise ValueError(
-                    "discrete fallback bundles must disclose why discretization_error is unavailable"
+                    "discrete fallback bundles must disclose why "
+                    "discretization_error is unavailable"
                 )
             if not self.continuous_time_degraded:
                 raise ValueError("discrete fallback bundles must set continuous_time_degraded=true")

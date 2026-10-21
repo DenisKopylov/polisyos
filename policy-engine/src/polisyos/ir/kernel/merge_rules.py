@@ -4,7 +4,7 @@ from __future__ import annotations
 
 import logging
 from enum import Enum
-from typing import Any, Literal, TypedDict
+from typing import Literal, TypedDict
 
 from pydantic import Field, model_validator
 
@@ -118,7 +118,7 @@ class MergeRuleSpec(KernelModel):
 
     @model_validator(mode="before")
     @classmethod
-    def apply_kind_defaults(cls, data: Any) -> Any:
+    def apply_kind_defaults(cls, data: object) -> object:
         if not isinstance(data, dict):
             return data
         kind = data.get("kind")

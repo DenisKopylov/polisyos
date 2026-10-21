@@ -5,10 +5,11 @@ from __future__ import annotations
 import math
 from collections.abc import Mapping
 from enum import Enum
-from typing import Any, Literal
+from typing import Any, Literal, TypeGuard, cast
 
 from pydantic import BaseModel, ConfigDict, Field, field_validator, model_validator
 
+from polisyos.ir._internal.validation import coerce_float
 from polisyos.ir.analytics.uncertainty import (
     DistributionFamily,
     IntervalSemantics,
@@ -19,6 +20,12 @@ from polisyos.ir.analytics.uncertainty import (
 from polisyos.ir.artifacts import ArtifactStore, InputRef, get_json_artifact, put_json_artifact
 from polisyos.ir.model_layer.canon import CanonSpec
 from polisyos.ir.registry.refs import CausalQueryResultRef
+
+
+def _is_json_number_primitive(value: object) -> TypeGuard[int | float]:
+    """Match the JSON-number admission check without admitting booleans."""
+
+    return type(value) in {int, float}
 
 
 class QueryType(str, Enum):
@@ -53,23 +60,23 @@ class InterventionSpec(BaseModel):
 
     @field_validator("value", "shift", mode="before")
     @classmethod
-    def _coerce_optional_float(cls, value: Any) -> Any:
+    def _coerce_optional_float(cls, value: object) -> float | None:
         if value is None:
             return None
-        casted = float(value)
+        casted = coerce_float(value)
         if not math.isfinite(casted):
             raise ValueError("value must be finite")
         return casted
 
     @field_validator("bounds", mode="before")
     @classmethod
-    def _coerce_bounds(cls, value: Any) -> Any:
+    def _coerce_bounds(cls, value: object) -> tuple[float, float] | None:
         if value is None:
             return None
         if not isinstance(value, (tuple, list)) or len(value) != 2:
             raise ValueError("bounds must be a tuple/list of length 2")
-        lo = float(value[0])
-        hi = float(value[1])
+        lo = coerce_float(value[0])
+        hi = coerce_float(value[1])
         if not math.isfinite(lo) or not math.isfinite(hi):
             raise ValueError("bounds must be finite")
         return (lo, hi)
@@ -86,9 +93,10 @@ class InterventionSpec(BaseModel):
         if self.type is InterventionType.SHIFTED and self.shift is None:
             raise ValueError("shift is required for shifted interventions")
 
-        if self.type is InterventionType.STOCHASTIC:
-            if not self.distribution or not self.distribution.strip():
-                raise ValueError("distribution is required for stochastic interventions")
+        if self.type is InterventionType.STOCHASTIC and (
+            not self.distribution or not self.distribution.strip()
+        ):
+            raise ValueError("distribution is required for stochastic interventions")
 
         return self
 
@@ -133,7 +141,7 @@ class CausalContrastSpec(BaseModel):
 
     @model_validator(mode="before")
     @classmethod
-    def _reject_observational_target(cls, value: Any) -> Any:
+    def _reject_observational_target(cls, value: object) -> object:
         if isinstance(value, Mapping):
             target = value.get("target")
             if isinstance(target, Mapping) and target.get("kind") == "observational":
@@ -169,7 +177,7 @@ class CausalQuery(BaseModel):
 
     @model_validator(mode="before")
     @classmethod
-    def _normalize_legacy_attribution(cls, value: Any) -> Any:
+    def _normalize_legacy_attribution(cls, value: object) -> object:
         """Map legacy ATTRIBUTION fields to explicit target/comparator arms."""
         if not isinstance(value, Mapping):
             return value
@@ -196,19 +204,19 @@ class CausalQuery(BaseModel):
             ):
                 legacy_intervention["value"] = payload["treatment_value"]
                 payload["intervention_spec"] = legacy_intervention
-        elif isinstance(legacy_intervention, InterventionSpec):
-            if (
-                legacy_intervention.type is InterventionType.ATOMIC
-                and legacy_intervention.value is None
-                and payload.get("treatment_value") is not None
-            ):
-                legacy_intervention = InterventionSpec.model_validate(
-                    {
-                        **legacy_intervention.model_dump(mode="python"),
-                        "value": payload["treatment_value"],
-                    }
-                )
-                payload["intervention_spec"] = legacy_intervention
+        elif (
+            isinstance(legacy_intervention, InterventionSpec)
+            and legacy_intervention.type is InterventionType.ATOMIC
+            and legacy_intervention.value is None
+            and payload.get("treatment_value") is not None
+        ):
+            legacy_intervention = InterventionSpec.model_validate(
+                {
+                    **legacy_intervention.model_dump(mode="python"),
+                    "value": payload["treatment_value"],
+                }
+            )
+            payload["intervention_spec"] = legacy_intervention
         payload["contrast"] = {
             "target": legacy_intervention,
             "comparator": {"kind": "observational"},
@@ -225,17 +233,17 @@ class CausalQuery(BaseModel):
 
     @field_validator("treatment_value", mode="before")
     @classmethod
-    def _coerce_treatment_value(cls, value: Any) -> Any:
+    def _coerce_treatment_value(cls, value: object) -> float | None:
         if value is None:
             return None
-        casted = float(value)
+        casted = coerce_float(value)
         if not math.isfinite(casted):
             raise ValueError("treatment_value must be finite")
         return casted
 
     @field_validator("condition", mode="before")
     @classmethod
-    def _coerce_condition(cls, value: Any) -> Any:
+    def _coerce_condition(cls, value: object) -> dict[str, float]:
         if value is None:
             return {}
         if not isinstance(value, dict):
@@ -245,7 +253,7 @@ class CausalQuery(BaseModel):
             name = str(key).strip()
             if not name:
                 raise ValueError("condition keys must be non-empty")
-            item = float(raw)
+            item = coerce_float(raw)
             if not math.isfinite(item):
                 raise ValueError("condition values must be finite")
             normalized[name] = item
@@ -280,10 +288,12 @@ class CausalQuery(BaseModel):
             raise ValueError("contrast is only valid for attribution queries")
 
         effective_intervention = self.intervention_spec.type if self.intervention_spec else None
-        if effective_intervention is None:
-            if self.query_type in {QueryType.INTERVENTIONAL, QueryType.COUNTERFACTUAL}:
-                if self.treatment_value is None:
-                    raise ValueError("treatment_value is required for atomic interventions")
+        if (
+            effective_intervention is None
+            and self.query_type in {QueryType.INTERVENTIONAL, QueryType.COUNTERFACTUAL}
+            and self.treatment_value is None
+        ):
+            raise ValueError("treatment_value is required for atomic interventions")
         elif effective_intervention is InterventionType.ATOMIC:
             if self.intervention_spec is None:
                 raise ValueError("internal validation error: intervention_spec missing")
@@ -350,19 +360,19 @@ class CausalEstimatorInterval(BaseModel):
 
     @field_validator("point_estimate", "confidence_level", mode="before")
     @classmethod
-    def _require_numeric_scalar(cls, value: Any) -> Any:
-        if type(value) not in {float, int}:
+    def _require_numeric_scalar(cls, value: object) -> int | float:
+        if not _is_json_number_primitive(value):
             raise ValueError("estimator inference requires finite JSON number primitives")
         return value
 
     @field_validator("interval", "replicate_estimates", mode="before")
     @classmethod
-    def _require_numeric_vector(cls, value: Any) -> Any:
+    def _require_numeric_vector(cls, value: object) -> list[int | float] | tuple[int | float, ...]:
         if not isinstance(value, (list, tuple)) or any(
-            type(item) not in {float, int} for item in value
+            not _is_json_number_primitive(item) for item in value
         ):
             raise ValueError("estimator inference requires arrays of finite JSON number primitives")
-        return value
+        return cast("list[int | float] | tuple[int | float, ...]", value)
 
     @model_validator(mode="after")
     def _validate_replicates(self) -> CausalEstimatorInterval:
@@ -449,7 +459,7 @@ class CausalQueryResult(BaseModel):
 
     @model_validator(mode="before")
     @classmethod
-    def _normalize_legacy_schema(cls, value: Any) -> Any:
+    def _normalize_legacy_schema(cls, value: object) -> object:
         """Normalize legacy payloads without trusting unbound source provenance."""
         if not isinstance(value, Mapping):
             return value
@@ -479,33 +489,33 @@ class CausalQueryResult(BaseModel):
 
     @field_validator("result_mean", "result_std", "computation_time_seconds", mode="before")
     @classmethod
-    def _coerce_scalar(cls, value: Any) -> Any:
-        casted = float(value)
+    def _coerce_scalar(cls, value: object) -> float:
+        casted = coerce_float(value)
         if not math.isfinite(casted):
             raise ValueError("numeric values must be finite")
         return casted
 
     @field_validator("result_ci", mode="before")
     @classmethod
-    def _coerce_ci(cls, value: Any) -> Any:
+    def _coerce_ci(cls, value: object) -> tuple[float, float]:
         if not isinstance(value, (tuple, list)) or len(value) != 2:
             raise ValueError("result_ci must be a tuple/list of length 2")
-        lo = float(value[0])
-        hi = float(value[1])
+        lo = coerce_float(value[0])
+        hi = coerce_float(value[1])
         if not math.isfinite(lo) or not math.isfinite(hi):
             raise ValueError("result_ci bounds must be finite")
         return (lo, hi)
 
     @field_validator("result_distribution", mode="before")
     @classmethod
-    def _coerce_distribution(cls, value: Any) -> Any:
+    def _coerce_distribution(cls, value: object) -> list[float] | None:
         if value is None:
             return None
         if not isinstance(value, list):
             raise ValueError("result_distribution must be a list of floats")
         normalized: list[float] = []
         for item in value:
-            casted = float(item)
+            casted = coerce_float(item)
             if not math.isfinite(casted):
                 raise ValueError("result_distribution values must be finite")
             normalized.append(casted)

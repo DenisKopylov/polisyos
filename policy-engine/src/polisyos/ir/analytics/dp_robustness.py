@@ -4,7 +4,7 @@ from __future__ import annotations
 
 import math
 from enum import Enum
-from typing import TYPE_CHECKING, Any, Literal
+from typing import TYPE_CHECKING, Any, Literal, Protocol, cast
 
 from pydantic import BaseModel, ConfigDict, Field, model_validator
 
@@ -19,6 +19,12 @@ from polisyos.ir.registry.refs import DPRobustnessCertificateRef
 
 if TYPE_CHECKING:
     from polisyos.ir.analytics.causal import DataReadinessReport, ProofBundle
+
+
+class _JsonModelDumpPayload(Protocol):
+    """Payload exposing the JSON-mode model dump accepted at this intake."""
+
+    def model_dump(self, *, mode: Literal["json"]) -> object: ...
 
 
 class DPMechanismFamily(str, Enum):
@@ -262,7 +268,9 @@ class DPRobustnessCertificate(BaseModel):
     metadata: dict[str, Any] = Field(default_factory=dict)
 
 
-def coerce_dp_robustness_certificate(payload: Any | None) -> DPRobustnessCertificate | None:
+def coerce_dp_robustness_certificate(
+    payload: object | None,
+) -> DPRobustnessCertificate | None:
     """Normalize DP robustness payloads from instances, dicts, or nested metadata."""
 
     if payload is None:
@@ -270,13 +278,18 @@ def coerce_dp_robustness_certificate(payload: Any | None) -> DPRobustnessCertifi
     if isinstance(payload, DPRobustnessCertificate):
         return payload
 
-    candidate = payload.model_dump(mode="json") if hasattr(payload, "model_dump") else payload
+    candidate: object = (
+        cast("_JsonModelDumpPayload", payload).model_dump(mode="json")
+        if hasattr(payload, "model_dump")
+        else payload
+    )
     if not isinstance(candidate, dict):
         return None
+    candidate = cast("dict[object, object]", candidate)
 
     nested = candidate.get("dp_robustness_certificate")
     if isinstance(nested, dict):
-        candidate = nested
+        candidate = cast("dict[object, object]", nested)
 
     required_keys = {
         "mechanism",
@@ -316,7 +329,9 @@ def dp_robustness_summary(
         "delta": certificate.mechanism.delta,
         "mechanism_family": certificate.mechanism.family.value,
         "n_min_for_identified": certificate.amplification_requirements.n_min_for_identified,
-        "epsilon_min_for_identified": certificate.amplification_requirements.epsilon_min_for_identified,
+        (
+            "epsilon_min_for_identified"
+        ): certificate.amplification_requirements.epsilon_min_for_identified,
         "sample_size_amplification_required": (
             certificate.amplification_requirements.sample_size_amplification_required
         ),

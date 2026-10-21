@@ -339,9 +339,10 @@ class LatentBridgeHypothesis(BaseModel):
                 raise ValueError(
                     "PROPOSED latent bridge must not carry failing falsification tests"
                 )
-        if self.status in {LatentBridgeStatus.BLOCKED, LatentBridgeStatus.BLOCKED_AMBIGUOUS}:
-            if not self.block_conditions_checked:
-                raise ValueError("BLOCKED latent bridge must list at least one block condition")
+        if (self.status in {LatentBridgeStatus.BLOCKED, LatentBridgeStatus.BLOCKED_AMBIGUOUS}) and (
+            not self.block_conditions_checked
+        ):
+            raise ValueError("BLOCKED latent bridge must list at least one block condition")
         if (
             self.latent_label is not None
             and self.metadata.get("opaque_label_required", True)

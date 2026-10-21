@@ -9,17 +9,20 @@ from __future__ import annotations
 
 from datetime import date
 from enum import Enum
+from typing import TYPE_CHECKING
 
 from pydantic import Field, model_validator
 
 from polisyos.ir.kernel.base import KernelModel
 from polisyos.ir.model_layer.types import TimeFrequency
-from polisyos.ir.observation.contracts import ObservationPanel, ObservationRecord
-from polisyos.ir.observation.measurement import (
-    RegimeCalendar,
-    SchemaRegimeRegistry,
-    ShockCalendar,
-)
+
+if TYPE_CHECKING:
+    from polisyos.ir.observation.contracts import ObservationPanel, ObservationRecord
+    from polisyos.ir.observation.measurement import (
+        RegimeCalendar,
+        SchemaRegimeRegistry,
+        ShockCalendar,
+    )
 
 SCHEMA_VERSION_PATTERN = r"^\d+\.\d+$"
 
@@ -179,14 +182,15 @@ class CalibrationSplitter:
         return label
 
     def _is_boundary(self, record: ObservationRecord) -> bool:
-        if self._schema_regime_registry is not None:
-            if self._schema_regime_registry.is_boundary(
+        if (self._schema_regime_registry is not None) and (
+            self._schema_regime_registry.is_boundary(
                 schema_regime_id=record.schema_regime_id,
                 period_start=record.period_start,
                 period_end=record.period_end,
                 time_grain=record.time_grain,
-            ):
-                return True
+            )
+        ):
+            return True
         if self._regime_calendar is not None and self._regime_calendar.is_boundary(
             regime_id=record.regime_id,
             period_start=record.period_start,

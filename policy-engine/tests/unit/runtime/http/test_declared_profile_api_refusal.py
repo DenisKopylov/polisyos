@@ -11,6 +11,7 @@ from _helpers.runtime_http import (
     _put_fixture_authority_envelope,
     _record_fixture_owner,
     _runtime_api_request,
+    _runtime_api_tenant_scope,
     _runtime_fixture_authority_boundary,
     build_runtime_api_env,
     close_runtime_api_env,
@@ -27,6 +28,7 @@ from polisyos.core.artifacts.manifest import (
     ArtifactAuthorityInfo,
     CanonInfo,
     ProducerInfo,
+    WarningRecord,
 )
 from polisyos.core.canon import CanonSpec, to_canonical_bytes
 from polisyos.core.security.tenant_context import tenant_scope
@@ -248,6 +250,14 @@ def test_semantic_views_refuse_selected_profile_mismatch_and_raw_accept_preserve
     )
     assert raw.status_code == 200, raw.text
     assert raw.content == payload_bytes
+    raw_download = _runtime_api_request(
+        runtime_api_env,
+        runtime_api_env["client"].get,
+        f"{base_path}/download",
+        params=mismatch_profile,
+    )
+    assert raw_download.status_code == 200, raw_download.text
+    assert raw_download.content == payload_bytes
 
 
 def test_quantity_and_fabric_routes_refuse_the_selected_packet_profile(
@@ -808,6 +818,7 @@ def test_analysis_and_scenario_semantic_gets_refuse_malformed_present_profiles(
 
 def test_raw_artifact_responses_keep_exact_bytes_when_profile_is_incomplete(
     runtime_api_env,
+    monkeypatch,
 ) -> None:
     payload = to_canonical_bytes({"raw": "exact bytes"})
     ref = _put_inspector_profile_fixture(
@@ -860,9 +871,9 @@ def test_raw_artifact_responses_keep_exact_bytes_when_profile_is_incomplete(
         params=params,
         headers={"accept": "application/octet-stream"},
     )
-    assert content.status_code == 200, content.text
-    assert content.content == payload
-    assert content.headers["content-type"].startswith("application/json")
+    assert content.status_code == 409, content.text
+    assert content.headers["content-type"].startswith("application/problem+json")
+    assert content.json()["code"] == "canon_profile_incomplete"
 
     download = _runtime_api_request(
         runtime_api_env,
@@ -870,8 +881,43 @@ def test_raw_artifact_responses_keep_exact_bytes_when_profile_is_incomplete(
         f"{base_path}/download",
         params=params,
     )
-    assert download.status_code == 200, download.text
-    assert download.content == payload
+    assert download.status_code == 409, download.text
+    assert download.headers["content-type"].startswith("application/problem+json")
+    assert download.json()["code"] == "canon_profile_incomplete"
+    assert _runtime_api_request(runtime_api_env, store.get_bytes, ref.artifact_id) == payload
+
+    # Unavailable bounded receipt refuses; the later semantic check restores the reader.
+    from polisyos.core.artifacts.canonical_profile import CoreJsonReadBoundsRefusalError
+    from polisyos.runtime.http.routes import artifacts as artifact_routes
+
+    def bounded_manifest_unavailable(*args, **kwargs):
+        raise CoreJsonReadBoundsRefusalError(
+            "canon_profile_bounded_manifest_unavailable",
+            limits=None,
+            max_manifest_bytes=1,
+            observed_manifest_bytes=0,
+            observed_bytes=0,
+            observed_depth=0,
+            observed_elements=0,
+            original_exception_type="NotImplementedError",
+        )
+
+    with monkeypatch.context() as bounded_patch:
+        bounded_patch.setattr(
+            artifact_routes,
+            "read_core_manifest_profile_bounded",
+            bounded_manifest_unavailable,
+        )
+        fallback_raw = _runtime_api_request(
+            runtime_api_env,
+            runtime_api_env["client"].get,
+            f"{base_path}/content",
+            params=params,
+            headers={"accept": "application/octet-stream"},
+        )
+        assert fallback_raw.status_code == 409, fallback_raw.text
+        assert fallback_raw.headers["content-type"].startswith("application/problem+json")
+        assert fallback_raw.json()["code"] == "canon_profile_bounded_manifest_unavailable"
 
     semantic = _runtime_api_request(
         runtime_api_env,
@@ -884,6 +930,140 @@ def test_raw_artifact_responses_keep_exact_bytes_when_profile_is_incomplete(
     assert semantic.json()["code"] == "canon_profile_incomplete"
 
 
+def test_raw_routes_refuse_oversized_selected_manifest_before_payload_read(
+    runtime_api_env, monkeypatch
+) -> None:
+    from polisyos.runtime.http.services.artifact_inspector import INSPECTOR_MANIFEST_MAX_BYTES
+
+    oversized = _put_inspector_profile_fixture(
+        runtime_api_env,
+        kind="test.oversized_selected_manifest",
+        media_type="application/json",
+        payload_bytes=to_canonical_bytes({"raw": "small payload"}),
+        schema=SchemaInfo(name="test.oversized_selected_manifest", version="1"),
+        canon=CanonInfo(),
+        include_authority=False,
+        warnings=[
+            WarningRecord(
+                code="test.large_manifest_warning",
+                msg="x" * (INSPECTOR_MANIFEST_MAX_BYTES + 1024),
+            )
+        ],
+    )
+    store = runtime_api_env["app"].state.runtime_api_ctx.store
+    selected_manifest_path = store._manifest_path_for_ref(
+        oversized.artifact_id, oversized.manifest_profile_sha256
+    )
+    assert selected_manifest_path.stat().st_size > INSPECTOR_MANIFEST_MAX_BYTES
+
+    payload_reads: list[object] = []
+    original_get_bytes = store.get_bytes
+
+    def observe_payload_read(selector: object) -> bytes:
+        payload_reads.append(selector)
+        return original_get_bytes(selector)
+
+    monkeypatch.setattr(store, "get_bytes", observe_payload_read)
+    base_path = f"/api/v1/artifacts/{oversized.artifact_id}"
+    params = {"manifest_profile_sha256": oversized.manifest_profile_sha256}
+    for suffix, headers in (
+        ("content", {"Accept": "application/octet-stream"}),
+        ("download", {}),
+        ("schema", {}),
+    ):
+        response = _runtime_api_request(
+            runtime_api_env,
+            runtime_api_env["client"].get,
+            f"{base_path}/{suffix}",
+            params=params,
+            headers=headers,
+        )
+        assert response.status_code == 409, response.text
+        assert response.headers["content-type"].startswith("application/problem+json")
+        assert response.json()["code"] == "canon_profile_bounded_manifest_bytes_exceeded"
+    assert payload_reads == []
+
+
+def test_raw_routes_do_not_fallback_when_bounded_manifest_reader_is_unavailable(
+    runtime_api_env, monkeypatch
+) -> None:
+    from polisyos.core.artifacts.canonical_profile import CoreJsonReadBoundsRefusalError
+    from polisyos.runtime.http.routes import artifacts as artifact_routes
+    from polisyos.runtime.http.services.artifact_inspector import INSPECTOR_MANIFEST_MAX_BYTES
+
+    oversized = _put_inspector_profile_fixture(
+        runtime_api_env,
+        kind="test.unavailable_bounded_manifest_reader",
+        media_type="application/json",
+        payload_bytes=to_canonical_bytes({"raw": "small payload"}),
+        schema=SchemaInfo(name="test.unavailable_bounded_manifest_reader", version="1"),
+        canon=CanonInfo(),
+        include_authority=False,
+        warnings=[
+            WarningRecord(
+                code="test.large_manifest_warning",
+                msg="x" * (INSPECTOR_MANIFEST_MAX_BYTES + 1024),
+            )
+        ],
+    )
+    store = runtime_api_env["app"].state.runtime_api_ctx.store
+    selected_manifest_path = store._manifest_path_for_ref(
+        oversized.artifact_id, oversized.manifest_profile_sha256
+    )
+    assert selected_manifest_path.stat().st_size > INSPECTOR_MANIFEST_MAX_BYTES
+
+    def bounded_reader_unavailable(*args: object, **kwargs: object) -> None:
+        raise CoreJsonReadBoundsRefusalError(
+            "canon_profile_bounded_manifest_unavailable",
+            limits=None,
+            max_manifest_bytes=INSPECTOR_MANIFEST_MAX_BYTES,
+            observed_manifest_bytes=0,
+            observed_bytes=0,
+            observed_depth=0,
+            observed_elements=0,
+            original_exception_type="NotImplementedError",
+        )
+
+    unbounded_reads: list[object] = []
+    original_unbounded_reader = artifact_routes.read_core_manifest_profile
+
+    def observe_unbounded_reader(*args: object, **kwargs: object):
+        unbounded_reads.append((args, kwargs))
+        return original_unbounded_reader(*args, **kwargs)
+
+    monkeypatch.setattr(
+        artifact_routes, "read_core_manifest_profile_bounded", bounded_reader_unavailable
+    )
+    monkeypatch.setattr(artifact_routes, "read_core_manifest_profile", observe_unbounded_reader)
+    payload_reads: list[object] = []
+    original_get_bytes = store.get_bytes
+
+    def observe_payload_read(selector: object) -> bytes:
+        payload_reads.append(selector)
+        return original_get_bytes(selector)
+
+    monkeypatch.setattr(store, "get_bytes", observe_payload_read)
+    base_path = f"/api/v1/artifacts/{oversized.artifact_id}"
+    params = {"manifest_profile_sha256": oversized.manifest_profile_sha256}
+    for suffix, headers in (
+        ("content", {"Accept": "application/octet-stream"}),
+        ("download", {}),
+        ("schema", {}),
+    ):
+        response = _runtime_api_request(
+            runtime_api_env,
+            runtime_api_env["client"].get,
+            f"{base_path}/{suffix}",
+            params=params,
+            headers=headers,
+        )
+        assert response.status_code == 409, response.text
+        assert response.headers["content-type"].startswith("application/problem+json")
+        assert response.json()["code"] == "canon_profile_bounded_manifest_unavailable"
+    assert unbounded_reads == []
+    assert payload_reads == []
+
+
 def _put_inspector_profile_fixture(
     runtime_api_env: dict[str, Any],
     *,
@@ -894,6 +1074,7 @@ def _put_inspector_profile_fixture(
     canon: CanonInfo | None,
     include_authority: bool = True,
     return_selected_profile: bool = False,
+    warnings: list[WarningRecord] | None = None,
 ) -> ArtifactRef:
     """Persist one locally owned API fixture with the requested exact profile state."""
     store = runtime_api_env["app"].state.runtime_api_ctx.store
@@ -932,6 +1113,8 @@ def _put_inspector_profile_fixture(
             options["authority"] = authority
         if canon is not None:
             options["canon"] = canon
+        if warnings is not None:
+            options["warnings"] = warnings
         selected = profile_bound_ref(
             store,
             store.put_bytes(
@@ -1021,11 +1204,21 @@ def test_inspector_refusal_family_preserves_raw_and_non_json_semantics(
             headers={"Accept": "application/octet-stream"},
         )
         assert raw.status_code == 200, raw.text
-        assert raw.content == (
+        expected_bytes = (
             report_bytes
             if ref is absent
             else to_canonical_bytes({"schema_version": "1.0", "marker": "unknown"})
         )
+        assert raw.content == expected_bytes
+
+        raw_download = _runtime_api_request(
+            runtime_api_env,
+            client.get,
+            f"{base_path}/download",
+            params=params,
+        )
+        assert raw_download.status_code == 200, raw_download.text
+        assert raw_download.content == expected_bytes
 
     container = app.state.runtime_container
     candidate_context = replace(
@@ -1232,11 +1425,12 @@ def test_predictive_diagnostic_caps_actual_selected_bytes_before_codec(
     base_store = context.artifacts._store
 
     class SmallManifestHintStore:
-        """Preserve the selected profile and exact blob while understating size metadata."""
+        """Preserve the selected profile and blob while understating its size hint."""
 
         def __init__(self, wrapped):
             self._wrapped = wrapped
             self.payload_reads = 0
+            self.bounded_member_attempts = []
 
         def __getattr__(self, name):
             return getattr(self._wrapped, name)
@@ -1274,6 +1468,11 @@ def test_predictive_diagnostic_caps_actual_selected_bytes_before_codec(
             self.payload_reads += 1
             return self._wrapped.get_bytes(selector)
 
+        def open_member_bounded(self, *args, **kwargs):
+            attempt = self._wrapped.open_member_bounded(*args, **kwargs)
+            self.bounded_member_attempts.append(attempt)
+            return attempt
+
     bounded_store = SmallManifestHintStore(base_store)
     monkeypatch.setattr(context.artifacts, "_store", bounded_store)
 
@@ -1287,8 +1486,73 @@ def test_predictive_diagnostic_caps_actual_selected_bytes_before_codec(
         preview = context.artifacts.get_predictive_coverage_diagnostic(ref.artifact_id)
 
     assert preview is None
-    assert bounded_store.payload_reads == 1
+    assert bounded_store.payload_reads == 0
+    assert len(bounded_store.bounded_member_attempts) == 1
+    owner_usage = bounded_store.bounded_member_attempts[0].usage
+    assert owner_usage.observed_payload_size == len(payload)
+    assert owner_usage.observed_payload_bytes == 0
+    assert owner_usage.payload_integrity_verified is False
+    assert owner_usage.observed_source_bytes is not None
     assert len(payload) == _MAX_PREDICTIVE_COVERAGE_SOURCE_BYTES + 1
+
+
+def test_predictive_diagnostic_does_not_suppress_unmeasured_byte_refusal(
+    runtime_api_env, monkeypatch
+) -> None:
+    """A matching code/stage cannot replace complete selected-owner measurements."""
+    import polisyos.runtime.http.services.artifact_inspector as artifact_inspector
+    from polisyos.core.artifacts.canonical_profile import (
+        CoreJsonReadBoundsRefusalError,
+        CoreJsonReadLimits,
+    )
+    from polisyos.runtime.http.services.artifact_inspector import (
+        _MAX_PREDICTIVE_COVERAGE_SOURCE_BYTES,
+        INSPECTOR_MANIFEST_MAX_BYTES,
+    )
+
+    ref = _put_inspector_profile_fixture(
+        runtime_api_env,
+        kind="ir.backtest_report",
+        media_type="application/json",
+        payload_bytes=to_canonical_bytes({"schema_version": "1.0"}),
+        schema=SchemaInfo(name="ir.backtest_report", version="1.0"),
+        canon=CanonInfo(),
+    )
+    context = runtime_api_env["app"].state.runtime_api_ctx
+    refusal = CoreJsonReadBoundsRefusalError(
+        "canon_profile_bounded_bytes_exceeded",
+        limits=CoreJsonReadLimits(
+            max_bytes=_MAX_PREDICTIVE_COVERAGE_SOURCE_BYTES,
+            max_depth=128,
+            max_elements=100_000,
+            max_manifest_bytes=INSPECTOR_MANIFEST_MAX_BYTES,
+        ),
+        max_manifest_bytes=INSPECTOR_MANIFEST_MAX_BYTES,
+        observed_manifest_bytes=1,
+        observed_manifest_selection_bytes=1,
+        observed_manifest_verification_bytes=1,
+        observed_bytes=0,
+        observed_payload_size=_MAX_PREDICTIVE_COVERAGE_SOURCE_BYTES + 1,
+        observed_depth=0,
+        observed_elements=0,
+        limit_name="max_bytes",
+        source_usage_complete=False,
+        failure_stage="bounded_payload_read",
+    )
+
+    def unmeasured_refusal(*_args, **_kwargs):
+        raise refusal
+
+    monkeypatch.setattr(artifact_inspector, "_read_inspector_semantic_json", unmeasured_refusal)
+    with (
+        tenant_scope(
+            None, tenant_id=runtime_api_env["tenant_a"], cell_id=runtime_api_env["cell_a"]
+        ),
+        pytest.raises(CoreJsonReadBoundsRefusalError) as caught,
+    ):
+        context.artifacts.get_predictive_coverage_diagnostic(ref.artifact_id)
+
+    assert caught.value is refusal
 
 
 def test_predictive_diagnostic_decodes_actual_bytes_below_source_cap(
@@ -1313,7 +1577,7 @@ def test_predictive_diagnostic_decodes_actual_bytes_below_source_cap(
         manifest = context.store.get_manifest(ref)
 
     decode = core_profile.from_canonical_bytes
-    encode = core_profile.to_canonical_bytes
+    encode = core_profile._encode_core_canonical_bytes_raw
     decode_calls: list[int] = []
     encode_calls: list[int] = []
 
@@ -1326,7 +1590,7 @@ def test_predictive_diagnostic_decodes_actual_bytes_below_source_cap(
         return encode(value, *args, **kwargs)
 
     monkeypatch.setattr(core_profile, "from_canonical_bytes", observe_decode)
-    monkeypatch.setattr(core_profile, "to_canonical_bytes", observe_encode)
+    monkeypatch.setattr(core_profile, "_encode_core_canonical_bytes_raw", observe_encode)
     with tenant_scope(
         None, tenant_id=runtime_api_env["tenant_a"], cell_id=runtime_api_env["cell_a"]
     ):
@@ -1348,6 +1612,7 @@ def test_inspector_json_content_and_schema_use_bounded_owner_reads(
     """Selected JSON is materialized only after exact bounded-owner verification."""
     from polisyos.common.canonical_profile import CanonicalProfileRefusalError
     from polisyos.core.artifacts.canonical_profile import CoreJsonReadBoundsRefusalError
+    from polisyos.runtime.http.services.artifact_inspector import ArtifactInspectorService
 
     limit = 1024
     payload = to_canonical_bytes({"large": "x" * 1_200})
@@ -1361,8 +1626,7 @@ def test_inspector_json_content_and_schema_use_bounded_owner_reads(
         return_selected_profile=True,
     )
     context = runtime_api_env["app"].state.runtime_api_ctx
-    service = context.artifacts
-    wrapped = service._store
+    wrapped = context.artifacts._store
 
     class BoundedReadSpy:
         def __init__(self, target):
@@ -1382,24 +1646,33 @@ def test_inspector_json_content_and_schema_use_bounded_owner_reads(
             return self._target.get_bytes(selector)
 
     spy = BoundedReadSpy(wrapped)
-    service._store = spy
-    manifest = spy.get_manifest_by_profile(ref.artifact_id, ref.manifest_profile_sha256)
-
-    with pytest.raises(CoreJsonReadBoundsRefusalError) as content_refusal:
-        service.get_content_preview(
+    service = ArtifactInspectorService(
+        store=spy,
+        lineage_service=context.lineage,
+        default_max_preview_bytes=limit,
+    )
+    with _runtime_api_tenant_scope(runtime_api_env):
+        manifest = spy.get_manifest_by_profile(
             ref.artifact_id,
-            max_bytes=limit,
-            manifest=manifest,
+            ref.manifest_profile_sha256,
         )
-    assert content_refusal.value.code == "canon_profile_bounded_bytes_exceeded"
-    assert content_refusal.value.limit_name == "max_bytes"
-    assert content_refusal.value.observed_payload_bytes == 0
-    assert content_refusal.value.observed_payload_size == len(payload)
-    assert content_refusal.value.payload_integrity_verified is False
 
-    with pytest.raises(CanonicalProfileRefusalError) as schema_refusal:
-        service.get_schema_view(ref.artifact_id, manifest=manifest)
-    assert schema_refusal.value.code == "canon_profile_bounded_bytes_exceeded"
+        with pytest.raises(CoreJsonReadBoundsRefusalError) as content_refusal:
+            service.get_content_preview(
+                ref.artifact_id,
+                max_bytes=limit,
+                manifest=manifest,
+            )
+        assert content_refusal.value.code == "canon_profile_bounded_bytes_exceeded"
+        assert content_refusal.value.limit_name == "max_bytes"
+        assert content_refusal.value.observed_payload_bytes == 0
+        assert content_refusal.value.observed_payload_size == len(payload)
+        assert content_refusal.value.payload_integrity_verified is False
+
+        with pytest.raises(CanonicalProfileRefusalError) as schema_refusal:
+            service.get_schema_view(ref.artifact_id, manifest=manifest)
+        assert schema_refusal.value.code == "canon_profile_bounded_bytes_exceeded"
+
     assert spy.bounded_opens == 2
     assert spy.get_bytes_calls == 0
 
@@ -1409,6 +1682,7 @@ def test_inspector_refuses_without_bounded_member_owner_instead_of_falling_back(
 ) -> None:
     """A backend without the bounded member port never falls back to full get_bytes."""
     from polisyos.common.canonical_profile import CanonicalProfileRefusalError
+    from polisyos.runtime.http.services.artifact_inspector import ArtifactInspectorService
 
     payload = to_canonical_bytes({"value": "selected"})
     ref = _put_inspector_profile_fixture(
@@ -1420,8 +1694,8 @@ def test_inspector_refuses_without_bounded_member_owner_instead_of_falling_back(
         canon=CanonInfo(),
         return_selected_profile=True,
     )
-    service = runtime_api_env["app"].state.runtime_api_ctx.artifacts
-    wrapped = service._store
+    context = runtime_api_env["app"].state.runtime_api_ctx
+    wrapped = context.artifacts._store
 
     class NoBoundedMemberStore:
         def __init__(self, target):
@@ -1438,14 +1712,21 @@ def test_inspector_refuses_without_bounded_member_owner_instead_of_falling_back(
             return self._target.get_bytes(selector)
 
     unavailable = NoBoundedMemberStore(wrapped)
-    service._store = unavailable
-    manifest = unavailable.get_manifest_by_profile(ref.artifact_id, ref.manifest_profile_sha256)
+    service = ArtifactInspectorService(
+        store=unavailable,
+        lineage_service=context.lineage,
+    )
+    with _runtime_api_tenant_scope(runtime_api_env):
+        manifest = unavailable.get_manifest_by_profile(
+            ref.artifact_id,
+            ref.manifest_profile_sha256,
+        )
 
-    with pytest.raises(CanonicalProfileRefusalError) as refusal:
-        service.get_content_preview(ref.artifact_id, manifest=manifest)
+        with pytest.raises(CanonicalProfileRefusalError) as refusal:
+            service.get_content_preview(ref.artifact_id, manifest=manifest)
 
-    assert refusal.value.code == "canon_profile_bounded_stream_unavailable"
-    assert unavailable.get_bytes_calls == 0
+        assert refusal.value.code == "canon_profile_bounded_stream_unavailable"
+        assert unavailable.get_bytes_calls == 0
 
 
 def test_api_json_inspection_refuses_over_preview_limit(runtime_api_env) -> None:

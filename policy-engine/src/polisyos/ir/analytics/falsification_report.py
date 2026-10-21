@@ -7,10 +7,13 @@ and the QualityScoreAggregator.
 
 from __future__ import annotations
 
-from collections.abc import Mapping
 from enum import Enum
+from typing import TYPE_CHECKING
 
 from pydantic import BaseModel, ConfigDict
+
+if TYPE_CHECKING:
+    from collections.abc import Mapping
 
 
 class FalsificationTestKind(str, Enum):

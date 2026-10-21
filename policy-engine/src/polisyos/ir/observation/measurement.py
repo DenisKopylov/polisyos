@@ -300,9 +300,10 @@ class SchemaRegimeRegistry(KernelModel):
         window = timedelta(days=_buffer_days(time_grain, spec.boundary_buffer_periods))
         if period_start <= spec.effective_start + window and period_end >= spec.effective_start:
             return True
-        if spec.effective_end is not None:
-            if period_start <= spec.effective_end and period_end >= spec.effective_end - window:
-                return True
+        if (spec.effective_end is not None) and (
+            period_start <= spec.effective_end and period_end >= spec.effective_end - window
+        ):
+            return True
         for point in self.changepoints_for(schema_regime_id):
             if (
                 period_start <= point.effective_date + window
@@ -564,10 +565,11 @@ class IdentificationModeRouter(KernelModel):
         elif explicit_mode is not None:
             reason = "incompatible_explicit_mode"
 
-        if fallback_triggered and policy.fallback_identification_mode is not None:
-            if explicit_mode is None or explicit_mode == policy.primary_identification_mode:
-                selected = policy.fallback_identification_mode
-                reason = "fallback_conditions"
+        if (fallback_triggered and policy.fallback_identification_mode is not None) and (
+            explicit_mode is None or explicit_mode == policy.primary_identification_mode
+        ):
+            selected = policy.fallback_identification_mode
+            reason = "fallback_conditions"
 
         return IdentificationRoute(
             family=family,

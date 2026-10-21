@@ -45,6 +45,11 @@ from .feedback import (
     DecisionReissuePlan,
 )
 from .foundry import EquilibriumMultiplicityReport, SimulationResult
+from .owned_attempt_anchor import (
+    OwnedAttemptAnchorRef,
+    OwnedAttemptAnchorRefusalAssociation,
+    OwnedHTERequestContextV1,
+)
 from .policy_design_case_projection import PolicyDesignCaseProjection
 
 PolicyLayerLevel = governance.PolicyLayerLevel
@@ -3886,8 +3891,10 @@ class ObservationalInputResourcePolicy(BaseModel):
         "polisyos.runtime.observational_input_resource_policy.v1",
         "polisyos.runtime.observational_input_resource_policy.v2",
         "polisyos.runtime.observational_input_resource_policy.v3",
+        "polisyos.runtime.observational_input_resource_policy.v4",
+        "polisyos.runtime.observational_input_resource_policy.v5",
     ] = "polisyos.runtime.observational_input_resource_policy.v1"
-    revision: Literal["r1", "r2", "r3"] = "r1"
+    revision: Literal["r1", "r2", "r3", "r4", "r5"] = "r1"
     max_manifest_bytes: int = Field(default=65_536, gt=0, le=1_048_576)
     max_bytes: int = Field(default=8_388_608, gt=0, le=134_217_728)
     max_depth: int = Field(default=64, gt=0, le=256)
@@ -3897,6 +3904,32 @@ class ObservationalInputResourcePolicy(BaseModel):
     ) = None
     required_estimator_n_jobs: Literal[1] | None = None
     method_execution_wait_policy: BoundedLivenessResolution | None = None
+    method_fqn: (
+        Literal[
+            "causal.hte.causal_forest@2.0.0",
+            "causal.hte.double_ml@2.0.0",
+            "causal.hte.meta_learner@2.0.0",
+            "causal.hte.forest_dr@2.0.0",
+        ]
+        | None
+    ) = None
+    method_profile_id: (
+        Literal[
+            "econml.causal_forest_dml.native_mean@2.0",
+            "econml.dml.point_only@2.0",
+            "econml.meta_learner.point_only@2.0",
+            "econml.forest_dr.native_mean@2.0",
+        ]
+        | None
+    ) = None
+    execution_scope: (
+        Literal[
+            "estimator_n_jobs_one",
+            "producer_scoped_joblib_parallelism_one",
+        ]
+        | None
+    ) = None
+    max_jobs: Literal[1] | None = None
 
     @model_validator(mode="after")
     def _require_coherent_profile_revision(self) -> ObservationalInputResourcePolicy:
@@ -3906,6 +3939,10 @@ class ObservationalInputResourcePolicy(BaseModel):
                 or self.method_contract_target is not None
                 or self.required_estimator_n_jobs is not None
                 or self.method_execution_wait_policy is not None
+                or self.method_fqn is not None
+                or self.method_profile_id is not None
+                or self.execution_scope is not None
+                or self.max_jobs is not None
             ):
                 raise ValueError("observational_input_resource_policy_r1_shape_invalid")
             return self
@@ -3916,21 +3953,92 @@ class ObservationalInputResourcePolicy(BaseModel):
                 != "polisyos.foundry.methods.catalog.causal.protocols.HTEObservationalData"
                 or self.required_estimator_n_jobs != 1
                 or self.method_execution_wait_policy is not None
+                or self.method_fqn is not None
+                or self.method_profile_id is not None
+                or self.execution_scope is not None
+                or self.max_jobs is not None
             ):
                 raise ValueError("observational_input_resource_policy_r2_shape_invalid")
             return self
         wait_policy = self.method_execution_wait_policy
+        common_wait = (
+            wait_policy is not None
+            and wait_policy.producer_key == "runtime.observational_method_execution"
+            and wait_policy.retry_ceiling == 0
+            and wait_policy.escalation == "runtime_escalation"
+        )
+        if self.revision == "r3":
+            if (
+                self.schema_version != "polisyos.runtime.observational_input_resource_policy.v3"
+                or self.method_contract_target
+                != "polisyos.foundry.methods.catalog.causal.protocols.HTEObservationalData"
+                or self.required_estimator_n_jobs != 1
+                or not common_wait
+                or self.method_fqn is not None
+                or self.method_profile_id is not None
+                or self.execution_scope is not None
+                or self.max_jobs is not None
+            ):
+                raise ValueError("observational_input_resource_policy_r3_shape_invalid")
+            return self
+        profile_by_method = {
+            "causal.hte.causal_forest@2.0.0": (
+                "econml.causal_forest_dml.native_mean@2.0",
+                "estimator_n_jobs_one",
+                1,
+            ),
+            "causal.hte.double_ml@2.0.0": (
+                "econml.dml.point_only@2.0",
+                "producer_scoped_joblib_parallelism_one",
+                None,
+            ),
+            "causal.hte.meta_learner@2.0.0": (
+                "econml.meta_learner.point_only@2.0",
+                "producer_scoped_joblib_parallelism_one",
+                None,
+            ),
+            "causal.hte.forest_dr@2.0.0": (
+                "econml.forest_dr.native_mean@2.0",
+                "estimator_n_jobs_one",
+                1,
+            ),
+        }
+        expected_profile = profile_by_method.get(self.method_fqn or "")
+        if self.revision == "r4":
+            if (
+                self.schema_version != "polisyos.runtime.observational_input_resource_policy.v4"
+                or self.method_contract_target
+                != "polisyos.foundry.methods.catalog.causal.protocols.HTEObservationalData"
+                or not common_wait
+                or expected_profile is None
+                or self.method_profile_id != expected_profile[0]
+                or self.execution_scope != expected_profile[1]
+                or self.required_estimator_n_jobs != expected_profile[2]
+                or self.max_jobs != 1
+            ):
+                raise ValueError("observational_input_resource_policy_r4_shape_invalid")
+            return self
+
+        required_estimator_jobs_by_method = {
+            "causal.hte.causal_forest@2.0.0": 1,
+            "causal.hte.double_ml@2.0.0": None,
+            "causal.hte.meta_learner@2.0.0": None,
+            "causal.hte.forest_dr@2.0.0": 1,
+        }
+        expected_method_profile_id = expected_profile[0] if expected_profile is not None else None
         if (
-            self.schema_version != "polisyos.runtime.observational_input_resource_policy.v3"
+            self.schema_version != "polisyos.runtime.observational_input_resource_policy.v5"
             or self.method_contract_target
             != "polisyos.foundry.methods.catalog.causal.protocols.HTEObservationalData"
-            or self.required_estimator_n_jobs != 1
-            or wait_policy is None
-            or wait_policy.producer_key != "runtime.observational_method_execution"
-            or wait_policy.retry_ceiling != 0
-            or wait_policy.escalation != "runtime_escalation"
+            or not common_wait
+            or expected_profile is None
+            or self.method_profile_id != expected_method_profile_id
+            or self.execution_scope != "producer_scoped_joblib_parallelism_one"
+            or self.required_estimator_n_jobs
+            != required_estimator_jobs_by_method.get(self.method_fqn or "")
+            or self.max_jobs != 1
         ):
-            raise ValueError("observational_input_resource_policy_r3_shape_invalid")
+            raise ValueError("observational_input_resource_policy_r5_shape_invalid")
         return self
 
     def digest(self) -> str:
@@ -3942,6 +4050,12 @@ class ObservationalInputResourcePolicy(BaseModel):
         if self.revision == "r1":
             payload.pop("method_contract_target")
             payload.pop("required_estimator_n_jobs")
+        if self.revision not in {"r4", "r5"}:
+            # These method-scoped fields are absent from the canonical v1-v3 bytes.
+            payload.pop("method_fqn")
+            payload.pop("method_profile_id")
+            payload.pop("execution_scope")
+            payload.pop("max_jobs")
         encoded = json.dumps(
             payload,
             ensure_ascii=False,
@@ -3958,15 +4072,28 @@ _OBSERVATIONAL_RUN_BASE_LIMITATIONS = (
     "units_and_context_not_established",
 )
 
+_OBSERVATIONAL_HTE_SUCCESSOR_METHODS = frozenset(
+    {
+        "causal.hte.causal_forest@2.0.0",
+        "causal.hte.double_ml@2.0.0",
+        "causal.hte.meta_learner@2.0.0",
+        "causal.hte.forest_dr@2.0.0",
+    }
+)
+_OBSERVATIONAL_HTE_LEGACY_METHODS = frozenset(
+    {"causal.hte.forest_dr@1.0.0", "causal.hte.forest_dr@1.1.0"}
+)
+
 
 class ObservationalRunIntent(BaseModel):
     """Persist submitted and resolved pins before a direct observational run is queued."""
 
     model_config = ConfigDict(extra="forbid", frozen=True)
 
-    schema_version: Literal["polisyos.runtime.observational_run_intent.v1"] = (
-        "polisyos.runtime.observational_run_intent.v1"
-    )
+    schema_version: Literal[
+        "polisyos.runtime.observational_run_intent.v1",
+        "polisyos.runtime.observational_run_intent.v2",
+    ] = "polisyos.runtime.observational_run_intent.v1"
     job_id: str = Field(min_length=1, max_length=128)
     run_id: str = Field(min_length=1, max_length=128)
     requested_source_ref: ArtifactRef
@@ -3974,6 +4101,19 @@ class ObservationalRunIntent(BaseModel):
     protocol: Literal["method_input_envelope_v1", "legacy_hte_json_v1"]
     method_fqn: str = Field(min_length=1, max_length=256)
     method_version: str = Field(min_length=1, max_length=64)
+    owned_hte_request_context: OwnedHTERequestContextV1 | None = None
+    search_binding_tenant_id: str | None = Field(
+        default=None,
+        min_length=1,
+        max_length=128,
+        exclude_if=lambda value: value is None,
+    )
+    search_binding_cell_id: str | None = Field(
+        default=None,
+        min_length=1,
+        max_length=128,
+        exclude_if=lambda value: value is None,
+    )
     method_abi_digest: str = Field(pattern=r"^[0-9a-f]{64}$")
     method_build_digest: str = Field(pattern=r"^[0-9a-f]{64}$")
     method_build_digest_scope: Literal["class_source_only"] = "class_source_only"
@@ -4006,6 +4146,10 @@ class ObservationalRunIntent(BaseModel):
     def selection_digest(self) -> str:
         """Return a stable digest over every persisted accepted request pin."""
         payload = self.model_dump(mode="json")
+        if self.schema_version == "polisyos.runtime.observational_run_intent.v1":
+            # Keep pre-v2 content identity stable: the added optional field is
+            # absent from every historical v1 canonical representation.
+            payload.pop("owned_hte_request_context", None)
         if self.resource_policy_ref is None:
             # Preserve the historical canonical digest for intents that predate
             # the selected policy artifact and exact target tuple.
@@ -4023,14 +4167,51 @@ class ObservationalRunIntent(BaseModel):
 
     @model_validator(mode="after")
     def _require_pinned_source_and_policy(self) -> ObservationalRunIntent:
-        method_base, separator, fqn_version = self.method_fqn.rpartition("@")
+        _method_base, separator, fqn_version = self.method_fqn.rpartition("@")
         if (
             self.requested_source_ref.manifest_profile_sha256 is None
             or not separator
-            or method_base != "causal.hte.forest_dr"
             or fqn_version != self.method_version
+            or self.method_fqn
+            not in _OBSERVATIONAL_HTE_LEGACY_METHODS | _OBSERVATIONAL_HTE_SUCCESSOR_METHODS
         ):
             raise ValueError("observational_run_intent_method_identity_invalid")
+        is_successor = self.method_fqn in _OBSERVATIONAL_HTE_SUCCESSOR_METHODS
+        request_context = self.owned_hte_request_context
+        search_binding_ref = (
+            request_context.search_uncertainty_task_binding_ref
+            if request_context is not None
+            else None
+        )
+        search_binding_present = search_binding_ref is not None
+        if search_binding_present != (self.search_binding_tenant_id is not None):
+            raise ValueError("observational_run_intent_search_tenant_scope_mismatch")
+        if not search_binding_present and self.search_binding_cell_id is not None:
+            raise ValueError("observational_run_intent_search_cell_without_binding")
+        if is_successor:
+            if (
+                self.schema_version != "polisyos.runtime.observational_run_intent.v2"
+                or type(request_context) is not OwnedHTERequestContextV1
+                or request_context.request_estimand_status != "declared"
+                or request_context.request_target_scope_status != "declared"
+                or request_context.outcome_variable_status != "declared"
+                or request_context.treatment_variable_status != "declared"
+                or request_context.contrast_status != "declared"
+                or request_context.request_alpha_status != "declared"
+                or request_context.requested_alpha is None
+                or request_context.requested_guarantee_status not in {"declared", "not_established"}
+                or (request_context.requested_guarantee_status == "declared")
+                != (request_context.requested_guarantee is not None)
+                or self.resolved_params.get("alpha") != request_context.requested_alpha
+            ):
+                raise ValueError("observational_run_intent_hte_successor_context_invalid")
+        elif (
+            self.schema_version != "polisyos.runtime.observational_run_intent.v1"
+            or request_context is not None
+            or self.search_binding_tenant_id is not None
+            or self.search_binding_cell_id is not None
+        ):
+            raise ValueError("observational_run_intent_legacy_context_must_be_absent")
         if self.resource_policy_digest != self.resource_policy.digest():
             raise ValueError("observational_run_intent_resource_policy_digest_mismatch")
         if self.resource_policy_ref is not None and (
@@ -4039,7 +4220,7 @@ class ObservationalRunIntent(BaseModel):
             or self.resource_policy_ref.manifest_profile_sha256 is None
         ):
             raise ValueError("observational_run_intent_resource_policy_ref_invalid")
-        if self.resource_policy.revision == "r3" and (
+        if self.resource_policy.revision in {"r3", "r4", "r5"} and (
             self.resource_policy_ref is None
             or self.contract_target_id != "foundry.causal.hte_observational_data.v1"
             or self.contract_target_fqn
@@ -4055,11 +4236,15 @@ class ObservationalRunIntent(BaseModel):
             source_access_revalidation_status=self.source_access_revalidation_status,
         ):
             raise ValueError("observational_run_intent_limitations_invalid")
+        if any(name.startswith("__") for name in self.submitted_params) or any(
+            name.startswith("__") for name in self.resolved_params
+        ):
+            raise ValueError("observational_run_intent_reserved_runtime_parameter")
         if not self.submitted_params_present and self.submitted_params:
             raise ValueError("observational_run_intent_submitted_params_presence_mismatch")
-        if self.resource_policy.revision in {"r2", "r3"}:
+        if self.method_fqn == "causal.hte.forest_dr@1.1.0":
             if (
-                self.method_fqn != "causal.hte.forest_dr@1.1.0"
+                self.resource_policy.revision not in {"r2", "r3"}
                 or self.resource_policy.method_contract_target
                 != "polisyos.foundry.methods.catalog.causal.protocols.HTEObservationalData"
                 or self.resource_policy.required_estimator_n_jobs != 1
@@ -4067,9 +4252,25 @@ class ObservationalRunIntent(BaseModel):
                 or self.resolved_params.get("n_jobs") != 1
             ):
                 raise ValueError("observational_run_intent_method_resource_profile_invalid")
+        elif self.method_fqn in _OBSERVATIONAL_HTE_SUCCESSOR_METHODS:
+            if (
+                self.resource_policy.revision not in {"r4", "r5"}
+                or self.resource_policy.method_contract_target
+                != "polisyos.foundry.methods.catalog.causal.protocols.HTEObservationalData"
+                or self.resource_policy.method_execution_wait_policy is None
+                or self.resource_policy.method_fqn != self.method_fqn
+            ):
+                raise ValueError("observational_run_intent_successor_resource_profile_invalid")
         elif self.method_version != "1.0.0":
             raise ValueError("observational_run_intent_historical_profile_version_invalid")
         return self
+
+    def artifact_payload(self) -> dict[str, JsonValue]:
+        """Serialize the immutable intent while preserving historical v1 bytes."""
+        payload = self.model_dump(mode="json")
+        if self.schema_version == "polisyos.runtime.observational_run_intent.v1":
+            payload.pop("owned_hte_request_context", None)
+        return payload
 
 
 def _expected_observational_normalization(source_protocol: str) -> str:
@@ -4114,14 +4315,102 @@ def _expected_content_admitted_limitations(
     return tuple(limitations)
 
 
+class SearchUncertaintyTaskAdmissionSnapshot(BaseModel):
+    """Freeze the Search owner's recomputed binding admission before dispatch."""
+
+    model_config = ConfigDict(extra="forbid", frozen=True, strict=True)
+
+    schema_version: Literal["1.0"] = "1.0"
+    binding_ref: ArtifactRef
+    binding_content_sha256: str = Field(pattern=r"^[0-9a-f]{64}$")
+    ticket_id: str = Field(min_length=1, max_length=128)
+    ticket_generation: int = Field(ge=1, strict=True)
+    owner_revision: int = Field(ge=1, strict=True)
+    projection_revision: int = Field(ge=1, strict=True)
+    projection_ref: ArtifactRef
+    task_admission_ref: ArtifactRef
+    task_epoch_ref: ArtifactRef
+    owner_context_ref: ArtifactRef
+    basis_ref: ArtifactRef
+    dependency_inventory_ref: ArtifactRef
+    dependency_inventory_sha256: str = Field(pattern=r"^[0-9a-f]{64}$")
+    source_projection_ref: ArtifactRef
+    selected_method_fqn: Literal[
+        "causal.hte.causal_forest@2.0.0",
+        "causal.hte.double_ml@2.0.0",
+        "causal.hte.meta_learner@2.0.0",
+        "causal.hte.forest_dr@2.0.0",
+    ]
+    selected_method_abi_version: Literal["2.0.0"]
+    selected_method_abi_digest: str = Field(pattern=r"^[0-9a-f]{64}$")
+    selected_method_params: dict[str, JsonValue]
+    selected_method_params_sha256: str = Field(pattern=r"^[0-9a-f]{64}$")
+    selected_method_seed: int = Field(ge=0, le=4_294_967_295, strict=True)
+    selected_inference_profile_id: Literal[
+        "econml.causal_forest_dml.native_mean@2.0",
+        "econml.dml.point_only@2.0",
+        "econml.meta_learner.point_only@2.0",
+        "econml.forest_dr.native_mean@2.0",
+    ]
+    selected_method_input_ref: ArtifactRef
+    selected_method_input_content_sha256: str = Field(pattern=r"^[0-9a-f]{64}$")
+    tenant_id: str = Field(min_length=1, max_length=128)
+    cell_id: str | None = Field(default=None, min_length=1, max_length=128)
+    resolved_at: datetime
+    resolution_status: Literal["current"] = "current"
+    closure_status: Literal["recomputed"] = "recomputed"
+
+    @model_validator(mode="after")
+    def _require_recomputed_binding_identity(self) -> SearchUncertaintyTaskAdmissionSnapshot:
+        """Bind the current Search proof to exact refs, owner values, and input bytes."""
+        expected_refs = (
+            (self.binding_ref, "scientist.search.uncertainty_task_binding"),
+            (self.projection_ref, "scientist.search.uncertainty_ticket_projection"),
+            (self.task_admission_ref, "scientist.search.uncertainty_task_admission"),
+            (self.task_epoch_ref, "scientist.search.uncertainty_task_epoch"),
+            (self.owner_context_ref, "scientist.search.uncertainty_owner_task_context"),
+            (self.basis_ref, "scientist.search.uncertainty_basis"),
+            (self.dependency_inventory_ref, "scientist.search.uncertainty_input_inventory"),
+            (self.source_projection_ref, "scientist.search.uncertainty_ticket_projection"),
+        )
+        for ref, expected_kind in expected_refs:
+            if (
+                ref.kind != expected_kind
+                or ref.media_type != "application/json"
+                or ref.manifest_profile_sha256 is None
+            ):
+                raise ValueError("search_task_admission_snapshot_ref_invalid")
+        if self.selected_method_input_ref.manifest_profile_sha256 is None:
+            raise ValueError("search_task_admission_snapshot_input_profile_missing")
+        if (
+            self.binding_ref.artifact_id.hex != self.binding_content_sha256
+            or self.selected_method_input_ref.artifact_id.hex
+            != self.selected_method_input_content_sha256
+        ):
+            raise ValueError("search_task_admission_snapshot_content_digest_mismatch")
+        params_bytes = json.dumps(
+            self.selected_method_params,
+            ensure_ascii=False,
+            allow_nan=False,
+            sort_keys=True,
+            separators=(",", ":"),
+        ).encode("utf-8")
+        if hashlib.sha256(params_bytes).hexdigest() != self.selected_method_params_sha256:
+            raise ValueError("search_task_admission_snapshot_params_digest_mismatch")
+        if self.resolved_at.tzinfo is None or self.resolved_at.utcoffset() is None:
+            raise ValueError("search_task_admission_snapshot_resolution_time_must_be_aware")
+        return self
+
+
 class ContentAdmittedObservationalRunIntent(BaseModel):
     """Bind worker-admitted bounded content to the prequeued method and source pins."""
 
     model_config = ConfigDict(extra="forbid", frozen=True)
 
-    schema_version: Literal["polisyos.runtime.content_admitted_observational_run_intent.v1"] = (
-        "polisyos.runtime.content_admitted_observational_run_intent.v1"
-    )
+    schema_version: Literal[
+        "polisyos.runtime.content_admitted_observational_run_intent.v1",
+        "polisyos.runtime.content_admitted_observational_run_intent.v2",
+    ] = "polisyos.runtime.content_admitted_observational_run_intent.v1"
     job_id: str = Field(min_length=1, max_length=128)
     run_id: str = Field(min_length=1, max_length=128)
     attempt: int = Field(ge=1, strict=True)
@@ -4137,7 +4426,31 @@ class ContentAdmittedObservationalRunIntent(BaseModel):
     ]
     selection_digest: str | None = Field(default=None, pattern=r"^[0-9a-f]{64}$")
     source_access_revalidation_status: Literal["not_established"] | None = None
-    method_fqn: Literal["causal.hte.forest_dr@1.0.0", "causal.hte.forest_dr@1.1.0"]
+    method_fqn: Literal[
+        "causal.hte.forest_dr@1.0.0",
+        "causal.hte.forest_dr@1.1.0",
+        "causal.hte.causal_forest@2.0.0",
+        "causal.hte.double_ml@2.0.0",
+        "causal.hte.meta_learner@2.0.0",
+        "causal.hte.forest_dr@2.0.0",
+    ]
+    owned_hte_request_context: OwnedHTERequestContextV1 | None = None
+    search_binding_admission: SearchUncertaintyTaskAdmissionSnapshot | None = Field(
+        default=None,
+        exclude_if=lambda value: value is None,
+    )
+    search_binding_tenant_id: str | None = Field(
+        default=None,
+        min_length=1,
+        max_length=128,
+        exclude_if=lambda value: value is None,
+    )
+    search_binding_cell_id: str | None = Field(
+        default=None,
+        min_length=1,
+        max_length=128,
+        exclude_if=lambda value: value is None,
+    )
     source_protocol: Literal["method_input_envelope_v1", "legacy_hte_json_v1"]
     normalization: Literal[
         "canonical_passthrough",
@@ -4169,6 +4482,55 @@ class ContentAdmittedObservationalRunIntent(BaseModel):
 
     @model_validator(mode="after")
     def _require_selected_input_views(self) -> ContentAdmittedObservationalRunIntent:
+        is_successor = self.method_fqn in _OBSERVATIONAL_HTE_SUCCESSOR_METHODS
+        request_context = self.owned_hte_request_context
+        search_binding_ref = (
+            request_context.search_uncertainty_task_binding_ref
+            if request_context is not None
+            else None
+        )
+        if search_binding_ref is None:
+            if any(
+                value is not None
+                for value in (
+                    self.search_binding_admission,
+                    self.search_binding_tenant_id,
+                    self.search_binding_cell_id,
+                )
+            ):
+                raise ValueError("content_admitted_search_snapshot_without_binding")
+        elif (
+            type(self.search_binding_admission) is not SearchUncertaintyTaskAdmissionSnapshot
+            or self.search_binding_admission.binding_ref != search_binding_ref
+            or self.search_binding_tenant_id is None
+            or self.search_binding_admission.tenant_id != self.search_binding_tenant_id
+            or self.search_binding_admission.cell_id != self.search_binding_cell_id
+            or self.search_binding_admission.selected_method_fqn != self.method_fqn
+            or self.search_binding_admission.selected_method_input_ref != self.effective_input_ref
+        ):
+            raise ValueError("content_admitted_search_snapshot_selection_mismatch")
+        if is_successor:
+            if (
+                self.schema_version
+                != "polisyos.runtime.content_admitted_observational_run_intent.v2"
+                or type(request_context) is not OwnedHTERequestContextV1
+                or request_context.request_estimand_status != "declared"
+                or request_context.request_target_scope_status != "declared"
+                or request_context.outcome_variable_status != "declared"
+                or request_context.treatment_variable_status != "declared"
+                or request_context.contrast_status != "declared"
+                or request_context.request_alpha_status != "declared"
+                or request_context.requested_guarantee_status not in {"declared", "not_established"}
+            ):
+                raise ValueError("content_admitted_hte_successor_context_invalid")
+        elif (
+            self.schema_version != "polisyos.runtime.content_admitted_observational_run_intent.v1"
+            or request_context is not None
+            or self.search_binding_admission is not None
+            or self.search_binding_tenant_id is not None
+            or self.search_binding_cell_id is not None
+        ):
+            raise ValueError("content_admitted_legacy_context_must_be_absent")
         refs = (
             self.requested_intent_ref,
             self.requested_source_ref,
@@ -4229,6 +4591,13 @@ class ContentAdmittedObservationalRunIntent(BaseModel):
         ):
             raise ValueError("content_admitted_observational_passthrough_mismatch")
         return self
+
+    def artifact_payload(self) -> dict[str, JsonValue]:
+        """Serialize the admitted intent while omitting successor fields from v1 bytes."""
+        payload = self.model_dump(mode="json")
+        if self.schema_version == "polisyos.runtime.content_admitted_observational_run_intent.v1":
+            payload.pop("owned_hte_request_context", None)
+        return payload
 
 
 class MethodMetricProjectionResponse(BaseModel):
@@ -4336,6 +4705,860 @@ class MethodExecutionCandidateOutcome(BaseModel):
         return self
 
 
+class DirectMethodExecutionHTETargetRelation(BaseModel):
+    """Bounded target relation copied from the validated HTE outcome."""
+
+    model_config = ConfigDict(extra="forbid", frozen=True, strict=True)
+
+    requested_scope_status: Literal["declared", "not_established"]
+    requested_scope: str | None = Field(default=None, min_length=1, max_length=256)
+    requested_guarantee_status: Literal["declared", "not_established"]
+    requested_guarantee: (
+        Literal[
+            "candidate_point",
+            "backend_conditional_interval",
+            "population_sampling_coverage",
+        ]
+        | None
+    )
+    computed_scope_status: Literal["recomputed", "not_established"]
+    computed_scope: Literal["selected_evaluation_rows"] | None
+    computed_guarantee_status: Literal["computed", "not_established"]
+    computed_guarantee: Literal["candidate_point", "backend_conditional_interval"] | None
+    source_content_status: Literal["content_bound", "not_established"]
+    row_order_status: Literal["recomputed", "not_established"]
+    contrast_status: Literal["recomputed", "not_established"]
+    estimand_status: Literal["recomputed", "not_established"]
+    alpha_status: Literal["recomputed", "not_applicable", "not_established"]
+    profile_status: Literal["qualified", "point_only", "not_established"]
+    scope_disposition: Literal["satisfied", "requested_claim_not_satisfied", "not_established"]
+    guarantee_disposition: Literal["satisfied", "requested_claim_not_satisfied", "not_established"]
+    overall_disposition: Literal["satisfied", "requested_claim_not_satisfied", "not_established"]
+
+    @model_validator(mode="after")
+    def _require_status_value_pairs(self) -> DirectMethodExecutionHTETargetRelation:
+        if (self.requested_scope_status == "declared") != (self.requested_scope is not None):
+            raise ValueError("direct_method_hte_requested_scope_status_mismatch")
+        if (self.requested_guarantee_status == "declared") != (
+            self.requested_guarantee is not None
+        ):
+            raise ValueError("direct_method_hte_requested_guarantee_status_mismatch")
+        if (self.computed_scope_status == "recomputed") != (
+            self.computed_scope == "selected_evaluation_rows"
+        ):
+            raise ValueError("direct_method_hte_computed_scope_status_mismatch")
+        if (self.computed_guarantee_status == "computed") != (self.computed_guarantee is not None):
+            raise ValueError("direct_method_hte_computed_guarantee_status_mismatch")
+        if self.estimand_status != "not_established":
+            raise ValueError("direct_method_hte_source_variable_identity_not_established")
+
+        scope_evidence_ready = (
+            self.computed_scope_status == "recomputed"
+            and self.source_content_status == "content_bound"
+            and self.row_order_status == "recomputed"
+        )
+        if (
+            self.requested_scope_status == "declared"
+            and self.computed_scope_status == "recomputed"
+            and self.requested_scope == "population"
+            and self.computed_scope == "selected_evaluation_rows"
+        ):
+            # This direct typed scope conflict is decisive even when unrelated
+            # source-variable or row-identity joins remain unknown.
+            expected_scope = "requested_claim_not_satisfied"
+        elif self.requested_scope_status != "declared" or not scope_evidence_ready:
+            expected_scope = "not_established"
+        elif self.requested_scope == self.computed_scope:
+            expected_scope = "satisfied"
+        else:
+            expected_scope = "not_established"
+
+        guarantee_evidence_ready = (
+            self.computed_guarantee_status == "computed"
+            and self.alpha_status in {"recomputed", "not_applicable"}
+            and self.profile_status in {"qualified", "point_only"}
+        )
+        if (
+            self.requested_guarantee_status == "declared"
+            and self.computed_guarantee_status == "computed"
+            and self.requested_guarantee != self.computed_guarantee
+        ):
+            expected_guarantee = "requested_claim_not_satisfied"
+        elif self.requested_guarantee_status != "declared" or not guarantee_evidence_ready:
+            expected_guarantee = "not_established"
+        elif self.requested_guarantee == self.computed_guarantee:
+            expected_guarantee = "satisfied"
+        else:
+            expected_guarantee = "not_established"
+
+        expected_overall = (
+            "requested_claim_not_satisfied"
+            if "requested_claim_not_satisfied" in {expected_scope, expected_guarantee}
+            else "not_established"
+            if (
+                "not_established" in {expected_scope, expected_guarantee}
+                or self.contrast_status != "recomputed"
+                or self.estimand_status != "recomputed"
+                or self.source_content_status != "content_bound"
+                or self.row_order_status != "recomputed"
+            )
+            else "satisfied"
+        )
+        if (
+            self.scope_disposition != expected_scope
+            or self.guarantee_disposition != expected_guarantee
+            or self.overall_disposition != expected_overall
+        ):
+            raise ValueError("direct_method_hte_target_relation_disposition_mismatch")
+        return self
+
+
+class DirectMethodExecutionHTEResourceEvidence(BaseModel):
+    """Bounded owner-policy and method-specific execution evidence for one HTE result."""
+
+    model_config = ConfigDict(extra="forbid", frozen=True, strict=True)
+
+    owner_policy_ref: ArtifactRef
+    owner_policy_digest: str = Field(pattern=r"^[0-9a-f]{64}$")
+    owner_policy_schema_version: Literal[
+        "polisyos.runtime.observational_input_resource_policy.v4",
+        "polisyos.runtime.observational_input_resource_policy.v5",
+    ]
+    owner_policy_revision: Literal["r4", "r5"]
+    owner_policy_method_fqn: Literal[
+        "causal.hte.causal_forest@2.0.0",
+        "causal.hte.double_ml@2.0.0",
+        "causal.hte.meta_learner@2.0.0",
+        "causal.hte.forest_dr@2.0.0",
+    ]
+    owner_policy_method_profile_id: Literal[
+        "econml.causal_forest_dml.native_mean@2.0",
+        "econml.dml.point_only@2.0",
+        "econml.meta_learner.point_only@2.0",
+        "econml.forest_dr.native_mean@2.0",
+    ]
+    owner_policy_execution_scope: Literal[
+        "estimator_n_jobs_one",
+        "producer_scoped_joblib_parallelism_one",
+    ]
+    owner_policy_max_jobs: Literal[1]
+    owner_policy_required_estimator_n_jobs: Literal[1] | None
+    owner_policy_manifest_schema_version: Literal["1.0"] = "1.0"
+    execution_status: Literal["not_started", "returned", "raised"]
+    estimator_observation_status: Literal["recomputed", "not_applicable", "not_established"]
+    estimator_before_class_fqn: str | None = Field(default=None, min_length=1, max_length=256)
+    estimator_before_n_jobs: int | None = Field(default=None, strict=True)
+    estimator_before_params_sha256: str | None = Field(default=None, pattern=r"^[0-9a-f]{64}$")
+    estimator_after_class_fqn: str | None = Field(default=None, min_length=1, max_length=256)
+    estimator_after_n_jobs: int | None = Field(default=None, strict=True)
+    estimator_after_params_sha256: str | None = Field(default=None, pattern=r"^[0-9a-f]{64}$")
+    joblib_observation_status: Literal["recomputed", "not_applicable", "not_established"]
+    joblib_profile_id: Literal["joblib.parallel_config.current_thread@1.0"] | None
+    joblib_profile_revision: Literal["1.0"] | None
+    joblib_implementation: Literal["joblib.parallel_config"] | None
+    joblib_implementation_version: str | None = Field(default=None, min_length=1, max_length=96)
+    joblib_scope: Literal["current_thread_joblib"] | None
+    joblib_max_jobs: Literal[1] | None
+    joblib_started: bool = False
+    joblib_finished: bool = False
+    joblib_exit_status: Literal["not_started", "returned", "raised"] = "not_started"
+    joblib_entry_effective_jobs: int | None = Field(default=None, strict=True)
+    joblib_entry_backend_fqn: str | None = Field(default=None, min_length=1, max_length=256)
+    joblib_entry_config_sha256: str | None = Field(default=None, pattern=r"^[0-9a-f]{64}$")
+    joblib_entry_implementation_version: str | None = Field(
+        default=None, min_length=1, max_length=96
+    )
+    joblib_exit_effective_jobs: int | None = Field(default=None, strict=True)
+    joblib_exit_backend_fqn: str | None = Field(default=None, min_length=1, max_length=256)
+    joblib_exit_config_sha256: str | None = Field(default=None, pattern=r"^[0-9a-f]{64}$")
+    joblib_exit_implementation_version: str | None = Field(
+        default=None, min_length=1, max_length=96
+    )
+    physical_thread_limit_status: Literal["not_established"] = "not_established"
+    physical_thread_limit: None = None
+
+    @model_validator(mode="after")
+    def _require_coherent_resource_evidence(self) -> DirectMethodExecutionHTEResourceEvidence:
+        historical_method_profile = {
+            "causal.hte.causal_forest@2.0.0": (
+                "econml.causal_forest_dml.native_mean@2.0",
+                "estimator_n_jobs_one",
+                1,
+            ),
+            "causal.hte.double_ml@2.0.0": (
+                "econml.dml.point_only@2.0",
+                "producer_scoped_joblib_parallelism_one",
+                None,
+            ),
+            "causal.hte.meta_learner@2.0.0": (
+                "econml.meta_learner.point_only@2.0",
+                "producer_scoped_joblib_parallelism_one",
+                None,
+            ),
+            "causal.hte.forest_dr@2.0.0": (
+                "econml.forest_dr.native_mean@2.0",
+                "estimator_n_jobs_one",
+                1,
+            ),
+        }
+        method_profile = {
+            "causal.hte.causal_forest@2.0.0": (
+                "econml.causal_forest_dml.native_mean@2.0",
+                1,
+            ),
+            "causal.hte.double_ml@2.0.0": (
+                "econml.dml.point_only@2.0",
+                None,
+            ),
+            "causal.hte.meta_learner@2.0.0": (
+                "econml.meta_learner.point_only@2.0",
+                None,
+            ),
+            "causal.hte.forest_dr@2.0.0": (
+                "econml.forest_dr.native_mean@2.0",
+                1,
+            ),
+        }
+        if (
+            self.owner_policy_ref.kind != "runtime.observational_input_resource_policy"
+            or self.owner_policy_ref.media_type != "application/json"
+            or self.owner_policy_ref.manifest_profile_sha256 is None
+        ):
+            raise ValueError("direct_method_hte_resource_policy_ref_invalid")
+        expected = method_profile[self.owner_policy_method_fqn]
+        if self.owner_policy_max_jobs != 1:
+            raise ValueError("direct_method_hte_resource_policy_method_tuple_invalid")
+        if self.owner_policy_revision == "r4":
+            historical_expected = historical_method_profile[self.owner_policy_method_fqn]
+            if (
+                self.owner_policy_schema_version
+                != "polisyos.runtime.observational_input_resource_policy.v4"
+                or self.owner_policy_method_profile_id != historical_expected[0]
+                or self.owner_policy_execution_scope != historical_expected[1]
+                or self.owner_policy_required_estimator_n_jobs != historical_expected[2]
+            ):
+                raise ValueError("direct_method_hte_resource_policy_method_tuple_invalid")
+        elif (
+            self.owner_policy_schema_version
+            != "polisyos.runtime.observational_input_resource_policy.v5"
+            or self.owner_policy_method_profile_id != expected[0]
+            or self.owner_policy_execution_scope != "producer_scoped_joblib_parallelism_one"
+            or self.owner_policy_required_estimator_n_jobs != expected[1]
+        ):
+            raise ValueError("direct_method_hte_resource_policy_method_tuple_invalid")
+        estimator_before = (
+            self.estimator_before_class_fqn,
+            self.estimator_before_n_jobs,
+            self.estimator_before_params_sha256,
+        )
+        estimator_after = (
+            self.estimator_after_class_fqn,
+            self.estimator_after_n_jobs,
+            self.estimator_after_params_sha256,
+        )
+        joblib_entry = (
+            self.joblib_profile_id,
+            self.joblib_profile_revision,
+            self.joblib_implementation,
+            self.joblib_scope,
+            self.joblib_max_jobs,
+            self.joblib_entry_effective_jobs,
+            self.joblib_entry_backend_fqn,
+            self.joblib_entry_config_sha256,
+            self.joblib_entry_implementation_version,
+        )
+        joblib_exit = (
+            self.joblib_exit_effective_jobs,
+            self.joblib_exit_backend_fqn,
+            self.joblib_exit_config_sha256,
+            self.joblib_exit_implementation_version,
+        )
+        if self.owner_policy_revision == "r4" and any(
+            value is not None and value < 1
+            for value in (
+                self.joblib_entry_effective_jobs,
+                self.joblib_exit_effective_jobs,
+            )
+        ):
+            raise ValueError("direct_method_hte_joblib_execution_observation_invalid")
+        estimator_required = self.owner_policy_required_estimator_n_jobs == 1
+        estimator_observed = estimator_before + estimator_after
+        if self.owner_policy_revision == "r5":
+            if estimator_required:
+                if self.estimator_observation_status == "recomputed":
+                    if any(item is None for item in estimator_observed):
+                        raise ValueError("direct_method_hte_estimator_observation_incomplete")
+                elif self.estimator_observation_status != "not_established":
+                    raise ValueError("direct_method_hte_estimator_observation_status_invalid")
+            elif self.estimator_observation_status != "not_applicable" or any(
+                item is not None for item in estimator_observed
+            ):
+                raise ValueError("direct_method_hte_joblib_estimator_observation_present")
+
+            joblib_required = (
+                self.owner_policy_execution_scope == "producer_scoped_joblib_parallelism_one"
+            )
+            if not joblib_required:
+                if (
+                    self.joblib_observation_status != "not_applicable"
+                    or self.joblib_started
+                    or self.joblib_finished
+                    or self.joblib_exit_status != "not_started"
+                    or any(item is not None for item in joblib_entry + joblib_exit)
+                ):
+                    raise ValueError("direct_method_hte_estimator_joblib_observation_invalid")
+            elif self.execution_status == "not_started":
+                if (
+                    self.joblib_observation_status != "not_established"
+                    or self.joblib_started
+                    or self.joblib_finished
+                    or self.joblib_exit_status != "not_started"
+                    or any(item is not None for item in joblib_entry + joblib_exit)
+                ):
+                    raise ValueError("direct_method_hte_unstarted_joblib_observation_invalid")
+            elif self.joblib_observation_status == "recomputed":
+                if (
+                    not self.joblib_started
+                    or not self.joblib_finished
+                    or self.joblib_exit_status != self.execution_status
+                    or any(item is None for item in joblib_entry + joblib_exit)
+                    or self.joblib_profile_id != "joblib.parallel_config.current_thread@1.0"
+                    or self.joblib_profile_revision != "1.0"
+                    or self.joblib_implementation != "joblib.parallel_config"
+                    or self.joblib_scope != "current_thread_joblib"
+                    or self.joblib_max_jobs != 1
+                ):
+                    raise ValueError("direct_method_hte_joblib_execution_observation_invalid")
+            elif self.joblib_observation_status == "not_established":
+                if not self.joblib_started and (
+                    self.joblib_finished
+                    or self.joblib_exit_status != "not_started"
+                    or any(item is not None for item in joblib_entry + joblib_exit)
+                ):
+                    raise ValueError("direct_method_hte_joblib_observation_status_invalid")
+                if self.joblib_finished == (self.joblib_exit_status == "not_started"):
+                    raise ValueError("direct_method_hte_joblib_exit_observation_invalid")
+            else:
+                raise ValueError("direct_method_hte_joblib_observation_status_invalid")
+            return self
+
+        if estimator_required:
+            if self.execution_status == "returned":
+                complete_bounded_observation = (
+                    self.estimator_observation_status == "recomputed"
+                    and all(item is not None for item in estimator_observed)
+                    and self.estimator_before_n_jobs == 1
+                    and self.estimator_after_n_jobs == 1
+                    and self.estimator_before_class_fqn == self.estimator_after_class_fqn
+                    and self.estimator_before_params_sha256 == self.estimator_after_params_sha256
+                )
+                returned_refusal_unavailable_observation = (
+                    self.estimator_observation_status == "not_established"
+                    and all(item is None for item in estimator_observed)
+                    and self.joblib_observation_status == "recomputed"
+                    and self.joblib_started
+                )
+                if not (complete_bounded_observation or returned_refusal_unavailable_observation):
+                    raise ValueError("direct_method_hte_returned_estimator_resource_invalid")
+            elif self.execution_status == "not_started":
+                if self.estimator_observation_status != "not_established" or any(
+                    item is not None for item in estimator_observed
+                ):
+                    raise ValueError("direct_method_hte_unstarted_estimator_observation_invalid")
+            elif self.estimator_observation_status == "recomputed":
+                # Raised executions preserve measurements and drift; they cannot
+                # qualify as completed bounded execution.
+                if any(item is None for item in estimator_observed):
+                    raise ValueError("direct_method_hte_raised_estimator_resource_invalid")
+            elif self.estimator_observation_status != "not_established" or any(
+                item is not None for item in estimator_observed
+            ):
+                raise ValueError("direct_method_hte_raised_estimator_observation_invalid")
+        elif self.estimator_observation_status != "not_applicable" or any(
+            item is not None for item in estimator_observed
+        ):
+            raise ValueError("direct_method_hte_joblib_estimator_observation_present")
+
+        joblib_required = (
+            self.owner_policy_execution_scope == "producer_scoped_joblib_parallelism_one"
+        )
+        if not joblib_required:
+            if (
+                self.joblib_observation_status != "not_applicable"
+                or self.joblib_started
+                or self.joblib_finished
+                or self.joblib_exit_status != "not_started"
+                or any(item is not None for item in joblib_entry + joblib_exit)
+            ):
+                raise ValueError("direct_method_hte_estimator_joblib_observation_invalid")
+        elif self.execution_status == "not_started":
+            if (
+                self.joblib_observation_status != "not_established"
+                or self.joblib_started
+                or self.joblib_finished
+                or self.joblib_exit_status != "not_started"
+                or any(item is not None for item in joblib_entry + joblib_exit)
+            ):
+                raise ValueError("direct_method_hte_unstarted_joblib_observation_invalid")
+        else:
+            expected_exit = self.execution_status
+            if (
+                self.joblib_observation_status != "recomputed"
+                or not self.joblib_started
+                or not self.joblib_finished
+                or self.joblib_exit_status != expected_exit
+                or any(item is None for item in joblib_entry + joblib_exit)
+                or self.joblib_profile_id != "joblib.parallel_config.current_thread@1.0"
+                or self.joblib_profile_revision != "1.0"
+                or self.joblib_implementation != "joblib.parallel_config"
+                or self.joblib_scope != "current_thread_joblib"
+                or self.joblib_max_jobs != 1
+                or (
+                    self.execution_status == "returned"
+                    and (
+                        self.joblib_entry_effective_jobs != 1
+                        or self.joblib_exit_effective_jobs != 1
+                        or self.joblib_implementation_version
+                        != self.joblib_entry_implementation_version
+                        or self.joblib_entry_backend_fqn != self.joblib_exit_backend_fqn
+                        or self.joblib_entry_config_sha256 != self.joblib_exit_config_sha256
+                        or self.joblib_entry_implementation_version
+                        != self.joblib_exit_implementation_version
+                    )
+                )
+            ):
+                raise ValueError("direct_method_hte_joblib_execution_observation_invalid")
+        return self
+
+
+class DirectMethodExecutionHTESummary(BaseModel):
+    """Scalar-only projection copied from a validated persisted HTE outcome."""
+
+    model_config = ConfigDict(extra="forbid", frozen=True, strict=True)
+
+    schema_version: Literal["1.0"] = "1.0"
+    kind: Literal["point_estimate", "interval_estimate", "refusal"]
+    method_fqn: Literal[
+        "causal.hte.causal_forest@2.0.0",
+        "causal.hte.double_ml@2.0.0",
+        "causal.hte.meta_learner@2.0.0",
+        "causal.hte.forest_dr@2.0.0",
+    ]
+    method_abi_digest: str = Field(pattern=r"^[0-9a-f]{64}$")
+    method_profile_id: Literal[
+        "econml.causal_forest_dml.native_mean@2.0",
+        "econml.dml.point_only@2.0",
+        "econml.meta_learner.point_only@2.0",
+        "econml.forest_dr.native_mean@2.0",
+    ]
+    resolved_params_sha256: str = Field(pattern=r"^[0-9a-f]{64}$")
+    owned_attempt_anchor_ref: OwnedAttemptAnchorRef
+    hte_outcome_ref: ArtifactRef
+    point_result_ref: ArtifactRef | None = None
+    hte_result_ref: ArtifactRef | None = None
+    inference_basis_ref: ArtifactRef | None = None
+    refusal_diagnostic_ref: ArtifactRef | None = None
+    search_uncertainty_task_binding_ref: ArtifactRef | None = Field(
+        default=None,
+        exclude_if=lambda value: value is None,
+    )
+    materialization_binding_ref: ArtifactRef | None = Field(
+        default=None,
+        exclude_if=lambda value: value is None,
+    )
+    method_result_ref: ArtifactRef
+    method_evidence_ref: ArtifactRef
+    source_data_ref: ArtifactRef | None = None
+    selected_rows_status: Literal["recomputed", "not_established"]
+    n_selected_rows: int | None = Field(default=None, ge=1, strict=True)
+    selected_rows_sha256: str | None = Field(default=None, pattern=r"^[0-9a-f]{64}$")
+    selected_row_order_sha256: str | None = Field(default=None, pattern=r"^[0-9a-f]{64}$")
+    selected_x_sha256: str | None = Field(default=None, pattern=r"^[0-9a-f]{64}$")
+    computed_estimand_status: Literal["recomputed", "not_established"]
+    computed_estimand: Literal["mean_effect_over_selected_x"] | None = None
+    computed_target_scope_status: Literal["recomputed", "not_established"]
+    computed_target_scope: Literal["selected_evaluation_rows"] | None = None
+    measure_unit_status: Literal["established", "not_established"]
+    measure_unit: str | None = Field(default=None, min_length=1, max_length=128)
+    request_estimand_status: Literal["declared", "not_established"]
+    request_estimand: str | None = Field(default=None, min_length=1, max_length=256)
+    request_target_scope_status: Literal["declared", "not_established"]
+    request_target_scope: str | None = Field(default=None, min_length=1, max_length=256)
+    outcome_variable_status: Literal["declared", "not_established"]
+    outcome_variable_id: str | None = Field(default=None, min_length=1, max_length=256)
+    treatment_variable_status: Literal["declared", "not_established"]
+    treatment_variable_id: str | None = Field(default=None, min_length=1, max_length=256)
+    request_contrast_status: Literal["declared", "not_established"]
+    control_value: float | None = None
+    treated_value: float | None = None
+    request_alpha_status: Literal["declared", "not_established"]
+    requested_alpha: float | None = Field(default=None, gt=0.0, lt=1.0)
+    requested_guarantee_status: Literal["declared", "not_established"]
+    requested_guarantee: (
+        Literal[
+            "candidate_point",
+            "backend_conditional_interval",
+            "population_sampling_coverage",
+        ]
+        | None
+    )
+    computed_guarantee_status: Literal["computed", "not_established"]
+    computed_guarantee: Literal["candidate_point", "backend_conditional_interval"] | None
+    target_relation: DirectMethodExecutionHTETargetRelation
+    inference_status: (
+        Literal[
+            "not_requested",
+            "unavailable",
+            "unsupported",
+            "not_qualified",
+            "failed",
+            "native_ate_inference_validated",
+        ]
+        | None
+    )
+    inference_reason: (
+        Literal[
+            "inference_not_requested",
+            "native_inference_unavailable",
+            "native_inference_invalid",
+            "method_profile_not_qualified",
+            "selection_uses_outcomes",
+            "contrast_not_established",
+            "request_alpha_not_established",
+        ]
+        | None
+    )
+    point_estimate: float | None = None
+    lower_bound: float | None = None
+    upper_bound: float | None = None
+    confidence_level: float | None = Field(default=None, gt=0.0, lt=1.0)
+    refusal_stage: Literal["prepare", "fit", "infer", "origin_verification"] | None = None
+    refusal_reason: (
+        Literal[
+            "invalid_point_estimate",
+            "method_execution_failed",
+            "required_input_unavailable",
+            "invalid_selected_input",
+            "method_profile_unavailable",
+            "runtime_origin_not_verified",
+        ]
+        | None
+    )
+    refusal_diagnostic_code: (
+        Literal[
+            "hte_input_invalid",
+            "empty_selected_input",
+            "econml_unavailable",
+            "joblib_unavailable",
+            "resource_profile_invalid",
+            "dml_profile_invalid",
+            "meta_profile_invalid",
+            "hte_execution_failed",
+            "hte_fit_failed",
+            "hte_point_estimate_invalid",
+            "contrast_not_established",
+            "runtime_origin_not_verified",
+        ]
+        | None
+    )
+    resource_evidence: DirectMethodExecutionHTEResourceEvidence
+    limitations: tuple[str, ...] = Field(min_length=1, max_length=32)
+
+    @model_validator(mode="after")
+    def _require_scalar_summary_shape(self) -> DirectMethodExecutionHTESummary:
+        ref_specs = (
+            (self.hte_outcome_ref, "ir.hte_outcome"),
+            (self.method_result_ref, "scientist.method_result.causal.hte"),
+            (self.method_evidence_ref, "scientist.method_evidence"),
+        )
+        for ref, expected_kind in ref_specs:
+            if (
+                ref.kind != expected_kind
+                or ref.media_type != "application/json"
+                or ref.manifest_profile_sha256 is None
+            ):
+                raise ValueError("direct_method_hte_summary_required_ref_invalid")
+        for ref, expected_kind in (
+            (self.point_result_ref, "ir.hte_point_result"),
+            (self.hte_result_ref, "ir.hte_result"),
+            (self.inference_basis_ref, "ir.ate_inference_basis"),
+            (self.refusal_diagnostic_ref, "ir.hte_refusal_diagnostic"),
+        ):
+            if ref is not None and (
+                ref.kind != expected_kind
+                or ref.media_type != "application/json"
+                or ref.manifest_profile_sha256 is None
+            ):
+                raise ValueError("direct_method_hte_summary_optional_ref_invalid")
+        if self.search_uncertainty_task_binding_ref is not None and (
+            self.search_uncertainty_task_binding_ref.kind
+            != "scientist.search.uncertainty_task_binding"
+            or self.search_uncertainty_task_binding_ref.media_type != "application/json"
+            or self.search_uncertainty_task_binding_ref.manifest_profile_sha256 is None
+        ):
+            raise ValueError("direct_method_hte_summary_search_binding_ref_invalid")
+        if self.materialization_binding_ref is not None and (
+            self.materialization_binding_ref.kind
+            != "foundry.hte.physical_source_materialization_binding"
+            or self.materialization_binding_ref.media_type != "application/json"
+            or self.materialization_binding_ref.manifest_profile_sha256 is None
+        ):
+            raise ValueError("direct_method_hte_summary_materialization_binding_ref_invalid")
+        if (
+            self.resource_evidence.owner_policy_revision == "r5"
+            and self.materialization_binding_ref is None
+        ):
+            raise ValueError("direct_method_hte_r5_materialization_binding_required")
+        if self.hte_result_ref is not None and (
+            self.point_result_ref is not None or self.inference_basis_ref is None
+        ):
+            raise ValueError("direct_method_hte_summary_interval_refs_incomplete")
+        if self.inference_basis_ref is not None and (
+            self.point_result_ref is None and self.hte_result_ref is None
+        ):
+            raise ValueError("direct_method_hte_summary_basis_without_result")
+        if (
+            self.source_data_ref is not None
+            and self.source_data_ref.manifest_profile_sha256 is None
+        ):
+            raise ValueError("direct_method_hte_summary_source_profile_missing")
+        if self.source_data_ref is None:
+            raise ValueError("direct_method_hte_summary_source_ref_missing")
+        requested_pairs = (
+            (self.request_estimand_status == "declared", self.request_estimand),
+            (self.request_target_scope_status == "declared", self.request_target_scope),
+            (self.outcome_variable_status == "declared", self.outcome_variable_id),
+            (self.treatment_variable_status == "declared", self.treatment_variable_id),
+            (self.request_contrast_status == "declared", self.control_value),
+            (self.request_contrast_status == "declared", self.treated_value),
+            (self.request_alpha_status == "declared", self.requested_alpha),
+            (self.requested_guarantee_status == "declared", self.requested_guarantee),
+            (self.computed_target_scope_status == "recomputed", self.computed_target_scope),
+            (self.computed_estimand_status == "recomputed", self.computed_estimand),
+            (self.computed_guarantee_status == "computed", self.computed_guarantee),
+            (self.selected_rows_status == "recomputed", self.n_selected_rows),
+            (self.selected_rows_status == "recomputed", self.selected_rows_sha256),
+            (self.selected_rows_status == "recomputed", self.selected_row_order_sha256),
+            (self.selected_rows_status == "recomputed", self.selected_x_sha256),
+            (self.measure_unit_status == "established", self.measure_unit),
+        )
+        if any((status is True) != (value is not None) for status, value in requested_pairs):
+            raise ValueError("direct_method_hte_summary_status_value_mismatch")
+        for name, value in (
+            ("point_estimate", self.point_estimate),
+            ("lower_bound", self.lower_bound),
+            ("upper_bound", self.upper_bound),
+            ("confidence_level", self.confidence_level),
+            ("control_value", self.control_value),
+            ("treated_value", self.treated_value),
+        ):
+            if value is not None and not math.isfinite(value):
+                raise ValueError(f"direct_method_hte_summary_{name}_non_finite")
+        if self.kind == "point_estimate":
+            if (
+                self.point_estimate is None
+                or self.lower_bound is not None
+                or self.upper_bound is not None
+                or self.confidence_level is not None
+                or self.point_result_ref is None
+                or self.hte_result_ref is not None
+                or self.computed_guarantee != "candidate_point"
+                or self.computed_estimand_status != "recomputed"
+                or self.computed_estimand != "mean_effect_over_selected_x"
+                or self.computed_target_scope_status != "recomputed"
+                or self.computed_target_scope != "selected_evaluation_rows"
+                or self.selected_rows_status != "recomputed"
+                or self.source_data_ref is None
+                or self.inference_status
+                not in {"not_requested", "unavailable", "unsupported", "not_qualified", "failed"}
+                or self.inference_reason is None
+                or self.refusal_diagnostic_ref is not None
+            ):
+                raise ValueError("direct_method_hte_point_summary_invalid")
+            if self.inference_basis_ref is not None and (
+                self.inference_status != "failed"
+                or self.inference_reason != "native_inference_invalid"
+            ):
+                raise ValueError("direct_method_hte_point_basis_disposition_invalid")
+        elif self.kind == "interval_estimate":
+            if (
+                self.point_estimate is None
+                or self.lower_bound is None
+                or self.upper_bound is None
+                or self.confidence_level is None
+                or self.point_result_ref is not None
+                or self.hte_result_ref is None
+                or self.inference_basis_ref is None
+                or self.method_profile_id
+                not in {
+                    "econml.causal_forest_dml.native_mean@2.0",
+                    "econml.forest_dr.native_mean@2.0",
+                }
+                or self.computed_guarantee != "backend_conditional_interval"
+                or self.computed_estimand_status != "recomputed"
+                or self.computed_estimand != "mean_effect_over_selected_x"
+                or self.computed_target_scope_status != "recomputed"
+                or self.computed_target_scope != "selected_evaluation_rows"
+                or self.selected_rows_status != "recomputed"
+                or self.source_data_ref is None
+                or self.inference_status != "native_ate_inference_validated"
+                or self.inference_reason is not None
+                or self.requested_alpha is None
+                or self.refusal_diagnostic_ref is not None
+                or self.target_relation.profile_status != "qualified"
+                or self.target_relation.alpha_status != "recomputed"
+                or not math.isclose(
+                    1.0 - self.confidence_level,
+                    self.requested_alpha,
+                    rel_tol=0.0,
+                    abs_tol=1.0e-12,
+                )
+            ):
+                raise ValueError("direct_method_hte_interval_summary_invalid")
+        elif any(
+            value is not None
+            for value in (
+                self.point_estimate,
+                self.lower_bound,
+                self.upper_bound,
+                self.confidence_level,
+                self.point_result_ref,
+                self.hte_result_ref,
+                self.inference_basis_ref,
+                self.inference_status,
+                self.inference_reason,
+            )
+        ):
+            raise ValueError("direct_method_hte_refusal_carries_numeric_estimate")
+        if self.kind == "refusal" and (
+            self.computed_estimand_status != "not_established"
+            or self.computed_target_scope_status != "not_established"
+            or self.computed_guarantee_status != "not_established"
+            or self.selected_rows_status != "not_established"
+            or self.refusal_diagnostic_ref is None
+            or self.target_relation.overall_disposition != "not_established"
+        ):
+            raise ValueError("direct_method_hte_refusal_claims_computed_quantity")
+        if self.kind == "refusal":
+            if (
+                self.refusal_stage is None
+                or self.refusal_reason is None
+                or self.refusal_diagnostic_code is None
+                or self.refusal_diagnostic_ref is None
+            ):
+                raise ValueError("direct_method_hte_refusal_detail_missing")
+        elif any(
+            value is not None
+            for value in (self.refusal_stage, self.refusal_reason, self.refusal_diagnostic_code)
+        ):
+            raise ValueError("direct_method_hte_success_carries_refusal_details")
+        if (
+            self.kind == "interval_estimate"
+            and self.lower_bound is not None
+            and (self.upper_bound is None or self.lower_bound > self.upper_bound)
+        ):
+            raise ValueError("direct_method_hte_interval_order_invalid")
+        if self.kind == "refusal" and any(
+            ref is not None
+            for ref in (
+                self.point_result_ref,
+                self.hte_result_ref,
+                self.inference_basis_ref,
+            )
+        ):
+            raise ValueError("direct_method_hte_refusal_carries_result_refs")
+        if self.kind != "refusal" and self.resource_evidence.execution_status != "returned":
+            raise ValueError("direct_method_hte_numeric_result_without_returned_resource")
+        if self.kind != "refusal" and self.resource_evidence.owner_policy_revision == "r5":
+            evidence = self.resource_evidence
+            expected_estimator_status = (
+                "recomputed"
+                if evidence.owner_policy_required_estimator_n_jobs == 1
+                else "not_applicable"
+            )
+            if (
+                evidence.estimator_observation_status != expected_estimator_status
+                or evidence.joblib_observation_status != "recomputed"
+            ):
+                raise ValueError("direct_method_hte_numeric_resource_observation_not_established")
+            if evidence.owner_policy_required_estimator_n_jobs == 1 and (
+                evidence.estimator_before_n_jobs != 1
+                or evidence.estimator_after_n_jobs != 1
+                or evidence.estimator_before_class_fqn != evidence.estimator_after_class_fqn
+                or evidence.estimator_before_params_sha256 != evidence.estimator_after_params_sha256
+            ):
+                raise ValueError("direct_method_hte_numeric_estimator_policy_not_qualified")
+            if (
+                evidence.joblib_exit_status != "returned"
+                or evidence.joblib_entry_effective_jobs != 1
+                or evidence.joblib_exit_effective_jobs != 1
+                or evidence.joblib_entry_backend_fqn != evidence.joblib_exit_backend_fqn
+                or evidence.joblib_entry_config_sha256 != evidence.joblib_exit_config_sha256
+                or evidence.joblib_entry_implementation_version
+                != evidence.joblib_exit_implementation_version
+                or evidence.joblib_implementation_version
+                != evidence.joblib_entry_implementation_version
+            ):
+                raise ValueError("direct_method_hte_numeric_joblib_policy_not_qualified")
+        if self.target_relation.requested_scope_status != self.request_target_scope_status or (
+            self.target_relation.requested_scope != self.request_target_scope
+            or self.target_relation.requested_guarantee_status != self.requested_guarantee_status
+            or self.target_relation.requested_guarantee != self.requested_guarantee
+            or self.target_relation.computed_scope_status != self.computed_target_scope_status
+            or self.target_relation.computed_scope != self.computed_target_scope
+            or self.target_relation.computed_guarantee_status != self.computed_guarantee_status
+            or self.target_relation.computed_guarantee != self.computed_guarantee
+        ):
+            raise ValueError("direct_method_hte_summary_target_relation_mismatch")
+        if self.resource_evidence.owner_policy_method_fqn != self.method_fqn or (
+            self.resource_evidence.owner_policy_method_profile_id != self.method_profile_id
+            or self.resource_evidence.owner_policy_ref.manifest_profile_sha256 is None
+        ):
+            raise ValueError("direct_method_hte_summary_resource_identity_mismatch")
+        if (
+            self.method_profile_id
+            in {
+                "econml.dml.point_only@2.0",
+                "econml.meta_learner.point_only@2.0",
+            }
+            and self.kind == "point_estimate"
+            and self.target_relation.profile_status != "point_only"
+        ):
+            raise ValueError("direct_method_hte_point_only_profile_relation_invalid")
+        return self
+
+
+class RuntimeSearchHTECompletionDeliveryV1(BaseModel):
+    """Bind one Search receiver delivery to an immutable Runtime completion event.
+
+    The durable outbox envelope is a retry key, not an assessment or authority
+    record. Search must resolve the exact completed event through Runtime and
+    content-verify its selected HTE artifacts before advancing its own owner CAS.
+    """
+
+    model_config = ConfigDict(extra="forbid", frozen=True, strict=True)
+
+    schema_version: Literal["1.0"] = "1.0"
+    job_id: str = Field(min_length=1, max_length=128)
+    run_id: str = Field(min_length=1, max_length=128)
+    attempt: int = Field(ge=1, strict=True)
+    completed_event_id: int = Field(ge=1, strict=True)
+    completed_event_payload_sha256: str = Field(pattern=r"^sha256:[0-9a-f]{64}$")
+    search_uncertainty_task_binding_ref: ArtifactRef
+
+    @model_validator(mode="after")
+    def _require_profiled_search_binding(self) -> RuntimeSearchHTECompletionDeliveryV1:
+        """Require the exact profile-qualified Search binding selected by Runtime."""
+        ref = self.search_uncertainty_task_binding_ref
+        if (
+            ref.kind != "scientist.search.uncertainty_task_binding"
+            or ref.media_type != "application/json"
+            or ref.manifest_profile_sha256 is None
+        ):
+            raise ValueError("runtime_search_hte_completion_binding_ref_invalid")
+        return self
+
+
 class DirectMethodExecutionSelection(BaseModel):
     """Persist the immutable input, runtime pins, and outputs of direct method work."""
 
@@ -4353,14 +5576,29 @@ class DirectMethodExecutionSelection(BaseModel):
     effective_input_ref: ArtifactRef
     method_result_ref: ArtifactRef
     method_evidence_ref: ArtifactRef
+    owned_attempt_anchor_ref: OwnedAttemptAnchorRef | None = None
+    hte_outcome_ref: ArtifactRef | None = None
+    point_result_ref: ArtifactRef | None = None
+    hte_result_ref: ArtifactRef | None = None
+    inference_basis_ref: ArtifactRef | None = None
+    refusal_diagnostic_ref: ArtifactRef | None = None
+    invocation_basis_ref: ArtifactRef | None = None
+    hte: DirectMethodExecutionHTESummary | None = None
     contract_target_id: Literal["foundry.causal.hte_observational_data.v1"] | None = None
     contract_target: Literal[
         "polisyos.foundry.methods.catalog.causal.protocols.HTEObservationalData"
     ]
     selection_digest: str | None = Field(default=None, pattern=r"^[0-9a-f]{64}$")
     source_access_revalidation_status: Literal["not_established"] | None = None
-    method_fqn: Literal["causal.hte.forest_dr@1.0.0", "causal.hte.forest_dr@1.1.0"]
-    method_version: Literal["1.0.0", "1.1.0"]
+    method_fqn: Literal[
+        "causal.hte.forest_dr@1.0.0",
+        "causal.hte.forest_dr@1.1.0",
+        "causal.hte.causal_forest@2.0.0",
+        "causal.hte.double_ml@2.0.0",
+        "causal.hte.meta_learner@2.0.0",
+        "causal.hte.forest_dr@2.0.0",
+    ]
+    method_version: Literal["1.0.0", "1.1.0", "2.0.0"]
     method_abi_digest: str = Field(pattern=r"^[0-9a-f]{64}$")
     method_build_digest: str = Field(pattern=r"^[0-9a-f]{64}$")
     method_build_digest_scope: Literal["class_source_only"]
@@ -4381,14 +5619,144 @@ class DirectMethodExecutionSelection(BaseModel):
         ...,
     ]
     method_dispatch_binding_status: Literal["recomputed", "not_established"]
+    owned_hte_request_context: OwnedHTERequestContextV1 | None = None
     candidate_outcome: MethodExecutionCandidateOutcome | None = None
     posterior_summary_refs: tuple[MethodExecutionPosteriorSummaryRef, ...] = Field(default=())
 
     @model_validator(mode="after")
     def _require_selected_views(self) -> DirectMethodExecutionSelection:
-        if self.method_fqn != f"causal.hte.forest_dr@{self.method_version}":
+        is_successor = self.method_fqn in _OBSERVATIONAL_HTE_SUCCESSOR_METHODS
+        if is_successor:
+            context = self.owned_hte_request_context
+            if (
+                self.method_version != "2.0.0"
+                or type(context) is not OwnedHTERequestContextV1
+                or context.request_estimand_status != "declared"
+                or context.request_target_scope_status != "declared"
+                or context.outcome_variable_status != "declared"
+                or context.treatment_variable_status != "declared"
+                or context.contrast_status != "declared"
+                or context.request_alpha_status != "declared"
+                or context.requested_guarantee_status not in {"declared", "not_established"}
+                or self.owned_attempt_anchor_ref is None
+                or self.hte_outcome_ref is None
+                or self.candidate_outcome is not None
+                or self.hte is None
+                or self.invocation_basis_ref is not None
+            ):
+                raise ValueError("direct_method_execution_hte_successor_selection_invalid")
+            if self.hte is not None:
+                if self.hte.kind == "interval_estimate" and (
+                    self.hte_result_ref is None
+                    or self.point_result_ref is not None
+                    or self.inference_basis_ref is None
+                ):
+                    raise ValueError("direct_method_execution_hte_interval_refs_incomplete")
+                if self.hte.kind == "point_estimate" and (
+                    self.point_result_ref is None or self.hte_result_ref is not None
+                ):
+                    raise ValueError("direct_method_execution_hte_point_refs_invalid")
+                if self.hte.kind == "refusal" and any(
+                    ref is not None
+                    for ref in (
+                        self.point_result_ref,
+                        self.hte_result_ref,
+                        self.inference_basis_ref,
+                    )
+                ):
+                    raise ValueError("direct_method_execution_hte_refusal_refs_invalid")
+            if self.hte_outcome_ref.kind != "ir.hte_outcome" or (
+                self.hte_outcome_ref.media_type != "application/json"
+                or self.hte_outcome_ref.manifest_profile_sha256 is None
+            ):
+                raise ValueError("direct_method_execution_hte_outcome_ref_invalid")
+            if self.point_result_ref is not None and (
+                self.point_result_ref.kind != "ir.hte_point_result"
+                or self.point_result_ref.media_type != "application/json"
+                or self.point_result_ref.manifest_profile_sha256 is None
+            ):
+                raise ValueError("direct_method_execution_point_result_ref_invalid")
+            if self.hte_result_ref is not None and (
+                self.hte_result_ref.kind != "ir.hte_result"
+                or self.hte_result_ref.media_type != "application/json"
+                or self.hte_result_ref.manifest_profile_sha256 is None
+            ):
+                raise ValueError("direct_method_execution_hte_result_ref_invalid")
+            if self.inference_basis_ref is not None and (
+                self.inference_basis_ref.kind != "ir.ate_inference_basis"
+                or self.inference_basis_ref.media_type != "application/json"
+                or self.inference_basis_ref.manifest_profile_sha256 is None
+            ):
+                raise ValueError("direct_method_execution_inference_basis_ref_invalid")
+            if self.refusal_diagnostic_ref is not None and (
+                self.refusal_diagnostic_ref.kind != "ir.hte_refusal_diagnostic"
+                or self.refusal_diagnostic_ref.media_type != "application/json"
+                or self.refusal_diagnostic_ref.manifest_profile_sha256 is None
+            ):
+                raise ValueError("direct_method_execution_refusal_diagnostic_ref_invalid")
+            if self.invocation_basis_ref is not None and (
+                self.invocation_basis_ref.manifest_profile_sha256 is None
+            ):
+                raise ValueError("direct_method_execution_invocation_basis_ref_invalid")
+            if (
+                self.hte.owned_attempt_anchor_ref != self.owned_attempt_anchor_ref
+                or self.hte.hte_outcome_ref != self.hte_outcome_ref
+                or self.hte.point_result_ref != self.point_result_ref
+                or self.hte.hte_result_ref != self.hte_result_ref
+                or self.hte.inference_basis_ref != self.inference_basis_ref
+                or self.hte.refusal_diagnostic_ref != self.refusal_diagnostic_ref
+                or self.hte.method_fqn != self.method_fqn
+                or self.hte.method_abi_digest != self.method_abi_digest
+                or self.hte.method_result_ref != self.method_result_ref
+                or self.hte.method_evidence_ref != self.method_evidence_ref
+                or self.hte.source_data_ref != self.effective_input_ref
+                or self.hte.resource_evidence.owner_policy_ref != self.resource_policy_ref
+                or self.hte.resource_evidence.owner_policy_digest != self.resource_policy_digest
+            ):
+                raise ValueError("direct_method_execution_hte_summary_selection_mismatch")
+            if (
+                self.hte.request_estimand_status != context.request_estimand_status
+                or self.hte.request_estimand != context.request_estimand
+                or self.hte.request_target_scope_status != context.request_target_scope_status
+                or self.hte.request_target_scope != context.request_target_scope
+                or self.hte.outcome_variable_status != context.outcome_variable_status
+                or self.hte.outcome_variable_id != context.outcome_variable_id
+                or self.hte.treatment_variable_status != context.treatment_variable_status
+                or self.hte.treatment_variable_id != context.treatment_variable_id
+                or self.hte.request_contrast_status != context.contrast_status
+                or self.hte.control_value != context.control_value
+                or self.hte.treated_value != context.treated_value
+                or self.hte.request_alpha_status != context.request_alpha_status
+                or self.hte.requested_alpha != context.requested_alpha
+                or self.hte.requested_guarantee_status != context.requested_guarantee_status
+                or self.hte.requested_guarantee != context.requested_guarantee
+                or self.hte.search_uncertainty_task_binding_ref
+                != context.search_uncertainty_task_binding_ref
+            ):
+                raise ValueError("direct_method_execution_hte_summary_request_context_mismatch")
+        elif (
+            self.method_fqn != f"causal.hte.forest_dr@{self.method_version}"
+            or self.owned_hte_request_context is not None
+            or self.hte is not None
+            or any(
+                ref is not None
+                for ref in (
+                    self.owned_attempt_anchor_ref,
+                    self.hte_outcome_ref,
+                    self.point_result_ref,
+                    self.hte_result_ref,
+                    self.inference_basis_ref,
+                    self.refusal_diagnostic_ref,
+                    self.invocation_basis_ref,
+                )
+            )
+        ):
             raise ValueError("direct_method_execution_method_version_mismatch")
-        if self.candidate_outcome is not None and self.candidate_outcome.method != "forest_dr":
+        if (
+            not is_successor
+            and self.candidate_outcome is not None
+            and self.candidate_outcome.method != "forest_dr"
+        ):
             raise ValueError("direct_method_execution_candidate_outcome_method_invalid")
         if self.selection_digest is not None and len(self.selection_digest) != 64:
             raise ValueError("direct_method_execution_selection_digest_invalid")
@@ -4406,6 +5774,18 @@ class DirectMethodExecutionSelection(BaseModel):
             self.effective_input_ref,
             self.method_result_ref,
             self.method_evidence_ref,
+            *(
+                ref
+                for ref in (
+                    self.hte_outcome_ref,
+                    self.point_result_ref,
+                    self.hte_result_ref,
+                    self.inference_basis_ref,
+                    self.refusal_diagnostic_ref,
+                    self.invocation_basis_ref,
+                )
+                if ref is not None
+            ),
         )
         if any(ref.manifest_profile_sha256 is None for ref in refs):
             raise ValueError("direct_method_execution_selected_profile_missing")
@@ -4460,6 +5840,7 @@ class DirectMethodExecutionRequestSummary(BaseModel):
     source_protocol: Literal["method_input_envelope_v1", "legacy_hte_json_v1"]
     method_fqn: str = Field(min_length=1, max_length=256)
     method_version: str = Field(min_length=1, max_length=64)
+    owned_hte_request_context: OwnedHTERequestContextV1 | None = None
     method_abi_digest: str = Field(pattern=r"^[0-9a-f]{64}$")
     method_build_digest: str = Field(pattern=r"^[0-9a-f]{64}$")
     method_build_digest_scope: Literal["class_source_only"]
@@ -4489,7 +5870,25 @@ class DirectMethodExecutionRequestSummary(BaseModel):
             or self.resource_policy_ref.manifest_profile_sha256 is None
         ):
             raise ValueError("direct_method_execution_request_policy_ref_invalid")
-        if self.method_fqn != f"causal.hte.forest_dr@{self.method_version}":
+        is_successor = self.method_fqn in _OBSERVATIONAL_HTE_SUCCESSOR_METHODS
+        if is_successor:
+            context = self.owned_hte_request_context
+            if (
+                self.method_version != "2.0.0"
+                or type(context) is not OwnedHTERequestContextV1
+                or context.request_estimand_status != "declared"
+                or context.request_target_scope_status != "declared"
+                or context.outcome_variable_status != "declared"
+                or context.treatment_variable_status != "declared"
+                or context.contrast_status != "declared"
+                or context.request_alpha_status != "declared"
+                or context.requested_guarantee_status not in {"declared", "not_established"}
+            ):
+                raise ValueError("direct_method_execution_request_hte_context_invalid")
+        elif (
+            self.method_fqn != f"causal.hte.forest_dr@{self.method_version}"
+            or self.owned_hte_request_context is not None
+        ):
             raise ValueError("direct_method_execution_request_method_version_mismatch")
         return self
 
@@ -4524,6 +5923,7 @@ class DirectMethodExecutionRunProjection(BaseModel):
     ]
     request: DirectMethodExecutionRequestSummary | None = None
     selection: DirectMethodExecutionSelection | None = None
+    input_refusal: OwnedAttemptAnchorRefusalAssociation | None = None
     time_roles: DirectMethodExecutionTimeRoles | None = None
     refusal_code: Literal["observational_input_refused"] | None = None
     limitations: tuple[
@@ -4553,6 +5953,7 @@ class DirectMethodExecutionRunProjection(BaseModel):
             if (
                 self.request is not None
                 or self.selection is not None
+                or self.input_refusal is not None
                 or self.time_roles is not None
             ):
                 raise ValueError("direct_method_execution_withheld_projection_leaks_selection")
@@ -4565,6 +5966,7 @@ class DirectMethodExecutionRunProjection(BaseModel):
             if (
                 self.request is not None
                 or self.selection is not None
+                or self.input_refusal is not None
                 or self.refusal_code is not None
             ):
                 raise ValueError("direct_method_execution_empty_status_has_selection")
@@ -4577,7 +5979,11 @@ class DirectMethodExecutionRunProjection(BaseModel):
             if self.limitations != expected_limitations:
                 raise ValueError("direct_method_execution_empty_status_reason_invalid")
         elif self.status == "unavailable":
-            if self.selection is not None or self.refusal_code is not None:
+            if (
+                self.selection is not None
+                or self.input_refusal is not None
+                or self.refusal_code is not None
+            ):
                 raise ValueError("direct_method_execution_unavailable_has_selection")
             if (self.request is None) != (self.time_roles is None):
                 raise ValueError("direct_method_execution_unavailable_request_times_mismatch")
@@ -4587,10 +5993,15 @@ class DirectMethodExecutionRunProjection(BaseModel):
             }:
                 raise ValueError("direct_method_execution_unavailable_reason_invalid")
         elif self.status == "selected":
+            successor_selection = (
+                self.selection is not None
+                and self.selection.method_fqn in _OBSERVATIONAL_HTE_SUCCESSOR_METHODS
+            )
             if (
                 self.request is None
                 or self.selection is None
-                or self.selection.candidate_outcome is None
+                or self.input_refusal is not None
+                or (self.selection.candidate_outcome is None and not successor_selection)
                 or self.time_roles is None
                 or self.time_roles.admitted_at is None
                 or self.time_roles.execution_started_at is None
@@ -4600,6 +6011,8 @@ class DirectMethodExecutionRunProjection(BaseModel):
                 or self.request.requested_source_ref != self.selection.requested_source_ref
                 or self.request.method_fqn != self.selection.method_fqn
                 or self.request.method_version != self.selection.method_version
+                or self.request.owned_hte_request_context
+                != self.selection.owned_hte_request_context
                 or self.limitations != self.selection.limitations
             ):
                 raise ValueError("direct_method_execution_selected_projection_incomplete")
@@ -4610,6 +6023,13 @@ class DirectMethodExecutionRunProjection(BaseModel):
                 self.refusal_code == "observational_input_refused"
             ):
                 raise ValueError("direct_method_execution_refusal_status_invalid")
+            if (self.status == "input_refused") != (self.input_refusal is not None):
+                raise ValueError("direct_method_execution_refusal_association_missing")
+            if self.input_refusal is not None and (
+                self.input_refusal.status != "input_refusal_reconciled"
+                or self.input_refusal.job_id == ""
+            ):
+                raise ValueError("direct_method_execution_refusal_association_invalid")
             expected_limitations = (
                 ("candidate_execution_pending",)
                 if self.status == "accepted_pending"
@@ -5753,7 +7173,7 @@ class AgentPipelineView(BaseModel):
         cls,
         *,
         owner_control_job_attempt: int | None,
-        **values: Any,
+        **values: object,
     ) -> AgentPipelineView:
         """Validate a pipeline with the owner selector reconciled by its route."""
         values["owner_control_job_attempt"] = owner_control_job_attempt
@@ -6002,6 +7422,7 @@ class DecisionPacketPreview(BaseModel):
     blocks: list[DecisionPacketAuthoredBlock] = Field(default_factory=list)
     narrative_blocks: list[DecisionPacketAuthoredBlock] = Field(default_factory=list)
     evidence_summary_blocks: list[DecisionPacketAuthoredBlock] = Field(default_factory=list)
+    hte: DirectMethodExecutionHTESummary | None = None
 
 
 class PredictiveCoverageScenarioPreview(BaseModel):
@@ -6555,6 +7976,9 @@ __all__ = [
     "DeltaDominance",
     "DeltaQuantity",
     "DeltaSignificance",
+    "DirectMethodExecutionHTEResourceEvidence",
+    "DirectMethodExecutionHTESummary",
+    "DirectMethodExecutionHTETargetRelation",
     "DirectMethodExecutionRequestSummary",
     "DirectMethodExecutionRunProjection",
     "DirectMethodExecutionSelection",

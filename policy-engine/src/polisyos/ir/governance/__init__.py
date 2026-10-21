@@ -9,7 +9,7 @@ surface available without importing every governance submodule at package load.
 from __future__ import annotations
 
 import importlib
-from typing import TYPE_CHECKING, Any
+from typing import TYPE_CHECKING
 
 if TYPE_CHECKING:
     from polisyos.ir.governance.policy_spec import PolicySearchLevel as PolicySearchLevel
@@ -416,7 +416,7 @@ _LAZY_IMPORTS: dict[str, tuple[str, str]] = {
 }
 
 
-def __getattr__(name: str) -> Any:
+def __getattr__(name: str) -> object:
     """Resolve a lazily exported governance contract by public name."""
     if name in _LAZY_IMPORTS:
         module_name, attr = _LAZY_IMPORTS[name]

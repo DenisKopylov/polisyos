@@ -1,9 +1,15 @@
 from __future__ import annotations
 
+from array import array
+from decimal import Decimal
+
+import numpy as np
 import pytest
 from pydantic import ValidationError
 
-from polisyos.core.artifacts import ensure_ir_artifact_store as _ensure_ir_artifact_store
+from polisyos.core.artifacts import (
+    ensure_ir_artifact_store as _ensure_ir_artifact_store,
+)
 from polisyos.core.artifacts.store import FileSystemCAS
 from polisyos.ir.analytics.interference import (
     InteractionComplex,
@@ -13,6 +19,7 @@ from polisyos.ir.analytics.interference import (
     SpatialHodgeDiagnostics,
     SpatialHodgeScaleProfile,
     SpatialResult,
+    _coerce_float,
     load_interaction_complex,
     load_interference_certificate,
     load_maup_invariance_certificate,
@@ -29,6 +36,16 @@ from polisyos.ir.registry.refs import (
     MAUPInvarianceCertificateRef,
     SpatialHodgeDiagnosticsRef,
 )
+
+
+class _FloatOnly:
+    def __float__(self) -> float:
+        return 0.25
+
+
+class _IndexOnly:
+    def __index__(self) -> int:
+        return 1
 
 
 def _artifact_id(ch: str) -> str:
@@ -116,7 +133,8 @@ def test_interference_certificate_rejects_blank_assumptions_and_nonfinite_bound(
         )
 
     with pytest.raises(
-        ValidationError, match="fallback_mode must be unsupported when mode_used is complex"
+        ValidationError,
+        match="fallback_mode must be unsupported when mode_used is complex",
     ):
         InterferenceCertificate(
             supported_query_family="simplicial_star_local_queries",
@@ -135,6 +153,79 @@ def test_interference_certificate_rejects_blank_assumptions_and_nonfinite_bound(
                 "pre_outcome_selection": "pass",
             },
         )
+
+
+def test_reduction_error_bound_preserves_float_constructor_inputs() -> None:
+    values = (
+        ("0.25", 0.25),
+        (b"0.25", 0.25),
+        (bytearray(b"0.25"), 0.25),
+        (memoryview(b"0.25"), 0.25),
+        (array("b", b"0.25"), 0.25),
+        (Decimal("0.25"), 0.25),
+        (np.float64(0.25), 0.25),
+        (_FloatOnly(), 0.25),
+        (_IndexOnly(), 1.0),
+        (0.25, 0.25),
+        (1, 1.0),
+        (True, 1.0),
+    )
+    for raw_value, expected in values:
+        direct = float(raw_value)
+        assert direct == expected
+        assert _coerce_float(raw_value) == direct
+
+        certificate = InterferenceCertificate(
+            supported_query_family="pairwise_projection_queries",
+            reduction_error_bound=raw_value,
+            fallback_mode="pairwise",
+        )
+
+        assert certificate.reduction_error_bound == direct
+
+
+def test_reduction_error_bound_preserves_float_constructor_refusals() -> None:
+    invalid_buffer = memoryview(b"not-a-number")
+    with pytest.raises(ValueError) as direct_buffer_error:
+        float(invalid_buffer)
+    with pytest.raises(ValueError) as delegated_buffer_error:
+        _coerce_float(invalid_buffer)
+    assert str(delegated_buffer_error.value) == str(direct_buffer_error.value)
+
+    invalid_object = _NotNumeric()
+    with pytest.raises(TypeError) as direct_object_error:
+        float(invalid_object)
+    with pytest.raises(TypeError) as delegated_object_error:
+        _coerce_float(invalid_object)
+    assert type(delegated_object_error.value) is type(direct_object_error.value)
+    assert str(delegated_object_error.value) == str(direct_object_error.value)
+
+    with pytest.raises(ValidationError, match="reduction_error_bound must be finite"):
+        InterferenceCertificate(
+            supported_query_family="pairwise_projection_queries",
+            reduction_error_bound=float("inf"),
+            fallback_mode="pairwise",
+        )
+
+    with pytest.raises(ValidationError, match="greater than or equal to 0"):
+        InterferenceCertificate(
+            supported_query_family="pairwise_projection_queries",
+            reduction_error_bound=-0.25,
+            fallback_mode="pairwise",
+        )
+
+    assert (
+        InterferenceCertificate(
+            supported_query_family="pairwise_projection_queries",
+            reduction_error_bound=None,
+            fallback_mode="pairwise",
+        ).reduction_error_bound
+        is None
+    )
+
+
+class _NotNumeric:
+    pass
 
 
 def test_phase_f_contracts_round_trip_via_store(tmp_path) -> None:
@@ -293,7 +384,9 @@ def test_maup_certificate_round_trip_and_spatial_result_wrap(tmp_path) -> None:
     assert report.maup_invariance_certificate.status == "warn"
 
 
-def test_spatial_hodge_diagnostics_round_trip_and_attach_to_spatial_result(tmp_path) -> None:
+def test_spatial_hodge_diagnostics_round_trip_and_attach_to_spatial_result(
+    tmp_path,
+) -> None:
     store = FileSystemCAS(tmp_path / "cas")
     diagnostics = SpatialHodgeDiagnostics(
         declared_scale_id="district",

@@ -10,7 +10,6 @@ runtime protocol dependency.
 from __future__ import annotations
 
 import importlib
-from typing import Any
 
 __all__ = [
     "BACKTEST_PLAN_TARGET",
@@ -671,7 +670,7 @@ _LAZY_IMPORTS: dict[str, tuple[str, str]] = {
 }
 
 
-def __getattr__(name: str) -> Any:
+def __getattr__(name: str) -> object:
     """Resolve a lazily exported observation contract by public name."""
     if name in _LAZY_IMPORTS:
         module_name, attr = _LAZY_IMPORTS[name]

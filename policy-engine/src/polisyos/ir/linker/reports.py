@@ -69,7 +69,8 @@ class LinkIssueCode(str, Enum):
 
 
 class LinkIssue(KernelModel):
-    """Describe one linker finding about a missing registry item, mismatch, or deprecated binding."""
+    """Describe one linker finding about a missing registry item, mismatch, or deprecated \
+binding."""
 
     severity: LinkSeverity = LinkSeverity.ERROR
     code: LinkIssueCode

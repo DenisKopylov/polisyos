@@ -12,7 +12,7 @@ from polisyos.ir.model_layer.canon import CanonSpec
 from polisyos.ir.registry.refs import CausalBlockBridgeRef
 
 
-def _to_numpy(value: Any) -> Any:
+def _to_numpy(value: object | None) -> np.ndarray | None:
     if value is None or isinstance(value, np.ndarray):
         return value
     return np.asarray(value)
@@ -46,11 +46,11 @@ class CausalBlockBridge(BaseModel):
 
     @field_validator("cluster_id", mode="before")
     @classmethod
-    def _coerce_cluster_id(cls, value: Any) -> Any:
+    def _coerce_cluster_id(cls, value: object) -> np.ndarray | None:
         return _to_numpy(value)
 
     @field_serializer("cluster_id", mode="plain", when_used="json")
-    def _serialize_cluster_id(self, value: Any) -> Any:
+    def _serialize_cluster_id(self, value: object) -> object:
         if isinstance(value, np.ndarray):
             return value.tolist()
         return value

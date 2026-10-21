@@ -8,7 +8,9 @@ from typing import TYPE_CHECKING, Any, ClassVar, Literal
 from pydantic import ConfigDict, Field, model_validator
 
 from polisyos.ir.kernel.base import KernelModel
-from polisyos.ir.registry.refs import BoundsBundleRef
+from polisyos.ir.registry.refs import (
+    BoundsBundleRef,
+)
 
 if TYPE_CHECKING:
     from polisyos.ir.artifacts.contracts import ArtifactStore, InputRef
@@ -135,7 +137,7 @@ class MobilityReport(KernelModel):
 
     @model_validator(mode="before")
     @classmethod
-    def _upgrade_payload(cls, value: Any) -> Any:
+    def _upgrade_payload(cls, value: object) -> object:
         if not isinstance(value, Mapping):
             return value
 

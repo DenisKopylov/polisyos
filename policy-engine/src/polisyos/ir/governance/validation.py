@@ -88,12 +88,12 @@ class ValidationReport(BaseModel):
     model_config = ConfigDict(extra="forbid")
 
 
-def _json_dump(payload: Any) -> list[str]:
+def _json_dump(payload: object) -> list[str]:
     text = json.dumps(payload, ensure_ascii=True, indent=2, sort_keys=True)
     return text.splitlines()
 
 
-def diff_payloads(before: Any, after: Any) -> str:
+def diff_payloads(before: object, after: object) -> str:
     """Render a unified diff so repair loops can compare pre- and post-validation payloads."""
     before_lines = _json_dump(before)
     after_lines = _json_dump(after)
@@ -142,8 +142,8 @@ def summarize_issues(issues: Iterable[ValidationIssue]) -> str:
 def build_validation_report(
     error: ValidationError,
     *,
-    before: Any | None = None,
-    after: Any | None = None,
+    before: object | None = None,
+    after: object | None = None,
     repair_attempt: str | None = None,
 ) -> ValidationReport:
     """Build validation report."""

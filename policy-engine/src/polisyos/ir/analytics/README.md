@@ -46,6 +46,26 @@ specialized surfaces remain in their defining modules.
 | `polisyos.ir.analytics.StrategicSCM`, `StrategicResponseBundle`, `MeanFieldEquilibriumCertificate`     | Use the strategic-response/performative-analysis surface, including MFG certificates     | [`strategic.py`](./strategic.py)                             |
 | `polisyos.ir.analytics.DoWhyGraphBridge`, `EconMLDesignBridge`                                         | Use interoperability bridges for external causal toolchains                              | [`ecosystem_bridges.py`](./ecosystem_bridges.py)             |
 
+## HTE successor artifacts
+
+The selected-profile `HTEOutcome` union links a point candidate or a
+profile-qualified native mean interval to its method result, execution
+evidence, owner anchor, and physical source-materialization binding. The
+point-result artifact stores a selected-row CATE vector when interval inference
+is absent or cannot be represented by the legacy interval contract. An admitted
+interval uses the existing `HTEResult` 1.0 artifact as its sole vector and
+interval carrier, paired with `ATEInferenceBasis`; its original ordered and
+point-containment validation remains in force. Native bounds that violate that
+contract are retained as rejected inference evidence beside the valid point,
+never clamped or recentered.
+
+The materialization binding proves physical array positions, values, and row
+order for the selected payload. The current HTE input contract does not map
+requested variable identifiers to those arrays, so semantic outcome/treatment
+identity, measurement units, query meaning, and population scope remain
+unestablished. These artifacts are candidate evidence, not publication
+authority or a claim of population coverage.
+
 `polisyos.ir.analytics.causal_capabilities.CausalIdentificationFamily.TRSO` names the executable
 Y0 `identify_target_outcomes` operation. It is a capability label, not a result or authority
 claim. Caller-supplied population profiles remain request context; population-indexed expressions
@@ -257,3 +277,40 @@ The publication alternatives and required independent G decision are recorded in
 [the E02 ABM version packet](../../../../docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/decisions/r1237-abm-version-namespace-and-reader-migration-proposal-20261013.md).
 This candidate is not a declaration of production rollout or a completed
 compatibility window.
+
+
+## Source-bound HTE successor artifacts
+
+The registered HTE successors (`causal.hte.causal_forest@2.0.0`,
+`causal.hte.double_ml@2.0.0`, `causal.hte.meta_learner@2.0.0`, and
+`causal.hte.forest_dr@2.0.0`) return a private writer-ready candidate. The
+Scientist bridge joins that candidate to the Runtime-owned pre-output anchor,
+selected method result/evidence, and resource-policy manifest before writing
+profiled IR artifacts. The public discriminated `HTEOutcome` is candidate-only.
+
+`HTEPointResult` owns the selected-row CATE vector when no admitted interval
+exists. A point outcome carries that ref and an explicit reason when interval
+inference is not requested, unsupported, unavailable, invalid, or unqualified.
+An admitted native interval reuses `ir.hte_result@1.0` as the sole CATE-vector
+and interval carrier, paired with `ATEInferenceBasis`; the strict v1
+point-containment rule remains in force. If valid native bounds cannot be
+represented by that contract, the producer keeps the valid point and persists
+the raw rejected bounds in its inference basis instead of clamping or
+recentering them. Native extraction is available only for the registered
+EconML 0.17 CausalForestDML and ForestDR profiles. DML and MetaLearner remain
+point-only. The legacy HTEResult model and method identities keep their prior
+validation and payload contracts.
+
+These artifacts preserve requested scope and guarantee separately from the
+selected-row computation. An interval is conditional on the selected backend
+profile and stated assumptions; it does not establish identification,
+population coverage, measurement units, source authority, or publishability.
+The optional `search_uncertainty_task_binding_ref` is preserved only when the
+owner supplied and selected its typed CAS ref; it is never synthesized from an
+identifier or caller label.
+
+Use `load_hte_outcome`, `load_hte_point_result`, `load_hte_result_v2`,
+`load_ate_inference_basis`, and `load_hte_refusal_diagnostic` for strict
+profile-selected reads. The runtime summary is scalar-only; consumers resolve
+full per-row values from the bounded point-result artifact when that content is
+within their authorized read path.

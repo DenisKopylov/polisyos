@@ -7,7 +7,9 @@ from typing import TYPE_CHECKING, Any, Literal
 from pydantic import ConfigDict, Field
 
 from polisyos.ir.kernel.base import KernelModel
-from polisyos.ir.registry.refs import DynamicMicrosimValidationReportRef
+from polisyos.ir.registry.refs import (
+    DynamicMicrosimValidationReportRef,
+)
 
 if TYPE_CHECKING:
     from polisyos.ir.artifacts.contracts import ArtifactStore, InputRef
@@ -81,7 +83,7 @@ def build_microsim_calibration_report(
 
 
 def report_from_target_compatibility(
-    compatibility: Any,
+    compatibility: object,
     *,
     max_abs_gap: float = 0.0,
     metadata: dict[str, Any] | None = None,
@@ -207,7 +209,7 @@ def _decision_from_status(status: str) -> tuple[Literal["pass", "warn", "block"]
     return "block", False
 
 
-def _enum_string(value: Any, *, default: str | None = None) -> str | None:
+def _enum_string(value: object, *, default: str | None = None) -> str | None:
     if value is None:
         return default
     enum_value = getattr(value, "value", value)

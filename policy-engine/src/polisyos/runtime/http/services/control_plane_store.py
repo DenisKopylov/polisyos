@@ -52,6 +52,7 @@ if TYPE_CHECKING:
         ProducerCallState,
         NoCallReason,
     )
+    from polisyos.core.contracts.owned_attempt_anchor import OwnedAttemptAnchorRef
 
 from polisyos.runtime.http.services.control.response_shapes import (
     _operator_diagnostic_from_failure_payload,
@@ -4421,6 +4422,177 @@ class ControlPlaneStore:
         except (TypeError, ValueError, json.JSONDecodeError) as exc:
             raise ControlJobLeaseLostError("control job terminal event is malformed") from exc
 
+    def get_job_lifecycle_event_record(
+        self,
+        *,
+        job_id: str,
+        event_id: int,
+        expected_event_type: Literal["job_running", "job_completed"],
+    ) -> _ControlJobLifecycleSourceEventRecord:
+        """Read one exact immutable lifecycle row for historical reconciliation."""
+        if type(event_id) is not int or event_id < 1:
+            raise ValueError("control_job_lifecycle_event_id_invalid")
+        row = self._fetchone(
+            """
+            SELECT event_id, job_id, event_type, payload_json, created_at
+            FROM control_job_events
+            WHERE job_id = ? AND event_id = ?
+            """,
+            (job_id, event_id),
+        )
+        if row is None:
+            raise ControlJobLeaseLostError("control job lifecycle event is unavailable")
+        try:
+            return self._control_job_lifecycle_event_record_from_row(
+                row,
+                expected_job_id=job_id,
+                expected_event_type=expected_event_type,
+            )
+        except (TypeError, ValueError, json.JSONDecodeError) as exc:
+            raise ControlJobLeaseLostError("control job lifecycle event is malformed") from exc
+
+    def list_pending_search_hte_completion_events(
+        self,
+        *,
+        limit: int = 50,
+        after_created_at: str | None = None,
+        after_event_id: str | None = None,
+    ) -> list[ControlOutboxRecord]:
+        """Read one stable timestamp/identity cursor page of Search deliveries."""
+        page_size = max(1, min(int(limit), 100))
+        if (after_created_at is None) != (after_event_id is None):
+            raise ValueError("control_search_hte_outbox_cursor_incomplete")
+        if after_created_at is None:
+            cursor_sql = ""
+            cursor_params: tuple[Any, ...] = ()
+        else:
+            cursor_sql = " AND (created_at > ? OR (created_at = ? AND event_id > ?))"
+            cursor_params = (after_created_at, after_created_at, after_event_id)
+        rows = self._fetchall(
+            f"""
+            SELECT
+                event_id,
+                topic,
+                event_key,
+                state,
+                job_id,
+                run_id,
+                payload_json,
+                created_at,
+                published_at,
+                attempt,
+                error_message
+            FROM control_outbox_events
+            WHERE topic = ? AND state = ?{cursor_sql}
+            ORDER BY created_at ASC, event_id ASC
+            LIMIT ?
+            """,
+            ("control.search.hte_completed", "pending", *cursor_params, page_size),
+        )
+        return [self._row_to_outbox_record(row) for row in rows]
+
+    def get_search_hte_completion_delivery_watermark(self) -> int:
+        """Return the highest durable delivery sequence at a retry-cycle boundary."""
+        row = self._fetchone(
+            "SELECT COALESCE(MAX(sequence_id), 0) AS watermark "
+            "FROM control_search_hte_delivery_order",
+            (),
+        )
+        value = row["watermark"] if isinstance(row, Mapping) else row[0]
+        if type(value) is not int or value < 0:
+            raise RuntimeError("control_search_hte_delivery_watermark_invalid")
+        return value
+
+    def list_pending_search_hte_completion_delivery_page(
+        self,
+        *,
+        limit: int = 50,
+        after_sequence_id: int = 0,
+        through_sequence_id: int,
+    ) -> list[tuple[int, ControlOutboxRecord]]:
+        """Read a Search-only pending page bounded by one frozen sequence watermark."""
+        if (
+            type(limit) is not int
+            or type(after_sequence_id) is not int
+            or type(through_sequence_id) is not int
+            or limit < 1
+            or after_sequence_id < 0
+            or through_sequence_id < after_sequence_id
+        ):
+            raise ValueError("control_search_hte_delivery_page_bounds_invalid")
+        page_size = min(limit, 100)
+        rows = self._fetchall(
+            """
+            SELECT
+                event.event_id,
+                event.topic,
+                event.event_key,
+                event.state,
+                event.job_id,
+                event.run_id,
+                event.payload_json,
+                event.created_at,
+                event.published_at,
+                event.attempt,
+                event.error_message,
+                delivery.sequence_id
+            FROM control_search_hte_delivery_order AS delivery
+            JOIN control_outbox_events AS event
+              ON event.event_id = delivery.event_id
+            WHERE event.topic = ?
+              AND event.state = ?
+              AND delivery.sequence_id > ?
+              AND delivery.sequence_id <= ?
+            ORDER BY delivery.sequence_id ASC
+            LIMIT ?
+            """,
+            (
+                "control.search.hte_completed",
+                "pending",
+                after_sequence_id,
+                through_sequence_id,
+                page_size,
+            ),
+        )
+        return [(int(row["sequence_id"]), self._row_to_outbox_record(row)) for row in rows]
+
+    def get_search_hte_completion_outbox_event(
+        self,
+        *,
+        job_id: str,
+        completed_event_id: int,
+    ) -> ControlOutboxRecord | None:
+        """Read the one Search delivery row for an exact completed source event."""
+        if type(completed_event_id) is not int or completed_event_id < 1:
+            raise ValueError("control_search_hte_completed_event_id_invalid")
+        rows = self._fetchall(
+            """
+            SELECT
+                event_id,
+                topic,
+                event_key,
+                state,
+                job_id,
+                run_id,
+                payload_json,
+                created_at,
+                published_at,
+                attempt,
+                error_message
+            FROM control_outbox_events
+            WHERE topic = ? AND event_key = ? AND job_id = ?
+            ORDER BY created_at ASC
+            """,
+            (
+                "control.search.hte_completed",
+                f"{job_id}:job_completed:{completed_event_id}",
+                job_id,
+            ),
+        )
+        if len(rows) > 1:
+            raise RuntimeError("control_search_hte_completion_outbox_count_invalid")
+        return self._row_to_outbox_record(rows[0]) if rows else None
+
     def get_job_completed_outbox_event(self, job_id: str) -> ControlOutboxRecord | None:
         """Read exactly one completion outbox row keyed to one ControlJob."""
         rows = self._fetchall(
@@ -5263,6 +5435,7 @@ class ControlPlaneStore:
         if fence is not None:
             event_payload.update({"lease_owner": fence[0], "attempt": fence[1]})
         self.append_event(job_id=job_id, event_type="job_completed", payload=event_payload)
+        completed_event = self.get_job_terminal_source_event_record(job_id)
         record = self.get_job(job_id)
         if record is not None:
             self._emit_job_outbox_event(
@@ -5273,6 +5446,45 @@ class ControlPlaneStore:
                     "progress": dict(progress or record.progress),
                 },
             )
+        if selection_payload is not None:
+            from pydantic import TypeAdapter
+
+            from polisyos.core.contracts.runtime import (
+                DirectMethodExecutionSelection,
+                MethodExecutionSelection,
+                RuntimeSearchHTECompletionDeliveryV1,
+            )
+
+            try:
+                selected = TypeAdapter(MethodExecutionSelection).validate_python(
+                    selection_payload,
+                    strict=True,
+                )
+            except (TypeError, ValueError) as exc:
+                raise ValueError("runtime_search_hte_completion_selection_invalid") from exc
+            if (
+                type(selected) is DirectMethodExecutionSelection
+                and selected.method_version == "2.0.0"
+                and selected.hte is not None
+                and selected.hte.search_uncertainty_task_binding_ref is not None
+            ):
+                delivery = RuntimeSearchHTECompletionDeliveryV1(
+                    job_id=selected.job_id,
+                    run_id=selected.run_id,
+                    attempt=selected.attempt,
+                    completed_event_id=completed_event.event_id,
+                    completed_event_payload_sha256=completed_event.payload_sha256,
+                    search_uncertainty_task_binding_ref=(
+                        selected.hte.search_uncertainty_task_binding_ref
+                    ),
+                )
+                self.enqueue_outbox_event(
+                    topic="control.search.hte_completed",
+                    event_key=f"{job_id}:job_completed:{completed_event.event_id}",
+                    job_id=job_id,
+                    run_id=selected.run_id,
+                    payload=delivery.model_dump(mode="json"),
+                )
 
     def fail_job(
         self,
@@ -5283,6 +5495,8 @@ class ControlPlaneStore:
         progress: dict[str, Any] | None = None,
         expected_lease_owner: str | None = None,
         expected_attempt: int | None = None,
+        owned_attempt_failure_disposition: Literal["input_refused"] | None = None,
+        owned_attempt_anchor_ref: OwnedAttemptAnchorRef | None = None,
     ) -> None:
         """Mark one job failed, persist a truncated error message, and emit failure events."""
         fence = self._resolve_job_execution_fence(
@@ -5297,6 +5511,8 @@ class ControlPlaneStore:
                 capability_manifest_ref=capability_manifest_ref,
                 progress=progress,
                 fence=fence,
+                owned_attempt_failure_disposition=owned_attempt_failure_disposition,
+                owned_attempt_anchor_ref=owned_attempt_anchor_ref,
             )
 
     def _fail_job_in_transaction(
@@ -5307,8 +5523,24 @@ class ControlPlaneStore:
         capability_manifest_ref: str | None,
         progress: dict[str, Any] | None,
         fence: tuple[str, int] | None,
+        owned_attempt_failure_disposition: Literal["input_refused"] | None = None,
+        owned_attempt_anchor_ref: OwnedAttemptAnchorRef | None = None,
     ) -> None:
         """Apply one failure and its dead-letter/event rows in one transaction."""
+        if (owned_attempt_failure_disposition is None) != (owned_attempt_anchor_ref is None):
+            raise ValueError("control_job_owned_attempt_failure_binding_incomplete")
+        if owned_attempt_failure_disposition is not None:
+            from polisyos.core.contracts.owned_attempt_anchor import OwnedAttemptAnchorRef
+
+            if (
+                fence is None
+                or owned_attempt_failure_disposition != "input_refused"
+                or type(owned_attempt_anchor_ref) is not OwnedAttemptAnchorRef
+                or owned_attempt_anchor_ref.kind != "runtime.owned_attempt_anchor"
+                or owned_attempt_anchor_ref.media_type != "application/json"
+                or owned_attempt_anchor_ref.manifest_profile_sha256 is None
+            ):
+                raise ValueError("control_job_owned_attempt_failure_binding_invalid")
         now = _utc_now()
         if progress is not None:
             progress = _progress_with_quality_scorecard_summary(progress)
@@ -5347,6 +5579,11 @@ class ControlPlaneStore:
         }
         if fence is not None:
             event_payload.update({"lease_owner": fence[0], "attempt": fence[1]})
+        if owned_attempt_failure_disposition is not None:
+            event_payload["owned_attempt_failure_disposition"] = owned_attempt_failure_disposition
+            event_payload["owned_attempt_anchor_ref"] = owned_attempt_anchor_ref.model_dump(
+                mode="json"
+            )
         self.append_event(
             job_id=job_id,
             event_type="job_failed",
@@ -5647,9 +5884,24 @@ class ControlPlaneStore:
         event_key: str | None = None,
     ) -> ControlOutboxRecord:
         """Insert a deduplicated pending outbox event keyed by `(topic, event_key)`."""
+        if topic == "control.search.hte_completed":
+            resource = getattr(self._human_decision_transaction, "sqlite_connection", None)
+            if resource is None:
+                resource = getattr(self._human_decision_transaction, "postgres_cursor", None)
+            if resource is None:
+                with self._job_transaction():
+                    return self.enqueue_outbox_event(
+                        topic=topic,
+                        payload=payload,
+                        job_id=job_id,
+                        run_id=run_id,
+                        event_key=event_key,
+                    )
         if event_key:
             existing = self._get_outbox_event_by_key(topic=topic, event_key=event_key)
             if existing is not None:
+                if topic == "control.search.hte_completed":
+                    self._ensure_search_hte_delivery_order(existing)
                 return existing
         event_id = f"outbox_{uuid.uuid4().hex[:16]}"
         created_at = _utc_now()
@@ -5675,7 +5927,25 @@ class ControlPlaneStore:
         record = self.get_outbox_event(event_id)
         if record is None:
             raise RuntimeError(f"Failed to persist control outbox event {event_id}")
+        if topic == "control.search.hte_completed":
+            self._ensure_search_hte_delivery_order(record)
         return record
+
+    def _ensure_search_hte_delivery_order(self, record: ControlOutboxRecord) -> None:
+        """Bind each Search delivery row to one monotonic order in the same transaction."""
+        parameters = (record.event_id, _iso(record.created_at))
+        if self.backend == "sqlite":
+            self._execute(
+                "INSERT OR IGNORE INTO control_search_hte_delivery_order "
+                "(event_id, created_at) VALUES (?, ?)",
+                parameters,
+            )
+        else:
+            self._execute(
+                "INSERT INTO control_search_hte_delivery_order (event_id, created_at) "
+                "VALUES (?, ?) ON CONFLICT (event_id) DO NOTHING",
+                parameters,
+            )
 
     def get_outbox_event(self, event_id: str) -> ControlOutboxRecord | None:
         """Return one outbox event row by ID."""
@@ -5737,15 +6007,29 @@ class ControlPlaneStore:
         return [self._row_to_outbox_record(row) for row in rows]
 
     def mark_outbox_published(self, *, event_id: str) -> None:
-        """Mark one outbox event published and increment its attempt counter."""
+        """Publish one pending outbox event and increment its counter only once."""
         now = _utc_now()
         self._execute(
             """
             UPDATE control_outbox_events
             SET state = ?, published_at = ?, attempt = attempt + 1, error_message = NULL
-            WHERE event_id = ?
+            WHERE event_id = ? AND state = ?
             """,
-            ("published", _iso(now), event_id),
+            ("published", _iso(now), event_id, "pending"),
+        )
+
+    def record_outbox_delivery_failure(self, *, event_id: str, reason_code: str) -> None:
+        """Retain a typed delivery failure while keeping its outbox row retryable."""
+        normalized = str(reason_code).strip()
+        if not normalized or len(normalized) > 160:
+            raise ValueError("control_outbox_delivery_failure_reason_invalid")
+        self._execute(
+            """
+            UPDATE control_outbox_events
+            SET attempt = attempt + 1, error_message = ?
+            WHERE event_id = ? AND state = ?
+            """,
+            (normalized, event_id, "pending"),
         )
 
     def _get_outbox_event_by_key(self, *, topic: str, event_key: str) -> ControlOutboxRecord | None:
@@ -6858,6 +7142,11 @@ class ControlPlaneStore:
                         attempt INTEGER NOT NULL DEFAULT 0,
                         error_message TEXT
                     );
+                    CREATE TABLE IF NOT EXISTS control_search_hte_delivery_order (
+                        sequence_id INTEGER PRIMARY KEY AUTOINCREMENT,
+                        event_id TEXT NOT NULL UNIQUE,
+                        created_at TEXT NOT NULL
+                    );
                     CREATE TABLE IF NOT EXISTS control_diagnostic_events (
                         row_id INTEGER PRIMARY KEY AUTOINCREMENT,
                         event_id TEXT NOT NULL,
@@ -6991,6 +7280,17 @@ class ControlPlaneStore:
                 )
                 conn.execute("BEGIN IMMEDIATE")
                 try:
+                    conn.execute(
+                        """
+                        INSERT OR IGNORE INTO control_search_hte_delivery_order (
+                            event_id, created_at
+                        )
+                        SELECT event_id, created_at
+                        FROM control_outbox_events
+                        WHERE topic = 'control.search.hte_completed'
+                        ORDER BY created_at ASC, event_id ASC
+                        """
+                    )
                     operation_columns = {
                         str(row[1])
                         for row in conn.execute("PRAGMA table_info(runtime_operation_intents)")
@@ -7259,6 +7559,25 @@ class ControlPlaneStore:
                     attempt INTEGER NOT NULL DEFAULT 0,
                     error_message TEXT
                 )
+                """
+            )
+            cur.execute(
+                """
+                CREATE TABLE IF NOT EXISTS control_search_hte_delivery_order (
+                    sequence_id BIGSERIAL PRIMARY KEY,
+                    event_id TEXT NOT NULL UNIQUE,
+                    created_at TIMESTAMPTZ NOT NULL
+                )
+                """
+            )
+            cur.execute(
+                """
+                INSERT INTO control_search_hte_delivery_order (event_id, created_at)
+                SELECT event_id, created_at
+                FROM control_outbox_events
+                WHERE topic = 'control.search.hte_completed'
+                ORDER BY created_at ASC, event_id ASC
+                ON CONFLICT (event_id) DO NOTHING
                 """
             )
             cur.execute(

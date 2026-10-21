@@ -10,7 +10,7 @@ from __future__ import annotations
 
 from typing import Any, Literal
 
-from pydantic import BaseModel, ConfigDict, Field, field_validator, model_validator
+from pydantic import BaseModel, ConfigDict, Field, ValidationInfo, field_validator, model_validator
 
 from polisyos.ir.artifacts import ArtifactStore, InputRef, get_json_artifact, put_json_artifact
 from polisyos.ir.model_layer.canon import CanonSpec
@@ -56,7 +56,7 @@ class LocalIndependenceTarget(BaseModel):
         mode="before",
     )
     @classmethod
-    def _validate_strings(cls, value: object, info: Any) -> str:
+    def _validate_strings(cls, value: object, info: ValidationInfo) -> str:
         return _clean_string(value, field_name=str(info.field_name))
 
     @model_validator(mode="after")
@@ -77,7 +77,7 @@ class LocalIndependenceEdge(BaseModel):
 
     @field_validator("src", "dst", mode="before")
     @classmethod
-    def _validate_nodes(cls, value: object, info: Any) -> str:
+    def _validate_nodes(cls, value: object, info: ValidationInfo) -> str:
         return _clean_string(value, field_name=str(info.field_name))
 
 
@@ -98,7 +98,7 @@ class LocalIndependenceGraphSpec(BaseModel):
 
     @field_validator("nodes", "latent_nodes", "notes", mode="before")
     @classmethod
-    def _validate_tuple_fields(cls, value: object, info: Any) -> tuple[str, ...]:
+    def _validate_tuple_fields(cls, value: object, info: ValidationInfo) -> tuple[str, ...]:
         return _clean_tuple(value, field_name=str(info.field_name))
 
 
@@ -116,7 +116,7 @@ class TreatmentIntensityInterventionSpec(BaseModel):
 
     @field_validator("node", "bound_note", mode="before")
     @classmethod
-    def _validate_strings(cls, value: object, info: Any) -> str | None:
+    def _validate_strings(cls, value: object, info: ValidationInfo) -> str | None:
         if value is None:
             return None
         return _clean_string(value, field_name=str(info.field_name))
@@ -158,12 +158,12 @@ class LocalIndependenceIdentificationSpec(BaseModel):
 
     @field_validator("theorem_reference", "weight_components", "marginalize_over", mode="before")
     @classmethod
-    def _validate_tuple_fields(cls, value: object, info: Any) -> tuple[str, ...]:
+    def _validate_tuple_fields(cls, value: object, info: ValidationInfo) -> tuple[str, ...]:
         return _clean_tuple(value, field_name=str(info.field_name))
 
     @field_validator("formula_hint", "decensoring_note", mode="before")
     @classmethod
-    def _validate_optional_strings(cls, value: object, info: Any) -> str | None:
+    def _validate_optional_strings(cls, value: object, info: ValidationInfo) -> str | None:
         if value is None:
             return None
         return _clean_string(value, field_name=str(info.field_name))
@@ -191,7 +191,7 @@ class IndependentCensoringCheck(BaseModel):
 
     @field_validator("conditioning_set", "blocked_trails", mode="before")
     @classmethod
-    def _validate_tuple_fields(cls, value: object, info: Any) -> tuple[str, ...]:
+    def _validate_tuple_fields(cls, value: object, info: ValidationInfo) -> tuple[str, ...]:
         return _clean_tuple(value, field_name=str(info.field_name))
 
 
@@ -215,7 +215,7 @@ class EliminabilityStep(BaseModel):
 
     @field_validator("justification_kind", "witness", mode="before")
     @classmethod
-    def _validate_strings(cls, value: object, info: Any) -> str | None:
+    def _validate_strings(cls, value: object, info: ValidationInfo) -> str | None:
         if value is None:
             return None
         return _clean_string(value, field_name=str(info.field_name))
@@ -266,7 +266,7 @@ class IntensityModelRequirement(BaseModel):
 
     @field_validator("process", "estimation", mode="before")
     @classmethod
-    def _validate_strings(cls, value: object, info: Any) -> str:
+    def _validate_strings(cls, value: object, info: ValidationInfo) -> str:
         return _clean_string(value, field_name=str(info.field_name))
 
     @field_validator("conditioning", mode="before")
@@ -326,7 +326,7 @@ class LocalIndependenceWeightingCertificate(BaseModel):
 
     @field_validator("assumptions", "proof_trace", mode="before")
     @classmethod
-    def _validate_tuple_fields(cls, value: object, info: Any) -> tuple[str, ...]:
+    def _validate_tuple_fields(cls, value: object, info: ValidationInfo) -> tuple[str, ...]:
         return _clean_tuple(value, field_name=str(info.field_name))
 
     @model_validator(mode="after")
@@ -366,7 +366,9 @@ class LocalIndependenceWeightingCertificate(BaseModel):
                 "decensoring_map_used": self.identification.decensoring_map_used,
             },
             "graphical_checks": {
-                "independent_censoring_checked": self.graphical_checks.independent_censoring.checked,
+                (
+                    "independent_censoring_checked"
+                ): self.graphical_checks.independent_censoring.checked,
                 "eliminability_checked": self.graphical_checks.eliminability.checked,
                 "eliminated_processes": list(self.graphical_checks.eliminability.eliminate_set),
             },

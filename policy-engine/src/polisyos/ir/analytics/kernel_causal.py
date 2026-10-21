@@ -202,7 +202,8 @@ class KernelEstimatorSpec(BaseModel):
             and self.lowering_disposition is KernelLoweringDisposition.READY
         ):
             raise ValueError(
-                "distributional kernel lowering requires characteristic output_kernel or a downgraded disposition"
+                "distributional kernel lowering requires characteristic output_kernel or "
+                "a downgraded disposition"
             )
         if "treatment" not in self.variable_roles or "outcome" not in self.variable_roles:
             raise ValueError("kernel lowering requires treatment and outcome variable roles")

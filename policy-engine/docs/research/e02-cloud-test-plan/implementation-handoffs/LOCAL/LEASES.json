@@ -49210,5 +49210,82 @@
     "source_profile_freeze": false,
     "G_acceptance": false,
     "closure_ids": []
+  },
+  "root-r12-core-protocol-mro-source-adoption-20261021-r1": {
+    "slice_base": "815dccc57937896029e6e1e3980393e8a87caef6",
+    "canonical_writer": "root only; reviewed present patch, retired exact originals through native Trash",
+    "mechanism_and_mandatory_companion_paths": {
+      "policy-engine/src/polisyos/scientist/nodes/builtins/decide/policy_runtime_method_metrics.py": {
+        "operation": "update",
+        "mode": "100644",
+        "preimage_sha256": "8d5d139a0c60594aa1bc259b7441e01ba2230599d8c109081423e517a66e7674",
+        "postimage_path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/root-r12-core-protocol-mro-author-20261021-r1/postimage.py",
+        "postimage_sha256": "b70fe4c1da3850723200e4601e3ee2a516d498bd87f19d90cb48292fcb146c30",
+        "postimage_bytes": 192180
+      }
+    },
+    "application": {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/root-r12-core-protocol-mro-source-adoption-20261021-r1/source-application.json",
+      "sha256": "36a0e6f915c5974fd0891482ced4c0d820a13d5032488185b13b0225052a09b5"
+    },
+    "native_trash_receipt": {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/root-r12-core-protocol-mro-source-adoption-20261021-r1/native-trash-receipt.json",
+      "sha256": "057f81b6e161c37eaec854c352b59148420f1f1711163b9005834b723e193dcf"
+    },
+    "reviewed_inputs": [
+      {
+        "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/root-r12-core-protocol-mro-author-20261021-r1/source-freeze.json",
+        "sha256": "d0f2f8f88512fba761419be0496993c14c0125c3ac1717365b752cdf8ec63a1d"
+      },
+      {
+        "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/root-r12-core-protocol-mro-author-20261021-r1/source-census.json",
+        "sha256": "85e8e83a1d7d8a1747ecedb1e01522dddee45f2fb3b9336fa2a4544fe2c598e5"
+      },
+      {
+        "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/root-r12-core-protocol-mro-author-20261021-r1/command-results.json",
+        "sha256": "82a54b42339d12a22a6a6b309c374758315f3d1072d708202384d0390f65b909"
+      },
+      {
+        "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/root-r12-core-protocol-mro-author-20261021-r1/candidate.patch",
+        "sha256": "d3aa1ab7e3237c0537b70b0058f78cd1c4b13f1121f5d0fb5ac0dc226f6d4f03"
+      },
+      {
+        "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/root-r12-core-protocol-mro-author-20261021-r1/mro-probe.py",
+        "sha256": "a73b4b92d3c24f72ba6d863d09e35d5e06b97f37a2f106cd9c99c9ec3c4d3d4c"
+      },
+      {
+        "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/root-r12-core-protocol-mro-author-20261021-r1/mro-probe.stdout.txt",
+        "sha256": "714d7dcb6baa458957a3454b2e7478dbb06619f7eaa6b94c39a716265e362100"
+      },
+      {
+        "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/independent-r12-core-protocol-mro-review-20261021-r1/review.json",
+        "sha256": "f0ec74af15d23314b85e4086ee7a9452805b8d999deee435043d466bea053beb"
+      },
+      {
+        "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/root-runtime-r12-thirteen-whole-52082e7adf58-20261021-r1/actual/result.json",
+        "sha256": "5c4501683c0358ed0998084be856bd2441f4e7db61cde9e44686d3147853b3ba"
+      }
+    ],
+    "owned_applied_provenance": null,
+    "preserved_other_owned_rows": {},
+    "preserved_other_owned_provenance": null,
+    "preserved_other_owned_tracked_paths": [],
+    "preserved_other_owned_untracked_paths": [],
+    "preserved_other_owned_unchanged_before_after": true,
+    "P40": {
+      "bucket": "same public Core protocol compatibility class",
+      "action": "Preserve complete inherited method quantity, not a one-class reorder; no Any/protocol weakening/duplicate public facade."
+    },
+    "bounded_proof": "Fullsource/provider graph/sibling census and independent f0ec74 review; exact pre/postimages/currentbranch; native syntax/Ruffcheck+format and branchblobreadback.",
+    "limitations": [
+      "Independent sourceGO plus isolated stdlib topology repro proves the declared C3 composition only; no product import or case execution in author/reviewer lanes.",
+      "Prior13module attempts atbd55 and52082 each0collected/0callsERROR, source-specific and retained; no capability inference.",
+      "CAN168whole-five tests pass at815d; threeHTTPmodules, fullRuntime13 and remaining AD01/DS17/currentHTEsuccessors remain separate verification."
+    ],
+    "runtime": "UNRUN on adopted source",
+    "next_check": "Run exact complete13Runtime modules together with threeCANHTTPmodules under one source/profile freeze; actual fullcollection/call/phase/origin/source/resourceoutputs and adversarial/removal checks. Then canonical generatedAPI/clienttypeparity and ordinaryown-topicpublication.",
+    "source_profile_freeze": false,
+    "G_acceptance": false,
+    "closure_ids": []
   }
 }

@@ -18,7 +18,6 @@ from polisyos.core.artifacts import (
     CoreJSONArtifactBoundedMemberReader,
     CoreJsonArtifactBoundedRead,
     CoreJSONArtifactStore,
-    CoreJSONArtifactStreamingReader,
     CoreJsonReadBoundsRefusalError,
     CoreJsonReadLimits,
     ProducerInfo,
@@ -86,7 +85,6 @@ METHOD_METRIC_PROJECTION_VERIFIER_REVISION = "1.0"
 
 class _MethodMetricProjectionArtifactStore(
     CoreJSONArtifactStore,
-    CoreJSONArtifactStreamingReader,
     CoreJSONArtifactBoundedInputManifestReader,
     CoreJSONArtifactBoundedMemberReader,
     Protocol,
@@ -95,7 +93,6 @@ class _MethodMetricProjectionArtifactStore(
 
 
 class _MethodMetricProjectionArtifactReader(
-    CoreJSONArtifactStreamingReader,
     CoreJSONArtifactBoundedInputManifestReader,
     CoreJSONArtifactBoundedMemberReader,
     Protocol,

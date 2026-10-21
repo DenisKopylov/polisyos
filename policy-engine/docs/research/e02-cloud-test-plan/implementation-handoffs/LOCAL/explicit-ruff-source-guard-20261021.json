@@ -1,0 +1,174 @@
+{
+  "schema": "policyos.e02.implementation_handoff.v1",
+  "unit": "LOCAL",
+  "slice": "explicit-ruff-source-guard-20261021",
+  "slice_base_sha": "beb180fb37079b563b257b5f3855422034a9c042",
+  "implementation_commits": [
+    "45973d5cfc6d8935cc52f59289cdd524bc972d2a"
+  ],
+  "candidate_tree_sha": "048ed0f947b8ef14150eacc1a09021221f736eea",
+  "parents": [
+    "beb180fb37079b563b257b5f3855422034a9c042"
+  ],
+  "branch": "codex/e02-unified-local-20261009",
+  "footprint": [
+    {
+      "path": "policy-engine/tools/devx/workspace/ruff_sources.py",
+      "preimage_sha256": null,
+      "postimage_sha256": "7f748b1671730065afa0bf53d0cfbf0082182e553093b7172a6df5d55e017e7b",
+      "before_nlink": null
+    },
+    {
+      "path": "policy-engine/tests/repo_quality/tools/test_ruff_sources.py",
+      "preimage_sha256": null,
+      "postimage_sha256": "694b1a46d48488f6daced53b2a788ec7cbbb2e273f6ec60a5df2dcf0883b5164",
+      "before_nlink": null
+    },
+    {
+      "path": "policy-engine/tools/devx/workspace/README.md",
+      "preimage_sha256": "a2c97d774976c07ef92fc56d3c2c34d650babf5f49d0c387a00495d76bcbf17a",
+      "postimage_sha256": "52e39ddee6723876b59d113d9a7ab4940abb04e03e8e0bc3408a72b343fe82b6",
+      "before_nlink": 10
+    },
+    {
+      "path": "policy-engine/docs/reference/policy-design-case-failure-patterns.md",
+      "preimage_sha256": "1c34476fcc90801535e83455d9cb16509fde1ef4027730a63664d072c229f689",
+      "postimage_sha256": "37e206e926bf436da7cf726d1fe8dd1cc3e50b1c3f5f6279bd56d897c679f9e9",
+      "before_nlink": 1
+    },
+    {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/LEASES.json",
+      "preimage_sha256": "b37bb80221cf2f916051245b3312ed2b94d533b7b42e7250dd5f9710ff79223f",
+      "postimage_sha256": "10859fbd7610859c04eba757eddf076f55ce1fc2635edd80010d9727516c79a1",
+      "before_nlink": 1
+    }
+  ],
+  "closure_ids": [],
+  "proposals": [],
+  "task_routes": [
+    "DX0"
+  ],
+  "source_bound_verification": {
+    "canonical_pytest": {
+      "invocation": {
+        "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/root-explicit-ruff-source-guard-20261021-r1/verification/canonical-r1/pytest-invocation.json",
+        "sha256": "e9980fd2bdd011b5cf6734aede02a51de0571b5240fe017dc82313440f10d348",
+        "bytes": 1562
+      },
+      "stdout": {
+        "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/root-explicit-ruff-source-guard-20261021-r1/verification/canonical-r1/pytest.stdout",
+        "sha256": "ecf57d762b443151696ef4727347520d0d5715719bac1e0cd93caddf627ffa61",
+        "bytes": 80
+      },
+      "stderr": {
+        "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/root-explicit-ruff-source-guard-20261021-r1/verification/canonical-r1/pytest.stderr",
+        "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+        "bytes": 0
+      },
+      "junit": {
+        "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/root-explicit-ruff-source-guard-20261021-r1/verification/canonical-r1/junit.xml",
+        "sha256": "f21aa3157437ae4fa94297aca537685e61e31a73c0721c1da582172b2ac2ab43",
+        "bytes": 2610
+      },
+      "result": {
+        "PASS": 16,
+        "FAIL": 0,
+        "ERROR": 0,
+        "SKIP": 0
+      }
+    },
+    "canonical_Ruff_check": {
+      "invocation": {
+        "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/root-explicit-ruff-source-guard-20261021-r1/verification/canonical-r1/ruff-invocation.json",
+        "sha256": "5f11c381059986fe004126d35e9dd46e9b43bda211bca56830a10c7ef5b81b89",
+        "bytes": 796
+      },
+      "complete_output": {
+        "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/root-explicit-ruff-source-guard-20261021-r1/verification/canonical-r1/ruff.stdout",
+        "sha256": "189a217338f52b0c250dab77b6611b5d11133182a834aa016196e879207846b0",
+        "bytes": 2723
+      },
+      "result": "2 selected sources PASS"
+    },
+    "canonical_Ruff_format_check": {
+      "complete_output": {
+        "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/root-explicit-ruff-source-guard-20261021-r1/verification/canonical-r1/format-final.json",
+        "sha256": "8fdcd6db1e177168f8abd04b5dd2e6ed7c243dafc37d9bafa582f94c3eb4d4ed",
+        "bytes": 2290
+      },
+      "result": "2 selected sources PASS"
+    },
+    "canonical_markdown": {
+      "invocation": {
+        "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/root-explicit-ruff-source-guard-20261021-r1/verification/canonical-r1/markdown-explicit-invocation.json",
+        "sha256": "5f5d68800a22f8e2f2f9cba958a4eb6f39928c33913bbd735441e044ee64cd8a",
+        "bytes": 898
+      },
+      "stdout": {
+        "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/root-explicit-ruff-source-guard-20261021-r1/verification/canonical-r1/markdown-explicit.stdout",
+        "sha256": "03199ca860f83f8c8d464b3912d69cecb3f944c9632141ee6187b43232578144",
+        "bytes": 369
+      },
+      "stderr": {
+        "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/root-explicit-ruff-source-guard-20261021-r1/verification/canonical-r1/markdown-explicit.stderr",
+        "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+        "bytes": 0
+      },
+      "result": "2 selected docs PASS using existing markdownlint-cli2 v0.22.0; no dependency install"
+    }
+  },
+  "independent_review": {
+    "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/root-explicit-ruff-source-guard-20261021-r1/independent-review-20261021-r1/review.json",
+    "sha256": "e58f0f4efcf22e5a935d19cfeb7ee126ad72424dc03caf715089b7f6f4496faf"
+  },
+  "implementation_readback": {
+    "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/root-explicit-ruff-source-guard-20261021-r1/adoption/implementation-readback.json",
+    "sha256": "1bc26c8ab423470c194b7259b88c3b8064b6309c415189b3e16424dde1a20740",
+    "bytes": 2426
+  },
+  "actual_non_test_call": {
+    "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/root-explicit-ruff-source-guard-20261021-r1/verification/format-source-results.json",
+    "sha256": "60161b8bc91686e8071810ce337eebbe994a2e9131c76787cf8cda1d682b475f",
+    "bytes": 2830
+  },
+  "approved_incident_recovery": {
+    "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/root-ruff-empty-target-incident-20261021-r1/approved-recovery-readback-20261021.json",
+    "sha256": "7e54d3659f3da52898b517a64dd815668c6b61aad08051e31cc548fcf2957f17",
+    "bytes": 1271
+  },
+  "property": {
+    "statement": "The final explicit candidate selection is admitted before any Ruff child; every child has one content-bound stdin input and explicit dash target; rewrites return bytes without modifying filesystem sources.",
+    "real_chain": [
+      "caller final selection",
+      "RuffSource + SHA-256 validation",
+      "all-input admission",
+      "Ruff subprocess stdin with logical filename/config/cwd",
+      "RuffSourceResult / CLI output",
+      "caller-owned atomic materialization"
+    ],
+    "proxy_divergence": "A nonempty upstream map can become empty after filtering; bare Ruff --fix then scans cwd. Regression executes that unsafe behavior on a synthetic unrelated canary and proves the bounded helper blocks its own empty selection before child launch.",
+    "negative_controls": [
+      "post-filter empty",
+      "invalid logical names and paths",
+      "duplicate selection and unsupported operation",
+      "changed bytes in later selected member before any child",
+      "directories/symlinks/outside paths",
+      "selected and unselected filesystem sources unchanged by stdin rewrite",
+      "logical test/source role selects actual S101 policy"
+    ]
+  },
+  "predicate_basis": "recomputed",
+  "capability_state": "implemented",
+  "limitations": [
+    "Arbitrary shell callers may bypass the helper. All E02 candidate writers were instructed to use it; the Fabric writer has used these exact helper bytes.",
+    "Only the explicit top-level config anchor is hashed; transitive configuration and package topology remain named unresolved boundaries. Final physical topology gates are still required.",
+    "CLI emit-source returns source bytes rather than a receipt envelope; the Python result carries command, inputs and outputs.",
+    "Earlier setup-path failure and broad config-glob markdown timeout were harness/tooling errors, preserved separately; neither was a product result.",
+    "Normal pre-commit hook skipped unrelated dashboard checks; it does not establish native repository green.",
+    "Global E02/native/installed/profile/authority closeout remains UNRUN at this source; G acceptance/formal closure not asserted."
+  ],
+  "source_freeze": false,
+  "G_acceptance": false,
+  "predicate_basis_detail": "Independent bounded source/input/caller reconciliation recorded separately in the pinned review.",
+  "capability_boundary": "Bounded internal candidate-tool path only."
+}

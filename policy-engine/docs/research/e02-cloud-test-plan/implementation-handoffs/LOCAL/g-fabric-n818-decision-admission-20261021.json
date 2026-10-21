@@ -1,0 +1,123 @@
+{
+  "schema": "policyos.e02.local.architecture_decision_admission.v1",
+  "decision_id": "AD-E02-FABRIC-N818-01",
+  "decision_version": 1,
+  "issuer": "G, architecture task explicitly commissioned by the user",
+  "architecture_selection": "selected_by_G",
+  "G_code_acceptance": false,
+  "human_repository_review": "not_asserted",
+  "closure_ids": [],
+  "published_G": {
+    "commit": "d40bca270ef5c456e8233196e4d8d65e099777a7",
+    "tree": "97c8325d970529e415d022f39cbee46172158104",
+    "parents": [
+      "f503b710ef95e1ac3214e5727ab304af6e4867d0"
+    ],
+    "local_input_ref": "refs/e02/local-inputs/g-fabric-n818-decision-20261021",
+    "remote_head_readback": {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/root-b61-receipt-and-g-n818-admission-draft-20261021-r2/g-ls-remote.stdout",
+      "sha256": "73d04ba2328df82bcd881b00f70e2f6612cbc717259327bcaf6a88d36fff5b93"
+    },
+    "remote_stderr": {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/root-b61-receipt-and-g-n818-admission-draft-20261021-r2/g-ls-remote.stderr",
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    }
+  },
+  "accepted_documents": [
+    {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/integration/architecture-decisions-2026-10-21/09-fabric-exception-identities.md",
+      "git_blob": "3d829aa33b52fd59f47cb259babe79b0db71d61e",
+      "sha256": "3735eb0e05dd4a7aa86c30cdbfbb632cc7e1d44fc3c88b86308c3840cd9ea111"
+    },
+    {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/integration/architecture-decisions-2026-10-21/fabric-exception-identities-inputs.json",
+      "git_blob": "7dfe13826805750207c96e5ae9663527b7f012e4",
+      "sha256": "391ea3c1503ee908a82d87653809f073626dde08c3cfaba51d5a1a32ca2504be"
+    }
+  ],
+  "own_source_entry": {
+    "branch": "codex/e02-unified-local-20261009",
+    "commit": "beb180fb37079b563b257b5f3855422034a9c042",
+    "tree": "0ade666e898c7c8e803a7fb21e7237bbbf7a80d0",
+    "parents": [
+      "880c238d834fa311195f40dcd50c627b0a719b9a"
+    ],
+    "tracked_clean": true
+  },
+  "G_delta_separate_assessment": {
+    "comparison_base": "798bd1ab9646378f49fd127b3f04ebe71aca67d2",
+    "complete_changed_path_count": 34,
+    "all_under_policy_engine_docs": true,
+    "changed_path_inventory": {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/root-b61-receipt-and-g-n818-admission-draft-20261021-r2/g-798-to-d40-path-delta.txt",
+      "sha256": "7c79572c2a9365811e01c0bf0612d86bceb3fa5fed4c81fdf6ce1726d6f1ffc0"
+    },
+    "admission_scope": "Only named two N818 decision documents are implementation inputs. Other G documentation delta is not admitted as candidate source/code acceptance or production authority."
+  },
+  "allowed_symbols": [
+    {
+      "path": "policy-engine/src/polisyos/fabric/connectors/testing/contracts.py",
+      "module": "polisyos.fabric.connectors.testing.contracts",
+      "class": "ContractViolation",
+      "rule": "N818",
+      "selection": "preserve_existing_definition"
+    },
+    {
+      "path": "policy-engine/src/polisyos/fabric/data_plane/cursor_store.py",
+      "module": "polisyos.fabric.data_plane.cursor_store",
+      "class": "CursorStoreConflict",
+      "rule": "N818",
+      "selection": "preserve_existing_definition"
+    },
+    {
+      "path": "policy-engine/src/polisyos/fabric/data_plane/streaming.py",
+      "module": "polisyos.fabric.data_plane.streaming",
+      "class": "StreamDedupeUnsupported",
+      "rule": "N818",
+      "selection": "preserve_existing_definition"
+    },
+    {
+      "path": "policy-engine/src/polisyos/fabric/world/materialize/errors.py",
+      "module": "polisyos.fabric.world.materialize.errors",
+      "class": "WorldSegmentHashMismatch",
+      "rule": "N818",
+      "selection": "preserve_existing_definition"
+    },
+    {
+      "path": "policy-engine/src/polisyos/fabric/world/materialize/errors.py",
+      "module": "polisyos.fabric.world.materialize.errors",
+      "class": "WorldMergeConflict",
+      "rule": "N818",
+      "selection": "preserve_existing_definition"
+    },
+    {
+      "path": "policy-engine/src/polisyos/fabric/world/materialize/errors.py",
+      "module": "polisyos.fabric.world.materialize.errors",
+      "class": "WorldKuzuNotAvailable",
+      "rule": "N818",
+      "selection": "preserve_existing_definition"
+    },
+    {
+      "path": "policy-engine/src/polisyos/fabric/world/write.py",
+      "module": "polisyos.fabric.world.write",
+      "class": "WorldSnapshotBackendUnavailable",
+      "rule": "N818",
+      "selection": "preserve_existing_definition"
+    }
+  ],
+  "implementation_contract": {
+    "source": "Preserve seven definitions/identities/MRO/exports/behavior; five-file comment-only local N818 annotations, ADR rationale and exact G decision path.",
+    "config": "Remove only N818 from canonical 50-fabric.toml per-file ignore; official generator owns projections. Preserve RUF100 and all other rule scopes/debt/expiry.",
+    "verification": "Derive actual complete tracked Fabric Python denominator; compare exact definition membership unsuppressed rule-only audit with native/workspace profiles; actual eighth violation, copied-suppression wrong-module, remove-approved-noqa and stale-noqa RUF100 canaries.",
+    "source_freeze": "Separate five-file comment-only layer after the typed runtime-annotation composition; compare AST on narrow layer base. Canonical source/config/generated delivery serialized by root.",
+    "owners": "Source global writer fabric_connectors_native_typing; config/render writer fabric_catalog_native_typing; independent oracle current_c12_r14_origin_oracle; root sole canonical writer."
+  },
+  "implementation_status": "PREPARED_NOT_APPLIED; actual native/full denominator/canary evidence UNRUN at admission boundary.",
+  "scope_limits": [
+    "No renaming/alias/new classes or generic waiver platform.",
+    "Calendar renewal is not added; event-driven compatibility revisit follows the G decision.",
+    "This decision authorizes only seven path+module+class+rule identities, no typing TC exceptions.",
+    "Historical nine closures includingB198 remain unchanged; no author closure proposal becomes formal G closure."
+  ],
+  "next_check": "Freeze source/config companions, independently review exact map and behavioral audit, apply coherent source/config/generated slice, run official generator checks and real N818/RUF100/facade compatibility controls; separate implementation receipt after commit."
+}

@@ -1,0 +1,230 @@
+{
+  "schema": "policyos.e02.local.implementation_handoff.v1",
+  "slice": "b61-live-generation-rebind-canonical-four-20261021",
+  "slice_base": "880c238d834fa311195f40dcd50c627b0a719b9a",
+  "candidate": "beb180fb37079b563b257b5f3855422034a9c042",
+  "tree": "0ade666e898c7c8e803a7fb21e7237bbbf7a80d0",
+  "parents": [
+    "880c238d834fa311195f40dcd50c627b0a719b9a"
+  ],
+  "branch": "codex/e02-unified-local-20261009",
+  "footprint": [
+    {
+      "path": "policy-engine/src/polisyos/scientist/orchestration/engine/executor.py",
+      "mode": "100644",
+      "preimage_sha256": "a5374da0a9b7ecff6fc02a615e13dde3dabc54492925fc6d57da81c944f705e0",
+      "postimage_sha256": "d7259a40435046884979f12b86ab96eac6cfe4a4646465ef84c42e1b8ba9c158"
+    },
+    {
+      "path": "policy-engine/tests/integration/scientist/orchestration/engine/test_skg_prepared_read_cache.py",
+      "mode": "100644",
+      "preimage_sha256": "29deed6f474a25791b55a01c6c0bfa7766f897b4b72e2ad75b03a550db8eb668",
+      "postimage_sha256": "3e0baadf51a32d7afb2b92974e58d2949bb8ac62e5da5d2332d9a9c6c7f5e45d"
+    },
+    {
+      "path": "policy-engine/tests/unit/scientist/orchestration/engine/test_skg_snapshot_replay.py",
+      "mode": "100644",
+      "preimage_sha256": "6b897fc30e517bb60e9fed3dbcc5de15038d89c58e90b93ef6f0a8f31dcfa439",
+      "postimage_sha256": "f47fc0d5a67edd6c3cc36a419aa3670804d4f81f68ff08f1b9db8cc13a14b7c4"
+    }
+  ],
+  "mandatory_record_companions": [
+    "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/LEASES.json",
+    "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/candidate-component-delivery-index-20261015.json"
+  ],
+  "selected_input_profile_backend": {
+    "input": "Temporary real SKG database and selected CAS fixtures; source row replacement 1.4 to 2.6 and mtime-only same-byte mutation; no production inputs.",
+    "backend": "Existing locked Darwin Python3.14 repository venv, actual canonical DataForge read API/Scientist executor/IR bundle, one numerical thread.",
+    "input_and_config_pins": {
+      "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/LEASES.json": "b37bb80221cf2f916051245b3312ed2b94d533b7b42e7250dd5f9710ff79223f",
+      "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/candidate-component-delivery-index-20261015.json": "11200222491f6389e17e07b6f6cfd0f437200087cf5b0d2eb29d2b9ee8d3bf5e",
+      "policy-engine/pyproject.toml": "9ba07603d14a8d7616be98f268849f9b38b4c06bba441dcc2b40b03d2ffd6827",
+      "policy-engine/pytest.ini": "61270205a9f573a090b3c051a4b78351e67308a49e21660dbf33e76186d799eb",
+      "policy-engine/src/polisyos/data_forge/domains/academic/knowledge/skg_snapshot.py": "e8e8c0c7d37536dbfc5a81afd892f6a782999c60c43a5d00c7ea88e21ddeda85",
+      "policy-engine/src/polisyos/data_forge/read_api/academic.py": "54ddabe3e04821d8a9bde6eb65b5db01c25a613a9e0a74d995e9e477880a754d",
+      "policy-engine/src/polisyos/runtime/quality/generation_cycle.py": "4b7226891ad66cc60a0dc244dd4c69a7b0b6530f1889f41988e3978140971052",
+      "policy-engine/src/polisyos/scientist/orchestration/engine/executor.py": "d7259a40435046884979f12b86ab96eac6cfe4a4646465ef84c42e1b8ba9c158",
+      "policy-engine/src/polisyos/scientist/orchestration/engine/skg_snapshot.py": "b2ccb657c13c0fb83d30a73e7dd62bca1285e1b7cd9e23034cd6ec5e08129207",
+      "policy-engine/tests/conftest.py": "3c2b4cb89955fbbe8bbbf9a89bdea1ce0b429c903417e8ddb7e3424f0301455a",
+      "policy-engine/tests/integration/scientist/orchestration/engine/test_skg_prepared_read_cache.py": "3e0baadf51a32d7afb2b92974e58d2949bb8ac62e5da5d2332d9a9c6c7f5e45d",
+      "policy-engine/tests/unit/scientist/conftest.py": "9d711f8d627e1aec1d9baa959b5cac44971a4383aa44a449b348a085495d6fcd",
+      "policy-engine/tests/unit/scientist/orchestration/engine/test_skg_snapshot_replay.py": "f47fc0d5a67edd6c3cc36a419aa3670804d4f81f68ff08f1b9db8cc13a14b7c4"
+    },
+    "stable_before_after": true
+  },
+  "implementation_readback": {
+    "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/root-b61-live-generation-rebind-source-adoption-20261021-r1/implementation-readback.json",
+    "sha256": "dda2783924415679b7f9b13769c86df24c2c28730e1d92a0708386e9f8596f5f"
+  },
+  "independent_source_and_overlay_review": {
+    "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/independent-b61-live-generation-rebind-r2-review-20261021-r1/review.json",
+    "sha256": "89d522cb03e49d8d2208e4b844bf76e73335e0608fa2042c70b9041070ea27dc"
+  },
+  "source_bound_commands": [
+    {
+      "command": [
+        "/Users/deniskopylov/.codex/worktrees/e02-unified-local-20261009/polisyos/policy-engine/.venv/bin/python",
+        "-B",
+        "-m",
+        "pytest",
+        "-q",
+        "-o",
+        "cache_dir=/Users/deniskopylov/.codex/worktrees/e02-unified-local-20261009/polisyos/policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/b61-runtime-import-repair-r1-20261021/canonical-4-cache-rebind-replay-beb180fb-20261021/scratch/cache/pytest-cache",
+        "--junitxml=/Users/deniskopylov/.codex/worktrees/e02-unified-local-20261009/polisyos/policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/b61-runtime-import-repair-r1-20261021/canonical-4-cache-rebind-replay-beb180fb-20261021/outputs/junit.xml",
+        "tests/integration/scientist/orchestration/engine/test_skg_prepared_read_cache.py::test_workflow_executor_rebinds_changed_live_source_during_cache_miss",
+        "tests/integration/scientist/orchestration/engine/test_skg_prepared_read_cache.py::test_workflow_executor_bypasses_cache_if_source_generation_changes_during_miss",
+        "tests/unit/scientist/orchestration/engine/test_skg_snapshot_replay.py::test_executor_refuses_reader_swapped_after_cache_key_binds_selected_snapshot",
+        "tests/unit/scientist/orchestration/engine/test_skg_snapshot_replay.py::test_timeout_worker_v2_roundtrips_persisted_access_scope_and_owner_ref"
+      ],
+      "cwd": "/Users/deniskopylov/.codex/worktrees/e02-unified-local-20261009/polisyos/policy-engine",
+      "explicit_PYTHONPATH": "/Users/deniskopylov/.codex/worktrees/e02-unified-local-20261009/polisyos/policy-engine/src:/Users/deniskopylov/.codex/worktrees/e02-unified-local-20261009/polisyos/policy-engine",
+      "outcome": {
+        "errors": 0,
+        "failures": 0,
+        "skipped": 0,
+        "tests": 4
+      },
+      "full_deciding_output": {
+        "bytes": 665,
+        "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/b61-runtime-import-repair-r1-20261021/canonical-4-cache-rebind-replay-beb180fb-20261021/outputs/pytest.stdout.txt",
+        "sha256": "7b93073a17229b9d199a8b3b7165f64e73a2e4d72d8e71883510d6b6a846e18e"
+      },
+      "stderr": {
+        "bytes": 0,
+        "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/b61-runtime-import-repair-r1-20261021/canonical-4-cache-rebind-replay-beb180fb-20261021/outputs/pytest.stderr.txt",
+        "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+      },
+      "junit": {
+        "bytes": 1021,
+        "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/b61-runtime-import-repair-r1-20261021/canonical-4-cache-rebind-replay-beb180fb-20261021/outputs/junit.xml",
+        "sha256": "2bfc7d132b5f0ef53ea48aea26fa8a845387be2eaee69ba3a2c4cda193d65f3d"
+      },
+      "actual_import_origins": {
+        "bytes": 3273,
+        "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/b61-runtime-import-repair-r1-20261021/canonical-4-cache-rebind-replay-beb180fb-20261021/outputs/imports.stdout.json",
+        "sha256": "27fa99e23f17fa5e4c30c81771821d36d2b2635cda6c756817d1352e02a7656e"
+      },
+      "complete_receipt": {
+        "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/b61-runtime-import-repair-r1-20261021/canonical-4-cache-rebind-replay-beb180fb-20261021/result.json",
+        "sha256": "9d8c037d790437d65248b15ffe5e171f167b220c98bfbef30320f9c7b28cf08b"
+      },
+      "resource_limits_and_observations": {
+        "elapsed_seconds_including_lock_and_import_probe": 20.045,
+        "limits": {
+          "minimum_free_disk_bytes": 3221225472,
+          "process_tree_rss_bytes": 1610612736,
+          "run_directory_bytes": 134217728,
+          "wall_seconds": 90.0
+        },
+        "maximum_run_directory_bytes": 5654265,
+        "minimum_free_disk_bytes": 4578217984,
+        "peak_process_tree_rss_bytes": 1168326656,
+        "process_tree_reaped": true,
+        "shared_lock": {
+          "lock_file": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/root-source-compute-coordination-20261020-r1/source-freeze.lock",
+          "lock_file_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+          "mode": "shared",
+          "wait_seconds": 30,
+          "wrapper": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/root-source-compute-coordination-20261020-r1/with_source_freeze_lock.py",
+          "wrapper_sha256": "662f9c1bbd665244c5c53cd846ade1ccc64ea0f23ced30f7570bb0f77218364f"
+        },
+        "stop_reason": null
+      }
+    }
+  ],
+  "real_chain": {
+    "producer": "Existing prepared SKG reader verifies source bytes and generation around read-only acquisition.",
+    "artifact": "Existing selected source/chunk lineage, content digest and query output.",
+    "bridge": "Executor one-shot re-preparation before cache lookup when live source changed; clear stale key and bypass store.",
+    "consumer": "Actual ResolveParameters/workflow computation returns replacement value and replacement-file digest.",
+    "surface": "Existing workflow cache-bypass telemetry and parent-issued worker dispatch context; no new HTTP surface.",
+    "authority_boundary": "Operational source-byte and read lineage only, not issuer/custody/currentness/scientific adequacy."
+  },
+  "negative_and_removal_controls": {
+    "replacement_positive": "Actual row replacement after cache-key computation: 1.4 to 2.6, replacement digest, bypass reason5 and no store.",
+    "same_bytes_generation": "Mtime-only source generation change computes1.4 and still bypasses/no store.",
+    "retained_snapshot_negative": "Explicit selected snapshot reader swap remains refused; live fallback is excluded.",
+    "worker_context": "No invented dispatch binding on unreceipted context; true parent-issued task owner identity round-trips.",
+    "prior_red_and_overlay_controls": "Exact independent review links preserved full RED output on old source and real 4-case overlay PASS; this canonical four-case run is separate evidence."
+  },
+  "P40": {
+    "bucket": "SAME source-byte/cache-binding class one level deeper, widened at shared live prepared-reader pre-query boundary instead of mtime-onlytestpatch.",
+    "residual": "Operational bytes/read lineage only; externalissuer/custody/currentness/scientificadequacy/causalauthority notestablished.",
+    "test_repair": "Unreceiptedworkercontext retainsno binding; trueparent-issuedspawn taskidentities/ownerrefroundtrip verified. ActualRuntimeguardunchanged."
+  },
+  "proposals": [
+    {
+      "finding_id": "B61",
+      "proposal": "limited_verified_source_generation_rebind",
+      "whole_property": "HOLD; full current-source B61 cohort and all original criterion dependencies remain unverified.",
+      "original_criterion": "B_r19 permits stable snapshot or controlled digest for an unversioned source; arbitrary external authority is not inferred.",
+      "next_check": "On a complete source/input/profile/backend freeze, replay the original source-owner/versioned-record, exact consumed query/read-handle/run/cache bindings and unchanged unrelated-input selective reuse; run full70 B61 plus defining PreparedB baseline/all13 affected contours and Runtime consumers with real removal controls. These are not established by the targeted four.",
+      "historical_ledger_status": "held",
+      "current_G_adjudication": "not_adjudicated",
+      "original_criterion_source": {
+        "path": "policy-engine/docs/plans/active/agent-packages/PolicyOS_E02_Combined_Agent_Package/source/B_r19_original.md",
+        "sha256": "9c98584cbfa72996b058abf127f6c689f919a3421cdd563a82c84a7324ab39b5",
+        "criterion_lines": [
+          1601,
+          1614
+        ]
+      }
+    }
+  ],
+  "prior_source_qualified_evidence": {
+    "reference": {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/b61-owner-import-canonical-49-20261021.json",
+      "sha256": "639f79ba952998774770ba76e8db35923234c1ae832985e06ff4699b4ef1dea8"
+    },
+    "source": "5665d541353fd6cb2be368f94446551e1dfccb2e",
+    "outcome": "49 PASS at that earlier source only; not summed with this current-source four into a 53-case claim."
+  },
+  "limitations": [
+    "Implementation beb180 and this receipt are separate commits; no future receipt SHA asserted.",
+    "Only these four selectors were replayed at beb180; full70 B61, original whole property, PreparedB13 contours, Runtime and global E02 are UNRUN at this source.",
+    "All13 original B61 source/test paths remain a different denominator from PreparedB13 contours; none is formally closed by this targeted run.",
+    "Two upstream TorchScript/Python3.14 deprecation warnings are retained in complete output.",
+    "Own-topic normal push previously failed the native dashboard typecheck hook; remote publication is not established here.",
+    "No scientific contract, production manifest, source law, issuer, permission or custody input changed."
+  ],
+  "historical_closures": "Nine historical closures includingB198 unchanged; author proposals are not G closures.",
+  "G_acceptance": false,
+  "closure_ids": [],
+  "document_review": {
+    "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/root-b61-beb180-receipt-review-20261021-r1/review.json",
+    "sha256": "e9b37b0af1707523c07748c1db0512253aef907c152cfe5e9bb886d7c3e07141"
+  },
+  "receipt_revision": {
+    "supersedes_draft": {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/root-b61-beb180-receipt-draft-20261021-r1/b61-live-generation-rebind-canonical-four-20261021.json",
+      "sha256": "60ecf2cc6c8c36a704e94e8f8ee53b6f68ffa854a5ee3878359a4c18a00d1890"
+    },
+    "changes": "Three nonblocking receipt refinements only: full-property next check, explicit historical/current statuses and metadata companion hashes. No implementation or runtime rerun."
+  },
+  "mandatory_record_companion_hashes": [
+    {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/LEASES.json",
+      "preimage_sha256": "24cdd31f4af66680e63a96849c633367bd5ac8798ea570c8ae256c6b15721e0b",
+      "postimage_sha256": "b37bb80221cf2f916051245b3312ed2b94d533b7b42e7250dd5f9710ff79223f"
+    },
+    {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/candidate-component-delivery-index-20261015.json",
+      "preimage_sha256": "132eed39b5caeca954d77c4f1c577cf74ac8eab4e67811e86e55042593a11526",
+      "postimage_sha256": "11200222491f6389e17e07b6f6cfd0f437200087cf5b0d2eb29d2b9ee8d3bf5e"
+    }
+  ],
+  "historical_status_preservation": {
+    "B61": {
+      "historical_ledger_status": "held",
+      "current_G_adjudication": "not_adjudicated"
+    },
+    "B198": {
+      "historical_ledger_status": "closed",
+      "current_G_adjudication": "not_adjudicated"
+    },
+    "coverage": {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/closure-decisions/coverage.json",
+      "sha256": "97860dc18c7b92124971aa8032fc229be3367723ea2ec45e6cda4a777e544e01"
+    }
+  }
+}

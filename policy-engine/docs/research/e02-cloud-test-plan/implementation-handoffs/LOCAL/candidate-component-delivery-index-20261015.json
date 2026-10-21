@@ -1731,6 +1731,18 @@
     {
       "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/decisions/b108-vector-score-source-schema-v1.md",
       "sha256": "5afc821df5ffabf34d9daa535833a8361f47e1062ed5e67807263b3a3b5c2301"
+    },
+    {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/explicit-ruff-source-guard-20261021.json",
+      "sha256": "07a6bfb959258ff58fd8249774c20b331d8dceb8141905bf03fae5c0afe0efa5"
+    },
+    {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/b61-live-generation-rebind-canonical-four-20261021.json",
+      "sha256": "8b03f397aa424510adec9fc1e0b2fc2bd13074a95b5a46848a197ab22a24fdb8"
+    },
+    {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/g-fabric-n818-decision-admission-20261021.json",
+      "sha256": "78f4002e8f1d2ea6f745a4ae6947abd391dd87af8271c61bc79e250a5b303518"
     }
   ],
   "canonical_denominator_recomputed": {

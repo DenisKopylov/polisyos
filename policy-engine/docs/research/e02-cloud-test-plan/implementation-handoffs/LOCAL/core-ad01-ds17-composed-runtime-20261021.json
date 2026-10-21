@@ -1,0 +1,286 @@
+{
+  "schema": "policyos.e02.source_bound_composed_runtime_receipt.v1",
+  "identity": "core-ad01-ds17-composed-runtime-20261021",
+  "source_frame": {
+    "head": "402082d05789a65ca56fc5f31df2318dcb2acc75",
+    "tree": "3b8c3a4618cb1c60fc8fc224ee0506c3d432e352",
+    "branch": "codex/e02-unified-local-20261009"
+  },
+  "source_parents": [
+    "a3b82c0ae431bc35d194f941c263e8fc1ee7afe5"
+  ],
+  "status": "FAIL_WITH_COMPLETE_QUALIFIED_EXECUTION",
+  "meaning": "The deciding invocation completed and is attributable; its 14 failing behavioral cases remain open. This is not a passing capability or global closeout.",
+  "scope": {
+    "whole_modules": [
+      "tests/unit/core/artifacts/test_bounded_core_json_artifact.py",
+      "tests/unit/foundry/data_plane/test_hte_observational_input.py",
+      "tests/unit/core/contracts/test_method_execution_contracts.py",
+      "tests/unit/foundry/facade/test_execution_source_bounded_admission.py",
+      "tests/unit/foundry/runtime/test_method_metric_capture.py",
+      "tests/unit/ir/kernel/test_method_metric_contracts.py",
+      "tests/unit/runtime/quality/test_joint_simulation_horizon.py",
+      "tests/unit/scientist/nodes/builtins/compile/test_compile_foundry.py",
+      "tests/unit/scientist/nodes/builtins/simulate/test_run_simulation.py"
+    ],
+    "focused_nodes": [
+      "tests/unit/runtime/quality/test_confidence_ledger.py::test_read_api_surface_runtime_projection_binds_source_values_and_object_identity",
+      "tests/unit/runtime/quality/test_confidence_ledger.py::test_source_facade_projection_rejects_import_initializer_map_mutation_in_fresh_process",
+      "tests/unit/runtime/quality/test_confidence_ledger.py::test_source_facade_projection_reconciles_full_core_contracts_map_and_fails_closed_on_mutation",
+      "tests/unit/runtime/quality/test_confidence_ledger.py::test_source_facade_projection_tracks_lexical_imports_and_temporary_module_aliases",
+      "tests/unit/runtime/quality/test_confidence_ledger.py::test_authority_import_closure_resolves_finite_source_built_facade_maps",
+      "tests/unit/runtime/quality/test_confidence_ledger.py::test_core_contract_generated_facade_map_binds_every_export_to_source_owner",
+      "tests/unit/runtime/quality/test_confidence_ledger.py::test_core_contract_facade_missing_parser_row_fails_the_actual_provider_lookup",
+      "tests/unit/runtime/quality/test_confidence_ledger.py::test_repository_module_exports_symbol_requires_runtime_binding_not_child_or_annotation",
+      "tests/unit/runtime/quality/test_confidence_ledger.py::test_source_projection_covers_complete_registry_and_schema_quantity",
+      "tests/unit/runtime/quality/test_confidence_ledger.py::test_source_facade_projection_binds_selected_export_across_unrelated_initializer_effects",
+      "tests/repo_quality/tools/test_layer3_gy_confidence_ledger_contract.py::test_n11_consumed_inputs_reconcile_complete_loaded_tools_closure"
+    ],
+    "whole_module_count": 9,
+    "focused_node_count": 11,
+    "actual_case_count": 251,
+    "request_input_pin_count": 262
+  },
+  "actual": {
+    "junit": {
+      "errors": 0,
+      "failures": 14,
+      "passed": 237,
+      "skipped": 0,
+      "tests": 251
+    },
+    "per_module": {
+      "tests.unit.core.artifacts.test_bounded_core_json_artifact": {
+        "passed": 57,
+        "failed": 0
+      },
+      "tests.unit.foundry.data_plane.test_hte_observational_input": {
+        "passed": 42,
+        "failed": 0
+      },
+      "tests.unit.core.contracts.test_method_execution_contracts": {
+        "passed": 9,
+        "failed": 0
+      },
+      "tests.unit.foundry.facade.test_execution_source_bounded_admission": {
+        "passed": 4,
+        "failed": 0
+      },
+      "tests.unit.foundry.runtime.test_method_metric_capture": {
+        "passed": 11,
+        "failed": 2
+      },
+      "tests.unit.ir.kernel.test_method_metric_contracts": {
+        "passed": 29,
+        "failed": 6
+      },
+      "tests.unit.runtime.quality.test_joint_simulation_horizon": {
+        "passed": 51,
+        "failed": 1
+      },
+      "tests.unit.scientist.nodes.builtins.compile.test_compile_foundry": {
+        "passed": 6,
+        "failed": 0
+      },
+      "tests.unit.scientist.nodes.builtins.simulate.test_run_simulation": {
+        "passed": 18,
+        "failed": 0
+      },
+      "tests.unit.runtime.quality.test_confidence_ledger": {
+        "passed": 10,
+        "failed": 4
+      },
+      "tests.repo_quality.tools.test_layer3_gy_confidence_ledger_contract": {
+        "passed": 0,
+        "failed": 1
+      }
+    },
+    "all_collected_calls_completed": true,
+    "source_equal": true,
+    "command_status": "command_failed",
+    "wall_seconds": 51.73597220913507,
+    "max_sampled_process_tree_rss_bytes": 1309474816,
+    "minimum_sampled_disk_free_bytes": 10135187456,
+    "process_group_gone": true
+  },
+  "profile": {
+    "selected": "existing macOS CPython3.14.3 locked local environment, EconML0.17.0",
+    "numerical_threads": 1,
+    "default_pytest_plugin_autoload": "preserved; exact collection config and independent review bind actual plugins",
+    "explicit_capture_plugins": [
+      "e02_i4_case_report_capture_r1",
+      "e02_wave_capture_r10_candidate"
+    ],
+    "source_profile_freeze": "this request/cohort only; not global",
+    "backend_limits": [
+      "Supported Linux CPython3.12 DoWhy/GCM is separate UNRUN evidence.",
+      "Native successor HTE profiles and AD04/05/06 implementations are not part of this 402082 frame."
+    ]
+  },
+  "failure_cases": [
+    {
+      "module": "tests.unit.foundry.runtime.test_method_metric_capture",
+      "case": "test_ex_ante_graph_capture_persists_actual_inputs_and_bound_output",
+      "outcome": "FAIL",
+      "next_check": "AD01 complete snapshot/type/identity/context repair + real R12 consumer replay"
+    },
+    {
+      "module": "tests.unit.foundry.runtime.test_method_metric_capture",
+      "case": "test_shared_capture_keeps_feedback_occurrences_and_selected_profiles",
+      "outcome": "FAIL",
+      "next_check": "AD01 complete snapshot/type/identity/context repair + real R12 consumer replay"
+    },
+    {
+      "module": "tests.unit.ir.kernel.test_method_metric_contracts",
+      "case": "test_ex_ante_mean_change_recomputes_actual_paired_input_rows",
+      "outcome": "FAIL",
+      "next_check": "AD01 complete snapshot/type/identity/context repair + real R12 consumer replay"
+    },
+    {
+      "module": "tests.unit.ir.kernel.test_method_metric_contracts",
+      "case": "test_ex_ante_mean_change_rejects_integer_loss_before_float_conversion",
+      "outcome": "FAIL",
+      "next_check": "AD01 complete snapshot/type/identity/context repair + real R12 consumer replay"
+    },
+    {
+      "module": "tests.unit.ir.kernel.test_method_metric_contracts",
+      "case": "test_ex_ante_mean_change_rejects_empty_or_unequal_input_shapes[baseline0-scenario0-ex_ante_paired_input_rows_not_established]",
+      "outcome": "FAIL",
+      "next_check": "AD01 complete snapshot/type/identity/context repair + real R12 consumer replay"
+    },
+    {
+      "module": "tests.unit.ir.kernel.test_method_metric_contracts",
+      "case": "test_ex_ante_mean_change_rejects_empty_or_unequal_input_shapes[baseline1-scenario1-ex_ante_paired_input_rows_not_established]",
+      "outcome": "FAIL",
+      "next_check": "AD01 complete snapshot/type/identity/context repair + real R12 consumer replay"
+    },
+    {
+      "module": "tests.unit.ir.kernel.test_method_metric_contracts",
+      "case": "test_ex_ante_mean_change_rejects_prestate_swap_and_input_content_swap",
+      "outcome": "FAIL",
+      "next_check": "AD01 complete snapshot/type/identity/context repair + real R12 consumer replay"
+    },
+    {
+      "module": "tests.unit.ir.kernel.test_method_metric_contracts",
+      "case": "test_ex_ante_mean_change_refuses_inexact_integer_input_and_rehashed_capture",
+      "outcome": "FAIL",
+      "next_check": "AD01 complete snapshot/type/identity/context repair + real R12 consumer replay"
+    },
+    {
+      "module": "tests.unit.runtime.quality.test_joint_simulation_horizon",
+      "case": "test_program_graph_horizon_preserves_one_complete_method_capture",
+      "outcome": "FAIL",
+      "next_check": "AD01 complete snapshot/type/identity/context repair + real R12 consumer replay"
+    },
+    {
+      "module": "tests.unit.runtime.quality.test_confidence_ledger",
+      "case": "test_read_api_surface_runtime_projection_binds_source_values_and_object_identity",
+      "outcome": "FAIL",
+      "next_check": "DS17 complete finite route/live consumer binding repair and owner --check/drift replay"
+    },
+    {
+      "module": "tests.unit.runtime.quality.test_confidence_ledger",
+      "case": "test_source_facade_projection_reconciles_full_core_contracts_map_and_fails_closed_on_mutation",
+      "outcome": "FAIL",
+      "next_check": "DS17 complete finite route/live consumer binding repair and owner --check/drift replay"
+    },
+    {
+      "module": "tests.unit.runtime.quality.test_confidence_ledger",
+      "case": "test_source_facade_projection_tracks_lexical_imports_and_temporary_module_aliases",
+      "outcome": "FAIL",
+      "next_check": "DS17 complete finite route/live consumer binding repair and owner --check/drift replay"
+    },
+    {
+      "module": "tests.unit.runtime.quality.test_confidence_ledger",
+      "case": "test_source_facade_projection_binds_selected_export_across_unrelated_initializer_effects",
+      "outcome": "FAIL",
+      "next_check": "DS17 complete finite route/live consumer binding repair and owner --check/drift replay"
+    },
+    {
+      "module": "tests.repo_quality.tools.test_layer3_gy_confidence_ledger_contract",
+      "case": "test_n11_consumed_inputs_reconcile_complete_loaded_tools_closure",
+      "outcome": "FAIL",
+      "next_check": "DS17 complete finite route/live consumer binding repair and owner --check/drift replay"
+    }
+  ],
+  "P40": {
+    "AD01": "Four classes: named sparse state snapshot persistence; strict snapshot ref boundary; fixture build identity; shared law context fixture. Complete caller/context quantity repair is assigned; do not weaken guards.",
+    "DS17": "Finite source-route support and actual selected-consumer runtime identity. False acceptance retained as real defect, exact inner details not guessed where unavailable."
+  },
+  "evidence": [
+    {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/root-core-ad01-ds17-composed-402082d05789-20261021-r1/request.json",
+      "sha256": "cda27f86e0361a4118f1c1fed4b329407d6385afde1f5b3ad1f38cd5f377a9f9"
+    },
+    {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/root-core-ad01-ds17-composed-402082d05789-20261021-r1/actual/invocation.json",
+      "sha256": "79f4c86cf132d2e780a851a326d91507cc6215d0403da06076bcc6cbdcd6c421"
+    },
+    {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/root-core-ad01-ds17-composed-402082d05789-20261021-r1/actual/result.json",
+      "sha256": "9600c1725eda05513278d88c30a7e1a7eb3c926acf3dc1290730f605acc5315a"
+    },
+    {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/root-core-ad01-ds17-composed-402082d05789-20261021-r1/actual/pytest.stdout.txt",
+      "sha256": "6ae73153b570d6741cfeea35cf260ca61eedbd8337d09c79f404c61d1252b4c5"
+    },
+    {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/root-core-ad01-ds17-composed-402082d05789-20261021-r1/actual/pytest.stderr.txt",
+      "sha256": "b3841f63ef7d5b0f4b757b9038a57ee840dcae9d892157e2aea42956649c1eb3"
+    },
+    {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/root-core-ad01-ds17-composed-402082d05789-20261021-r1/actual/pytest.xml",
+      "sha256": "d163fbd2cfdc3a24cf101fa4346689143b2bfe0f55a79b892c8a0c60131f50b6"
+    },
+    {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/root-core-ad01-ds17-composed-402082d05789-20261021-r1/actual/collection.json",
+      "sha256": "b260d51e0e36a4c1add76820dada351c3701e3b33e9a13804a38c2622addfa8f"
+    },
+    {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/root-core-ad01-ds17-composed-402082d05789-20261021-r1/actual/cases.jsonl",
+      "sha256": "4a3e3110f03af89a92a6ef6f81bfb6e2ca78f06c834e5a87c46bfd00a569d420"
+    },
+    {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/root-core-ad01-ds17-composed-402082d05789-20261021-r1/actual/origins.json",
+      "sha256": "8c7bdbdbd50fea11241483077ef09353640f6d6dd1b75fb10130d72b2b4798c1"
+    },
+    {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/root-core-ad01-ds17-composed-402082d05789-20261021-r1/actual/source-before.json",
+      "sha256": "376396d870c082cd9dc970735f333892c40d63103aaf336611fddeebfc38ec00"
+    },
+    {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/root-core-ad01-ds17-composed-402082d05789-20261021-r1/actual/source-after.json",
+      "sha256": "376396d870c082cd9dc970735f333892c40d63103aaf336611fddeebfc38ec00"
+    },
+    {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/root-core-ad01-ds17-composed-402082d05789-20261021-r1/actual/process-tree.jsonl",
+      "sha256": "0f1348f73c11e0805388c578ee5c93d1e81ef6c8f789f7c75570acf0e7cb123c"
+    },
+    {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/root-core-ad01-ds17-composed-402082d05789-20261021-r1/actual/controller-events.jsonl",
+      "sha256": "5fa04e907ed176684822a119e7665cd5ad0c81790f9b502c570a675167241168"
+    },
+    {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/independent-core-ad01-ds17-251-actual-rootcause-20261021-r1/review.json",
+      "sha256": "11dfe2bd46de9c462ba1104115e191cb208a759adc0c28ca9c9f69d408eda1e0"
+    },
+    {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/independent-ds17-actual-source-oracle-review-20261021-r1/review.json",
+      "sha256": "dc0c8930bd4eaee8be93564f74f736b3d74be5f8966428bf863c8b56fe9e9ad0"
+    }
+  ],
+  "chain_boundary": [
+    "Core two whole modules remain 99PASS at this exact source.",
+    "AD01 seven whole modules are 128PASS/9FAIL; producer-to-artifact failures are not erased by passing contract/fixture checks.",
+    "DS17 focused nodes yield 10PASS/5FAIL across 15 parameterized cases; whole confidence-ledger suites and owner generation are not proven.",
+    "R12 real law consumer exists in reviewed RAW source and is not yet adopted in this execution frame."
+  ],
+  "next_checks": [
+    "Adopt independently reviewed Runtime source with additive facade union.",
+    "Batch complete AD01 and DS17 blocking source/fixture repairs, independent delta review, then composed behavioral replay.",
+    "After final source/input freeze, run official generators/check/corrupt drift, authentic/native/installed consumers and per-ID proposals."
+  ],
+  "G_acceptance": false,
+  "closure_ids": [],
+  "finding_proposals": []
+}

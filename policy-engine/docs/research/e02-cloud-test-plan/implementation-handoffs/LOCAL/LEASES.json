@@ -48059,5 +48059,70 @@
     "source_profile_freeze": false,
     "G_acceptance": false,
     "closure_ids": []
+  },
+  "root-core-ad01-ds17-251-actual-receipt-adoption-20261021-r1": {
+    "slice_base": "402082d05789a65ca56fc5f31df2318dcb2acc75",
+    "canonical_writer": "root only; reviewed present patch, retired exact originals through native Trash",
+    "mechanism_and_mandatory_companion_paths": {
+      "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/core-ad01-ds17-composed-runtime-20261021.json": {
+        "operation": "create",
+        "mode": "100644",
+        "preimage_sha256": null,
+        "postimage_path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/root-core-ad01-ds17-251-actual-receipt-adoption-20261021-r1-postimage/core-ad01-ds17-composed-runtime-20261021.json",
+        "postimage_sha256": "e19c618e801781d164feea0bca897bbe6635c327b5f01b03f1f299f98b47bfe9",
+        "postimage_bytes": 15287
+      }
+    },
+    "application": {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/root-core-ad01-ds17-251-actual-receipt-adoption-20261021-r1/source-application.json",
+      "sha256": "c714b90012fe8b4f6de6b50cf0653c0fdbdc1edffd9ab3326ec52ad2aad85013"
+    },
+    "native_trash_receipt": {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/root-core-ad01-ds17-251-actual-receipt-adoption-20261021-r1/native-trash-receipt.json",
+      "sha256": "057f81b6e161c37eaec854c352b59148420f1f1711163b9005834b723e193dcf"
+    },
+    "reviewed_inputs": [
+      {
+        "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/root-core-ad01-ds17-composed-402082d05789-20261021-r1/request.json",
+        "sha256": "cda27f86e0361a4118f1c1fed4b329407d6385afde1f5b3ad1f38cd5f377a9f9"
+      },
+      {
+        "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/root-core-ad01-ds17-composed-402082d05789-20261021-r1/actual/result.json",
+        "sha256": "9600c1725eda05513278d88c30a7e1a7eb3c926acf3dc1290730f605acc5315a"
+      },
+      {
+        "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/independent-core-ad01-ds17-251-actual-rootcause-20261021-r1/review.json",
+        "sha256": "11dfe2bd46de9c462ba1104115e191cb208a759adc0c28ca9c9f69d408eda1e0"
+      },
+      {
+        "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/independent-ds17-actual-source-oracle-review-20261021-r1/review.json",
+        "sha256": "dc0c8930bd4eaee8be93564f74f736b3d74be5f8966428bf863c8b56fe9e9ad0"
+      }
+    ],
+    "owned_applied_provenance": null,
+    "preserved_other_owned_rows": {},
+    "preserved_other_owned_provenance": null,
+    "preserved_other_owned_tracked_paths": [],
+    "preserved_other_owned_untracked_paths": [],
+    "preserved_other_owned_unchanged_before_after": true,
+    "P40": {
+      "statement": "Retain actual complete failure evidence separately from implementation; no failing outcome hidden or capability closure inferred."
+    },
+    "bounded_proof": "Independent actual collection/source/origin/reap/resource/rootcause reconciliation, exact deciding output references; no future receipt SHA.",
+    "limitations": [
+      "Core two whole modules remain 99PASS at this exact source.",
+      "AD01 seven whole modules are 128PASS/9FAIL; producer-to-artifact failures are not erased by passing contract/fixture checks.",
+      "DS17 focused nodes yield 10PASS/5FAIL across 15 parameterized cases; whole confidence-ledger suites and owner generation are not proven.",
+      "R12 real law consumer exists in reviewed RAW source and is not yet adopted in this execution frame."
+    ],
+    "runtime": "UNRUN on adopted source",
+    "next_check": [
+      "Adopt independently reviewed Runtime source with additive facade union.",
+      "Batch complete AD01 and DS17 blocking source/fixture repairs, independent delta review, then composed behavioral replay.",
+      "After final source/input freeze, run official generators/check/corrupt drift, authentic/native/installed consumers and per-ID proposals."
+    ],
+    "source_profile_freeze": false,
+    "G_acceptance": false,
+    "closure_ids": []
   }
 }

@@ -47950,5 +47950,114 @@
     "source_profile_freeze": false,
     "G_acceptance": false,
     "closure_ids": []
+  },
+  "root-ad01-four-path-r4-repair-adoption-20261021-r1": {
+    "slice_base": "a3b82c0ae431bc35d194f941c263e8fc1ee7afe5",
+    "canonical_writer": "root only; reviewed present patch, retired exact originals through native Trash",
+    "mechanism_and_mandatory_companion_paths": {
+      "policy-engine/src/polisyos/foundry/execute/_internal/graph/__init__.py": {
+        "operation": "update",
+        "mode": "100644",
+        "preimage_sha256": "cd2e6bf9e8c05fa1d9484459a9bbdebb4e60427e0165def68701d0558e300836",
+        "preimage_bytes": 159741,
+        "postimage_path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/ad01-seven-whole-current-failure-repair-r4-20261021-r1/postimages/policy-engine/src/polisyos/foundry/execute/_internal/graph/__init__.py",
+        "postimage_sha256": "14bec26f19c7eb7429f906d2434cd50732ab1c1b46838a78ed284fbaa075b442",
+        "postimage_bytes": 159804
+      },
+      "policy-engine/tests/unit/foundry/runtime/test_method_metric_capture.py": {
+        "operation": "update",
+        "mode": "100644",
+        "preimage_sha256": "41a8b0b66ae6af930e7fc2576b2652717cfd0b21c2d956ebfbe957760b3113b9",
+        "preimage_bytes": 49363,
+        "postimage_path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/ad01-seven-whole-current-failure-repair-r4-20261021-r1/postimages/policy-engine/tests/unit/foundry/runtime/test_method_metric_capture.py",
+        "postimage_sha256": "b6ac6d767cc7d38a829eb769540b968e4765413cc76f70325cf5aed726cd49a5",
+        "postimage_bytes": 49774
+      },
+      "policy-engine/tests/unit/ir/kernel/test_method_metric_contracts.py": {
+        "operation": "update",
+        "mode": "100644",
+        "preimage_sha256": "cf7d21e1ab5cebfb25172a6503accb0f9bd9b368c287c3e9329262962db2b6fb",
+        "preimage_bytes": 26672,
+        "postimage_path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/ad01-seven-whole-current-failure-repair-r4-20261021-r1/postimages/policy-engine/tests/unit/ir/kernel/test_method_metric_contracts.py",
+        "postimage_sha256": "a3ec89b54d89ed8d6005cb4bcf8544e7ce358c09678d2c3cc4638aa3c4c20a62",
+        "postimage_bytes": 26640
+      },
+      "policy-engine/tests/unit/runtime/quality/test_joint_simulation_horizon.py": {
+        "operation": "update",
+        "mode": "100644",
+        "preimage_sha256": "2120151b9b3683829131bc2434f859fa9a984a4c6300003cd49282097d8e4a87",
+        "preimage_bytes": 127081,
+        "postimage_path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/ad01-seven-whole-current-failure-repair-r4-20261021-r1/postimages/policy-engine/tests/unit/runtime/quality/test_joint_simulation_horizon.py",
+        "postimage_sha256": "ee8630554d017bfbb8c7bddf946c9cce1d48ced303b718cc02f4ca05fcc066bc",
+        "postimage_bytes": 127369
+      }
+    },
+    "application": {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/root-ad01-four-path-r4-repair-adoption-20261021-r1/source-application.json",
+      "sha256": "063b2d2d45a91f801dff398fa4c9bd64f01df429f730197a3309a334d413ce4b"
+    },
+    "native_trash_receipt": {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/root-ad01-four-path-r4-repair-adoption-20261021-r1/native-trash-receipt.json",
+      "sha256": "057f81b6e161c37eaec854c352b59148420f1f1711163b9005834b723e193dcf"
+    },
+    "reviewed_inputs": [
+      {
+        "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/ad01-seven-whole-current-failure-repair-r4-20261021-r1/manifest.json",
+        "sha256": "b98fcb2262cf72774bdc30adc8d9133e5ce5a0f0a22cfdff8a1c7a17227f1fc8"
+      },
+      {
+        "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/independent-ad01-r4-source-review-20261021-r1/review.json",
+        "sha256": "da2cde2778f0412b383201657fa6d7ab4bb6ae6d92cf8dace25be1b35795220e"
+      },
+      {
+        "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/ad01-seven-whole-current-failure-repair-r4-20261021-r1/receipt.json",
+        "sha256": "e8a8d23c5a47c04177050931f020426ebe599fe104f57960d815040fb6275387"
+      },
+      {
+        "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/ad01-seven-whole-current-failure-repair-r4-20261021-r1/r4-repair.patch",
+        "sha256": "d41e643916c26a54c4f4b3ddd25f31594dcf6d9d8896e9d6442e420ac54fec5c"
+      },
+      {
+        "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/ad01-seven-whole-current-failure-repair-r4-20261021-r1/pre-repair-classification.json",
+        "sha256": "9a014e8ab1d25d9ac90c42efd963cbf2c3f1894f899421f5ac0f7ba0a8dbef2e"
+      },
+      {
+        "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/ad01-seven-whole-current-failure-repair-r4-20261021-r1/source-census.json",
+        "sha256": "631a6733ab72b228564fc7a9bfce0b08c799d83ed4a7d6bbc34520bdc8eacfc7"
+      },
+      {
+        "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/ad01-seven-whole-current-failure-repair-r4-20261021-r1/static-checks.json",
+        "sha256": "bc7cd4b56f87357363a39a2350b7779e7eaf91d3179271846dd8a575e2cb495e"
+      },
+      {
+        "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/root-ad01-r3-seven-whole-4dfa01836958-20261021-r1/actual/result.json",
+        "sha256": "ffda00e9bf5f7a4a3077f2fec251204686c955fb4b5491ec448f32c5e63e935d"
+      },
+      {
+        "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/root-ds17-r4-qualified-source-runtime-adoption-20261021-r1/implementation-readback.json",
+        "sha256": "c97ff15e8a13ff4c57f4d048d0cf1252b6be302ead29046a73e630f5111a8b35"
+      }
+    ],
+    "owned_applied_provenance": null,
+    "preserved_other_owned_rows": {},
+    "preserved_other_owned_provenance": null,
+    "preserved_other_owned_tracked_paths": [],
+    "preserved_other_owned_untracked_paths": [],
+    "preserved_other_owned_unchanged_before_after": true,
+    "P40": {
+      "bucket": "same producer caller and fixture completeness class",
+      "action": "One actual successful dispatch caller fixed withoutdefaultNone; completeconstructors/registeredslots census, preserve strictDTOandalllawnegativeasserts."
+    },
+    "bounded_proof": "Independentfullfourpostimagereviewda2cde plusrootpatchread/exactpreimages; nativecheckANDformatbeforewritesandbranchblobsaftercommit; actualfullcohortnext.",
+    "limitations": [
+      "Independent sourceGOda2cde\u2026 only. Pre-repair137=127P10Factualnotpostrepairproof.",
+      "Pairedreported_income scenario is a controlledregisteredUSDflow algorithmfixture notnewscientific/institutionalclaim.",
+      "DS17R4independentlyadoptedpreviouscommitneedsfocused/ownerchecks; no Gclosures."
+    ],
+    "runtime": "UNRUN on adopted source",
+    "next_check": "Run combined completeCore2+AD017 with scopedDS17selected-route/N11 controls afterthisblockingbatch; fullactualcollection/57plugins/origins/resource/sourcephases, then officialN11writer/check/drifts beforeQ2.",
+    "source_profile_freeze": false,
+    "G_acceptance": false,
+    "closure_ids": []
   }
 }

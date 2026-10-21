@@ -3132,6 +3132,7 @@ def execute_program_graph(
                         root_seed=effective_seed,
                         step=step,
                         prestate_identity=prestate_identity,
+                        input_state_ref=dispatch_prestate_ref,
                         source_state_ref=(method_input_state_source_ref or base_ref),
                         method_class=method_class,
                         method_result=method_result,

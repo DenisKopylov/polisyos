@@ -475,7 +475,6 @@ def _ex_ante_execution_context(
                     name="poverty_line",
                     source="signature_default",
                     status="captured",
-                    value=None,
                     value_sha256=hashlib.sha256(b"null").hexdigest(),
                 ),
             ),

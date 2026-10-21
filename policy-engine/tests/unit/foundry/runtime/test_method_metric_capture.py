@@ -326,7 +326,7 @@ def _make_ex_ante_graph_and_plan(
                 node_kind="mechanism",
                 mechanism_type="test_prestate_writer",
                 params_ref=writer_payload_ref,
-                outputs=["agents.income", "agents.savings"],
+                outputs=["agents.income", "agents.reported_income"],
             )
         )
         order.append("prestate_writer")
@@ -753,14 +753,14 @@ def test_ex_ante_graph_capture_persists_actual_inputs_and_bound_output(
     base_state = base_state.replace(
         agents=base_state.agents.replace(
             income=np.asarray([1.0, 2.0, 3.0], dtype=np.float64),
-            savings=np.asarray([4.0, 5.0, 6.0], dtype=np.float64),
+            reported_income=np.asarray([4.0, 5.0, 6.0], dtype=np.float64),
         )
     )
     historical_origin = GlobalState.empty(n_agents=3, n_firms=1)
     historical_origin = historical_origin.replace(
         agents=historical_origin.agents.replace(
             income=np.asarray([1.0, 2.0, 3.0], dtype=np.float64),
-            savings=np.asarray([4.0, 5.0, 6.0], dtype=np.float64),
+            reported_income=np.asarray([4.0, 5.0, 6.0], dtype=np.float64),
         )
     )
     source_state_ref = StateSnapshotRef.model_validate(
@@ -783,7 +783,7 @@ def test_ex_ante_graph_capture_persists_actual_inputs_and_bound_output(
         slots={
             **DEFAULT_SLOT_REGISTRY.slots,
             "baseline": SimpleNamespace(state_path="agents.income"),
-            "scenario": SimpleNamespace(state_path="agents.savings"),
+            "scenario": SimpleNamespace(state_path="agents.reported_income"),
         },
     )
 
@@ -792,7 +792,7 @@ def test_ex_ante_graph_capture_persists_actual_inputs_and_bound_output(
             del target_mask
             return {
                 "agents.income": [{"delta": baseline - np.asarray(state.agents.income)}],
-                "agents.savings": [{"delta": scenario - np.asarray(state.agents.savings)}],
+                "agents.reported_income": [{"value": scenario}],
             }, key
 
     monkeypatch.setattr(
@@ -854,6 +854,8 @@ def test_ex_ante_graph_capture_persists_actual_inputs_and_bound_output(
         input_capture_ref,
     )
     assert input_capture.pre_dispatch_state_ref != source_state_ref
+    assert occurrence.dispatch.input_state_status == "captured"
+    assert occurrence.dispatch.input_state_ref == input_capture.pre_dispatch_state_ref
     assert occurrence.dispatch.input_state_source_ref == source_state_ref
     assert occurrence.dispatch.input_state_relation == "current_visible_state"
     assert input_capture.prestate_identity_sha256 == occurrence.dispatch.input_state_identity_sha256
@@ -1260,6 +1262,13 @@ def test_shared_capture_keeps_feedback_occurrences_and_selected_profiles(
         and row.dispatch.backend_trace_status == "captured"
         and row.dispatch.backend_attempts[-1].outcome == "success"
         and row.dispatch.actual_backend == row.dispatch.selected_backend
+        for row in bundle.occurrences
+    )
+    assert all(
+        row.dispatch is not None
+        and row.dispatch.input_state_status == "not_established"
+        and row.dispatch.input_state_ref is None
+        and row.dispatch.input_state_limitation
         for row in bundle.occurrences
     )
     assert all(row.returned_slot_inventory_status == "captured" for row in bundle.occurrences)

@@ -1713,6 +1713,13 @@ def test_program_graph_horizon_preserves_one_complete_method_capture(
             ArtifactRef.model_validate(rows[0]["method_execution_bundle_ref"]),
         )
         assert len(bundle.occurrences) == 2
+        assert all(
+            item.dispatch is not None
+            and item.dispatch.input_state_status == "not_established"
+            and item.dispatch.input_state_ref is None
+            and item.dispatch.input_state_limitation
+            for item in bundle.occurrences
+        )
         assert {item.invocation_id for item in bundle.occurrences} == {
             "graph-invocation.000001",
             "graph-invocation.000002",

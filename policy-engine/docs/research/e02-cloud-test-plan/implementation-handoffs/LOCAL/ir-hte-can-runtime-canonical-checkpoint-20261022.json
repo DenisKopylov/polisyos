@@ -1,0 +1,1051 @@
+{
+  "schema": "policyos.e02.local_implementation_handoff.v1",
+  "slice": "ir-hte-can-runtime-canonical-checkpoint-20261022",
+  "source": {
+    "base": "bc1f3a8d7a8e03194a289cd631789fe52595e476",
+    "candidate": "b23a12f6a9f5f4198c1e31db4983464ecda603f3",
+    "tree": "92ee19ebab9d79dfd5feb87dccc093c118cda486",
+    "parents": [
+      "bc1f3a8d7a8e03194a289cd631789fe52595e476"
+    ],
+    "branch": "codex/e02-unified-local-20261009",
+    "status": "local implementation checkpoint; known failing consumers; no final source freeze",
+    "implementation_readback": {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/root-ir-hte-canonical-adoption-20261021-r1/implementation-checkpoint-readback-20261022-r1.json",
+      "sha256": "da35772e3d741fb42a3bf56dceaa09736047bc99f621a8dd6a1aaa63b2b4d436"
+    },
+    "footprint": [
+      {
+        "path": "policy-engine/docs/release-fragments/unreleased/2026-10-21-e02-hte-outcome-wire.toml",
+        "sha256": "c6a516f87ef1a8e979ada328092e2888314312950b48576c191f79789dca1f5a"
+      },
+      {
+        "path": "policy-engine/src/polisyos/foundry/methods/backends/dispatch.py",
+        "sha256": "b5a9c1f5dbd49e218196bf3e7bfca0e6e46a44431bda6491435fbaf803edc577"
+      },
+      {
+        "path": "policy-engine/src/polisyos/foundry/methods/backends/numpy_runner.py",
+        "sha256": "125c86ce8219f9743238eb5faee43c3676fa25358f47a129aa5478d95d522ff9"
+      },
+      {
+        "path": "policy-engine/src/polisyos/foundry/methods/backends/protocol.py",
+        "sha256": "c2b41cfcf0ba6dfb060cd4e6632721baf7189f8fb798ea735b064140b3b2a931"
+      },
+      {
+        "path": "policy-engine/src/polisyos/foundry/methods/catalog/causal/README.md",
+        "sha256": "77fd902bca86534efd4dddc022df71bb17fd17fc54f589947c63e526491b5d18"
+      },
+      {
+        "path": "policy-engine/src/polisyos/foundry/methods/catalog/causal/__init__.py",
+        "sha256": "44cf8b0230ff7bd4a093ed59c3bae183db77682b0d562e033bd42fda2ab4e0b5"
+      },
+      {
+        "path": "policy-engine/src/polisyos/foundry/methods/catalog/causal/_registry_boot.py",
+        "sha256": "85aac57a527c5e84bf3ff2e768d880e7476d4cd60a54f57cff41afd0e4586c4b"
+      },
+      {
+        "path": "policy-engine/src/polisyos/foundry/methods/catalog/causal/hte_v2.py",
+        "sha256": "660e50d4e33aeaafedaf75ea2bd58700e5235e1db3eec5fbe1f795634df6c6e4"
+      },
+      {
+        "path": "policy-engine/src/polisyos/foundry/methods/lifecycle/observability.py",
+        "sha256": "1b12b5a7c67f7c45a99c2c9e782cd281b3df156137a0846a4feed77d4db1f0e9"
+      },
+      {
+        "path": "policy-engine/src/polisyos/ir/README.md",
+        "sha256": "a6ada2be71aea2c234e44854c81409ba0356e340e76fd282548d57d80b9ee725"
+      },
+      {
+        "path": "policy-engine/src/polisyos/ir/__init__.py",
+        "sha256": "3b58f5ca6a0c8bb6a0003bcf1c2fae2cbd65f1f5a62a2b65e09d7d35defb3685"
+      },
+      {
+        "path": "policy-engine/src/polisyos/ir/_internal/runtime_protocols.py",
+        "sha256": "4c98736be3ddca0da7818b197721b40edc3db4fe1d2411cdcc6f5ed142f48e68"
+      },
+      {
+        "path": "policy-engine/src/polisyos/ir/_internal/validation.py",
+        "sha256": "e267487d810dddfe2db8ea75f148e6f69d3c4220c0460e586256f9b2cf8fb9a6"
+      },
+      {
+        "path": "policy-engine/src/polisyos/ir/analytics/README.md",
+        "sha256": "52e49fb8ba74e5f5c2abfb047940ed246bf8fb9f0f887e42b8d27b9161925938"
+      },
+      {
+        "path": "policy-engine/src/polisyos/ir/analytics/__init__.py",
+        "sha256": "e21e25be3d824db6944cae20673515a74b8d10a7bf1127f906ebe4813bb40318"
+      },
+      {
+        "path": "policy-engine/src/polisyos/ir/analytics/_truthfulness.py",
+        "sha256": "1c6b4dc9e9e240edaf8977d3b5a79d0d76287c6b775d8644704c2c5d00d5d0f2"
+      },
+      {
+        "path": "policy-engine/src/polisyos/ir/analytics/abm_bridge.py",
+        "sha256": "ea2a012020d6acb7f78019c1c4ee7c5004dc9932dba52b3dbccf613ed96bd947"
+      },
+      {
+        "path": "policy-engine/src/polisyos/ir/analytics/abstraction.py",
+        "sha256": "5a10ae74f1ed5f52c68e181f4f8f4257f81e91b94722526960f40bafa5ee7459"
+      },
+      {
+        "path": "policy-engine/src/polisyos/ir/analytics/alignment_certification.py",
+        "sha256": "9e6a7d2a94a164771c74b965a1e4af04a062d89e6a589875f8d172569ee306b3"
+      },
+      {
+        "path": "policy-engine/src/polisyos/ir/analytics/backtest.py",
+        "sha256": "09def955f81f6e699b3d88599ec182982f76e3ceeb258e40cc8f13d592f83057"
+      },
+      {
+        "path": "policy-engine/src/polisyos/ir/analytics/calibration.py",
+        "sha256": "0fbfec3e929f2562c31a2b554c8d61e6dc2162a6312d8576984e2d7d5fcd2c79"
+      },
+      {
+        "path": "policy-engine/src/polisyos/ir/analytics/causal.py",
+        "sha256": "a5bb067e56e2106432dca58b31cf9851dba6b5c3a3188e113a6ece1923a7fea7"
+      },
+      {
+        "path": "policy-engine/src/polisyos/ir/analytics/causal_discovery.py",
+        "sha256": "08715263176e055f66b6d75e392276f2f8151535ae50a9830b21ce6b6193a327"
+      },
+      {
+        "path": "policy-engine/src/polisyos/ir/analytics/causal_graph.py",
+        "sha256": "2ad63c10e936e4d2499caf704ed4588b99f110418a2eacf38b513f169671fd26"
+      },
+      {
+        "path": "policy-engine/src/polisyos/ir/analytics/causal_graph_kuzu.py",
+        "sha256": "d53e9c159c4dca77a80dfb8553b1b9d69f4fb09e4c2e3d21ba0bdfe3cc9fe822"
+      },
+      {
+        "path": "policy-engine/src/polisyos/ir/analytics/causal_queries.py",
+        "sha256": "15e0ab527b11d169d27fa817ad3a34877f9f485347342b8e137e19e48f07e473"
+      },
+      {
+        "path": "policy-engine/src/polisyos/ir/analytics/causal_run_snapshot.py",
+        "sha256": "525c679c89498565f09764f530b60421ab178b4dbf199a6637ef8a8551a01168"
+      },
+      {
+        "path": "policy-engine/src/polisyos/ir/analytics/context.py",
+        "sha256": "cebc097fb9ce6a37ff899808de5f200f11489d59432934a279360855a23bd282"
+      },
+      {
+        "path": "policy-engine/src/polisyos/ir/analytics/covariate_balance.py",
+        "sha256": "f45de55d666261e2f874e2c01966c219f10f368ee787c22a55f1e5e7bae3f9e4"
+      },
+      {
+        "path": "policy-engine/src/polisyos/ir/analytics/cross_graph.py",
+        "sha256": "ba9c7517e82f1bd5926b72f0ec553208e666c5537bd34c745f88f7bf5f44791c"
+      },
+      {
+        "path": "policy-engine/src/polisyos/ir/analytics/decision_layer.py",
+        "sha256": "dffc593b69ad91029f1416d17a2d3e1aaa91284557867e34ab4bc8dfd8ce8824"
+      },
+      {
+        "path": "policy-engine/src/polisyos/ir/analytics/dependence_structure.py",
+        "sha256": "da51cabc437c872199935aa5e2d08ad9daa718aa2528d833b6dfcad1da361b03"
+      },
+      {
+        "path": "policy-engine/src/polisyos/ir/analytics/diagnostic_dashboard.py",
+        "sha256": "e9ff3ca73deb5398e46c033395a3b326ed0860e71f73c12f91e271a7c0321250"
+      },
+      {
+        "path": "policy-engine/src/polisyos/ir/analytics/distributional.py",
+        "sha256": "9b96082e5419bbe5d139f7e3a63ef2bc4eae232cc0ca6a5c71db90b55f6786a5"
+      },
+      {
+        "path": "policy-engine/src/polisyos/ir/analytics/dp_robustness.py",
+        "sha256": "b91703da481890cf6ac2173ddec0d7272a3ede2c1c6c0aeb879c2b203a97e4bb"
+      },
+      {
+        "path": "policy-engine/src/polisyos/ir/analytics/dynamic_regime.py",
+        "sha256": "1e7f92017f47db39cc19212b034b340821989a642706452acc81fa3ac54c8aea"
+      },
+      {
+        "path": "policy-engine/src/polisyos/ir/analytics/endogenous_inequality.py",
+        "sha256": "60320be9b604eb9b62fab79eb429a813c5fea636035c11c1d49327d9842de007"
+      },
+      {
+        "path": "policy-engine/src/polisyos/ir/analytics/evidence_bundle.py",
+        "sha256": "5d949d9bf329be9a665564e7f698cabb60f54a2826a57b0bc2d39ef505b007b0"
+      },
+      {
+        "path": "policy-engine/src/polisyos/ir/analytics/falsification_report.py",
+        "sha256": "085c33ef04e956df2d25e29675a2640871f8a0129cf55582a0bbcbc4cad74296"
+      },
+      {
+        "path": "policy-engine/src/polisyos/ir/analytics/forecasting_uncertainty.py",
+        "sha256": "a5e9458e872ca7650044b33f7d4b9cd9323c60292a00df06ef556894fe3d1c60"
+      },
+      {
+        "path": "policy-engine/src/polisyos/ir/analytics/frontier.py",
+        "sha256": "86799ef0fcb61e35d3d8739cbcc3819ba8e8c02d7dd3aac9fc9f5fbe33cbd40b"
+      },
+      {
+        "path": "policy-engine/src/polisyos/ir/analytics/hte.py",
+        "sha256": "d109a1b40b660780d4566c5ba07f13eeeb1bcb31bd0f939086afcc95071446ef"
+      },
+      {
+        "path": "policy-engine/src/polisyos/ir/analytics/interference.py",
+        "sha256": "f00ae1d34275da4dac1e2c8d7816889d7befb0e13cb7f98169e289e1cc4769de"
+      },
+      {
+        "path": "policy-engine/src/polisyos/ir/analytics/interventions.py",
+        "sha256": "bd5ad72da797c9d759a1503b8c77c7ba621add53b8ac59f07ff610bbc4fe2287"
+      },
+      {
+        "path": "policy-engine/src/polisyos/ir/analytics/invariance.py",
+        "sha256": "1facd65f02556d092aef012a8c2d692ef0411107e8bb51220e9afa8227075592"
+      },
+      {
+        "path": "policy-engine/src/polisyos/ir/analytics/kernel_causal.py",
+        "sha256": "d1738f8ee7fcdcb1266ecb06e41a9a78d2c3ab860c5fefc74f2ed1a81746d5e1"
+      },
+      {
+        "path": "policy-engine/src/polisyos/ir/analytics/knowledge_base.py",
+        "sha256": "81d62eb7581aeecb677d502674fc58bf0802ad6a5b39871436a831b62644f86f"
+      },
+      {
+        "path": "policy-engine/src/polisyos/ir/analytics/latent_bridge_synthesis.py",
+        "sha256": "a7f655d5235cea1ea55c5015d669e81ac1727f829e9db459c1a51637f9102ff1"
+      },
+      {
+        "path": "policy-engine/src/polisyos/ir/analytics/literature.py",
+        "sha256": "715f357ba37ff1fb1dd7f6e3f6db20f69f9e489e9b0d33aa4e08504c5480c0c3"
+      },
+      {
+        "path": "policy-engine/src/polisyos/ir/analytics/local_independence.py",
+        "sha256": "76a785d043a92d0a9bdfa49e546976d84a81269cc09ee8cf42a07b2e5faef471"
+      },
+      {
+        "path": "policy-engine/src/polisyos/ir/analytics/mediation_effects.py",
+        "sha256": "1efe068c6be7088a715c0ab1c330ae566bdae72a11920b6f7e37f971f40afaed"
+      },
+      {
+        "path": "policy-engine/src/polisyos/ir/analytics/mgraph.py",
+        "sha256": "1ac2e4d6fb393ac4f6ebf6213660fb07e7ad5e13cc974fe0c83fadd6ae8059df"
+      },
+      {
+        "path": "policy-engine/src/polisyos/ir/analytics/microsim_calibration.py",
+        "sha256": "132de9e7393c599f831ff153d844e2887ff5dc35d820c5049f6b692b85bbf932"
+      },
+      {
+        "path": "policy-engine/src/polisyos/ir/analytics/mobility.py",
+        "sha256": "78074e964970188ecc3a139467c58436ad8bbce7ffccf6c6c556e31c98b5fa7d"
+      },
+      {
+        "path": "policy-engine/src/polisyos/ir/analytics/negative_certificate.py",
+        "sha256": "1bba50a42d061b4796b4c7156495af1440eaf3810059604202371c0ebdd7d7aa"
+      },
+      {
+        "path": "policy-engine/src/polisyos/ir/analytics/network_generative.py",
+        "sha256": "a1af064a35fde12b0ab0fd85957f0ec3b159e3149cf35d196766fb61c0789f45"
+      },
+      {
+        "path": "policy-engine/src/polisyos/ir/analytics/phase4_dynamics.py",
+        "sha256": "9e602041c7766743835503c23a3c6107f31b676e363a42c3ee2e3b9b3b09e917"
+      },
+      {
+        "path": "policy-engine/src/polisyos/ir/analytics/privacy_transportability.py",
+        "sha256": "834727b52d9121204ab83e0678bc72986014e1c0885a1afe432eec1bafb12136"
+      },
+      {
+        "path": "policy-engine/src/polisyos/ir/analytics/recourse_manifold.py",
+        "sha256": "26c92cf438815a7c82f421ae5c3d4c23f359440225d22470ba443bbc6720c049"
+      },
+      {
+        "path": "policy-engine/src/polisyos/ir/analytics/regime_shift_forecast.py",
+        "sha256": "5874f82b62e84e8755a272bfbd4ca82b2cdf96d0041316abc81dd7a488b99f74"
+      },
+      {
+        "path": "policy-engine/src/polisyos/ir/analytics/shift_diagnostics.py",
+        "sha256": "1bb221480915b64bf0366b404669c475240f6b7da679671898a0ae30a642499b"
+      },
+      {
+        "path": "policy-engine/src/polisyos/ir/analytics/simulation_proof_bridge.py",
+        "sha256": "d745a41f739fd310209432a1ad846ef8534cc839c3eeacbc505b833cca62a247"
+      },
+      {
+        "path": "policy-engine/src/polisyos/ir/analytics/strategic.py",
+        "sha256": "da7e85c42ba088363d1857f047b3a677a3aa791c2f6aed15029ce96d4af17738"
+      },
+      {
+        "path": "policy-engine/src/polisyos/ir/analytics/structural_causal_model.py",
+        "sha256": "35696e3ea8b54591d4afcde18c6b846a4e4815a80a1784ca5f8cdd41d7b00e9a"
+      },
+      {
+        "path": "policy-engine/src/polisyos/ir/analytics/transportability.py",
+        "sha256": "a67ee13e94086553d6e59773aa0839c1630e718cbab9b102e268c8b35e28a28f"
+      },
+      {
+        "path": "policy-engine/src/polisyos/ir/analytics/twin_network.py",
+        "sha256": "691277b4da55b327d82ebaef69e7756d19834f739faafc9be87951e5983a6d44"
+      },
+      {
+        "path": "policy-engine/src/polisyos/ir/analytics/uncertainty.py",
+        "sha256": "2827940bc1df38cf903795ac86c89b321032b70264710990f4d6bb0e634da5f4"
+      },
+      {
+        "path": "policy-engine/src/polisyos/ir/analytics/welfare.py",
+        "sha256": "d988d5c2b589fc85e3b59143ca9fe1b3d5f138c9e5a2ce24e5a7bca3d80a1097"
+      },
+      {
+        "path": "policy-engine/src/polisyos/ir/api.py",
+        "sha256": "4754f7212fde5a35ecc00079c1fd0596301afb64c3dc4dfac14d2bfdbb40fa18"
+      },
+      {
+        "path": "policy-engine/src/polisyos/ir/artifacts/contracts.py",
+        "sha256": "5659683d7ebb58e3e231d1ca0dc0870831d7bb7815955a20fd613c4aaa676132"
+      },
+      {
+        "path": "policy-engine/src/polisyos/ir/artifacts/io.py",
+        "sha256": "5206c48aac1c9841e1f9d3f1a73448c8a5e7fae20d6ae88c53454989be6cfe16"
+      },
+      {
+        "path": "policy-engine/src/polisyos/ir/artifacts/lineage.py",
+        "sha256": "92d4ee36286fa6b53c8ffd08b31e183b2e60322229a2a15fd22638716f88e25b"
+      },
+      {
+        "path": "policy-engine/src/polisyos/ir/artifacts/transport.py",
+        "sha256": "8de52123cfa437d183e1c2b3aa7d83807e97f4e16a8388beaec553304bcfd416"
+      },
+      {
+        "path": "policy-engine/src/polisyos/ir/connectors/__init__.py",
+        "sha256": "23c98454aa822dabb903e68de82372fce3aeb57b3cf195d9100cf3d8abc8a5d4"
+      },
+      {
+        "path": "policy-engine/src/polisyos/ir/governance/__init__.py",
+        "sha256": "a5e51fcca6e8f9833291f6cdd092c3dc8ce8c8441dab0d9fee87ac0826d6a0a8"
+      },
+      {
+        "path": "policy-engine/src/polisyos/ir/governance/mechanism_semantics.py",
+        "sha256": "52cc80cae63a5830d406376a397688678a405000aa7f4d2f375cc560439ba8e2"
+      },
+      {
+        "path": "policy-engine/src/polisyos/ir/governance/schedule.py",
+        "sha256": "4b12b509385fb7f30102296f353107f5a883841c7944d4b41b1aec7e20e9ab9b"
+      },
+      {
+        "path": "policy-engine/src/polisyos/ir/governance/validation.py",
+        "sha256": "881f62e0b7a36ab2409983104024d53ae674d4dc20e7a7b296a1ad6371bbaef1"
+      },
+      {
+        "path": "policy-engine/src/polisyos/ir/kernel/__init__.py",
+        "sha256": "aea972bdb15fe151fef6e6dc5c6f3d2e233a2c940a6fad0a8811d3cf29fd54ef"
+      },
+      {
+        "path": "policy-engine/src/polisyos/ir/kernel/base.py",
+        "sha256": "d4e5fbef8307da207af5c103a98082e678d027f25637655315efb3aa0596cbff"
+      },
+      {
+        "path": "policy-engine/src/polisyos/ir/kernel/mechanisms.py",
+        "sha256": "f2a4b9a36f4fa3fb30879158b6bf2b47cb4455d38320a87fedc079151c63baae"
+      },
+      {
+        "path": "policy-engine/src/polisyos/ir/kernel/merge_rules.py",
+        "sha256": "fef35567949c6389a8f0992efbbc35f3a2a0a10c3c89547116057e23054149b0"
+      },
+      {
+        "path": "policy-engine/src/polisyos/ir/kernel/method_metrics.py",
+        "sha256": "184fe4891703ac7df2402755e63f5cc808b9190be18012b9ec065cb3f6554f74"
+      },
+      {
+        "path": "policy-engine/src/polisyos/ir/kernel/slots.py",
+        "sha256": "ffa784ed37f5e506e7e700eb260856807ee99925bf496e5aa115acc6210dbfd0"
+      },
+      {
+        "path": "policy-engine/src/polisyos/ir/linker/_trinity_linker.py",
+        "sha256": "d0070998d1557e9743156b11326ff40b7ce5a3672b1f9efbe8573d29957a5885"
+      },
+      {
+        "path": "policy-engine/src/polisyos/ir/linker/_trinity_mechanisms.py",
+        "sha256": "e7ca1bf6f15ba48e39af21c963f07e8a383b1ae6864eb4ec994f3bfe5100c9c8"
+      },
+      {
+        "path": "policy-engine/src/polisyos/ir/linker/_trinity_params.py",
+        "sha256": "d5226ab7b93849f56a1ac0531e9820ea5b14a8566d7e9f3e4bf5ced8b94c849b"
+      },
+      {
+        "path": "policy-engine/src/polisyos/ir/linker/reports.py",
+        "sha256": "af10099f39c1ac8171bdc45808a694c135a4d95d6bc2673d2069fe904e7a3b49"
+      },
+      {
+        "path": "policy-engine/src/polisyos/ir/loading/__init__.py",
+        "sha256": "35af7ac369f1463f191af5b6aa5ac0f2e609d80acaeeb2a0fd0f8e0068850a78"
+      },
+      {
+        "path": "policy-engine/src/polisyos/ir/loading/citations.py",
+        "sha256": "b8169288629b82486ea4a4e4df132e36d906d37c6495868d081cf4524ce9e0f5"
+      },
+      {
+        "path": "policy-engine/src/polisyos/ir/loading/fact_log.py",
+        "sha256": "58ddac672294dee6edf3f12c76c5c627eb0cbc96cc6f04a70e9dd8223b5d8859"
+      },
+      {
+        "path": "policy-engine/src/polisyos/ir/loading/loaders.py",
+        "sha256": "741dadc30ca5fc3db14f72cecd77f6b6f0c2fe0b883d63f6d1cdf713a270cd63"
+      },
+      {
+        "path": "policy-engine/src/polisyos/ir/migrations/__init__.py",
+        "sha256": "3cf0765949035d7aa14eb29c33446788f82d535f1a07f2f80dd0350bedd44e58"
+      },
+      {
+        "path": "policy-engine/src/polisyos/ir/migrations/schema_registry.py",
+        "sha256": "cd02a871733402a51854f1f648ab3ca96e27b365093780f3af64873b84925527"
+      },
+      {
+        "path": "policy-engine/src/polisyos/ir/model_layer/__init__.py",
+        "sha256": "713f5c055de97ab858c5586e26d05c0e57e657543d89925ce45f100941615e34"
+      },
+      {
+        "path": "policy-engine/src/polisyos/ir/model_layer/canon.py",
+        "sha256": "974cb9e6001b99a8dfe0cf0855b558b96d2d709efdc14eb0186c0068c5e8fbba"
+      },
+      {
+        "path": "policy-engine/src/polisyos/ir/observation/__init__.py",
+        "sha256": "b6deb1fc6934dac2b593b0339ae68e8dd9b6ef05909d147a64c2ac108b872552"
+      },
+      {
+        "path": "policy-engine/src/polisyos/ir/observation/compiler.py",
+        "sha256": "1a445f61eee78e47c191ea1ef2ab55fc7e9483111d1b9f9f2c8837831b58c9fe"
+      },
+      {
+        "path": "policy-engine/src/polisyos/ir/observation/contract_compilers.py",
+        "sha256": "92895811e5b647428ed02c88c55bc311aa05831f6ec8a77873fac582a701d296"
+      },
+      {
+        "path": "policy-engine/src/polisyos/ir/observation/contracts.py",
+        "sha256": "efbe3ca78107dc47158d01c30b03cca4f16074b2ad37f3573fb581e423fdf2d4"
+      },
+      {
+        "path": "policy-engine/src/polisyos/ir/observation/measurement.py",
+        "sha256": "173fd6fe6f8a2b93582f10a02bee0f974c37d8657b7a5d244605229a265f5166"
+      },
+      {
+        "path": "policy-engine/src/polisyos/ir/passes/base.py",
+        "sha256": "178ffc4ab492e1e9caa960920974cba9198a0a9208a689173f8593c0b3ba3b77"
+      },
+      {
+        "path": "policy-engine/src/polisyos/ir/passes/core.py",
+        "sha256": "3a01feae65af6facf639ab7b7fdf58c7ca9cf695f0c3093e2299945e691b1b5b"
+      },
+      {
+        "path": "policy-engine/src/polisyos/ir/registry/__init__.py",
+        "sha256": "6d32a8df3421ebd9b090df6b2c9e7dcce8a4162ac1050c0bd98d49ad546f36c5"
+      },
+      {
+        "path": "policy-engine/src/polisyos/ir/registry/refs.py",
+        "sha256": "987a6838142f72c190a7dd4dcbef4b28e33babdfffcf7c6bf01312072517668a"
+      },
+      {
+        "path": "policy-engine/src/polisyos/ir/registry/registry_fragments.py",
+        "sha256": "b4878309018d106c99c0e837336420e3f30a40940262ca145ad54addfeae827a"
+      },
+      {
+        "path": "policy-engine/src/polisyos/ir/schemas/catalog.py",
+        "sha256": "666c9e8c87a8b4f454e8687adc53fce42054a8924bcbfcd8620cf489c5d80f2b"
+      },
+      {
+        "path": "policy-engine/src/polisyos/ir/trinity/__init__.py",
+        "sha256": "12d971499a8d11b296e5ad73a7e9e7f709b75b3312f2c4d1027cd2859a6a81e3"
+      },
+      {
+        "path": "policy-engine/src/polisyos/ir/trinity/loaders.py",
+        "sha256": "9915c379b70b36ef2faca88983cbe6f25dfed1398524fa8066b90612390c92c4"
+      },
+      {
+        "path": "policy-engine/src/polisyos/ir/world/__init__.py",
+        "sha256": "af6f7f7552404ae6a782ce5deebe1c19b10394cc9fc1847090cb07d32ecdbd5c"
+      },
+      {
+        "path": "policy-engine/src/polisyos/ir/world/claim.py",
+        "sha256": "10be1391a90641a0f2e6beb1a5227b5549aa6ff118e75bb444bb1d7f979ac847"
+      },
+      {
+        "path": "policy-engine/src/polisyos/ir/world/event.py",
+        "sha256": "5045018811d99c15c209186bbef7179e80bb66c473ee27dfe2179d263ce4652a"
+      },
+      {
+        "path": "policy-engine/src/polisyos/ir/world/ids.py",
+        "sha256": "3d245bf8b67c019445ff44bafc83c21a8acb80fd66d3c63af22f722247feb7c3"
+      },
+      {
+        "path": "policy-engine/src/polisyos/schemas/abi_models/catalog.py",
+        "sha256": "45df11b2aed857b0123d72212f82545d8633befb47838f0df00b264633b258e3"
+      },
+      {
+        "path": "policy-engine/src/polisyos/scientist/compute/hte_outcome_bridge.py",
+        "sha256": "9ea59d077b8fe6f58a50561b40426ced8a4895926f9bd8d11ddd4c65bc998228"
+      },
+      {
+        "path": "policy-engine/tests/unit/foundry/methods/catalog/causal/test_hte_v2_resource_capture.py",
+        "sha256": "1e1d593afde0ad16ae42b37287b5ddd8c167864fb4f681c0c1a7e91a8374ddf9"
+      },
+      {
+        "path": "policy-engine/tests/unit/ir/analytics/test_native_dynamic_argument_types.py",
+        "sha256": "c0b1c0e5e89815bfdf88c92e107f95f713cd7c77a0087e23ad0694d4404e63d8"
+      },
+      {
+        "path": "policy-engine/tests/unit/ir/analytics/test_phase_f_contracts.py",
+        "sha256": "1fae1d164ec9989c8d4f3db59347475b3ed4f55c76ce1d3a9899a1c9b6456db2"
+      },
+      {
+        "path": "policy-engine/tests/unit/ir/test_connectors_public_surface.py",
+        "sha256": "f1bf3b590a03b7d2e41df38263927e79cb0c4f2893419129564aef800a35779f"
+      },
+      {
+        "path": "policy-engine/tests/unit/ir/test_hte_outcome_contract.py",
+        "sha256": "380c9237c98f27d7eca3afec95823681f8dfa9ff2dd12ebef639ab92bdce8e58"
+      },
+      {
+        "path": "policy-engine/tests/unit/ir/test_public_surface.py",
+        "sha256": "0f7c5e2be761e250cb7a47de293cafb29bbde92b2cff2a4fe2b7e18a816c2f92"
+      },
+      {
+        "path": "policy-engine/tests/unit/ir/test_schema_catalog.py",
+        "sha256": "9e0a5e32e1e6cfd027de812b97f224b74c11caf959cecc041d10603400e7e19d"
+      },
+      {
+        "path": "policy-engine/tests/unit/ir/test_shared_validation_helpers.py",
+        "sha256": "240582e2a156956e3bad5f3573d9130c8740a7d181bc7d27d6f80c0ed79a74b9"
+      },
+      {
+        "path": "policy-engine/src/polisyos/core/artifacts/canonical_profile.py",
+        "sha256": "e59d52189834a76a2bfe6854d1d61d3ef659bff80451002b4efab75ab62e2b80"
+      },
+      {
+        "path": "policy-engine/src/polisyos/core/contracts/README.md",
+        "sha256": "49a71c8f523d4cd9b243721957b51f905f33b9617edc756a822991d1fc6092b8"
+      },
+      {
+        "path": "policy-engine/src/polisyos/core/contracts/__init__.py",
+        "sha256": "2938ad598cf43f83f531daac1b1c2fb18224dde9d3f98eda6af46929bb5998ca"
+      },
+      {
+        "path": "policy-engine/src/polisyos/core/contracts/control.py",
+        "sha256": "b60cba7680a215bf543d62a0ee2cd242ff1ddc71c5a1bb8c352bc6eaa20d234c"
+      },
+      {
+        "path": "policy-engine/src/polisyos/core/contracts/owned_attempt_anchor.py",
+        "sha256": "8aac55d69983ad38e99a3bf6de3674a1f227f074d3e077a7734557ab64c30e1b"
+      },
+      {
+        "path": "policy-engine/src/polisyos/core/contracts/runtime.py",
+        "sha256": "dd5cd08877140e243ecf2d8658c2d936dd323aa0027d16e09a09f9cb7e7b1dd6"
+      },
+      {
+        "path": "policy-engine/src/polisyos/runtime/http/services/artifact_inspector.py",
+        "sha256": "37827b491687a6eb7eee78232b8ac49aa23f8300d925ff4fd8372c0c2cc155f3"
+      },
+      {
+        "path": "policy-engine/src/polisyos/runtime/http/services/control/bounded_wait.py",
+        "sha256": "0ef8cca8b9fd69a6ae86a0c66bc446a97076413340683322c4d94759658cdccc"
+      },
+      {
+        "path": "policy-engine/src/polisyos/runtime/http/services/control/job_attempt_publication.py",
+        "sha256": "e559a928a61b4f22ed4b4022a4ef2a4663a4effefee5c26aab83b8f13383798d"
+      },
+      {
+        "path": "policy-engine/src/polisyos/runtime/http/services/control/owned_attempt_anchor.py",
+        "sha256": "548d92c7629eecde6e8495fc42339e1a6bd559c500cfe8efe6e5cfcbd2fb0991"
+      },
+      {
+        "path": "policy-engine/src/polisyos/runtime/http/services/control/run_lifecycle.py",
+        "sha256": "d8aa8418229b11adaf0b7cec0ab191356ca88abed6ff10ad823e2d743e7c05cd"
+      },
+      {
+        "path": "policy-engine/src/polisyos/runtime/http/services/control_plane_store.py",
+        "sha256": "cbacbddab2dd93a841639de7f7fa35f056c7311b4c6558c2fe94424ceae537d5"
+      },
+      {
+        "path": "policy-engine/src/polisyos/scientist/compute/runner.py",
+        "sha256": "416593c21ffcd4b776f4f6c77d4d28b5f894b11a94a791f288b59e2d73522eb9"
+      },
+      {
+        "path": "policy-engine/tests/unit/core/artifacts/test_bounded_core_json_artifact.py",
+        "sha256": "facfe0ecbb2a6999e584b506fd7243872d803efd16876a965f450624b81c2cce"
+      },
+      {
+        "path": "policy-engine/tests/unit/core/contracts/test_owned_attempt_anchor.py",
+        "sha256": "d6af9e2b86b8039dbe23d0539ee36a2c402aa47c85b952e5b51b46c91f0d43df"
+      },
+      {
+        "path": "policy-engine/tests/unit/runtime/http/services/control/test_owned_attempt_anchor_associations.py",
+        "sha256": "6c5142e72ac6da6aa054f155ff78c6583ee60d41560c05fb71d8c002cd59b4da"
+      },
+      {
+        "path": "policy-engine/tests/unit/runtime/http/test_declared_profile_api_refusal.py",
+        "sha256": "ec9d768eaf6143f636160110d4cc8b71dd82fd265fcab7b3e6b637d24516e179"
+      },
+      {
+        "path": "policy-engine/tests/unit/runtime/http/test_observational_hte_resource_summary_contract.py",
+        "sha256": "0747270401914e4c90cdeeadcfdb9b2151be00cc306bfdb94b9ffcb21fedb9fc"
+      },
+      {
+        "path": "policy-engine/tests/unit/runtime/http/test_observational_method_runtime.py",
+        "sha256": "9a0be3fba7b68f01589ffe805c051228deeac84228f5660518311dae95e3ceb3"
+      },
+      {
+        "path": "policy-engine/tests/unit/runtime/http/test_observational_run_intent_contract.py",
+        "sha256": "3063d017ef09339829ee94c37a3738c7ed043453f8a0e0829d8c0e30ed8184c5"
+      },
+      {
+        "path": "policy-engine/tests/unit/runtime/http/test_owned_attempt_anchor_associations.py",
+        "sha256": "66d759223d3baeddd4815f28c377e1c84e23cda213827f755ef2cf5988d49b00"
+      },
+      {
+        "path": "policy-engine/tests/unit/runtime/http/test_search_hte_completion_outbox.py",
+        "sha256": "bcc1f037ee82bbf8d7c5c5a337dbb471cfd1e79ce7cd80bf66a0e4dd81333df7"
+      },
+      {
+        "path": "policy-engine/docs/reference/ir/public-surface.md",
+        "sha256": "a8059509f0b4d6ebc63bf6172c5764e5a61b0a0b429de3278c2a976e9a3738f4"
+      },
+      {
+        "path": "policy-engine/docs/reference/ir/schema-catalog.md",
+        "sha256": "bc0e991d045c48346cf6796892813736f96df7c37c0523b7fb14d5da0826c210"
+      },
+      {
+        "path": "policy-engine/docs/reference/schemas.md",
+        "sha256": "369bfccd73db97460396301bb7858cda8bc14216e6dbfd2ab58dbce56e1fca57"
+      },
+      {
+        "path": "policy-engine/src/polisyos/common/canonical_profile.py",
+        "sha256": "d040ecb9baab955f9372703363570f1423777b68febe5d20250113e27875ec3e"
+      },
+      {
+        "path": "policy-engine/src/polisyos/core/artifacts/_manifest_lifecycle.py",
+        "sha256": "89c231e69ec95c1223d3a2637ca2ba79bc1048ac2644e266216a8f1cb8fdea08"
+      },
+      {
+        "path": "policy-engine/tests/unit/common/test_canonical_profile.py",
+        "sha256": "f3cdac4912c0de9599ef4758ce3c0ecaf3aef4dc5ad9073aa67f3cd856f4b4b5"
+      },
+      {
+        "path": "policy-engine/tests/unit/core/artifacts/test_manifest_serialization_schema.py",
+        "sha256": "a5769f9d284aa0234676f283b0693f7f4585eb4ab12d2af010e8e7572ee33604"
+      },
+      {
+        "path": "policy-engine/tests/unit/ir/artifacts/test_selected_profile_write.py",
+        "sha256": "ece63dd4b2381711dac52f37ad042200d97acf0275fccd08dd5f7fcfeef81f82"
+      },
+      {
+        "path": "policy-engine/src/polisyos/runtime/http/routes/artifacts.py",
+        "sha256": "df164c321685d5371d80bd9844fe452f9492b81393490ed3143b2846377fb135"
+      },
+      {
+        "path": "policy-engine/tests/unit/runtime/http/test_owned_attempt_anchor_v2_run_details_get.py",
+        "sha256": "d22fdb70a2d544886ad0e0ae14fd4cc6fd911ed659740a039e1051c04f8c934e"
+      },
+      {
+        "path": "policy-engine/tests/unit/runtime/http/test_owned_attempt_anchor_v2_run_details_semantics.py",
+        "sha256": "4f758be59cc8afd9e650a0989905e6fbf4c7cee8d11ed4e6cc3f8a59425fb314"
+      },
+      {
+        "path": "policy-engine/src/polisyos/foundry/data_plane/bindings.py",
+        "sha256": "e27ff30b57b935d34206e3354ee2e989797bf26c528e9b798261461150f2ab07"
+      },
+      {
+        "path": "policy-engine/tests/unit/foundry/data_plane/test_hte_observational_input.py",
+        "sha256": "276e727e705004de4d88bdfed8561023771df15d16b8c46c64e02062f0385958"
+      },
+      {
+        "path": "policy-engine/tests/unit/runtime/http/services/control/test_hte_input_preparation_refusal_status_handoff.py",
+        "sha256": "366b18ba0ffdf3e7bf6222ef2d535d5088c5f6a6a0ffbb07bda3a8bf8c896841"
+      }
+    ],
+    "complete_selected_denominator": {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/root-ir-hte-canonical-adoption-20261021-r1/application-plan-current-denominator-readback.json",
+      "sha256": "3df7b2ade22c5f90da3e4f19baa67176e41553b0cc03c51175b796e125ebb59b"
+    }
+  },
+  "selected_input_profile_backend": {
+    "environment": "Existing isolation-local Python 3.14 application environment; no new environment provisioned.",
+    "numerical_threads": 1,
+    "real_native_attempt": "EconML DoubleML via causal.hte.double_ml@2.0.0, 40 selected rows; worker fails ValidationError before completed owner witness.",
+    "data": "Controlled local portable test inputs only for these runs; no production currentness claim.",
+    "native_ruff_profile": {
+      "path": "policy-engine/architecture/tooling/ruff/workspace_root.toml",
+      "sha256": "879bfc2fa77909e595e661679fdeb9c771c3d34308a52e7c41971114f6a4ed99"
+    }
+  },
+  "verification": {
+    "gates": [
+      {
+        "name": "verification-r10-refusal-consumers",
+        "status": "PASS",
+        "invocation": {
+          "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/root-ir-hte-canonical-adoption-20261021-r1/verification-r10-refusal-consumers/invocation.json",
+          "sha256": "0222ac819f4f4a41115277427e95a92e14331ac8f04ef45ca166071b1ebc4e87"
+        },
+        "complete_deciding_outputs": [
+          {
+            "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/root-ir-hte-canonical-adoption-20261021-r1/verification-r10-refusal-consumers/refusal.stdout",
+            "sha256": "2069687c1b8dec47b8fcfd4a4d5c171b9d33cbb2dc5370cec22f9bb26dcab68f"
+          },
+          {
+            "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/root-ir-hte-canonical-adoption-20261021-r1/verification-r10-refusal-consumers/refusal.stderr",
+            "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+          },
+          {
+            "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/root-ir-hte-canonical-adoption-20261021-r1/verification-r10-refusal-consumers/refusal.junit.xml",
+            "sha256": "5f405a130e8096a205445089e31c37eab7d49b1182914aa1c276000b45f35deb"
+          }
+        ],
+        "pytest_totals": {
+          "tests": 63,
+          "failures": 0,
+          "errors": 0,
+          "skipped": 0
+        },
+        "source_binding": {
+          "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/root-ir-hte-canonical-adoption-20261021-r1/application-plan-current-refusal-retention.json",
+          "sha256": "2e0d357873f8be9148f71d711e77408e93a039ef71729fc82ddd600e8aef800a"
+        },
+        "boundary": "Only the exact source/profile and selected command recorded in invocation; no automatic whole-capability closure or final composed replay."
+      },
+      {
+        "name": "verification-r11-runtime-types-native",
+        "status": "FAIL",
+        "invocation": {
+          "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/root-ir-hte-canonical-adoption-20261021-r1/verification-r11-runtime-types-native/invocation.json",
+          "sha256": "129cc73f38ce3f8fd12ff3934e74f9421bae2e15bdadcb1e0f8db919786de2e9"
+        },
+        "complete_deciding_outputs": [
+          {
+            "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/root-ir-hte-canonical-adoption-20261021-r1/verification-r11-runtime-types-native/stdout",
+            "sha256": "e5be7fe67392abd0942488cfff162226252e059770a69a7d34693990636da41e"
+          },
+          {
+            "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/root-ir-hte-canonical-adoption-20261021-r1/verification-r11-runtime-types-native/stderr",
+            "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+          }
+        ],
+        "pytest_totals": null,
+        "source_binding": {
+          "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/root-ir-hte-canonical-adoption-20261021-r1/application-plan-current-capture-bounded.json",
+          "sha256": "931553df25dfe6f427ec3be25ac864ec84fe5e490cb95b814eb2824d2ff44221"
+        },
+        "boundary": "Only the exact source/profile and selected command recorded in invocation; no automatic whole-capability closure or final composed replay."
+      },
+      {
+        "name": "verification-r11-refusal-get",
+        "status": "FAIL",
+        "invocation": {
+          "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/root-ir-hte-canonical-adoption-20261021-r1/verification-r11-refusal-get/invocation.json",
+          "sha256": "aa863faf9de74870a4d661cfffcf87fb1403c8f17526ce8766c939d03c578f72"
+        },
+        "complete_deciding_outputs": [
+          {
+            "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/root-ir-hte-canonical-adoption-20261021-r1/verification-r11-refusal-get/stdout",
+            "sha256": "2f47d9160eacf5ee4207d930b6a40e57e263a1450f6c2b20448b2443b69688e4"
+          },
+          {
+            "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/root-ir-hte-canonical-adoption-20261021-r1/verification-r11-refusal-get/stderr",
+            "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+          },
+          {
+            "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/root-ir-hte-canonical-adoption-20261021-r1/verification-r11-refusal-get/junit.xml",
+            "sha256": "b0a9105d0df47148b46c7c270e3a6fc75cb37d2a385ed4713d0bd56b39c8d300"
+          }
+        ],
+        "pytest_totals": {
+          "tests": 1,
+          "failures": 1,
+          "errors": 0,
+          "skipped": 0
+        },
+        "source_binding": {
+          "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/root-ir-hte-canonical-adoption-20261021-r1/application-plan-current-capture-bounded.json",
+          "sha256": "931553df25dfe6f427ec3be25ac864ec84fe5e490cb95b814eb2824d2ff44221"
+        },
+        "boundary": "Only the exact source/profile and selected command recorded in invocation; no automatic whole-capability closure or final composed replay."
+      },
+      {
+        "name": "verification-r12-logic",
+        "status": "PASS",
+        "invocation": {
+          "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/root-ir-hte-canonical-adoption-20261021-r1/verification-r12-logic/invocation.json",
+          "sha256": "59fa38f4eb5f8c18b156b0b5de07110736ce8fc026b88132bebc0b41e8524fd3"
+        },
+        "complete_deciding_outputs": [
+          {
+            "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/root-ir-hte-canonical-adoption-20261021-r1/verification-r12-logic/stdout",
+            "sha256": "beb5e917d7e088189bcc54be7867fe483cb82f503125efdac89780b619201183"
+          },
+          {
+            "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/root-ir-hte-canonical-adoption-20261021-r1/verification-r12-logic/stderr",
+            "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+          },
+          {
+            "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/root-ir-hte-canonical-adoption-20261021-r1/verification-r12-logic/junit.xml",
+            "sha256": "19ccfee1cefb3f71d649fd3bb2cf907b8961c8e7a2e6dcbcb072262eff35c800"
+          }
+        ],
+        "pytest_totals": {
+          "tests": 208,
+          "failures": 0,
+          "errors": 0,
+          "skipped": 0
+        },
+        "source_binding": {
+          "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/root-ir-hte-canonical-adoption-20261021-r1/application-plan-current-cross-owner-ref.json",
+          "sha256": "36e6c9a4f3dc8ce7fa041ebbbec3d29fc4e67c6b8ce1a112a429d3766224b0dc"
+        },
+        "boundary": "Only the exact source/profile and selected command recorded in invocation; no automatic whole-capability closure or final composed replay."
+      },
+      {
+        "name": "verification-r11-cas-owner",
+        "status": "PASS",
+        "invocation": {
+          "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/root-ir-hte-canonical-adoption-20261021-r1/verification-r11-cas-owner/invocation.json",
+          "sha256": "ed5f3a1a6645e20ba79f08cfd58fc5eb21f4272d4d0262ce963d905de9c6fd11"
+        },
+        "complete_deciding_outputs": [
+          {
+            "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/root-ir-hte-canonical-adoption-20261021-r1/verification-r11-cas-owner/stdout",
+            "sha256": "dc3b7f6cec214df8a26512af217faa34ec19cca565d751f13c8ce3af19cd787f"
+          },
+          {
+            "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/root-ir-hte-canonical-adoption-20261021-r1/verification-r11-cas-owner/stderr",
+            "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+          },
+          {
+            "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/root-ir-hte-canonical-adoption-20261021-r1/verification-r11-cas-owner/junit.xml",
+            "sha256": "23d1290c2b0d2a88f2c445a9dceb978f0e50d2c5a7706f3c3f9f4ba94596edaa"
+          }
+        ],
+        "pytest_totals": {
+          "tests": 3,
+          "failures": 0,
+          "errors": 0,
+          "skipped": 0
+        },
+        "source_binding": {
+          "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/root-ir-hte-canonical-adoption-20261021-r1/application-plan-current-capture-bounded.json",
+          "sha256": "931553df25dfe6f427ec3be25ac864ec84fe5e490cb95b814eb2824d2ff44221"
+        },
+        "boundary": "Only the exact source/profile and selected command recorded in invocation; no automatic whole-capability closure or final composed replay."
+      },
+      {
+        "name": "verification-r12-http-cap",
+        "status": "PASS",
+        "invocation": {
+          "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/root-ir-hte-canonical-adoption-20261021-r1/verification-r12-http-cap/invocation.json",
+          "sha256": "08de4f5f3e6d640fee2bca250d21f9a30c47b26df82d7a5bd126b7f75e5e04d4"
+        },
+        "complete_deciding_outputs": [
+          {
+            "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/root-ir-hte-canonical-adoption-20261021-r1/verification-r12-http-cap/stdout",
+            "sha256": "14c61c7a186e23a42d201c14c8ddb9d6d91434dea349a7bba2600a3667363f16"
+          },
+          {
+            "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/root-ir-hte-canonical-adoption-20261021-r1/verification-r12-http-cap/stderr",
+            "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+          },
+          {
+            "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/root-ir-hte-canonical-adoption-20261021-r1/verification-r12-http-cap/junit.xml",
+            "sha256": "360a59d10b9d60b413e2adc548456b82d73b288156c8ae4fe1676a3ad4ce4739"
+          }
+        ],
+        "pytest_totals": {
+          "tests": 3,
+          "failures": 0,
+          "errors": 0,
+          "skipped": 0
+        },
+        "source_binding": {
+          "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/root-ir-hte-canonical-adoption-20261021-r1/application-plan-current-cross-owner-ref.json",
+          "sha256": "36e6c9a4f3dc8ce7fa041ebbbec3d29fc4e67c6b8ce1a112a429d3766224b0dc"
+        },
+        "boundary": "Only the exact source/profile and selected command recorded in invocation; no automatic whole-capability closure or final composed replay."
+      },
+      {
+        "name": "verification-r12-native-owner",
+        "status": "FAIL",
+        "invocation": {
+          "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/root-ir-hte-canonical-adoption-20261021-r1/verification-r12-native-owner/invocation.json",
+          "sha256": "93fc10fc364acaa96c0c68f4ba04b9c6dc40dc980edbebaa82ceb1de606a3367"
+        },
+        "complete_deciding_outputs": [
+          {
+            "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/root-ir-hte-canonical-adoption-20261021-r1/verification-r12-native-owner/stdout",
+            "sha256": "9780425df33e7300ec623ccaf6b466bd6e8fb60442613df2743b5c65e34cf354"
+          },
+          {
+            "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/root-ir-hte-canonical-adoption-20261021-r1/verification-r12-native-owner/stderr",
+            "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+          },
+          {
+            "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/root-ir-hte-canonical-adoption-20261021-r1/verification-r12-native-owner/junit.xml",
+            "sha256": "165d2d309bb554576eea90d1711d82094bd88cee42e294fca83a773334850f46"
+          }
+        ],
+        "pytest_totals": {
+          "tests": 1,
+          "failures": 1,
+          "errors": 0,
+          "skipped": 0
+        },
+        "source_binding": {
+          "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/root-ir-hte-canonical-adoption-20261021-r1/application-plan-current-cross-owner-ref.json",
+          "sha256": "36e6c9a4f3dc8ce7fa041ebbbec3d29fc4e67c6b8ce1a112a429d3766224b0dc"
+        },
+        "boundary": "Only the exact source/profile and selected command recorded in invocation; no automatic whole-capability closure or final composed replay."
+      }
+    ],
+    "canonical_style": {
+      "status": "PASS",
+      "selected_python_files": 245,
+      "check_passed": 245,
+      "format_check_passed": 245,
+      "summary": {
+        "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/root-ir-hte-canonical-adoption-20261021-r1/verification-r13-canonical-style/summary.json",
+        "sha256": "7d2f0bc90c27559a1d916deecc1d513df5b7d37d09b79bab40c93c249ec52f93"
+      },
+      "complete_outputs": [
+        {
+          "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/root-ir-hte-canonical-adoption-20261021-r1/verification-r13-canonical-style/check.json",
+          "sha256": "f5024ffe0bfbbed8c05444cf6bcb8eec983959124b0c3b0bca389855e9fc77d1"
+        },
+        {
+          "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/root-ir-hte-canonical-adoption-20261021-r1/verification-r13-canonical-style/format-check.json",
+          "sha256": "7f7e6238968182d84df9264f74ff0447ef0a93873a5cce032bd2c7e675c625e9"
+        }
+      ]
+    },
+    "final_composed_replay": "UNRUN",
+    "native_sota": "UNRUN",
+    "installed_wheel_and_rebuilt_sdist": "UNRUN"
+  },
+  "real_chain": [
+    "Actual observational POST dispatches the real selected HTE worker against persisted controlled input; completed-attempt witness currently fails owner/model validation.",
+    "Input refusal reaches the durable failed job and typed input_refused status; fresh ordinary GET currently returns authorization_binding_run_unresolved because the direct-method Core lifecycle/index bridge is missing.",
+    "Core bounded selected CAS model reader exercises tuple/None feature-name conversion and strict malformed-value rejection.",
+    "Predictive HTTP diagnostic exercises actual selected byte limits before codec invocation and propagates unmeasured refusals."
+  ],
+  "adversarial_and_removal_controls": [
+    "The real bounded-owner reader rejects malformed tuple members; no unbounded fallback is introduced.",
+    "Measured oversize preview is handled while incomplete usage accounting remains a refusal.",
+    "Cross-owner Core ref is projected through its full Python field mapping into the strict IR ref; all selected profile/ref identity fields remain bound.",
+    "Further public GET/full owner-association and workflow removal controls are authored or in flight; they are not all proven by this checkpoint."
+  ],
+  "consumer_surfaces": [
+    "Foundry producer -> Core owned attempt -> Runtime worker/projection",
+    "Core/IR strict selected-profile artifact readers",
+    "Runtime artifact preview HTTP consumer",
+    "IR public exports and generated reference companions"
+  ],
+  "independent_reviews": [
+    {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/can-ir-common-profile-independent-20261021-r1/review.json",
+      "sha256": "02839279fc757f7bad0c7789899182ca30cd43f60820bf45a42f9f306af140de",
+      "qualified_status": "GO source; narrow pre-payload test hold discharged by zero-read successor and later review"
+    },
+    {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/can-final-intake-deltas-independent-20261021-r1/review.json",
+      "sha256": "ee7d8a9796fab93bca38c82f6b3a7b35f54bf20e199b998f01ceabc0a2ecccfd",
+      "qualified_status": "GO CAN zero-read test and HTTP bounded source; HTTP fixture scope hold discharged by r2"
+    },
+    {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/can-final-intake-deltas-independent-20261021-r2/review.json",
+      "sha256": "478d21f1d3d03b50be4b8d33f49a456b063ec9ba95312e01a5294ac62ddb160a",
+      "qualified_status": "GO HTTP unavailable-reader fixture scoping"
+    },
+    {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/can-fixture-and-ir-cold-deltas-independent-20261021-r1/review.json",
+      "sha256": "66ecee07f21c517c2b8114b97ccf2f62caf838becb1f4ae048a91181226055ca",
+      "qualified_status": "GO HTTP owner-scoped fixtures and source-bound IR cold oracle"
+    },
+    {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/runtime-r11-get-independent-20261021-r1/independent-review.json",
+      "sha256": "1a46007ae4666342bbd84d9d5c8e1bbad9c0eb74eec4e4d92c1ef507a9f5e697",
+      "qualified_status": "GO positive GET/wrongcell source; semantic/refusal scope extended by R12/R13"
+    },
+    {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/runtime-r13-get-independent-20261021-r1/review.json",
+      "sha256": "0d11dafff32cb7ed5e016259c78932dc8234d923b1b19af43b45a5c025c66172",
+      "qualified_status": "GO_LIMITED_STATIC full association and exact stored-byte digest control; native runtime UNRUN"
+    },
+    {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/root-ir-hte-runtime-style-independent-20261021-r1/review.json",
+      "sha256": "30a1bd951528b3b8130a5e125bdb1ce953369b8496e3aebe103ffc9f01ca2bdc",
+      "qualified_status": "GO style/source; metadata deferred/null hold discharged by actual documentation_companions above"
+    },
+    {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/can-http-final-fixture-scope-independent-20261021-r6/review.json",
+      "sha256": "9506807350269017844c84ed392615dd670bfc9775c95e8e6db4215725fb77d9",
+      "qualified_status": "GO static whole fixture-scope and actual default cap corrections; runtime next"
+    }
+  ],
+  "materialization_layer_provenance": [
+    {
+      "identity": "hte-input-refusal-retention-companion-20261022-r1",
+      "manifest": {
+        "path": "LOCAL/raw/hte-input-refusal-retention-companion-20261022-r1/manifest.json",
+        "sha256": "f1938991ca58f0b135a4b669577f2905ff3e7a41a52d1c7a35d17c8fc6c05597"
+      },
+      "independent_review": {
+        "path": "LOCAL/raw/hte-input-refusal-retention-independent-20261022-r1/review.json",
+        "sha256": "e02cd4d07c3f7bd2baf7c4ffff56aa6f5ca6e77eadcbd9201396a19517cadb4e"
+      }
+    },
+    {
+      "identity": "hte-core-capture-composition-author-20261021-r2",
+      "manifest": {
+        "path": "LOCAL/raw/hte-core-capture-composition-author-20261021-r2/manifest.json",
+        "sha256": "16805bfc02ea4816ceef275f91df181812d4d3f6282a6906debbe7c4cdc77337"
+      }
+    },
+    {
+      "identity": "hte-owned-anchor-bounded-read-repair-20261022-r1",
+      "manifest": {
+        "path": "LOCAL/raw/hte-owned-anchor-bounded-read-repair-20261022-r1/manifest.json",
+        "sha256": "0f13eecf91713f7fd670fc6ab1c03a7c69c0e463e37615769f7c75edbeab8a00"
+      }
+    },
+    {
+      "identity": "root_bounded_reader_static_type_companion"
+    },
+    {
+      "identity": "can-predictive-actual-byte-cap-companion-20261022-r1",
+      "manifest": {
+        "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/can-predictive-actual-byte-cap-companion-20261022-r1/candidate-manifest.json",
+        "sha256": "96a5b2eeb893462c8af0bac6857b1b028f055741c39fbc28f9dc45c452f38252"
+      },
+      "independent_review": {
+        "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/can-predictive-actual-byte-cap-independent-20261022-r1/review.json",
+        "sha256": "8904f3ab194c61a68c9b8e6d978eb24bc43eb5c0be33520d05780174b7714c4b"
+      },
+      "style_proof": {
+        "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/root-can-predictive-style-adoption-20261022-r1/style-proof.json",
+        "sha256": "63b41db70aaec85cfd3aeab73a2c0dbc0d0888b104db6e0e8f6c95ad54ead58a"
+      }
+    },
+    {
+      "identity": "hte-cross-owner-ref-and-unknown-fixture-20261022-r1",
+      "manifest": {
+        "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/hte-cross-owner-ref-and-unknown-fixture-20261022-r1/manifest.json",
+        "sha256": "421cecfb9cf17acc6a4f7979d722b33f257a112044c1f088d9d8699381f6628b"
+      },
+      "independent_review": {
+        "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/hte-cross-owner-ref-and-unknown-fixture-independent-20261022-r1-review.json",
+        "sha256": "462ab0744cc5408e91046bd444b1eb2cf143a817aff791ef25e4c822073f6081"
+      }
+    }
+  ],
+  "limitations": [
+    "Native Runtime owned-attempt typing was measured red on its pinned earlier source frame; the repair and caller companion are in progress. No inherited-debt claim.",
+    "The completed real worker ValidationError and failed-run public GET lifecycle/index gap remain blocking for their affected claims.",
+    "C05 selected-material currentness, DecisionPacket ordinary workflow/outbox, Search/B161, UI/generated companions and scanner native repairs remain separate pending compositions.",
+    "The full 282-ID / 291-occurrence individual proposal refresh, authentic read-only external inputs, native row-by-row gates and installed consumers remain required.",
+    "No remote publication occurred; normal own-topic pre-push prerequisites remain outstanding."
+  ],
+  "decision_pointers": [
+    "G decisions b7adafe89423bc6906a5fb86c38e579a381ad2ee, 798bd1ab9646378f49fd127b3f04ebe71aca67d2 and d40bca270ef5c456e8233196e4d8d65e099777a7 are inputs, not acceptance of this code."
+  ],
+  "proposals": [],
+  "closure_ids": [],
+  "historical_closures_changed": false,
+  "G_acceptance": false,
+  "source_freeze": false,
+  "retention": "Complete deciding outputs remain in ignored RAW at path@sha256, readable locally. Source bytes are in the implementation commit; no source dumps are embedded."
+}

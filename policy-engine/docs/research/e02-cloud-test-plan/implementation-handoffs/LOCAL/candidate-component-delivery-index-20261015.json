@@ -1755,7 +1755,8 @@
     {
       "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/fabric-r13-n818-canonical-composition-20261021.json",
       "sha256": "f8ce4773d1d858d26d02d22366fbabbdb581926ca84e5dd7d072d83b58af24d7"
-    }
+    },
+    {"path":"policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/ir-hte-can-runtime-canonical-checkpoint-20261022.json","sha256":"95e400eb24cc09df2cd3d8a460785a79888e09060ce25764259c1fc6f3975c18"}
   ],
   "canonical_denominator_recomputed": {
     "occurrences": 291,
@@ -3865,5 +3866,30 @@
       "receipt_or_decision_only_commits": 5
     }
   },
-  "next_check": "Review the immutable RAW 3ddec-to-3c13 Git path inventory and exact proposed source/index refs. Apply any index changes only as a separate reviewed tracked receipt edit; then continue current-source C05/N7/CAN, Q2 generated/installed consumers, native28, and all remaining occurrence-specific property checks. Keep source_freeze false and formal G closures empty."
+  "next_check": "Review the immutable RAW 3ddec-to-3c13 Git path inventory and exact proposed source/index refs. Apply any index changes only as a separate reviewed tracked receipt edit; then continue current-source C05/N7/CAN, Q2 generated/installed consumers, native28, and all remaining occurrence-specific property checks. Keep source_freeze false and formal G closures empty.",
+  "latest_additive_component_checkpoint": {
+    "candidate": "b23a12f6a9f5f4198c1e31db4983464ecda603f3",
+    "tree": "92ee19ebab9d79dfd5feb87dccc093c118cda486",
+    "parents": [
+      "bc1f3a8d7a8e03194a289cd631789fe52595e476"
+    ],
+    "branch": "codex/e02-unified-local-20261009",
+    "selected_path_count": 253,
+    "changed_path_count": 159,
+    "selected_python_files": 245,
+    "committed_and_worktree_bytes_match": true,
+    "tracked_dirty_paths": [],
+    "untracked_scope": "Existing RAW and older untracked evidence retained, not recensused; no whole-worktree-clean claim.",
+    "source_plan": {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/root-ir-hte-canonical-adoption-20261021-r1/application-plan-current-denominator-readback.json",
+      "sha256": "3df7b2ade22c5f90da3e4f19baa67176e41553b0cc03c51175b796e125ebb59b"
+    },
+    "source_freeze": false,
+    "G_acceptance": false,
+    "receipt": {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/ir-hte-can-runtime-canonical-checkpoint-20261022.json",
+      "sha256": "95e400eb24cc09df2cd3d8a460785a79888e09060ce25764259c1fc6f3975c18"
+    },
+    "meaning": "Additive component checkpoint only; historical full-ID source-cut reconciliation is preserved and remains to be refreshed for the full current composition."
+  }
 }

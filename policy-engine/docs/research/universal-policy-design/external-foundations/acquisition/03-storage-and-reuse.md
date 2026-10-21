@@ -46,6 +46,14 @@ Join, synthesis, embedding, model или aggregate из нескольких и�
 
 При unknown output rule результат не становится discoverable за пределами уже разрешённого scope и не получает protected use. Реальный validated derivative grant разрешает только bound recipient/purpose. Parent revoke/correction/retirement проходит native dependency reaction с учётом применимости: это не автоматическое удаление всех производных на любую смену terms. Existing index/root verification и fences могут амортизировать проверку, но не пропускать parent или stale rule. Future falsifier: restricted microdata + public table → join/aggregate → попытка shared index/API/export, затем parent change и restore; разрешён только independently verified permitted output, не произвольный derived payload.
 
+### Совокупное раскрытие
+
+Output rights и confidentiality composition — разные predicates. Два разрешённых aggregates по пересекающимся populations могут раскрыть индивидуальный факт через разность. Source/custodian owner задаёт protected unit, overlap/lineage между releases/aliases, recipient/cooperation scope, поддержанный query/output mechanism и composition rule. Все result paths и retries используют один accounting boundary для этого scope; clock reset, новый run/dataset label/cell/key не создаёт новый privacy budget. Установленное shared grant допускает cross-cell reuse через тот же boundary; чужая cell не запрещена только своим именем.
+
+Не изобретать универсальный epsilon или ledger всех человеческих disclosure. Для DP-гарантии единица защиты и композиция обязательны; это подтверждает [NIST SP800-226 §§2.4,4.1](https://nvlpubs.nist.gov/nistpubs/SpecialPublications/NIST.SP.800-226.pdf). Для иных disclosure правил нужен их собственный discriminator. Неподтверждённый overlap не трактуется как disjointness; выбранный консервативный bound или refusal защищённого result предпочтительнее ложного privacy claim. Перед disclosure reserve/commit учёт атомарен относительно конкурирующих запросов; timeout с неизвестной выдачей не возвращает allowance автоматически. Повтор уже разрешённого идентичного protected output не становится новым raw query; новые noisy samples или audience expansion проверяются по applicable rule. Не переносить эту гарантию на неконтролируемые внешние disclosures.
+
+Future AP07: overlapping releases и aliases в разных runs проходят один composition owner, явный разрешённый share работает, превышение выбранного bound — нет. Remove shared binding, сохранив permissions/labels: отрицательный сценарий должен различиться. Общая цепочка пока проектируется; факт наличия бюджета в prose не runtime capability.
+
 ## 4. Матрица сохранения
 
 | Runtime объект | Что сохранять при разрешении | Что не переносится в следующий use |

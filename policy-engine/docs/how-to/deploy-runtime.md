@@ -84,6 +84,8 @@ uvicorn 'polisyos.runtime.http.app:create_runtime_api_app' --factory --reload
 | `POLISYOS_LLM_GATEWAY_PROVIDER`               | Идентификатор провайдера LLM gateway                                           |
 | `POLISYOS_CONTROL_MAX_WORKERS`                | Размер пула воркеров `TaskRunner`                                              |
 
+`POLISYOS_EXECUTION_PROFILE` задаёт execution posture. В исследованном resolver отсутствие/пустое значение даёт `dev`; `POLISYOS_ENV=production` само по себе не выбирает `production`. Задавайте execution profile явно и проверяйте effective bootstrap policy. Выбор `external` требует фактически запущенного и связанного worker runner. Исторический bootstrap выше не доказывает production readiness. Для нового развёртывания следуйте [проекту commissioning](../research/universal-policy-design/external-foundations/acquisition/06-operational-continuity.md#4-реалистичный-путь-первого-развёртывания); его будущие проверки ещё не исполнены.
+
 ### Переменные окружения для security, auth, tenancy, OPA и attestation
 
 | Variable                                    | Назначение                            |

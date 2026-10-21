@@ -1,0 +1,183 @@
+{
+  "format": "editorial-research-receipt-v9",
+  "date": "2026-10-21",
+  "status": "final_documentary_revision_runtime_unrun",
+  "input_head": "f4120b0048c124b8fd46d84ef97efe044d152703",
+  "read_only_code_snapshot": "635413bcd1bd1d7e7b829d9123765e28e6bf23d6",
+  "topology_snapshot": "33c8e8d7b2a425cb637ee64b734b42269071d7d7",
+  "scope": "Deep adversarial review of acquisition, custody, storage/reuse, semantic learning, human evidence, physical deployment and operating continuity. Final research documentation, not a deployed capability or ratified SDD.",
+  "delegation": "Nine direct reviewers; four of them performed bounded delta reviews. No children; root sole tracked writer.",
+  "denominator": {
+    "complete_arrays": {
+      "families": 26,
+      "grounds": 103,
+      "sources": 197
+    },
+    "family_route_rows": 26,
+    "conditional_scenarios": 19,
+    "changed_markdown_files": 12,
+    "research_agents": 9,
+    "delta_reviews": 4
+  },
+  "denominator_scope": "Complete families/grounds/sources arrays unchanged; full EF table and AP table. AP rows are conditional future scenario groups, not executed test cases or product coverage. Finding groups are not independent defect counts.",
+  "initial_reviews": [
+    {
+      "agent": "ef9_acquisition_trust",
+      "path": "policy-engine/_build/external-foundations-final-redteam-20261021/acquisition-trust.md",
+      "bytes": 12256,
+      "sha256": "f5b6e4a82d8baf89851c4ca5f417ba2ed580a6c9dbaa9421d8e1a9bd6d52093e"
+    },
+    {
+      "agent": "ef9_semantic_learning",
+      "path": "policy-engine/_build/external-foundations-final-redteam-20261021/semantic-learning.md",
+      "bytes": 9552,
+      "sha256": "b577451b768b65b96445c4b29bffbcf9e0bfc6ccf42619d52663c81f83ac2d1f"
+    },
+    {
+      "agent": "ef9_privacy_rights",
+      "path": "policy-engine/_build/external-foundations-final-redteam-20261021/privacy-rights.md",
+      "bytes": 8075,
+      "sha256": "0fcc7d819538aa233d876a2705bd46332fbfd91732d9c55601732a2da78a7a3c"
+    },
+    {
+      "agent": "ef9_durability",
+      "path": "policy-engine/_build/external-foundations-final-redteam-20261021/durability.md",
+      "bytes": 11195,
+      "sha256": "90eb6e6a4b6ca195792e929def9b1af612bc37d47b645745d25558328e714c88"
+    },
+    {
+      "agent": "ef9_deployment",
+      "path": "policy-engine/_build/external-foundations-final-redteam-20261021/deployment.md",
+      "bytes": 11231,
+      "sha256": "611ff0acbf79e2163915daa904af2f1880ac51a1be6e162a7d2c674b26caa8f9"
+    },
+    {
+      "agent": "ef9_provider_lifecycle",
+      "path": "policy-engine/_build/external-foundations-final-redteam-20261021/provider-lifecycle.md",
+      "bytes": 10339,
+      "sha256": "35e0199dc46484393ab740bbb3da3f48756e4aa370738107af7c9ae06a909e5c"
+    },
+    {
+      "agent": "ef9_resource_interop",
+      "path": "policy-engine/_build/external-foundations-final-redteam-20261021/resource-interop.md",
+      "bytes": 9176,
+      "sha256": "5c9dbef89f570ee3804ed25f5c9ab2bbdec64ace8a29ba2d8e76116bf4afce5f"
+    },
+    {
+      "agent": "ef9_skeptic",
+      "path": "policy-engine/_build/external-foundations-final-redteam-20261021/skeptic.md",
+      "bytes": 10551,
+      "sha256": "4964e496087c6d6304f31fb7e6937d9166b64be80b48d15b66a4b2002d749e9b"
+    },
+    {
+      "agent": "ef9_human_evidence",
+      "path": "policy-engine/_build/external-foundations-final-redteam-20261021/human-evidence.md",
+      "bytes": 10602,
+      "sha256": "2b0f963a99f67b10c57443a173f9850287e980e3147bd451e95873a977df0cb0"
+    }
+  ],
+  "delta_reviews": [
+    {
+      "agent": "ef9_acquisition_trust",
+      "path": "policy-engine/_build/external-foundations-final-redteam-20261021/trust-delta.md",
+      "bytes": 7649,
+      "sha256": "5f917a957a70bccbb55157a39e75401fe1156c52bf888231f547f1f12f49dcd8"
+    },
+    {
+      "agent": "ef9_semantic_learning",
+      "path": "policy-engine/_build/external-foundations-final-redteam-20261021/semantic-delta.md",
+      "bytes": 4011,
+      "sha256": "9c9732fc155113920041279a5998a793774e830ae8d5a3f1777c5a2190fc4d67"
+    },
+    {
+      "agent": "ef9_deployment",
+      "path": "policy-engine/_build/external-foundations-final-redteam-20261021/deployment-delta.md",
+      "bytes": 4771,
+      "sha256": "69878cfa03b2cf5fe874c60358c03dcc71c3426c393ea8c583ea153683221f9e"
+    },
+    {
+      "agent": "ef9_skeptic",
+      "path": "policy-engine/_build/external-foundations-final-redteam-20261021/skeptic-delta.md",
+      "bytes": 4046,
+      "sha256": "9c2aefa92f44adf274ecfb35600ddd117463e530a59f586a01ea036c0569d5d3"
+    }
+  ],
+  "root_review": {
+    "path": "policy-engine/_build/external-foundations-final-redteam-20261021/root-final-review.md",
+    "bytes": 5659,
+    "sha256": "6eb691bd307493c728693333663e7d1d9e9d4c658944e40c7c1dcc0688b242c0"
+  },
+  "tracked_dispositions": "acquisition/05-implementation-and-review.md#7-итоговый-редтим-r9",
+  "final_delta_disposition": "Root incorporated per-request proxy evidence, continuation permission re-resolution, ETag scope, existing operator trust path, effective bootstrap projection, signed shutdown cutoff, duty activation before first currentness signature, permission-bounded human receipts, separate adaptive/feedback probes and explicit exploratory/replay positives. No runtime verdict.",
+  "checks": {
+    "outcome": "PASS",
+    "scope": "complete changed-doc set, structure, relative file links and heading anchors, unchanged complete atlas arrays/SDD, named source objects; no product tests or external availability census",
+    "local_file_links": 125,
+    "heading_anchors": 10,
+    "named_source_objects": 8,
+    "atlas_arrays_unchanged": true,
+    "adopted_SDD_and_pending_C03_unchanged": true,
+    "checker": {
+      "path": "policy-engine/_build/external-foundations-final-redteam-20261021/check-documents.py",
+      "bytes": 4778,
+      "sha256": "a33ed043c8a67cf1d9538237d4f2d1924028d594d72e0b5732f5760252ca1212"
+    },
+    "complete_output": {
+      "path": "policy-engine/_build/external-foundations-final-redteam-20261021/documentation-check.json",
+      "bytes": 5027,
+      "sha256": "9d80661e2fd441002e515c6e52a3302b00c938542a9b72ec33bf3d5bc2b6d9ba"
+    },
+    "receipt_self_hash_excluded": true
+  },
+  "history": "research-receipt-r8.json",
+  "publication_checks": {
+    "precommit": "Normal local docs-only hook invocation; full result retained in ignored publication log; no product result inferred.",
+    "prepush_typecheck": "Excluded specifically for docs-only publication under the user no-heavy-process constraint; compiler UNRUN, hook config unchanged.",
+    "readback": "After commit and publication verify attached branch, parent, exact HEAD/tree and changed-file bytes. Full deciding output kept in the same ignored research directory."
+  },
+  "remaining_limits": [
+    "All product behavioral/removal/resource/backend/restore/authentic-input and deployment probes UNRUN.",
+    "Source C is a static observation; implementation must reconcile the moving E02 candidate and complete actual owner/caller/companion wiring.",
+    "Trust bootstrap, real institutional acts/grants, source snapshot/coverage, quota/pricing and attribution facts require actual inputs; local declarations do not manufacture them.",
+    "No ready server/HA/cloud/airgap deployment, global privacy/spend guarantee, perpetual replay, universal erasure or guaranteed externally observed currentness is claimed.",
+    "Proposed chains use exact capability prerequisites; absent/unallocated design is not merely verification_missing."
+  ],
+  "source_review_corrections": [
+    "OHA PDF adopted2018 despite2025 URL; source fact checked directly.",
+    "aiohttp advisory concerns <=3.13.3 and fixed3.13.4 for named headers; custom-header and per-hop binding remain separate. No current deployment vulnerability asserted.",
+    "One discarded file-name enumeration included ignored paths; no payload scan or results based on it."
+  ],
+  "resource_scope": {
+    "product_tests_builds_typechecks_imports_installs": false,
+    "production_payload_or_dataset_downloads": false,
+    "infrastructure_created": false,
+    "cleanup": false,
+    "scratch_bytes_at_receipt": 171469,
+    "free_gib_last_light_check": 4.49
+  },
+  "G_code_acceptance": false,
+  "closure_ids": [],
+  "pattern_pass": [
+    "P01",
+    "P02",
+    "P05",
+    "P07",
+    "P08",
+    "P09",
+    "P10",
+    "P13",
+    "P14",
+    "P15",
+    "P25",
+    "P26",
+    "P27",
+    "P29",
+    "P31",
+    "P32",
+    "P35",
+    "P37",
+    "P38",
+    "P40",
+    "P41"
+  ]
+}

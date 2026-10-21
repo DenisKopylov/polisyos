@@ -1,6 +1,6 @@
 # Получение оснований, повторное использование и развёртывание
 
-Исследовательский проект, 2026-10-21. Продолжение [жизненного цикла](11-foundation-lifecycle.md), не production runbook, принятый ADR или подтверждение deploy readiness. Код, инфраструктура и system-design-decisions этой работой не меняются. Runtime probes — UNRUN.
+Итоговая исследовательская редакция R9, 2026-10-21. Продолжение [жизненного цикла](11-foundation-lifecycle.md), не production runbook, принятый ADR или подтверждение deploy readiness. Код, инфраструктура и system-design-decisions этой работой не меняются. Runtime probes — UNRUN.
 
 **Рекомендуемый путь — постепенно наращиваемая библиотека версий и способов получения поверх существующих owners.** Предварительная подготовка, поиск во время задачи и непрерывное наблюдение за изменениями используют общие capture/verification/use границы. Различаются инициатор, бюджет, срок и требуемая полнота. Данные, полученные во время задачи, обычно стоит сохранять, если это разрешено и полезно; сохраняется точная версия с происхождением, а не бессрочное право использовать её в любом следующем выводе.
 
@@ -11,7 +11,8 @@
 3. [Хранение, продвижение и повторное использование](acquisition/03-storage-and-reuse.md): конкретные зоны/owners, runtime→библиотека, private/shared copies, restricted/query-only sources, retention и migration.
 4. [Развёртывание и доступ](acquisition/04-deployment-and-access.md): локальный, серверный, гибридный и облачный варианты; реальные конфигурационные seams, ограничения backend parity, ресурсы и интерфейсы.
 5. [Реализация и проверка](acquisition/05-implementation-and-review.md): вертикальные поставки, протокол commissioning, adversarial review и оставшиеся решения.
-6. [Исследовательский receipt](research-receipt-r8.json): точный documentary scope и проверки. Source maps предыдущей волны остаются в [карте reuse](lifecycle/01-reuse-map.md).
+6. [Эксплуатация, доверие и передача custody](acquisition/06-operational-continuity.md): trust bootstrap, ресурсы внешних поставщиков, смена хранителя, commissioning и прекращение currentness promises.
+7. [Текущий receipt](research-receipt-r9.json) и [предыдущий](research-receipt-r8.json): documentary scope и проверки. Source maps остаются в [карте reuse](lifecycle/01-reuse-map.md).
 
 ## Принятые для этого проекта рекомендации
 
@@ -24,6 +25,14 @@
 | Remote compute — отдельный проверяемый маршрут | При запрете переноса raw делать разрешённую работу у custodian. Возвращённый aggregate/receipt тоже требует права, source binding и проверки; credentials не передаются LLM. |
 | Фактическая deployment capability важнее имени backend | FS/S3/GCS/queue/Kubernetes не взаимозаменяемы по custody, locking, bounded reads и restore. Нужен conformance evidence для выбранной комбинации. |
 | Расширение в основном данными и profiles | Новый source поддержанного класса — configuration; новый transport/parser — локальный adapter; новая causal/legal/measurement семантика — reviewed owner extension, а не prompt. |
+
+## Как читать итоговую версию
+
+Сначала этот индекс и [очередь A0–A7](acquisition/05-implementation-and-review.md), затем документы нужного маршрута. [Lifecycle/05](lifecycle/05-implementation-protocols.md) — canonical переходы и consistency; [lifecycle/09](lifecycle/09-resource-execution-design.md) — resource execution; acquisition/01–04 — конкретизация каналов, содержания, размещения и доступа; acquisition/06 — операционные handoffs. Карта кода закрепляет статический срез, а receipts — историю исследований. Они не переопределяют текущий проект и не доказывают соответствие движущегося E02 candidate.
+
+**Статус назначается точной цепочке, а не всему документу.** Проект без admitted chain и назначенного owner — `absent/unallocated`; существующие, но не соединённые endpoints — `bridge_missing`; `verification_missing` применим только после wiring, `semantic_test_missing` — при прошедших structural checks и отсутствующей semantic проверке. Документированные contracts не всегда `contract_only`: нужен настоящий contract artifact. `UNRUN` характеризует исполнение проверки, а не наличие реализации. Не понижать реально существующий компонент до absent и не повышать prose до implementation. Точные локальные findings @C остаются ограниченными прочитанным путём.
+
+R9 закрывает пробелы **проекта** по concurrent cursor commit, HTTP representation/redirect, trust succession, cumulative disclosure, adaptive inference, человеческим свидетельствам и передаче custody. Это не закрытие product findings. Новые семейства не нужны: уточнены связи и жизненные циклы имеющихся оснований. Free-grow означает configuration/данные для поддержанного класса и локальное owner extension для новой семантики, без центрального switch по семействам.
 
 ## Связь с целью PolicyOS
 

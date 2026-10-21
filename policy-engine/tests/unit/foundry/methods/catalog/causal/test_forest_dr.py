@@ -208,7 +208,7 @@ def test_forest_dr_v11_thread_limit_covers_the_complete_producer(monkeypatch, fe
     state, events, records = _install_forest_dr_pipeline_fakes(monkeypatch)
 
     result = ForestDRLearnerEstimatorV11.pure_step(
-        _make_hte_data(n=8), {"feature_importance_method": feature_method}
+        _make_hte_data(n=40), {"feature_importance_method": feature_method}
     )
 
     assert records["estimator_params"]["n_jobs"] == 1
@@ -216,7 +216,7 @@ def test_forest_dr_v11_thread_limit_covers_the_complete_producer(monkeypatch, fe
     assert result["report"].method_params["n_jobs"] == 1
     if feature_method == "shap":
         assert result["hte_result"].feature_importances[0].method == "shap"
-        assert records["shap_args"] == (["x0", "x1", "x2", "x3"], 8)
+        assert records["shap_args"] == (["x0", "x1", "x2", "x3"], 40)
     stages = [name for name, _active in events if name not in {"limit_enter", "limit_exit"}]
     assert stages == [
         "prepare_input",
@@ -243,7 +243,7 @@ def test_forest_dr_v11_thread_limit_unwinds_on_producer_failure(monkeypatch, fai
     state, events, _records = _install_forest_dr_pipeline_fakes(monkeypatch, fail_at=fail_at)
 
     with pytest.raises(RuntimeError, match="failure"):
-        ForestDRLearnerEstimatorV11.pure_step(_make_hte_data(n=8), {})
+        ForestDRLearnerEstimatorV11.pure_step(_make_hte_data(n=40), {})
 
     assert events[-1] == ("limit_exit", True)
     assert state["active"] is False
@@ -252,7 +252,7 @@ def test_forest_dr_v11_thread_limit_unwinds_on_producer_failure(monkeypatch, fai
 def test_forest_dr_v10_preserves_unbounded_legacy_execution_contract(monkeypatch):
     state, events, records = _install_forest_dr_pipeline_fakes(monkeypatch)
 
-    result = ForestDRLearnerEstimator.pure_step(_make_hte_data(n=8), {})
+    result = ForestDRLearnerEstimator.pure_step(_make_hte_data(n=40), {})
 
     assert state["active"] is False
     assert all(name not in {"limit_enter", "limit_exit"} for name, _active in events)

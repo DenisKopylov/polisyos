@@ -46237,5 +46237,97 @@
     "source_profile_freeze": false,
     "G_acceptance": false,
     "closure_ids": []
+  },
+  "root-econml-r5-reviewed-source-adoption-20261021-r1": {
+    "slice_base": "566d194402dec721d162cff83b4bf2d16442d52e",
+    "canonical_writer": "root only; reviewed present patch, retired exact originals through native Trash",
+    "mechanism_and_mandatory_companion_paths": {
+      "policy-engine/src/polisyos/foundry/methods/catalog/causal/_econml_adapter.py": {
+        "mode": "100644",
+        "operation": "update",
+        "postimage_bytes": 22622,
+        "postimage_sha256": "ac490befc277df3a623e5406677bd389b32ab2646c7f84e01f76c176e7feb9cc",
+        "preimage_bytes": 22607,
+        "preimage_sha256": "43e091f18ddf99a0581d74996e40f7a5fabae76584cc66b36813c1c87cff3ea9",
+        "postimage_path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/root-econml-r5-reviewed-postimages-reconstruction-20261021-r1/policy-engine/src/polisyos/foundry/methods/catalog/causal/_econml_adapter.py"
+      },
+      "policy-engine/tests/unit/foundry/methods/catalog/causal/test_econml_adapter.py": {
+        "mode": "100644",
+        "operation": "update",
+        "postimage_bytes": 26938,
+        "postimage_sha256": "66e3b2c8bd839636822c34962fd72e69cb44ade09c4fa2af7b4b9be88d8b917d",
+        "preimage_bytes": 26660,
+        "preimage_sha256": "a6aa9c43e4d04bf770a744772ee659c49f67545341ae19c0b329f4d2da0702b7",
+        "postimage_path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/root-econml-r5-reviewed-postimages-reconstruction-20261021-r1/policy-engine/tests/unit/foundry/methods/catalog/causal/test_econml_adapter.py"
+      },
+      "policy-engine/tests/unit/foundry/methods/catalog/causal/test_forest_dr.py": {
+        "mode": "100644",
+        "operation": "update",
+        "postimage_bytes": 9697,
+        "postimage_sha256": "5a83bce4d6f8e6e8719b3be6b02fe5f62e9efe222c5c73bac94b615a278dba2c",
+        "preimage_bytes": 9693,
+        "preimage_sha256": "26c0d4815f7f341ac825888615f164281b8353176120e02aaef9adb4cc789bc5",
+        "postimage_path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/root-econml-r5-reviewed-postimages-reconstruction-20261021-r1/policy-engine/tests/unit/foundry/methods/catalog/causal/test_forest_dr.py"
+      }
+    },
+    "application": {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/root-econml-r5-reviewed-source-adoption-20261021-r1/source-application.json",
+      "sha256": "3df01e943ad7ae8ddb7448c9e6d1bc79ec6161617dc9c1443a7149c92846d8a6"
+    },
+    "native_trash_receipt": {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/root-econml-r5-reviewed-source-adoption-20261021-r1/native-trash-receipt.json",
+      "sha256": "057f81b6e161c37eaec854c352b59148420f1f1711163b9005834b723e193dcf"
+    },
+    "reviewed_inputs": [
+      {
+        "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/root-econml-r5-ci-fallback-dto-floor-20261021-r1/manifest-r5.json",
+        "sha256": "9c552bb5b74758b2d9eae6ce0caaa731699fade0adc206c2db83ead8e6b3734c"
+      },
+      {
+        "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/root-econml-r5-ci-fallback-dto-floor-20261021-r1/proposed-unapplied-r5.patch",
+        "sha256": "d51932d7262f238c618ea98ead8a08fbbff2c4739c4317e9022f8da4f3cda628"
+      },
+      {
+        "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/root-econml-r5-ci-fallback-dto-floor-20261021-r1/static-verification-r5.json",
+        "sha256": "46715b2e6fe7e99d0d51750d158bfcfb809fbca672eb70cb0de457bbcfdb79cc"
+      },
+      {
+        "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/independent-econml-r5-delta-review-20261021-r1/independent-review.json",
+        "sha256": "1b6c15260cbda5104db64012e9f44d3ee2bc448c0b309547767adf9f396ef385"
+      },
+      {
+        "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/independent-forest-dr-v11-cold-witness-review-20261021-r5/review.json",
+        "sha256": "97216bd946652fb3aa1cbb37272310725238c7d7491287be0dfc8d94a61fe008"
+      },
+      {
+        "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/root-q0-reviewed-metadata-corrigendum-adoption-20261021-r2/implementation-readback.json",
+        "sha256": "b5c6a421282cfce8167c4c15624e00cbf95b640de0f4b2e96bd065116f57dc30"
+      }
+    ],
+    "owned_applied_provenance": null,
+    "preserved_other_owned_rows": {},
+    "preserved_other_owned_provenance": null,
+    "preserved_other_owned_tracked_paths": [],
+    "preserved_other_owned_untracked_paths": [],
+    "preserved_other_owned_unchanged_before_after": true,
+    "P40": {
+      "bucket": "Same whole interval-availability/fallback selection quantity: remove its accidental dependency on absence of mean SE. Five lifecycle failures are one undersized fake-fixture class, corrected to the protocol floor.",
+      "action": "Repair the CI/SE availability cross-product with the existing unqualified fallback, and align all affected producer lifecycle fixtures with the 40-row typed floor.",
+      "falsifier": "Native CI unavailable with valid native mean SE produces the existing fixed-1.96 fallback; malformed present values still refuse; all original lifecycle/threadscope assertions remain."
+    },
+    "bounded_proof": "Independent static delta GO with prior actual failure and cold witness retained; new source execution is UNRUN.",
+    "limitations": [
+      "Static-only candidate; no test/import/fit/whole-suite receipt, global source freeze, G acceptance, or formal finding closure.",
+      "The separate same-source cold ForestDR witness does not establish this complete two-module cohort.",
+      "CI fallback and variance guard remain unqualified legacy behavior.",
+      "README/release bytes already describe the retained behavior; no scientific interval basis, alpha law, ABI, DTO floor, backend, environment or lock change.",
+      "Author manifest root_advance journal_sha256 accidentally concatenates row count135 with digest; this malformed field is not admitted. Correct mutable journal preimage is the separately recomputed plan field 38c94e603986d4e3c009ee0ac05460533f1c25c10911921057ce4762397e4105.",
+      "Separate full18 SIGBUS and isolated policy-tree control are unresolved native/composition evidence; this patch does not qualify or fix that class."
+    ],
+    "runtime": "UNRUN on adopted source",
+    "next_check": "Run both whole changed test modules and rebind/run the same cold ForestDR fixture at the new exact source/profile frame; reconcile all phases/origins/outputs/resources separately.",
+    "source_profile_freeze": false,
+    "G_acceptance": false,
+    "closure_ids": []
   }
 }

@@ -97,7 +97,7 @@ def test_extract_cate_from_estimator_uses_wald_fallback_for_ate_ci() -> None:
     assert np.isfinite(extracted["ate_ci_upper"])
     assert extracted["ate_ci_lower"] < extracted["ate"] < extracted["ate_ci_upper"]
     assert any("normal-Wald fallback" in warning for warning in extracted["warnings"])
-    assert extracted["cate_std_values"] == []
+    assert extracted["cate_std_values"] == pytest.approx([0.1] * 50)
     assert extracted["cate_ci_lower_values"] == []
     assert extracted["cate_ci_upper_values"] == []
 
@@ -393,7 +393,11 @@ def test_optional_ate_summary_member_failures_are_scoped_and_warned(
     if member_name == "conf_int_mean":
         assert extracted["ate_ci_lower"] == 0.24
         assert extracted["ate_ci_upper"] == 0.76
-    elif member_name != "conf_int":
+    elif member_name == "conf_int":
+        assert extracted["ate_ci_lower"] == pytest.approx(0.5 - 1.96 * 0.08)
+        assert extracted["ate_ci_upper"] == pytest.approx(0.5 + 1.96 * 0.08)
+        assert any("normal-Wald fallback" in warning for warning in extracted["warnings"])
+    else:
         assert extracted["ate_ci_lower"] == 0.25
         assert extracted["ate_ci_upper"] == 0.75
     if member_name == "pvalue":

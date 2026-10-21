@@ -529,24 +529,25 @@ def extract_cate_from_estimator(
         if native_ate_inference is not None
         else None
     )
-    if ate_se is None:
-        guarded_se = _guarded_ate_standard_error(cate, cate_std)
-        if guarded_se is None and np.isfinite(cate).sum() > 1:
-            guarded_se = robust_standard_error(cate)
-        if guarded_se is not None:
-            ate_se = guarded_se
-        if not (np.isfinite(ate_ci_lower) and np.isfinite(ate_ci_upper)):
-            if ate_se is not None:
-                # Retain the legacy fallback multiplier pending a separate basis decision.
-                half_width = _LEGACY_NORMAL_WALD_MULTIPLIER * max(ate_se, 1e-12)
-                ate_ci_lower = float(ate - half_width)
-                ate_ci_upper = float(ate + half_width)
-                warnings.append(
-                    "Native ATE interval unavailable; retained the existing fixed 1.96 "
-                    "normal-Wald fallback, whose inferential basis remains unqualified"
-                )
-            else:
-                warnings.append("Estimator does not provide usable ate_inference; ATE CI omitted")
+    guarded_se = _guarded_ate_standard_error(cate, cate_std)
+    if guarded_se is None and np.isfinite(cate).sum() > 1:
+        guarded_se = robust_standard_error(cate)
+    if ate_se is None and guarded_se is not None:
+        ate_se = guarded_se
+
+    # CI availability is independent of whether the native summary exposed a mean SE.
+    if not (np.isfinite(ate_ci_lower) and np.isfinite(ate_ci_upper)):
+        if ate_se is not None:
+            # Retain the legacy fallback multiplier pending a separate basis decision.
+            half_width = _LEGACY_NORMAL_WALD_MULTIPLIER * max(ate_se, 1e-12)
+            ate_ci_lower = float(ate - half_width)
+            ate_ci_upper = float(ate + half_width)
+            warnings.append(
+                "Native ATE interval unavailable; retained the existing fixed 1.96 "
+                "normal-Wald fallback, whose inferential basis remains unqualified"
+            )
+        else:
+            warnings.append("Estimator does not provide usable ate_inference; ATE CI omitted")
 
     guarded_se = _guarded_ate_standard_error(cate, cate_std)
     if guarded_se is not None and np.isfinite(ate_ci_lower) and np.isfinite(ate_ci_upper):

@@ -29,7 +29,6 @@ from polisyos.core.artifacts import artifact_manifest_profile_sha256
 from polisyos.core.artifacts._integrity_ops import (
     ArtifactBoundedManifestRead,
     ArtifactBoundedManifestReadError,
-    ArtifactMemberReadBoundsError,
     ArtifactMemberReadIntegrityError,
     ArtifactReadBoundsError,
     ArtifactStoreReadUsage,
@@ -213,6 +212,38 @@ def _refusal_code(error: Exception, fallback: str) -> str:
     if type(error) is FileNotFoundError:
         return "selected_artifact_not_found"
     return fallback
+
+
+@dataclass(frozen=True, slots=True)
+class _CoreOwnerRefusalProjection:
+    """Map one typed CAS failure axis into the public Core JSON refusal."""
+
+    code: str
+    limit_name: str | None = None
+    observed_manifest_bytes: int | None = None
+    manifest_size_from_owner: bool = False
+
+
+def _project_core_owner_refusal(
+    error: Exception,
+    fallback: str,
+) -> _CoreOwnerRefusalProjection:
+    """Project the owner's typed member axis without confusing transfer counts."""
+    if isinstance(error, ArtifactReadBoundsError):
+        member = _exact_owner_value(error, "member")
+        if member == "manifest":
+            return _CoreOwnerRefusalProjection(
+                code="canon_profile_bounded_manifest_bytes_exceeded",
+                limit_name="max_manifest_bytes",
+                observed_manifest_bytes=_exact_owner_count(error, "observed_bytes"),
+                manifest_size_from_owner=True,
+            )
+        if member == "blob":
+            return _CoreOwnerRefusalProjection(
+                code="canon_profile_bounded_bytes_exceeded",
+                limit_name="max_bytes",
+            )
+    return _CoreOwnerRefusalProjection(code=_refusal_code(error, fallback))
 
 
 def _refusal_metadata(error: Exception) -> dict[str, str | None]:
@@ -453,6 +484,18 @@ def _enforce_core_json_read_bounds(
             )
 
 
+def _core_json_next_payload_chunk_size(
+    limits: CoreJsonReadLimits,
+    *,
+    observed_payload_bytes: int,
+) -> int | None:
+    """Return the next bounded read size, or ``None`` once the byte budget ends."""
+    remaining = limits.max_bytes - observed_payload_bytes
+    if remaining <= 0:
+        return None
+    return min(64 * 1024, remaining)
+
+
 def artifact_ref_for_manifest(manifest: ArtifactManifest) -> ArtifactRef:
     """Return the exact typed CAS view selected by ``manifest``."""
     return ArtifactRef(
@@ -657,24 +700,19 @@ def _read_core_manifest_profile_bounded(
             usage.observed_manifest_verification_bytes if usage is not None else None
         )
         payload_bytes = usage.observed_payload_bytes if usage is not None else None
-        declared_size = (
-            original.observed_bytes
-            if type(original) is ArtifactReadBoundsError and type(original.observed_bytes) is int
-            else None
+        projection = _project_core_owner_refusal(
+            original,
+            "canon_profile_bounded_manifest_unavailable",
         )
         raise CoreJsonReadBoundsRefusalError(
-            "canon_profile_bounded_manifest_bytes_exceeded"
-            if type(original) is ArtifactReadBoundsError
-            else _refusal_code(original, "canon_profile_bounded_manifest_unavailable"),
+            projection.code,
             limits=limits,
             max_manifest_bytes=max_manifest_bytes,
-            observed_manifest_bytes=declared_size,
+            observed_manifest_bytes=projection.observed_manifest_bytes,
             observed_bytes=payload_bytes,
             observed_depth=0,
             observed_elements=0,
-            limit_name=(
-                "max_manifest_bytes" if type(original) is ArtifactReadBoundsError else None
-            ),
+            limit_name=projection.limit_name,
             observed_manifest_selection_bytes=selection_bytes,
             observed_manifest_verification_bytes=verification_bytes,
             payload_integrity_verified=(
@@ -872,24 +910,19 @@ def _read_core_input_manifest_profile_bounded(
             usage.observed_manifest_verification_bytes if usage is not None else None
         )
         payload_bytes = usage.observed_payload_bytes if usage is not None else None
-        declared_size = (
-            original.observed_bytes
-            if type(original) is ArtifactReadBoundsError and type(original.observed_bytes) is int
-            else None
+        projection = _project_core_owner_refusal(
+            original,
+            "canon_profile_bounded_manifest_unavailable",
         )
         raise CoreJsonReadBoundsRefusalError(
-            "canon_profile_bounded_manifest_bytes_exceeded"
-            if type(original) is ArtifactReadBoundsError
-            else _refusal_code(original, "canon_profile_bounded_manifest_unavailable"),
+            projection.code,
             limits=None,
             max_manifest_bytes=max_manifest_bytes,
-            observed_manifest_bytes=declared_size,
+            observed_manifest_bytes=projection.observed_manifest_bytes,
             observed_bytes=payload_bytes,
             observed_depth=0,
             observed_elements=0,
-            limit_name=(
-                "max_manifest_bytes" if type(original) is ArtifactReadBoundsError else None
-            ),
+            limit_name=projection.limit_name,
             observed_manifest_selection_bytes=selection_bytes,
             observed_manifest_verification_bytes=verification_bytes,
             payload_integrity_verified=(
@@ -1366,8 +1399,11 @@ def read_core_json_artifact_bounded(
         scanner = _JsonStructureBoundsScanner()
         with member_context as source:
             while True:
-                remaining = limits.max_bytes - observed_payload_bytes
-                if remaining <= 0:
+                chunk_size = _core_json_next_payload_chunk_size(
+                    limits,
+                    observed_payload_bytes=observed_payload_bytes,
+                )
+                if chunk_size is None:
                     if observed_payload_bytes < source.member_size_bytes:
                         bounds_error = CoreJsonReadBoundsRefusalError(
                             "canon_profile_bounded_bytes_exceeded",
@@ -1392,7 +1428,7 @@ def read_core_json_artifact_bounded(
                         ) from bounds_error
                     break
                 try:
-                    chunk = source.read(min(64 * 1024, remaining))
+                    chunk = source.read(chunk_size)
                 except (ArtifactReadBoundsError, ArtifactMemberReadIntegrityError):
                     raise
                 except Exception as read_exc:
@@ -1492,32 +1528,30 @@ def read_core_json_artifact_bounded(
             and exc.original_exception is not None
             else exc
         )
-        if isinstance(exc, _CoreJsonBoundedReadAbortError):
-            refusal_code = exc.code
-        elif isinstance(original, ArtifactMemberReadBoundsError):
-            refusal_code = "canon_profile_bounded_bytes_exceeded"
-        else:
-            refusal_code = _refusal_code(
-                original,
-                "canon_profile_bounded_payload_validation_refused"
-                if payload_verified
-                else "canon_profile_bounded_stream_unavailable",
-            )
-        if isinstance(original, ArtifactMemberReadBoundsError):
-            limit_name = "max_bytes"
-        elif type(original) is ArtifactReadBoundsError:
-            limit_name = "max_manifest_bytes"
-        else:
-            limit_name = {
-                "canon_profile_bounded_bytes_exceeded": "max_bytes",
-                "canon_profile_bounded_depth_exceeded": "max_depth",
-                "canon_profile_bounded_elements_exceeded": "max_elements",
-            }.get(refusal_code)
+        projection = _project_core_owner_refusal(
+            original,
+            "canon_profile_bounded_payload_validation_refused"
+            if payload_verified
+            else "canon_profile_bounded_stream_unavailable",
+        )
+        refusal_code = (
+            exc.code if isinstance(exc, _CoreJsonBoundedReadAbortError) else projection.code
+        )
+        limit_name = projection.limit_name or {
+            "canon_profile_bounded_bytes_exceeded": "max_bytes",
+            "canon_profile_bounded_depth_exceeded": "max_depth",
+            "canon_profile_bounded_elements_exceeded": "max_elements",
+        }.get(refusal_code)
+        observed_manifest_bytes = (
+            projection.observed_manifest_bytes
+            if projection.manifest_size_from_owner
+            else manifest_read.observed_manifest_bytes
+        )
         raise CoreJsonReadBoundsRefusalError(
             refusal_code,
             limits=limits,
             max_manifest_bytes=limits.max_manifest_bytes,
-            observed_manifest_bytes=manifest_read.observed_manifest_bytes,
+            observed_manifest_bytes=observed_manifest_bytes,
             observed_manifest_selection_bytes=manifest_read.observed_source_bytes,
             observed_manifest_verification_bytes=verification_bytes,
             observed_bytes=payload_bytes,

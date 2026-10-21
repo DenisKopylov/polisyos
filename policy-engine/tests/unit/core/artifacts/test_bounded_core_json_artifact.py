@@ -17,6 +17,7 @@ from polisyos.core.artifacts import (
     ArtifactGovernanceInfo,
     ArtifactMemberReadBoundsError,
     ArtifactMemberReadIntegrityError,
+    ArtifactReadBoundsError,
     ArtifactReadOnlyUnavailableError,
     ArtifactRef,
     CanonInfo,
@@ -778,8 +779,22 @@ def test_bounded_input_ref_manifest_budget_counts_actual_selected_bytes(tmp_path
             edge,
             max_manifest_bytes=len(raw_manifest),
         )
-    assert error.value.observed_manifest_bytes == len(oversized)
-    assert error.value.limit_name == "max_manifest_bytes"
+    refusal = error.value
+    assert refusal.code == "canon_profile_bounded_manifest_bytes_exceeded"
+    assert refusal.observed_manifest_bytes == len(oversized)
+    assert refusal.limit_name == "max_manifest_bytes"
+    assert refusal.limit_value == len(raw_manifest)
+    cause = refusal.__cause__
+    assert isinstance(cause, ArtifactReadBoundsError)
+    assert type(cause) is ArtifactReadBoundsError
+    assert cause.member == "manifest"
+    assert cause.observed_bytes == len(oversized)
+    assert cause.max_bytes == len(raw_manifest)
+    assert cause.bytes_read == 0
+    assert refusal.observed_manifest_selection_bytes == 0
+    assert refusal.observed_manifest_verification_bytes == 0
+    assert refusal.observed_payload_bytes == 0
+    assert refusal.observed_source_bytes == 0
 
     original_read = store._read_cas_file_no_follow
     unbounded_materializations: list[int] = []
@@ -947,6 +962,11 @@ def test_each_selected_bound_refuses_before_decode_and_removal_reopens_value(
             )
 
         monkeypatch.setattr(store, "open_member_bounded", remove_owner_byte_limit)
+        monkeypatch.setattr(
+            owner,
+            "_core_json_next_payload_chunk_size",
+            lambda *_args, **_kwargs: 64 * 1024,
+        )
     result = read_core_json_artifact_bounded(store, ref, limits=limits)
     assert result.value == value
     assert decode_calls >= 1
@@ -1723,10 +1743,19 @@ def test_bounded_reader_rejects_actual_payload_stream_over_selected_byte_limit(
             limits=limits,
         )
 
-    assert error.value.code == "canon_profile_bounded_bytes_exceeded"
-    assert error.value.observed_bytes == 0
-    assert error.value.observed_payload_size == len(payload)
-    assert error.value.payload_integrity_verified is False
+    refusal = error.value
+    assert refusal.code == "canon_profile_bounded_bytes_exceeded"
+    assert refusal.limit_name == "max_bytes"
+    assert refusal.limit_value == 64
+    cause = refusal.__cause__
+    assert isinstance(cause, ArtifactMemberReadBoundsError)
+    assert type(cause) is ArtifactMemberReadBoundsError
+    assert cause.member == "blob"
+    assert cause.observed_bytes == len(payload)
+    assert cause.bytes_read == 0
+    assert refusal.observed_bytes == 0
+    assert refusal.observed_payload_size == len(payload)
+    assert refusal.payload_integrity_verified is False
     assert error.value.observed_manifest_verification_bytes > 0
     assert error.value.observed_source_bytes == (
         error.value.observed_manifest_selection_bytes
@@ -1800,10 +1829,22 @@ def test_manifest_byte_limit_refuses_before_parse_and_removal_exposes_allocation
             max_manifest_bytes=max_manifest_bytes,
         )
 
-    assert error.value.code == "canon_profile_bounded_manifest_bytes_exceeded"
-    assert error.value.limit_name == "max_manifest_bytes"
-    assert error.value.limit_value == max_manifest_bytes
-    assert error.value.observed_manifest_bytes == len(oversized_manifest)
+    refusal = error.value
+    assert refusal.code == "canon_profile_bounded_manifest_bytes_exceeded"
+    assert refusal.limit_name == "max_manifest_bytes"
+    assert refusal.limit_value == max_manifest_bytes
+    assert refusal.observed_manifest_bytes == len(oversized_manifest)
+    cause = refusal.__cause__
+    assert isinstance(cause, ArtifactReadBoundsError)
+    assert type(cause) is ArtifactReadBoundsError
+    assert cause.member == "manifest"
+    assert cause.observed_bytes == len(oversized_manifest)
+    assert cause.max_bytes == max_manifest_bytes
+    assert cause.bytes_read == 0
+    assert refusal.observed_manifest_selection_bytes == 0
+    assert refusal.observed_manifest_verification_bytes == 0
+    assert refusal.observed_payload_bytes == 0
+    assert refusal.observed_source_bytes == 0
 
     original_read = store._read_cas_file_no_follow
     materialized_oversize_reads: list[tuple[int | None, int]] = []
@@ -1893,16 +1934,34 @@ def test_bounded_blob_open_rejects_manifest_drift_after_prepost_metadata_read(
         )
 
     monkeypatch.setattr(store, "open_member", drift_manifest_before_open)
-    with pytest.raises(ArtifactMemberReadIntegrityError) as error:
+    with pytest.raises(CoreJsonReadBoundsRefusalError) as error:
         read_core_json_artifact_bounded(
             store,
             ref,
             limits=_limits(raw_payload, max_depth=1, max_elements=3),
         )
 
-    assert error.value.code == "cas_member_manifest_changed"
-    assert error.value.observed_manifest_verification_bytes == len(raw_manifest) + 1
-    assert error.value.observed_payload_bytes == 0
+    refusal = error.value
+    assert refusal.code == "cas_member_manifest_changed"
+    assert refusal.original_exception_type == "ArtifactMemberReadIntegrityError"
+    assert refusal.original_exception_code == "cas_member_manifest_changed"
+    cause = refusal.__cause__
+    assert isinstance(cause, ArtifactMemberReadIntegrityError)
+    assert type(cause) is ArtifactMemberReadIntegrityError
+    assert cause.code == "cas_member_manifest_changed"
+    assert cause.observed_manifest_verification_bytes == len(raw_manifest) + 1
+    assert cause.observed_payload_bytes == 0
+    assert cause.payload_integrity_verified is False
+    assert refusal.observed_manifest_selection_bytes == len(raw_manifest)
+    assert refusal.observed_manifest_verification_bytes == len(raw_manifest) + 1
+    assert refusal.observed_payload_bytes == 0
+    assert refusal.observed_payload_size is None
+    assert refusal.observed_source_bytes == 2 * len(raw_manifest) + 1
+    assert refusal.payload_integrity_verified is False
+    assert refusal.failure_stage == "manifest_verification_complete"
+    assert refusal.cleanup_failure_stage is None
+    assert refusal.cleanup_exception_type is None
+    assert refusal.cleanup_exception_code is None
     assert open_attempts == 1
 
 
@@ -1958,12 +2017,27 @@ def test_bounded_reader_counts_manifest_verification_preflight_without_payload_r
     assert refusal.code == "canon_profile_bounded_manifest_bytes_exceeded"
     assert verification_manifest_size == [len(raw_manifest) + max_manifest_bytes + 1]
     assert refusal.observed_manifest_bytes == verification_manifest_size[0]
+    assert refusal.limit_name == "max_manifest_bytes"
+    assert refusal.limit_value == max_manifest_bytes
+    assert refusal.original_exception_type == "ArtifactReadBoundsError"
+    assert refusal.original_exception_code is None
+    cause = refusal.__cause__
+    assert isinstance(cause, ArtifactReadBoundsError)
+    assert type(cause) is ArtifactReadBoundsError
+    assert cause.member == "manifest"
+    assert cause.observed_bytes == verification_manifest_size[0]
+    assert cause.max_bytes == max_manifest_bytes
+    assert cause.bytes_read == 0
     assert refusal.observed_manifest_selection_bytes == len(raw_manifest)
     assert refusal.observed_manifest_verification_bytes == 0
     assert refusal.observed_payload_bytes == 0
     assert refusal.observed_payload_size is None
     assert refusal.payload_integrity_verified is False
     assert refusal.observed_source_bytes == len(raw_manifest)
+    assert refusal.failure_stage == "manifest_verification_preflight"
+    assert refusal.cleanup_failure_stage is None
+    assert refusal.cleanup_exception_type is None
+    assert refusal.cleanup_exception_code is None
 
 
 def test_legacy_member_open_keeps_its_unbounded_default(tmp_path) -> None:

@@ -47434,5 +47434,84 @@
     "source_profile_freeze": false,
     "G_acceptance": false,
     "closure_ids": []
+  },
+  "root-core-r9-two-changed-paths-adoption-20261021-r1": {
+    "slice_base": "54540e245bdf8341230231a927a4cb2040d9dee4",
+    "canonical_writer": "root only; reviewed present patch, retired exact originals through native Trash",
+    "mechanism_and_mandatory_companion_paths": {
+      "policy-engine/src/polisyos/core/artifacts/canonical_profile.py": {
+        "operation": "update",
+        "mode": "100644",
+        "preimage_sha256": "a27b0b27c9b70af26a29bc3917a31c7baa8a0311605888ed2b57f6458305d23a",
+        "preimage_bytes": 107646,
+        "postimage_path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/core-bounded-owner-error-projection-r9-20261021-r2/postimages/canonical_profile.py",
+        "postimage_sha256": "c0d552e7a6459d173035d68eb574f62e9b3f85a52f57c28c58d601a11b2a0834",
+        "postimage_bytes": 108521
+      },
+      "policy-engine/tests/unit/core/artifacts/test_bounded_core_json_artifact.py": {
+        "operation": "update",
+        "mode": "100644",
+        "preimage_sha256": "862c3f2407714951935d084fa1da80d43a30e4cbce3d52cef9493ef8a9e677f6",
+        "preimage_bytes": 74248,
+        "postimage_path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/core-bounded-owner-error-projection-r9-20261021-r2/postimages/test_bounded_core_json_artifact.py",
+        "postimage_sha256": "6412ada122422c3de86bf430ecdb528257e5b4df4bc1833d6a3ee491c099683c",
+        "postimage_bytes": 77769
+      }
+    },
+    "application": {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/root-core-r9-two-changed-paths-adoption-20261021-r1/source-application.json",
+      "sha256": "02d9a470666c945db6e97de838ff9be3f44c74896a6f1343af639a4b9e1924f0"
+    },
+    "native_trash_receipt": {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/root-core-r9-two-changed-paths-adoption-20261021-r1/native-trash-receipt.json",
+      "sha256": "057f81b6e161c37eaec854c352b59148420f1f1711163b9005834b723e193dcf"
+    },
+    "reviewed_inputs": [
+      {
+        "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/core-bounded-owner-error-projection-r9-20261021-r2/manifest.json",
+        "sha256": "b670b75eedb4814753b9ee9a7d13d11ede5cbc5a33ad95486ad3d6e5a1ffbaf5"
+      },
+      {
+        "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/core-bounded-owner-error-projection-r9-20261021-r2/candidate.patch",
+        "sha256": "4760c2c5738735ba48eacab3e0d405b2b3c7e136cabafc6cd2c67a8a661122a9"
+      },
+      {
+        "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/core-bounded-owner-error-projection-r9-20261021-r2/mandatory-issued-artifact-mutation-notice.json",
+        "sha256": "ef6ce33ad3f1390935004b7852f40dcdd8dd99421a84d4174eb255f04049b692"
+      },
+      {
+        "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/independent-core-r9-owner-error-projection-review-20261021-r1/review.json",
+        "sha256": "619fd8214a19b0db85382766dec01ed7ac70cde8c54590872956a994bd73de04"
+      },
+      {
+        "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/root-core-r8-two-whole-aeef94aea07c-20261021-r2/actual/result.json",
+        "sha256": "4f0a47e4840c477e699c602b007ad37bdcfa38771f8d1c2fa95ea78997427781"
+      },
+      {
+        "path": "policy-engine/tests/unit/foundry/data_plane/test_hte_observational_input.py",
+        "sha256": "5652d3bdca765049fdf9f0886966d1ffc4024006ea8bbbd19d239ab25c305255"
+      }
+    ],
+    "owned_applied_provenance": null,
+    "preserved_other_owned_rows": {},
+    "preserved_other_owned_provenance": null,
+    "preserved_other_owned_tracked_paths": [],
+    "preserved_other_owned_untracked_paths": [],
+    "preserved_other_owned_unchanged_before_after": true,
+    "P40": {
+      "bucket": "same typed owner refusal projection class",
+      "action": "generic member-axis projector; preserve mandatory full direct tests and unchanged HTE companion"
+    },
+    "bounded_proof": "Independent review619fd821 of exactR2 plus root per-path preimage readback, native Ruff check/format and branch-blob readback; actual runtime separate.",
+    "limitations": [
+      "GO_SOURCEADOPTION_ONLY on exact R2; runtime remains UNRUN after adoption.",
+      "R1 issued manifest/patch overwritten and unavailable; mandatory mutation notice retained, no reconstructed historical bytes.",
+      "No production currentness or finding closure."
+    ],
+    "runtime": "UNRUN on adopted source",
+    "next_check": "Run complete Core bounded read + HTE observational whole modules on adopted composition, retain every phase and origin plus removal outputs.",
+    "source_profile_freeze": false,
+    "G_acceptance": false,
+    "closure_ids": []
   }
 }

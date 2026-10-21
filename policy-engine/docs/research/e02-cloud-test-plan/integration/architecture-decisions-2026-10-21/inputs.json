@@ -1,0 +1,70 @@
+{
+  "observed_source_head": "2536eb6dbc946ce5000d2b2da246d7e071b037fc",
+  "source_checkout": "/Users/deniskopylov/.codex/worktrees/e02-unified-local-20261009/polisyos",
+  "inputs": [
+    {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/decisions/20261020-g-architecture-decision-queue.md",
+      "sha256": "bc5e140f15cff15eabb9fbe311a5b177202783fa641e89fea7dff75c2f8cf510",
+      "bytes": 19630,
+      "tracked": true,
+      "equals_observed_head": true
+    },
+    {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/decisions/g-choice-hte-ate-inference-unavailable-20261021.md",
+      "sha256": "f9a2aaf523b3300498821e3ba8cedc8611f288baef23ab9e64467ec8826dbf6c",
+      "bytes": 22854,
+      "tracked": true,
+      "equals_observed_head": true
+    },
+    {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/econml-shared-adapter-and-serial-forestdr-source-runtime-20261021.json",
+      "sha256": "f3f95671710821dde4a917d46513f94b8866cd8e4bd4e8e637cb1c065b8d3bf4",
+      "bytes": 34193,
+      "tracked": true,
+      "equals_observed_head": true
+    },
+    {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/can-profile-law-current-witness-g-followup-20261021.json",
+      "sha256": "b48157c9c8cfa6dcbba7f0312044d004776e6c55bd2a74c88848b036629dd282",
+      "bytes": 10107,
+      "tracked": true,
+      "equals_observed_head": true
+    },
+    {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/decisions/b161-current-scoped-refinement-followup-20261021.md",
+      "sha256": "54c38cecc1d58f037469179540a2f02c07dc4f7b670a313fdc70d07e9ea6383d",
+      "bytes": 5617,
+      "tracked": true,
+      "equals_observed_head": true
+    }
+  ],
+  "record_kind": "architecture_research_input_manifest",
+  "record_version": "1.0",
+  "architecture_selected_on": "2026-10-21",
+  "g_document_base": "15d70de867e4d0ac15b198386c103bdd0900b546",
+  "code_acceptance": false,
+  "closure_ids": [],
+  "runtime_verification_this_session": "UNRUN; documentation and small source reads only",
+  "source_frames": {
+    "HTE": {
+      "commit": "80f7c18f1295e3d2ecbee7625e52cdcbacca97f2",
+      "profile_distribution": "EconML 0.17.0",
+      "qualification": "Author bounded repaired-adapter runtime receipt; not full consumer verification or inference-law acceptance"
+    },
+    "CAN": {
+      "commit": "ee2a5d9e508060c6348ce3e1a02511a99a5cf177",
+      "preparation_commit": "c1bdda3576d81bb9b5ccd55e7e2df0a1a4738a83",
+      "qualification": "Source-qualified author scoped witness"
+    },
+    "B161": {
+      "commit": "566d194402dec721d162cff83b4bf2d16442d52e",
+      "qualification": "Source inspection and original criterion comparison; no new runtime execution"
+    },
+    "prior_AD01_AD03": {
+      "commit": "b7adafe89423bc6906a5fb86c38e579a381ad2ee",
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/integration/architecture-decisions-2026-10-20/06-final-decisions-and-solo-review.md",
+      "disposition": "Preserved; not reopened"
+    }
+  },
+  "document_snapshot_is_global_source_freeze": false
+}

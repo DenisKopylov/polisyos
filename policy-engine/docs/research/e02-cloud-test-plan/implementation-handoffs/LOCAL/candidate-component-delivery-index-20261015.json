@@ -1756,7 +1756,11 @@
       "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/fabric-r13-n818-canonical-composition-20261021.json",
       "sha256": "f8ce4773d1d858d26d02d22366fbabbdb581926ca84e5dd7d072d83b58af24d7"
     },
-    {"path":"policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/ir-hte-can-runtime-canonical-checkpoint-20261022.json","sha256":"95e400eb24cc09df2cd3d8a460785a79888e09060ce25764259c1fc6f3975c18"}
+    {"path":"policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/ir-hte-can-runtime-canonical-checkpoint-20261022.json","sha256":"95e400eb24cc09df2cd3d8a460785a79888e09060ce25764259c1fc6f3975c18"},
+    {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/ir-hte-can-runtime-canonical-checkpoint-20261022-r2.json",
+      "sha256": "cb75a8cb6545b2ee0bcf45831a434ad472ebf58eb93bf7c1fb436ab01f717c88"
+    }
   ],
   "canonical_denominator_recomputed": {
     "occurrences": 291,

@@ -1,0 +1,271 @@
+{
+  "schema": "policyos.e02.local_implementation_handoff.v1",
+  "slice": "post-checkpoint-hte-json-and-native-slo-fixture-companion-20261022-r1",
+  "source": {
+    "base": "c9708703d76e6ce8e34a74e515a634ecb56ecb9a",
+    "candidate": "03891452f584d38b846d8bedb8291a608ae7c43c",
+    "tree": "e39a21cb14a88fe4b1fe386a5127beaccd9b5250",
+    "parents": [
+      "c9708703d76e6ce8e34a74e515a634ecb56ecb9a"
+    ],
+    "branch": "codex/e02-unified-local-20261009",
+    "status": "Committed local implementation checkpoint; five postimage paths read back byte-identically from candidate commit and branch. Not final source freeze.",
+    "implementation_readback": {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/root-post-checkpoint-companion-composition-20261022-r1/implementation-checkpoint-readback-03891452f-20261022-r1.json",
+      "sha256": "5d8754547ad8339aec171bfa012efeca30268c1ffcd17574ad6d931cadcf4d4b"
+    },
+    "source_frame": {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/root-post-checkpoint-companion-composition-20261022-r1/source-frame.json",
+      "sha256": "bff6f5501c2047173e4f7a3e87a0184f9a5e49425a48f6ec53a4e7ee666f4b21"
+    },
+    "footprint": [
+      {
+        "path": "policy-engine/ops/components/index.toml",
+        "before_sha256": "11dccd87b0446249e0ad8cc2bf8ce6971fd892d36427465096f50fd129881f4a",
+        "sha256": "84b195ec99b15033e2ba3f0c82b86a21a8088a34e9f018b3dca4a088ad5c8334"
+      },
+      {
+        "path": "policy-engine/src/polisyos/foundry/methods/catalog/causal/hte_v2.py",
+        "before_sha256": "660e50d4e33aeaafedaf75ea2bd58700e5235e1db3eec5fbe1f795634df6c6e4",
+        "sha256": "1a12e91ad303a7b551af2da768324ec99dc918fc4ced133ceb7fb545eac73bd8"
+      },
+      {
+        "path": "policy-engine/src/polisyos/scientist/compute/hte_outcome_bridge.py",
+        "before_sha256": "9ea59d077b8fe6f58a50561b40426ced8a4895926f9bd8d11ddd4c65bc998228",
+        "sha256": "87ca3b142a743737b987dcce7eee3f1a5a865d2ccc0b16068a9ae9789ff62053"
+      },
+      {
+        "path": "policy-engine/tests/repo_quality/architecture/test_repository_best_in_class_phase1_3_contracts.py",
+        "before_sha256": "07886cb04ad84d66c0f56635e83bea08f538ffd11ac1b8f2b6c30f0bd9f40e1b",
+        "sha256": "ba0d478fc8e6420cac3e065b8354ba38312a9f89191feab74be329726980918d",
+        "intermediate_slo_helper_preimage_sha256": "26f0b3670eed9de04bb8a1f0085c5aaab50ee5946edbffb07d9df6ff45237826"
+      },
+      {
+        "path": "policy-engine/tests/unit/foundry/methods/catalog/causal/test_hte_v2_resource_capture.py",
+        "before_sha256": "1e1d593afde0ad16ae42b37287b5ddd8c167864fb4f681c0c1a7e91a8374ddf9",
+        "sha256": "fedfbd8faeae7c8684f8e9158354f1a26ca7d8e60dbff6f74dc046477fe34235"
+      }
+    ],
+    "scope_note": "Focused invocations ran before commit on the exact five final postimages. The harness selected 255 source paths, detected zero mismatches, and readback confirms committed 03891452 bytes. Tests were not rerun after commit.",
+    "before_binding_rule": "before_sha256 is recomputed from the exact slice base commit for every changed path; intermediate author-layer preimages are separately named."
+  },
+  "selected_input_profile_backend": {
+    "environment": "Existing isolation-local Python 3.14 environment; no new environment provisioned.",
+    "numerical_threads": 1,
+    "input": "Controlled portable fixtures only; no production payload read or production-currentness claim.",
+    "native_attempt": "Native-owner target dispatched causal.hte.double_ml@2.0.0 successfully on the declared NumPy route, but the job record was failed and no completed method_execution_selection was available."
+  },
+  "verification": {
+    "gates": [
+      {
+        "name": "postimage-slo-fixture-tests",
+        "status": "PASS",
+        "test_scope": "tests/repo_quality/architecture/test_repository_best_in_class_phase1_3_contracts.py",
+        "source_binding": {
+          "slice_base": "c9708703d76e6ce8e34a74e515a634ecb56ecb9a",
+          "selected_paths": 255,
+          "source_mismatches": [],
+          "precommit_postimages_equal_committed_candidate": true
+        },
+        "invocation": {
+          "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/root-post-checkpoint-companion-composition-20261022-r1/verification-slo/invocation.json",
+          "sha256": "81dc63f314e40d916e666eed4c53b2bad3995615d4716354262e92d1e6742d20"
+        },
+        "complete_deciding_outputs": [
+          {
+            "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/root-post-checkpoint-companion-composition-20261022-r1/verification-slo/stdout",
+            "sha256": "12d2c4c2a3f8f0b33ba4a700ce9160028d29dc1e705fd47a307120d11ba1df50"
+          },
+          {
+            "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/root-post-checkpoint-companion-composition-20261022-r1/verification-slo/stderr",
+            "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+          },
+          {
+            "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/root-post-checkpoint-companion-composition-20261022-r1/verification-slo/junit.xml",
+            "sha256": "fe1b17957f1ed5eb2aa650453adc3c8237721ce0408db0445e359d459bdefc8e"
+          }
+        ],
+        "pytest_totals": {
+          "tests": 49,
+          "failures": 0,
+          "errors": 0,
+          "skipped": 0
+        },
+        "timing": {
+          "ran_before_commit": true,
+          "on_clean_postcommit_head": false
+        }
+      },
+      {
+        "name": "postimage-hte-logic-suite",
+        "status": "PASS",
+        "test_scope": "12 HTE/IR/Core test modules named in invocation",
+        "source_binding": {
+          "slice_base": "c9708703d76e6ce8e34a74e515a634ecb56ecb9a",
+          "selected_paths": 255,
+          "source_mismatches": [],
+          "precommit_postimages_equal_committed_candidate": true
+        },
+        "invocation": {
+          "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/root-post-checkpoint-companion-composition-20261022-r1/verification-hte-logic/invocation.json",
+          "sha256": "4ab2c599aa5377923eaaa30cde024eadc0446fd64cfaaa28cb77e14968f5bb47"
+        },
+        "complete_deciding_outputs": [
+          {
+            "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/root-post-checkpoint-companion-composition-20261022-r1/verification-hte-logic/stdout",
+            "sha256": "40af460980275a2f83248f76a4288c3a8aeb07024f33f1ac53eb0b30bd1af03d"
+          },
+          {
+            "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/root-post-checkpoint-companion-composition-20261022-r1/verification-hte-logic/stderr",
+            "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+          },
+          {
+            "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/root-post-checkpoint-companion-composition-20261022-r1/verification-hte-logic/junit.xml",
+            "sha256": "79fd59c60b0022c2acd879d039f44d0b98c28801f65d1fbe6489687cede1b987"
+          }
+        ],
+        "pytest_totals": {
+          "tests": 211,
+          "failures": 0,
+          "errors": 0,
+          "skipped": 0
+        },
+        "timing": {
+          "ran_before_commit": true,
+          "on_clean_postcommit_head": false
+        }
+      },
+      {
+        "name": "native-owner-association-target",
+        "status": "FAIL",
+        "test_scope": "tests/unit/runtime/http/test_owned_attempt_anchor_associations.py::test_completed_attempt_projection_matches_full_association_without_output_payload_reads",
+        "source_binding": {
+          "slice_base": "c9708703d76e6ce8e34a74e515a634ecb56ecb9a",
+          "selected_paths": 255,
+          "source_mismatches": [],
+          "precommit_postimages_equal_committed_candidate": true
+        },
+        "invocation": {
+          "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/root-post-checkpoint-companion-composition-20261022-r1/verification-native-owner/invocation.json",
+          "sha256": "207c8a92c9a75e19b3deabf192343375a39cff224847fb3a592aa764ef3e137b"
+        },
+        "complete_deciding_outputs": [
+          {
+            "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/root-post-checkpoint-companion-composition-20261022-r1/verification-native-owner/stdout",
+            "sha256": "16a17e3f4ab65ef4b3c2d0330f70956de3bf99a8ee4d239dad5adeacaf6626a3"
+          },
+          {
+            "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/root-post-checkpoint-companion-composition-20261022-r1/verification-native-owner/stderr",
+            "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+          },
+          {
+            "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/root-post-checkpoint-companion-composition-20261022-r1/verification-native-owner/junit.xml",
+            "sha256": "d16f09cf56c39a87985d822b5d44326f04be861e084113763fd1962d7dec2a19"
+          }
+        ],
+        "pytest_totals": {
+          "tests": 1,
+          "failures": 1,
+          "errors": 0,
+          "skipped": 0
+        },
+        "timing": {
+          "ran_before_commit": true,
+          "on_clean_postcommit_head": false
+        }
+      }
+    ],
+    "separate_native_report": {
+      "name": "native-runbook-coverage-route-census-on-prior-slo-layer",
+      "status": "PASS_LIMITED",
+      "verification": {
+        "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/root-native-generated-artifact-slo-routing-adoption-20261022-r1/verification.json",
+        "sha256": "98a6ae5d368d4372f1c3bde05ee27a20cf202e0b3c2443fe2e7640e243a734ff"
+      },
+      "complete_deciding_output": {
+        "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/root-native-generated-artifact-slo-routing-adoption-20261022-r1/native-report.stdout",
+        "sha256": "9a845297ef459ffa194b8df0177a9a7eca6b22d9d0994c53446cc8e7b933f572"
+      },
+      "command": "python -B -m tools.quality.validation.architecture_report_only_contracts --report runbook-coverage --fail-on-contract-errors",
+      "result": {
+        "returncode": 0,
+        "contract_error_count": 0,
+        "finding_count": 0,
+        "legacy_operability_route_occurrences": 33,
+        "routed_occurrences": 33,
+        "unrouted_occurrences": 0
+      },
+      "boundary": "Source-bound to prior SLO application readback, not the whole current composition. Proves route coverage only; not full native SOTA row-by-row."
+    },
+    "aggregation": "Do not sum suite counts as unique coverage. The 49- and 211-test suites are separate bounded checks; one native-owner target failed.",
+    "unrun": [
+      "full composed replay after source freeze",
+      "native SOTA row-by-row closeout",
+      "fresh installed-wheel and rebuilt-sdist consumers",
+      "full 282-ID / 291-occurrence proposal refresh and authentic external-input closeout"
+    ]
+  },
+  "real_chain": [
+    "Foundry HTE writer-ready producer accepts JSON-native data through the same strict payload adapter while Python-object validation remains strict; real Scientist persistence bridge invokes the JSON-boundary validator.",
+    "SLO TOML fixture mutation uses complete-assignment parse/validation; DDM component index records the legacy schema-drift SLO file.",
+    "Successful selected HTE worker dispatch does not yield completed owner association on tested runtime path; completion consumer chain remains blocked."
+  ],
+  "adversarial_and_removal_controls": [
+    "HTE tests cover JSON-native tuple round-trip, refusal/absent feature-name handling, malformed values without coercion, and Python strictness; independent review verified strict TypeAdapter reuse.",
+    "SLO tests use decoy/multiline TOML content and assert whole-document parsed mapping changes for array-table and table-field mutations.",
+    "Native-owner association test remains a retained failure; do not replace behavior with marker-only assertions."
+  ],
+  "consumer_surfaces": [
+    "Foundry HTE writer-ready producer",
+    "Scientist persisted runtime HTE outcome bridge",
+    "Repository quality architecture SLO fixture/test consumer",
+    "Runtime completed owned-attempt association/selection consumer (still failing)"
+  ],
+  "independent_reviews": [
+    {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/hte-json-python-handoff-independent-20261022-r1/review.json",
+      "sha256": "31f142b56b586fbbbf73c63afcb78f7bda63d896c4ca938021431172c8c26be7",
+      "qualified_status": "GO_SOURCE_APPLICATION; reviewer did not run composed suite; the 211-test composed suite is separately source-bound; no formal closure."
+    },
+    {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/native-generated-artifact-slo-toml-helper-independent-review-20261022-r3/review.json",
+      "sha256": "b829180ad7cb4a4d63f58033a615334f303bc8468c7f97eb97615a08d1445229",
+      "qualified_status": "GO_SOURCE_DELTA; complete TOML assignment/value-boundary helper reviewed; no formal closure."
+    }
+  ],
+  "materialization_layer_provenance": [
+    {
+      "identity": "hte-json-python-handoff-repair-20261022-r1",
+      "source_map": {
+        "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/hte-json-python-handoff-repair-20261022-r1/source-map.json",
+        "sha256": "cd928a5c1e914f12ba5f0db32e34751255bc27db9c116f61626722ff97bf2d58"
+      },
+      "author_manifest": {
+        "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/hte-json-python-handoff-repair-20261022-r1/manifest.json",
+        "sha256": "262f3aef37e432710ae6fe00e3d71c727008b7a8640b7b809831611a9c881c0a"
+      }
+    },
+    {
+      "identity": "native-generated-artifact-slo-toml-helper-author-20261022-r3",
+      "author_manifest": {
+        "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/native-generated-artifact-slo-toml-helper-author-20261022-r3/manifest.json",
+        "sha256": "f5b094bcc9b07e85ad6d1b18e6bb2d43312c59f6c24e6479414af90a2398e8a5"
+      }
+    }
+  ],
+  "limitations": [
+    "Native owner association target FAIL after real dispatch: failed job, no completed method_execution_selection. Diagnose, repair, and rerun against frozen composition.",
+    "No whole-source freeze, complete HTE capability, production currentness, causal calibration, legal/issuer authority, or formal finding closure is established.",
+    "Owner-anchor fields are absent from published G checkpoint d40bca270ef5c456e8233196e4d8d65e099777a7 and slice base bc1; no published historical compatibility regression is claimed. Before G publication, qualify reader migration or explicit rollout for existing local experimental records.",
+    "Full native SOTA, installed wheel/sdist consumers, all canonical proposal rows, authentic external authority inputs, final composed replay remain UNRUN."
+  ],
+  "decision_pointers": [
+    "G decisions b7adafe89423bc6906a5fb86c38e579a381ad2ee, 798bd1ab9646378f49fd127b3f04ebe71aca67d2, and d40bca270ef5c456e8233196e4d8d65e099777a7 are design/source inputs, not acceptance of this candidate."
+  ],
+  "proposals": [],
+  "closure_ids": [],
+  "historical_closures_changed": false,
+  "G_acceptance": false,
+  "source_freeze": false,
+  "retention": "Complete outputs and invocations remain in ignored RAW under path@sha256; source is cited by committed path/hash, not copied. The canonical component index is updated separately in this receipt commit."
+}

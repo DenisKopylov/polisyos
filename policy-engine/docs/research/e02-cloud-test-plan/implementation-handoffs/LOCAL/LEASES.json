@@ -50662,5 +50662,98 @@
     "source_profile_freeze": false,
     "G_acceptance": false,
     "closure_ids": []
+  },
+  "root-b61-four-path-source-adoption-20261021-r1": {
+    "slice_base": "974e0eb0fcf8def2d4263f2b0af389c3eacbe22a",
+    "canonical_writer": "root only; reviewed present patch, retired exact originals through native Trash",
+    "mechanism_and_mandatory_companion_paths": {
+      "policy-engine/src/polisyos/data_forge/domains/academic/knowledge/skg_snapshot.py": {
+        "operation": "update",
+        "mode": "100644",
+        "preimage_sha256": "06d19f06dd565d236cee6ef1c59f8b417e3d1e9eb48e3baf2cf7b7cd20c7994d",
+        "postimage_path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/b61-runtime-import-repair-r1-20261021/overlay-src/polisyos/data_forge/domains/academic/knowledge/skg_snapshot.py",
+        "postimage_sha256": "e8e8c0c7d37536dbfc5a81afd892f6a782999c60c43a5d00c7ea88e21ddeda85",
+        "postimage_bytes": 8233
+      },
+      "policy-engine/src/polisyos/scientist/orchestration/engine/executor.py": {
+        "operation": "update",
+        "mode": "100644",
+        "preimage_sha256": "91473eefed3ba5e65be575397d4d15f8d067e71aa5b6b45cb48ab925739345d0",
+        "postimage_path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/b61-runtime-import-repair-r1-20261021/overlay-src/polisyos/scientist/orchestration/engine/executor.py",
+        "postimage_sha256": "a5374da0a9b7ecff6fc02a615e13dde3dabc54492925fc6d57da81c944f705e0",
+        "postimage_bytes": 98094
+      },
+      "policy-engine/tests/unit/data_forge/test_skg_snapshot.py": {
+        "operation": "update",
+        "mode": "100644",
+        "preimage_sha256": "d00e59a2e129890304d6930936d38fc4956033abe11787ee4d82d886383e5b53",
+        "postimage_path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/b61-runtime-import-repair-r1-20261021/overlay-tests/tests/unit/data_forge/test_skg_snapshot.py",
+        "postimage_sha256": "9900c720fd8828928d01b5cd788b00497d6175d15546472ae0953b2112c00960",
+        "postimage_bytes": 7261
+      },
+      "policy-engine/tests/unit/scientist/orchestration/engine/test_skg_snapshot_replay.py": {
+        "operation": "update",
+        "mode": "100644",
+        "preimage_sha256": "e2d64358a75c33daa73088bcb210c581bd0cf3a1c4f6b708275578232e2592a7",
+        "postimage_path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/b61-runtime-import-repair-r1-20261021/overlay-tests/tests/unit/scientist/orchestration/engine/test_skg_snapshot_replay.py",
+        "postimage_sha256": "6b897fc30e517bb60e9fed3dbcc5de15038d89c58e90b93ef6f0a8f31dcfa439",
+        "postimage_bytes": 89336
+      }
+    },
+    "application": {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/root-b61-four-path-source-adoption-20261021-r1/source-application.json",
+      "sha256": "352dbe0885b86b9b3f8f2d5d2c99f631fcc5e3d1eb9f4019c3d6a4d14d0ab8d1"
+    },
+    "native_trash_receipt": {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/root-b61-four-path-source-adoption-20261021-r1/native-trash-receipt.json",
+      "sha256": "057f81b6e161c37eaec854c352b59148420f1f1711163b9005834b723e193dcf"
+    },
+    "reviewed_inputs": [
+      {
+        "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/b61-runtime-import-repair-r1-20261021/proposed.patch",
+        "sha256": "487a11faa6d56ebdba76340a29e049f5d5633911b41c4f3ef48b860e37c0bfd3"
+      },
+      {
+        "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/b61-runtime-import-repair-r1-20261021/b61-runtime-import-repair-r1-frozen-packet.md",
+        "sha256": "c23f8eda0b9f43818cfa9ecb8a50aef751c32300e228d0e498fd6d810106edc8"
+      },
+      {
+        "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/independent-b61-runtime-import-repair-review-20261021-r1/review.json",
+        "sha256": "85141afaa3009bf52837ee0b33b91fce7531d91fbb9142a18934c725ad5f5a70"
+      },
+      {
+        "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/root-b61-four-path-native-preflight-20261021-r1/result.json",
+        "sha256": "702d4c0ae02cdfcbe1e01320fa963d79e0dfbf77db3d639affb88809f080de16"
+      },
+      {
+        "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/b61-runtime-import-repair-r1-20261021/current-e43-focused-composite-overlay.txt",
+        "sha256": "6f95abb07de6e908fb13094cf9dc381e63deee2a1836f4c36bf5f154df054fe8"
+      },
+      {
+        "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/b61-runtime-import-repair-r1-20261021/current-e43-runtime-import-overlay.txt",
+        "sha256": "51bd66c0c9d6441f53760ea973dec1729d115feac782116d87067089c4301029"
+      }
+    ],
+    "owned_applied_provenance": null,
+    "preserved_other_owned_rows": {},
+    "preserved_other_owned_provenance": null,
+    "preserved_other_owned_tracked_paths": [],
+    "preserved_other_owned_untracked_paths": [],
+    "preserved_other_owned_unchanged_before_after": true,
+    "P40": {
+      "bucket": "Same source-composition class: wrong owner import plus mandatory typing/schema/test companions. Source-generation transaction, dispatch binding and full process cohort are separate investigations.",
+      "P41": "Historical full70 run62P8F is retained, not inherited/green; unsafe spawn overlay runner has since been diagnosed and separate spawn-safe six-case proof exists awaiting its own receipt."
+    },
+    "bounded_proof": "Independent source review85141af plus canonical-context8 checks, real selected CAS byte-tamper and revoked-facade refusal tests; API/generation_cycle imports recover.",
+    "limitations": [
+      "No issuer, custody, scientific validity, production currentness, causal row-to-output adequacy, or B61/B148 formal closure follows.",
+      "Whole-source composed replay, full native gates, installed consumers and original thirteen B61 contours remain pending.",
+      "Current canonical-source runtime verification is UNRUN at this implementation commit; exact e43 overlay outputs remain separately bound."
+    ],
+    "runtime": "UNRUN on adopted source",
+    "next_check": "Run current canonical focused module/import checks; adopt separately reviewed same-source-generation miss repair if supported; then freeze composed HTE/Runtime/Search/native providers and run full consumers.",
+    "source_profile_freeze": false,
+    "G_acceptance": false,
+    "closure_ids": []
   }
 }

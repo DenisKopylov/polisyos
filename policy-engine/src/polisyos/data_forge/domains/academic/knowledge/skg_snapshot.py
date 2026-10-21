@@ -42,8 +42,6 @@ class _RetainedSKGReader(Protocol):
 
 
 class _SnapshotChunk(BaseModel):
-    """Legacy-compatible bounded member type for the retained source schema."""
-
     model_config = ConfigDict(extra="forbid", strict=True, frozen=True)
 
     ref: ArtifactRef
@@ -75,7 +73,7 @@ class _RetainedSKGSnapshotFields(BaseModel):
 
 
 class RetainedSKGSnapshot(_RetainedSKGSnapshotFields):
-    """Legacy v1.0 descriptor retained for byte-compatible replay reads."""
+    """Exact operational bytes and provenance; no scientific authenticity claim."""
 
     ARTIFACT_KIND: ClassVar[str] = _KIND
     ARTIFACT_MEDIA_TYPE: ClassVar[str] = _MEDIA_TYPE

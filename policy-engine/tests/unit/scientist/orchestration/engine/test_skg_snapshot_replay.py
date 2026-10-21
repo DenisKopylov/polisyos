@@ -55,6 +55,7 @@ from polisyos.data_forge.read_api.academic import (
     ParameterSelector,
     PreparedSKGRead,
     SKGQuery,
+    retained_skg_source_binding,
 )
 from polisyos.ir.analytics.causal_graph import (
     CausalGraphModel,
@@ -315,6 +316,40 @@ def test_selected_snapshot_reader_accepts_revocable_attempt_read_facade(tmp_path
         assert _value(prepared) == 1.25
     finally:
         prepared.close()
+
+
+def test_source_binding_rechecks_content_through_revocable_attempt_facade(
+    tmp_path: Path, monkeypatch: pytest.MonkeyPatch
+) -> None:
+    """The reader stays read-only and rejects changed chunk bytes on the selected view."""
+    _, store, ref = _captured(tmp_path)
+    snapshot = load_retained_skg_snapshot(store, ref)
+    chunk_ref = snapshot.chunks[0].ref
+    authority = retry_module._AttemptAuthority(None)
+    facade = retry_module._AttemptFacade(store, authority, write_methods=frozenset())
+    authority.revoke()
+
+    binding = retained_skg_source_binding(facade, ref)
+    assert binding.descriptor_ref == ref
+    assert binding.source_sha256 == snapshot.source_sha256
+
+    original_get_bytes = store.get_bytes
+    selected_chunk_bytes = original_get_bytes(chunk_ref)
+    changed_chunk_bytes = bytes([selected_chunk_bytes[0] ^ 1]) + selected_chunk_bytes[1:]
+
+    def read_changed_chunk(selector: object) -> bytes:
+        selected_id = (
+            selector.get("artifact_id")
+            if isinstance(selector, dict)
+            else getattr(selector, "artifact_id", selector)
+        )
+        if str(selected_id) == str(chunk_ref.artifact_id):
+            return changed_chunk_bytes
+        return original_get_bytes(selector)
+
+    monkeypatch.setattr(store, "get_bytes", read_changed_chunk)
+    with pytest.raises(RetainedSKGSnapshotError, match="retained_skg_retained_digest_mismatch"):
+        retained_skg_source_binding(facade, ref)
 
 
 def test_descriptor_without_selected_profile_is_refused(tmp_path: Path) -> None:

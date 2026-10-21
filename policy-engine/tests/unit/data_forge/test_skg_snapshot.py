@@ -1,9 +1,10 @@
 from __future__ import annotations
 
 import hashlib
+from typing import Literal
 
 import pytest
-from pydantic import BaseModel, ConfigDict, Field, Literal, model_validator
+from pydantic import BaseModel, ConfigDict, Field, model_validator
 
 from polisyos.core.artifacts import (
     ArtifactRef,
@@ -32,8 +33,6 @@ _CHUNK_BYTES = 1024 * 1024
 
 
 class _SnapshotChunk(BaseModel):
-    """Frozen slice-base chunk schema for the legacy V1.0 comparison."""
-
     model_config = ConfigDict(extra="forbid", strict=True, frozen=True)
 
     ref: ArtifactRef
@@ -41,7 +40,7 @@ class _SnapshotChunk(BaseModel):
 
 
 class RetainedSKGSnapshot(BaseModel):
-    """Exact slice-base V1.0 model schema, kept only as a comparison oracle."""
+    """Exact operational bytes and provenance; no scientific authenticity claim."""
 
     model_config = ConfigDict(extra="forbid", strict=True, frozen=True)
 

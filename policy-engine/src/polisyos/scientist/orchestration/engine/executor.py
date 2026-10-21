@@ -25,6 +25,7 @@ from polisyos.core.contracts.skip_blockers import (
     build_skip_blocker_record,
     classify_optional_analytic_node,
 )
+from polisyos.data_forge.read_api.academic import retained_skg_source_binding
 from polisyos.scientist.methods.research_dag.persistence import persist_research_dag
 from polisyos.scientist.methods.research_dag.projections import (
     SELECTED_RESEARCH_DAG_WORKFLOWS,
@@ -86,7 +87,6 @@ from polisyos.scientist.orchestration.engine.skg_snapshot import (
     prepare_retained_skg_read,
     retain_prepared_skg_read,
     retained_skg_snapshot_directory,
-    retained_skg_source_binding,
 )
 from polisyos.scientist.orchestration.engine.state_branching import (
     _completed_producer_state,

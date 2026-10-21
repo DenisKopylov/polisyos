@@ -26,14 +26,32 @@ from polisyos.common.canonical_profile import (
     require_declared_profile,
 )
 from polisyos.core.artifacts import artifact_manifest_profile_sha256
-from polisyos.core.artifacts._integrity_ops import ArtifactReadBoundsError
-from polisyos.core.artifacts.manifest import ArtifactManifest, ArtifactRef, CanonInfo, InputRef
-from polisyos.core.artifacts.protocol import (
-    CoreJSONArtifactBoundedInputManifestReader,
-    CoreJSONArtifactBoundedManifestReader,
-    CoreJSONArtifactStreamingReader,
+from polisyos.core.artifacts._integrity_ops import (
+    ArtifactBoundedManifestRead,
+    ArtifactBoundedManifestReadError,
+    ArtifactMemberReadBoundsError,
+    ArtifactMemberReadIntegrityError,
+    ArtifactReadBoundsError,
+    ArtifactStoreReadUsage,
+    _is_artifact_store_read_usage,
 )
-from polisyos.core.canon import CanonSpec, content_hash, from_canonical_bytes, to_canonical_bytes
+from polisyos.core.artifacts.manifest import (
+    ArtifactManifest,
+    ArtifactRef,
+    CanonInfo,
+    InputRef,
+)
+from polisyos.core.artifacts.protocol import (
+    CoreJSONArtifactBoundedInputManifestReceiptReader,
+    CoreJSONArtifactBoundedManifestReceiptReader,
+    CoreJSONArtifactBoundedMemberReader,
+)
+from polisyos.core.canon import (
+    CanonSpec,
+    content_hash,
+    from_canonical_bytes,
+    to_canonical_bytes,
+)
 
 _ModelT = TypeVar("_ModelT", bound=BaseModel)
 
@@ -77,18 +95,54 @@ class CoreJsonReadBoundsRefusalError(CanonicalProfileRefusalError):
         *,
         limits: CoreJsonReadLimits | None,
         max_manifest_bytes: int,
-        observed_manifest_bytes: int,
-        observed_bytes: int,
+        observed_manifest_bytes: int | None,
+        observed_bytes: int | None,
         observed_depth: int,
         observed_elements: int,
         limit_name: str | None = None,
+        observed_manifest_selection_bytes: int | None = None,
+        observed_manifest_verification_bytes: int | None = None,
+        observed_payload_size: int | None = None,
+        payload_integrity_verified: bool = False,
+        source_usage_complete: bool = True,
+        failure_stage: str | None = None,
+        cleanup_failure_stage: str | None = None,
+        cleanup_exception_type: str | None = None,
+        cleanup_exception_code: str | None = None,
+        original_exception_type: str | None = None,
+        original_exception_code: str | None = None,
+        original_exception_message: str | None = None,
     ) -> None:
-        """Retain the selected bounds and measurements for a refused read."""
+        """Retain selected limits and actual owner-reported transfers on refusal."""
         super().__init__(code)
         self.limits = limits
         self.max_manifest_bytes = max_manifest_bytes
         self.observed_manifest_bytes = observed_manifest_bytes
+        self.observed_manifest_selection_bytes = (
+            observed_manifest_bytes
+            if observed_manifest_selection_bytes is None and source_usage_complete
+            else observed_manifest_selection_bytes
+        )
+        self.observed_manifest_verification_bytes = observed_manifest_verification_bytes
         self.observed_bytes = observed_bytes
+        self.observed_payload_size = observed_payload_size
+        self.payload_integrity_verified = payload_integrity_verified
+        self.source_usage_complete = bool(
+            source_usage_complete
+            and type(self.observed_manifest_selection_bytes) is int
+            and self.observed_manifest_selection_bytes >= 0
+            and type(self.observed_manifest_verification_bytes) is int
+            and self.observed_manifest_verification_bytes >= 0
+            and type(self.observed_payload_bytes) is int
+            and self.observed_payload_bytes >= 0
+        )
+        self.failure_stage = failure_stage
+        self.cleanup_failure_stage = cleanup_failure_stage
+        self.cleanup_exception_type = cleanup_exception_type
+        self.cleanup_exception_code = cleanup_exception_code
+        self.original_exception_type = original_exception_type
+        self.original_exception_code = original_exception_code
+        self.original_exception_message = original_exception_message
         self.observed_depth = observed_depth
         self.observed_elements = observed_elements
         self.limit_name = limit_name
@@ -99,6 +153,84 @@ class CoreJsonReadBoundsRefusalError(CanonicalProfileRefusalError):
         else:
             self.limit_value = None
 
+    @property
+    def observed_payload_bytes(self) -> int | None:
+        """Return payload bytes actually transferred from the selected store API."""
+        return self.observed_bytes
+
+    @property
+    def observed_source_bytes(self) -> int | None:
+        """Return complete selected-store transfers, or ``None`` when an owner hid usage."""
+        selection_bytes = self.observed_manifest_selection_bytes
+        verification_bytes = self.observed_manifest_verification_bytes
+        payload_bytes = self.observed_payload_bytes
+        if (
+            not self.source_usage_complete
+            or type(selection_bytes) is not int
+            or type(verification_bytes) is not int
+            or type(payload_bytes) is not int
+        ):
+            return None
+        return selection_bytes + verification_bytes + payload_bytes
+
+
+def _exact_owner_count(owner: object, name: str) -> int | None:
+    """Return only an exact owner-reported byte count, never a guessed zero."""
+    try:
+        value = getattr(owner, name, None)
+    except Exception:
+        return None
+    return value if type(value) is int and value >= 0 else None
+
+
+def _exact_owner_value(owner: object, name: str) -> object | None:
+    """Read an optional owner field without letting a hostile accessor mask refusal."""
+    try:
+        return getattr(owner, name, None)
+    except Exception:
+        return None
+
+
+def _owner_integrity_verified(owner: object) -> bool:
+    """Return true only for an explicit owner integrity receipt."""
+    return _exact_owner_value(owner, "payload_integrity_verified") is True
+
+
+def _exact_owner_usage(owner: object) -> ArtifactStoreReadUsage | None:
+    """Return only a sealed immutable usage receipt from the filesystem owner."""
+    usage = _exact_owner_value(owner, "usage")
+    return usage if _is_artifact_store_read_usage(usage) else None
+
+
+def _refusal_code(error: Exception, fallback: str) -> str:
+    """Preserve a typed refusal code, or name the original exception class."""
+    try:
+        code = getattr(error, "code", None)
+    except Exception:
+        code = None
+    if type(code) is str and code:
+        return code
+    if type(error) is FileNotFoundError:
+        return "selected_artifact_not_found"
+    return fallback
+
+
+def _refusal_metadata(error: Exception) -> dict[str, str | None]:
+    """Retain the original failure identity beside its chained exception."""
+    try:
+        error_code = getattr(error, "code", None)
+    except Exception:
+        error_code = None
+    try:
+        error_message = str(error)
+    except Exception:
+        error_message = f"<{type(error).__name__} message unavailable>"
+    return {
+        "original_exception_type": type(error).__name__,
+        "original_exception_code": error_code if type(error_code) is str else None,
+        "original_exception_message": error_message,
+    }
+
 
 @dataclass(frozen=True, slots=True)
 class CoreJsonManifestBoundedRead:
@@ -108,9 +240,15 @@ class CoreJsonManifestBoundedRead:
     raw_manifest_bytes: bytes
     max_manifest_bytes: int
     observed_manifest_bytes: int
+    usage: ArtifactStoreReadUsage | None = dataclass_field(repr=False, compare=False)
     _seal: _CoreJsonManifestBoundedReadSeal | None = dataclass_field(
         default=None, repr=False, compare=False
     )
+
+    @property
+    def observed_source_bytes(self) -> int | None:
+        """Return exact selected-store transfers for this metadata-only call."""
+        return self.usage.observed_source_bytes if self.usage is not None else None
 
     @property
     def effective_ref(self) -> ArtifactRef:
@@ -139,6 +277,7 @@ class _CoreJsonManifestBoundedReadSeal:
     raw_manifest_bytes: bytes
     max_manifest_bytes: int
     observed_manifest_bytes: int
+    usage: ArtifactStoreReadUsage | None
 
 
 @dataclass(frozen=True, slots=True)
@@ -150,7 +289,10 @@ class _CoreJsonArtifactBoundedReadSeal:
     raw_payload_bytes: bytes
     limits: CoreJsonReadLimits
     observed_manifest_bytes: int
+    observed_manifest_verification_bytes: int
     observed_bytes: int
+    observed_payload_size: int
+    payload_integrity_verified: bool
     observed_depth: int
     observed_elements: int
 
@@ -169,12 +311,34 @@ class CoreJsonArtifactBoundedRead:
     raw_payload_bytes: bytes
     limits: CoreJsonReadLimits
     observed_manifest_bytes: int
+    observed_manifest_verification_bytes: int
     observed_bytes: int
+    observed_payload_size: int
+    payload_integrity_verified: bool
     observed_depth: int
     observed_elements: int
     _seal: _CoreJsonArtifactBoundedReadSeal | None = dataclass_field(
         default=None, repr=False, compare=False
     )
+
+    @property
+    def observed_manifest_selection_bytes(self) -> int:
+        """Return exact selected-manifest bytes transferred by the first bounded read."""
+        return self.observed_manifest_bytes
+
+    @property
+    def observed_payload_bytes(self) -> int:
+        """Return exact selected payload bytes transferred by the owner stream."""
+        return self.observed_bytes
+
+    @property
+    def observed_source_bytes(self) -> int:
+        """Return all selected manifest and payload bytes transferred for this call."""
+        return (
+            self.observed_manifest_selection_bytes
+            + self.observed_manifest_verification_bytes
+            + self.observed_payload_bytes
+        )
 
     @property
     def profile_read(self) -> CanonicalProfileRead:
@@ -434,45 +598,189 @@ def read_core_manifest_profile(
 
 
 def _read_core_manifest_profile_bounded(
-    store: CoreJSONArtifactBoundedManifestReader,
+    store: CoreJSONArtifactBoundedManifestReceiptReader,
     selected_ref: ArtifactRef,
     *,
     max_manifest_bytes: int,
     limits: CoreJsonReadLimits | None = None,
 ) -> CoreJsonManifestBoundedRead:
-    """Parse the typed manifest and profile from one owner-read bounded byte sequence."""
+    """Read one exact selected manifest and require the filesystem-owner receipt."""
     if type(max_manifest_bytes) is not int or max_manifest_bytes < 1:
         raise ValueError("max_manifest_bytes must be a positive integer")
     if type(selected_ref) is not ArtifactRef:
         raise CanonicalProfileRefusalError("canon_profile_bounded_selection_required")
     selected_ref = _revalidate_core_artifact_ref(selected_ref)
     try:
-        raw_manifest_bytes = store.get_raw_manifest_bytes_bounded(
-            selected_ref,
-            max_manifest_bytes=max_manifest_bytes,
-        )
-    except FileNotFoundError:
-        raise
-    except ArtifactReadBoundsError as exc:
+        bounded_manifest_reader = getattr(store, "read_raw_manifest_bytes_bounded", None)
+    except Exception as exc:
         raise CoreJsonReadBoundsRefusalError(
-            "canon_profile_bounded_manifest_bytes_exceeded",
+            _refusal_code(exc, "canon_profile_bounded_manifest_unavailable"),
             limits=limits,
             max_manifest_bytes=max_manifest_bytes,
-            observed_manifest_bytes=exc.observed_bytes,
+            observed_manifest_bytes=0,
             observed_bytes=0,
             observed_depth=0,
             observed_elements=0,
-            limit_name="max_manifest_bytes",
+            observed_manifest_selection_bytes=0,
+            observed_manifest_verification_bytes=0,
+            source_usage_complete=True,
+            failure_stage="selected_manifest_reader_preflight",
+            **_refusal_metadata(exc),
         ) from exc
-    except (AttributeError, NotImplementedError, TypeError) as exc:
-        raise CanonicalProfileRefusalError("canon_profile_bounded_manifest_unavailable") from exc
+    if not callable(bounded_manifest_reader):
+        exc = NotImplementedError("filesystem_owner_usage_receipt_unavailable")
+        raise CoreJsonReadBoundsRefusalError(
+            "canon_profile_bounded_manifest_unavailable",
+            limits=limits,
+            max_manifest_bytes=max_manifest_bytes,
+            observed_manifest_bytes=0,
+            observed_bytes=0,
+            observed_depth=0,
+            observed_elements=0,
+            observed_manifest_selection_bytes=0,
+            observed_manifest_verification_bytes=0,
+            source_usage_complete=True,
+            failure_stage="selected_manifest_reader_preflight",
+            **_refusal_metadata(exc),
+        ) from exc
 
-    return _core_manifest_profile_from_bytes(
-        raw_manifest_bytes,
-        selected_ref,
-        max_manifest_bytes=max_manifest_bytes,
-        limits=limits,
-    )
+    try:
+        result = bounded_manifest_reader(
+            selected_ref,
+            max_manifest_bytes=max_manifest_bytes,
+        )
+    except ArtifactBoundedManifestReadError as exc:
+        usage = exc.usage if _is_artifact_store_read_usage(exc.usage) else None
+        original = exc.original_exception
+        selection_bytes = usage.observed_manifest_selection_bytes if usage is not None else None
+        verification_bytes = (
+            usage.observed_manifest_verification_bytes if usage is not None else None
+        )
+        payload_bytes = usage.observed_payload_bytes if usage is not None else None
+        declared_size = (
+            original.observed_bytes
+            if type(original) is ArtifactReadBoundsError and type(original.observed_bytes) is int
+            else None
+        )
+        raise CoreJsonReadBoundsRefusalError(
+            "canon_profile_bounded_manifest_bytes_exceeded"
+            if type(original) is ArtifactReadBoundsError
+            else _refusal_code(original, "canon_profile_bounded_manifest_unavailable"),
+            limits=limits,
+            max_manifest_bytes=max_manifest_bytes,
+            observed_manifest_bytes=declared_size,
+            observed_bytes=payload_bytes,
+            observed_depth=0,
+            observed_elements=0,
+            limit_name=(
+                "max_manifest_bytes" if type(original) is ArtifactReadBoundsError else None
+            ),
+            observed_manifest_selection_bytes=selection_bytes,
+            observed_manifest_verification_bytes=verification_bytes,
+            payload_integrity_verified=(
+                usage.payload_integrity_verified if usage is not None else False
+            ),
+            source_usage_complete=(usage is not None and usage.observed_source_bytes is not None),
+            failure_stage=(
+                usage.failure_stage if usage is not None else "selected_manifest_usage_unknown"
+            ),
+            cleanup_failure_stage=(usage.cleanup_failure_stage if usage is not None else None),
+            cleanup_exception_type=(usage.cleanup_exception_type if usage is not None else None),
+            cleanup_exception_code=(usage.cleanup_exception_code if usage is not None else None),
+            **_refusal_metadata(original),
+        ) from original
+    except Exception as exc:
+        raise CoreJsonReadBoundsRefusalError(
+            _refusal_code(exc, "canon_profile_bounded_manifest_unavailable"),
+            limits=limits,
+            max_manifest_bytes=max_manifest_bytes,
+            observed_manifest_bytes=None,
+            observed_bytes=0,
+            observed_depth=0,
+            observed_elements=0,
+            observed_manifest_selection_bytes=None,
+            observed_manifest_verification_bytes=0,
+            source_usage_complete=False,
+            failure_stage="selected_manifest_usage_unknown",
+            **_refusal_metadata(exc),
+        ) from exc
+
+    if type(result) is not ArtifactBoundedManifestRead:
+        exc = TypeError("bounded_manifest_reader_must_return_owner_receipt")
+        raise CoreJsonReadBoundsRefusalError(
+            "canon_profile_bounded_manifest_invalid",
+            limits=limits,
+            max_manifest_bytes=max_manifest_bytes,
+            observed_manifest_bytes=None,
+            observed_bytes=None,
+            observed_depth=0,
+            observed_elements=0,
+            observed_manifest_selection_bytes=None,
+            observed_manifest_verification_bytes=None,
+            source_usage_complete=False,
+            failure_stage="selected_manifest_result_validation",
+            **_refusal_metadata(exc),
+        ) from exc
+    usage = result.usage if _is_artifact_store_read_usage(result.usage) else None
+    raw_manifest_bytes = result.raw_manifest_bytes
+    if (
+        type(raw_manifest_bytes) is not bytes
+        or usage is None
+        or usage.observed_manifest_selection_bytes != len(raw_manifest_bytes)
+        or usage.observed_manifest_verification_bytes != 0
+        or usage.observed_payload_bytes != 0
+        or usage.observed_payload_size is not None
+        or usage.payload_integrity_verified is not False
+        or usage.observed_source_bytes is None
+    ):
+        exc = TypeError("bounded_manifest_owner_receipt_mismatch")
+        raise CoreJsonReadBoundsRefusalError(
+            "canon_profile_bounded_manifest_invalid",
+            limits=limits,
+            max_manifest_bytes=max_manifest_bytes,
+            observed_manifest_bytes=(
+                len(raw_manifest_bytes) if type(raw_manifest_bytes) is bytes else None
+            ),
+            observed_bytes=(usage.observed_payload_bytes if usage is not None else None),
+            observed_depth=0,
+            observed_elements=0,
+            observed_manifest_selection_bytes=(
+                usage.observed_manifest_selection_bytes if usage is not None else None
+            ),
+            observed_manifest_verification_bytes=(
+                usage.observed_manifest_verification_bytes if usage is not None else None
+            ),
+            payload_integrity_verified=False,
+            source_usage_complete=False,
+            failure_stage="selected_manifest_result_validation",
+            **_refusal_metadata(exc),
+        ) from exc
+
+    try:
+        return _core_manifest_profile_from_bytes(
+            raw_manifest_bytes,
+            selected_ref,
+            max_manifest_bytes=max_manifest_bytes,
+            limits=limits,
+            usage=usage,
+        )
+    except CoreJsonReadBoundsRefusalError:
+        raise
+    except Exception as exc:
+        raise CoreJsonReadBoundsRefusalError(
+            _refusal_code(exc, "canon_profile_bounded_manifest_invalid"),
+            limits=limits,
+            max_manifest_bytes=max_manifest_bytes,
+            observed_manifest_bytes=len(raw_manifest_bytes),
+            observed_bytes=0,
+            observed_depth=0,
+            observed_elements=0,
+            observed_manifest_selection_bytes=usage.observed_manifest_selection_bytes,
+            observed_manifest_verification_bytes=usage.observed_manifest_verification_bytes,
+            source_usage_complete=usage.observed_source_bytes is not None,
+            failure_stage="selected_manifest_profile_validation",
+            **_refusal_metadata(exc),
+        ) from exc
 
 
 def _revalidate_core_input_ref(input_ref: InputRef) -> InputRef:
@@ -512,40 +820,178 @@ def _revalidate_core_input_ref(input_ref: InputRef) -> InputRef:
 
 
 def _read_core_input_manifest_profile_bounded(
-    store: CoreJSONArtifactBoundedInputManifestReader,
+    store: CoreJSONArtifactBoundedInputManifestReceiptReader,
     input_ref: InputRef,
     *,
     max_manifest_bytes: int,
 ) -> CoreJsonManifestBoundedRead:
-    """Resolve one input edge from bounded raw manifest bytes and explicit profile."""
+    """Resolve one input edge with a typed filesystem-owner transfer receipt."""
     if type(max_manifest_bytes) is not int or max_manifest_bytes < 1:
         raise ValueError("max_manifest_bytes must be a positive integer")
     selected_input = _revalidate_core_input_ref(input_ref)
     try:
-        raw_manifest_bytes = store.get_raw_manifest_bytes_bounded_for_input(
-            selected_input,
-            max_manifest_bytes=max_manifest_bytes,
-        )
-    except FileNotFoundError:
-        raise
-    except ArtifactReadBoundsError as exc:
+        bounded_reader = getattr(store, "read_raw_manifest_bytes_bounded_for_input", None)
+    except Exception as exc:
         raise CoreJsonReadBoundsRefusalError(
-            "canon_profile_bounded_manifest_bytes_exceeded",
+            _refusal_code(exc, "canon_profile_bounded_manifest_unavailable"),
             limits=None,
             max_manifest_bytes=max_manifest_bytes,
-            observed_manifest_bytes=exc.observed_bytes,
+            observed_manifest_bytes=0,
             observed_bytes=0,
             observed_depth=0,
             observed_elements=0,
-            limit_name="max_manifest_bytes",
+            observed_manifest_selection_bytes=0,
+            observed_manifest_verification_bytes=0,
+            source_usage_complete=True,
+            failure_stage="selected_manifest_reader_preflight",
+            **_refusal_metadata(exc),
         ) from exc
-    except (AttributeError, NotImplementedError, TypeError) as exc:
-        raise CanonicalProfileRefusalError("canon_profile_bounded_manifest_unavailable") from exc
-    return _core_manifest_profile_from_bytes(
-        raw_manifest_bytes,
-        selected_input,
-        max_manifest_bytes=max_manifest_bytes,
-    )
+    if not callable(bounded_reader):
+        exc = NotImplementedError("filesystem_owner_usage_receipt_unavailable")
+        raise CoreJsonReadBoundsRefusalError(
+            "canon_profile_bounded_manifest_unavailable",
+            limits=None,
+            max_manifest_bytes=max_manifest_bytes,
+            observed_manifest_bytes=0,
+            observed_bytes=0,
+            observed_depth=0,
+            observed_elements=0,
+            observed_manifest_selection_bytes=0,
+            observed_manifest_verification_bytes=0,
+            source_usage_complete=True,
+            failure_stage="selected_manifest_reader_preflight",
+            **_refusal_metadata(exc),
+        ) from exc
+    try:
+        result = bounded_reader(selected_input, max_manifest_bytes=max_manifest_bytes)
+    except ArtifactBoundedManifestReadError as exc:
+        usage = exc.usage if _is_artifact_store_read_usage(exc.usage) else None
+        original = exc.original_exception
+        selection_bytes = usage.observed_manifest_selection_bytes if usage is not None else None
+        verification_bytes = (
+            usage.observed_manifest_verification_bytes if usage is not None else None
+        )
+        payload_bytes = usage.observed_payload_bytes if usage is not None else None
+        declared_size = (
+            original.observed_bytes
+            if type(original) is ArtifactReadBoundsError and type(original.observed_bytes) is int
+            else None
+        )
+        raise CoreJsonReadBoundsRefusalError(
+            "canon_profile_bounded_manifest_bytes_exceeded"
+            if type(original) is ArtifactReadBoundsError
+            else _refusal_code(original, "canon_profile_bounded_manifest_unavailable"),
+            limits=None,
+            max_manifest_bytes=max_manifest_bytes,
+            observed_manifest_bytes=declared_size,
+            observed_bytes=payload_bytes,
+            observed_depth=0,
+            observed_elements=0,
+            limit_name=(
+                "max_manifest_bytes" if type(original) is ArtifactReadBoundsError else None
+            ),
+            observed_manifest_selection_bytes=selection_bytes,
+            observed_manifest_verification_bytes=verification_bytes,
+            payload_integrity_verified=(
+                usage.payload_integrity_verified if usage is not None else False
+            ),
+            source_usage_complete=(usage is not None and usage.observed_source_bytes is not None),
+            failure_stage=(
+                usage.failure_stage if usage is not None else "selected_manifest_usage_unknown"
+            ),
+            cleanup_failure_stage=(usage.cleanup_failure_stage if usage is not None else None),
+            cleanup_exception_type=(usage.cleanup_exception_type if usage is not None else None),
+            cleanup_exception_code=(usage.cleanup_exception_code if usage is not None else None),
+            **_refusal_metadata(original),
+        ) from original
+    except Exception as exc:
+        raise CoreJsonReadBoundsRefusalError(
+            _refusal_code(exc, "canon_profile_bounded_manifest_unavailable"),
+            limits=None,
+            max_manifest_bytes=max_manifest_bytes,
+            observed_manifest_bytes=None,
+            observed_bytes=0,
+            observed_depth=0,
+            observed_elements=0,
+            observed_manifest_selection_bytes=None,
+            observed_manifest_verification_bytes=0,
+            source_usage_complete=False,
+            failure_stage="selected_manifest_usage_unknown",
+            **_refusal_metadata(exc),
+        ) from exc
+    if type(result) is not ArtifactBoundedManifestRead:
+        exc = TypeError("bounded_manifest_reader_must_return_owner_receipt")
+        raise CoreJsonReadBoundsRefusalError(
+            "canon_profile_bounded_manifest_invalid",
+            limits=None,
+            max_manifest_bytes=max_manifest_bytes,
+            observed_manifest_bytes=None,
+            observed_bytes=None,
+            observed_depth=0,
+            observed_elements=0,
+            observed_manifest_selection_bytes=None,
+            observed_manifest_verification_bytes=None,
+            source_usage_complete=False,
+            failure_stage="selected_manifest_result_validation",
+            **_refusal_metadata(exc),
+        ) from exc
+    usage = result.usage if _is_artifact_store_read_usage(result.usage) else None
+    raw_manifest_bytes = result.raw_manifest_bytes
+    if (
+        type(raw_manifest_bytes) is not bytes
+        or usage is None
+        or usage.observed_manifest_selection_bytes != len(raw_manifest_bytes)
+        or usage.observed_manifest_verification_bytes != 0
+        or usage.observed_payload_bytes != 0
+        or usage.observed_payload_size is not None
+        or usage.payload_integrity_verified is not False
+        or usage.observed_source_bytes is None
+    ):
+        exc = TypeError("bounded_manifest_owner_receipt_mismatch")
+        raise CoreJsonReadBoundsRefusalError(
+            "canon_profile_bounded_manifest_invalid",
+            limits=None,
+            max_manifest_bytes=max_manifest_bytes,
+            observed_manifest_bytes=(
+                len(raw_manifest_bytes) if type(raw_manifest_bytes) is bytes else None
+            ),
+            observed_bytes=(usage.observed_payload_bytes if usage is not None else None),
+            observed_depth=0,
+            observed_elements=0,
+            observed_manifest_selection_bytes=(
+                usage.observed_manifest_selection_bytes if usage is not None else None
+            ),
+            observed_manifest_verification_bytes=(
+                usage.observed_manifest_verification_bytes if usage is not None else None
+            ),
+            source_usage_complete=False,
+            failure_stage="selected_manifest_result_validation",
+            **_refusal_metadata(exc),
+        ) from exc
+    try:
+        return _core_manifest_profile_from_bytes(
+            raw_manifest_bytes,
+            selected_input,
+            max_manifest_bytes=max_manifest_bytes,
+            usage=usage,
+        )
+    except CoreJsonReadBoundsRefusalError:
+        raise
+    except Exception as exc:
+        raise CoreJsonReadBoundsRefusalError(
+            _refusal_code(exc, "canon_profile_bounded_manifest_invalid"),
+            limits=None,
+            max_manifest_bytes=max_manifest_bytes,
+            observed_manifest_bytes=len(raw_manifest_bytes),
+            observed_bytes=0,
+            observed_depth=0,
+            observed_elements=0,
+            observed_manifest_selection_bytes=usage.observed_manifest_selection_bytes,
+            observed_manifest_verification_bytes=usage.observed_manifest_verification_bytes,
+            source_usage_complete=usage.observed_source_bytes is not None,
+            failure_stage="selected_manifest_profile_validation",
+            **_refusal_metadata(exc),
+        ) from exc
 
 
 def _revalidate_core_artifact_ref(selected_ref: ArtifactRef) -> ArtifactRef:
@@ -572,7 +1018,9 @@ def _revalidate_core_artifact_ref(selected_ref: ArtifactRef) -> ArtifactRef:
     return selected
 
 
-def _core_manifest_selector_key(selected_ref: ArtifactRef | InputRef) -> tuple[str, ...]:
+def _core_manifest_selector_key(
+    selected_ref: ArtifactRef | InputRef,
+) -> tuple[str, ...]:
     """Return immutable identity fields for one exact bounded manifest selector."""
     if type(selected_ref) is ArtifactRef:
         selected = _revalidate_core_artifact_ref(selected_ref)
@@ -628,6 +1076,9 @@ def _parse_core_manifest_profile_components(
             observed_depth=0,
             observed_elements=0,
             limit_name="max_manifest_bytes",
+            observed_manifest_selection_bytes=observed_manifest_bytes,
+            observed_manifest_verification_bytes=0,
+            source_usage_complete=True,
         )
 
     try:
@@ -658,6 +1109,7 @@ def _core_manifest_profile_from_bytes(
     *,
     max_manifest_bytes: int,
     limits: CoreJsonReadLimits | None = None,
+    usage: ArtifactStoreReadUsage | None = None,
 ) -> CoreJsonManifestBoundedRead:
     """Create a sealed metadata carrier from one selected raw byte sequence."""
     _effective_ref, _manifest, _declaration = _parse_core_manifest_profile_components(
@@ -677,6 +1129,7 @@ def _core_manifest_profile_from_bytes(
         raw_manifest_bytes=raw_manifest_bytes,
         max_manifest_bytes=max_manifest_bytes,
         observed_manifest_bytes=observed_manifest_bytes,
+        usage=usage,
     )
     object.__setattr__(
         result,
@@ -686,6 +1139,7 @@ def _core_manifest_profile_from_bytes(
             raw_manifest_bytes=raw_manifest_bytes,
             max_manifest_bytes=max_manifest_bytes,
             observed_manifest_bytes=observed_manifest_bytes,
+            usage=usage,
         ),
     )
     return result
@@ -707,6 +1161,10 @@ def _verified_core_manifest_bounded_read(
         or bounded_read.raw_manifest_bytes != seal.raw_manifest_bytes
         or bounded_read.max_manifest_bytes != seal.max_manifest_bytes
         or bounded_read.observed_manifest_bytes != seal.observed_manifest_bytes
+        or bounded_read.usage != seal.usage
+        or (
+            bounded_read.usage is not None and not _is_artifact_store_read_usage(bounded_read.usage)
+        )
         or bounded_read.observed_manifest_bytes != len(bounded_read.raw_manifest_bytes)
         or bounded_read.max_manifest_bytes < 1
         or bounded_read.observed_manifest_bytes > bounded_read.max_manifest_bytes
@@ -722,7 +1180,7 @@ def _verified_core_manifest_bounded_read(
 
 
 def read_core_manifest_profile_bounded(
-    store: CoreJSONArtifactBoundedManifestReader,
+    store: CoreJSONArtifactBoundedManifestReceiptReader,
     selected_ref: ArtifactRef,
     *,
     max_manifest_bytes: int,
@@ -741,7 +1199,7 @@ def read_core_manifest_profile_bounded(
 
 
 def read_core_input_manifest_profile_bounded(
-    store: CoreJSONArtifactBoundedInputManifestReader,
+    store: CoreJSONArtifactBoundedInputManifestReceiptReader,
     input_ref: InputRef,
     *,
     max_manifest_bytes: int,
@@ -793,17 +1251,33 @@ def _decode_core_payload_under_declaration(
     )
 
 
+class _CoreJsonBoundedReadAbortError(Exception):
+    """Stop a bounded owner stream without its normal drain-and-verify finish."""
+
+    def __init__(
+        self,
+        code: str,
+        *,
+        payload_usage_unknown: bool = False,
+        original_exception: Exception | None = None,
+    ) -> None:
+        self.code = code
+        self.payload_usage_unknown = payload_usage_unknown
+        self.original_exception = original_exception
+        super().__init__(code)
+
+
 def read_core_json_artifact_bounded(
-    store: CoreJSONArtifactStreamingReader,
+    store: CoreJSONArtifactBoundedMemberReader,
     selected_ref: ArtifactRef,
     *,
     limits: CoreJsonReadLimits,
 ) -> CoreJsonArtifactBoundedRead:
-    """Stream and bound one exact selected Core JSON view before decoding it.
+    """Stream one exact selected Core JSON view without unbounded refusal drains.
 
-    This strict route requires a complete profile-qualified ArtifactRef and an
-    owner-verified open_member(ref, "blob") stream. Legacy readers keep their
-    existing API; qualifying callers supply selected policy limits.
+    This strict route requires a size-known bounded owner stream. It never
+    falls back to legacy ``open_member`` because that context drains and hashes
+    unread bytes on a normal exit.
     """
     if type(limits) is not CoreJsonReadLimits:
         raise TypeError("core_json_read_limits_required")
@@ -820,68 +1294,132 @@ def read_core_json_artifact_bounded(
         max_manifest_bytes=limits.max_manifest_bytes,
         limits=limits,
     )
-    typed_manifest = manifest_read.manifest
-    declaration = manifest_read.declaration
-    raw_manifest_bytes = manifest_read.raw_manifest_bytes
-    effective_ref = manifest_read.effective_ref
-
     try:
-        member_context = store.open_member(
-            selected_ref,
-            "blob",
-            max_manifest_bytes=limits.max_manifest_bytes,
-            expected_manifest_sha256=hashlib.sha256(raw_manifest_bytes).hexdigest(),
-        )
-    except ArtifactReadBoundsError as exc:
+        typed_manifest = manifest_read.manifest
+        declaration = manifest_read.declaration
+        raw_manifest_bytes = manifest_read.raw_manifest_bytes
+        effective_ref = manifest_read.effective_ref
+    except CoreJsonReadBoundsRefusalError:
+        raise
+    except Exception as exc:
         raise CoreJsonReadBoundsRefusalError(
-            "canon_profile_bounded_manifest_bytes_exceeded",
+            _refusal_code(exc, "canon_profile_bounded_manifest_validation_refused"),
             limits=limits,
             max_manifest_bytes=limits.max_manifest_bytes,
-            observed_manifest_bytes=exc.observed_bytes,
+            observed_manifest_bytes=manifest_read.observed_manifest_bytes,
+            observed_manifest_selection_bytes=manifest_read.observed_source_bytes,
+            observed_manifest_verification_bytes=0,
             observed_bytes=0,
             observed_depth=0,
             observed_elements=0,
-            limit_name="max_manifest_bytes",
+            source_usage_complete=True,
+            failure_stage="selected_manifest_local_validation",
+            **_refusal_metadata(exc),
         ) from exc
-    except (AttributeError, NotImplementedError, TypeError) as exc:
+    observed_payload_bytes = 0
+    source: Any | None = None
+    member_attempt: object | None = None
+    member_open_invoked = False
+    try:
+        bounded_member_open = getattr(store, "open_member_bounded", None)
+    except Exception as exc:
         raise CoreJsonReadBoundsRefusalError(
             "canon_profile_bounded_stream_unavailable",
             limits=limits,
             max_manifest_bytes=limits.max_manifest_bytes,
             observed_manifest_bytes=manifest_read.observed_manifest_bytes,
+            observed_manifest_selection_bytes=manifest_read.observed_source_bytes,
+            observed_manifest_verification_bytes=0,
             observed_bytes=0,
             observed_depth=0,
             observed_elements=0,
+            source_usage_complete=True,
+            failure_stage="bounded_member_open_preflight",
+            **_refusal_metadata(exc),
         ) from exc
-
-    payload = bytearray()
-    digest = hashlib.sha256()
-    scanner = _JsonStructureBoundsScanner()
-    observed_bytes = 0
-    refusal_code: str | None = None
+    if not callable(bounded_member_open):
+        raise CoreJsonReadBoundsRefusalError(
+            "canon_profile_bounded_stream_unavailable",
+            limits=limits,
+            max_manifest_bytes=limits.max_manifest_bytes,
+            observed_manifest_bytes=manifest_read.observed_manifest_bytes,
+            observed_manifest_selection_bytes=manifest_read.observed_source_bytes,
+            observed_manifest_verification_bytes=0,
+            observed_bytes=0,
+            observed_depth=0,
+            observed_elements=0,
+            source_usage_complete=True,
+            failure_stage="bounded_member_open_preflight",
+        )
     try:
+        member_open_invoked = True
+        member_context = bounded_member_open(
+            selected_ref,
+            "blob",
+            max_manifest_bytes=limits.max_manifest_bytes,
+            expected_manifest_sha256=hashlib.sha256(raw_manifest_bytes).hexdigest(),
+            max_member_bytes=limits.max_bytes,
+        )
+        member_attempt = member_context
+        payload = bytearray()
+        digest = hashlib.sha256()
+        scanner = _JsonStructureBoundsScanner()
         with member_context as source:
             while True:
-                if refusal_code is None:
-                    remaining_with_probe = limits.max_bytes - observed_bytes + 1
-                    read_size = min(64 * 1024, max(1, remaining_with_probe))
-                else:
-                    read_size = 64 * 1024
-                chunk = source.read(read_size)
-                if type(chunk) is not bytes:
-                    refusal_code = refusal_code or "canon_profile_bounded_stream_invalid"
+                remaining = limits.max_bytes - observed_payload_bytes
+                if remaining <= 0:
+                    if observed_payload_bytes < source.member_size_bytes:
+                        bounds_error = CoreJsonReadBoundsRefusalError(
+                            "canon_profile_bounded_bytes_exceeded",
+                            limits=limits,
+                            max_manifest_bytes=limits.max_manifest_bytes,
+                            observed_manifest_bytes=manifest_read.observed_manifest_bytes,
+                            observed_manifest_selection_bytes=manifest_read.observed_source_bytes,
+                            observed_manifest_verification_bytes=_exact_owner_count(
+                                source, "observed_manifest_verification_bytes"
+                            ),
+                            observed_bytes=observed_payload_bytes,
+                            observed_payload_size=_exact_owner_count(source, "member_size_bytes"),
+                            observed_depth=scanner.max_depth,
+                            observed_elements=scanner.elements,
+                            limit_name="max_bytes",
+                            source_usage_complete=False,
+                            failure_stage="bounded_payload_read",
+                        )
+                        raise _CoreJsonBoundedReadAbortError(
+                            bounds_error.code,
+                            original_exception=bounds_error,
+                        ) from bounds_error
                     break
+                try:
+                    chunk = source.read(min(64 * 1024, remaining))
+                except (ArtifactReadBoundsError, ArtifactMemberReadIntegrityError):
+                    raise
+                except Exception as read_exc:
+                    raise _CoreJsonBoundedReadAbortError(
+                        _refusal_code(
+                            read_exc,
+                            "canon_profile_bounded_stream_read_refused",
+                        ),
+                        payload_usage_unknown=False,
+                        original_exception=read_exc,
+                    ) from read_exc
+                if type(chunk) is not bytes:
+                    stream_error = TypeError("bounded_member_stream_must_return_bytes")
+                    raise _CoreJsonBoundedReadAbortError(
+                        "canon_profile_bounded_stream_invalid",
+                        payload_usage_unknown=True,
+                        original_exception=stream_error,
+                    ) from stream_error
                 if not chunk:
                     break
-                observed_bytes += len(chunk)
+                observed_payload_bytes += len(chunk)
                 digest.update(chunk)
-                if refusal_code is not None:
-                    continue
                 try:
                     _enforce_core_json_read_bounds(
                         limits,
                         observed_manifest_bytes=manifest_read.observed_manifest_bytes,
-                        observed_bytes=observed_bytes,
+                        observed_bytes=observed_payload_bytes,
                         observed_depth=scanner.max_depth,
                         observed_elements=scanner.elements,
                     )
@@ -889,66 +1427,159 @@ def read_core_json_artifact_bounded(
                     _enforce_core_json_read_bounds(
                         limits,
                         observed_manifest_bytes=manifest_read.observed_manifest_bytes,
-                        observed_bytes=observed_bytes,
+                        observed_bytes=observed_payload_bytes,
                         observed_depth=scanner.max_depth,
                         observed_elements=scanner.elements,
                     )
                 except CoreJsonReadBoundsRefusalError as exc:
-                    refusal_code = exc.code
-                    continue
+                    raise _CoreJsonBoundedReadAbortError(
+                        exc.code,
+                        original_exception=exc,
+                    ) from exc
                 payload.extend(chunk)
-    except ArtifactReadBoundsError as exc:
-        raise CoreJsonReadBoundsRefusalError(
-            "canon_profile_bounded_manifest_bytes_exceeded",
-            limits=limits,
-            max_manifest_bytes=limits.max_manifest_bytes,
-            observed_manifest_bytes=exc.observed_bytes,
-            observed_bytes=observed_bytes,
-            observed_depth=scanner.max_depth,
-            observed_elements=scanner.elements,
-            limit_name="max_manifest_bytes",
-        ) from exc
-    except NotImplementedError as exc:
-        raise CoreJsonReadBoundsRefusalError(
-            "canon_profile_bounded_stream_unavailable",
-            limits=limits,
-            max_manifest_bytes=limits.max_manifest_bytes,
-            observed_manifest_bytes=manifest_read.observed_manifest_bytes,
-            observed_bytes=observed_bytes,
-            observed_depth=scanner.max_depth,
-            observed_elements=scanner.elements,
-        ) from exc
 
-    if refusal_code is not None:
+        if source is None or not _owner_integrity_verified(source):
+            raise CanonicalProfileRefusalError("canon_profile_member_integrity_unverified")
+        receipt = source.receipt
+        if (
+            receipt.sha256 != typed_manifest.integrity.sha256
+            or receipt.byte_size != typed_manifest.byte_size
+            or source.member_size_bytes != typed_manifest.byte_size
+            or observed_payload_bytes != source.member_size_bytes
+            or digest.hexdigest() != typed_manifest.integrity.sha256
+        ):
+            raise CanonicalProfileRefusalError("canon_profile_selected_payload_identity_mismatch")
+        raw_payload_bytes = bytes(payload)
+        profile_read = _decode_core_payload_under_declaration(raw_payload_bytes, declaration)
+        profile_read = _bind_selected_artifact_identity(
+            profile_read,
+            artifact_id=str(typed_manifest.artifact_id),
+            manifest_profile_sha256=artifact_manifest_profile_sha256(typed_manifest),
+        )
+        require_declared_profile(profile_read)
+    except Exception as exc:
+        owner_usage = _exact_owner_usage(member_attempt) if member_attempt is not None else None
+        if owner_usage is not None:
+            verification_bytes = owner_usage.observed_manifest_verification_bytes
+            payload_bytes = owner_usage.observed_payload_bytes
+            payload_size = owner_usage.observed_payload_size
+            payload_verified = owner_usage.payload_integrity_verified
+            failure_stage = owner_usage.failure_stage or "bounded_payload_validation"
+            cleanup_failure_stage = owner_usage.cleanup_failure_stage
+            cleanup_exception_type = owner_usage.cleanup_exception_type
+            cleanup_exception_code = owner_usage.cleanup_exception_code
+        elif member_open_invoked:
+            verification_bytes = None
+            payload_bytes = None
+            payload_size = None
+            payload_verified = False
+            failure_stage = "bounded_member_usage_unknown"
+            cleanup_failure_stage = None
+            cleanup_exception_type = None
+            cleanup_exception_code = None
+        else:
+            verification_bytes = 0
+            payload_bytes = 0
+            payload_size = None
+            payload_verified = False
+            failure_stage = "bounded_member_open_preflight"
+            cleanup_failure_stage = None
+            cleanup_exception_type = None
+            cleanup_exception_code = None
+        original = (
+            exc.original_exception
+            if isinstance(exc, _CoreJsonBoundedReadAbortError)
+            and exc.original_exception is not None
+            else exc
+        )
+        if isinstance(exc, _CoreJsonBoundedReadAbortError):
+            refusal_code = exc.code
+        else:
+            refusal_code = _refusal_code(
+                original,
+                "canon_profile_bounded_payload_validation_refused"
+                if payload_verified
+                else "canon_profile_bounded_stream_unavailable",
+            )
+        if isinstance(original, ArtifactMemberReadBoundsError):
+            limit_name = "max_bytes"
+        elif type(original) is ArtifactReadBoundsError:
+            limit_name = "max_manifest_bytes"
+        else:
+            limit_name = {
+                "canon_profile_bounded_bytes_exceeded": "max_bytes",
+                "canon_profile_bounded_depth_exceeded": "max_depth",
+                "canon_profile_bounded_elements_exceeded": "max_elements",
+            }.get(refusal_code)
         raise CoreJsonReadBoundsRefusalError(
             refusal_code,
             limits=limits,
             max_manifest_bytes=limits.max_manifest_bytes,
             observed_manifest_bytes=manifest_read.observed_manifest_bytes,
-            observed_bytes=observed_bytes,
+            observed_manifest_selection_bytes=manifest_read.observed_source_bytes,
+            observed_manifest_verification_bytes=verification_bytes,
+            observed_bytes=payload_bytes,
+            observed_payload_size=payload_size,
+            observed_depth=(scanner.max_depth if "scanner" in locals() else 0),
+            observed_elements=(scanner.elements if "scanner" in locals() else 0),
+            payload_integrity_verified=payload_verified,
+            source_usage_complete=(
+                type(manifest_read.observed_source_bytes) is int
+                and type(verification_bytes) is int
+                and type(payload_bytes) is int
+            ),
+            failure_stage=failure_stage,
+            cleanup_failure_stage=cleanup_failure_stage,
+            cleanup_exception_type=cleanup_exception_type,
+            cleanup_exception_code=cleanup_exception_code,
+            limit_name=limit_name,
+            **_refusal_metadata(original),
+        ) from original
+
+    owner_usage = _exact_owner_usage(member_attempt)
+    observed_manifest_verification_bytes = (
+        owner_usage.observed_manifest_verification_bytes if owner_usage is not None else None
+    )
+    observed_payload_size = owner_usage.observed_payload_size if owner_usage is not None else None
+    observed_payload_bytes = owner_usage.observed_payload_bytes if owner_usage is not None else None
+    payload_integrity_verified = (
+        owner_usage.payload_integrity_verified if owner_usage is not None else False
+    )
+    if (
+        owner_usage is None
+        or owner_usage.observed_source_bytes is None
+        or type(observed_manifest_verification_bytes) is not int
+        or type(observed_payload_size) is not int
+        or type(observed_payload_bytes) is not int
+        or not payload_integrity_verified
+        or observed_payload_bytes != _exact_owner_count(source, "observed_payload_bytes")
+        or observed_manifest_verification_bytes
+        != _exact_owner_count(source, "observed_manifest_verification_bytes")
+        or observed_payload_size != _exact_owner_count(source, "member_size_bytes")
+    ):
+        raise CoreJsonReadBoundsRefusalError(
+            "canon_profile_bounded_usage_or_integrity_unavailable",
+            limits=limits,
+            max_manifest_bytes=limits.max_manifest_bytes,
+            observed_manifest_bytes=manifest_read.observed_manifest_bytes,
+            observed_manifest_selection_bytes=manifest_read.observed_source_bytes,
+            observed_manifest_verification_bytes=observed_manifest_verification_bytes,
+            observed_bytes=observed_payload_bytes,
+            observed_payload_size=observed_payload_size,
+            payload_integrity_verified=payload_integrity_verified,
             observed_depth=scanner.max_depth,
             observed_elements=scanner.elements,
-            limit_name={
-                "canon_profile_bounded_bytes_exceeded": "max_bytes",
-                "canon_profile_bounded_depth_exceeded": "max_depth",
-                "canon_profile_bounded_elements_exceeded": "max_elements",
-                "canon_profile_bounded_manifest_bytes_exceeded": "max_manifest_bytes",
-            }.get(refusal_code),
+            source_usage_complete=(
+                type(manifest_read.observed_source_bytes) is int
+                and owner_usage is not None
+                and owner_usage.observed_source_bytes is not None
+            ),
+            failure_stage=(
+                owner_usage.failure_stage
+                if owner_usage is not None
+                else "bounded_payload_receipt_validation"
+            ),
         )
-    raw_payload_bytes = bytes(payload)
-    if (
-        observed_bytes != typed_manifest.byte_size
-        or digest.hexdigest() != typed_manifest.artifact_id.hex
-    ):
-        raise CanonicalProfileRefusalError("canon_profile_selected_payload_identity_mismatch")
-
-    profile_read = _decode_core_payload_under_declaration(raw_payload_bytes, declaration)
-    profile_read = _bind_selected_artifact_identity(
-        profile_read,
-        artifact_id=str(typed_manifest.artifact_id),
-        manifest_profile_sha256=artifact_manifest_profile_sha256(typed_manifest),
-    )
-    require_declared_profile(profile_read)
     bounded_read = CoreJsonArtifactBoundedRead(
         effective_ref=effective_ref,
         manifest=typed_manifest,
@@ -956,7 +1587,10 @@ def read_core_json_artifact_bounded(
         raw_payload_bytes=raw_payload_bytes,
         limits=limits,
         observed_manifest_bytes=manifest_read.observed_manifest_bytes,
-        observed_bytes=observed_bytes,
+        observed_manifest_verification_bytes=observed_manifest_verification_bytes,
+        observed_bytes=observed_payload_bytes,
+        observed_payload_size=observed_payload_size,
+        payload_integrity_verified=payload_integrity_verified,
         observed_depth=scanner.max_depth,
         observed_elements=scanner.elements,
     )
@@ -969,7 +1603,10 @@ def read_core_json_artifact_bounded(
             raw_payload_bytes=raw_payload_bytes,
             limits=limits,
             observed_manifest_bytes=manifest_read.observed_manifest_bytes,
-            observed_bytes=observed_bytes,
+            observed_manifest_verification_bytes=observed_manifest_verification_bytes,
+            observed_bytes=observed_payload_bytes,
+            observed_payload_size=observed_payload_size,
+            payload_integrity_verified=payload_integrity_verified,
             observed_depth=scanner.max_depth,
             observed_elements=scanner.elements,
         ),
@@ -1000,17 +1637,27 @@ def _verified_core_json_bounded_view(
         raise CanonicalProfileRefusalError("canon_profile_bounded_read_carrier_mismatch")
     observed = (
         bounded_read.observed_manifest_bytes,
+        bounded_read.observed_manifest_verification_bytes,
         bounded_read.observed_bytes,
+        bounded_read.observed_payload_size,
         bounded_read.observed_depth,
         bounded_read.observed_elements,
     )
     sealed_observed = (
         seal.observed_manifest_bytes,
+        seal.observed_manifest_verification_bytes,
         seal.observed_bytes,
+        seal.observed_payload_size,
         seal.observed_depth,
         seal.observed_elements,
     )
-    if any(type(value) is not int for value in observed) or observed != sealed_observed:
+    if (
+        any(type(value) is not int for value in observed)
+        or observed != sealed_observed
+        or type(bounded_read.payload_integrity_verified) is not bool
+        or bounded_read.payload_integrity_verified is not seal.payload_integrity_verified
+        or bounded_read.payload_integrity_verified is not True
+    ):
         raise CanonicalProfileRefusalError("canon_profile_bounded_read_measurement_mismatch")
 
     manifest_read = _core_manifest_profile_from_bytes(
@@ -1036,17 +1683,20 @@ def _verified_core_json_bounded_view(
     scanner.feed(raw_payload_bytes)
     if (
         observed[0] != len(seal.raw_manifest_bytes)
-        or observed[1] != len(raw_payload_bytes)
-        or observed[2] != scanner.max_depth
-        or observed[3] != scanner.elements
+        or observed[1] != len(seal.raw_manifest_bytes)
+        or observed[2] != len(raw_payload_bytes)
+        or observed[3] != len(raw_payload_bytes)
+        or observed[4] != scanner.max_depth
+        or observed[5] != scanner.elements
+        or bounded_read.observed_source_bytes != observed[0] + observed[1] + observed[2]
     ):
         raise CanonicalProfileRefusalError("canon_profile_bounded_read_measurement_mismatch")
     _enforce_core_json_read_bounds(
         seal.limits,
         observed_manifest_bytes=observed[0],
-        observed_bytes=observed[1],
-        observed_depth=observed[2],
-        observed_elements=observed[3],
+        observed_bytes=observed[2],
+        observed_depth=observed[4],
+        observed_elements=observed[5],
     )
 
     profile_read = _decode_core_payload_under_declaration(

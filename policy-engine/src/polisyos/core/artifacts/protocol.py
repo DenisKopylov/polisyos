@@ -25,10 +25,15 @@ if TYPE_CHECKING:
 
     from polisyos.core.canon.canon_json import CanonSpec
 
-    from ._integrity_ops import VerificationReport
+    from ._integrity_ops import (
+        ArtifactBoundedManifestRead,
+        ArtifactStoreReadUsage,
+        VerificationReport,
+    )
     from .ids import ArtifactID
     from .manifest import ArtifactAuthorityInfo, ArtifactManifest, ArtifactRef, InputRef
     from .signing import Ed25519Verifier, SignatureVerificationResult
+    from .store import ArtifactMemberReceipt
     from .write_contract import ArtifactWriteOptions
 
 
@@ -317,6 +322,36 @@ class CoreJSONArtifactMemberStream(Protocol):
 
 
 @runtime_checkable
+class CoreJSONArtifactBoundedMemberStream(CoreJSONArtifactMemberStream, Protocol):
+    """Owner-measured selected blob stream whose reads and full receipt are bounded."""
+
+    @property
+    def member_size_bytes(self) -> int:
+        """Return the exact regular-file size checked against the selected manifest."""
+        ...
+
+    @property
+    def observed_manifest_verification_bytes(self) -> int:
+        """Return exact selected-manifest bytes transferred during owner verification."""
+        ...
+
+    @property
+    def observed_payload_bytes(self) -> int:
+        """Return exact payload bytes returned to the bounded reader so far."""
+        ...
+
+    @property
+    def payload_integrity_verified(self) -> bool:
+        """Return whether full member size and digest verification has completed."""
+        ...
+
+    @property
+    def receipt(self) -> ArtifactMemberReceipt:
+        """Return the full content receipt, available only after verified EOF."""
+        ...
+
+
+@runtime_checkable
 class CoreJSONArtifactBoundedManifestReader(Protocol):
     """Read one exact profile-qualified raw manifest under a caller byte limit.
 
@@ -355,6 +390,34 @@ class CoreJSONArtifactBoundedInputManifestReader(Protocol):
 
 
 @runtime_checkable
+class CoreJSONArtifactBoundedManifestReceiptReader(Protocol):
+    """Additive exact-usage companion to legacy bytes-only bounded manifest reads."""
+
+    def read_raw_manifest_bytes_bounded(
+        self,
+        artifact_id: ArtifactRef,
+        *,
+        max_manifest_bytes: int,
+    ) -> ArtifactBoundedManifestRead:
+        """Read selected manifest bytes with owner-measured transfers or typed refusal."""
+        ...
+
+
+@runtime_checkable
+class CoreJSONArtifactBoundedInputManifestReceiptReader(Protocol):
+    """Owner-measured bounded manifest reads selected by one explicit input edge."""
+
+    def read_raw_manifest_bytes_bounded_for_input(
+        self,
+        input_ref: InputRef,
+        *,
+        max_manifest_bytes: int,
+    ) -> ArtifactBoundedManifestRead:
+        """Read one exact input-selected sidecar with an immutable owner receipt."""
+        ...
+
+
+@runtime_checkable
 class CoreJSONArtifactStreamingReader(
     CoreJSONArtifactProfileReader,
     CoreJSONArtifactBoundedManifestReader,
@@ -376,6 +439,44 @@ class CoreJSONArtifactStreamingReader(
         expected digest must match the exact manifest bytes observed at open time
         before the selected blob stream becomes available.
         """
+        ...
+
+
+@runtime_checkable
+class CoreJSONArtifactBoundedMemberReader(
+    CoreJSONArtifactStreamingReader,
+    CoreJSONArtifactBoundedManifestReceiptReader,
+    Protocol,
+):
+    """Add a no-drain owner seam for strict bounded selected blob reads."""
+
+    def open_member_bounded(
+        self,
+        artifact_id: ArtifactRef,
+        member: Literal["blob"],
+        *,
+        max_manifest_bytes: int,
+        expected_manifest_sha256: str,
+        max_member_bytes: int,
+    ) -> CoreJSONArtifactBoundedMemberAttempt:
+        """Open only a size-known selected blob under an exact manifest/profile check.
+
+        The owner refuses an over-cap regular-file size before returning payload
+        bytes. It exposes exact selected-store transfer counts and closes without
+        draining when the caller aborts the context.
+        """
+        ...
+
+
+@runtime_checkable
+class CoreJSONArtifactBoundedMemberAttempt(
+    AbstractContextManager[CoreJSONArtifactBoundedMemberStream], Protocol
+):
+    """Bounded member context whose exact usage receipt exists before entry."""
+
+    @property
+    def usage(self) -> ArtifactStoreReadUsage:
+        """Return owner-measured transfers or explicit unknown phase counts."""
         ...
 
 
@@ -577,5 +678,7 @@ class AsyncArtifactStore(Protocol):
     ) -> VerificationReport:  # pragma: no cover - protocol
         ...
 
-    async def iter_artifact_ids(self) -> list[ArtifactID]:  # pragma: no cover - protocol
+    async def iter_artifact_ids(
+        self,
+    ) -> list[ArtifactID]:  # pragma: no cover - protocol
         ...

@@ -1,6 +1,7 @@
 from __future__ import annotations
 
 import json
+import os
 from collections.abc import Callable
 from pathlib import Path
 from types import SimpleNamespace
@@ -10,6 +11,7 @@ import pytest
 
 from polisyos.common.canonical_profile import require_declared_profile
 from polisyos.core.artifacts import (
+    CoreJsonReadBoundsRefusalError,
     CoreJsonReadLimits,
     read_core_json_artifact_bounded,
     read_core_manifest_profile_bounded,
@@ -183,6 +185,15 @@ def test_canonical_envelope_is_materialized_and_reopened_by_fresh_reader(
     assert prepared.method_fqn == _METHOD_FQN
     assert prepared.observed_bytes > 0
     assert prepared.observed_manifest_bytes > 0
+    assert prepared.observed_manifest_selection_bytes == prepared.observed_manifest_bytes
+    assert prepared.observed_manifest_verification_bytes > 0
+    assert prepared.observed_payload_bytes == prepared.observed_bytes
+    assert prepared.observed_source_bytes == (
+        prepared.observed_manifest_selection_bytes
+        + prepared.observed_manifest_verification_bytes
+        + prepared.observed_payload_bytes
+    )
+    assert prepared.payload_integrity_verified is True
     assert prepared.observed_depth > 0
     assert prepared.observed_elements > 0
     assert "candidate_input_not_external_truth" in prepared.limitations
@@ -202,6 +213,15 @@ def test_canonical_envelope_is_materialized_and_reopened_by_fresh_reader(
         limits=_limits(),
     )
     assert prepared.observed_manifest_bytes == fresh_read.observed_manifest_bytes
+    assert (
+        prepared.observed_manifest_selection_bytes == fresh_read.observed_manifest_selection_bytes
+    )
+    assert (
+        prepared.observed_manifest_verification_bytes
+        == fresh_read.observed_manifest_verification_bytes
+    )
+    assert prepared.observed_payload_bytes == fresh_read.observed_payload_bytes
+    assert prepared.observed_source_bytes == fresh_read.observed_source_bytes
     fresh_payload = require_declared_profile(fresh_read.profile_read)
     assert fresh_payload["schema_version"] == "policyos.ir.observation.method_input_envelope.v1"
     assert fresh_payload["contract_target"]["contract_id"] == HTE_OBSERVATIONAL_DATA_CONTRACT_ID
@@ -244,6 +264,15 @@ def test_explicit_legacy_protocol_writes_profile_bound_envelope_and_fresh_reader
     assert prepared.effective_ref.manifest_profile_sha256 is not None
     assert prepared.effective_artifact_schema == _ENVELOPE_SCHEMA
     assert prepared.observed_manifest_bytes == selected_manifest.observed_manifest_bytes
+    assert prepared.observed_manifest_selection_bytes == prepared.observed_manifest_bytes
+    assert prepared.observed_manifest_verification_bytes > 0
+    assert prepared.observed_payload_bytes == prepared.observed_bytes
+    assert prepared.observed_source_bytes == (
+        prepared.observed_manifest_selection_bytes
+        + prepared.observed_manifest_verification_bytes
+        + prepared.observed_payload_bytes
+    )
+    assert prepared.payload_integrity_verified is True
     assert prepared.source_protocol == "legacy_hte_json_v1"
     assert prepared.normalization == "legacy_to_method_input_envelope_v1"
     assert "legacy_hte_json_v1_source_normalized" in prepared.limitations
@@ -356,7 +385,9 @@ def test_legacy_source_does_not_treat_typed_public_default_as_raw_declaration(
     assert _artifact_id_strings(store) == ids_before
 
 
-def test_canonical_envelope_preserves_absent_governance_as_absent(tmp_path: Path) -> None:
+def test_canonical_envelope_preserves_absent_governance_as_absent(
+    tmp_path: Path,
+) -> None:
     store = FileSystemCAS(tmp_path / "cas", ownership_enforced=False)
     source_ref = _put_envelope(store, governance=None)
 
@@ -460,7 +491,9 @@ def test_protocol_b_requires_exact_outer_manifest_schema(tmp_path: Path) -> None
         _prepare(store, source_ref)
 
 
-def test_a_protocol_requires_an_explicit_selected_manifest_profile(tmp_path: Path) -> None:
+def test_a_protocol_requires_an_explicit_selected_manifest_profile(
+    tmp_path: Path,
+) -> None:
     store = FileSystemCAS(tmp_path / "cas", ownership_enforced=False)
     source_ref = _put_source(
         store,
@@ -505,8 +538,453 @@ def test_core_resource_policy_limits_refuse_before_hte_materialization(
         lambda _payload: (_ for _ in ()).throw(AssertionError("HTE materialization ran")),
     )
 
-    with pytest.raises(HTEInputPreparationRefusal, match="selected_source_read_refused"):
+    with pytest.raises(
+        HTEInputPreparationRefusal,
+        match="selected_source_read_refused",
+    ) as refusal:
         _prepare(store, source_ref, protocol=protocol, limits=limits)
+    assert refusal.value.observed_source_bytes == (
+        refusal.value.observed_manifest_selection_bytes
+        + refusal.value.observed_manifest_verification_bytes
+        + refusal.value.observed_payload_bytes
+    )
+    assert refusal.value.payload_integrity_verified is False
+    assert _artifact_id_strings(store) == ids_before
+
+
+def test_hte_refusal_preserves_unknown_usage_from_attempted_core_open(
+    tmp_path: Path,
+    monkeypatch: pytest.MonkeyPatch,
+) -> None:
+    store = FileSystemCAS(tmp_path / "cas", ownership_enforced=False)
+    source_ref = _put_envelope(store)
+
+    def fail_after_open_attempt(*_args: Any, **_kwargs: Any) -> Any:
+        raise TypeError("injected failure after bounded open was attempted")
+
+    monkeypatch.setattr(FileSystemCAS, "open_member_bounded", fail_after_open_attempt)
+
+    with pytest.raises(HTEInputPreparationRefusal, match="selected_source_read_refused") as error:
+        _prepare(store, source_ref)
+
+    refusal = error.value
+    assert refusal.observed_manifest_selection_bytes > 0
+    assert refusal.observed_manifest_verification_bytes is None
+    assert refusal.observed_payload_bytes is None
+    assert refusal.observed_source_bytes is None
+    assert refusal.payload_integrity_verified is False
+    assert refusal.original_exception_type == "TypeError"
+    assert isinstance(refusal.__cause__, CoreJsonReadBoundsRefusalError)
+    assert isinstance(refusal.__cause__.__cause__, TypeError)
+
+
+def test_hte_semantic_refusal_after_verified_full_read_keeps_usage_without_output(
+    tmp_path: Path,
+    monkeypatch: pytest.MonkeyPatch,
+) -> None:
+    import polisyos.foundry.data_plane.bindings as bindings
+
+    store = FileSystemCAS(tmp_path / "cas", ownership_enforced=False)
+    source_ref = _put_envelope(store)
+    source_payload = store.get_bytes(source_ref)
+    ids_before = _artifact_id_strings(store)
+
+    def refuse_after_core_read(_payload: Any) -> Any:
+        raise HTEInputPreparationRefusal("injected_hte_semantic_refusal")
+
+    monkeypatch.setattr(bindings, "_materialize_hte_observational_data", refuse_after_core_read)
+
+    with pytest.raises(HTEInputPreparationRefusal, match="injected_hte_semantic_refusal") as error:
+        _prepare(store, source_ref)
+
+    refusal = error.value
+    assert refusal.observed_manifest_selection_bytes > 0
+    assert refusal.observed_manifest_verification_bytes > 0
+    assert refusal.observed_payload_bytes == len(source_payload)
+    assert refusal.observed_source_bytes == (
+        refusal.observed_manifest_selection_bytes
+        + refusal.observed_manifest_verification_bytes
+        + len(source_payload)
+    )
+    assert refusal.payload_integrity_verified is True
+    assert refusal.failure_stage == "hte_selected_source_validation"
+    assert refusal.cleanup_failure_stage is None
+    assert refusal.cleanup_exception_type is None
+    assert _artifact_id_strings(store) == ids_before
+
+
+@pytest.mark.parametrize(
+    ("mode", "expected_code", "expected_stage"),
+    [
+        (
+            "serialization",
+            "legacy_hte_normalization_refused",
+            "normalized_hte_input_serialization",
+        ),
+        (
+            "bounds",
+            "normalized_hte_input_exceeds_byte_limit",
+            "normalized_hte_input_bounds_validation",
+        ),
+    ],
+)
+def test_hte_legacy_output_prewrite_refusal_keeps_source_usage_without_output(
+    tmp_path: Path,
+    monkeypatch: pytest.MonkeyPatch,
+    mode: str,
+    expected_code: str,
+    expected_stage: str,
+) -> None:
+    import polisyos.foundry.data_plane.bindings as bindings
+
+    store = FileSystemCAS(tmp_path / "cas", ownership_enforced=False)
+    source_payload = _valid_payload()
+    source_payload.update(
+        {
+            "confounders": None,
+            "confounder_names": None,
+            "feature_names": None,
+            "sample_ids": None,
+        }
+    )
+    source_ref = _put_source(
+        store,
+        source_payload,
+        kind="ir.observational_data",
+        schema=None,
+    )
+    source_payload_bytes = store.get_bytes(source_ref)
+    manifest_bytes = store.get_raw_manifest_bytes(
+        source_ref,
+        manifest_profile_sha256=source_ref.manifest_profile_sha256,
+    )
+    ids_before = _artifact_id_strings(store)
+    if mode == "serialization":
+        serialization_error = ValueError("injected normalized output serialization refusal")
+
+        def refuse_serialization(*args: Any, **kwargs: Any) -> bytes:
+            raise serialization_error
+
+        monkeypatch.setattr(bindings, "to_canonical_bytes", refuse_serialization)
+        limits = _limits()
+    else:
+        max_bytes = len(source_payload_bytes) + 1
+        limits = _limits(max_bytes=max_bytes)
+
+        def exceed_normalized_bounds(*args: Any, **kwargs: Any) -> bytes:
+            return b"x" * (max_bytes + 1)
+
+        monkeypatch.setattr(bindings, "to_canonical_bytes", exceed_normalized_bounds)
+
+    with pytest.raises(HTEInputPreparationRefusal, match=expected_code) as error:
+        _prepare(store, source_ref, protocol="legacy_hte_json_v1", limits=limits)
+
+    refusal = error.value
+    assert refusal.code == expected_code
+    assert refusal.observed_manifest_selection_bytes == len(manifest_bytes)
+    assert refusal.observed_manifest_verification_bytes == len(manifest_bytes)
+    assert refusal.observed_payload_bytes == len(source_payload_bytes)
+    assert refusal.observed_source_bytes == (2 * len(manifest_bytes) + len(source_payload_bytes))
+    assert refusal.payload_integrity_verified is True
+    assert refusal.failure_stage == expected_stage
+    assert refusal.cleanup_failure_stage is None
+    assert refusal.cleanup_exception_type is None
+    assert refusal.cleanup_exception_code is None
+    assert _artifact_id_strings(store) == ids_before
+    if mode == "serialization":
+        assert refusal.original_exception_type == "ValueError"
+        assert isinstance(refusal.__cause__, HTEInputPreparationRefusal)
+        assert refusal.__cause__.__cause__ is serialization_error
+
+
+def test_hte_normalized_output_write_refusal_keeps_source_usage_without_output(
+    tmp_path: Path,
+    monkeypatch: pytest.MonkeyPatch,
+) -> None:
+    store = FileSystemCAS(tmp_path / "cas", ownership_enforced=False)
+    source_payload = _valid_payload()
+    source_payload.update(
+        {
+            "confounders": None,
+            "confounder_names": None,
+            "feature_names": None,
+            "sample_ids": None,
+        }
+    )
+    source_ref = _put_source(
+        store,
+        source_payload,
+        kind="ir.observational_data",
+        schema=None,
+    )
+    source_payload_bytes = store.get_bytes(source_ref)
+    manifest_bytes = store.get_raw_manifest_bytes(
+        source_ref,
+        manifest_profile_sha256=source_ref.manifest_profile_sha256,
+    )
+    ids_before = _artifact_id_strings(store)
+    write_error = OSError("injected normalized output write refusal")
+
+    def refuse_output_write(*args: Any, **kwargs: Any) -> ArtifactRef:
+        raise write_error
+
+    monkeypatch.setattr(store, "put_bytes", refuse_output_write)
+    with pytest.raises(
+        HTEInputPreparationRefusal,
+        match="normalized_hte_input_write_refused",
+    ) as error:
+        _prepare(store, source_ref, protocol="legacy_hte_json_v1")
+
+    refusal = error.value
+    assert refusal.observed_manifest_selection_bytes == len(manifest_bytes)
+    assert refusal.observed_manifest_verification_bytes == len(manifest_bytes)
+    assert refusal.observed_payload_bytes == len(source_payload_bytes)
+    assert refusal.observed_source_bytes == (2 * len(manifest_bytes) + len(source_payload_bytes))
+    assert refusal.payload_integrity_verified is True
+    assert refusal.failure_stage == "normalized_hte_input_write"
+    assert refusal.cleanup_failure_stage is None
+    assert refusal.cleanup_exception_type is None
+    assert refusal.cleanup_exception_code is None
+    assert refusal.original_exception_type == "OSError"
+    assert isinstance(refusal.__cause__, HTEInputPreparationRefusal)
+    assert refusal.__cause__.__cause__ is write_error
+    assert _artifact_id_strings(store) == ids_before
+
+
+def test_hte_normalized_output_profile_refusal_keeps_source_usage_and_nonadmission(
+    tmp_path: Path,
+    monkeypatch: pytest.MonkeyPatch,
+) -> None:
+    store = FileSystemCAS(tmp_path / "cas", ownership_enforced=False)
+    source_payload = _valid_payload()
+    source_payload.update(
+        {
+            "confounders": None,
+            "confounder_names": None,
+            "feature_names": None,
+            "sample_ids": None,
+        }
+    )
+    source_ref = _put_source(
+        store,
+        source_payload,
+        kind="ir.observational_data",
+        schema=None,
+    )
+    source_payload_bytes = store.get_bytes(source_ref)
+    manifest_bytes = store.get_raw_manifest_bytes(
+        source_ref,
+        manifest_profile_sha256=source_ref.manifest_profile_sha256,
+    )
+    ids_before = _artifact_id_strings(store)
+    real_put_bytes = store.put_bytes
+
+    def omit_selected_output_profile(*args: Any, **kwargs: Any) -> ArtifactRef:
+        ref = real_put_bytes(*args, **kwargs)
+        return ref.model_copy(update={"manifest_profile_sha256": None})
+
+    monkeypatch.setattr(store, "put_bytes", omit_selected_output_profile)
+    with pytest.raises(
+        HTEInputPreparationRefusal,
+        match="normalized_hte_profile_missing",
+    ) as error:
+        _prepare(store, source_ref, protocol="legacy_hte_json_v1")
+
+    refusal = error.value
+    assert refusal.observed_manifest_selection_bytes == len(manifest_bytes)
+    assert refusal.observed_manifest_verification_bytes == len(manifest_bytes)
+    assert refusal.observed_payload_bytes == len(source_payload_bytes)
+    assert refusal.observed_source_bytes == (2 * len(manifest_bytes) + len(source_payload_bytes))
+    assert refusal.payload_integrity_verified is True
+    assert refusal.failure_stage == "normalized_hte_input_profile_validation"
+    assert refusal.cleanup_failure_stage is None
+    assert refusal.cleanup_exception_type is None
+    assert refusal.cleanup_exception_code is None
+    assert len(_artifact_id_strings(store) - ids_before) == 1
+
+
+def test_hte_owner_open_partial_failure_keeps_unknown_attempt_usage_and_cause_chain(
+    tmp_path: Path,
+    monkeypatch: pytest.MonkeyPatch,
+) -> None:
+    import polisyos.core.artifacts.store as store_module
+
+    store = FileSystemCAS(tmp_path / "cas", ownership_enforced=False)
+    source_ref = _put_envelope(store)
+    selected_manifest = store.get_raw_manifest_bytes(
+        source_ref,
+        manifest_profile_sha256=source_ref.manifest_profile_sha256,
+    )
+    real_fdopen = os.fdopen
+    fdopen_calls = 0
+
+    class ReadThenRaise:
+        def __init__(self, wrapped: Any) -> None:
+            self._wrapped = wrapped
+
+        def __enter__(self):
+            return self
+
+        def __exit__(self, exc_type, exc, traceback):
+            return self._wrapped.__exit__(exc_type, exc, traceback)
+
+        def close(self) -> None:
+            self._wrapped.close()
+
+        def fileno(self) -> int:
+            return self._wrapped.fileno()
+
+        def read(self, size: int = -1) -> bytes:
+            self._wrapped.read(size)
+            raise OSError("injected owner read failure after hidden transfer")
+
+    def fail_during_verification(fd: int, *args: Any, **kwargs: Any) -> Any:
+        nonlocal fdopen_calls
+        fdopen_calls += 1
+        wrapped = real_fdopen(fd, *args, **kwargs)
+        return ReadThenRaise(wrapped) if fdopen_calls == 2 else wrapped
+
+    monkeypatch.setattr(store_module.os, "fdopen", fail_during_verification)
+    with pytest.raises(HTEInputPreparationRefusal, match="selected_source_read_refused") as error:
+        _prepare(store, source_ref)
+
+    refusal = error.value
+    assert fdopen_calls == 2
+    assert refusal.observed_manifest_selection_bytes == len(selected_manifest)
+    assert refusal.observed_manifest_verification_bytes is None
+    assert refusal.observed_payload_bytes == 0
+    assert refusal.observed_source_bytes is None
+    assert refusal.payload_integrity_verified is False
+    assert refusal.original_exception_type == "OSError"
+    assert isinstance(refusal.__cause__, CoreJsonReadBoundsRefusalError)
+    assert refusal.__cause__.observed_manifest_verification_bytes is None
+    assert isinstance(refusal.__cause__.__cause__, OSError)
+
+
+@pytest.mark.parametrize(
+    ("cleanup_code", "expected_cleanup_code"),
+    [("hte_cleanup_code", "hte_cleanup_code"), (17, None)],
+)
+def test_hte_refuses_verified_source_when_member_close_fails(
+    tmp_path: Path,
+    monkeypatch: pytest.MonkeyPatch,
+    cleanup_code: object,
+    expected_cleanup_code: str | None,
+) -> None:
+    import polisyos.core.artifacts.store as store_module
+
+    store = FileSystemCAS(tmp_path / "cas", ownership_enforced=False)
+    source_ref = _put_envelope(store)
+    source_payload = store.get_bytes(source_ref)
+    ids_before = _artifact_id_strings(store)
+    real_fdopen = os.fdopen
+    fdopen_calls = 0
+
+    class CloseError(OSError):
+        code: object
+
+    close_error = CloseError("injected HTE payload close failure after verification")
+    close_error.code = cleanup_code
+
+    class CloseThenRaise:
+        def __init__(self, wrapped: Any) -> None:
+            self._wrapped = wrapped
+
+        def fileno(self) -> int:
+            return self._wrapped.fileno()
+
+        def read(self, size: int = -1) -> bytes:
+            return self._wrapped.read(size)
+
+        def close(self) -> None:
+            self._wrapped.close()
+            raise close_error
+
+    def fail_payload_close(descriptor: int, *args: Any, **kwargs: Any) -> Any:
+        nonlocal fdopen_calls
+        fdopen_calls += 1
+        wrapped = real_fdopen(descriptor, *args, **kwargs)
+        return CloseThenRaise(wrapped) if fdopen_calls == 3 else wrapped
+
+    monkeypatch.setattr(store_module.os, "fdopen", fail_payload_close)
+    with pytest.raises(HTEInputPreparationRefusal, match="selected_source_read_refused") as error:
+        _prepare(store, source_ref)
+
+    refusal = error.value
+    assert fdopen_calls == 3
+    assert refusal.observed_payload_bytes == len(source_payload)
+    assert refusal.payload_integrity_verified is True
+    assert refusal.observed_source_bytes == (
+        refusal.observed_manifest_selection_bytes
+        + refusal.observed_manifest_verification_bytes
+        + len(source_payload)
+    )
+    assert refusal.failure_stage == "bounded_member_close"
+    assert refusal.cleanup_failure_stage == "bounded_member_close"
+    assert refusal.cleanup_exception_type == "CloseError"
+    assert refusal.cleanup_exception_code == expected_cleanup_code
+    assert isinstance(refusal.__cause__, CoreJsonReadBoundsRefusalError)
+    assert refusal.__cause__.__cause__ is close_error
+    assert _artifact_id_strings(store) == ids_before
+
+
+def test_hte_preserves_primary_read_refusal_and_secondary_close_failure(
+    tmp_path: Path,
+    monkeypatch: pytest.MonkeyPatch,
+) -> None:
+    import polisyos.core.artifacts.store as store_module
+
+    store = FileSystemCAS(tmp_path / "cas", ownership_enforced=False)
+    source_ref = _put_envelope(store)
+    selected_manifest = store.get_raw_manifest_bytes(
+        source_ref,
+        manifest_profile_sha256=source_ref.manifest_profile_sha256,
+    )
+    ids_before = _artifact_id_strings(store)
+    real_fdopen = os.fdopen
+    fdopen_calls = 0
+    primary_error = TypeError("injected primary payload read refusal")
+    close_error = OSError("injected secondary payload close failure")
+
+    class ReadThenRaiseAndClose:
+        def __init__(self, wrapped: Any) -> None:
+            self._wrapped = wrapped
+
+        def fileno(self) -> int:
+            return self._wrapped.fileno()
+
+        def read(self, size: int = -1) -> bytes:
+            self._wrapped.read(size)
+            raise primary_error
+
+        def close(self) -> None:
+            self._wrapped.close()
+            raise close_error
+
+    def fail_payload_read_and_close(descriptor: int, *args: Any, **kwargs: Any) -> Any:
+        nonlocal fdopen_calls
+        fdopen_calls += 1
+        wrapped = real_fdopen(descriptor, *args, **kwargs)
+        return ReadThenRaiseAndClose(wrapped) if fdopen_calls == 3 else wrapped
+
+    monkeypatch.setattr(store_module.os, "fdopen", fail_payload_read_and_close)
+    with pytest.raises(HTEInputPreparationRefusal, match="selected_source_read_refused") as error:
+        _prepare(store, source_ref)
+
+    refusal = error.value
+    assert fdopen_calls == 3
+    assert refusal.observed_manifest_selection_bytes == len(selected_manifest)
+    assert refusal.observed_manifest_verification_bytes == len(selected_manifest)
+    assert refusal.observed_payload_bytes is None
+    assert refusal.observed_source_bytes is None
+    assert refusal.payload_integrity_verified is False
+    assert refusal.failure_stage == "bounded_payload_read"
+    assert refusal.cleanup_failure_stage == "bounded_member_close"
+    assert refusal.cleanup_exception_type == "OSError"
+    assert refusal.cleanup_exception_code is None
+    assert refusal.original_exception_type == "TypeError"
+    assert isinstance(refusal.__cause__, CoreJsonReadBoundsRefusalError)
+    assert refusal.__cause__.__cause__ is primary_error
     assert _artifact_id_strings(store) == ids_before
 
 

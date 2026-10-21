@@ -11,9 +11,9 @@ import tempfile
 import threading
 import time
 import uuid
-from contextlib import AbstractContextManager, contextmanager
+from contextlib import AbstractContextManager, contextmanager, suppress
 from contextvars import ContextVar
-from dataclasses import dataclass
+from dataclasses import dataclass, replace
 from datetime import datetime
 from functools import wraps
 from inspect import signature
@@ -57,8 +57,14 @@ from ._atomic_write import (
     ensure_directory_durable as _ensure_directory_durable,
 )
 from ._integrity_ops import (
+    ArtifactBoundedManifestRead,
+    ArtifactBoundedManifestReadError,
     ArtifactIntegrityError,
+    ArtifactMemberReadBoundsError,
+    ArtifactMemberReadIntegrityError,
     ArtifactReadBoundsError,
+    ArtifactStoreReadUsage,
+    _artifact_store_read_usage,
 )
 from ._integrity_ops import (
     VerificationReport as VerificationReport,
@@ -340,8 +346,154 @@ class CASManifestInventorySnapshot:
     reason: str | None = None
 
 
+class _ArtifactStoreReadAttempt:
+    """Mutable owner-side builder for immutable bounded-read usage receipts."""
+
+    def __init__(self, *, stage: str) -> None:
+        self._usage = _artifact_store_read_usage(
+            observed_manifest_selection_bytes=0,
+            observed_manifest_verification_bytes=0,
+            observed_payload_bytes=0,
+            observed_payload_size=None,
+            payload_integrity_verified=False,
+            failure_stage=stage,
+        )
+
+    @property
+    def usage(self) -> ArtifactStoreReadUsage:
+        """Return the latest immutable owner receipt, including partial attempts."""
+        return self._usage
+
+    def begin(self, field: str, *, stage: str) -> None:
+        """Mark one transfer as attempted before control enters the read call."""
+        if field not in {
+            "observed_manifest_selection_bytes",
+            "observed_manifest_verification_bytes",
+            "observed_payload_bytes",
+        }:
+            raise ValueError("artifact_store_usage_field_invalid")
+        self._usage = replace(self._usage, **{field: None, "failure_stage": stage})
+
+    def complete(self, field: str, value: int, *, stage: str) -> None:
+        """Record an exact owner-observed transfer count."""
+        if type(value) is not int or value < 0:
+            raise ValueError("artifact_store_usage_count_invalid")
+        self._usage = replace(self._usage, **{field: value, "failure_stage": stage})
+
+    def set_payload_size(self, value: int, *, stage: str) -> None:
+        """Record the owner-checked selected member size before payload reads."""
+        if type(value) is not int or value < 0:
+            raise ValueError("artifact_store_payload_size_invalid")
+        self._usage = replace(self._usage, observed_payload_size=value, failure_stage=stage)
+
+    def stage(self, value: str) -> None:
+        """Record the owner phase currently entered before a potentially failing operation."""
+        if type(value) is not str or not value:
+            raise ValueError("artifact_store_usage_stage_invalid")
+        self._usage = replace(self._usage, failure_stage=value)
+
+    def verified(self) -> None:
+        """Mark the owner digest and size check as complete."""
+        self._usage = replace(
+            self._usage,
+            payload_integrity_verified=True,
+            failure_stage=None,
+        )
+
+    def succeeded(self) -> None:
+        """Clear the in-progress phase after an exact bounded read succeeds."""
+        self._usage = replace(self._usage, failure_stage=None)
+
+    def failed(self, *, stage: str | None = None) -> None:
+        """Retain a precise stage when known; never fill an unknown count."""
+        self._usage = replace(
+            self._usage,
+            failure_stage=stage or self._usage.failure_stage or "bounded_read_attempt",
+        )
+
+    def cleanup_failed(
+        self,
+        error: BaseException,
+        *,
+        stage: str,
+        primary_failure: bool,
+    ) -> None:
+        """Retain close failure separately from any earlier primary refusal."""
+        if type(stage) is not str or not stage:
+            raise ValueError("artifact_store_cleanup_stage_invalid")
+        try:
+            cleanup_code = getattr(error, "code", None)
+        except Exception:
+            cleanup_code = None
+        if type(cleanup_code) is not str:
+            cleanup_code = None
+        failure_stage = self._usage.failure_stage
+        if not primary_failure or failure_stage is None:
+            failure_stage = stage if not primary_failure else "bounded_member_primary_failure"
+        self._usage = replace(
+            self._usage,
+            failure_stage=failure_stage,
+            cleanup_failure_stage=stage,
+            cleanup_exception_type=type(error).__name__,
+            cleanup_exception_code=cleanup_code,
+        )
+
+
+class _BoundedMemberOpenAttempt(AbstractContextManager["_VerifiedCASMemberStream"]):
+    """Context manager whose usage receipt exists even if ``__enter__`` fails."""
+
+    def __init__(
+        self,
+        store: FileSystemCAS,
+        artifact_id: ArtifactRef,
+        member: Literal["blob"],
+        *,
+        max_manifest_bytes: int,
+        expected_manifest_sha256: str,
+        max_member_bytes: int,
+    ) -> None:
+        self._store = store
+        self._artifact_id = artifact_id
+        self._member = member
+        self._max_manifest_bytes = max_manifest_bytes
+        self._expected_manifest_sha256 = expected_manifest_sha256
+        self._max_member_bytes = max_member_bytes
+        self._owner_attempt = _ArtifactStoreReadAttempt(stage="bounded_member_preflight")
+        self._manager: AbstractContextManager[_VerifiedCASMemberStream] | None = None
+
+    @property
+    def usage(self) -> ArtifactStoreReadUsage:
+        """Return the owner's exact or explicitly unknown phase measurements."""
+        return self._owner_attempt.usage
+
+    def __enter__(self) -> _VerifiedCASMemberStream:
+        self._manager = self._store.open_member(
+            self._artifact_id,
+            self._member,
+            max_manifest_bytes=self._max_manifest_bytes,
+            expected_manifest_sha256=self._expected_manifest_sha256,
+            max_member_bytes=self._max_member_bytes,
+            _read_attempt=self._owner_attempt,
+        )
+        try:
+            return self._manager.__enter__()
+        except BaseException:
+            self._owner_attempt.failed()
+            raise
+
+    def __exit__(self, exc_type: object, exc: object, traceback: object) -> bool | None:
+        if self._manager is None:
+            self._owner_attempt.failed(stage="bounded_member_context_not_entered")
+            return False
+        try:
+            return self._manager.__exit__(exc_type, exc, traceback)
+        except BaseException:
+            self._owner_attempt.failed()
+            raise
+
+
 class _VerifiedCASMemberStream:
-    """Read-only bounded stream that verifies bytes as its owner consumes them."""
+    """Read-only selected stream with owner-measured bounded-read counters."""
 
     _CHUNK_SIZE = 1024 * 1024
 
@@ -352,11 +504,19 @@ class _VerifiedCASMemberStream:
         member: str,
         expected_sha256: str,
         expected_size: int,
+        manifest_verification_bytes: int = 0,
+        max_member_bytes: int | None = None,
+        opened_stat_signature: tuple[int, int, int, int, int] | None = None,
+        read_attempt: _ArtifactStoreReadAttempt | None = None,
     ) -> None:
         self._raw = raw
         self._member = member
         self._expected_sha256 = expected_sha256
         self._expected_size = expected_size
+        self._manifest_verification_bytes = manifest_verification_bytes
+        self._max_member_bytes = max_member_bytes
+        self._opened_stat_signature = opened_stat_signature
+        self._read_attempt = read_attempt
         self._digest = hashlib.sha256()
         self._byte_size = 0
         self._receipt: ArtifactMemberReceipt | None = None
@@ -367,42 +527,170 @@ class _VerifiedCASMemberStream:
         return self._expected_size
 
     @property
+    def member_size_bytes(self) -> int:
+        """Return the exact file size reconciled with the selected manifest."""
+        return self._expected_size
+
+    @property
+    def observed_manifest_verification_bytes(self) -> int:
+        """Return selected-manifest bytes transferred by this owner-open."""
+        return self._manifest_verification_bytes
+
+    @property
+    def observed_payload_bytes(self) -> int:
+        """Return exact payload bytes returned to the caller so far."""
+        return self._byte_size
+
+    @property
+    def payload_integrity_verified(self) -> bool:
+        """Return whether this stream has a full owner-verified receipt."""
+        return self._receipt is not None
+
+    @property
     def receipt(self) -> ArtifactMemberReceipt:
         """Return the verified content receipt after the complete stream is read."""
         if self._receipt is None:
             raise RuntimeError("cas_member_stream_not_verified")
         return self._receipt
 
+    def _record(self, payload: bytes, *, stage: str) -> None:
+        self._digest.update(payload)
+        self._byte_size += len(payload)
+        if self._read_attempt is not None:
+            self._read_attempt.complete(
+                "observed_payload_bytes",
+                self._byte_size,
+                stage=stage,
+            )
+
+    def _read_raw(self, size: int, *, stage: str) -> bytes:
+        """Read one chunk and retain unknown if the owner call itself fails."""
+        if self._read_attempt is not None:
+            self._read_attempt.begin("observed_payload_bytes", stage=stage)
+        try:
+            payload = self._raw.read(size)
+        except BaseException:
+            if self._read_attempt is not None:
+                self._read_attempt.failed(stage=stage)
+            raise
+        if type(payload) is not bytes:
+            if self._read_attempt is not None:
+                self._read_attempt.failed(stage=stage)
+            return payload
+        if self._read_attempt is not None:
+            self._read_attempt.complete(
+                "observed_payload_bytes",
+                self._byte_size + len(payload),
+                stage=stage,
+            )
+        return payload
+
+    def _integrity_error(self, code: str) -> ArtifactMemberReadIntegrityError:
+        return ArtifactMemberReadIntegrityError(
+            code,
+            observed_manifest_verification_bytes=self._manifest_verification_bytes,
+            observed_payload_bytes=self._byte_size,
+            observed_payload_size=self._expected_size,
+            payload_integrity_verified=False,
+        )
+
     def read(self, size: int = -1) -> bytes:
-        """Read at most one MiB and update the member digest."""
+        """Read no more than the remaining manifest- and caller-bounded size."""
         if self._receipt is not None:
             return b""
         if size == 0:
             return b""
+        if self._byte_size >= self._expected_size:
+            self.finish()
+            return b""
         limit = self._CHUNK_SIZE if size is None or size < 0 else min(size, self._CHUNK_SIZE)
-        payload = self._raw.read(limit)
+        limit = min(limit, self._expected_size - self._byte_size)
+        if self._max_member_bytes is not None:
+            if self._read_attempt is not None:
+                self._read_attempt.stage("bounded_payload_bounds_validation")
+            remaining = self._max_member_bytes - self._byte_size
+            if remaining <= 0:
+                raise ArtifactMemberReadBoundsError(
+                    observed_member_size=self._expected_size,
+                    max_member_bytes=self._max_member_bytes,
+                    observed_manifest_verification_bytes=self._manifest_verification_bytes,
+                    observed_payload_bytes=self._byte_size,
+                )
+            limit = min(limit, remaining)
+        payload = self._read_raw(limit, stage="bounded_payload_read")
         if payload:
-            self._digest.update(payload)
-            self._byte_size += len(payload)
+            self._record(payload, stage="bounded_payload_read")
+            if self._max_member_bytes is not None:
+                if self._read_attempt is not None:
+                    self._read_attempt.stage("bounded_payload_bounds_validation")
+                if self._byte_size > self._max_member_bytes:
+                    raise ArtifactMemberReadBoundsError(
+                        observed_member_size=self._expected_size,
+                        max_member_bytes=self._max_member_bytes,
+                        observed_manifest_verification_bytes=self._manifest_verification_bytes,
+                        observed_payload_bytes=self._byte_size,
+                    )
+            if self._byte_size == self._expected_size:
+                self.finish()
         else:
             self.finish()
         return payload
 
     def finish(self) -> ArtifactMemberReceipt:
-        """Drain and verify the stream before releasing the artifact lease."""
+        """Read only the manifest-sized remainder and verify before lease release."""
         if self._receipt is not None:
             return self._receipt
-        while payload := self._raw.read(self._CHUNK_SIZE):
-            self._digest.update(payload)
-            self._byte_size += len(payload)
+        if self._max_member_bytes is None:
+            while payload := self._read_raw(
+                self._CHUNK_SIZE,
+                stage="bounded_payload_finish_read",
+            ):
+                self._record(payload, stage="bounded_payload_finish_read")
+        else:
+            while self._byte_size < self._expected_size:
+                remaining = min(
+                    self._CHUNK_SIZE,
+                    self._max_member_bytes - self._byte_size,
+                    self._expected_size - self._byte_size,
+                )
+                if remaining <= 0:
+                    if self._read_attempt is not None:
+                        self._read_attempt.stage("bounded_payload_bounds_validation")
+                    raise ArtifactMemberReadBoundsError(
+                        observed_member_size=self._expected_size,
+                        max_member_bytes=self._max_member_bytes,
+                        observed_manifest_verification_bytes=self._manifest_verification_bytes,
+                        observed_payload_bytes=self._byte_size,
+                    )
+                payload = self._read_raw(remaining, stage="bounded_payload_finish_read")
+                if not payload:
+                    raise self._integrity_error("cas_member_stream_ended_early")
+                self._record(payload, stage="bounded_payload_finish_read")
+        if self._read_attempt is not None:
+            self._read_attempt.stage("bounded_payload_finish_validation")
+        if self._max_member_bytes is not None and self._opened_stat_signature is not None:
+            current = os.fstat(self._raw.fileno())
+            signature = (
+                current.st_dev,
+                current.st_ino,
+                current.st_size,
+                current.st_mtime_ns,
+                current.st_ctime_ns,
+            )
+            if signature != self._opened_stat_signature:
+                raise self._integrity_error("cas_member_changed_while_streaming")
         actual = self._digest.hexdigest()
         if self._byte_size != self._expected_size or actual != self._expected_sha256:
+            if self._max_member_bytes is not None:
+                raise self._integrity_error("cas_member_integrity_mismatch")
             raise ArtifactIntegrityError(f"CAS member changed while streaming: {self._member}")
         self._receipt = ArtifactMemberReceipt(
             member=self._member,
             sha256=actual,
             byte_size=self._byte_size,
         )
+        if self._read_attempt is not None:
+            self._read_attempt.verified()
         return self._receipt
 
 
@@ -425,7 +713,9 @@ def _file_content_hash(path: Path) -> str:
 
 def _current_access_scope() -> object | None:
     try:
-        from polisyos.core.security.tenant_context import get_current_access_scope_or_none
+        from polisyos.core.security.tenant_context import (
+            get_current_access_scope_or_none,
+        )
     except ImportError:
         return None
     return get_current_access_scope_or_none()
@@ -475,7 +765,9 @@ def _revalidate_input_ref(value: InputRef) -> InputRef:
     )
 
 
-def _transactional_read_selector(value: object) -> ArtifactID | ArtifactRef | InputRef | str:
+def _transactional_read_selector(
+    value: object,
+) -> ArtifactID | ArtifactRef | InputRef | str:
     """Normalize compatible selector models through the existing Core adapter."""
     if type(value) is InputRef:
         return _revalidate_input_ref(value)
@@ -995,6 +1287,8 @@ class FileSystemCAS:
         *,
         max_manifest_bytes: int | None = None,
         expected_manifest_sha256: str | None = None,
+        max_member_bytes: int | None = None,
+        _read_attempt: _ArtifactStoreReadAttempt | None = None,
     ) -> Iterator[_VerifiedCASMemberStream]:
         """Stream one selected member under its read lease with bounded memory.
 
@@ -1012,6 +1306,16 @@ class FileSystemCAS:
             or re.fullmatch(r"[0-9a-f]{64}", expected_manifest_sha256) is None
         ):
             raise ValueError("expected_manifest_sha256 requires a bounded manifest read")
+        if max_member_bytes is not None and (
+            member != "blob"
+            or type(max_member_bytes) is not int
+            or max_member_bytes < 1
+            or max_manifest_bytes is None
+            or expected_manifest_sha256 is None
+        ):
+            raise ValueError("max_member_bytes requires a bounded exact-selected blob read")
+        if _read_attempt is not None:
+            _read_attempt.stage("bounded_member_open_preflight")
         aid, profile_sha256, ref = _artifact_reference(artifact_id)
         with self._coordinator.artifact_lease(
             aid,
@@ -1049,13 +1353,31 @@ class FileSystemCAS:
                     member="manifest",
                     max_bytes=max_manifest_bytes,
                     raise_read_limit=True,
+                    _read_attempt=_read_attempt,
+                    _usage_field="observed_manifest_verification_bytes",
+                    _usage_stage="manifest_verification_transfer",
+                )
+            if _read_attempt is not None:
+                _read_attempt.complete(
+                    "observed_manifest_verification_bytes",
+                    len(manifest_bytes),
+                    stage="manifest_verification_complete",
                 )
             if expected_manifest_sha256 is not None and (
                 hashlib.sha256(manifest_bytes).hexdigest() != expected_manifest_sha256
             ):
+                if max_member_bytes is not None:
+                    raise ArtifactMemberReadIntegrityError(
+                        "cas_member_manifest_changed",
+                        observed_manifest_verification_bytes=len(manifest_bytes),
+                        observed_payload_bytes=0,
+                        observed_payload_size=None,
+                    )
                 raise ArtifactIntegrityError(
                     f"Selected manifest changed between bounded read and member open for {aid}"
                 )
+            if _read_attempt is not None:
+                _read_attempt.stage("bounded_manifest_verification")
             manifest = ArtifactManifest.model_validate_json(manifest_bytes)
             _validate_manifest_identity(aid, manifest)
             if profile_sha256 is not None and (
@@ -1070,16 +1392,24 @@ class FileSystemCAS:
                 )
 
             selected_path = self._member_path(aid, member, profile_sha256)
+            if _read_attempt is not None:
+                _read_attempt.stage("bounded_member_open_status")
             if self._ownership_index._path_has_symlink_component(selected_path):
                 raise ArtifactIntegrityError("CAS member path crosses a symlink")
             descriptor = os.open(
                 selected_path,
                 os.O_RDONLY | getattr(os, "O_NOFOLLOW", 0),
             )
+            primary_error: BaseException | None = None
             try:
                 opened_stat = os.fstat(descriptor)
                 if not stat.S_ISREG(opened_stat.st_mode):
                     raise ArtifactIntegrityError("CAS member is not a regular file")
+                if _read_attempt is not None:
+                    _read_attempt.set_payload_size(
+                        opened_stat.st_size,
+                        stage="bounded_member_status_checked",
+                    )
 
                 if member == "blob":
                     expected_sha256 = aid.hex
@@ -1107,29 +1437,126 @@ class FileSystemCAS:
                 else:
                     raise ValueError("cas_member_kind_invalid")
 
+                if _read_attempt is not None:
+                    _read_attempt.stage("bounded_member_size_validation")
                 if opened_stat.st_size != expected_size:
+                    if max_member_bytes is not None:
+                        raise ArtifactMemberReadIntegrityError(
+                            "cas_member_size_mismatch",
+                            observed_manifest_verification_bytes=len(manifest_bytes),
+                            observed_payload_bytes=0,
+                            observed_payload_size=opened_stat.st_size,
+                        )
                     raise ArtifactIntegrityError(f"CAS member size mismatch: {aid} {member}")
-                raw = os.fdopen(descriptor, "rb")
+                if _read_attempt is not None:
+                    _read_attempt.stage("bounded_member_bounds_validation")
+                if max_member_bytes is not None and opened_stat.st_size > max_member_bytes:
+                    raise ArtifactMemberReadBoundsError(
+                        observed_member_size=opened_stat.st_size,
+                        max_member_bytes=max_member_bytes,
+                        observed_manifest_verification_bytes=len(manifest_bytes),
+                    )
+                opened_stat_signature = (
+                    opened_stat.st_dev,
+                    opened_stat.st_ino,
+                    opened_stat.st_size,
+                    opened_stat.st_mtime_ns,
+                    opened_stat.st_ctime_ns,
+                )
+                raw = os.fdopen(
+                    descriptor,
+                    "rb",
+                    buffering=0 if max_member_bytes is not None else -1,
+                )
                 descriptor = -1
                 stream = _VerifiedCASMemberStream(
                     raw,
                     member=self._member_name(aid, member, profile_sha256),
                     expected_sha256=expected_sha256,
                     expected_size=expected_size,
+                    manifest_verification_bytes=len(manifest_bytes),
+                    max_member_bytes=max_member_bytes,
+                    opened_stat_signature=(
+                        opened_stat_signature if max_member_bytes is not None else None
+                    ),
+                    read_attempt=_read_attempt,
                 )
                 try:
                     yield stream
                 except BaseException:
-                    raw.close()
+                    try:
+                        raw.close()
+                    except BaseException as close_error:
+                        if _read_attempt is not None:
+                            _read_attempt.cleanup_failed(
+                                close_error,
+                                stage="bounded_member_close",
+                                primary_failure=True,
+                            )
                     raise
                 else:
                     try:
                         stream.finish()
-                    finally:
+                    except BaseException:
+                        try:
+                            raw.close()
+                        except BaseException as close_error:
+                            if _read_attempt is not None:
+                                _read_attempt.cleanup_failed(
+                                    close_error,
+                                    stage="bounded_member_close",
+                                    primary_failure=True,
+                                )
+                        raise
+                    try:
                         raw.close()
+                    except BaseException as close_error:
+                        if _read_attempt is not None:
+                            _read_attempt.cleanup_failed(
+                                close_error,
+                                stage="bounded_member_close",
+                                primary_failure=False,
+                            )
+                        raise
+            except BaseException as error:
+                primary_error = error
+                if _read_attempt is not None:
+                    _read_attempt.failed(
+                        stage=(_read_attempt.usage.failure_stage or "bounded_member_open_status")
+                    )
+                raise
             finally:
                 if descriptor >= 0:
-                    os.close(descriptor)
+                    try:
+                        os.close(descriptor)
+                    except BaseException as close_error:
+                        if _read_attempt is not None:
+                            _read_attempt.cleanup_failed(
+                                close_error,
+                                stage="bounded_member_descriptor_close",
+                                primary_failure=primary_error is not None,
+                            )
+                        if primary_error is None:
+                            raise
+
+    def open_member_bounded(
+        self,
+        artifact_id: ArtifactRef,
+        member: Literal["blob"],
+        *,
+        max_manifest_bytes: int,
+        expected_manifest_sha256: str,
+        max_member_bytes: int,
+    ) -> _BoundedMemberOpenAttempt:
+        """Open an exact selected blob with an owner-enforced byte ceiling."""
+        return _BoundedMemberOpenAttempt(
+            self,
+            artifact_id,
+            member,
+            max_manifest_bytes=max_manifest_bytes,
+            expected_manifest_sha256=expected_manifest_sha256,
+            max_member_bytes=max_member_bytes,
+        )
 
     def copy_member_to(
         self,
@@ -2061,6 +2488,54 @@ class FileSystemCAS:
         )
 
     @_transactional_read()
+    def read_raw_manifest_bytes_bounded(
+        self,
+        artifact_id: ArtifactRef,
+        *,
+        max_manifest_bytes: int,
+    ) -> ArtifactBoundedManifestRead:
+        """Read selected manifest bytes with an immutable owner transfer receipt."""
+        if type(max_manifest_bytes) is not int or max_manifest_bytes < 1:
+            raise ValueError("max_manifest_bytes must be a positive integer")
+        if (
+            type(artifact_id) is not ArtifactRef
+            or type(artifact_id.manifest_profile_sha256) is not str
+            or not artifact_id.manifest_profile_sha256
+        ):
+            raise ValueError("bounded_manifest_read_requires_profile_qualified_ref")
+        aid, selected_profile, ref = _artifact_reference(artifact_id)
+        if selected_profile is None:
+            raise ValueError("bounded_manifest_read_requires_profile_qualified_ref")
+        self._require_blob_owner(aid, operation="read_raw_manifest_bounded", ref=ref)
+        self._require_manifest_view_owner(
+            aid,
+            selected_profile,
+            operation="read_raw_manifest_bounded",
+            ref=ref,
+        )
+        manifest_path = self._manifest_path_for_ref(aid, selected_profile)
+        attempt = _ArtifactStoreReadAttempt(stage="selected_manifest_preflight")
+        try:
+            data = self._read_cas_file_no_follow(
+                manifest_path,
+                member="manifest",
+                max_bytes=max_manifest_bytes,
+                raise_read_limit=True,
+                _read_attempt=attempt,
+                _usage_field="observed_manifest_selection_bytes",
+                _usage_stage="selected_manifest_transfer",
+            )
+        except Exception as exc:
+            attempt.failed()
+            raise ArtifactBoundedManifestReadError(
+                "cas_bounded_manifest_read_refused",
+                usage=attempt.usage,
+                original_exception=exc,
+            ) from exc
+        attempt.succeeded()
+        return ArtifactBoundedManifestRead(raw_manifest_bytes=data, usage=attempt.usage)
+
+    @_transactional_read()
     def get_raw_manifest_bytes_bounded_for_input(
         self,
         input_ref: InputRef,
@@ -2096,6 +2571,49 @@ class FileSystemCAS:
             max_bytes=max_manifest_bytes,
             raise_read_limit=True,
         )
+
+    @_transactional_read()
+    def read_raw_manifest_bytes_bounded_for_input(
+        self,
+        input_ref: InputRef,
+        *,
+        max_manifest_bytes: int,
+    ) -> ArtifactBoundedManifestRead:
+        """Read an input-selected manifest with an immutable owner transfer receipt."""
+        if type(max_manifest_bytes) is not int or max_manifest_bytes < 1:
+            raise ValueError("max_manifest_bytes must be a positive integer")
+        selected = _revalidate_input_ref(input_ref)
+        aid = selected.artifact_id
+        selected_profile = selected.manifest_profile_sha256
+        if selected_profile is None:
+            raise ValueError("bounded_manifest_read_requires_profile_qualified_input")
+        self._require_blob_owner(aid, operation="read_raw_manifest_bounded_input")
+        self._require_manifest_view_owner(
+            aid,
+            selected_profile,
+            operation="read_raw_manifest_bounded_input",
+        )
+        manifest_path = self._manifest_path_for_ref(aid, selected_profile)
+        attempt = _ArtifactStoreReadAttempt(stage="selected_manifest_preflight")
+        try:
+            data = self._read_cas_file_no_follow(
+                manifest_path,
+                member="manifest",
+                max_bytes=max_manifest_bytes,
+                raise_read_limit=True,
+                _read_attempt=attempt,
+                _usage_field="observed_manifest_selection_bytes",
+                _usage_stage="selected_manifest_transfer",
+            )
+        except Exception as exc:
+            attempt.failed()
+            raise ArtifactBoundedManifestReadError(
+                "cas_bounded_manifest_read_refused",
+                usage=attempt.usage,
+                original_exception=exc,
+            ) from exc
+        attempt.succeeded()
+        return ArtifactBoundedManifestRead(raw_manifest_bytes=data, usage=attempt.usage)
 
     @_transactional_read()
     def get_manifest_bytes(self, artifact_id: ArtifactID | ArtifactRef | str) -> bytes:
@@ -3841,7 +4359,10 @@ class FileSystemCAS:
                         raise ArtifactIntegrityError(
                             "Existing imported member is not a regular file"
                         )
-                    if self._stream_file_digest(path) != (snapshot.sha256, snapshot.byte_size):
+                    if self._stream_file_digest(path) != (
+                        snapshot.sha256,
+                        snapshot.byte_size,
+                    ):
                         raise ArtifactOwnershipError(
                             "Claimed import differs from its exact owned bytes/view"
                         )
@@ -4949,7 +5470,13 @@ class FileSystemCAS:
             if profile_sha256 is not None and actual_profile != profile_sha256:
                 raise ArtifactIntegrityError("cas_inventory_manifest_profile_mismatch")
             visible_views.append(
-                (member_artifact_id, profile_sha256, manifest_path, manifest, manifest_bytes)
+                (
+                    member_artifact_id,
+                    profile_sha256,
+                    manifest_path,
+                    manifest,
+                    manifest_bytes,
+                )
             )
 
         return names, tuple(visible_views), self._owner_generation_token()
@@ -5013,7 +5540,13 @@ class FileSystemCAS:
 
         entries: list[CASInventoryEntry] = []
         try:
-            for artifact_id, profile_sha256, _manifest_path, manifest, manifest_bytes in views:
+            for (
+                artifact_id,
+                profile_sha256,
+                _manifest_path,
+                manifest,
+                manifest_bytes,
+            ) in views:
                 ref: ArtifactID | ArtifactRef = artifact_id
                 if profile_sha256 is not None:
                     ref = ArtifactRef(
@@ -5182,7 +5715,13 @@ class FileSystemCAS:
             )
 
         entries: list[CASManifestInventoryEntry] = []
-        for artifact_id, selector, _manifest_path, manifest, manifest_bytes in views_before:
+        for (
+            artifact_id,
+            selector,
+            _manifest_path,
+            manifest,
+            manifest_bytes,
+        ) in views_before:
             if manifest.kind != kind:
                 continue
             profile_sha256 = self._manifests.profile_sha256(manifest)
@@ -5358,13 +5897,37 @@ class FileSystemCAS:
         member: str,
         max_bytes: int | None = None,
         raise_read_limit: bool = False,
+        _read_attempt: _ArtifactStoreReadAttempt | None = None,
+        _usage_field: str | None = None,
+        _usage_stage: str = "bounded_manifest_transfer",
     ) -> bytes:
         """Read one regular CAS member through a no-follow file descriptor."""
         descriptor = -1
+        stream: BinaryIO | None = None
+        data: bytes | None = None
+        read_attempted = False
+        transfer_prefix = _usage_stage.removesuffix("_transfer")
+        phase = f"{transfer_prefix}_open_status"
+
+        def _known_bounded_transfer_count() -> int | None:
+            if type(data) is bytes:
+                return len(data)
+            return 0 if not read_attempted else None
+
+        def _retain_bounded_transfer_count(error: Exception) -> None:
+            if max_bytes is None:
+                return
+            count = _known_bounded_transfer_count()
+            if count is None:
+                return
+            with suppress(TypeError):
+                vars(error)["bytes_read"] = count
+
         try:
             if self._ownership_index._path_has_symlink_component(path):
                 raise ArtifactIntegrityError(f"CAS {member} path crosses a symlink")
             descriptor = os.open(path, os.O_RDONLY | getattr(os, "O_NOFOLLOW", 0))
+            phase = f"{transfer_prefix}_preflight"
             before = os.fstat(descriptor)
             if not stat.S_ISREG(before.st_mode):
                 raise ArtifactIntegrityError(f"CAS {member} member is not a regular file")
@@ -5374,17 +5937,57 @@ class FileSystemCAS:
                         member=member,
                         observed_bytes=before.st_size,
                         max_bytes=max_bytes,
+                        bytes_read=0,
                     )
                 raise ArtifactIntegrityError(f"CAS {member} member exceeds its size bound")
-            with os.fdopen(descriptor, "rb") as stream:
-                descriptor = -1
+            stream = os.fdopen(descriptor, "rb")
+            descriptor = -1
+            try:
+                phase = _usage_stage
+                read_attempted = True
+                if _read_attempt is not None and _usage_field is not None:
+                    _read_attempt.begin(_usage_field, stage=_usage_stage)
                 data = stream.read(-1 if max_bytes is None else max_bytes + 1)
+                if _read_attempt is not None and _usage_field is not None:
+                    _read_attempt.complete(_usage_field, len(data), stage=_usage_stage)
+                phase = f"{transfer_prefix}_postread_validation"
                 after = os.fstat(stream.fileno())
+            except BaseException:
+                stream_to_close = stream
+                stream = None
+                if stream_to_close is not None:
+                    try:
+                        stream_to_close.close()
+                    except BaseException as close_error:
+                        if _read_attempt is not None:
+                            _read_attempt.cleanup_failed(
+                                close_error,
+                                stage=f"{transfer_prefix}_close",
+                                primary_failure=True,
+                            )
+                raise
+            else:
+                stream_to_close = stream
+                if stream_to_close is None:
+                    raise RuntimeError("cas_manifest_stream_missing_after_open") from None
+                stream = None
+                try:
+                    stream_to_close.close()
+                except BaseException as close_error:
+                    if _read_attempt is not None:
+                        _read_attempt.cleanup_failed(
+                            close_error,
+                            stage=f"{transfer_prefix}_close",
+                            primary_failure=False,
+                        )
+                    phase = f"{transfer_prefix}_close"
+                    raise
             if max_bytes is not None and len(data) > max_bytes and raise_read_limit:
                 raise ArtifactReadBoundsError(
                     member=member,
                     observed_bytes=len(data),
                     max_bytes=max_bytes,
+                    bytes_read=len(data),
                 )
             if (
                 len(data) != before.st_size
@@ -5394,22 +5997,51 @@ class FileSystemCAS:
             ):
                 raise ArtifactIntegrityError(f"CAS {member} member changed while reading")
             return data
-        except FileNotFoundError:
+        except FileNotFoundError as exc:
+            _retain_bounded_transfer_count(exc)
+            if _read_attempt is not None:
+                _read_attempt.failed(stage=phase)
+            raise
+        except ArtifactIntegrityError as exc:
+            _retain_bounded_transfer_count(exc)
+            if _read_attempt is not None:
+                _read_attempt.failed(stage=phase)
             raise
         except OSError as exc:
+            _retain_bounded_transfer_count(exc)
+            if _read_attempt is not None:
+                _read_attempt.failed(stage=phase)
             if self._read_only:
-                raise ArtifactReadOnlyUnavailableError(f"cas_{member}_read_unavailable") from exc
+                unavailable = ArtifactReadOnlyUnavailableError(f"cas_{member}_read_unavailable")
+                _retain_bounded_transfer_count(unavailable)
+                raise unavailable from exc
+            raise
+        except Exception as exc:
+            _retain_bounded_transfer_count(exc)
+            if _read_attempt is not None:
+                _read_attempt.failed(stage=phase)
             raise
         finally:
+            if stream is not None:
+                try:
+                    stream.close()
+                except BaseException as close_error:
+                    if _read_attempt is not None:
+                        _read_attempt.cleanup_failed(
+                            close_error,
+                            stage=f"{transfer_prefix}_close",
+                            primary_failure=True,
+                        )
             if descriptor >= 0:
                 try:
                     os.close(descriptor)
-                except OSError as exc:
-                    if self._read_only:
-                        raise ArtifactReadOnlyUnavailableError(
-                            f"cas_{member}_close_unavailable"
-                        ) from exc
-                    raise
+                except BaseException as exc:
+                    if _read_attempt is not None:
+                        _read_attempt.cleanup_failed(
+                            exc,
+                            stage=f"{transfer_prefix}_close",
+                            primary_failure=True,
+                        )
 
     def _load_signature_for_snapshot(
         self,
@@ -5546,6 +6178,7 @@ class ReadOnlyFileSystemCAS(ArtifactReader):
         *,
         max_manifest_bytes: int | None = None,
         expected_manifest_sha256: str | None = None,
+        max_member_bytes: int | None = None,
     ) -> AbstractContextManager[_VerifiedCASMemberStream]:
         """Stream one exact selected member through the existing owner-verified CAS path."""
         return self.__store.open_member(
@@ -5553,6 +6186,25 @@ class ReadOnlyFileSystemCAS(ArtifactReader):
             member,
             max_manifest_bytes=max_manifest_bytes,
             expected_manifest_sha256=expected_manifest_sha256,
+            max_member_bytes=max_member_bytes,
+        )
+
+    def open_member_bounded(
+        self,
+        artifact_id: ArtifactRef,
+        member: Literal["blob"],
+        *,
+        max_manifest_bytes: int,
+        expected_manifest_sha256: str,
+        max_member_bytes: int,
+    ) -> _BoundedMemberOpenAttempt:
+        """Open a bounded blob through the read-only owner facade."""
+        return self.__store.open_member_bounded(
+            artifact_id,
+            member,
+            max_manifest_bytes=max_manifest_bytes,
+            expected_manifest_sha256=expected_manifest_sha256,
+            max_member_bytes=max_member_bytes,
         )
 
     def get_manifest(
@@ -5602,6 +6254,30 @@ class ReadOnlyFileSystemCAS(ArtifactReader):
     ) -> bytes:
         """Read exact bounded manifest bytes selected by one explicit input edge."""
         return self.__store.get_raw_manifest_bytes_bounded_for_input(
+            input_ref,
+            max_manifest_bytes=max_manifest_bytes,
+        )
+
+    def read_raw_manifest_bytes_bounded(
+        self,
+        artifact_id: ArtifactRef,
+        *,
+        max_manifest_bytes: int,
+    ) -> ArtifactBoundedManifestRead:
+        """Read selected manifest bytes and owner usage through the guarded facade."""
+        return self.__store.read_raw_manifest_bytes_bounded(
+            artifact_id,
+            max_manifest_bytes=max_manifest_bytes,
+        )
+
+    def read_raw_manifest_bytes_bounded_for_input(
+        self,
+        input_ref: InputRef,
+        *,
+        max_manifest_bytes: int,
+    ) -> ArtifactBoundedManifestRead:
+        """Read an input-selected manifest with owner usage through the facade."""
+        return self.__store.read_raw_manifest_bytes_bounded_for_input(
             input_ref,
             max_manifest_bytes=max_manifest_bytes,
         )

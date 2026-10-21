@@ -3,6 +3,7 @@
 from __future__ import annotations
 
 from dataclasses import dataclass
+from dataclasses import field as dataclass_field
 from typing import TYPE_CHECKING
 
 from pydantic import BaseModel, ConfigDict
@@ -37,12 +38,172 @@ class ArtifactIntegrityError(ValueError):
 class ArtifactReadBoundsError(ValueError):
     """Raised when a bounded CAS read observes a member larger than its byte limit."""
 
-    def __init__(self, *, member: str, observed_bytes: int, max_bytes: int) -> None:
-        """Retain the actual regular-file size and the caller-selected byte limit."""
+    def __init__(
+        self,
+        *,
+        member: str,
+        observed_bytes: int,
+        max_bytes: int,
+        bytes_read: int | None = None,
+    ) -> None:
+        """Retain actual member size separately from bytes transferred before refusal."""
         self.member = member
         self.observed_bytes = observed_bytes
         self.max_bytes = max_bytes
+        self.bytes_read = bytes_read
         super().__init__(f"cas_{member}_read_limit_exceeded")
+
+
+@dataclass(frozen=True, slots=True)
+class ArtifactStoreReadUsage:
+    """Immutable owner receipt for one bounded filesystem-store read attempt.
+
+    Counts describe bytes transferred through the selected store API. They do
+    not claim OS or device I/O. ``None`` means an attempted phase could not be
+    measured exactly; callers must not turn it into zero or admit a positive
+    aggregate budget on that basis.
+    """
+
+    observed_manifest_selection_bytes: int | None
+    observed_manifest_verification_bytes: int | None
+    observed_payload_bytes: int | None
+    observed_payload_size: int | None
+    payload_integrity_verified: bool
+    failure_stage: str | None
+    cleanup_failure_stage: str | None = None
+    cleanup_exception_type: str | None = None
+    cleanup_exception_code: str | None = None
+    _seal: object | None = dataclass_field(default=None, repr=False, compare=False)
+
+    @property
+    def observed_source_bytes(self) -> int | None:
+        """Return exact transfers across all phases, or ``None`` if any are unknown."""
+        values = (
+            self.observed_manifest_selection_bytes,
+            self.observed_manifest_verification_bytes,
+            self.observed_payload_bytes,
+        )
+        if any(type(value) is not int or value < 0 for value in values):
+            return None
+        return sum(values)
+
+
+_ARTIFACT_STORE_READ_USAGE_SEAL = object()
+
+
+def _artifact_store_read_usage(
+    *,
+    observed_manifest_selection_bytes: int | None,
+    observed_manifest_verification_bytes: int | None,
+    observed_payload_bytes: int | None,
+    observed_payload_size: int | None,
+    payload_integrity_verified: bool,
+    failure_stage: str | None,
+) -> ArtifactStoreReadUsage:
+    """Create the sealed immutable receipt used by the filesystem owner."""
+    return ArtifactStoreReadUsage(
+        observed_manifest_selection_bytes=observed_manifest_selection_bytes,
+        observed_manifest_verification_bytes=observed_manifest_verification_bytes,
+        observed_payload_bytes=observed_payload_bytes,
+        observed_payload_size=observed_payload_size,
+        payload_integrity_verified=payload_integrity_verified,
+        failure_stage=failure_stage,
+        _seal=_ARTIFACT_STORE_READ_USAGE_SEAL,
+    )
+
+
+def _is_artifact_store_read_usage(value: object) -> bool:
+    """Recognize only receipts created by this module's owner factory."""
+    return (
+        type(value) is ArtifactStoreReadUsage
+        and value._seal is _ARTIFACT_STORE_READ_USAGE_SEAL
+        and type(value.payload_integrity_verified) is bool
+        and all(
+            item is None or (type(item) is int and item >= 0)
+            for item in (
+                value.observed_manifest_selection_bytes,
+                value.observed_manifest_verification_bytes,
+                value.observed_payload_bytes,
+                value.observed_payload_size,
+            )
+        )
+        and (value.failure_stage is None or type(value.failure_stage) is str)
+        and (value.cleanup_failure_stage is None or type(value.cleanup_failure_stage) is str)
+        and (value.cleanup_exception_type is None or type(value.cleanup_exception_type) is str)
+        and (value.cleanup_exception_code is None or type(value.cleanup_exception_code) is str)
+    )
+
+
+@dataclass(frozen=True, slots=True)
+class ArtifactBoundedManifestRead:
+    """Exact raw manifest bytes and the filesystem owner's transfer receipt."""
+
+    raw_manifest_bytes: bytes
+    usage: ArtifactStoreReadUsage
+
+
+class ArtifactBoundedManifestReadError(ValueError):
+    """Bounded manifest refusal with the exact owner usage available at failure."""
+
+    def __init__(
+        self,
+        code: str,
+        *,
+        usage: ArtifactStoreReadUsage,
+        original_exception: Exception,
+    ) -> None:
+        """Retain the typed owner receipt and original failure identity."""
+        self.code = code
+        self.usage = usage
+        self.original_exception_type = type(original_exception).__name__
+        self.original_exception = original_exception
+        super().__init__(code)
+
+
+class ArtifactMemberReadBoundsError(ArtifactReadBoundsError):
+    """Refuse an oversized selected blob before unbounded member consumption."""
+
+    def __init__(
+        self,
+        *,
+        observed_member_size: int,
+        max_member_bytes: int,
+        observed_manifest_verification_bytes: int,
+        observed_payload_bytes: int = 0,
+    ) -> None:
+        """Retain owner-measured metadata and payload transfers at refusal."""
+        super().__init__(
+            member="blob",
+            observed_bytes=observed_member_size,
+            max_bytes=max_member_bytes,
+            bytes_read=observed_payload_bytes,
+        )
+        self.observed_member_size = observed_member_size
+        self.max_member_bytes = max_member_bytes
+        self.observed_manifest_verification_bytes = observed_manifest_verification_bytes
+        self.observed_payload_bytes = observed_payload_bytes
+        self.payload_integrity_verified = False
+
+
+class ArtifactMemberReadIntegrityError(ArtifactIntegrityError):
+    """Refuse a bounded member after exact-source integrity or selection drift."""
+
+    def __init__(
+        self,
+        code: str,
+        *,
+        observed_manifest_verification_bytes: int,
+        observed_payload_bytes: int,
+        observed_payload_size: int | None,
+        payload_integrity_verified: bool = False,
+    ) -> None:
+        """Retain owner-measured use without claiming the refused payload is trusted."""
+        self.code = code
+        self.observed_manifest_verification_bytes = observed_manifest_verification_bytes
+        self.observed_payload_bytes = observed_payload_bytes
+        self.observed_payload_size = observed_payload_size
+        self.payload_integrity_verified = payload_integrity_verified
+        super().__init__(code)
 
 
 @dataclass(frozen=True)
@@ -236,7 +397,14 @@ def verify_loaded_artifact(
     try:
         data = load_bytes(artifact_id)
         manifest = load_manifest(artifact_id)
-    except (AttributeError, FileNotFoundError, OSError, RuntimeError, TypeError, ValueError) as exc:
+    except (
+        AttributeError,
+        FileNotFoundError,
+        OSError,
+        RuntimeError,
+        TypeError,
+        ValueError,
+    ) as exc:
         return VerificationReport(
             ok=False,
             artifact_id=str(artifact_id),

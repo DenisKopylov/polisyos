@@ -43,8 +43,9 @@ authority, or currentness.
 reads without a write-capable store surface. `FileSystemCAS.open_existing_read_only` returns a
 `ReadOnlyFileSystemCAS` that implements `ArtifactReader` and additionally exposes
 `get_raw_manifest_bytes()`, `get_manifest_by_profile()`, and `verify()` for profile-aware semantic
-consumers. Those methods delegate to the existing guarded read path; the handle exposes no writer
-operations. The opener requires an already-existing CAS root, layout, root transaction lock, and
+consumers, plus `open_member_bounded()` for strict selected JSON reads. The bounded method returns
+the same pre-entry usage-bearing attempt as the writable filesystem store; it does not expose
+writer operations. The opener requires an already-existing CAS root, layout, root transaction lock, and
 per-artifact stripe lock. It creates no directories or lock files and does not run orphan-stage
 recovery. Use the ordinary `FileSystemCAS` writer for writes and lifecycle management.
 
@@ -170,11 +171,12 @@ path for consumers that must bound selected manifest and JSON payload bytes
 before parsing or Core value materialization. The caller supplies a
 profile-qualified ArtifactRef, an explicit CoreJsonReadLimits(max_bytes,
 max_depth, max_elements, max_manifest_bytes) from the selected resource policy,
-and a CoreJSONArtifactStreamingReader. The metadata-byte limit is a separate
-required field; it does not reuse the payload-byte limit. The new read-only
-protocol composes the existing profile reader with a bounded raw-manifest
-reader and selected blob stream; other backends and legacy APIs keep their
-existing contracts. A metadata-only caller can use
+and a CoreJSONArtifactBoundedMemberReader. The metadata-byte limit is a
+separate required field; it does not reuse the payload-byte limit. The additive
+bounded-member protocol extends the legacy streaming reader; it does not change
+legacy open_member behavior. A strict bounded read never falls back to the
+legacy context because that context drains and hashes unread bytes on normal
+exit. A metadata-only caller can use
 read_core_manifest_profile_bounded(store, selected_ref, *, max_manifest_bytes)
 before payload admission. It returns the exact raw manifest bytes, parsed typed
 manifest, CanonInfo declaration, effective reference, and observed byte count.
@@ -186,24 +188,59 @@ effective reference, including kind and media type, from the selected manifest.
 Missing or malformed profiles refuse without falling back to a default view.
 Role-specific kind/media expectations remain the consumer's responsibility.
 The strict payload route parses typed and raw profile views from the same
-owner-read byte sequence, then passes its exact SHA-256 and limit into
-open_member so a changed manifest fails before payload streaming. The reader
-measures actual selected payload bytes and scans JSON structure before calling
-Core's existing tagged-value decoder and canonical-profile round-trip.
+owner-read byte sequence, then passes its exact SHA-256 into
+open_member_bounded. The owner re-reads and verifies that exact profile, requires
+its actual regular-file size to equal manifest byte_size, and rejects a member
+over max_bytes before yielding any payload. A scanner depth/element refusal
+aborts inside the context, so the owner closes without its ordinary drain-and-
+hash finish. Positive admission still requires complete size and digest
+verification plus the existing tagged decoder and canonical-profile round-trip.
 max_elements counts containers, scalar values, and object member names.
 
-The result retains the effective reference, typed manifest, exact selected raw
-manifest bytes, profile-conformant CanonicalProfileRead, and observed manifest
-and payload measurements. A value is available only for a declared,
-conformant Core profile. FileSystemCAS bounds selected-manifest allocation
-before parsing and applies the same limit to the hidden manifest lookup inside
-open_member; a raw-byte hash check rejects drift between metadata intake and
-payload open. The CAS ownership index, transaction journal, and their generation
-files are separate owner-control metadata reads and remain outside this
-artifact-manifest limit. These per-member limits do not establish whole-input
-process RSS, concurrent-memory, or all-CAS-metadata bounds. No resource-policy
-default is invented here. The API also does not choose scientific shape limits,
-establish source authority, or prove HTE suitability.
+Successful results and typed refusals expose
+observed_manifest_selection_bytes, observed_manifest_verification_bytes,
+observed_payload_bytes, and their observed_source_bytes total. These are exact
+selected-store API transfers for the first manifest read, owner verification-
+manifest read, and payload bytes returned to the reader. If an attempted
+component has no exact owner count, that component and the total are None;
+known transfers remain available. Full-transfer decode and profile refusals
+retain exact usage. The separate observed_payload_size is owner fstat data; it
+is not confused with payload bytes actually read. payload_integrity_verified
+is true only after the complete owner receipt. On a stat-preflight size
+refusal, the payload size is retained and payload bytes read is zero. Counts describe bytes
+transferred by the selected store API; they are not a claim about physical disk,
+OS page cache, hardware prefetch, ownership-index or transaction-journal reads.
+Metadata-only selected-manifest reads report their actual transfer count too;
+a stat-preflight refusal can therefore report a file size with zero bytes read.
+The CAS ownership index, transaction journal, and their generation files remain
+outside these artifact-source counts. These per-member limits do not establish
+whole-input process RSS, concurrent-memory, or all-CAS-metadata bounds. No
+resource-policy default is invented here. The API also does not choose
+scientific shape limits, establish source authority, or prove HTE suitability.
+
+`failure_stage` identifies the phase that refused. Member phases are set at the
+operation boundary: `bounded_member_size_validation`,
+`bounded_member_bounds_validation`, `bounded_payload_read`, `bounded_payload_finish_read`,
+`bounded_payload_bounds_validation`, and `bounded_payload_finish_validation`.
+The finish-validation phase begins after the last owner read returns and covers
+the final opened-file identity, size, and digest checks; a read failure remains
+at its read phase. Manifest transfer, post-read validation, and close have
+separate phases as well. A separate optional
+`cleanup_failure_stage`, `cleanup_exception_type`, and `cleanup_exception_code`
+retain a close failure without replacing an earlier read/validation failure or
+its exception chain. If close itself is the only failure, the refusal names the
+close phase. A verified payload can retain `payload_integrity_verified=true`
+when a later close failure prevents the read call from succeeding; integrity
+does not convert that cleanup refusal into admission.
+
+The HTE bridge preserves typed Core source-read and cleanup phases unchanged.
+After a complete selected-source read, profile, schema, or semantic refusal is
+reported as `hte_selected_source_validation`. Legacy normalization assigns
+separate `normalized_hte_input_serialization`,
+`normalized_hte_input_bounds_validation`, `normalized_hte_input_write`, and
+`normalized_hte_input_profile_validation` phases at their operation
+boundaries. HTE cleanup diagnostics preserve a string-valued exception `code`;
+an absent or non-string code is reported as `None`.
 
 ## Current State
 

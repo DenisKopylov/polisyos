@@ -1,0 +1,1659 @@
+{
+  "authority": {
+    "G_acceptance": false,
+    "canonical_source_written": false,
+    "closure_ids": [],
+    "formal_G_adjudication": false,
+    "formal_closure_ids": [],
+    "proposal_only": true,
+    "tests_or_product_imports_run": false
+  },
+  "denominator_recomputation": {
+    "checker": {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/q0-nested-property-short-corrigendum-20261021-r1/check_full_set.py",
+      "sha256": "8663c3879adf6c0a296233d98bf20c7c1e8e299d4c10d25338080d6cb9ea5e4c"
+    },
+    "command": "python3 -B policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/q0-nested-property-short-corrigendum-20261021-r1/check_full_set.py",
+    "counts": {
+      "bundles": 127,
+      "finding_ids": 282,
+      "occurrences": 291,
+      "original_spans_rehashed": 291,
+      "repeated_finding_ids": {
+        "LA-015": 2,
+        "LA-016": 2,
+        "LA-023": 2,
+        "LA-031": 3,
+        "LA-038": 2,
+        "LA-039": 2,
+        "LA-046": 2,
+        "LA-051": 2
+      },
+      "task_definitions": 26,
+      "task_routes_across_occurrences": 331,
+      "unique_occurrence_keys": 291
+    },
+    "history": {
+      "B198_author_ledger_appendix_candidate_G": [
+        "closed",
+        "closed",
+        "closed_bounded",
+        "UNRUN",
+        "not_adjudicated"
+      ],
+      "author_proposed_closed_occurrences": 202,
+      "author_proposed_closed_unique_ids": 198,
+      "formal_closure_ids": [],
+      "historical_ledger_closed_occurrences": 9,
+      "historical_ledger_closed_unique_ids": 9
+    },
+    "method": "All 282 canonical findings, 291 unique occurrence keys and original spans rehashed; 331 task routes verified against canonical findings/task map. No sampled denominator.",
+    "output": {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/q0-nested-property-short-corrigendum-20261021-r1/full-set-check.stdout.json",
+      "sha256": "e2b1b5e487abaa6356cc3f79ed9cef66b60c44acfa03c74e0908566251fae53a"
+    },
+    "proposal_counts": {
+      "capability_labels": {
+        "bridge_missing": 14,
+        "consumer_missing": 2,
+        "implemented_but_not_orchestrated": 1,
+        "producer_missing": 9,
+        "semantic_test_missing": 12,
+        "surface_missing": 4,
+        "surface_out_of_scope": 1,
+        "verification_missing": 248
+      },
+      "outcomes": {
+        "held": 20,
+        "limited": 252,
+        "open": 19
+      }
+    },
+    "result": "PASS_FULL_DENOMINATOR_AND_TARGET_SET",
+    "source_input_pins": {
+      "b_r19": {
+        "path": "policy-engine/docs/plans/active/agent-packages/PolicyOS_E02_Combined_Agent_Package/source/B_r19_original.md",
+        "sha256": "9c98584cbfa72996b058abf127f6c689f919a3421cdd563a82c84a7324ab39b5"
+      },
+      "connected_findings": {
+        "path": "policy-engine/docs/research/e02-cloud-test-plan/integration/connected-closeout-plan-2026-10-08/findings.json",
+        "sha256": "590cb7631422175148022217a96fc1c234f8ba4f0d22e83bde46d9636bdd5ce0"
+      },
+      "coverage": {
+        "path": "policy-engine/docs/research/e02-cloud-test-plan/closure-decisions/coverage.json",
+        "sha256": "97860dc18c7b92124971aa8032fc229be3367723ea2ec45e6cda4a777e544e01"
+      },
+      "current_evidence_index": {
+        "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/full-original-occurrence-current-evidence-index-20261016.json",
+        "sha256": "bcf2b83c9b1aa53deb62edd12548e7784abc41e1af9b34f4a17a6638f02c3d7a"
+      },
+      "la_r09": {
+        "path": "policy-engine/docs/plans/active/agent-packages/PolicyOS_E02_Combined_Agent_Package/source/LA_r09_original.md",
+        "sha256": "2e13d05d40ab162dba6f1ed495865037bc08fc359a987e7a42c4d445a9b8d727"
+      },
+      "prior_patch": {
+        "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/q0-stale-row-nextcheck-gap-corrigendum-20261021-r1/field-patch.json",
+        "sha256": "3a998d0b5c09a216d244a97f3e3b66250529937cd39482b9713da21d41d5311e"
+      },
+      "proposal_report": {
+        "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/full-original-occurrence-proposal-report-20261015.json",
+        "sha256": "aac9615dd380f5474fd878ea8a6681d35c71450f1a50233f3c407308fd32f931"
+      },
+      "successor": {
+        "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/full-original-occurrence-reviewed-successor-proposals-20261017.json",
+        "sha256": "a38160cec8f6eb4e752d4008c4f3db39917891004b17c63b81f75ed9f73150c4"
+      },
+      "tasks": {
+        "path": "policy-engine/docs/research/e02-cloud-test-plan/execution-prompts/unified-local-2026-10-09/TASKS.json",
+        "sha256": "a37c75cfe09d33c1f50379d5bbfd04bdb728c990e832aec3bf19c0d17035734c"
+      }
+    }
+  },
+  "limits": [
+    "No G closure is proposed.",
+    "Seven property_short summaries restate original criterion requirements and do not certify current implementation.",
+    "Static test source review only: no command/test receipt and no final source/input/backend freeze.",
+    "All formal findings remain not_adjudicated."
+  ],
+  "nested_property_short_patch": {
+    "field_inventory": {
+      "field_path_overlap_with_prior_patch": [],
+      "nested_property_short_null_ids": [
+        "B138",
+        "B142",
+        "B146",
+        "B150",
+        "B154",
+        "B158",
+        "B162"
+      ],
+      "nested_property_short_null_rows": 7,
+      "occurrence_overlap_with_prior_patch": [
+        "B158#1:B_r19:FUN-01:bd4643a221c0c9934fdf37c2d8b90d97aa93ad09ac95fa3324e23bd04ea4a2c3",
+        "B162#1:B_r19:FUN-02:898e61d52e838908faca4e23e38fdd86046fd7678a9c44a1c38b0ebda40bd837"
+      ],
+      "prior_blank_next_check_rows": 15,
+      "prior_patch_field_counts": {
+        "next_check": 15,
+        "property_gap": 2
+      },
+      "prior_patch_rows": 17,
+      "prior_top_level_property_gap_null_rows": 2
+    },
+    "rows": [
+      {
+        "canonical_ordinal": 52,
+        "closure_ids": [],
+        "criterion": {
+          "document_id": "B_r19",
+          "lines_1_based_inclusive": [
+            3666,
+            3679
+          ],
+          "path": "policy-engine/docs/plans/active/agent-packages/PolicyOS_E02_Combined_Agent_Package/source/B_r19_original.md",
+          "source_sha256": "9c98584cbfa72996b058abf127f6c689f919a3421cdd563a82c84a7324ab39b5",
+          "span_sha256": "49c4975a2baded3458be043b1ebd9f1cf32d24ed164d5f5399050948dcd2988a"
+        },
+        "current_state_unchanged": {
+          "capability": "bridge_missing",
+          "history": [
+            "closed",
+            "C",
+            "partial",
+            "partial",
+            [
+              1,
+              "proposed_closed",
+              "bridge_missing",
+              "complete_proposal_report",
+              "/occurrences/51/review"
+            ],
+            "not_adjudicated",
+            []
+          ],
+          "next_check": "G independent review of the exact retained source/property and receipt. Candidate freeze and any wider consumer/integration scope remain separately open.",
+          "outcome": "limited",
+          "property_gap": {
+            "property_short": null,
+            "source_rebind_counts": {
+              "changed_or_unpinned": 0,
+              "mismatched_paths": [],
+              "missing_paths": [
+                9
+              ],
+              "path_refs": 3,
+              "prior_pin_matches": 2
+            }
+          },
+          "refs": [
+            "p2",
+            "/occurrences/12",
+            "/occurrences/51",
+            "/occurrence_records/51",
+            "/occurrences/51"
+          ],
+          "task_routes": [
+            "Q0"
+          ],
+          "technical_closed_proposal": false,
+          "whole_property_state": "current_candidate_UNRUN"
+        },
+        "evidence_refs": {
+          "aggregate": {
+            "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/full-id-current-property-reconciliation-20261016/aggregate/aggregate-successor-proposal.json",
+            "pointer": "/occurrences/51",
+            "sha256": "3a2eb9da89ca7f8aadea86b5932102594a88214e4d578aa36bc7ced68a9de698"
+          },
+          "canonical_coverage": {
+            "path": "policy-engine/docs/research/e02-cloud-test-plan/closure-decisions/coverage.json",
+            "pointer": "/findings/51/selected_plan_not_executed",
+            "sha256": "97860dc18c7b92124971aa8032fc229be3367723ea2ec45e6cda4a777e544e01",
+            "status": "selected_plan_not_executed"
+          },
+          "current_evidence_index": {
+            "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/full-original-occurrence-current-evidence-index-20261016.json",
+            "pointer": "/occurrences/51",
+            "sha256": "bcf2b83c9b1aa53deb62edd12548e7784abc41e1af9b34f4a17a6638f02c3d7a"
+          },
+          "partition_2": {
+            "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/full-id-current-property-reconciliation-20261016/partition-2/partition-2-report.json",
+            "pointer": "/occurrences/12",
+            "sha256": "352dd1b74d3e92a028392e1e9e9ea2ca8dd90e66beb1da33dd9a1c7b71739a79"
+          },
+          "successor": {
+            "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/full-original-occurrence-reviewed-successor-proposals-20261017.json",
+            "pointer": "/rows/51",
+            "sha256": "a38160cec8f6eb4e752d4008c4f3db39917891004b17c63b81f75ed9f73150c4"
+          }
+        },
+        "field_update": {
+          "json_pointer": "/property_gap/property_short",
+          "preimage": null,
+          "proposed_value": "After sequential JOINs, preserve per-cell or equivalent segmented producer/version and applied-policy lineage so each later conflict resolves using the actual supplier; mixed-source values must not inherit first-source attribution."
+        },
+        "finding_id": "B138",
+        "formal_closure_proposal": false,
+        "next_check_record": {
+          "exact_next_check_note": "Preserve the existing occurrence-specific next_check verbatim; canonical selected plan remains unexecuted.",
+          "existing_successor_value": "G independent review of the exact retained source/property and receipt. Candidate freeze and any wider consumer/integration scope remain separately open.",
+          "preserve_existing_value": true,
+          "prior_q0_nextcheck_proposal": null,
+          "status": "UNRUN"
+        },
+        "occurrence_key": "B138#1:B_r19:FED-01:49c4975a2baded3458be043b1ebd9f1cf32d24ed164d5f5399050948dcd2988a",
+        "source_row_pointer": "/rows/51"
+      },
+      {
+        "canonical_ordinal": 57,
+        "closure_ids": [],
+        "criterion": {
+          "document_id": "B_r19",
+          "lines_1_based_inclusive": [
+            3722,
+            3735
+          ],
+          "path": "policy-engine/docs/plans/active/agent-packages/PolicyOS_E02_Combined_Agent_Package/source/B_r19_original.md",
+          "source_sha256": "9c98584cbfa72996b058abf127f6c689f919a3421cdd563a82c84a7324ab39b5",
+          "span_sha256": "ea79349098bc8829ed81cf3b2c0a0aaf6e4aca7d8848dddb842b418023de41f3"
+        },
+        "current_state_unchanged": {
+          "capability": "consumer_missing",
+          "history": [
+            "closed",
+            "C",
+            "partial",
+            "closed_bounded",
+            [
+              1,
+              "proposed_closed",
+              "consumer_missing",
+              "complete_proposal_report",
+              "/occurrences/56/review"
+            ],
+            "not_adjudicated",
+            []
+          ],
+          "next_check": "G independent review of the exact retained source/property and receipt. Candidate freeze and any wider consumer/integration scope remain separately open.",
+          "outcome": "limited",
+          "property_gap": {
+            "property_short": null,
+            "source_rebind_counts": {
+              "changed_or_unpinned": 0,
+              "mismatched_paths": [],
+              "missing_paths": [],
+              "path_refs": 3,
+              "prior_pin_matches": 3
+            }
+          },
+          "refs": [
+            "p2",
+            "/occurrences/14",
+            "/occurrences/56",
+            "/occurrence_records/56",
+            "/occurrences/56"
+          ],
+          "task_routes": [
+            "Q0"
+          ],
+          "technical_closed_proposal": false,
+          "whole_property_state": "current_candidate_UNRUN"
+        },
+        "evidence_refs": {
+          "aggregate": {
+            "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/full-id-current-property-reconciliation-20261016/aggregate/aggregate-successor-proposal.json",
+            "pointer": "/occurrences/56",
+            "sha256": "3a2eb9da89ca7f8aadea86b5932102594a88214e4d578aa36bc7ced68a9de698"
+          },
+          "canonical_coverage": {
+            "path": "policy-engine/docs/research/e02-cloud-test-plan/closure-decisions/coverage.json",
+            "pointer": "/findings/56/selected_plan_not_executed",
+            "sha256": "97860dc18c7b92124971aa8032fc229be3367723ea2ec45e6cda4a777e544e01",
+            "status": "selected_plan_not_executed"
+          },
+          "current_evidence_index": {
+            "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/full-original-occurrence-current-evidence-index-20261016.json",
+            "pointer": "/occurrences/56",
+            "sha256": "bcf2b83c9b1aa53deb62edd12548e7784abc41e1af9b34f4a17a6638f02c3d7a"
+          },
+          "partition_2": {
+            "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/full-id-current-property-reconciliation-20261016/partition-2/partition-2-report.json",
+            "pointer": "/occurrences/14",
+            "sha256": "352dd1b74d3e92a028392e1e9e9ea2ca8dd90e66beb1da33dd9a1c7b71739a79"
+          },
+          "successor": {
+            "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/full-original-occurrence-reviewed-successor-proposals-20261017.json",
+            "pointer": "/rows/56",
+            "sha256": "a38160cec8f6eb4e752d4008c4f3db39917891004b17c63b81f75ed9f73150c4"
+          }
+        },
+        "field_update": {
+          "json_pointer": "/property_gap/property_short",
+          "preimage": null,
+          "proposed_value": "A successfully read zero-row UNION retains its resolved compatible schema (column names and types) and query provenance, distinct from no sources or read failure; permitted downstream consumers interpret valid emptiness without treating it as no evidence or no effect."
+        },
+        "finding_id": "B142",
+        "formal_closure_proposal": false,
+        "next_check_record": {
+          "exact_next_check_note": "Preserve the existing occurrence-specific next_check verbatim; canonical selected plan remains unexecuted.",
+          "existing_successor_value": "G independent review of the exact retained source/property and receipt. Candidate freeze and any wider consumer/integration scope remain separately open.",
+          "preserve_existing_value": true,
+          "prior_q0_nextcheck_proposal": null,
+          "status": "UNRUN"
+        },
+        "occurrence_key": "B142#1:B_r19:FED-02:ea79349098bc8829ed81cf3b2c0a0aaf6e4aca7d8848dddb842b418023de41f3",
+        "source_row_pointer": "/rows/56"
+      },
+      {
+        "canonical_ordinal": 61,
+        "closure_ids": [],
+        "criterion": {
+          "document_id": "B_r19",
+          "lines_1_based_inclusive": [
+            3778,
+            3791
+          ],
+          "path": "policy-engine/docs/plans/active/agent-packages/PolicyOS_E02_Combined_Agent_Package/source/B_r19_original.md",
+          "source_sha256": "9c98584cbfa72996b058abf127f6c689f919a3421cdd563a82c84a7324ab39b5",
+          "span_sha256": "1182ff6022552b7af6105a79c657dca1e1c624dc1a43ba46b75136884c51ff05"
+        },
+        "current_state_unchanged": {
+          "capability": "semantic_test_missing",
+          "history": [
+            "closed",
+            "C",
+            "partial",
+            "closed_bounded",
+            [
+              1,
+              "limited",
+              "semantic_test_missing",
+              "complete_proposal_report",
+              "/occurrences/60/review"
+            ],
+            "not_adjudicated",
+            []
+          ],
+          "next_check": "G integration review: trace the current observation-builder output through versioned projection/publication and the dependent-observation re-evaluation path; confirm old artifact provenance is preserved and current bad/missing rows remain quarantined.",
+          "outcome": "limited",
+          "property_gap": {
+            "property_short": null,
+            "source_rebind_counts": {
+              "changed_or_unpinned": 0,
+              "mismatched_paths": [],
+              "missing_paths": [
+                15
+              ],
+              "path_refs": 3,
+              "prior_pin_matches": 2
+            }
+          },
+          "refs": [
+            "p2",
+            "/occurrences/15",
+            "/occurrences/60",
+            "/occurrence_records/60",
+            "/occurrences/60"
+          ],
+          "task_routes": [
+            "Q0"
+          ],
+          "technical_closed_proposal": false,
+          "whole_property_state": "current_candidate_UNRUN"
+        },
+        "evidence_refs": {
+          "aggregate": {
+            "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/full-id-current-property-reconciliation-20261016/aggregate/aggregate-successor-proposal.json",
+            "pointer": "/occurrences/60",
+            "sha256": "3a2eb9da89ca7f8aadea86b5932102594a88214e4d578aa36bc7ced68a9de698"
+          },
+          "canonical_coverage": {
+            "path": "policy-engine/docs/research/e02-cloud-test-plan/closure-decisions/coverage.json",
+            "pointer": "/findings/60/selected_plan_not_executed",
+            "sha256": "97860dc18c7b92124971aa8032fc229be3367723ea2ec45e6cda4a777e544e01",
+            "status": "selected_plan_not_executed"
+          },
+          "current_evidence_index": {
+            "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/full-original-occurrence-current-evidence-index-20261016.json",
+            "pointer": "/occurrences/60",
+            "sha256": "bcf2b83c9b1aa53deb62edd12548e7784abc41e1af9b34f4a17a6638f02c3d7a"
+          },
+          "partition_2": {
+            "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/full-id-current-property-reconciliation-20261016/partition-2/partition-2-report.json",
+            "pointer": "/occurrences/15",
+            "sha256": "352dd1b74d3e92a028392e1e9e9ea2ca8dd90e66beb1da33dd9a1c7b71739a79"
+          },
+          "successor": {
+            "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/full-original-occurrence-reviewed-successor-proposals-20261017.json",
+            "pointer": "/rows/60",
+            "sha256": "a38160cec8f6eb4e752d4008c4f3db39917891004b17c63b81f75ed9f73150c4"
+          }
+        },
+        "field_update": {
+          "json_pointer": "/property_gap/property_short",
+          "preimage": null,
+          "proposed_value": "Period parsing preserves supported valid periods separately from missing and malformed values, uses actual calendar boundaries (including leap February), and applies a versioned projection with dependent re-evaluation while retaining old artifact provenance."
+        },
+        "finding_id": "B146",
+        "formal_closure_proposal": false,
+        "next_check_record": {
+          "exact_next_check_note": "Preserve the existing occurrence-specific next_check verbatim; canonical selected plan remains unexecuted.",
+          "existing_successor_value": "G integration review: trace the current observation-builder output through versioned projection/publication and the dependent-observation re-evaluation path; confirm old artifact provenance is preserved and current bad/missing rows remain quarantined.",
+          "preserve_existing_value": true,
+          "prior_q0_nextcheck_proposal": null,
+          "status": "UNRUN"
+        },
+        "occurrence_key": "B146#1:B_r19:OBS-01:1182ff6022552b7af6105a79c657dca1e1c624dc1a43ba46b75136884c51ff05",
+        "source_row_pointer": "/rows/60"
+      },
+      {
+        "canonical_ordinal": 66,
+        "closure_ids": [],
+        "criterion": {
+          "document_id": "B_r19",
+          "lines_1_based_inclusive": [
+            3941,
+            3952
+          ],
+          "path": "policy-engine/docs/plans/active/agent-packages/PolicyOS_E02_Combined_Agent_Package/source/B_r19_original.md",
+          "source_sha256": "9c98584cbfa72996b058abf127f6c689f919a3421cdd563a82c84a7324ab39b5",
+          "span_sha256": "b40a162af24b14c3160e0129551e58ecfabf054df9da4e3cab413f020cde5aa4"
+        },
+        "current_state_unchanged": {
+          "capability": "verification_missing",
+          "history": [
+            "closed",
+            "B",
+            "closed",
+            "closed_bounded",
+            [
+              1,
+              "limited",
+              "verification_missing",
+              "complete_proposal_report",
+              "/occurrences/65/review"
+            ],
+            "not_adjudicated",
+            []
+          ],
+          "next_check": "CAS/root/G actual profile consumers. candidate family is pinned; execute only after final source/config/assets freeze Canonical first-writer ABI + selected manifest profile semantics met, including actual byte readback/ref coordinates.",
+          "outcome": "limited",
+          "property_gap": {
+            "property_short": null,
+            "source_rebind_counts": {
+              "changed_or_unpinned": 2,
+              "mismatched_paths": [
+                22,
+                24
+              ],
+              "missing_paths": [],
+              "path_refs": 4,
+              "prior_pin_matches": 2
+            }
+          },
+          "refs": [
+            "p2",
+            "/occurrences/16",
+            "/occurrences/65",
+            "/occurrence_records/65",
+            "/occurrences/65"
+          ],
+          "task_routes": [
+            "Q0"
+          ],
+          "technical_closed_proposal": false,
+          "whole_property_state": "historical_closed_preserved_current_candidate_UNRUN"
+        },
+        "evidence_refs": {
+          "aggregate": {
+            "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/full-id-current-property-reconciliation-20261016/aggregate/aggregate-successor-proposal.json",
+            "pointer": "/occurrences/65",
+            "sha256": "3a2eb9da89ca7f8aadea86b5932102594a88214e4d578aa36bc7ced68a9de698"
+          },
+          "canonical_coverage": {
+            "path": "policy-engine/docs/research/e02-cloud-test-plan/closure-decisions/coverage.json",
+            "pointer": "/findings/65/selected_plan_not_executed",
+            "sha256": "97860dc18c7b92124971aa8032fc229be3367723ea2ec45e6cda4a777e544e01",
+            "status": "selected_plan_not_executed"
+          },
+          "current_evidence_index": {
+            "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/full-original-occurrence-current-evidence-index-20261016.json",
+            "pointer": "/occurrences/65",
+            "sha256": "bcf2b83c9b1aa53deb62edd12548e7784abc41e1af9b34f4a17a6638f02c3d7a"
+          },
+          "partition_2": {
+            "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/full-id-current-property-reconciliation-20261016/partition-2/partition-2-report.json",
+            "pointer": "/occurrences/16",
+            "sha256": "352dd1b74d3e92a028392e1e9e9ea2ca8dd90e66beb1da33dd9a1c7b71739a79"
+          },
+          "successor": {
+            "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/full-original-occurrence-reviewed-successor-proposals-20261017.json",
+            "pointer": "/rows/65",
+            "sha256": "a38160cec8f6eb4e752d4008c4f3db39917891004b17c63b81f75ed9f73150c4"
+          }
+        },
+        "field_update": {
+          "json_pointer": "/property_gap/property_short",
+          "preimage": null,
+          "proposed_value": "The returned ArtifactRef reflects the persisted first-writer manifest profile; same-profile retries reuse the stored bytes, while material profile or lineage mismatch is refused or represented by a distinct typed usage/provenance record without rewriting manifest or history."
+        },
+        "finding_id": "B150",
+        "formal_closure_proposal": false,
+        "next_check_record": {
+          "exact_next_check_note": "Preserve the existing occurrence-specific next_check verbatim; canonical selected plan remains unexecuted.",
+          "existing_successor_value": "CAS/root/G actual profile consumers. candidate family is pinned; execute only after final source/config/assets freeze Canonical first-writer ABI + selected manifest profile semantics met, including actual byte readback/ref coordinates.",
+          "preserve_existing_value": true,
+          "prior_q0_nextcheck_proposal": null,
+          "status": "UNRUN"
+        },
+        "occurrence_key": "B150#1:B_r19:CAS-01:b40a162af24b14c3160e0129551e58ecfabf054df9da4e3cab413f020cde5aa4",
+        "source_row_pointer": "/rows/65"
+      },
+      {
+        "canonical_ordinal": 70,
+        "closure_ids": [],
+        "criterion": {
+          "document_id": "B_r19",
+          "lines_1_based_inclusive": [
+            3989,
+            4000
+          ],
+          "path": "policy-engine/docs/plans/active/agent-packages/PolicyOS_E02_Combined_Agent_Package/source/B_r19_original.md",
+          "source_sha256": "9c98584cbfa72996b058abf127f6c689f919a3421cdd563a82c84a7324ab39b5",
+          "span_sha256": "5e25ba12544423bc8a7de3338e8d104bb6c6ef4619bcdf95639c05652cd8c1c5"
+        },
+        "current_state_unchanged": {
+          "capability": "verification_missing",
+          "history": [
+            "limited",
+            "B",
+            "partial",
+            "closed_bounded",
+            [
+              1,
+              "limited",
+              "verification_missing",
+              "complete_proposal_report",
+              "/occurrences/69/review"
+            ],
+            "not_adjudicated",
+            []
+          ],
+          "next_check": "A/G: actual all-confirmations governed publisher candidate family is pinned; execute only after final source/config/assets freeze B typed full-batch partial/aborted report and obligations available; real served publisher refusal/recovery on exact local read-only input unproved.",
+          "outcome": "limited",
+          "property_gap": {
+            "property_short": null,
+            "source_rebind_counts": {
+              "changed_or_unpinned": 2,
+              "mismatched_paths": [
+                22,
+                24
+              ],
+              "missing_paths": [],
+              "path_refs": 6,
+              "prior_pin_matches": 4
+            }
+          },
+          "refs": [
+            "p2",
+            "/occurrences/17",
+            "/occurrences/69",
+            "/occurrence_records/69",
+            "/occurrences/69"
+          ],
+          "task_routes": [
+            "T2",
+            "V1"
+          ],
+          "technical_closed_proposal": false,
+          "whole_property_state": "current_candidate_UNRUN"
+        },
+        "evidence_refs": {
+          "aggregate": {
+            "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/full-id-current-property-reconciliation-20261016/aggregate/aggregate-successor-proposal.json",
+            "pointer": "/occurrences/69",
+            "sha256": "3a2eb9da89ca7f8aadea86b5932102594a88214e4d578aa36bc7ced68a9de698"
+          },
+          "canonical_coverage": {
+            "path": "policy-engine/docs/research/e02-cloud-test-plan/closure-decisions/coverage.json",
+            "pointer": "/findings/69/selected_plan_not_executed",
+            "sha256": "97860dc18c7b92124971aa8032fc229be3367723ea2ec45e6cda4a777e544e01",
+            "status": "selected_plan_not_executed"
+          },
+          "current_evidence_index": {
+            "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/full-original-occurrence-current-evidence-index-20261016.json",
+            "pointer": "/occurrences/69",
+            "sha256": "bcf2b83c9b1aa53deb62edd12548e7784abc41e1af9b34f4a17a6638f02c3d7a"
+          },
+          "partition_2": {
+            "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/full-id-current-property-reconciliation-20261016/partition-2/partition-2-report.json",
+            "pointer": "/occurrences/17",
+            "sha256": "352dd1b74d3e92a028392e1e9e9ea2ca8dd90e66beb1da33dd9a1c7b71739a79"
+          },
+          "successor": {
+            "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/full-original-occurrence-reviewed-successor-proposals-20261017.json",
+            "pointer": "/rows/69",
+            "sha256": "a38160cec8f6eb4e752d4008c4f3db39917891004b17c63b81f75ed9f73150c4"
+          }
+        },
+        "field_update": {
+          "json_pointer": "/property_gap/property_short",
+          "preimage": null,
+          "proposed_value": "Batch verification/signing retains one explicit per-item result for local errors and preserves complete versus aborted state for global failure or cancellation; partial output cannot authorize publication that requires all confirmations."
+        },
+        "finding_id": "B154",
+        "formal_closure_proposal": false,
+        "next_check_record": {
+          "exact_next_check_note": "Preserve the existing occurrence-specific next_check verbatim; canonical selected plan remains unexecuted.",
+          "existing_successor_value": "A/G: actual all-confirmations governed publisher candidate family is pinned; execute only after final source/config/assets freeze B typed full-batch partial/aborted report and obligations available; real served publisher refusal/recovery on exact local read-only input unproved.",
+          "preserve_existing_value": true,
+          "prior_q0_nextcheck_proposal": null,
+          "status": "UNRUN"
+        },
+        "occurrence_key": "B154#1:B_r19:CAS-03:5e25ba12544423bc8a7de3338e8d104bb6c6ef4619bcdf95639c05652cd8c1c5",
+        "source_row_pointer": "/rows/69"
+      },
+      {
+        "canonical_ordinal": 74,
+        "closure_ids": [],
+        "criterion": {
+          "document_id": "B_r19",
+          "lines_1_based_inclusive": [
+            4129,
+            4140
+          ],
+          "path": "policy-engine/docs/plans/active/agent-packages/PolicyOS_E02_Combined_Agent_Package/source/B_r19_original.md",
+          "source_sha256": "9c98584cbfa72996b058abf127f6c689f919a3421cdd563a82c84a7324ab39b5",
+          "span_sha256": "bd4643a221c0c9934fdf37c2d8b90d97aa93ad09ac95fa3324e23bd04ea4a2c3"
+        },
+        "current_state_unchanged": {
+          "capability": "verification_missing",
+          "history": [
+            "closed",
+            "D",
+            "partial",
+            "closed_bounded",
+            [
+              2,
+              "limited",
+              "verification_missing",
+              "complete_proposal_report",
+              "/occurrences/73/review"
+            ],
+            "not_adjudicated",
+            []
+          ],
+          "next_check": "",
+          "outcome": "limited",
+          "property_gap": {
+            "property_short": null,
+            "source_rebind_counts": {
+              "changed_or_unpinned": 0,
+              "mismatched_paths": [],
+              "missing_paths": [],
+              "path_refs": 2,
+              "prior_pin_matches": 2
+            }
+          },
+          "refs": [
+            "p2",
+            "/occurrences/18",
+            "/occurrences/73",
+            "/occurrence_records/73",
+            "/occurrences/73"
+          ],
+          "task_routes": [
+            "Q0"
+          ],
+          "technical_closed_proposal": false,
+          "whole_property_state": "current_candidate_UNRUN"
+        },
+        "evidence_refs": {
+          "aggregate": {
+            "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/full-id-current-property-reconciliation-20261016/aggregate/aggregate-successor-proposal.json",
+            "pointer": "/occurrences/73",
+            "sha256": "3a2eb9da89ca7f8aadea86b5932102594a88214e4d578aa36bc7ced68a9de698"
+          },
+          "canonical_coverage": {
+            "path": "policy-engine/docs/research/e02-cloud-test-plan/closure-decisions/coverage.json",
+            "pointer": "/findings/73/selected_plan_not_executed",
+            "sha256": "97860dc18c7b92124971aa8032fc229be3367723ea2ec45e6cda4a777e544e01",
+            "status": "selected_plan_not_executed"
+          },
+          "current_evidence_index": {
+            "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/full-original-occurrence-current-evidence-index-20261016.json",
+            "pointer": "/occurrences/73",
+            "sha256": "bcf2b83c9b1aa53deb62edd12548e7784abc41e1af9b34f4a17a6638f02c3d7a"
+          },
+          "partition_2": {
+            "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/full-id-current-property-reconciliation-20261016/partition-2/partition-2-report.json",
+            "pointer": "/occurrences/18",
+            "sha256": "352dd1b74d3e92a028392e1e9e9ea2ca8dd90e66beb1da33dd9a1c7b71739a79"
+          },
+          "successor": {
+            "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/full-original-occurrence-reviewed-successor-proposals-20261017.json",
+            "pointer": "/rows/73",
+            "sha256": "a38160cec8f6eb4e752d4008c4f3db39917891004b17c63b81f75ed9f73150c4"
+          }
+        },
+        "field_update": {
+          "json_pointer": "/property_gap/property_short",
+          "preimage": null,
+          "proposed_value": "Before each expensive stage transition, an up-to-date VOI/admission decision binds current inputs, budget and scope independent of full versus Stage-A/Stage-B API shape; changed prerequisites trigger targeted revalidation without charging again solely because the API was split."
+        },
+        "finding_id": "B158",
+        "formal_closure_proposal": false,
+        "next_check_record": {
+          "exact_next_check_note": "Existing next_check is blank. Prior Q0 proposal names a command, but static test review found the cited test lacks the discriminator; author the missing semantic test first, then run the command.",
+          "existing_successor_value": "",
+          "preserve_existing_value": false,
+          "prior_q0_nextcheck_proposal": {
+            "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/q0-stale-row-nextcheck-gap-corrigendum-20261021-r1/field-patch.json",
+            "pointer": "/patch_rows/0",
+            "proposed_next_check": "Owner: search-funnel orchestration/VOI transition owner. On the final freeze run `cd policy-engine && .venv/bin/python -m pytest -q tests/unit/scientist/search/funnel/test_orchestrator.py tests/unit/scientist/search/funnel/test_voi_work_packet_bridge.py`; compare identical full-call and Stage-A→Stage-B inputs under defer/advance, then change a prerequisite. Capture actual stage calls, decision edges, charges and stop reasons; show revalidation before the next costly call. Fixture evidence is local only; an external budget/authority claim additionally needs the resource owner’s authentic reservation/cost receipt.",
+            "sha256": "3a998d0b5c09a216d244a97f3e3b66250529937cd39482b9713da21d41d5311e",
+            "status": "author proposal only; command is not ready because current candidate tests lack its discriminator"
+          },
+          "status": "UNRUN"
+        },
+        "occurrence_key": "B158#1:B_r19:FUN-01:bd4643a221c0c9934fdf37c2d8b90d97aa93ad09ac95fa3324e23bd04ea4a2c3",
+        "source_row_pointer": "/rows/73"
+      },
+      {
+        "canonical_ordinal": 79,
+        "closure_ids": [],
+        "criterion": {
+          "document_id": "B_r19",
+          "lines_1_based_inclusive": [
+            4177,
+            4188
+          ],
+          "path": "policy-engine/docs/plans/active/agent-packages/PolicyOS_E02_Combined_Agent_Package/source/B_r19_original.md",
+          "source_sha256": "9c98584cbfa72996b058abf127f6c689f919a3421cdd563a82c84a7324ab39b5",
+          "span_sha256": "898e61d52e838908faca4e23e38fdd86046fd7678a9c44a1c38b0ebda40bd837"
+        },
+        "current_state_unchanged": {
+          "capability": "verification_missing",
+          "history": [
+            "closed",
+            "D",
+            "partial",
+            "closed_bounded",
+            [
+              2,
+              "limited",
+              "verification_missing",
+              "complete_proposal_report",
+              "/occurrences/78/review"
+            ],
+            "not_adjudicated",
+            []
+          ],
+          "next_check": "",
+          "outcome": "limited",
+          "property_gap": {
+            "property_short": null,
+            "source_rebind_counts": {
+              "changed_or_unpinned": 0,
+              "mismatched_paths": [],
+              "missing_paths": [],
+              "path_refs": 2,
+              "prior_pin_matches": 2
+            }
+          },
+          "refs": [
+            "p2",
+            "/occurrences/19",
+            "/occurrences/78",
+            "/occurrence_records/78",
+            "/occurrences/78"
+          ],
+          "task_routes": [
+            "Q0"
+          ],
+          "technical_closed_proposal": false,
+          "whole_property_state": "current_candidate_UNRUN"
+        },
+        "evidence_refs": {
+          "aggregate": {
+            "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/full-id-current-property-reconciliation-20261016/aggregate/aggregate-successor-proposal.json",
+            "pointer": "/occurrences/78",
+            "sha256": "3a2eb9da89ca7f8aadea86b5932102594a88214e4d578aa36bc7ced68a9de698"
+          },
+          "canonical_coverage": {
+            "path": "policy-engine/docs/research/e02-cloud-test-plan/closure-decisions/coverage.json",
+            "pointer": "/findings/78/selected_plan_not_executed",
+            "sha256": "97860dc18c7b92124971aa8032fc229be3367723ea2ec45e6cda4a777e544e01",
+            "status": "selected_plan_not_executed"
+          },
+          "current_evidence_index": {
+            "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/full-original-occurrence-current-evidence-index-20261016.json",
+            "pointer": "/occurrences/78",
+            "sha256": "bcf2b83c9b1aa53deb62edd12548e7784abc41e1af9b34f4a17a6638f02c3d7a"
+          },
+          "partition_2": {
+            "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/full-id-current-property-reconciliation-20261016/partition-2/partition-2-report.json",
+            "pointer": "/occurrences/19",
+            "sha256": "352dd1b74d3e92a028392e1e9e9ea2ca8dd90e66beb1da33dd9a1c7b71739a79"
+          },
+          "successor": {
+            "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/full-original-occurrence-reviewed-successor-proposals-20261017.json",
+            "pointer": "/rows/78",
+            "sha256": "a38160cec8f6eb4e752d4008c4f3db39917891004b17c63b81f75ed9f73150c4"
+          }
+        },
+        "field_update": {
+          "json_pointer": "/property_gap/property_short",
+          "preimage": null,
+          "proposed_value": "Uncertainty-envelope production distinguishes malformed or missing CI width from genuine zero and finite-positive width; invalid or absent width yields an unevaluated reason rather than fabricated zero uncertainty/full-fidelity status, while valid results and other fields survive."
+        },
+        "finding_id": "B162",
+        "formal_closure_proposal": false,
+        "next_check_record": {
+          "exact_next_check_note": "Existing next_check is blank. Prior Q0 proposal names a command, but static test review found the cited test lacks the discriminator; author the missing semantic test first, then run the command.",
+          "existing_successor_value": "",
+          "preserve_existing_value": false,
+          "prior_q0_nextcheck_proposal": {
+            "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/q0-stale-row-nextcheck-gap-corrigendum-20261021-r1/field-patch.json",
+            "pointer": "/patch_rows/1",
+            "proposed_next_check": "Owner: Level-4 envelope producer and uncertainty consumer. On the final freeze run `cd policy-engine && .venv/bin/python -m pytest -q tests/unit/scientist/search/funnel/test_level4_full.py`; through the actual consumer distinguish malformed, absent, genuine-zero and finite-positive widths. Invalid/absent inputs must not become zero uncertainty or inherit full-fidelity status; valid results and other outputs must survive. Publication qualification is separate.",
+            "sha256": "3a998d0b5c09a216d244a97f3e3b66250529937cd39482b9713da21d41d5311e",
+            "status": "author proposal only; command is not ready because current candidate tests lack its discriminator"
+          },
+          "status": "UNRUN"
+        },
+        "occurrence_key": "B162#1:B_r19:FUN-02:898e61d52e838908faca4e23e38fdd86046fd7678a9c44a1c38b0ebda40bd837",
+        "source_row_pointer": "/rows/78"
+      }
+    ],
+    "scope": "Only seven null values at /property_gap/property_short; no outcome, capability, whole-property, next_check, history, route, refs or closure changes."
+  },
+  "nextcheck_test_readiness": {
+    "P38_rule": "Shared class applies across all 17 rows; ready means bounded local command is source-ready after final freeze, not property acceptance.",
+    "counts": {
+      "UNRUN_not_ready": 15,
+      "commands_run": 0,
+      "ready_scoped_commands": 2,
+      "rows_reviewed": 17
+    },
+    "prior_17_packet": {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/q0-stale-row-nextcheck-gap-corrigendum-20261021-r1/field-patch.json",
+      "preserve_immutable": true,
+      "sha256": "3a998d0b5c09a216d244a97f3e3b66250529937cd39482b9713da21d41d5311e"
+    },
+    "rows": [
+      {
+        "P38_class": "Command is not treated as evidence for a semantic property its cited tests do not encode.",
+        "candidate_test_sources": [
+          {
+            "path": "policy-engine/tests/unit/scientist/orchestration/engine/runner/test_serialization_e02.py",
+            "referenced_test_functions": [
+              {
+                "line": 56,
+                "name": "test_actual_state_roundtrip_cold_and_warm_preserves_decimal_type"
+              },
+              {
+                "line": 67,
+                "name": "test_any_nested_decimal_and_typed_artifact_ref_survive_actual_outcome"
+              },
+              {
+                "line": 95,
+                "name": "test_output_aware_outcome_remains_typed"
+              },
+              {
+                "line": 102,
+                "name": "test_real_worker_process_consumes_state_and_emits_exact_typed_outcome"
+              },
+              {
+                "line": 176,
+                "name": "test_current_version_rejects_untyped_decimal_budget"
+              },
+              {
+                "line": 184,
+                "name": "test_current_outcome_rejects_untyped_nested_budget"
+              },
+              {
+                "line": 198,
+                "name": "test_nonfinite_decimal_writer_refuses"
+              },
+              {
+                "line": 204,
+                "name": "test_safe_hash_tamper_refuses_before_typed_decode"
+              }
+            ],
+            "sha256": "146b37a906170f96fd54428961b02f6b3c3a08ef80ff9770144ef26cc5bbb5f6"
+          }
+        ],
+        "closure_ids": [],
+        "command_run": false,
+        "disposition": "ready_for_scoped_command_with_optional_backend_skip",
+        "finding_id": "B94",
+        "formal_closure_proposal": false,
+        "missing_property_discriminator_and_required_action": "Local candidate is ready for scoped command after source freeze; retain external worker/backend limitation and record optional orjson skip.",
+        "observed_current_coverage": "Current local suite encodes Decimal state/union/nested ArtifactRef/typed outcome, cold-warm, worker path and corrupt/non-finite controls; stdlib/orjson parametrization can skip orjson if missing. Real Ray/Temporal are not exercised.",
+        "occurrence_key": "B94#1:B_r19:WIRE-01:da315729082384722dd083535cd9f7e944d8ff25aaa8856ca4ab8fc1f1d99bc7",
+        "owner": "Core serializer / worker-envelope owners",
+        "supported_command_after_final_source_freeze_and_required_test_authorship": "cd policy-engine && .venv/bin/python -m pytest -q tests/unit/scientist/orchestration/engine/runner/test_serialization_e02.py -ra",
+        "whole_property_status": "not_established / UNRUN"
+      },
+      {
+        "P38_class": "Command is not treated as evidence for a semantic property its cited tests do not encode.",
+        "candidate_test_sources": [
+          {
+            "path": "policy-engine/tests/unit/scientist/methods/doe/test_adaptive.py",
+            "referenced_test_functions": [
+              {
+                "line": 48,
+                "name": "test_max_rounds_reached"
+              },
+              {
+                "line": 68,
+                "name": "test_eval_failure_handled"
+              }
+            ],
+            "sha256": "a18910058e8d4a59eea1e394cf74f374e762242381f46bca9bb8bb5eb023861f"
+          }
+        ],
+        "closure_ids": [],
+        "command_run": false,
+        "disposition": "UNRUN_not_ready",
+        "finding_id": "B98",
+        "formal_closure_proposal": false,
+        "missing_property_discriminator_and_required_action": "Author those call-count/last-result/invalid-budget semantic tests first; then run command and record SALib skip if applicable.",
+        "observed_current_coverage": "max-rounds test checks only rounds length and convergence; no call counter proves no unrecorded evaluator/analyzer call, preservation of the last result after an attempted extra call, or max_rounds<1 refusal. Whole module has SALib importorskip.",
+        "occurrence_key": "B98#1:B_r19:DOE-01:ba66b01fed8fd36fcab549cbfa051f1486779a24a0bb52594410c6246baaa995",
+        "owner": "DOE adaptive sampler owner",
+        "supported_command_after_final_source_freeze_and_required_test_authorship": "cd policy-engine && .venv/bin/python -m pytest -q tests/unit/scientist/methods/doe/test_adaptive.py -ra",
+        "whole_property_status": "not_established / UNRUN"
+      },
+      {
+        "P38_class": "Command is not treated as evidence for a semantic property its cited tests do not encode.",
+        "candidate_test_sources": [
+          {
+            "path": "policy-engine/tests/unit/scientist/search/funnel/test_orchestrator.py",
+            "referenced_test_functions": [
+              {
+                "line": 659,
+                "name": "test_stage_b_reuses_cached_stage_a_progress"
+              },
+              {
+                "line": 851,
+                "name": "test_stage_defer_continuation_without_scheduler_decision"
+              }
+            ],
+            "sha256": "4dcd2c9895c85c24ec152c84f890cae97e7b6e40e51be4da18b1b902e2c1aab5"
+          },
+          {
+            "path": "policy-engine/tests/unit/scientist/search/funnel/test_voi_work_packet_bridge.py",
+            "referenced_test_functions": [
+              {
+                "line": 691,
+                "name": "test_packet_bound_voi_rechecks_cas_and_keeps_score_only_rows_unqualified"
+              }
+            ],
+            "sha256": "aa4c88cf25c3cf07a4fe48bd8478bf3b9bf2acaaadbf7369507aca0ec561f931"
+          }
+        ],
+        "closure_ids": [],
+        "command_run": false,
+        "disposition": "UNRUN_not_ready",
+        "finding_id": "B158",
+        "formal_closure_proposal": false,
+        "missing_property_discriminator_and_required_action": "Author identical-input full-call and Stage-A→B semantic cases under defer/advance; capture calls, decision refs, charges/stops; change prerequisite and require targeted revalidation. Then run two-file command. External resource-owner authority remains separate.",
+        "observed_current_coverage": "Existing Stage B test proves cached work reuse/call counts; VOI tests cover packet/CAS intake and score qualification. No paired full versus split defer/advance decision, cost-once, stop reason or changed-input targeted revalidation oracle.",
+        "occurrence_key": "B158#1:B_r19:FUN-01:bd4643a221c0c9934fdf37c2d8b90d97aa93ad09ac95fa3324e23bd04ea4a2c3",
+        "owner": "Search-funnel orchestration / VOI owner",
+        "supported_command_after_final_source_freeze_and_required_test_authorship": "cd policy-engine && .venv/bin/python -m pytest -q tests/unit/scientist/search/funnel/test_orchestrator.py tests/unit/scientist/search/funnel/test_voi_work_packet_bridge.py -ra",
+        "whole_property_status": "not_established / UNRUN"
+      },
+      {
+        "P38_class": "Command is not treated as evidence for a semantic property its cited tests do not encode.",
+        "candidate_test_sources": [
+          {
+            "path": "policy-engine/tests/unit/scientist/search/funnel/test_level4_full.py",
+            "referenced_test_functions": [
+              {
+                "line": 34,
+                "name": "test_level4_full_emits_full_fidelity_stage_result"
+              }
+            ],
+            "sha256": "99493a05dc5971e514d63335592776bbeeb7e66070c99793869f0a5e93fc1241"
+          }
+        ],
+        "closure_ids": [],
+        "command_run": false,
+        "disposition": "UNRUN_not_ready",
+        "finding_id": "B162",
+        "formal_closure_proposal": false,
+        "missing_property_discriminator_and_required_action": "Author the producer/consumer matrix; invalid/missing must be unevaluated with reason, not zero/full-fidelity; preserve valid true zero, finite value and sibling outputs. Then run command.",
+        "observed_current_coverage": "The only test has finite ci_width=0.3 and envelope-exists assertion; it lacks malformed/absent/true-zero/finite-positive matrix through actual consumer and output-preservation cases.",
+        "occurrence_key": "B162#1:B_r19:FUN-02:898e61d52e838908faca4e23e38fdd86046fd7678a9c44a1c38b0ebda40bd837",
+        "owner": "Level-4 envelope producer / uncertainty consumer",
+        "supported_command_after_final_source_freeze_and_required_test_authorship": "cd policy-engine && .venv/bin/python -m pytest -q tests/unit/scientist/search/funnel/test_level4_full.py -ra",
+        "whole_property_status": "not_established / UNRUN"
+      },
+      {
+        "P38_class": "Command is not treated as evidence for a semantic property its cited tests do not encode.",
+        "candidate_test_sources": [
+          {
+            "path": "policy-engine/tests/unit/scientist/methods/backtesting/test_masking.py",
+            "referenced_test_functions": [
+              {
+                "line": 40,
+                "name": "test_masking_uses_declared_pre_intervention_periods_when_step_is_missing"
+              }
+            ],
+            "sha256": "4dc762ad6c253195cb8bbf0d3cc4e4fa5234a9fe1e2479eced7c4f4f8d83dc13"
+          },
+          {
+            "path": "policy-engine/tests/unit/scientist/methods/backtesting/test_backtesting.py",
+            "referenced_test_functions": [
+              {
+                "line": 665,
+                "name": "test_scientist_dispatch_binds_masked_view_to_backend_input"
+              },
+              {
+                "line": 851,
+                "name": "test_scientist_backtest_accepts_preperiod_only_cutoff_and_masks_future_sentinel"
+              },
+              {
+                "line": 874,
+                "name": "test_scientist_without_temporal_boundary_is_degraded"
+              }
+            ],
+            "sha256": "b5928f313a37196fd2c6ea49cf9362dce0de2ba6263d909ac252721487fa587b"
+          }
+        ],
+        "closure_ids": [],
+        "command_run": false,
+        "disposition": "UNRUN_not_ready",
+        "finding_id": "B166",
+        "formal_closure_proposal": false,
+        "missing_property_discriminator_and_required_action": "Author full route test and both negative/positive provenance controls before executing the command; degraded marker alone is not the oracle.",
+        "observed_current_coverage": "A direct dispatch test captures a masked CAS snapshot without future canaries, and cutoff tests exist. Candidate set does not compose _run_single_scenario route, supplied-but-unmasked negative, and already-truncated positive requiring checked slice binding.",
+        "occurrence_key": "B166#1:B_r19:BKT-01:fca923e26ad0c81b5a1097f0c5b09b3a85434faf70826001b2e5d6c676e8a541",
+        "owner": "Historical replay producer / Scientist consumer",
+        "supported_command_after_final_source_freeze_and_required_test_authorship": "cd policy-engine && .venv/bin/python -m pytest -q tests/unit/scientist/methods/backtesting/test_masking.py tests/unit/scientist/methods/backtesting/test_backtesting.py -ra",
+        "whole_property_status": "not_established / UNRUN"
+      },
+      {
+        "P38_class": "Command is not treated as evidence for a semantic property its cited tests do not encode.",
+        "candidate_test_sources": [
+          {
+            "path": "policy-engine/tests/unit/scientist/methods/backtesting/test_backtesting.py",
+            "referenced_test_functions": [
+              {
+                "line": 693,
+                "name": "test_scientist_dispatch_passes_requested_replica_count"
+              },
+              {
+                "line": 1107,
+                "name": "test_scientist_backtest_runs_and_reads_back_each_requested_replica"
+              },
+              {
+                "line": 1280,
+                "name": "test_scientist_backtest_retains_failed_replica_in_requested_denominator"
+              }
+            ],
+            "sha256": "b5928f313a37196fd2c6ea49cf9362dce0de2ba6263d909ac252721487fa587b"
+          }
+        ],
+        "closure_ids": [],
+        "command_run": false,
+        "disposition": "UNRUN_not_ready",
+        "finding_id": "B170",
+        "formal_closure_proposal": false,
+        "missing_property_discriminator_and_required_action": "Author bounded n=1/n=7 persisted-cohort test with distinct identities, failed replica denominator and before-work budget refusal. Then run command.",
+        "observed_current_coverage": "Existing tests cover n=7 distinct dispatch IDs, persisted readback for n=3 and a failed replica denominator. They do not compose n=1 versus 7 through complete persisted cohort/readback or prove insufficient-budget refusal before any call.",
+        "occurrence_key": "B170#1:B_r19:BKT-01:ebd468778c34a525226f1631f17dbb9eb3e040a6c9a5d96d038620576528181a",
+        "owner": "Backtesting plan / Scientist dispatch owner",
+        "supported_command_after_final_source_freeze_and_required_test_authorship": "cd policy-engine && .venv/bin/python -m pytest -q tests/unit/scientist/methods/backtesting/test_backtesting.py -ra",
+        "whole_property_status": "not_established / UNRUN"
+      },
+      {
+        "P38_class": "Command is not treated as evidence for a semantic property its cited tests do not encode.",
+        "candidate_test_sources": [
+          {
+            "path": "policy-engine/tests/unit/scientist/methods/backtesting/test_cv.py",
+            "referenced_test_functions": [
+              {
+                "line": 17,
+                "name": "test_basic_splits"
+              },
+              {
+                "line": 23,
+                "name": "test_expanding_window"
+              },
+              {
+                "line": 28,
+                "name": "test_max_folds"
+              },
+              {
+                "line": 51,
+                "name": "test_invalid_cv_parameters_are_rejected_before_loop"
+              },
+              {
+                "line": 87,
+                "name": "test_max_folds_limits_preparation_before_cv_evaluator"
+              }
+            ],
+            "sha256": "ee5acacd4382d853a3996e7ca227c7a7c33a2e2790b326eb5b28167812180856"
+          }
+        ],
+        "closure_ids": [],
+        "command_run": false,
+        "disposition": "ready_for_scoped_command",
+        "finding_id": "B174",
+        "formal_closure_proposal": false,
+        "missing_property_discriminator_and_required_action": "Run existing module after source freeze; scope remains helper preparation/split equivalence, not every GY caller or leakage policy.",
+        "observed_current_coverage": "Current tests include valid order, invalid parameters refused before range materialization, and a bounded preparation counter before evaluator calls matching chosen folds. This is an executable witness for the bounded helper property.",
+        "occurrence_key": "B174#1:B_r19:BKT-04:a82f29a9dea77a5de495b6e71780394b8f5aa1df167e13ff717a079fac534664",
+        "owner": "Forward-chaining CV helper owner",
+        "supported_command_after_final_source_freeze_and_required_test_authorship": "cd policy-engine && .venv/bin/python -m pytest -q tests/unit/scientist/methods/backtesting/test_cv.py -ra",
+        "whole_property_status": "not_established / UNRUN"
+      },
+      {
+        "P38_class": "Command is not treated as evidence for a semantic property its cited tests do not encode.",
+        "candidate_test_sources": [
+          {
+            "path": "policy-engine/tests/unit/foundry/calibration/test_preflight.py",
+            "referenced_test_functions": [
+              {
+                "line": 44,
+                "name": "test_align_by_length_padding"
+              },
+              {
+                "line": 57,
+                "name": "test_align_by_length_padding_with_last_value"
+              }
+            ],
+            "sha256": "9ad2fc73c496ad44c435d1f2c50e0b2e0072dfcc5663756e6116ca1017abb9c3"
+          },
+          {
+            "path": "policy-engine/tests/unit/foundry/calibration/test_calibrator.py",
+            "referenced_test_functions": [],
+            "sha256": "01492dd1c50c90f0106a4c4f186fbeaeba1647ca7bce0b8671abae860222c8de"
+          }
+        ],
+        "closure_ids": [],
+        "command_run": false,
+        "disposition": "UNRUN_not_ready",
+        "finding_id": "B178",
+        "formal_closure_proposal": false,
+        "missing_property_discriminator_and_required_action": "Author these cases through prepare_targets and loss; require empty support unevaluated, preserve true zero and endpoint fill. Full report qualification remains separate. Then run command.",
+        "observed_current_coverage": "Tests cover zero padding and endpoint fill for nonempty arrays, but not integer fractional fill, explicit-horizon empty support through real loss, or distinction from measured zeros.",
+        "occurrence_key": "B178#1:B_r19:CAL-01:f47d17cc309c8f24d13326f20a1dc74e6e4fb92adb59f111b40e6918e7a745f9",
+        "owner": "Calibration preflight and loss/report owners",
+        "supported_command_after_final_source_freeze_and_required_test_authorship": "cd policy-engine && .venv/bin/python -m pytest -q tests/unit/foundry/calibration/test_preflight.py tests/unit/foundry/calibration/test_calibrator.py -ra",
+        "whole_property_status": "not_established / UNRUN"
+      },
+      {
+        "P38_class": "Command is not treated as evidence for a semantic property its cited tests do not encode.",
+        "candidate_test_sources": [
+          {
+            "path": "policy-engine/tests/unit/foundry/calibration/test_calibrator.py",
+            "referenced_test_functions": [],
+            "sha256": "01492dd1c50c90f0106a4c4f186fbeaeba1647ca7bce0b8671abae860222c8de"
+          },
+          {
+            "path": "policy-engine/tests/unit/foundry/calibration/test_calibrator_fidelity.py",
+            "referenced_test_functions": [
+              {
+                "line": 88,
+                "name": "test_compile_forces_relaxed_fidelity_and_temperature"
+              },
+              {
+                "line": 121,
+                "name": "test_compile_respects_no_override"
+              },
+              {
+                "line": 161,
+                "name": "test_compile_forces_discrete_fidelity"
+              }
+            ],
+            "sha256": "885c941ebd7772d157a50b0ad075a93da8be5b963f3a521b1d3506028cbe8d6e"
+          }
+        ],
+        "closure_ids": [],
+        "command_run": false,
+        "disposition": "UNRUN_not_ready",
+        "finding_id": "B182",
+        "formal_closure_proposal": false,
+        "missing_property_discriminator_and_required_action": "Author paired panel/compiler/loss test, empty-support refusal, and prove scale uses permitted training support before optimization. Then run command.",
+        "observed_current_coverage": "Current tests inspect config/fidelity; no fixed observed-support A plus sibling disjoint-date/placeholder case comparing actual scale and loss.",
+        "occurrence_key": "B182#1:B_r19:CAL-02:672d5e7ad45cad5f78609268028702f80d4802c59b1dc17487622e4da9d6f07d",
+        "owner": "Calibration compiler / scale / loss owner",
+        "supported_command_after_final_source_freeze_and_required_test_authorship": "cd policy-engine && .venv/bin/python -m pytest -q tests/unit/foundry/calibration/test_calibrator.py tests/unit/foundry/calibration/test_calibrator_fidelity.py -ra",
+        "whole_property_status": "not_established / UNRUN"
+      },
+      {
+        "P38_class": "Command is not treated as evidence for a semantic property its cited tests do not encode.",
+        "candidate_test_sources": [
+          {
+            "path": "policy-engine/tests/unit/foundry/uncertainty/test_delta.py",
+            "referenced_test_functions": [
+              {
+                "line": 73,
+                "name": "test_delta_preserves_fixed_nominal_parameters"
+              }
+            ],
+            "sha256": "0a525981f217d96c5aa1b6aa3f9bb7f07bb773399f97b0c9d35598abc1962fdc"
+          },
+          {
+            "path": "policy-engine/tests/unit/foundry/uncertainty/test_monte_carlo.py",
+            "referenced_test_functions": [
+              {
+                "line": 59,
+                "name": "test_mc_preserves_fixed_nominal_parameters_across_samples"
+              }
+            ],
+            "sha256": "7f76f884b3099eadb9321543ef5e3482310df2a625630524f592a4f05daa4ab7"
+          }
+        ],
+        "closure_ids": [],
+        "command_run": false,
+        "disposition": "UNRUN_not_ready",
+        "finding_id": "B186",
+        "formal_closure_proposal": false,
+        "missing_property_discriminator_and_required_action": "Author integrated effective-kwargs test with required scale, envelope only for x, same bindings in nominal/delta/every sample, and missing-required refusal. Then run command.",
+        "observed_current_coverage": "Separate tests show fixed scale in Delta and MC samples; they do not bind one resolved full effective input set across nominal, Delta and every sample, nor refuse missing required fixed input before mixed results.",
+        "occurrence_key": "B186#1:B_r19:UQP-01:9278fafc393d83f73e09a50cb1d74308961a627d63a775905c103e831bb8e6ea",
+        "owner": "Delta and both MC loop owners",
+        "supported_command_after_final_source_freeze_and_required_test_authorship": "cd policy-engine && .venv/bin/python -m pytest -q tests/unit/foundry/uncertainty/test_delta.py tests/unit/foundry/uncertainty/test_monte_carlo.py -ra",
+        "whole_property_status": "not_established / UNRUN"
+      },
+      {
+        "P38_class": "Command is not treated as evidence for a semantic property its cited tests do not encode.",
+        "candidate_test_sources": [
+          {
+            "path": "policy-engine/tests/unit/foundry/calibration/test_calibration_uncertainty_adapter.py",
+            "referenced_test_functions": [
+              {
+                "line": 422,
+                "name": "test_legacy_posterior_carrier_survives_cas_and_actual_single_parameter_consumer"
+              },
+              {
+                "line": 460,
+                "name": "test_legacy_posterior_pairing_context_is_preserved_but_not_admitted_as_joint_law"
+              }
+            ],
+            "sha256": "2ece8527030a089ef40515aa11c5ca5b993b185eb6fd04089bf0461ad83f11ba"
+          },
+          {
+            "path": "policy-engine/tests/unit/foundry/uncertainty/test_covariance.py",
+            "referenced_test_functions": [
+              {
+                "line": 97,
+                "name": "test_build_covariance_fallback_on_missing_metadata"
+              }
+            ],
+            "sha256": "9cb910d48b43a57e3d138cd45ae4215a2e877f09bfbf031093795d1f7cc79206"
+          },
+          {
+            "path": "policy-engine/tests/unit/foundry/uncertainty/test_monte_carlo.py",
+            "referenced_test_functions": [],
+            "sha256": "7f76f884b3099eadb9321543ef5e3482310df2a625630524f592a4f05daa4ab7"
+          }
+        ],
+        "closure_ids": [],
+        "command_run": false,
+        "disposition": "UNRUN_not_ready",
+        "finding_id": "B198",
+        "formal_closure_proposal": false,
+        "missing_property_discriminator_and_required_action": "Author same-envelope two-view CAS/fresh-reader test; assert status and uncertainty invariance, and absent carrier/ref remains ambiguous. Then run command.",
+        "observed_current_coverage": "Current tests exercise carrier CAS and consumer plus covariance fallback, but not same heuristic envelope persisted/read at two display levels with identical propagated sigma and preserved heuristic/no-confidence/gate-ineligible status.",
+        "occurrence_key": "B198#1:B_r19:CAL-06:2cbd889b85b881ae22f7f99c28e68c82200022c7dfa01cbb150ecf895a30672b",
+        "owner": "Hessian uncertainty and covariance/MC consumers",
+        "supported_command_after_final_source_freeze_and_required_test_authorship": "cd policy-engine && .venv/bin/python -m pytest -q tests/unit/foundry/calibration/test_calibration_uncertainty_adapter.py tests/unit/foundry/uncertainty/test_covariance.py tests/unit/foundry/uncertainty/test_monte_carlo.py -ra",
+        "whole_property_status": "not_established / UNRUN"
+      },
+      {
+        "P38_class": "Command is not treated as evidence for a semantic property its cited tests do not encode.",
+        "candidate_test_sources": [
+          {
+            "path": "policy-engine/tests/unit/foundry/calibration/test_calibration_uncertainty_adapter.py",
+            "referenced_test_functions": [
+              {
+                "line": 334,
+                "name": "test_candidate_store_fresh_reader_reaches_actual_univariate_mc_consumer"
+              },
+              {
+                "line": 460,
+                "name": "test_legacy_posterior_pairing_context_is_preserved_but_not_admitted_as_joint_law"
+              }
+            ],
+            "sha256": "2ece8527030a089ef40515aa11c5ca5b993b185eb6fd04089bf0461ad83f11ba"
+          },
+          {
+            "path": "policy-engine/tests/integration/foundry/uncertainty/test_posterior_summary_persistence.py",
+            "referenced_test_functions": [
+              {
+                "line": 37,
+                "name": "test_native_bayesian_method_evidence_persists_candidate_summary"
+              }
+            ],
+            "sha256": "383d64bf0491c6e0aec96aa1f44ec573444dc1eb9c902db630e03307707b392f"
+          }
+        ],
+        "closure_ids": [],
+        "command_run": false,
+        "disposition": "UNRUN_not_ready",
+        "finding_id": "B202",
+        "formal_closure_proposal": false,
+        "missing_property_discriminator_and_required_action": "Author persisted paired draw corpora, fresh-read into joint functional, preserve row identity/order/weights; if unsupported, assert typed limitation instead of independent marginals. Then run command.",
+        "observed_current_coverage": "Tests preserve pairing context and refuse unknown joint law; native posterior route persists/reads a summary. No paired saved joint law with equal marginals/different dependence is evaluated through fresh CAS reader for a joint functional with draw identity.",
+        "occurrence_key": "B202#1:B_r19:UQS-01:8d507abb668fd82e3a58b5b416e8d011d07927198cfae69949d218a6328a16ab",
+        "owner": "Bayesian posterior/CAS/joint functional owners",
+        "supported_command_after_final_source_freeze_and_required_test_authorship": "cd policy-engine && .venv/bin/python -m pytest -q tests/unit/foundry/calibration/test_calibration_uncertainty_adapter.py tests/integration/foundry/uncertainty/test_posterior_summary_persistence.py -ra",
+        "whole_property_status": "not_established / UNRUN"
+      },
+      {
+        "P38_class": "Command is not treated as evidence for a semantic property its cited tests do not encode.",
+        "candidate_test_sources": [
+          {
+            "path": "policy-engine/tests/unit/foundry/methods/catalog/causal/test_did.py",
+            "referenced_test_functions": [
+              {
+                "line": 24,
+                "name": "test_did_standard_known_att"
+              },
+              {
+                "line": 48,
+                "name": "test_did_staggered_bootstrap_runs"
+              }
+            ],
+            "sha256": "b2b66770ae5bc0c0db2bc3e0848f1eef0c16e59c132090bf43f8fe828d24273d"
+          },
+          {
+            "path": "policy-engine/tests/unit/foundry/methods/catalog/causal/test_rdd.py",
+            "referenced_test_functions": [
+              {
+                "line": 24,
+                "name": "test_rdd_known_jump"
+              }
+            ],
+            "sha256": "1225fec5dbd5d643a4e9661a6945f5ee66a0f6badc1ddf55abd4a088a8f8f91e"
+          }
+        ],
+        "closure_ids": [],
+        "command_run": false,
+        "disposition": "UNRUN_not_ready",
+        "finding_id": "B206",
+        "formal_closure_proposal": false,
+        "missing_property_discriminator_and_required_action": "Author same positive-SE level matrix for both, .95 compatibility and widening, invalid-level refusal before expensive work, and typed report/fresh reader binding. Then run command.",
+        "observed_current_coverage": "Existing tests cover point/assumption cases, not .80/.95/.99 effective confidence across both producers, invalid-level refusal, typed report and fresh reader.",
+        "occurrence_key": "B206#1:B_r19:CAU-01:f405d3e2327c1cc0d64e6de308412c81eebe210af6ae5968af830b7e032fa0a1",
+        "owner": "Standard DiD and RDD producer/report consumers",
+        "supported_command_after_final_source_freeze_and_required_test_authorship": "cd policy-engine && .venv/bin/python -m pytest -q tests/unit/foundry/methods/catalog/causal/test_did.py tests/unit/foundry/methods/catalog/causal/test_rdd.py -ra",
+        "whole_property_status": "not_established / UNRUN"
+      },
+      {
+        "P38_class": "Command is not treated as evidence for a semantic property its cited tests do not encode.",
+        "candidate_test_sources": [
+          {
+            "path": "policy-engine/tests/unit/foundry/methods/catalog/causal/test_rdd_rbc.py",
+            "referenced_test_functions": [
+              {
+                "line": 40,
+                "name": "test_rbc_removes_known_leading_curvature_bias"
+              },
+              {
+                "line": 56,
+                "name": "test_rbc_interval_uses_robust_se_and_requested_level"
+              },
+              {
+                "line": 96,
+                "name": "test_unsupported_rbc_settings_do_not_emit_inference"
+              },
+              {
+                "line": 124,
+                "name": "test_registered_rbc_survives_cas_and_fresh_typed_reader"
+              },
+              {
+                "line": 214,
+                "name": "test_first_rbc_profile_refuses_mass_points_and_sparse_bias_support"
+              }
+            ],
+            "sha256": "0e62932bc5ca82ecc95144aca7e4c9221dc0b9c9e91f59d17182bdaa9816b603"
+          },
+          {
+            "path": "policy-engine/tests/unit/foundry/methods/catalog/causal/test_rdd.py",
+            "referenced_test_functions": [
+              {
+                "line": 24,
+                "name": "test_rdd_known_jump"
+              }
+            ],
+            "sha256": "1225fec5dbd5d643a4e9661a6945f5ee66a0f6badc1ddf55abd4a088a8f8f91e"
+          }
+        ],
+        "closure_ids": [],
+        "command_run": false,
+        "disposition": "UNRUN_not_ready",
+        "finding_id": "B210",
+        "formal_closure_proposal": false,
+        "missing_property_discriminator_and_required_action": "Author bounded heteroskedastic finite-sample suite with pinned independent reference/coverage oracle; then run command. Keep unsupported profiles typed-limited; do not infer rdrobust availability.",
+        "observed_current_coverage": "Native fixed sharp HC0 RBC tests cover curvature, confidence levels, invalid profile, sparse support, permutation/binding, CAS reader and removal control. No controlled heteroskedastic independent-reference or finite-sample coverage case.",
+        "occurrence_key": "B210#1:B_r19:CAU-03:3b72bb59c40ef347388195b3309dd81f188e96d3bb205b3e3be72c77b76ac010",
+        "owner": "RDD numerical method and independent reference/coverage owners",
+        "supported_command_after_final_source_freeze_and_required_test_authorship": "cd policy-engine && .venv/bin/python -m pytest -q tests/unit/foundry/methods/catalog/causal/test_rdd_rbc.py tests/unit/foundry/methods/catalog/causal/test_rdd.py -ra",
+        "whole_property_status": "not_established / UNRUN"
+      },
+      {
+        "P38_class": "Command is not treated as evidence for a semantic property its cited tests do not encode.",
+        "candidate_test_sources": [
+          {
+            "path": "policy-engine/tests/unit/foundry/methods/catalog/causal/test_graph_reconciliation.py",
+            "referenced_test_functions": [
+              {
+                "line": 247,
+                "name": "test_simple_cycle_converts_min_confidence_edge_to_lagged_edge"
+              },
+              {
+                "line": 484,
+                "name": "test_compose_scm_fragments_defers_when_cycle_contract_requires_review"
+              },
+              {
+                "line": 535,
+                "name": "test_compose_scm_fragments_blocks_research_only_cycle_contracts"
+              }
+            ],
+            "sha256": "f6640533c5821ab4257bff177b3e5536e37cd881a25e11175ea681829e408a63"
+          },
+          {
+            "path": "policy-engine/tests/unit/foundry/methods/catalog/causal/test_pag_completion.py",
+            "referenced_test_functions": [
+              {
+                "line": 119,
+                "name": "test_r1_noncollider_orientation"
+              },
+              {
+                "line": 141,
+                "name": "test_r2_acyclicity_orientation"
+              },
+              {
+                "line": 444,
+                "name": "test_pag_orientation_rules_remain_structural_not_identification_authority"
+              }
+            ],
+            "sha256": "2db0ace9c8411d9398ff76ec0f1657b9e1f89d3946c21fd424ad9045fd9924c0"
+          }
+        ],
+        "closure_ids": [],
+        "command_run": false,
+        "disposition": "UNRUN_not_ready",
+        "finding_id": "B214",
+        "formal_closure_proposal": false,
+        "missing_property_discriminator_and_required_action": "Author native typed projections with those three controls, verify endpoints/origin and sound acyclic DAG or typed limitation; include removal control. Then run command.",
+        "observed_current_coverage": "Tests cover graph composition, cycle and PAG structural rules but not exact known reversed directed endpoint normalization with origin, bidirected control, and undirected cyclic triangle refusal/partial output through projection.",
+        "occurrence_key": "B214#1:B_r19:GRF-03:48c1311f230c5c8f4886013cf47fec75931cde810c20feee8889c9d820dcb1ad",
+        "owner": "Graph reconciliation producer and typed DAG/ADMG consumer",
+        "supported_command_after_final_source_freeze_and_required_test_authorship": "cd policy-engine && .venv/bin/python -m pytest -q tests/unit/foundry/methods/catalog/causal/test_graph_reconciliation.py tests/unit/foundry/methods/catalog/causal/test_pag_completion.py -ra",
+        "whole_property_status": "not_established / UNRUN"
+      },
+      {
+        "P38_class": "Command is not treated as evidence for a semantic property its cited tests do not encode.",
+        "candidate_test_sources": [
+          {
+            "path": "policy-engine/tests/unit/ir/test_causal_graph_contract.py",
+            "referenced_test_functions": [
+              {
+                "line": 282,
+                "name": "test_causal_graph_accepts_lagged_reciprocal_edges_in_dag"
+              }
+            ],
+            "sha256": "3b2da835b01e1c06ac8895959bda0b1938f7dca955bbe72b076e06d56913bc35"
+          },
+          {
+            "path": "policy-engine/tests/unit/ir/test_causal_graph_networkx_roundtrip.py",
+            "referenced_test_functions": [
+              {
+                "line": 52,
+                "name": "test_native_networkx_mixed_export_after_cas_all_input_permutations"
+              },
+              {
+                "line": 64,
+                "name": "test_native_networkx_export_loss_is_detected_with_markers_preserved"
+              }
+            ],
+            "sha256": "b307a855c3ba0c29dc170d7f9e00206f655efaa43cabbd9d372c58cd6af2f8c1"
+          },
+          {
+            "path": "policy-engine/tests/unit/foundry/methods/catalog/causal/test_dynamic_graph_dscm.py",
+            "referenced_test_functions": [
+              {
+                "line": 68,
+                "name": "test_dynamic_graph_dscm_detects_full_feedback_and_panel_fallback"
+              }
+            ],
+            "sha256": "9aa8872dee6bde5d809d38581e4b8142d291ad23c52d71e4a56078e117b8b04f"
+          }
+        ],
+        "closure_ids": [],
+        "command_run": false,
+        "disposition": "UNRUN_not_ready",
+        "finding_id": "B218",
+        "formal_closure_proposal": false,
+        "missing_property_discriminator_and_required_action": "Author lag1/lag2/self-lag round-trip through selected consumer, keep static DAG positive, assert typed incompatibility from unconverted static consumers. Then run command.",
+        "observed_current_coverage": "Existing graph CAS/export tests distinguish lag1/lag2, and dynamic graph tests exercise a temporal consumer. They do not assert selected temporal consumer semantics for self-lag, temporal coordinates/initial conditions/horizon, or exact static-consumer incompatibility.",
+        "occurrence_key": "B218#1:B_r19:GRF-03:8ce1868ddb2663580547f475288d03502e03ae6a4bc38923313bc069efb0a40a",
+        "owner": "CausalGraphModel export plus temporal/static consumers",
+        "supported_command_after_final_source_freeze_and_required_test_authorship": "cd policy-engine && .venv/bin/python -m pytest -q tests/unit/ir/test_causal_graph_contract.py tests/unit/ir/test_causal_graph_networkx_roundtrip.py tests/unit/foundry/methods/catalog/causal/test_dynamic_graph_dscm.py -ra",
+        "whole_property_status": "not_established / UNRUN"
+      },
+      {
+        "P38_class": "Command is not treated as evidence for a semantic property its cited tests do not encode.",
+        "candidate_test_sources": [
+          {
+            "path": "policy-engine/tests/unit/foundry/methods/catalog/causal/test_gcm_fit.py",
+            "referenced_test_functions": [],
+            "sha256": "1f62b28370093365e38e8b806b5597752cc962a18b9dc9dd33ca722b57785af9"
+          },
+          {
+            "path": "policy-engine/tests/unit/foundry/methods/catalog/causal/test_gcm_query.py",
+            "referenced_test_functions": [],
+            "sha256": "11fec42fb2c9fa710f39eb4416370c98115948b47baba5978390ae623c9547f4"
+          },
+          {
+            "path": "policy-engine/tests/unit/foundry/methods/catalog/causal/test_twin_network_query.py",
+            "referenced_test_functions": [
+              {
+                "line": 214,
+                "name": "test_abduction_pins_factual_outcome"
+              }
+            ],
+            "sha256": "24dcd4ce08107d9809786f0c10d32053faf46a08405450b10a517d0efec8c7de"
+          },
+          {
+            "path": "policy-engine/tests/unit/foundry/methods/catalog/causal/test_polynomial_helper_cas_consumers.py",
+            "referenced_test_functions": [
+              {
+                "line": 138,
+                "name": "test_existing_polynomial_helper_to_typed_cas_real_query_and_fresh_reader"
+              },
+              {
+                "line": 195,
+                "name": "test_existing_polynomial_fit_helper_shared_residual_twin_cas_and_fresh_reader"
+              },
+              {
+                "line": 251,
+                "name": "test_declared_polynomial_payload_missing_coefficients_refuses_native_query"
+              }
+            ],
+            "sha256": "4eca372220a05524b1015cf46946d360a15e006b1a6e00ce49bdd6b9a1cbfe5f"
+          }
+        ],
+        "closure_ids": [],
+        "command_run": false,
+        "disposition": "UNRUN_not_ready",
+        "finding_id": "B222",
+        "formal_closure_proposal": false,
+        "missing_property_discriminator_and_required_action": "Author saved polynomial payload through fit/sampling/abduction/twin with fresh readers, x² at 2, LINEAR positive control and family-consistent noise; keep unsupported families limited/refused. Then run command.",
+        "observed_current_coverage": "Polynomial helper tests now prove actual query and twin CAS/fresh-read, x² and missing-coefficient refusal; abduction test is on a different pathway, not the same saved polynomial family.",
+        "occurrence_key": "B222#1:B_r19:SCM-01:b13339d3c9e2d80995027a0f1acbaf09ccad855a643deb0b283c065bc4232aa5",
+        "owner": "GCM fit/helper and query/twin/abduction consumers",
+        "supported_command_after_final_source_freeze_and_required_test_authorship": "cd policy-engine && .venv/bin/python -m pytest -q tests/unit/foundry/methods/catalog/causal/test_gcm_fit.py tests/unit/foundry/methods/catalog/causal/test_gcm_query.py tests/unit/foundry/methods/catalog/causal/test_twin_network_query.py tests/unit/foundry/methods/catalog/causal/test_polynomial_helper_cas_consumers.py -ra",
+        "whole_property_status": "not_established / UNRUN"
+      }
+    ],
+    "scope": "Static review of all 17 rows: 15 proposed next_check rows plus B94/B98 property_gap rows. All commands remain unrun. Any missing discriminator is test authorship before command; no future case is claimed to execute from current source."
+  },
+  "record_type": "tracked author metadata proposal and static source review",
+  "schema": "policyos.e02.q0.full_id_metadata_corrigendum_and_test_readiness.v1",
+  "source_frame": {
+    "branch": "codex/e02-unified-local-20261009",
+    "global_source_freeze": "UNRUN",
+    "head": "56b45c52a1519299648a6fcf572693e238892fd4",
+    "repo": "/Users/deniskopylov/.codex/worktrees/e02-unified-local-20261009/polisyos",
+    "tree": "3cda7077d64f1658cdc09e70fbee299648d70910"
+  },
+  "tracked_adoption_proposal": {
+    "authority": "Root-only canonical writer; this report is RAW and is not applied/committed by the auditor.",
+    "candidate_tracked_targets": [
+      "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/full-original-occurrence-reviewed-successor-proposals-20261021.json",
+      "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/full-original-occurrence-proposal-report-20261021.json",
+      "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/full-original-occurrence-current-evidence-index-20261021.json",
+      "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/full291-current-evidence-index-delivery-20261021.json"
+    ],
+    "existing_schema_and_join_guidance": [
+      {
+        "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/decisions/full-id-final-report-schema-readiness.md",
+        "sha256": "3d0c2e27d8084767ecbb2007ad8f24b076bb26589dc54a15f2273a48344bc871"
+      },
+      {
+        "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/decisions/full-id-outcome-joining.md",
+        "sha256": "80b6198d60e59ed9277fc7568f5f12eb2781f74b042e43c6a444b00eb77c19cb"
+      }
+    ],
+    "historical_boundary": "198 author-proposed-closed IDs / 202 occurrences remain historical proposals; preserve 9 ledger-closed IDs/occurrences and B198 exact tuple; no formal closure IDs.",
+    "mandatory_companions": [
+      "source-frame and input-pin journal",
+      "path lease/index record before canonical edit",
+      "full-set validator --check plus corrupt-field drift control",
+      "append-only register/report/index pointers"
+    ],
+    "successor_strategy": "Create a new append-only full-291 successor from the pinned canonical owner. Surgically add the seven nested summaries and previously proposed 17 field updates; preserve 2026-10-17 successor and prior raw packet unchanged.",
+    "writer_lease": {
+      "current_owner": "root only",
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/root-author-path-lease-map-r1473-20261014.json",
+      "sha256": "b972dfb5e1758314f479776051af27b236b3edd1ec1dba912836d30642e27d71"
+    }
+  },
+  "root_adoption_scope": {
+    "adoption_base": "185a0f327199d75d06410f9bc841131e0bf33b1e",
+    "adoption_base_tree": "8f40f7db2003f06c4aa3267ffdc6e0f74b275ebc",
+    "original_raw_packet": {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/q0-nested-property-short-corrigendum-20261021-r1/q0-full-id-metadata-corrigendum-20261021-r1.json",
+      "sha256": "f6a795d9b6db31f7cf39d15b3d08f208f564067c428c4f51235a3af10c0b071f"
+    },
+    "independent_review": {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/independent-q0-metadata-corrigendum-review-20261021-r1/review.json",
+      "sha256": "25049c27863e5240e1abe4c6ea3bd39afd93d34ce811d853214368e6f089d9f1"
+    },
+    "bounded_correction": "Previously authorized becomes previously proposed, as required by independent review; no separate formal-adjudication authorization is inferred. Record type reflects tracked delivery.",
+    "scope": "Append-only metadata proposal only: seven nested property summaries and all 17 next-check readiness classifications. The suggested four full-291 successor/report targets remain uncreated and require final source/input/backend freeze and evidence join.",
+    "preserved": "All historical reports, outcomes, 198 proposed-closed IDs / 202 occurrences, nine historical closures including B198, and all 282 IDs / 291 occurrence keys remain unchanged.",
+    "verification": "Full-set static reconciliation only. Fifteen next checks first need semantic controls; B94/B174 scoped commands remain UNRUN until their source/profile freeze.",
+    "G_acceptance": false,
+    "closure_ids": []
+  }
+}

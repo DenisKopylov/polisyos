@@ -46149,5 +46149,93 @@
     "source_profile_freeze": false,
     "G_acceptance": false,
     "closure_ids": []
+  },
+  "root-q0-reviewed-metadata-corrigendum-adoption-20261021-r2": {
+    "slice_base": "185a0f327199d75d06410f9bc841131e0bf33b1e",
+    "canonical_writer": "root only; reviewed present patch, retired exact originals through native Trash",
+    "mechanism_and_mandatory_companion_paths": {
+      "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/q0-full-id-metadata-corrigendum-20261021.json": {
+        "operation": "create",
+        "mode": "100644",
+        "preimage_sha256": null,
+        "postimage_path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/root-q0-reviewed-metadata-corrigendum-adoption-20261021-r1/postimages/policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/q0-full-id-metadata-corrigendum-20261021.json",
+        "postimage_sha256": "e964d28c942b0156ed6cbae625b3c23d9e1f4a776e2c0e0dcba8b05246fee643"
+      }
+    },
+    "application": {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/root-q0-reviewed-metadata-corrigendum-adoption-20261021-r2/source-application.json",
+      "sha256": "75e49a54d35b7ab183703b7338b94a360b16cc612c2010435ad6e60be402d703"
+    },
+    "native_trash_receipt": {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/root-q0-reviewed-metadata-corrigendum-adoption-20261021-r2/native-trash-receipt.json",
+      "sha256": "057f81b6e161c37eaec854c352b59148420f1f1711163b9005834b723e193dcf"
+    },
+    "reviewed_inputs": [
+      {
+        "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/q0-nested-property-short-corrigendum-20261021-r1/q0-full-id-metadata-corrigendum-20261021-r1.json",
+        "sha256": "f6a795d9b6db31f7cf39d15b3d08f208f564067c428c4f51235a3af10c0b071f"
+      },
+      {
+        "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/independent-q0-metadata-corrigendum-review-20261021-r1/review.json",
+        "sha256": "25049c27863e5240e1abe4c6ea3bd39afd93d34ce811d853214368e6f089d9f1"
+      },
+      {
+        "path": "policy-engine/docs/plans/active/agent-packages/PolicyOS_E02_Combined_Agent_Package/source/B_r19_original.md",
+        "sha256": "9c98584cbfa72996b058abf127f6c689f919a3421cdd563a82c84a7324ab39b5"
+      },
+      {
+        "path": "policy-engine/docs/research/e02-cloud-test-plan/integration/connected-closeout-plan-2026-10-08/findings.json",
+        "sha256": "590cb7631422175148022217a96fc1c234f8ba4f0d22e83bde46d9636bdd5ce0"
+      },
+      {
+        "path": "policy-engine/docs/research/e02-cloud-test-plan/closure-decisions/coverage.json",
+        "sha256": "97860dc18c7b92124971aa8032fc229be3367723ea2ec45e6cda4a777e544e01"
+      },
+      {
+        "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/full-original-occurrence-current-evidence-index-20261016.json",
+        "sha256": "bcf2b83c9b1aa53deb62edd12548e7784abc41e1af9b34f4a17a6638f02c3d7a"
+      },
+      {
+        "path": "policy-engine/docs/plans/active/agent-packages/PolicyOS_E02_Combined_Agent_Package/source/LA_r09_original.md",
+        "sha256": "2e13d05d40ab162dba6f1ed495865037bc08fc359a987e7a42c4d445a9b8d727"
+      },
+      {
+        "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/q0-stale-row-nextcheck-gap-corrigendum-20261021-r1/field-patch.json",
+        "sha256": "3a998d0b5c09a216d244a97f3e3b66250529937cd39482b9713da21d41d5311e"
+      },
+      {
+        "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/full-original-occurrence-proposal-report-20261015.json",
+        "sha256": "aac9615dd380f5474fd878ea8a6681d35c71450f1a50233f3c407308fd32f931"
+      },
+      {
+        "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/full-original-occurrence-reviewed-successor-proposals-20261017.json",
+        "sha256": "a38160cec8f6eb4e752d4008c4f3db39917891004b17c63b81f75ed9f73150c4"
+      },
+      {
+        "path": "policy-engine/docs/research/e02-cloud-test-plan/execution-prompts/unified-local-2026-10-09/TASKS.json",
+        "sha256": "a37c75cfe09d33c1f50379d5bbfd04bdb728c990e832aec3bf19c0d17035734c"
+      }
+    ],
+    "owned_applied_provenance": null,
+    "preserved_other_owned_rows": {},
+    "preserved_other_owned_provenance": null,
+    "preserved_other_owned_tracked_paths": [],
+    "preserved_other_owned_untracked_paths": [],
+    "preserved_other_owned_unchanged_before_after": true,
+    "P40": {
+      "bucket": "Full-denominator metadata completeness and honest test readiness, not product closure.",
+      "action": "Append a new tracked proposal with corrected wording and independent static review; do not rewrite historical decisions or invent execution."
+    },
+    "bounded_proof": "Independent full-set static reconciliation; no product imports or pytest execution implied.",
+    "limitations": [
+      "No source/runtime/API/input change. No formal G closures or accepted checkpoints.",
+      "This is not the final current-source full-291 proposal report or a native-green receipt.",
+      "Fifteen required semantic-control implementations and all associated commands remain unrun; the two existing scoped suites are not closure proofs."
+    ],
+    "runtime": "UNRUN on adopted source",
+    "next_check": "After composed source/input/backend freeze, implement missing controls, run actual consumers, and build the four versioned full-291 reports with per-occurrence outcomes/evidence/limits/next checks.",
+    "source_profile_freeze": false,
+    "G_acceptance": false,
+    "closure_ids": []
   }
 }

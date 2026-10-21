@@ -96,6 +96,36 @@ workspace paths, so nested
 separate `benchmark-surfaces` gate owns top-level `benchmarks/**` and
 `tools/research/**`. CI composes both commands with `format-check`.
 
+## Explicit candidate Ruff inputs
+
+For candidate handoff checks and import-only rewrites, use the internal
+`tools.devx.workspace.ruff_sources` helper instead of assembling a shell command
+from a filtered path list. Run it from `policy-engine/` with the existing
+interpreter:
+
+```bash
+.venv/bin/python -B -m tools.devx.workspace.ruff_sources --manifest <source-bindings.json>
+```
+
+The manifest is a nonempty JSON list. Each row has exactly `logical_path`
+(the canonical Git-root-relative Python filename), `source_path` (the physical
+candidate file inside this worktree), and `sha256` (the expected input bytes).
+The helper admits the complete selection before launching any child. Empty
+post-filter selections, directories, symlink paths, duplicate logical names,
+noncanonical paths, and changed bytes fail before Ruff starts.
+
+Every child receives one source through stdin and an explicit `-` target;
+it cannot fall back to scanning the working directory. Check receipts identify
+the source bytes, configuration anchor, logical filename, command, and cwd.
+`--operation fix-imports --emit-source` returns the import-only rewrite on
+stdout; `--operation format --emit-source` returns formatted source. Neither
+operation writes a source file. The caller owns any explicitly leased,
+atomic source replacement and its readback.
+
+This helper does not establish coverage of unselected files, transitive
+configuration, package-discovery topology, or runtime behavior. Repeat the
+required physical-file gates after composing the final candidate topology.
+
 ## Test And Verification
 
 | Command                                                                                                                                                                   | What it verifies                                                                         | Status         |

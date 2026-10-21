@@ -467,3 +467,21 @@ implemented.
 **Divergent case.** `pytest -k 'baseline or main_ or inventory_admits'` matched all 66 ratchet cases under a RAW parent containing `baseline`, but selected 58 at the canonical module path. The same test bytes therefore had different selected quantities. The composed replay retained both the canonical 58-case selector and the full canonical 66-case run, with exact node IDs and JUnit counts; see the [source-bound reconciliation](../research/e02-cloud-test-plan/implementation-handoffs/LOCAL/native-ratchet-composed-actual-and-selector-correction-20261017.json).
 
 **Closure move.** Bind explicit canonical node IDs or run the full bounded module; retain the full selected IDs and result counts. A function-name filter alone is not a scope proof because pytest matches ancestor node IDs too. This is the existing P38 candidate-context class. It changes no ratchet floor, baseline, issuer decision or formal closure.
+
+### P38 instance: an empty Ruff target list becomes directory discovery (2026-10-21)
+
+**Property.** A candidate rewrite acts only on an explicit, admitted source set.
+
+**Divergent case.** A path-component filter selected zero files, but the caller
+still ran `ruff check --fix` without a target. Ruff scanned its working directory
+and rewrote an unrelated tracked import. A nonempty upstream source map did not
+protect the final, filtered command.
+
+**Closure move.** Validate the final selection at the subprocess boundary.
+The internal `tools.devx.workspace.ruff_sources` helper rejects an empty set
+before starting a child, content-binds every selected input, and gives Ruff one
+stdin source plus an explicit `-` target. Rewrites return bytes without writing
+source files. Its regression executes the original empty-argv behavior against
+an unrelated synthetic file, then verifies the guarded path cannot touch it.
+Final physical-topology checks remain required; this does not constrain arbitrary
+shell commands that bypass the helper.

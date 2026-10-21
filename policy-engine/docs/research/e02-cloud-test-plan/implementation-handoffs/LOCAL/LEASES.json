@@ -50940,5 +50940,27 @@
     "source_profile_freeze": false,
     "G_acceptance": false,
     "closure_ids": []
+  },
+  "coordination_epoch_20261021_explicit_ruff_source_guard": {
+    "source_base": "beb180fb37079b563b257b5f3855422034a9c042",
+    "owner": "root",
+    "canonical_writer": "root",
+    "mechanism_paths": [
+      "policy-engine/tools/devx/workspace/ruff_sources.py",
+      "policy-engine/tests/repo_quality/tools/test_ruff_sources.py"
+    ],
+    "mandatory_companions": [
+      "policy-engine/tools/devx/workspace/README.md",
+      "policy-engine/docs/reference/policy-design-case-failure-patterns.md",
+      "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/LEASES.json"
+    ],
+    "source_freeze": false,
+    "G_acceptance": false,
+    "closure_ids": [],
+    "review": {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/root-explicit-ruff-source-guard-20261021-r1/independent-review-20261021-r1/review.json",
+      "sha256": "e58f0f4efcf22e5a935d19cfeb7ee126ad72424dc03caf715089b7f6f4496faf"
+    },
+    "boundary": "Explicit content-bound stdin transport; arbitrary bypass callers and final physical topology remain outside this bounded guard."
   }
 }

@@ -1,0 +1,770 @@
+{
+  "schema": "policyos.e02.local_implementation_handoff.v1",
+  "slice": "fabric-r13-n818-canonical-composition-20261021",
+  "source": {
+    "base": "cd3ebc6e36706a4208b2c123bb1c4117986a9459",
+    "candidate": "e1a9d9070bbb90a6026cb28716bc2caece7ab4c3",
+    "tree": "9499b3f93b4ed3f1493c651459d5c131d220da5a",
+    "parents": [
+      "cd3ebc6e36706a4208b2c123bb1c4117986a9459"
+    ],
+    "branch": "codex/e02-unified-local-20261009",
+    "implementation_readback": {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/root-fabric-r13-n818-adoption-20261021-r1/implementation-readback.json",
+      "sha256": "497384d7985dd9e97e415dd9af0c57d058dd09aeb3bb5df8088395263af2a94b"
+    },
+    "footprint": [
+      {
+        "path": "policy-engine/src/polisyos/fabric/_adapters/observability.py",
+        "sha256": "67780c24be29847c10abd94f3bb7216b30cf6593ef5f693d07151d1f650ee94f"
+      },
+      {
+        "path": "policy-engine/src/polisyos/fabric/_internal/compatibility.py",
+        "sha256": "7db4d9cd007a25b99a10d21d9fa1cbb689fb2bab819c65b33c243789af1bd8e8"
+      },
+      {
+        "path": "policy-engine/src/polisyos/fabric/_internal/registry.py",
+        "sha256": "978c9471dea05dd2d18bf11d4a7917b1949fb19901d244b3a9c8cd23b1fd40dc"
+      },
+      {
+        "path": "policy-engine/src/polisyos/fabric/catalog/data_requirement_adapter.py",
+        "sha256": "301b402fbcd0bdd20205615dbad024027505b669ce913794b219ab5698e8685d"
+      },
+      {
+        "path": "policy-engine/src/polisyos/fabric/catalog/discovery.py",
+        "sha256": "11b0418076d61c738056a7cd49a68dc6e41e80cde37a8a032dd619b5b5170365"
+      },
+      {
+        "path": "policy-engine/src/polisyos/fabric/catalog/registry.py",
+        "sha256": "bbb75dbebabc08821d0d8c80df8412b714311e05a8e3904acd3981887e89971c"
+      },
+      {
+        "path": "policy-engine/src/polisyos/fabric/catalog/resolver_fast_lane.py",
+        "sha256": "24940922188e05a3b715d1d006c0567c82230a0f366c5215269c0394befcbbbe"
+      },
+      {
+        "path": "policy-engine/src/polisyos/fabric/catalog/search.py",
+        "sha256": "225e6773824bf0d57ab6b0b703be338b97ff2c5e302f78911d01127331395f5f"
+      },
+      {
+        "path": "policy-engine/src/polisyos/fabric/catalog/semantic.py",
+        "sha256": "3241c8a89e794f3f818b0812ba948c02f2c0933cf10cf9b4a9031fc0db599429"
+      },
+      {
+        "path": "policy-engine/src/polisyos/fabric/catalog/source_bindings.py",
+        "sha256": "593b98484332d1e464b5c8a55453fbdbb0225b019073156dfbfa7c0dc2f96584"
+      },
+      {
+        "path": "policy-engine/src/polisyos/fabric/catalog/source_selection_audit.py",
+        "sha256": "c95eb54e9d17e5c32d74d3a6763e1c37aa376f596678a37812237be584685014"
+      },
+      {
+        "path": "policy-engine/src/polisyos/fabric/claims/__init__.py",
+        "sha256": "cedb1ccaaf08302c015c0ec457c2085b35074458e7d7f3d55550ba83f5eb1ec5"
+      },
+      {
+        "path": "policy-engine/src/polisyos/fabric/claims/conflicts/detect.py",
+        "sha256": "9056efac42443cc425e4b24bd847db5205d149ebea49c257cfa8eee309ed6c6d"
+      },
+      {
+        "path": "policy-engine/src/polisyos/fabric/claims/conflicts/uncertainty_adapter.py",
+        "sha256": "0657ad20aa691f2f916f38fbe97409cc8e3511e98a32c2eef3f311dd849fbf71"
+      },
+      {
+        "path": "policy-engine/src/polisyos/fabric/claims/extraction.py",
+        "sha256": "91a66f0d547142bfb86360c561ffa59d03c7e3574625085346241fe811c328a8"
+      },
+      {
+        "path": "policy-engine/src/polisyos/fabric/claims/extractor_registry.py",
+        "sha256": "444aeea6b3626124b75edad10025d4f5bba3c3817a670d425c806694b7acb8ef"
+      },
+      {
+        "path": "policy-engine/src/polisyos/fabric/claims/normalize.py",
+        "sha256": "5d903add847fb6071252922a47a8af69553e4149ca8f1c3d15897a3cef84dd9b"
+      },
+      {
+        "path": "policy-engine/src/polisyos/fabric/claims/types.py",
+        "sha256": "25007d02204b3ae113655d4bcb67f8682b250ecdb15d9aa25efea974fcc4fcad"
+      },
+      {
+        "path": "policy-engine/src/polisyos/fabric/connectors/_components_bootstrap.py",
+        "sha256": "7390860740d7fe52325ecc826d3e0b5cebd6a47f2fa8fcbd7b8e2fec9cb387fe"
+      },
+      {
+        "path": "policy-engine/src/polisyos/fabric/connectors/_registry_lifecycle.py",
+        "sha256": "ef09003e83da58162de2453d37a2d92817d597867654a863ef4d6f35c2a2586e"
+      },
+      {
+        "path": "policy-engine/src/polisyos/fabric/connectors/_registry_models.py",
+        "sha256": "eb5bd70c3e1630712f769e09d82def4388d52dee5f49c152344f3048b645bf90"
+      },
+      {
+        "path": "policy-engine/src/polisyos/fabric/connectors/base.py",
+        "sha256": "deecf20d57f019131d9936ddfead6363c0639781cf941414e29020be274c2034"
+      },
+      {
+        "path": "policy-engine/src/polisyos/fabric/connectors/cache/_store_core.py",
+        "sha256": "b7e72eaed1c9166813c44cabf6f259b0db761b78eb283e3efdb4459979ec1fb0"
+      },
+      {
+        "path": "policy-engine/src/polisyos/fabric/connectors/cache/_store_index.py",
+        "sha256": "7b959b2b33509bdcfc81960a5c7efa9ffa34eaa6e0515b452ac6138cb0dff13d"
+      },
+      {
+        "path": "policy-engine/src/polisyos/fabric/connectors/cache/invalidation.py",
+        "sha256": "442b2a516234cd3167945951c2a25aa45c504a77239a38e048db137cfae48687"
+      },
+      {
+        "path": "policy-engine/src/polisyos/fabric/connectors/cache/prefetch.py",
+        "sha256": "59ad01328c00732c5e90ec5cdf106a1bb9b314a8066c35790da565ee8e76fa8a"
+      },
+      {
+        "path": "policy-engine/src/polisyos/fabric/connectors/cache/proxy.py",
+        "sha256": "3b087c5d52a1ea1258a910a3e91a4212a3f85a0ee958f5942fc1d5ed02133fe4"
+      },
+      {
+        "path": "policy-engine/src/polisyos/fabric/connectors/capabilities.py",
+        "sha256": "ca2d6db78cdde697cc293f9f7c5cb8bc16b2ed0b2fc799c2992f260ad6b2df15"
+      },
+      {
+        "path": "policy-engine/src/polisyos/fabric/connectors/components.py",
+        "sha256": "1910640a76db69093e5e957e72050228f9ed392cdc47317efc894ad4cc8f7453"
+      },
+      {
+        "path": "policy-engine/src/polisyos/fabric/connectors/contracts/_inference_validation.py",
+        "sha256": "b7872581fb318d06b87491430779a1748680e2f6cab2dde794dd20d339b711f1"
+      },
+      {
+        "path": "policy-engine/src/polisyos/fabric/connectors/contracts/_schema_core.py",
+        "sha256": "97e4af0f86e2f4e1f04674ba973a05a6145cd2c5b45f37599e0e0adff42723a8"
+      },
+      {
+        "path": "policy-engine/src/polisyos/fabric/connectors/contracts/_schema_field.py",
+        "sha256": "8aa7275672c28d92e52eb2b9dba3e99990322fa00435d6c792da67f4efb2895c"
+      },
+      {
+        "path": "policy-engine/src/polisyos/fabric/connectors/contracts/evolution.py",
+        "sha256": "d795f29e171019f96a7b796fc44c9fbd9ae11e1b95988314d564a19099a541e0"
+      },
+      {
+        "path": "policy-engine/src/polisyos/fabric/connectors/contracts/governance_checks.py",
+        "sha256": "8a311957d598c32312d40477c9d274d17333db7ee6fdcb1aa8da2c75c0784e82"
+      },
+      {
+        "path": "policy-engine/src/polisyos/fabric/connectors/contracts/registry.py",
+        "sha256": "db0cc80f09b4fb42fe5f4d349dadd9fe5430cb7ae1a4a91bc95ab7dda9720363"
+      },
+      {
+        "path": "policy-engine/src/polisyos/fabric/connectors/contracts/validation_middleware.py",
+        "sha256": "c13d797db5fe289b17534042418bccf5523ec1b433a256f0014e594b64663f06"
+      },
+      {
+        "path": "policy-engine/src/polisyos/fabric/connectors/federation/composer.py",
+        "sha256": "11fab868c07671e1ff05004306024e86830ab952612d98c48d10765d79ce1c54"
+      },
+      {
+        "path": "policy-engine/src/polisyos/fabric/connectors/governance_metadata.py",
+        "sha256": "960705720e58914f01f885b0aab0085690ef388302be43025006fe3c1c8357c3"
+      },
+      {
+        "path": "policy-engine/src/polisyos/fabric/connectors/http_limits.py",
+        "sha256": "8219d9519c317f6feca51cb01d797a809d14a66e48e5f23ed1a9ac2c9bb9bd53"
+      },
+      {
+        "path": "policy-engine/src/polisyos/fabric/connectors/pool.py",
+        "sha256": "b0f0f44533e96b5d8333009bfe412b90d572d922db846e7c9bd39b230046c7e6"
+      },
+      {
+        "path": "policy-engine/src/polisyos/fabric/connectors/profiles/builtin_profiles.py",
+        "sha256": "d63312d8e0971b5908825690245c80cb9a87c1f493f8f54b16880eb27be488de"
+      },
+      {
+        "path": "policy-engine/src/polisyos/fabric/connectors/quality/completeness.py",
+        "sha256": "b1531a4387808f0fde0182b85bf3282829ce0dfa99ccc83470d3c0520bb4fbc8"
+      },
+      {
+        "path": "policy-engine/src/polisyos/fabric/connectors/quality/consistency.py",
+        "sha256": "789dd7ead3fbeee66f58ec48600a6cdd1ec3467b3158f3ce54bfbb6ded5df7f0"
+      },
+      {
+        "path": "policy-engine/src/polisyos/fabric/connectors/quality/freshness.py",
+        "sha256": "dd2e18adbf9c869dd4985ea61caf8b1d2cf33049670b995751f2ab6f8205eb06"
+      },
+      {
+        "path": "policy-engine/src/polisyos/fabric/connectors/quality/validator.py",
+        "sha256": "d9f621db57c440eea132d88efe6a25d298acf610d8e8ec02a874c66395dae95b"
+      },
+      {
+        "path": "policy-engine/src/polisyos/fabric/connectors/reference/sdmx.py",
+        "sha256": "8508f942776d828c3927092c6846fb140f3a445f4f4e5f3f9a387f8aa34d61a0"
+      },
+      {
+        "path": "policy-engine/src/polisyos/fabric/connectors/reference/static_csv.py",
+        "sha256": "3917ac62f305e964ef04bd8695662532648d89a99fda5eee2af047f0eb82a516"
+      },
+      {
+        "path": "policy-engine/src/polisyos/fabric/connectors/registry_core_parts.py",
+        "sha256": "c0e0176ebd9099f369adc883ee1c9111ff38266dfce965367346e6d2ff989c26"
+      },
+      {
+        "path": "policy-engine/src/polisyos/fabric/connectors/resilience/__init__.py",
+        "sha256": "dac3e01034c0f68e6e7dde7c067e93757890a3af54802a7a2b4506ecd83c93d6"
+      },
+      {
+        "path": "policy-engine/src/polisyos/fabric/connectors/resilience/_bounded_registry.py",
+        "sha256": "cfbae14125050f9b1cc8024d0d7d3361bb5025364a1aea97c68b6f263398d915"
+      },
+      {
+        "path": "policy-engine/src/polisyos/fabric/connectors/scorecard.py",
+        "sha256": "1fddcf05e34626e4d305b75df6d3915668fd60b2a9771958c25ba3ce6dc655f2"
+      },
+      {
+        "path": "policy-engine/src/polisyos/fabric/connectors/sources/_contracts/__init__.py",
+        "sha256": "129215f5c85e8c1b4ee688b28b40ac777edeb7e9ad7e1e9030f5dfb2dc8f2e29"
+      },
+      {
+        "path": "policy-engine/src/polisyos/fabric/connectors/sources/_file_common.py",
+        "sha256": "f1fb4e3523129b6657d32272ce8432606b0fd71e2fad031942a6d7f8319f1564"
+      },
+      {
+        "path": "policy-engine/src/polisyos/fabric/connectors/sources/ckan_resource.py",
+        "sha256": "2e70c5f6e8d59c11aba594dda9d9aad6e6501687558f023e5ff5bb370ac6d6f4"
+      },
+      {
+        "path": "policy-engine/src/polisyos/fabric/connectors/sources/eurostat.py",
+        "sha256": "c442b98ea660ab2bd29feb21eb07b39d6e813975a5c36d77d2f4a7697dbab65c"
+      },
+      {
+        "path": "policy-engine/src/polisyos/fabric/connectors/sources/http_base.py",
+        "sha256": "696ea22532f184e80cbbd0de65287ec8afb27120c838e3d352512f8c27c3a8f8"
+      },
+      {
+        "path": "policy-engine/src/polisyos/fabric/connectors/sources/http_common.py",
+        "sha256": "d7321eb53cbefab6dcfd086bb7cb91805ad3944ce7af41557c9dc6cd797a562a"
+      },
+      {
+        "path": "policy-engine/src/polisyos/fabric/connectors/sources/object_storage.py",
+        "sha256": "dafbde465f7ea10263b6e1a4079e1468d8d62f764ab9e251aadda0c7b1aa7d1e"
+      },
+      {
+        "path": "policy-engine/src/polisyos/fabric/connectors/sources/sdmx_source.py",
+        "sha256": "047d140359442ac6bd1137dd449b22171fc1484a3b9661c8e7fa0956ecf46b1c"
+      },
+      {
+        "path": "policy-engine/src/polisyos/fabric/connectors/sources/socrata.py",
+        "sha256": "383399636e885d45ecf4d07056820a29c5d33b3314afc8d99788715be4dd7825"
+      },
+      {
+        "path": "policy-engine/src/polisyos/fabric/connectors/sources/sql_query.py",
+        "sha256": "119beeefd45a10a5d3d53889a4b48fbed73093b417044ba1c010427bc6ccc5c0"
+      },
+      {
+        "path": "policy-engine/src/polisyos/fabric/connectors/sources/ukons.py",
+        "sha256": "ad743f55ff9b4827234e5a62d3b9854d207fbfacea4f41d6d9ae3dd121c414c9"
+      },
+      {
+        "path": "policy-engine/src/polisyos/fabric/connectors/sources/unesco_uis.py",
+        "sha256": "631333a09430bf80f684cd05bfa9da85b83d44a6a88b50dfb2786f2a276b1fe7"
+      },
+      {
+        "path": "policy-engine/src/polisyos/fabric/connectors/sources/unpd.py",
+        "sha256": "445cc5d6ed84e588ef0530eee10918cc0eb1f5dd3529077b74c1eabcab75bab9"
+      },
+      {
+        "path": "policy-engine/src/polisyos/fabric/connectors/sources/wvs.py",
+        "sha256": "025a3ee9d27a7011c2cd3f5b2ab9a9b4562b85f80670ef3b95bd92d6a1b56bde"
+      },
+      {
+        "path": "policy-engine/src/polisyos/fabric/connectors/testing/conformance.py",
+        "sha256": "8c9b0b223e8f30c19b5eccbcdd7ae2406aa61b191e61037d7dc5bb0185edef24"
+      },
+      {
+        "path": "policy-engine/src/polisyos/fabric/connectors/testing/contracts.py",
+        "sha256": "7962e5950a879f9ea78d43382a05942014f15bf84d2ba03aabc4a652d636fe5a"
+      },
+      {
+        "path": "policy-engine/src/polisyos/fabric/connectors/testing/harness.py",
+        "sha256": "47be6151dcc5f66795b875c9944a05c967e70e50e4c8b5fd45a987015e61c59c"
+      },
+      {
+        "path": "policy-engine/src/polisyos/fabric/connectors/testing/simulator.py",
+        "sha256": "14b895df6171104429e140e7f79de077b10e266eae900cf19846aa75c36fba73"
+      },
+      {
+        "path": "policy-engine/src/polisyos/fabric/connectors/transform/aggregator.py",
+        "sha256": "0c8bdc22441ee24d80b5566875e6b3a05de2bb40b6550cabd28113723a306749"
+      },
+      {
+        "path": "policy-engine/src/polisyos/fabric/connectors/transform/normalizer.py",
+        "sha256": "948eb949d226edb9c7496f5aa446493aac565e9a182382e25adea5c47bf64ffc"
+      },
+      {
+        "path": "policy-engine/src/polisyos/fabric/connectors/types/_coercion_engine.py",
+        "sha256": "aca24563ec773fc948543f73dd73a17c60a1fbc59a915c15e5c5a67e4e3c0e97"
+      },
+      {
+        "path": "policy-engine/src/polisyos/fabric/connectors/types/_coercion_errors.py",
+        "sha256": "00a94dbd95d54094a1b34529c2354e791481be8650099c5351554ad5f1042c9d"
+      },
+      {
+        "path": "policy-engine/src/polisyos/fabric/connectors/types/_coercion_policies.py",
+        "sha256": "27e0176ac7c74cf0272243d02452a032614cc0c0d47f4afd6813c0a13c6f8c35"
+      },
+      {
+        "path": "policy-engine/src/polisyos/fabric/connectors/types/_coercion_rules.py",
+        "sha256": "34e9654288530d9160db950a5ac593f017f0b4d8f7b7af802c81fefdfe23e373"
+      },
+      {
+        "path": "policy-engine/src/polisyos/fabric/connectors/types/_units_errors.py",
+        "sha256": "04f3a1ed84ea28d5e78a5625826f48fe655d9be056d9ecb0ac8e36df4946537f"
+      },
+      {
+        "path": "policy-engine/src/polisyos/fabric/connectors/types/_units_prefixes.py",
+        "sha256": "7bb485937b52dffe5a16e363feb8aeaa0defb6765afa9c05e1ff1440ff82c5ec"
+      },
+      {
+        "path": "policy-engine/src/polisyos/fabric/connectors/types/_units_registry.py",
+        "sha256": "bf51b25dc497020a41da0814c6a3fea82a974148a3ccc903491970d47a1411ad"
+      },
+      {
+        "path": "policy-engine/src/polisyos/fabric/connectors/types/connector_types.py",
+        "sha256": "1e5e268ca79a59a3983387b78de92e29c620ad2d76fa72928935f8b9719c460a"
+      },
+      {
+        "path": "policy-engine/src/polisyos/fabric/connectors/types/dimensions.py",
+        "sha256": "26ef36d75d6fb0f11d54eeb46657b9d5620c1b869ca5de26e3fd9428916de1fa"
+      },
+      {
+        "path": "policy-engine/src/polisyos/fabric/connectors/types/temporal.py",
+        "sha256": "d566eed09d4183ca15701ca7200ae00ac97cd166398495745c3f716a88815e79"
+      },
+      {
+        "path": "policy-engine/src/polisyos/fabric/connectors/validation.py",
+        "sha256": "29c140f14f57acda120b60dadc6a7d4937fa381f2a377eed6ab3527aa119fae0"
+      },
+      {
+        "path": "policy-engine/src/polisyos/fabric/data_plane/__init__.py",
+        "sha256": "125fa61796fe713971b364722d350797d472277c931d14461bffe098c8a2aab1"
+      },
+      {
+        "path": "policy-engine/src/polisyos/fabric/data_plane/benchmarks.py",
+        "sha256": "4b01b31bcdbeec888466322f4433c9debc3c3ac158d54fde7b8eb02bc8d46de4"
+      },
+      {
+        "path": "policy-engine/src/polisyos/fabric/data_plane/cli.py",
+        "sha256": "8812ced42dac97f04115903a111efba1ef294f71b8b6e040c32803c1f570505c"
+      },
+      {
+        "path": "policy-engine/src/polisyos/fabric/data_plane/cursor_store.py",
+        "sha256": "22f090daa8d95ec4b151b5ecb600ef022cf0e2d80886c91e92e8c9a180114976"
+      },
+      {
+        "path": "policy-engine/src/polisyos/fabric/data_plane/modes.py",
+        "sha256": "ca4aa4585fcbb800d6c79f841e5ce3214a42bd105d8ec1313aca9dbd658b32ad"
+      },
+      {
+        "path": "policy-engine/src/polisyos/fabric/data_plane/quarantine.py",
+        "sha256": "f7c0bd38154a4499ffedc46ad0cc98766afe096f76c88940e5f4e58a6911867e"
+      },
+      {
+        "path": "policy-engine/src/polisyos/fabric/data_plane/regression.py",
+        "sha256": "fefd8821c24f4b7db64625564e3e836e04c2888134abf304327272ec564bd9c6"
+      },
+      {
+        "path": "policy-engine/src/polisyos/fabric/data_plane/replay_store.py",
+        "sha256": "c5fca153d83a6d5ebdf921b29f8bf2def578c95698c7a632233d50f34e24d41d"
+      },
+      {
+        "path": "policy-engine/src/polisyos/fabric/data_plane/schema_rows.py",
+        "sha256": "8a43a02bad98dc9ac508ef70355259d8dc7cfd9f766212e11cd574d459511345"
+      },
+      {
+        "path": "policy-engine/src/polisyos/fabric/data_plane/semantic_diff.py",
+        "sha256": "26e0190e220ef20a0f9bdcf324aea6e3c51a1098de555c75d9b27dabf2dbbad1"
+      },
+      {
+        "path": "policy-engine/src/polisyos/fabric/data_plane/streaming.py",
+        "sha256": "bfa600697b98da3770915e41184fae78fa29129ceb2315666d3aeec0861e8526"
+      },
+      {
+        "path": "policy-engine/src/polisyos/fabric/data_plane/tabular.py",
+        "sha256": "b99074646359e5a1e4cdd1bb0e2a55c8dc5097435f136c97ed1c485387b37858"
+      },
+      {
+        "path": "policy-engine/src/polisyos/fabric/data_plane/temporal.py",
+        "sha256": "6d6b0cbf3413fb520b2828db86e2fba20fb18b40497891bbc7ff9f26e3d104be"
+      },
+      {
+        "path": "policy-engine/src/polisyos/fabric/data_plane/watermark.py",
+        "sha256": "5c33baf61f0b46c38d7fd051b63517b9de79ecbaf1cb44b5c5491cefde219bda"
+      },
+      {
+        "path": "policy-engine/src/polisyos/fabric/docs/chunking.py",
+        "sha256": "2ac5b22256ab00bd2197184757eecce312c52b1c1a3b0120eae0136cda3ed9f0"
+      },
+      {
+        "path": "policy-engine/src/polisyos/fabric/docs/structure.py",
+        "sha256": "f3e7f2bcc97a59e6cc31aaf79d9a54fc97bc815d59a8c27de03649434804bcc7"
+      },
+      {
+        "path": "policy-engine/src/polisyos/fabric/evidence/acquisition_assurance.py",
+        "sha256": "a85590013c260a37d2b4c76487e751427a6b927ff886f47c6e99fc3b1dc389e8"
+      },
+      {
+        "path": "policy-engine/src/polisyos/fabric/evidence/ceiling_relations.py",
+        "sha256": "42fe8f44cb31019697da914f215cf12cc269a0f3a25432ebb84c42080ee31386"
+      },
+      {
+        "path": "policy-engine/src/polisyos/fabric/evidence/decision_data.py",
+        "sha256": "557975081799e8138d1ee2211cb8ac06dcd414c7b892f8653f0b63fb03a14e34"
+      },
+      {
+        "path": "policy-engine/src/polisyos/fabric/evidence/evidence.py",
+        "sha256": "dc59a3f1ce3dc852cd49d786ec8670f84aa70eb6796007a0dd704f6ae94d3ffc"
+      },
+      {
+        "path": "policy-engine/src/polisyos/fabric/evidence/fact_writer.py",
+        "sha256": "2845a52abc71c335e9a1d3d184b5de6deaf51e8174e197dd25245cef9144a67f"
+      },
+      {
+        "path": "policy-engine/src/polisyos/fabric/evidence/non_data_acquisition.py",
+        "sha256": "cd6b90fedcfab9190923f9a8004686bb62bde4974e49c860414222618ba4ec49"
+      },
+      {
+        "path": "policy-engine/src/polisyos/fabric/ingestion/__init__.py",
+        "sha256": "ad69ce5a60ee1d9dffec24ba11eb8e30ae90985a24afbe8cd47f3840582ca1ce"
+      },
+      {
+        "path": "policy-engine/src/polisyos/fabric/ingestion/ingestion.py",
+        "sha256": "15bbe567201d267c5c15aa8bb1f1211ca421a7f306a062329b7ef6450388aa95"
+      },
+      {
+        "path": "policy-engine/src/polisyos/fabric/ingestion/ingestion_providers.py",
+        "sha256": "38ab48acdc4fe339998c9adc0a15fd3589f253da035334be047810a2ca28254c"
+      },
+      {
+        "path": "policy-engine/src/polisyos/fabric/io/atomic.py",
+        "sha256": "09839e2c303d929253957a32526cd519ece870c0eafca4d8587f6978b5d73c4f"
+      },
+      {
+        "path": "policy-engine/src/polisyos/fabric/io/db.py",
+        "sha256": "8c6a1130f406c2f90c35e5eefcf649a3ee3e373080dcd84290593e45082c9ed3"
+      },
+      {
+        "path": "policy-engine/src/polisyos/fabric/numerics/finite.py",
+        "sha256": "3734ecf8bad50048ce93d52d434d5c0126ec2733286b05dcb6e15e588dd5bc2f"
+      },
+      {
+        "path": "policy-engine/src/polisyos/fabric/pii/stage.py",
+        "sha256": "c4efe439c4806541ca375d6cbd58b42aacf01c798157d57c6b2c472db870b0ce"
+      },
+      {
+        "path": "policy-engine/src/polisyos/fabric/product_integration/__init__.py",
+        "sha256": "05434eb553e962c4420ae8bf33a63d7f89a55707ba061a801bf7d27b721ecc9a"
+      },
+      {
+        "path": "policy-engine/src/polisyos/fabric/provenance/export_provo.py",
+        "sha256": "b88c7e0d0de8b632aeee89b703c8d182b01d3d0b9b67e9bf7a8ffcbc7be9d4d3"
+      },
+      {
+        "path": "policy-engine/src/polisyos/fabric/provenance/lineage.py",
+        "sha256": "4c4d82cb0d91d75e5628fade2996b15f2483e4a4b406e89654948d6479a1814c"
+      },
+      {
+        "path": "policy-engine/src/polisyos/fabric/quality/processing_guarantees.py",
+        "sha256": "e605650290698d7efc7da670a15f99c792e947a93c47ec63d8331361df019973"
+      },
+      {
+        "path": "policy-engine/src/polisyos/fabric/quality/quality.py",
+        "sha256": "4aac078adf01079ab810553c56e90c3c79387ed1a362ca366c1d6b17dd6f6116"
+      },
+      {
+        "path": "policy-engine/src/polisyos/fabric/retrieval/custody.py",
+        "sha256": "b4fdc1d591eb6586d20e417224ebc75f4c311ae698acefb9e25007be9316c6b2"
+      },
+      {
+        "path": "policy-engine/src/polisyos/fabric/retrieval/executor.py",
+        "sha256": "b252fdff7c7239489ee35367648ba61e105103f0f930f6fc085b68d7cd99aa2e"
+      },
+      {
+        "path": "policy-engine/src/polisyos/fabric/retrieval/explore_lane.py",
+        "sha256": "387fb2d2cec09fb36ae1f73e58cf63d45088a07e7a8801b8e163e5af2c802896"
+      },
+      {
+        "path": "policy-engine/src/polisyos/fabric/retrieval/service.py",
+        "sha256": "3cfa35e8b6dd267228fe394c3347915b100283333f4036bb97f3f62164efcf21"
+      },
+      {
+        "path": "policy-engine/src/polisyos/fabric/security/governed_artifacts.py",
+        "sha256": "c95116be6d48f8598c85cb4796e9123f293462ed14c9f4f704492e8d7c323e3a"
+      },
+      {
+        "path": "policy-engine/src/polisyos/fabric/storage/__init__.py",
+        "sha256": "7555ef72b49e86f3f255ee584db415d18f707eb285af4d10d9d45fdda9ceb6e2"
+      },
+      {
+        "path": "policy-engine/src/polisyos/fabric/storage/duckdb_adapter.py",
+        "sha256": "5abe413a7eae4d962a388b7b8819644e172578b7d7dc0edc0ad154c2fb7c5ad2"
+      },
+      {
+        "path": "policy-engine/src/polisyos/fabric/storage/memory_adapter.py",
+        "sha256": "f9910d28f309d9a0186f20bdf18cd3f9992532caf2940c9c3a84eb281100d440"
+      },
+      {
+        "path": "policy-engine/src/polisyos/fabric/storage/port.py",
+        "sha256": "f557ccab9c0932e287bac3750ebccbc04ccbbf35a6d57c879755cf0d27d36152"
+      },
+      {
+        "path": "policy-engine/src/polisyos/fabric/world/__init__.py",
+        "sha256": "c9d4d133b0ae4cd6b97251cec6b3620937780aeb4a1aec3d869cea7cf5fbd6c5"
+      },
+      {
+        "path": "policy-engine/src/polisyos/fabric/world/materialize/duckdb.py",
+        "sha256": "3dc20123cb89aa33c07d79d959de75616befa1dc28075561aeb8c779dd666ded"
+      },
+      {
+        "path": "policy-engine/src/polisyos/fabric/world/materialize/errors.py",
+        "sha256": "2cd40065c929895d95c69b1939e03e2f5d30a12c541b54b9ab891eec0ce1e0af"
+      },
+      {
+        "path": "policy-engine/src/polisyos/fabric/world/materialize/kuzu.py",
+        "sha256": "c5c92352c502e7a8eea467d83a0f8cb068020a9c19b3bece99f828825b1b3bcb"
+      },
+      {
+        "path": "policy-engine/src/polisyos/fabric/world/materialize/projections.py",
+        "sha256": "31c725c222f951114780b0e07328aacc4f78e14cf964c655f3dc2dfd44353607"
+      },
+      {
+        "path": "policy-engine/src/polisyos/fabric/world/query.py",
+        "sha256": "d6725f8e90269ee7ceb6107749e0fa7df73f6753d87585336a6e273e73f7a17f"
+      },
+      {
+        "path": "policy-engine/src/polisyos/fabric/world/store/__init__.py",
+        "sha256": "59a02996be277e6f32aec489b52324784bcf7a3433997e74739374254fb31214"
+      },
+      {
+        "path": "policy-engine/src/polisyos/fabric/world/store/emit.py",
+        "sha256": "9e7c76d142068847bb74e7dcba38d8ab51b03e081ad1c538200a66254c8431be"
+      },
+      {
+        "path": "policy-engine/src/polisyos/fabric/world/store/snapshots.py",
+        "sha256": "b655cd4c7671386da9e34c39b1e9e9a69b16f2b3ac421d5876c31db3d4558d9c"
+      },
+      {
+        "path": "policy-engine/src/polisyos/fabric/world/store/validate.py",
+        "sha256": "9b8af183dc8e3aa9a4fdc2f617d3a0eb0d28065f810fda7c7ebf41c1db438f07"
+      },
+      {
+        "path": "policy-engine/src/polisyos/fabric/world/write.py",
+        "sha256": "ddaaffff5fb364513fa49c9ce8da788c94ba90a41003be69ff3d7627638dd413"
+      },
+      {
+        "path": "policy-engine/tests/unit/fabric/data_plane/test_modes.py",
+        "sha256": "a21aa019903d16bc3e3cfa07a26f88ed95d9e72de371527daf6833ead49e9133"
+      },
+      {
+        "path": "policy-engine/tests/unit/fabric/ingestion/test_raw_result_sink.py",
+        "sha256": "d2abda87655733f527737e22567bdc9931faf115fcfae7a1e10656f30a3f64b2"
+      },
+      {
+        "path": "policy-engine/architecture/tooling/ruff/base.toml",
+        "sha256": "4bdfbd63efab5ce43a61163af33796de3cf1584e278543405243f804ba7055a5"
+      },
+      {
+        "path": "policy-engine/architecture/tooling/ruff/per-file-ignores/50-fabric.toml",
+        "sha256": "1d078d9dbc27e88da11b70e04efe40a52113bb54c3d7e819fc46c6d34e886f6c"
+      },
+      {
+        "path": "policy-engine/ruff.generated.toml",
+        "sha256": "2588ad9d525a27230928e3d75eedc34b4c3968898bbf8546aa6976c4063a44e8"
+      },
+      {
+        "path": "policy-engine/architecture/tooling/ruff/workspace_root.toml",
+        "sha256": "879bfc2fa77909e595e661679fdeb9c771c3d34308a52e7c41971114f6a4ed99"
+      }
+    ],
+    "selection_denominator": {
+      "fabric_source_modules": 306,
+      "full_adoption_paths": 179,
+      "changed_paths": 142,
+      "unchanged_selected_paths": 37,
+      "changed_python": 138,
+      "changed_toml": 4,
+      "complete_selection_map": {
+        "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/root-fabric-r13-n818-adoption-20261021-r1/final-application-plan.json",
+        "sha256": "f5c4e409412b1ce31e783ff984eb3e02bd1fa930e6f23eb3c38bfc4014b5533b"
+      }
+    }
+  },
+  "authored_source_inputs": [
+    {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/fabric-runtime-annotation-binding-closure-20261021-r1/round-13-compose-preformat/source-composition-map-candidate-r13-final.json",
+      "sha256": "048090a489cc14127a28308f0f5922ad93e06e33e148c49b09378d3f251621ad"
+    },
+    {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/native-fabric-n818-comment-layer-r1-20261021/canary-only-r3/candidate-packet-map.json",
+      "sha256": "29e7883b03cb42b778991a1c45ef7cc10c3685c13e23a0d5e16c4bd114ffbe87"
+    }
+  ],
+  "independent_reviews": [
+    {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/fabric-r13-style-delta-independent-20261021-r1/review-style-delta.json",
+      "sha256": "d699af494e04ebfcf4ea9d12858a6663a3050123f11e7fef1e6b29c703be8ce1"
+    },
+    {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/native-fabric-n818-delivery-independent-20261021-r1/review-n818-source-config.json",
+      "sha256": "6376677902087b30a20d4a3db3e9142bf29382a7b82f26a3fb1f0fd7b96c9c60"
+    },
+    {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/independent-fabric-r13-whole-map-review-20261021-r1/review-r13.json",
+      "sha256": "7225d5e44afc412fa9e984e89a09fe2cd40e70dbae468f1336ba052faca91231"
+    }
+  ],
+  "decision": {
+    "issuer": "G integrator, user supplied published decision",
+    "commit": "d40bca270ef5c456e8233196e4d8d65e099777a7",
+    "path": "policy-engine/docs/research/e02-cloud-test-plan/integration/architecture-decisions-2026-10-21/09-fabric-exception-identities.md",
+    "implementation": "Preserve seven exception class identities/MRO/exports, add exact scoped N818 comments, remove only blanket Fabric N818 ignore, official Profile A regeneration; no waiver date/platform."
+  },
+  "pattern_pass": {
+    "ids": [
+      "P29",
+      "P31",
+      "P32",
+      "P38",
+      "P40",
+      "P41"
+    ],
+    "target": "Runtime annotation names resolve through existing module owners; finite-filter parser preserves runtime semantics; exact exception membership instead of blanket lint exemption.",
+    "style_scope": "78 formatter boundaries independently AST-equal; import alias differences contain only 49 unused typing.TYPE_CHECKING removals; Path relocation preserves imports/non-import AST.",
+    "bucket": "Annotation binding class; all-rules native debt and native runtime binding oracle are distinct remaining verification. No inherited-red claim."
+  },
+  "verification": {
+    "selected_profile": {
+      "path": "policy-engine/architecture/tooling/ruff/workspace_root.toml",
+      "sha256": "879bfc2fa77909e595e661679fdeb9c771c3d34308a52e7c41971114f6a4ed99"
+    },
+    "source_manifest": {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/root-fabric-r13-n818-adoption-20261021-r1/ruff-manifest-final.json",
+      "sha256": "5a3ceba127133a452701e2d0612144d146181a3aa5a1920170c8d415a4450518"
+    },
+    "runtime_backend": "existing local Python virtual environment; numerical threads 1; focused logic/async test consumers, no new dependencies",
+    "canonical_deciding_checks": [
+      {
+        "gate": "pytest",
+        "invocation": {
+          "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/root-fabric-r13-n818-adoption-20261021-r1/verification-r2/pytest-invocation.json",
+          "sha256": "301c5ab4a38e8de574e79dd0fe9ac07e6313f9e75162d95357d663a86c750868"
+        },
+        "complete_stdout": {
+          "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/root-fabric-r13-n818-adoption-20261021-r1/verification-r2/pytest.stdout",
+          "sha256": "058a6af93a5f9cbf670f39d44ee468be7c8424056b8c89f001c8ad7999adf1da"
+        },
+        "complete_stderr": {
+          "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/root-fabric-r13-n818-adoption-20261021-r1/verification-r2/pytest.stderr",
+          "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+        },
+        "elapsed_seconds": 2.5717619589995593,
+        "outcome": "PASS",
+        "scope": "107 tests in exactly two Fabric companion modules; one cache_dir warning"
+      },
+      {
+        "gate": "ruff",
+        "invocation": {
+          "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/root-fabric-r13-n818-adoption-20261021-r1/verification-r2/ruff-invocation.json",
+          "sha256": "0132450b7c67718dacc4081168cf866f41c1b0a0687b79d4ea4f704646296d66"
+        },
+        "complete_stdout": {
+          "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/root-fabric-r13-n818-adoption-20261021-r1/verification-r2/ruff.stdout",
+          "sha256": "2e435a44aef80ea4bd222ed7aa1bc43a85ecd574c45a210c3e26540b8fb4adf5"
+        },
+        "complete_stderr": {
+          "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/root-fabric-r13-n818-adoption-20261021-r1/verification-r2/ruff.stderr",
+          "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+        },
+        "elapsed_seconds": 6.221373166888952,
+        "outcome": "PASS",
+        "scope": "175 explicit Python inputs, selected workspace_root profile"
+      },
+      {
+        "gate": "format",
+        "invocation": {
+          "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/root-fabric-r13-n818-adoption-20261021-r1/verification-r2/format-invocation.json",
+          "sha256": "671a338c5e4fe9e9c8768b5aeeb4732cbb07467112c71376a35ef27df007c9a6"
+        },
+        "complete_stdout": {
+          "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/root-fabric-r13-n818-adoption-20261021-r1/verification-r2/format.stdout",
+          "sha256": "de19422874f283be6807fd330cacd571dd14e47b10c2143a4bc3cd627dda54b2"
+        },
+        "complete_stderr": {
+          "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/root-fabric-r13-n818-adoption-20261021-r1/verification-r2/format.stderr",
+          "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+        },
+        "elapsed_seconds": 6.28814799990505,
+        "outcome": "PASS",
+        "scope": "175 explicit Python inputs"
+      },
+      {
+        "gate": "tool-config-check",
+        "invocation": {
+          "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/root-fabric-r13-n818-adoption-20261021-r1/verification-r2/tool-config-check-invocation.json",
+          "sha256": "23176217124896153316bd74006b7d2b61812c5e012ff357374689ddeb05af6b"
+        },
+        "complete_stdout": {
+          "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/root-fabric-r13-n818-adoption-20261021-r1/verification-r2/tool-config-check.stdout",
+          "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+        },
+        "complete_stderr": {
+          "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/root-fabric-r13-n818-adoption-20261021-r1/verification-r2/tool-config-check.stderr",
+          "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+        },
+        "elapsed_seconds": 3.335622417042032,
+        "outcome": "PASS",
+        "scope": "official render/check of current canonical tool configuration"
+      }
+    ],
+    "corruption_control": {
+      "receipt": {
+        "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/root-fabric-r13-n818-adoption-20261021-r1/drift-control-result.json",
+        "sha256": "2cbd1bd2a8f44a8ef4a332b2e2f0b1f20b4590094facb2987db6986d5d4691b0"
+      },
+      "complete_stdout": {
+        "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/root-fabric-r13-n818-adoption-20261021-r1/drift-control.stdout",
+        "sha256": "2cbd1bd2a8f44a8ef4a332b2e2f0b1f20b4590094facb2987db6986d5d4691b0"
+      },
+      "complete_stderr": {
+        "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/root-fabric-r13-n818-adoption-20261021-r1/drift-control.stderr",
+        "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+      },
+      "scope": "Official renderer/check_drift rejects marked shadow line-length 100\u219299; canonical generated bytes unchanged. Official canonical --check separately PASS."
+    },
+    "historical_controls": "N818 author canaries and prior 306-module probes remain bound to their exact input hashes in cited packet. Their execution does not establish full final composed runtime/native green.",
+    "commit_hook": "normal lefthook pre-commit succeeded; skipped Python gates are not native proof"
+  },
+  "consumer_surface": "Fabric data-plane finite filtering and raw-result sink companion tests execute actual consumers. Public exception identities and current generated Ruff configuration preserved. Full annotation/runtime/API consumer replay remains pending.",
+  "limitations": [
+    "Full final 306-source runtime binding oracle and cold facade checks UNRUN on this committed composition.",
+    "Full all-rules native repository SOTA row execution UNRUN; 422 historical warm issues are not classified inherited under P41.",
+    "No installed wheel/rebuilt sdist verification on this composition; no global E02 source/input/backend freeze.",
+    "No G code acceptance, integration publication or formal finding closure.",
+    "Independent whole-map review records additive dynamically reachable top-level ConnectionConfig through package __getattr__; not in __all__, existing exports stable. Include in final surface report; full API/runtime replay remains pending."
+  ],
+  "proposal_fields": {
+    "implementation_proposals": [
+      "G-selected exact N818 compatibility decision implemented on committed source",
+      "R13 bounded Fabric runtime annotation and parser composition adopted"
+    ],
+    "formal_G_closure_proposals": [],
+    "next_check": "Compose pending IR/HTE/Runtime/consumer companions, freeze source and profiles after independent reviews, then execute final Fabric runtime and native rows within composed wave."
+  },
+  "capability_state": "verification_missing",
+  "closure_ids": [],
+  "receipt_qualification": {
+    "review": {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/fabric-canonical-handoff-independent-20261021-r1/assessment.json",
+      "sha256": "926826d9f327d081e95da0a378d5a26f223a27ab8383ab6814a62de38fe143d8"
+    },
+    "reviewed_receipt_sha256": "307868395df8e02b2b440d0d36ded3afb575f95c98b8c747b89931f15bf0fccb",
+    "qualification_delta": "Added independent receipt review and its additive dynamic ConnectionConfig surface note; source, output pins and outcomes unchanged."
+  }
+}

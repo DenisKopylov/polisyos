@@ -25,7 +25,6 @@ from polisyos.ir.analytics.structural_causal_model import (
     persist_structural_causal_model_spec,
 )
 from polisyos.ir.analytics.uncertainty import load_uncertainty_envelope
-from polisyos.scientist.compute.job_spec import JobKey, JobResult
 from polisyos.scientist.nodes.builtins.causal.resolve_transport import RunTransportabilityNode
 from polisyos.scientist.nodes.builtins.causal.run_causal_ensemble import RunCausalEnsembleNode
 from polisyos.scientist.nodes.builtins.causal.run_causal_queries import RunCausalQueriesNode
@@ -93,33 +92,7 @@ def _scm_for_graph(graph: CausalGraphModel, coef: float) -> StructuralCausalMode
     )
 
 
-def _fake_run_job(*args, **kwargs):
-    del args
-    method_state = kwargs["method_state"]
-    method = method_state.scm_spec.graph.discovery_method or "pc"
-    means = {"pc": 1.0, "fci": 2.0, "ges": 3.0}
-    mean = means.get(method, 1.0)
-    query_payload = method_state.query.model_dump(mode="json")
-    return JobResult(
-        job_key=JobKey(value=f"job:test:gcm_query:{method}"),
-        final_state={
-            "query_result": {
-                "query": query_payload,
-                "result_mean": mean,
-                "result_std": 0.05,
-                "result_ci": [mean - 0.05, mean + 0.05],
-                "result_distribution": [mean - 0.03, mean, mean + 0.03],
-                "computation_time_seconds": 0.01,
-            }
-        },
-        issues=[],
-    )
-
-
-def test_phase14_causal_ensemble_full_e2e_acceptance(
-    tmp_path,
-    monkeypatch: pytest.MonkeyPatch,
-) -> None:
+def test_phase14_causal_ensemble_full_e2e_acceptance(tmp_path) -> None:
     ctx = _build_ctx(tmp_path, run_id="R_phase14_e2e")
 
     scm_refs = {}
@@ -129,23 +102,6 @@ def test_phase14_causal_ensemble_full_e2e_acceptance(
             _ensure_ir_artifact_store(ctx.store),
             _scm_for_graph(graph, coef=coef),
         )
-
-    monkeypatch.setattr(
-        "polisyos.scientist.nodes.builtins.causal.run_causal_queries.ensure_causal_methods_registered",
-        lambda: None,
-    )
-    monkeypatch.setattr(
-        "polisyos.scientist.nodes.builtins.causal.run_causal_ensemble.ensure_causal_methods_registered",
-        lambda: None,
-    )
-    monkeypatch.setattr(
-        "polisyos.scientist.nodes.builtins.causal.run_causal_queries.run_job",
-        _fake_run_job,
-    )
-    monkeypatch.setattr(
-        "polisyos.scientist.nodes.builtins.causal.run_causal_ensemble.run_job",
-        _fake_run_job,
-    )
 
     query_payload = {
         "query_type": "interventional",
@@ -164,7 +120,7 @@ def test_phase14_causal_ensemble_full_e2e_acceptance(
         },
     )
     query_outcome = RunCausalQueriesNode().execute(ctx, state)
-    assert query_outcome.status == "ok"
+    assert query_outcome.status == "ok", query_outcome.error
 
     single_envelope_ref = query_outcome.state.artifacts_index[ARTIFACT_CAUSAL_QUERY_ENVELOPE_REF]
     single_envelope = load_uncertainty_envelope(
@@ -189,7 +145,7 @@ def test_phase14_causal_ensemble_full_e2e_acceptance(
         },
     ]
     ensemble_outcome = RunCausalEnsembleNode().execute(ctx, ensemble_state)
-    assert ensemble_outcome.status == "ok"
+    assert ensemble_outcome.status == "ok", ensemble_outcome.error
 
     ensemble_ref = ensemble_outcome.state.artifacts_index[ARTIFACT_CAUSAL_ENSEMBLE_REF]
     ensemble = load_causal_model_ensemble(_ensure_ir_artifact_store(ctx.store), ensemble_ref)

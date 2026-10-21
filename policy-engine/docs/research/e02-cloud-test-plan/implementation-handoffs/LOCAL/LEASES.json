@@ -47349,5 +47349,90 @@
     "source_profile_freeze": false,
     "G_acceptance": false,
     "closure_ids": []
+  },
+  "root-causal-query-real-producer-fixtures-adoption-20261021-r1": {
+    "slice_base": "80c34c2574433f63acc2225ef8379089f69bac46",
+    "canonical_writer": "root only; reviewed present patch, retired exact originals through native Trash",
+    "mechanism_and_mandatory_companion_paths": {
+      "policy-engine/tests/unit/scientist/methods/causal/test_phase14_causal_ensemble_e2e.py": {
+        "operation": "update",
+        "mode": "100644",
+        "preimage_sha256": "98e6a8b1dd961baf1f68d721a6ab27ee2ad06c6684a05a9e2641555e4fcc34cf",
+        "preimage_bytes": 9429,
+        "postimage_path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/causal-query-current-cohort-repair-20261021-r1/postimages/test_phase14_causal_ensemble_e2e.py",
+        "postimage_sha256": "e8e5d90240b4b7d85b8d5c069f29e2076027f3ef1bf97e4de95ff14752eb1e1c",
+        "postimage_bytes": 7998
+      },
+      "policy-engine/tests/unit/scientist/methods/causal/test_run_causal_queries_node.py": {
+        "operation": "update",
+        "mode": "100644",
+        "preimage_sha256": "3e9a343911e62b87148c1748eb6eccb408201ab12fe30e73ea40293a26faa69d",
+        "preimage_bytes": 6648,
+        "postimage_path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/causal-query-current-cohort-repair-20261021-r1/postimages/test_run_causal_queries_node.py",
+        "postimage_sha256": "f1586aef56877263efbd1a0bcd4ae03b4172def296596d5ef5ee3d7e17659b2f",
+        "postimage_bytes": 4539
+      }
+    },
+    "application": {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/root-causal-query-real-producer-fixtures-adoption-20261021-r1/source-application.json",
+      "sha256": "0bf46390bc9002480956a66a4e3d62daf3370cc371cd8b15152abc8c921389d8"
+    },
+    "native_trash_receipt": {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/root-causal-query-real-producer-fixtures-adoption-20261021-r1/native-trash-receipt.json",
+      "sha256": "057f81b6e161c37eaec854c352b59148420f1f1711163b9005834b723e193dcf"
+    },
+    "reviewed_inputs": [
+      {
+        "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/causal-query-current-cohort-repair-20261021-r1/receipt.json",
+        "sha256": "0e5aa262209ccc4794b3e14709bf5ae52988e34a01a94eef11af14182e7891d4"
+      },
+      {
+        "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/causal-query-current-cohort-repair-20261021-r1/causal-query-tests.patch",
+        "sha256": "23d96ed622e26a9b6b420db34568b56a535daa00a3ccfa8cfb62b970ff482ed8"
+      },
+      {
+        "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/independent-causal-query-current-fixture-review-20261021-r1/review.json",
+        "sha256": "5e0917a9585acb8b11c02d8eaa0cad06796c9e4606fdcc375d2f19f0d3e24b72"
+      },
+      {
+        "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/root-causal-query-real-producer-raw-three-whole-864cd465d614-20261021-r1/request.json",
+        "sha256": "726e4ad3de2e7cfc6da69462c2eef83df194aa717d8f4909fd6710bbb638a4f3"
+      },
+      {
+        "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/root-causal-query-real-producer-raw-three-whole-864cd465d614-20261021-r1/actual/result.json",
+        "sha256": "8754c87af78477e7f3e8de7a8547676e8346b5e6fd31e68524a502d908392d4a"
+      },
+      {
+        "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/decisions/g-choice-conditional-transport-diagnostics-20261021.md",
+        "sha256": "45c15676ef9dd76171b86af43bbb5b1110964217a65a5b6f2f24886d0fb3c090"
+      },
+      {
+        "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/decisions/g-choice-conditional-transport-diagnostics-20261021.json",
+        "sha256": "f93238a3d431b1abb4e7d429288121310fb4ed4f6c3b8b43aaec9e7a6fc2178a"
+      }
+    ],
+    "owned_applied_provenance": null,
+    "preserved_other_owned_rows": {},
+    "preserved_other_owned_provenance": null,
+    "preserved_other_owned_tracked_paths": [],
+    "preserved_other_owned_untracked_paths": [],
+    "preserved_other_owned_unchanged_before_after": true,
+    "P40": {
+      "bucket": "Same fake-producer protocol family; candidate math vs legal authority is a separate concrete pending G choice",
+      "action": "Adopt two independently reviewed whole-test postimages, retain actual7P1F and originalnon-nullPAGassertion, no invented legal-positive fixture."
+    },
+    "bounded_proof": "Independent fulltwo-file source review5e0917...; exact executedRAWtwo postimages +onecanonicalmodule collected8 with7P1F, sourceunchanged; nativecanonicalRuffbefore/after andbranchblobs required.",
+    "limitations": [
+      "Independent sourceGO andactualRAWpostimage7P1F only; canonicalcurrentwhole replay remainsUNRUN afteradoption.",
+      "Hand-builtmanualunfittedSCM is controlledalgorithmfixture, notownerapprovedcausalgraph, training, legalrelation, orproductioncurrentness.",
+      "B31/B33/B161/B214 remainheld/open byoriginalcriteria; closureIDsempty, Gacceptancefalse.",
+      "The fullphase14PAGcriterion stillfails pendingreviewedGcontractchoice; no testquarantine/xfail/skip/assertionweakening.",
+      "CurrentCore96P3FandAD01producer96P23Fareseparatelyownedrepairqueue; thissourcechange cannotqualifythem."
+    ],
+    "runtime": "UNRUN on adopted source",
+    "next_check": "Replaybothcanonicalquerytestmodules pluscausalensemblewhole with currentCore/AD01source afterblockingbatch; preserveoriginaldiagnosticred untilG choosesconditionaldiagnostic contract, then implement typedprotected/candidate split with allconsumers/removals.",
+    "source_profile_freeze": false,
+    "G_acceptance": false,
+    "closure_ids": []
   }
 }

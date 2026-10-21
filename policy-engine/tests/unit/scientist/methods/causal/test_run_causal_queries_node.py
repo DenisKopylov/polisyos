@@ -2,11 +2,7 @@ from __future__ import annotations
 
 import logging
 
-import pytest
-
 from polisyos.core.artifacts import ensure_ir_artifact_store as _ensure_ir_artifact_store
-from polisyos.core.artifacts.manifest import SchemaInfo
-from polisyos.core.artifacts.store import PutOptions
 from polisyos.core.registry import build_default_registry_bundle
 from polisyos.core.run.context import RunContext
 from polisyos.ir.analytics.causal_graph import CausalEdge, CausalGraphModel, GraphType
@@ -17,7 +13,6 @@ from polisyos.ir.analytics.structural_causal_model import (
     StructuralCausalModelSpec,
     persist_structural_causal_model_spec,
 )
-from polisyos.scientist.compute.job_spec import JobKey, JobResult
 from polisyos.scientist.nodes.builtins.causal.run_causal_queries import RunCausalQueriesNode
 from polisyos.scientist.nodes.builtins.state_keys import (
     ARTIFACT_CAUSAL_ENVELOPE_REF,
@@ -93,67 +88,10 @@ def test_run_causal_queries_node_skips_without_structural_model(tmp_path) -> Non
     assert outcome.status == "skip"
 
 
-def test_run_causal_queries_node_success_persists_artifacts_and_dual_writes(
-    tmp_path,
-    monkeypatch: pytest.MonkeyPatch,
-) -> None:
+def test_run_causal_queries_node_success_persists_artifacts_and_dual_writes(tmp_path) -> None:
     ctx = _build_ctx(tmp_path, run_id="R_query_ok")
     scm_ref = persist_structural_causal_model_spec(
         _ensure_ir_artifact_store(ctx.store), _minimal_scm()
-    )
-
-    method_result_ref = ctx.store.put_json(
-        {"slot": "result"},
-        PutOptions(
-            kind="scientist.method_result.test",
-            media_type="application/json",
-            schema=SchemaInfo(name="test.MethodResult", version="1.0"),
-        ),
-    )
-    method_evidence_ref = ctx.store.put_json(
-        {"slot": "evidence"},
-        PutOptions(
-            kind="scientist.method_evidence.test",
-            media_type="application/json",
-            schema=SchemaInfo(name="test.MethodEvidence", version="1.0"),
-        ),
-    )
-
-    def _fake_run_job(*args, **kwargs):
-        del args, kwargs
-        return JobResult(
-            job_key=JobKey(value="job:test:gcm_query"),
-            final_state={
-                "query_result": {
-                    "query": {
-                        "query_type": "interventional",
-                        "treatment_variable": "X",
-                        "treatment_value": 1.0,
-                        "outcome_variable": "Y",
-                        "condition": {},
-                        "n_samples": 128,
-                        "intervention_spec": None,
-                    },
-                    "result_mean": 0.95,
-                    "result_std": 0.12,
-                    "result_ci": [0.71, 1.20],
-                    "result_distribution": [0.8, 1.0, 1.05],
-                    "computation_time_seconds": 0.01,
-                },
-                "warnings": [],
-            },
-            method_result_ref=method_result_ref,
-            method_evidence_ref=method_evidence_ref,
-            issues=[],
-        )
-
-    monkeypatch.setattr(
-        "polisyos.scientist.nodes.builtins.causal.run_causal_queries.ensure_causal_methods_registered",
-        lambda: None,
-    )
-    monkeypatch.setattr(
-        "polisyos.scientist.nodes.builtins.causal.run_causal_queries.run_job",
-        _fake_run_job,
     )
 
     state = ExperimentState(
@@ -172,7 +110,7 @@ def test_run_causal_queries_node_success_persists_artifacts_and_dual_writes(
     )
 
     outcome = RunCausalQueriesNode().execute(ctx, state)
-    assert outcome.status == "ok"
+    assert outcome.status == "ok", outcome.error
 
     artifacts = outcome.state.artifacts_index
     assert outcome.state.params.get("query_treatment") == "X"

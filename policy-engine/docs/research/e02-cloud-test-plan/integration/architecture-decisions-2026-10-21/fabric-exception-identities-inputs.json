@@ -1,0 +1,148 @@
+{
+  "decision_id": "AD-E02-FABRIC-N818-01",
+  "version": 1,
+  "date": "2026-10-21",
+  "architecture_selection": "selected_by_G",
+  "decision_issuer": "G, architecture task explicitly commissioned by the user",
+  "human_repository_review": "not_asserted",
+  "code_acceptance": false,
+  "closure_ids": [],
+  "question": {
+    "commit": "880c238d834fa311195f40dcd50c627b0a719b9a",
+    "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/decisions/g-choice-fabric-seven-exception-identities-20261021.md"
+  },
+  "source_frame": {
+    "census_base": "9743742e164c57503f4c8c68f308bc4f29973661",
+    "census_base_tree": "13e9eae12c80f70efb12fe906ea29949d7c4b260",
+    "candidate_named_by_question": "5665d541353fd6cb2be368f94446551e1dfccb2e",
+    "implementation_head_observed_read_only": "beb180fb37079b563b257b5f3855422034a9c042",
+    "G_documentation_base": "ab0b2dc0532fb05b3d3693399bb4323cbe0e0a50",
+    "G_and_question_ancestry": "neither is ancestor of the other; do not infer temporal code changes"
+  },
+  "symbols": [
+    {
+      "path": "policy-engine/src/polisyos/fabric/connectors/testing/contracts.py",
+      "module": "polisyos.fabric.connectors.testing.contracts",
+      "class": "ContractViolation",
+      "definition_blob": "e40917e32f6d840cc27a032b75b59a22254f278b",
+      "rule": "N818",
+      "selection": "preserve_existing_definition"
+    },
+    {
+      "path": "policy-engine/src/polisyos/fabric/data_plane/cursor_store.py",
+      "module": "polisyos.fabric.data_plane.cursor_store",
+      "class": "CursorStoreConflict",
+      "definition_blob": "45ca5c1b4de2aeb3aea1dd43778df73f0d4d535e",
+      "rule": "N818",
+      "selection": "preserve_existing_definition"
+    },
+    {
+      "path": "policy-engine/src/polisyos/fabric/data_plane/streaming.py",
+      "module": "polisyos.fabric.data_plane.streaming",
+      "class": "StreamDedupeUnsupported",
+      "definition_blob": "bdfa8cb767963d7d75b4da8ed8fd13c632b24238",
+      "rule": "N818",
+      "selection": "preserve_existing_definition"
+    },
+    {
+      "path": "policy-engine/src/polisyos/fabric/world/materialize/errors.py",
+      "module": "polisyos.fabric.world.materialize.errors",
+      "class": "WorldSegmentHashMismatch",
+      "definition_blob": "a60fd206403122d9a4cca887759507a636427a3a",
+      "rule": "N818",
+      "selection": "preserve_existing_definition"
+    },
+    {
+      "path": "policy-engine/src/polisyos/fabric/world/materialize/errors.py",
+      "module": "polisyos.fabric.world.materialize.errors",
+      "class": "WorldMergeConflict",
+      "definition_blob": "a60fd206403122d9a4cca887759507a636427a3a",
+      "rule": "N818",
+      "selection": "preserve_existing_definition"
+    },
+    {
+      "path": "policy-engine/src/polisyos/fabric/world/materialize/errors.py",
+      "module": "polisyos.fabric.world.materialize.errors",
+      "class": "WorldKuzuNotAvailable",
+      "definition_blob": "a60fd206403122d9a4cca887759507a636427a3a",
+      "rule": "N818",
+      "selection": "preserve_existing_definition"
+    },
+    {
+      "path": "policy-engine/src/polisyos/fabric/world/write.py",
+      "module": "polisyos.fabric.world.write",
+      "class": "WorldSnapshotBackendUnavailable",
+      "definition_blob": "66557ea6eb762b983f21fec55c4133d08eeeb0cd",
+      "rule": "N818",
+      "selection": "preserve_existing_definition"
+    }
+  ],
+  "evidence": [
+    {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/fabric-cross-module-native-typing-20261021-r1/n818-complete-306-results.json",
+      "sha256": "b0be288fad2f8ba274c4035bbc2eaff229a4c7b5bbb6234ef03e70848f8fcb2a",
+      "custody": "existing ignored evidence in implementation checkout; not copied"
+    },
+    {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/fabric-cross-module-native-typing-20261021-r1/n818-runtime-identity.stdout.json",
+      "sha256": "72e625f2737db865a20067959f5c7e9502a1bdfd2c9fc359f8bf9fe6e7ae5b97",
+      "custody": "existing ignored evidence in implementation checkout; not copied"
+    },
+    {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/fabric-cross-module-native-typing-20261021-r1/n818-source-test-reference-census.json",
+      "sha256": "06c89e7aaf0c6640f19dd2432b5a123c340004f5ea3e239c1b2685fd2bfa1878",
+      "custody": "existing ignored evidence in implementation checkout; not copied"
+    },
+    {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/fabric-cross-module-native-typing-20261021-r1/n818-seven-class-decision-packet.md",
+      "sha256": "b11f9aa0701c05b3f612ccb302bd84db794c167b919c8bc64c163f91d560c6df",
+      "custody": "existing ignored evidence in implementation checkout; not copied"
+    },
+    {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/fabric-cross-module-native-typing-20261021-r1/n818-seven-symbols-narrow-exception-proposal.unapplied.patch",
+      "sha256": "8c4a7dc2705415d88a4164cd350e4bc4fb8db9b052c777a35b80c4f90a113df9",
+      "custody": "existing ignored evidence in implementation checkout; not copied"
+    },
+    {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/fabric-ruff-native-repair-20261021-r1/candidate-source-inputs.json",
+      "sha256": "a2bbaec6d94ca856a5ebba9ef25534138406df4dd1fe9efadc1650444e1daa1d",
+      "custody": "existing ignored evidence in implementation checkout; not copied"
+    },
+    {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/native-exception-debt-20261021-r1/actual-v2/strict-per-file-ignores.json",
+      "sha256": "452d72d5ddef27f38c009e8c38a2549607d414d02448c5683f63dcc8db9a2d5e",
+      "custody": "existing ignored evidence in implementation checkout; not copied"
+    }
+  ],
+  "lightweight_review": {
+    "source_executed": false,
+    "runtime_imports": false,
+    "tests_lint_builds_installs": false,
+    "evidence_hashes_checked": true,
+    "raw_runtime_identity_format": "seven JSON Lines records, despite .json suffix",
+    "census_diagnostics": 7,
+    "unique_named_definitions": 7,
+    "definition_files": 5,
+    "tracked_base_fabric_python_paths": 306,
+    "inventory_path_set_matches_full_base_fabric_python_set": true,
+    "current_candidate_must_reenumerate": true,
+    "product_PASS_claimed": false
+  },
+  "critical_review": {
+    "direct_read_only_reviewers": [
+      "n818_policy",
+      "n818_compat",
+      "n818_skeptic"
+    ],
+    "root_dispositions": [
+      "Preserve seven definitions without declaring every deep import public-stable.",
+      "Amend proposed bare noqa with ADR-style rationale.",
+      "Remove only N818 from broad Fabric source fragment and regenerate; keep other ignores unchanged.",
+      "Separate native strict scan from default effective config; require raw diagnostics and canary.",
+      "Correct reviewer chronology: divergent G branch is not a later candidate.",
+      "G architecture selection is distinct from human code approval and finding closure."
+    ]
+  },
+  "implementation_evidence": "UNRUN; see decision section 6",
+  "publication_scope": "documentation only; no source, lint config or system-design-decisions changes"
+}

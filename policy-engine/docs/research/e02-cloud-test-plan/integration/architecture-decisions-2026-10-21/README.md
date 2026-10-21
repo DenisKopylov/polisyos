@@ -1,4 +1,4 @@
-# E02: решения G по HTE, CAN и текущей неопределённости
+# E02: решения G по HTE, CAN, текущей неопределённости и Fabric exceptions
 
 Дата: 21 октября 2026. **Финальный архитектурный выбор для реализации.** `architecture_selection=selected_by_G`; `code_acceptance=false`; `closure_ids=[]`. Этот пакет не является новой ратификацией system-design-decisions и не меняет принятые [AD01–03](../architecture-decisions-2026-10-20/06-final-decisions-and-solo-review.md).
 
@@ -7,6 +7,9 @@
 | [AD04 — HTE](04-hte-point-and-inference.md) | Один versioned outcome: рассчитанная точка, точка с обоснованным в своей границе интервалом, либо отказ. Native интервал привязан к точным evaluation rows и попытке; неподтверждённый fallback исключён из нового пути | Population-ATE coverage, causal identification, post-selection validity, calibration и publication authority |
 | [AD05 — CAN / LA-021-1](05-canonical-profile-and-context.md) | Общая канонизация и хэширование при строгой семантике конкретного Core/IR reader; никаких переписываний CAS и автоматического расширения IR tags | Producer attestation, наличие raw profile по одному digest, currentness или универсальная взаимозаменяемость facades |
 | [AD06 — B161](06-current-scoped-uncertainty.md) | Отдельная текущая проекция; конкретное первое уточнение `unassessed→assessed` на одном frozen basis. История и другие ограничения сохраняются | Универсальное снижение уже измеренного риска, независимость источников или превращение routing score в вероятность |
+| [AD-E02-FABRIC-N818-01](09-fabric-exception-identities.md) | Сохранить семь exception definitions; точечные N818 annotations с обоснованием и удаление только N818 из общего Fabric-ignore с generated companions | Новая public-stable классификация deep imports, human code approval, lint/runtime PASS или finding closure |
+
+Для вопроса `880c238d` исполнитель использует отдельный [N818 implementation scope и acceptance](09-fabric-exception-identities.md) и [source-qualified receipt](fabric-exception-identities-inputs.json). Это дополнительное узкое решение; оно не пересматривает AD01–06. Старый seven-line patch требует config companion: без него общий ignore скрывает новые нарушения и может конфликтовать с RUF100.
 
 В AD04 **интервал backend для среднего по выбранным строкам** и **обоснованный population interval** — разные утверждения. Первый можно честно хранить и показывать с условиями, даже когда второе недоступно. В AD06 отсутствие оценки — отдельное состояние, а не численный риск 1.0. Это позволяет реализовать полезную работу, не объявляя недостающие основания существующими.
 

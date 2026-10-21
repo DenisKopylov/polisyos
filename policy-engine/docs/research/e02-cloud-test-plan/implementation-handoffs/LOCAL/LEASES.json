@@ -49287,5 +49287,68 @@
     "source_profile_freeze": false,
     "G_acceptance": false,
     "closure_ids": []
+  },
+  "root-ad05-can168-qualified-receipt-adoption-20261021-r1": {
+    "slice_base": "52f2af8900c6f1ec94d45905fc70db802f8257a8",
+    "canonical_writer": "root only; reviewed present patch, retired exact originals through native Trash",
+    "mechanism_and_mandatory_companion_paths": {
+      "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/ad05-can-shared-core-ir-runtime-20261021.json": {
+        "operation": "create",
+        "mode": "100644",
+        "preimage_sha256": null,
+        "postimage_path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/root-ad05-can168-qualified-receipt-input-20261021-r1/ad05-can-shared-core-ir-runtime-20261021.json",
+        "postimage_sha256": "a360d2a540f95c14146877e8d1d51f203251a29d376f4d4a7bed087f1a5ed3fc",
+        "postimage_bytes": 12618
+      }
+    },
+    "application": {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/root-ad05-can168-qualified-receipt-adoption-20261021-r1/source-application.json",
+      "sha256": "5065f4d398bd349eff43ccdccb977f06f4a0fe18834ce90aa617b59ef9504219"
+    },
+    "native_trash_receipt": {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/root-ad05-can168-qualified-receipt-adoption-20261021-r1/native-trash-receipt.json",
+      "sha256": "057f81b6e161c37eaec854c352b59148420f1f1711163b9005834b723e193dcf"
+    },
+    "reviewed_inputs": [
+      {
+        "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/independent-root-can5-actual-review-20261021-r1/review.json",
+        "sha256": "c344ad227198e50778c5ac0f81c9997f1d9e135a9fc2ec54e15e490f4275f938"
+      },
+      {
+        "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/root-can-core-ir-five-whole-815dccc57937-20261021-r1/request.json",
+        "sha256": "5d82c55c2aeb75c8318d50e03d3801e36336e4d25469acd96f3df93b6f1fd79a"
+      },
+      {
+        "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/root-can-core-ir-five-whole-815dccc57937-20261021-r1/actual/result.json",
+        "sha256": "c2ed91f0f60b1aee920231f5ab4c9929dcedf24f1588b831d8bb4d594517a1bf"
+      },
+      {
+        "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/root-r12-core-protocol-mro-source-adoption-20261021-r1/implementation-readback.json",
+        "sha256": "cc8b2ee4e26a9ab1aa97f83bef6c94854a1a4051648f02ea86a2bfef940cf3ba"
+      }
+    ],
+    "owned_applied_provenance": null,
+    "preserved_other_owned_rows": {},
+    "preserved_other_owned_provenance": null,
+    "preserved_other_owned_tracked_paths": [],
+    "preserved_other_owned_untracked_paths": [],
+    "preserved_other_owned_unchanged_before_after": true,
+    "P40": {
+      "bucket": "evidence strength and exact source-provenance class",
+      "action": "Actual5/168denominator, explicitHTTP/history/backend UNRUN, no automatic closures."
+    },
+    "bounded_proof": "Independentc344adreview reconciles actualcollection/allphases/origins/plugins/sources; root rechecks counts/pins; receipt separatefromimplementation.",
+    "limitations": [
+      "Exact815dsource/profile and actualfive-module replay only; no later-source/global acceptance claim.",
+      "Three CANHTTP modules, predictive diagnostic and If-Modified-Since controls, and authentic profileless history rollout remain UNRUN/unestablished.",
+      "R12 attempts atbd55/52082 failed beforecollection with0cases. MRO independently repaired later at52f2; actualwhole13retry pending.",
+      "Linux DoWhy/GCM, S3/GCS bounded owners, native HTE inference, Search first assessment, production currentness, generated/installed/archive-wheel and full native/SOTA are not established here.",
+      "No task PASS implies closure of any of282findings/291occurrences."
+    ],
+    "runtime": "UNRUN on adopted source",
+    "next_check": "Run currentRuntime13 plus CANHTTP3 fullmodules afterprotocolrepair, actualconditional/removal controls and realhistory/installed/native consumers under source/input/backend freeze.",
+    "source_profile_freeze": false,
+    "G_acceptance": false,
+    "closure_ids": []
   }
 }

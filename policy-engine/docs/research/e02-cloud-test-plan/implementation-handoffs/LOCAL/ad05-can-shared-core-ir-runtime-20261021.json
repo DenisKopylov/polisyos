@@ -1,0 +1,205 @@
+{
+  "schema": "policyos.e02.source_bound_capability_replay_receipt.v1",
+  "slice": "AD05 shared mechanics, separate Core/IR profile law, local bounded owner/cache consumers",
+  "source": {
+    "candidate": "815dccc57937896029e6e1e3980393e8a87caef6",
+    "tree": "8b1d2b3f0eb8f4a2abacc50f471a5ea486a94138",
+    "parents": [
+      "52082e7adf58708c0adf12a4570fad184d3efcde"
+    ],
+    "branch": "codex/e02-unified-local-20261009"
+  },
+  "source_implementation": {
+    "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/root-ad05-can-ds17-reviewed-source-composition-20261021-r1/implementation-readback.json",
+    "sha256": "375e92b2c0b7a8d73e1266648183c4bde6e20e450eada4afd76db497844389b7"
+  },
+  "full_code_test_config_companion_footprint": {
+    "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/ad05-can-canonical-reader-context-20261021-r3/source-freeze.json",
+    "sha256": "138c5ac1fb4e8904c9b53c8133b7f1952d5b30cb9aa62015d457e9fdbd2e00c0"
+  },
+  "footprint_scope": "All24CAN paths/preimage/postimage/mode records in source-freeze.json; Runtime implementation readback also includes independently adopted4DS17paths, whose behavior is not proved by this replay.",
+  "selected_input_profile_backend": {
+    "backend_note": "Existing macOS CPython 3.14.3 local venv; EconML 0.17.0 is installed among 304 distribution records. No dependency installation or mutation. Preserve actual whole-suite skips. Linux CPython 3.12 DoWhy/GCM positive remains separate UNRUN; this local run is not backend-complete.",
+    "backend_scope": "Existing macOS CPython 3.14.3 local locked venv with EconML 0.17.0; no install or environment mutation. Linux CPython 3.12 DoWhy/GCM positive remains separate UNRUN work. Existing selected modules run unfiltered; preserve actual skips and reasons.",
+    "default_plugins": "Preserve pytest default plugin autoload and the same A94/R10 capture plugin path. No inherited nonempty PYTEST_* variables are accepted; empty values are recorded only.",
+    "historical_result_boundary": "The earlier 16-module run was 152 PASS / 82 FAIL / 2 SKIP / 0 ERROR; it is source-bound historical evidence, not acceptance of this later composition.",
+    "input_profile_fingerprint": {
+      "python_environment": {
+        "distribution_count": 304,
+        "executable": "/Users/deniskopylov/.codex/worktrees/e02-unified-local-20261009/polisyos/policy-engine/.venv/bin/python",
+        "packages": {
+          "anyio": "4.12.0",
+          "dowhy": null,
+          "econml": "0.17.0",
+          "hypothesis": "6.151.2",
+          "networkx": "3.6.1",
+          "numpy": "2.3.5",
+          "pandas": "2.3.3",
+          "pytest": "9.0.2",
+          "pytest-asyncio": "1.3.0",
+          "pytest-benchmark": "5.2.3",
+          "pywhy-graphs": null,
+          "scikit-learn": "1.8.0",
+          "scipy": "1.16.3",
+          "statsmodels": "0.14.6"
+        },
+        "prefix": "/Users/deniskopylov/.codex/worktrees/e02-unified-local-20261009/polisyos/policy-engine/.venv",
+        "python": "3.14.3 (main, Feb 12 2026, 00:29:58) [Clang 21.1.4 ]"
+      },
+      "uv_lock_sha256": "484dfe164235ea48164c8bf1b33190b3a25dd883c667a41e8a25b07bf5c5df3c",
+      "venv_pyvenv_cfg_sha256": "1eaa0e4e4be4b02929ffdec9fc56fea39faecd1c3d04bf1edad29a62549c5046"
+    },
+    "installed_distribution_count": 304,
+    "pytest_config": {
+      "pyproject": "policy-engine/pyproject.toml",
+      "pytest_ini": "policy-engine/pytest.ini",
+      "uv_lock": "policy-engine/uv.lock"
+    },
+    "pytest_environment_checked": {},
+    "python_environment": {
+      "distribution_count": 304,
+      "executable": "/Users/deniskopylov/.codex/worktrees/e02-unified-local-20261009/polisyos/policy-engine/.venv/bin/python",
+      "packages": {
+        "anyio": "4.12.0",
+        "dowhy": null,
+        "econml": "0.17.0",
+        "hypothesis": "6.151.2",
+        "networkx": "3.6.1",
+        "numpy": "2.3.5",
+        "pandas": "2.3.3",
+        "pytest": "9.0.2",
+        "pytest-asyncio": "1.3.0",
+        "pytest-benchmark": "5.2.3",
+        "pywhy-graphs": null,
+        "scikit-learn": "1.8.0",
+        "scipy": "1.16.3",
+        "statsmodels": "0.14.6"
+      },
+      "prefix": "/Users/deniskopylov/.codex/worktrees/e02-unified-local-20261009/polisyos/policy-engine/.venv",
+      "python": "3.14.3 (main, Feb 12 2026, 00:29:58) [Clang 21.1.4 ]"
+    }
+  },
+  "request": {
+    "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/root-can-core-ir-five-whole-815dccc57937-20261021-r1/request.json",
+    "sha256": "5d82c55c2aeb75c8318d50e03d3801e36336e4d25469acd96f3df93b6f1fd79a"
+  },
+  "executor": {
+    "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/root-existing-pytest-bounded-executor-20261020-r1/run.py",
+    "sha256": "f264277d3e45f6ccb372d8c167c61fac47a45830beea9b6e3653efecadb0a53e"
+  },
+  "supervisor": {
+    "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/root-postfix-709-q2-helper-actual-20261018/supervise.py",
+    "sha256": "a94a662308270ba3aca96c1d9c75e53a05e37a923a6188d0f464f8ac1e90909e"
+  },
+  "full_command_environment": {
+    "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/root-can-core-ir-five-whole-815dccc57937-20261021-r1/actual/invocation.json",
+    "sha256": "f1f64afba5038ccc0159834c17e5cabd4e7401442201e9492aad9790a0f9bcde"
+  },
+  "full_deciding_outputs": {
+    "result.json": {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/root-can-core-ir-five-whole-815dccc57937-20261021-r1/actual/result.json",
+      "sha256": "c2ed91f0f60b1aee920231f5ab4c9929dcedf24f1588b831d8bb4d594517a1bf"
+    },
+    "pytest.stdout.txt": {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/root-can-core-ir-five-whole-815dccc57937-20261021-r1/actual/pytest.stdout.txt",
+      "sha256": "c60c42e562adbe44694b21b71dee5401498a24b37a2131d7a72f6d531c6bbad5"
+    },
+    "pytest.stderr.txt": {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/root-can-core-ir-five-whole-815dccc57937-20261021-r1/actual/pytest.stderr.txt",
+      "sha256": "f6f27d6ae9fde2dfcb037c59f77821e563dfc65d4d9a1b407d3494904ed31fdc"
+    },
+    "pytest.xml": {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/root-can-core-ir-five-whole-815dccc57937-20261021-r1/actual/pytest.xml",
+      "sha256": "732653e71d01edd8079636fffcabc28496e2a67be01476fb6cd818ab6d7c054e"
+    },
+    "collection.json": {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/root-can-core-ir-five-whole-815dccc57937-20261021-r1/actual/collection.json",
+      "sha256": "e53adac891a70f64ebdf17f22ce33c9fa1fc525d160c6e93c0024161dbb93db9"
+    },
+    "cases.jsonl": {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/root-can-core-ir-five-whole-815dccc57937-20261021-r1/actual/cases.jsonl",
+      "sha256": "de9c14db5aa68b401ba9896f1859c894da0f3a9a3e17763701c1da78d0913746"
+    },
+    "origins.json": {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/root-can-core-ir-five-whole-815dccc57937-20261021-r1/actual/origins.json",
+      "sha256": "dbaf777e12071f22ac2eb7f819eb938b47b89cebc47496b5ac5d22a1d8376de3"
+    },
+    "controller-events.jsonl": {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/root-can-core-ir-five-whole-815dccc57937-20261021-r1/actual/controller-events.jsonl",
+      "sha256": "4407edf581843fde78ee7fc78de6f3a14ad7c9b6ddbb29048e4af8326be2ecab"
+    },
+    "phase-output.jsonl": {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/root-can-core-ir-five-whole-815dccc57937-20261021-r1/actual/phase-output.jsonl",
+      "sha256": "1bbd6c28e1b5378c992d926a3cf82675c4ab36ffcfbb91a2489bcb76d50167a3"
+    },
+    "process-tree.jsonl": {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/root-can-core-ir-five-whole-815dccc57937-20261021-r1/actual/process-tree.jsonl",
+      "sha256": "6ba3a664d8b6105f0802608e29162908a72a46d384f8158f0c76b26724494dce"
+    },
+    "source-before.json": {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/root-can-core-ir-five-whole-815dccc57937-20261021-r1/actual/source-before.json",
+      "sha256": "aae45cd828f5406e4e2b7115d8b95bfa0a9a8a12a56e7290bcd476772a025f28"
+    },
+    "source-after.json": {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/root-can-core-ir-five-whole-815dccc57937-20261021-r1/actual/source-after.json",
+      "sha256": "aae45cd828f5406e4e2b7115d8b95bfa0a9a8a12a56e7290bcd476772a025f28"
+    }
+  },
+  "outcomes": {
+    "complete_modules": 5,
+    "collected": 168,
+    "call_count": 168,
+    "PASS": 168,
+    "FAIL": 0,
+    "ERROR": 0,
+    "SKIP": 0,
+    "passed_setup_call_teardown_rows": 504,
+    "counts_by_module": {
+      "tests/unit/common/test_canonical_profile.py": 8,
+      "tests/unit/core/artifacts/backends/test_caching_store.py": 39,
+      "tests/unit/core/artifacts/test_bounded_core_json_artifact.py": 61,
+      "tests/unit/core/artifacts/test_selected_profile_core_json.py": 47,
+      "tests/unit/ir/test_canon_hardening.py": 13
+    },
+    "source_before_after_equal": true,
+    "calls_equal_collection": true,
+    "sampled_child_tree_rss_bytes": 699711488,
+    "wall_seconds": 11.221526958979666,
+    "minimum_disk_free_bytes": 10011549696,
+    "process_group_reaped": true
+  },
+  "independent_actual_review": {
+    "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/independent-root-can5-actual-review-20261021-r1/review.json",
+    "sha256": "c344ad227198e50778c5ac0f81c9997f1d9e135a9fc2ec54e15e490f4275f938"
+  },
+  "independent_source_review": {
+    "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/independent-ad05-can-r3-conditional-gate-delta-review-20261021-r1/review.json",
+    "sha256": "88e6e8e5373710f6716b3afca311f88816228a6cb39ec919d07e6897c22b0b05"
+  },
+  "real_chain": "Actual test inputs -> shared mechanical codec/separate Core and IR canonical policies -> LocalFS-CAS persisted bytes/raw manifest -> owner-bounded default/exact profile reader and durable-cache bridge -> typed Core/IR consumers. All exact cases and outcomes in retained case reports.",
+  "adversarial_and_removal_controls": "Full modules exercise present-null/malformed/unknown/raw-profile conformance; Core/IR tags; exact profile with no fallback; preallocation bounds and removal-sensitive reader checks; durable cache owner; typed schema checks and stable fixture CAS hashes. Independent review identifies substantive cases and their explicit boundaries.",
+  "consumer_surface": {
+    "established": "Five complete local shared/Core/IR semantic consumer modules.",
+    "HTTP_API_UI": "UNRUN by this receipt.",
+    "profileless_history": "Candidate-inspection source boundary; historical consumer runtime rollout unestablished."
+  },
+  "warnings": [
+    "Complete Hypothesis and joblib warnings retained in stdout. Joblib sandbox Operation not permitted caused serial fallback; this is not native inference/resource qualification."
+  ],
+  "limitations": [
+    "Exact815dsource/profile and actualfive-module replay only; no later-source/global acceptance claim.",
+    "Three CANHTTP modules, predictive diagnostic and If-Modified-Since controls, and authentic profileless history rollout remain UNRUN/unestablished.",
+    "R12 attempts atbd55/52082 failed beforecollection with0cases. MRO independently repaired later at52f2; actualwhole13retry pending.",
+    "Linux DoWhy/GCM, S3/GCS bounded owners, native HTE inference, Search first assessment, production currentness, generated/installed/archive-wheel and full native/SOTA are not established here.",
+    "No task PASS implies closure of any of282findings/291occurrences."
+  ],
+  "proposals": {
+    "kind": "bounded_evidence_only",
+    "ids_proposed_closed": [],
+    "formal_G_closures": [],
+    "next_check": "Run currentRuntime13 plus CANHTTP3 fullmodules afterprotocolrepair, actualconditional/removal controls and realhistory/installed/native consumers under source/input/backend freeze."
+  },
+  "source_freeze": false,
+  "G_acceptance": false,
+  "closure_ids": []
+}

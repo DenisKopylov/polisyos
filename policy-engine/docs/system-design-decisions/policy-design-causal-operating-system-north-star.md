@@ -165,3 +165,68 @@ horizon but the second half of the identity. The decades-scale horizon (a policy
 institutions — fleets, portfolios, interagency reliance) is reached by institutional
 **adoption** of this custodial core, never by building an ERP. Scope adjudication:
 `policyos-identity-and-custody-boundary.md`.
+
+## Adopted reading clarification — 2026-10-21 (SDD-B01)
+
+Approved by the human principal on G’s 2026-10-20 proposal. The
+[decision record](../research/universal-policy-design/system-design-review-20261020/03-adoption-20261021.md)
+records the options, scope, costs and revisit triggers. This scoped adoption does
+not promote the standing of other sections or certify runtime implementation.
+
+This dated clarification preserves the historical strategic frame above. It does
+not ratify a new runtime contract or certify implementation.
+
+- In §2, a singular world-model reference need not mean a single certain causal
+  structure. The CGF §3 and search target already admit credal/set-valued
+  references and competing admissible completions. Reuse those targets.
+- In §3, `do()` is a model-side intervention. An institutional lever requires a
+  separately grounded implementation relation, capacity, take-up/compliance,
+  and relevant strategic responses. PolicyOS owns its scoped prediction and
+  justification, not the external act or its execution (identity boundary).
+- In §5, required versus available data is one part of required versus available
+  grounds. W5-K01 also distinguishes relations, estimands, mandate, capacity,
+  licence, authority and assurance. More observations cannot substitute for
+  these objects. The size of a data gap is task-relative, not necessarily
+  positive for every bounded task.
+- In §7, grounding is claim-type-specific: causal effects and asserted causal
+  relations require causal grounds; measurement claims require construct and
+  method grounds; value choices require a declared frame and, for use on behalf
+  of a principal, the applicable mandate. Causal identification cannot prove a
+  political objective. Hypothetical value frames remain usable for explicit
+  conditional candidate analysis under S0-K06.
+
+Discriminator for future implementation: retain the same observation, trace,
+model fit and source signature while falsifying the claimed semantic relation;
+authority must not survive on those proxies. Conversely, an explicitly
+hypothetical value frame must remain available for exploration without being
+published as the principal's choice. No such test was run for this clarification.
+
+## Adopted target extensions — 2026-10-21 (SDD-C01/C02)
+
+Approved by the human principal on G’s 2026-10-20 proposal. The
+[decision record](../research/universal-policy-design/system-design-review-20261020/03-adoption-20261021.md)
+records the options, scope, costs and revisit triggers. This scoped adoption does
+not promote the standing of other sections or certify runtime implementation.
+
+C01 and C02 below are adopted changes to the target wording of §§4/6/8.
+They qualify those historical passages without erasing them. Both choices were
+explicitly approved on 2026-10-21; implementation admission remains separate.
+
+**C01 — joint evaluation witness.** Retain the whole-design joint evaluation
+obligation in §§4/8. In addition to simulation, allow an exact joint derivation
+or another validated joint witness to establish the concrete property it
+actually proves. This is not permission to replace joint analysis by pairwise
+checks or sums of marginal effects. Neither mathematical exactness nor simulation
+establishes the empirical truth of the model; grounding and implementation
+obligations remain separate. Cost: each alternative needs an explicit property,
+assumptions, consumer and falsifier. Revisit if a shortcut omits an interaction.
+
+**C02 — inference plurality.** Retain Bayesian confirmatory updates as a supported
+target, while permitting explicitly justified frequentist, sequential, robust
+or partial-identification profiles for the proposition they support. Do not
+silently mix posterior probability, coverage, identification sets and procedural
+no-number claims. This expands the wording of §6; it does not appoint a method
+owner or authorize posterior mutation. W5-K03 diagnosis/admission and current
+profile-specific obligations still apply. Cost: inference semantics and bridges
+must be qualified per method. Revisit if changing methods changes the estimand
+or the claimed guarantee without being exposed.

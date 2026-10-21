@@ -1057,3 +1057,37 @@ Accepted ADRs:
 Deferred ADR candidates:
 
 - ADR: diagnostic supply-chain signing policy beyond the attestation baseline.
+
+## Adopted custody and learning cross-reference — 2026-10-21 (SDD-B06)
+
+Approved by the human principal on G’s 2026-10-20 proposal. The
+[decision record](../research/universal-policy-design/system-design-review-20261020/03-adoption-20261021.md)
+records the options, scope, costs and revisit triggers. This scoped adoption does
+not promote the standing of other sections or certify runtime implementation.
+
+Accepted ADR-0147-0155 remain the architectural core. Read the historical open
+questions alongside decision-log DL-HDS-0009-0016; retired implementation
+questions are not automatically live architecture blockers.
+
+Under S0-K06, fail-closed protects authority admission, protected actions,
+published claims and custody facts. Candidate/shadow work may carry declared
+unknowns without promotion. External institutions own their acts; PolicyOS owns
+its evidence intake and scoped claim reaction.
+
+Runtime events, CAS identity, traces and attestations prove their stated
+provenance/execution properties, not the substantive truth of every payload.
+Existing semantic/claim binding must refer to the appropriate grounds: causal
+claims to grounding/identification, measurement to construct/method, normative
+choices to their purpose and mandate. No second grounds registry is implied.
+CTM supplies owner-native time roles and replay coordinates; a generic event
+clock or `as_of` cannot replace them.
+
+Failure lessons are one memory stream. ADR-0172 also covers successes and
+opportunities, retained with scope and version; their reuse influences search
+but does not admit a new claim. W5-K03 freezes causal updating while diagnosis
+remains unresolved. An exploratory anomaly cannot be relabelled as confirmed
+effect, and a protective response is not evidence of its proposed cause.
+
+Future discriminator: a correct trace attached to the wrong semantic basis does
+not grant claim authority; a valid scoped success can inform exploration without
+being laundered into new empirical evidence. No implementation tests were run.

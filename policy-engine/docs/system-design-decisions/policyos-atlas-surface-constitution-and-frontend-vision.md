@@ -602,3 +602,34 @@ This decision can move toward ADR extraction when:
 8. At least one surface closes a real `surface_missing` or
    `implemented_but_not_orchestrated` capability link without weakening the
    runtime authority boundary.
+
+## Adopted surface re-derivation note — 2026-10-21 (SDD-B07)
+
+Approved by the human principal on G’s 2026-10-20 proposal. The
+[decision record](../research/universal-policy-design/system-design-review-20261020/03-adoption-20261021.md)
+records the options, scope, costs and revisit triggers. This scoped adoption does
+not promote the standing of other sections or certify runtime implementation.
+
+The full-ground detail requirement below is an adopted extension of this
+derived surface draft, approved on 2026-10-21. The surrounding draft is not
+ratified by that scoped decision. The historical 2026-06-10 snapshot is not a current
+runtime survey. Changes to the ratified identity boundary, S0, INT, PV, CTM and
+later amendments require re-deriving affected authority/time/audience projections;
+this appendix does not silently refresh the old implementation snapshot.
+
+Keep runtime authority, interaction state and capability-reality/readiness as
+separate axes. A surface readiness label cannot promote a claim. The board's
+single weakest-link summary may stay concise; the authorized expert/MACHINE
+case detail must preserve the full required grounds and material countergrounds,
+limitations and alternative design branches under their actual standing. Public
+projection remains subject to PV disclosure constraints, not unrestricted detail.
+
+Candidate designs may be rich and useful while visibly candidate. Rendering
+quality, source count or completed UI must not fill approval/publication slots.
+Show method/value/assumption-sensitive comparisons rather than hiding disagreement
+behind a single score. Reuse existing claim/portfolio/design projections.
+
+Future discriminator: a mixed grounded/contested/candidate case retains its
+runtime disposition; the detail reveals material dependencies; the public view
+neither launders authority nor leaks protected basis/search metadata. No UI or
+runtime check was performed for this note.

@@ -1,12 +1,14 @@
 ---
 title: PolicyOS — System Synthesis and the Lifecycle of External Foundations
-status: research synthesis; optional SDD placement not approved
+status: research synthesis; retained in research by the 2026-10-21 decision
 created: 2026-10-20
-decision_status: recommend retaining in research; SDD placement requires explicit user approval; no new ratification
+decision_status: retain in research; approved owner-document changes recorded separately on 2026-10-21; no independent governing authority
 supersedes: nothing
 ---
 
 # PolicyOS: единое видение системы и жизненный цикл оснований
+
+Датированное уточнение: [A/B/C приняты 2026-10-21](../03-adoption-20261021.md) в документах-владельцах; этот синтез остаётся исследовательским пояснением.
 
 Этот текст — предлагаемая связующая design note. Он объединяет положительные механизмы проектирования с принятыми границами authority и custody. Он не заменяет исходные решения, не вводит новый subsystem и не устанавливает состояние реализации.
 
@@ -54,7 +56,7 @@ Intent задаёт требуемый эффект, контекст, principal
 
 Интервенционный атом остаётся относительным к model resolution: operator, target-slot, bundle direct effects и declared intended effect; goals остаются отдельным слоем выбора. Model-side `do()` описывает операцию в модели. Реальное изменение требует связи с institutional lever, implementation, take-up/compliance и возможными стратегическими реакциями.
 
-Целый design требует совместного анализа взаимодействий. Pairwise consistency и сумма локальных эффектов не доказывают whole-design validity. Simulation — важный выбранный механизм исследования этих взаимодействий. **Отдельное предложение C01, ещё не принятое:** разрешить точный совместный расчёт или иной валидированный joint witness для конкретного свойства вместо обязательного simulation witness. Это не разрешает пропустить joint evaluation. Ни simulation, ни математическая композиция сами не подтверждают эмпирическую истинность используемой модели. Научная, правовая и implementation применимость остаются отдельными обязанностями.
+Целый design требует совместного анализа взаимодействий. Pairwise consistency и сумма локальных эффектов не доказывают whole-design validity. Simulation — важный выбранный механизм исследования этих взаимодействий. **Принятое уточнение C01 (2026-10-21):** разрешить точный совместный расчёт или иной валидированный joint witness для конкретного свойства вместо обязательного simulation witness. Это не разрешает пропустить joint evaluation. Ни simulation, ни математическая композиция сами не подтверждают эмпирическую истинность используемой модели. Научная, правовая и implementation применимость остаются отдельными обязанностями.
 
 ## 7. Поиск и приобретение
 
@@ -66,7 +68,7 @@ Eligibility предшествует VOI/ranking. Разрыв может тре
 
 Различаются обучение discovery, применимости методов, эмпирической модели и пониманию институционального/ценностного контекста. У каждого свои сигналы и границы. Неисполненная альтернатива не получает отрицательный outcome; повторное использование одной study не создаёт независимое подтверждение; высокий retrieval score не придаёт source authority.
 
-Confirmatory и exploratory контуры сохраняются. Способ inference/update выбирается по свойству и дизайну; Bayesian posterior — предусмотренный путь, но сам по себе не подтверждает identification, implementation или transfer. INT и credal targets уже допускают разные значения утверждений, включая set-valued и no-number. **Отдельное предложение C02:** расширить формулировку North Star §6 до явно квалифицированных inference/update profiles; принятие этой возможности не авторизует конкретную мутацию posterior и не снимает требований diagnosis/admission.
+Confirmatory и exploratory контуры сохраняются. Способ inference/update выбирается по свойству и дизайну; Bayesian posterior — предусмотренный путь, но сам по себе не подтверждает identification, implementation или transfer. INT и credal targets уже допускают разные значения утверждений, включая set-valued и no-number. **Принятое уточнение C02 (2026-10-21):** расширить формулировку North Star §6 до явно квалифицированных inference/update profiles; принятие этой возможности не авторизует конкретную мутацию posterior и не снимает требований diagnosis/admission.
 
 Аномалия требует диагностики: изменились мир, измерение, исполнение, selection, incentives или модель? `diagnosis_unresolved` не даёт causal update по W5-K03. Защитная реакция может иметь собственное основание, не становясь доказательством причины (W5-K04). Новая информация может сузить прежний вывод; это корректный результат обучения, а не деградация продукта.
 

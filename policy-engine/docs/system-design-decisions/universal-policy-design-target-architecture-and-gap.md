@@ -2703,3 +2703,36 @@ is laundering past success.
 13. Only then write the Layer-2 implementation plan (D5), starting with the MVP
     search loop and canonical Design Record rather than the full control-plane
     wishlist.
+
+## Adopted dated reading reconciliation — 2026-10-21 (SDD-B05)
+
+Approved by the human principal on G’s 2026-10-20 proposal. The
+[decision record](../research/universal-policy-design/system-design-review-20261020/03-adoption-20261021.md)
+records the options, scope, costs and revisit triggers. This scoped adoption does
+not promote the standing of other sections or certify runtime implementation.
+
+This appendix preserves the historical gap map and draft D1-D4 proposals. The
+accepted B-on-A decision does not ratify every draft mechanism or threshold.
+
+- D1's cluster-map Missing row is not a current absence claim: D0 and the later
+  narrow-waist discussion identify the governed cluster map. Artifact existence
+  does not establish a complete capability; use the actual owner and current
+  chain evidence for implementation standing.
+- D3.2 search/control proposals are subordinate to the later accepted Phase-5
+  target and its reuse-first mapping, not permission to build another controller.
+- CouplingGraph/facet expression records a proposed decomposition and relations;
+  it does not prove a causal structure or empirical coupling. CGF and claim
+  evidence obligations still govern the asserted effects.
+- Instrument-family and domain examples are seeds. A conforming new resource
+  should enter through discovery; a genuinely new primitive or verifier may
+  require a declared capability extension. Unknown remains expressible as a
+  candidate rather than silently becoming an unsupported concrete scope.
+- D3.8 promotion of a result and S14's public universality envelope are different
+  claims. D4.2's proposed breadth numbers are not a ratified sufficiency floor.
+- Deployment/custody applies to PolicyOS's claims for as long as their public
+  signature stands. Institutional administration, payment, enforcement and
+  rollback execution remain external functions under the identity boundary.
+
+Future discriminator: a successful small benchmark cannot establish an
+open-world envelope, while a novel candidate must not be refused merely because
+it lies outside that certified envelope. Runtime capability is not audited here.

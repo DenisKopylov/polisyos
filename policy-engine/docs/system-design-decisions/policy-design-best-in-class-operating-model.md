@@ -1408,3 +1408,32 @@ Promote this document to accepted ADRs only when:
 - at least one substrate-critical invariant is specified or model-checked
   outside unit tests;
 - no ADR weakens the existing honest diagnostics substrate invariants.
+
+## Adopted portfolio and applicability clarification — 2026-10-21 (SDD-B03)
+
+Approved by the human principal on G’s 2026-10-20 proposal. The
+[decision record](../research/universal-policy-design/system-design-review-20261020/03-adoption-20261021.md)
+records the options, scope, costs and revisit triggers. This scoped adoption does
+not promote the standing of other sections or certify runtime implementation.
+
+Read §7 with accepted ADR-0160: the obligation concerns major empirical policy
+claims. A confirmatory portfolio is bound to a claim/version before its
+confirmatory lines execute. Exploratory discovery and screening may adapt;
+post-result selection does not become confirmation by later registration.
+Changes must retain their history and use an inference route whose guarantees
+cover the actual selection. Non-empirical claims need their own appropriate
+normative, semantic or institutional grounds, not a pretend empirical portfolio.
+
+The listed minimum record families are a shared vocabulary. Their applicability
+and required maturity follow the intent, claim obligations and authority scope;
+the list is not a closed family/domain allowlist or a requirement to instantiate
+every record for every case. This does not waive an applicable obligation.
+
+Success, failure and opportunity can inform future discovery through ADR-0172;
+reused memory is influence, not current evidence for a new claim. Published
+claims retain the identity decision's lifetime-custody obligations; external
+execution and institutional decisions remain external signatures.
+
+Future discriminator: an exploratory winner cannot be represented as a
+predeclared confirmation; a newly encountered conforming resource must not be
+excluded solely for lacking a family label. No implementation standing changes.

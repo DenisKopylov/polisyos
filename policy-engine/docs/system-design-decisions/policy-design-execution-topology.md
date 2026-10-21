@@ -239,3 +239,32 @@ conditional-DAG step):
 The full type schemas (all 17 Ring-1/Ring-2 contracts), the build tasks, sequencing,
 acceptance gates, and the integration of every Task 0 audit finding are in
 `docs/plans/active/layer3-slices/GY-engine-subordination.md`.
+
+## Adopted promotion and reuse clarification — 2026-10-21 (SDD-B04)
+
+Approved by the human principal on G’s 2026-10-20 proposal. The
+[decision record](../research/universal-policy-design/system-design-review-20261020/03-adoption-20261021.md)
+records the options, scope, costs and revisit triggers. This scoped adoption does
+not promote the standing of other sections or certify runtime implementation.
+
+An applicability/type gate decides whether an operation may run with its named
+inputs. It does not establish that its output supports a policy claim. Ring-2
+promotion requires the claim-specific semantic grounds and verifier evidence
+required by the existing authority profile. Unknown correspondence can remain a
+candidate obligation or a scoped limited exit; type correctness cannot promote
+it. A names the assurance role here, not a universal sovereign adjudicator of
+science, law and values; ADR-0179's relation-specific principles still apply.
+
+In §8, building directly toward the loop does not authorize a parallel
+orchestration subsystem. Reuse the canonical search/orchestration owners,
+adapters, accepted Phase-5 target, ADR-0166 acquisition and ADR-0174 discovery.
+Discovery, execution support and authority admission are separate properties.
+
+A replayable query log proves the recorded search path, not completeness of
+retrieval. Source/index release, omission/selection boundaries, freshness and
+known relevant seed cases belong in bounded search evaluation. This preserves
+organizing Rule 12 without claiming open-world recall.
+
+Future discriminator: a well-typed result with false claim correspondence cannot
+promote; a novel compatible source remains discoverable without per-domain
+allowlisting. No runtime result is asserted by this clarification.

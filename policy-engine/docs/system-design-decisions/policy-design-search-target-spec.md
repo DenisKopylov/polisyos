@@ -177,3 +177,37 @@ Accepted as the target spec for GY Phase 5. The concrete adoption is threaded in
 block, the new `GY-N-V` / `GY-N11` / `GY-N12` tasks, the N4–N9 bar-raises, and the
 Phase-5 deferred list. No code is written from this document directly — it governs the
 shape of the tasks, the same way the causal-OS north-star governs the frame.
+
+## Adopted source-to-claim qualification — 2026-10-21 (SDD-B02)
+
+Approved by the human principal on G’s 2026-10-20 proposal. The
+[decision record](../research/universal-policy-design/system-design-review-20261020/03-adoption-20261021.md)
+records the options, scope, costs and revisit triggers. This scoped adoption does
+not promote the standing of other sections or certify runtime implementation.
+
+The §2 substrate mapping and §3 example identify candidate inputs for credal
+components, not automatic semantic admission. A CI, design tier, transport score,
+record ID or signature does not establish that an estimate constrains the named
+claim. Resolve and content-bind the construct, intervention/comparator, outcome,
+population, estimand, time, method/identification grounds and any transport
+relation needed by that claim. An imported result remains usable within its
+established relation and scope; import alone neither admits nor disqualifies it.
+
+W5-K07/K08 give substitution boundaries. ADR-0179 accepts the correspondence
+meaning principles and distinguishes evidential assessment from a constitutive
+act; its first concrete profiles remain open. This note neither appoints a
+universal adjudicator nor demands a new institutional act for every computable
+relation. Candidate uses may carry declared assumptions; protected positives
+need the applicable relation-specific acceptance grounds and any review
+specifically required by that relation/profile; no universal review office is
+appointed.
+
+The §4 acquisition-family labels describe this search target, not an exhaustive
+source, domain or acquisition-route allowlist. Actual route eligibility follows
+ADR-0166; existing discovery/construct owners follow ADR-0174. Historical target
+mapping is not a present runtime capability census.
+
+Future discriminator: a correctly signed estimate for the wrong population or
+outcome must not narrow the target's world/identification set; a harmless format
+change preserving an established relation must not cause refusal. No runtime
+check was performed in this documentary review.

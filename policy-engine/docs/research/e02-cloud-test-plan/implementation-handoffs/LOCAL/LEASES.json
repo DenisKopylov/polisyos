@@ -50288,5 +50288,71 @@
     "source_profile_freeze": false,
     "G_acceptance": false,
     "closure_ids": []
+  },
+  "root-runtime17-fixture-contract-adoption-20261021-r1": {
+    "slice_base": "bbcbb5e941aa0a642e9f5e44ecf2090d0be7c711",
+    "canonical_writer": "root only; reviewed present patch, retired exact originals through native Trash",
+    "mechanism_and_mandatory_companion_paths": {
+      "policy-engine/tests/unit/scientist/nodes/builtins/decide/test_policy_runtime_method_metrics.py": {
+        "operation": "update",
+        "mode": "100644",
+        "preimage_sha256": "f1e7ce725e7936183d599a1f96ab3351eb266418710d7b3ddd214c8c03d4b7c6",
+        "postimage_path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/root-runtime17-fixture-contract-repair-20261021-r1/postimages/policy-engine/tests/unit/scientist/nodes/builtins/decide/test_policy_runtime_method_metrics.py",
+        "postimage_sha256": "52adc08d4ccc51aec4c0ad2165891fb331d2328879895e3ea8bc93cbc4d36b6c",
+        "postimage_bytes": 85116
+      },
+      "policy-engine/tests/unit/scientist/compute/test_runner_execution_lineage.py": {
+        "operation": "update",
+        "mode": "100644",
+        "preimage_sha256": "4e6c8afc44cd47894b14df7788da3152e161b154fb9f34150627e72b119ad890",
+        "postimage_path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/root-runtime17-fixture-contract-repair-20261021-r1/postimages/policy-engine/tests/unit/scientist/compute/test_runner_execution_lineage.py",
+        "postimage_sha256": "e1383bfa92683ad08e13bfc7791d7d46578b8b36d397dec2d4e42577cc733b79",
+        "postimage_bytes": 28846
+      }
+    },
+    "application": {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/root-runtime17-fixture-contract-adoption-20261021-r1/source-application.json",
+      "sha256": "e072d78deb3a361256c90a91465ba6276f7cb4e4345d0bbc1229382866467970"
+    },
+    "native_trash_receipt": {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/root-runtime17-fixture-contract-adoption-20261021-r1/native-trash-receipt.json",
+      "sha256": "057f81b6e161c37eaec854c352b59148420f1f1711163b9005834b723e193dcf"
+    },
+    "reviewed_inputs": [
+      {
+        "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/root-runtime17-fixture-contract-repair-20261021-r1/manifest.json",
+        "sha256": "af939943307bd0878e23a4f309bc70687a6462bf837f98f90d3f8c3c3cf0da65"
+      },
+      {
+        "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/root-runtime17-fixture-contract-repair-20261021-r1/candidate.patch",
+        "sha256": "a632005c89b431f35ccda56e6c7f755dcfb36dd33d6807e1f086e16b6e6d81ec"
+      },
+      {
+        "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/independent-runtime17-fixture-contract-review-20261021-r1/independent-review.json",
+        "sha256": "b8f32fc97e5a0a25ef90ba0e0a3ebf475c729a92925b1270f5d179b8ee323c6d"
+      }
+    ],
+    "owned_applied_provenance": null,
+    "preserved_other_owned_rows": {},
+    "preserved_other_owned_provenance": null,
+    "preserved_other_owned_tracked_paths": [],
+    "preserved_other_owned_untracked_paths": [],
+    "preserved_other_owned_unchanged_before_after": true,
+    "P40": {
+      "bucket": "Actualtest-envelope setup classes RUN-ID-STATE, LOWERED-IR-CONSTANT, CANON-FLOAT-FIXTURE; repair correct fixturecontract across sharedsites, no production defaults/guard weakening.",
+      "held": "METHOD-OUTPUT-CONTRACT threeactualcases requirepairedregisteredHTEproducer/runtimefix; other11metricsfailuresoutsidepatchremainheld."
+    },
+    "bounded_proof": "Exacttwofile sourceGO independently checked against actualproducerprofiles/currentpreimages, canonicalnativecheck/fullformat plus branchblobreadback; B61interveningcommit disjoint.",
+    "limitations": [
+      "Runtime UNRUN on adopted source; historical Runtime17 625=512PASS113FAIL remains tied635413.",
+      "Independent review corrected narrative six\u2192seven localized lines; exactpatch unchanged and all original assertion/testdefinition ASTcounts preserved.",
+      "Synthetic twoelementedgefixture is not a valid HTEObservationalData DTO or scientific estimation proof; actualfloatselectedprofiles require separate producer/consumer tests.",
+      "Source and native staticPASS do not adjudicate any E02 ID or protectedpositive; no formalclosures."
+    ],
+    "runtime": "UNRUN on adopted source",
+    "next_check": "Run whole changedmodules together with paired methodworkproducerfix and remainingRuntime17 failures on composedfreeze; map eachpriornodeid individually, retain remaining11metricfailures and realABI3untilactualreplay.",
+    "source_profile_freeze": false,
+    "G_acceptance": false,
+    "closure_ids": []
   }
 }

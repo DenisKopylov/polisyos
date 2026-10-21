@@ -1860,7 +1860,7 @@ def test_method_metric_source_request_preserves_presence_through_workflow_state(
         data_source={"data_snapshot_ref": "sha256:" + "a" * 64},
         params=params,
     )
-    state = ExperimentState(params=request.params)
+    state = ExperimentState(run_id="run-1", params=request.params)
 
     assert state.params == params
     assert _parse_method_metric_source_request(state.params) == expected
@@ -1892,7 +1892,7 @@ def test_present_invalid_selector_never_reaches_l3_default_score(
         data_source={"data_snapshot_ref": "sha256:" + "a" * 64},
         params={"method_metric_source_run_id": raw_value},
     )
-    state = ExperimentState(params=request.params)
+    state = ExperimentState(run_id="run-1", params=request.params)
     _, request_status = _parse_method_metric_source_request(state.params)
     assert request_status == "invalid"
 
@@ -1930,7 +1930,7 @@ def test_only_true_selector_absence_keeps_l3_legacy_default_route(
         data_source={"data_snapshot_ref": "sha256:" + "a" * 64},
         params={},
     )
-    state = ExperimentState(params=request.params)
+    state = ExperimentState(run_id="run-1", params=request.params)
     _, request_status = _parse_method_metric_source_request(state.params)
     assert request_status == "absent"
     observed: list[bool] = []
@@ -1979,7 +1979,7 @@ def test_requested_selector_without_completed_owner_never_reaches_l3_default(
         data_source={"data_snapshot_ref": "sha256:" + "a" * 64},
         params={"method_metric_source_run_id": "source-run"},
     )
-    state = ExperimentState(params=request.params)
+    state = ExperimentState(run_id="run-1", params=request.params)
     source_run_id, request_status = _parse_method_metric_source_request(state.params)
     assert source_run_id == "source-run"
     assert request_status == "requested"

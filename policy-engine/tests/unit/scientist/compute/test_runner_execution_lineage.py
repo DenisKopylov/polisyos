@@ -150,6 +150,7 @@ def _summary_ref(store: FileSystemCAS, *, inputs: list[Any]) -> ArtifactRef:
             ),
             inputs=inputs,
         ),
+        canon_spec=CanonSpec(forbid_floats=False),
         return_selected_profile=True,
     )
 
@@ -305,7 +306,7 @@ def _real_binding_graph_and_plan(
     lowered_ir_ref = _put_selected_contract_model(
         store,
         LoweredIR(ir_ref=policy_ref, mechanisms=[], constraints=[]),
-        kind=LoweredIR.ARTIFACT_KIND,
+        kind=LoweredIRRef.model_fields["kind"].default,
     )
     lowered_ir_typed_ref = LoweredIRRef.model_validate(lowered_ir_ref.model_dump(mode="python"))
     graph = ProgramGraph(
@@ -767,7 +768,7 @@ def test_direct_hte_result_and_evidence_preserve_exact_selected_input_edges(tmp_
         store,
         kind="scientist.method_input.hte_observational_data",
         schema_name="tests.HTEObservationalData",
-        value=[1.0, 2.0],
+        value=[1, 2],
     )
 
     result = run_job(

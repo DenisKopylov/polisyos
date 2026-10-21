@@ -61,6 +61,21 @@ def _clone(source: Path, destination: Path) -> Path:
     return destination
 
 
+def _commit_gcp_source_fixture(workspace: Path) -> None:
+    """Give the archive test a tiny committed repository for its copied source."""
+    subprocess.run(["git", "init", "--quiet", str(workspace)], check=True)
+    for key, value in (
+        ("user.name", "GCP source archive fixture"),
+        ("user.email", "gcp-fixture@example.invalid"),
+    ):
+        subprocess.run(["git", "-C", str(workspace), "config", key, value], check=True)
+    subprocess.run(["git", "-C", str(workspace), "add", "--all", "--", "policy-engine"], check=True)
+    subprocess.run(
+        ["git", "-C", str(workspace), "commit", "--quiet", "-m", "GCP source archive fixture"],
+        check=True,
+    )
+
+
 def _wheel(root: Path) -> tuple[Path, dict[str, str]]:
     wheel = Path(next(WheelBuilder(str(root)).build(versions=["standard"])))
     with zipfile.ZipFile(wheel) as archive:
@@ -257,6 +272,7 @@ def test_gcp_archive_carries_buildable_native_config(contexts):
     workspace.mkdir()
     product = _clone(native, workspace / "policy-engine")
     shutil.copyfile(ROOT / "uv.lock", product / "uv.lock")
+    _commit_gcp_source_fixture(workspace)
     output = workspace / "archives"
     result = subprocess.run(
         ["bash", str(product / "ops/cloud/gcp/package_repo.sh")],

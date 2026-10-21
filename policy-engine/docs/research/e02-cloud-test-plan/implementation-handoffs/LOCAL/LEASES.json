@@ -46638,5 +46638,107 @@
     "source_profile_freeze": false,
     "G_acceptance": false,
     "closure_ids": []
+  },
+  "root-ds17-source-owner-reviewed-adoption-20261021-r1": {
+    "slice_base": "ebbacf54f9a1d80bbeeea64b5c02714a9a3e6c15",
+    "canonical_writer": "root only; reviewed present patch, retired exact originals through native Trash",
+    "mechanism_and_mandatory_companion_paths": {
+      "policy-engine/src/polisyos/runtime/quality/confidence_ledger.py": {
+        "mode": "100644",
+        "operation": "update",
+        "preimage_sha256": "95fcbe2bd84165a6e405e3e7439d842a44623f4c1283c91cde0de966d5dca2ac",
+        "preimage_bytes": 561779,
+        "postimage_sha256": "be657c73af24e573e0c2c9c3e0663f68f26d9c8533f3a0983af7f3789db2324a",
+        "postimage_bytes": 578433,
+        "postimage_path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/root-ds17-format-only-postimages-20261021-r1/confidence_ledger.py",
+        "semantic_review_postimage_sha256": "c584fefcb0548a189e7971270b880a8439c9a8797d878b367c3f92a504dcd953",
+        "AST_equivalent_to_R6": true,
+        "format_delta": {
+          "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/root-ds17-format-only-postimages-20261021-r2/0-format-only.diff",
+          "sha256": "e9a897d5ea083992fac6a26cacacc7c3a32177a6677e765d585cb8721ccf5506"
+        }
+      },
+      "policy-engine/tests/unit/runtime/quality/test_confidence_ledger.py": {
+        "mode": "100644",
+        "operation": "update",
+        "preimage_sha256": "579a1bbde7067bc9e091ca817912fd5db2b3485a17ac1c2428af2e4089ecef8d",
+        "preimage_bytes": 328285,
+        "postimage_sha256": "9c490bb37308e3fca53b61c1ab8af0b25b4780d57fa087b20ec7d1193b01e2e0",
+        "postimage_bytes": 331951,
+        "postimage_path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/root-ds17-format-only-postimages-20261021-r1/test_confidence_ledger.py",
+        "semantic_review_postimage_sha256": "7228425b0c990aea056e862ef14eb91a3d2dddea35f5600de89d244eed032c4c",
+        "AST_equivalent_to_R6": true,
+        "format_delta": {
+          "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/root-ds17-format-only-postimages-20261021-r2/1-format-only.diff",
+          "sha256": "3fe85dd33bd273fd9f9ecc070b463c8de1cbc0d9f655f2428b31e0bc75aeb359"
+        }
+      }
+    },
+    "application": {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/root-ds17-source-owner-reviewed-adoption-20261021-r1/source-application.json",
+      "sha256": "99fd571f0a088b7af45a9520acf388c60520c469a1b0dc305b1f07cad463d837"
+    },
+    "native_trash_receipt": {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/root-ds17-source-owner-reviewed-adoption-20261021-r1/native-trash-receipt.json",
+      "sha256": "057f81b6e161c37eaec854c352b59148420f1f1711163b9005834b723e193dcf"
+    },
+    "reviewed_inputs": [
+      {
+        "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/root-ds17-format-only-postimages-20261021-r2/composition.json",
+        "sha256": "ab8829022a2603a7f14142851685d10cd11189bc86be62650596472a97293793"
+      },
+      {
+        "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/root-ds17-format-only-postimages-20261021-r2/format-checks.json",
+        "sha256": "cf276d3f794ae3ab8ba6191de2c04d414616c3751824606ab186ae28c0f09f13"
+      },
+      {
+        "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/ds17-source-binding-freeze-r6-20261021/adoption-manifest.json",
+        "sha256": "3a632e6af4e990f58c1c294b7b32a278880add736fdb96d57331b5065d9c9038"
+      },
+      {
+        "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/ds17-source-binding-freeze-r6-20261021/owner-fix-proposed.patch",
+        "sha256": "32ad09f4dcc979008a745f8582af98da94a2b11efa8164be4d1a5f88e6440de9"
+      },
+      {
+        "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/independent-ds17-source-owner-prototype-review-20261021-r1/review.json",
+        "sha256": "0d6d3462e7c8135ccc167f49b97e2a1623282b1492ffbd6e7bb45efa552b29e5"
+      },
+      {
+        "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/independent-ds17-source-owner-prototype-review-20261021-r1/issued-review-mutation-notice.json",
+        "sha256": "8762c3efa5d466195467cde50a12ea1eff3ed7c85a31b7d0617cf4bd5d2826ea"
+      },
+      {
+        "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/root-ds17-native-exact-root-role-preflight-20261021-r2/result.json",
+        "sha256": "3068846d327144d45aad3bce9bbad209f0a8837e2391ca0e0a1c8696f6ef4f16"
+      },
+      {
+        "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/root-core-read-usage-r6-reviewed-adoption-20261021-r1/implementation-readback.json",
+        "sha256": "2ca6be7c221e4a38873ab9faf886d5f42497863a8c8a8fbed2af901e272b6f03"
+      }
+    ],
+    "owned_applied_provenance": null,
+    "preserved_other_owned_rows": {},
+    "preserved_other_owned_provenance": null,
+    "preserved_other_owned_tracked_paths": [],
+    "preserved_other_owned_untracked_paths": [],
+    "preserved_other_owned_unchanged_before_after": true,
+    "P40": {
+      "bucket": "Same selected binding identity versus syntax-proxy class",
+      "action": "Source-derived expected maps/ordered rows plus existing runtime object-latch and adversarial paired mutation/rebind tests."
+    },
+    "bounded_proof": "Independent source+formatAST review and exact native root check/format; consumer behavior still UNRUN.",
+    "limitations": [
+      "Independent source review GO only; official owner writer/recompute/consumer/corrupt-field/runtime tests UNRUN.",
+      "Exact selected source declaration grammar is bounded and future incompatible forms refuse; unrelated top-level effects outside claim.",
+      "Mechanical R7 formatting preserves exact R6 AST.",
+      "First issued independent review27fd was overwritten by reviewer; bytes unavailable and not reconstructed. New review0d6 is cited only with explicit immutable mutation/context notice8762; no stale reviewidentity reused.",
+      "No G source acceptance, external facts, global source/input/backend freeze or formal finding closure.",
+      "Separate Core R6 actual99 has87PASS12FAIL; DS17 change does not resolve or reclassify that red."
+    ],
+    "runtime": "UNRUN on adopted source",
+    "next_check": "Actual bounded DS17 source-binding behavioral tests then official owner writer two-pass recompute/validator check/corrupt-field drift; root-only complete generated clients after full Runtime/AD01 composition.",
+    "source_profile_freeze": false,
+    "G_acceptance": false,
+    "closure_ids": []
   }
 }

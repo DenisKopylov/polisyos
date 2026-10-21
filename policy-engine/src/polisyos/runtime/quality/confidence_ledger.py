@@ -14,6 +14,7 @@ from __future__ import annotations
 import ast
 import builtins as _builtins
 import contextvars
+import dataclasses as _dataclasses
 import functools
 import hashlib
 import importlib
@@ -8678,6 +8679,12 @@ def _source_facade_runtime_projection(
                 filename=relative_path,
             )
 
+        read_api_surface_projection = _read_api_surface_runtime_identity_projection(
+            repo_root,
+            closure_by_name,
+            source_rows,
+            runtime_binding_references=runtime_binding_references,
+        )
         bindings_to_check: dict[tuple[str, str], tuple[str, str, bool]] = {}
         selected_importers: dict[tuple[str, str], set[tuple[str, str, str, str, str]]] = {}
         for module_name, (_tree, provider_index, maps) in source_rows.items():
@@ -9368,6 +9375,7 @@ def _source_facade_runtime_projection(
         manifest = {
             "facades": facade_rows,
             "bindings": checked_bindings,
+            "read_api_surfaces": read_api_surface_projection,
         }
         if owns_analysis:
             analysis.assert_sources_unchanged()
@@ -10271,6 +10279,387 @@ def _source_module_import_route(
     return None
 
 
+_READ_API_SURFACES_MODULE = "polisyos.data_forge.read_api.surfaces"
+_READ_API_SURFACE_ROUTES_MODULE = "polisyos.data_forge.read_api.surface_routes"
+_READ_API_PACKAGE_MODULE = "polisyos.data_forge.read_api"
+_READ_API_SURFACE_FIELDS = ("name", "module", "summary")
+
+
+def _source_ast_name_is(node: ast.AST, expected: str) -> bool:
+    return isinstance(node, ast.Name) and node.id == expected
+
+
+def _read_api_surface_source_declaration_supported(tree: ast.Module) -> bool:
+    """Recognize only the current source-owned surface record constructor."""
+
+    def import_binding_is(name: str, module: str, level: int) -> bool:
+        sites = _module_scope_direct_binding_sites(tree, name)
+        return bool(
+            len(sites) == 1
+            and sites[0][0] == "import_from"
+            and isinstance(sites[0][1], ast.ImportFrom)
+            and sites[0][1].module == module
+            and sites[0][1].level == level
+            and sites[0][2] is not None
+            and sites[0][2].name == name
+            and sites[0][2].asname is None
+        )
+
+    class_sites = _module_scope_direct_binding_sites(tree, "ReadApiSurface")
+    tuple_sites = _module_scope_direct_binding_sites(tree, "READ_API_SURFACES")
+    if not (
+        import_binding_is("dataclass", "dataclasses", 0)
+        and import_binding_is("READ_API_SURFACE_MODULES", "surface_routes", 1)
+        and import_binding_is("READ_API_SURFACE_SUMMARIES", "surface_routes", 1)
+        and len(class_sites) == 1
+        and class_sites[0][0] == "local"
+        and isinstance(class_sites[0][1], ast.ClassDef)
+        and len(tuple_sites) == 1
+        and tuple_sites[0][0] == "assignment"
+        and isinstance(tuple_sites[0][1], ast.AnnAssign)
+        and tuple_sites[0][1].value is not None
+    ):
+        return False
+
+    record_class = class_sites[0][1]
+    if not isinstance(record_class, ast.ClassDef):
+        return False
+    if not (
+        not record_class.bases
+        and not record_class.keywords
+        and not getattr(record_class, "type_params", ())
+        and len(record_class.decorator_list) == 1
+    ):
+        return False
+    decorator = record_class.decorator_list[0]
+    if not (
+        isinstance(decorator, ast.Call)
+        and _source_ast_name_is(decorator.func, "dataclass")
+        and not decorator.args
+        and len(decorator.keywords) == 2
+        and decorator.keywords[0].arg == "frozen"
+        and isinstance(decorator.keywords[0].value, ast.Constant)
+        and decorator.keywords[0].value.value is True
+        and decorator.keywords[1].arg == "slots"
+        and isinstance(decorator.keywords[1].value, ast.Constant)
+        and decorator.keywords[1].value.value is True
+    ):
+        return False
+    body = [
+        statement
+        for statement in record_class.body
+        if not (
+            isinstance(statement, ast.Expr)
+            and isinstance(statement.value, ast.Constant)
+            and type(statement.value.value) is str
+        )
+    ]
+    if len(body) != len(_READ_API_SURFACE_FIELDS):
+        return False
+    for statement, field_name in zip(body, _READ_API_SURFACE_FIELDS, strict=True):
+        if not (
+            isinstance(statement, ast.AnnAssign)
+            and isinstance(statement.target, ast.Name)
+            and statement.target.id == field_name
+            and _source_ast_name_is(statement.annotation, "str")
+            and statement.value is None
+        ):
+            return False
+
+    tuple_declaration = tuple_sites[0][1]
+    if not isinstance(tuple_declaration, ast.AnnAssign):
+        return False
+    annotation = tuple_declaration.annotation
+    if not (
+        isinstance(annotation, ast.Subscript)
+        and _source_ast_name_is(annotation.value, "tuple")
+        and isinstance(annotation.slice, ast.Tuple)
+        and len(annotation.slice.elts) == 2
+        and _source_ast_name_is(annotation.slice.elts[0], "ReadApiSurface")
+        and isinstance(annotation.slice.elts[1], ast.Constant)
+        and annotation.slice.elts[1].value is Ellipsis
+    ):
+        return False
+    value = tuple_declaration.value
+    if not (
+        isinstance(value, ast.Call)
+        and _source_ast_name_is(value.func, "tuple")
+        and len(value.args) == 1
+        and not value.keywords
+        and isinstance(value.args[0], ast.GeneratorExp)
+    ):
+        return False
+    generator = value.args[0]
+    record_call = generator.elt
+    if not (
+        isinstance(record_call, ast.Call)
+        and _source_ast_name_is(record_call.func, "ReadApiSurface")
+        and not record_call.args
+        and len(record_call.keywords) == 3
+        and record_call.keywords[0].arg == "name"
+        and _source_ast_name_is(record_call.keywords[0].value, "name")
+        and record_call.keywords[1].arg == "module"
+        and _source_ast_name_is(record_call.keywords[1].value, "module")
+        and record_call.keywords[2].arg == "summary"
+        and isinstance(record_call.keywords[2].value, ast.Subscript)
+        and _source_ast_name_is(record_call.keywords[2].value.value, "READ_API_SURFACE_SUMMARIES")
+        and _source_ast_name_is(record_call.keywords[2].value.slice, "name")
+        and len(generator.generators) == 1
+    ):
+        return False
+    clause = generator.generators[0]
+    return bool(
+        isinstance(clause.target, ast.Tuple)
+        and len(clause.target.elts) == 2
+        and all(isinstance(item, ast.Name) for item in clause.target.elts)
+        and tuple(item.id for item in clause.target.elts) == ("name", "module")
+        and isinstance(clause.iter, ast.Call)
+        and isinstance(clause.iter.func, ast.Attribute)
+        and _source_ast_name_is(clause.iter.func.value, "READ_API_SURFACE_MODULES")
+        and clause.iter.func.attr == "items"
+        and not clause.iter.args
+        and not clause.iter.keywords
+        and not clause.ifs
+        and clause.is_async == 0
+    )
+
+
+def _read_api_surface_source_binding_supported(
+    module_name: str,
+    export_name: str,
+    tree: ast.Module,
+) -> bool:
+    """Admit only the pinned route-record source declaration shape."""
+
+    return bool(
+        module_name == _READ_API_SURFACES_MODULE
+        and export_name in {"ReadApiSurface", "READ_API_SURFACES"}
+        and _read_api_surface_source_declaration_supported(tree)
+    )
+
+
+def _read_api_surface_literal_map(tree: ast.Module, name: str) -> dict[str, str]:
+    """Read one unique direct literal map from exact parsed source bytes."""
+
+    sites = _module_scope_direct_binding_sites(tree, name)
+    if (
+        len(sites) != 1
+        or sites[0][0] != "assignment"
+        or not isinstance(sites[0][1], (ast.Assign, ast.AnnAssign))
+    ):
+        raise ConfidenceLedgerError("canonical_loaded_runtime_mismatch")
+    statement = sites[0][1]
+    value = statement.value
+    if not isinstance(value, ast.Dict):
+        raise ConfidenceLedgerError("canonical_loaded_runtime_mismatch")
+    parsed = _literal_source_expression(value, {})
+    if (
+        type(parsed) is not dict
+        or not parsed
+        or any(type(key) is not str or type(item) is not str for key, item in parsed.items())
+        or len(parsed) != len(value.keys)
+    ):
+        raise ConfidenceLedgerError("canonical_loaded_runtime_mismatch")
+    return parsed
+
+
+def _append_source_identity_reference(
+    references: list[_FacadeRuntimeBindingReference] | None,
+    *,
+    binding_module_name: str,
+    symbol: str,
+    binding_module: types.ModuleType,
+    provider_module_name: str,
+    provider_module: types.ModuleType,
+    provider_value: object,
+    importer_module_name: str,
+    importer_module: types.ModuleType,
+) -> None:
+    if references is None:
+        return
+    references.append(
+        (
+            binding_module_name,
+            symbol,
+            binding_module,
+            provider_module_name,
+            provider_module,
+            symbol,
+            provider_value,
+            importer_module_name,
+            symbol,
+            importer_module,
+            "module_value",
+            "<module>",
+            importer_module,
+            None,
+            None,
+            importer_module,
+        )
+    )
+
+
+def _read_api_surface_runtime_identity_projection(
+    repo_root: Path,
+    closure_by_name: Mapping[str, str],
+    source_rows: Mapping[
+        str,
+        tuple[ast.Module, _LiteralModuleGetattrProviderIndex, dict[str, dict[str, object]]],
+    ],
+    *,
+    runtime_binding_references: list[_FacadeRuntimeBindingReference] | None,
+) -> dict[str, object] | None:
+    """Compare the loaded read_api route records to independent literal source values."""
+
+    if _READ_API_SURFACES_MODULE not in closure_by_name:
+        return None
+    required_modules = (
+        _READ_API_SURFACES_MODULE,
+        _READ_API_SURFACE_ROUTES_MODULE,
+        _READ_API_PACKAGE_MODULE,
+    )
+    if any(name not in closure_by_name or name not in source_rows for name in required_modules):
+        raise ConfidenceLedgerError("canonical_loaded_runtime_mismatch")
+    surfaces_tree = source_rows[_READ_API_SURFACES_MODULE][0]
+    routes_tree = source_rows[_READ_API_SURFACE_ROUTES_MODULE][0]
+    if not _read_api_surface_source_declaration_supported(surfaces_tree):
+        raise ConfidenceLedgerError(
+            "canonical_loaded_runtime_mismatch",
+            "unsupported source-owned read_api surface declaration",
+        )
+    expected_modules = _read_api_surface_literal_map(routes_tree, "READ_API_SURFACE_MODULES")
+    expected_summaries = _read_api_surface_literal_map(routes_tree, "READ_API_SURFACE_SUMMARIES")
+    if tuple(expected_modules) != tuple(expected_summaries):
+        raise ConfidenceLedgerError("canonical_loaded_runtime_mismatch")
+    loaded_modules = {name: sys.modules.get(name) for name in required_modules}
+    if any(type(module) is not types.ModuleType for module in loaded_modules.values()):
+        raise ConfidenceLedgerError("canonical_loaded_runtime_mismatch")
+    routes_module = loaded_modules[_READ_API_SURFACE_ROUTES_MODULE]
+    surfaces_module = loaded_modules[_READ_API_SURFACES_MODULE]
+    package_module = loaded_modules[_READ_API_PACKAGE_MODULE]
+    if not all(
+        isinstance(module, types.ModuleType)
+        for module in (routes_module, surfaces_module, package_module)
+    ):
+        raise ConfidenceLedgerError("canonical_loaded_runtime_mismatch")
+
+    for module_name in required_modules:
+        loaded_module = loaded_modules[module_name]
+        if not isinstance(loaded_module, types.ModuleType):
+            raise ConfidenceLedgerError("canonical_loaded_runtime_mismatch")
+        expected_path = (repo_root / closure_by_name[module_name]).resolve()
+        try:
+            loaded_path = Path(loaded_module.__file__).resolve()
+        except (AttributeError, OSError, TypeError, ValueError) as exc:
+            raise ConfidenceLedgerError(
+                "canonical_loaded_runtime_mismatch",
+                f"read_api source origin is invalid: {module_name}",
+            ) from exc
+        if loaded_path != expected_path:
+            raise ConfidenceLedgerError(
+                "canonical_loaded_runtime_mismatch",
+                f"read_api source origin differs: {module_name}",
+            )
+
+    route_namespace = vars(routes_module)
+    source_namespace = vars(surfaces_module)
+    package_namespace = vars(package_module)
+    observed_modules = route_namespace.get("READ_API_SURFACE_MODULES")
+    observed_summaries = route_namespace.get("READ_API_SURFACE_SUMMARIES")
+    if not (
+        type(observed_modules) is dict
+        and tuple(observed_modules.items()) == tuple(expected_modules.items())
+        and type(observed_summaries) is dict
+        and tuple(observed_summaries.items()) == tuple(expected_summaries.items())
+        and source_namespace.get("READ_API_SURFACE_MODULES") is observed_modules
+        and source_namespace.get("READ_API_SURFACE_SUMMARIES") is observed_summaries
+        and package_namespace.get("_READ_API_SURFACE_MODULES") is observed_modules
+    ):
+        raise ConfidenceLedgerError("canonical_loaded_runtime_mismatch")
+
+    surface_class = source_namespace.get("ReadApiSurface")
+    surface_rows = source_namespace.get("READ_API_SURFACES")
+    if not (
+        type(surface_class) is type
+        and type(surface_rows) is tuple
+        and type(source_namespace.get("dataclass")) is type(dataclass)
+        and source_namespace.get("dataclass") is dataclass
+        and _dataclasses.is_dataclass(surface_class)
+        and type.__getattribute__(surface_class, "__module__") == _READ_API_SURFACES_MODULE
+        and type.__getattribute__(surface_class, "__qualname__") == "ReadApiSurface"
+        and type.__getattribute__(surface_class, "__slots__") == _READ_API_SURFACE_FIELDS
+    ):
+        raise ConfidenceLedgerError("canonical_loaded_runtime_mismatch")
+    parameters = type.__getattribute__(surface_class, "__dict__").get("__dataclass_params__")
+    if parameters is None or getattr(parameters, "frozen", None) is not True:
+        raise ConfidenceLedgerError("canonical_loaded_runtime_mismatch")
+    dataclass_fields = _dataclasses.fields(surface_class)
+    if tuple(field.name for field in dataclass_fields) != _READ_API_SURFACE_FIELDS:
+        raise ConfidenceLedgerError("canonical_loaded_runtime_mismatch")
+    for field in dataclass_fields:
+        if not (field.type is str or (type(field.type) is str and field.type == "str")) or not (
+            field.default is _dataclasses.MISSING
+            and field.default_factory is _dataclasses.MISSING
+            and field.init
+            and field.repr
+            and field.compare
+        ):
+            raise ConfidenceLedgerError("canonical_loaded_runtime_mismatch")
+
+    expected_rows = tuple(
+        (name, expected_modules[name], expected_summaries[name]) for name in expected_modules
+    )
+    observed_rows: list[tuple[str, str, str]] = []
+    if len(surface_rows) != len(expected_rows):
+        raise ConfidenceLedgerError("canonical_loaded_runtime_mismatch")
+    for row in surface_rows:
+        if type(row) is not surface_class:
+            raise ConfidenceLedgerError("canonical_loaded_runtime_mismatch")
+        values = tuple(object.__getattribute__(row, name) for name in _READ_API_SURFACE_FIELDS)
+        if any(type(value) is not str for value in values):
+            raise ConfidenceLedgerError("canonical_loaded_runtime_mismatch")
+        observed_rows.append(values)
+    if tuple(observed_rows) != expected_rows:
+        raise ConfidenceLedgerError("canonical_loaded_runtime_mismatch")
+
+    for name, expected_value in (
+        ("ReadApiSurface", surface_class),
+        ("READ_API_SURFACES", surface_rows),
+    ):
+        if package_namespace.get(name) is not expected_value:
+            raise ConfidenceLedgerError("canonical_loaded_runtime_mismatch")
+        _append_source_identity_reference(
+            runtime_binding_references,
+            binding_module_name=_READ_API_SURFACES_MODULE,
+            symbol=name,
+            binding_module=surfaces_module,
+            provider_module_name=_READ_API_SURFACES_MODULE,
+            provider_module=surfaces_module,
+            provider_value=expected_value,
+            importer_module_name=_READ_API_SURFACES_MODULE,
+            importer_module=surfaces_module,
+        )
+        _append_source_identity_reference(
+            runtime_binding_references,
+            binding_module_name=_READ_API_PACKAGE_MODULE,
+            symbol=name,
+            binding_module=package_module,
+            provider_module_name=_READ_API_SURFACES_MODULE,
+            provider_module=surfaces_module,
+            provider_value=expected_value,
+            importer_module_name=_READ_API_PACKAGE_MODULE,
+            importer_module=package_module,
+        )
+    return {
+        "routes": [
+            {"name": name, "module": module, "summary": expected_summaries[name]}
+            for name, module in expected_modules.items()
+        ],
+        "surface_count": len(expected_rows),
+        "source_owner_status": "recomputed",
+    }
+
+
 def _source_module_direct_binding_route(
     repo_root: Path,
     module_name: str,
@@ -10401,7 +10790,11 @@ def _source_module_direct_binding_route(
         statement,
         (ast.FunctionDef, ast.AsyncFunctionDef, ast.ClassDef),
     ):
-        if statement.decorator_list:
+        if statement.decorator_list and not _read_api_surface_source_binding_supported(
+            module_name,
+            export_name,
+            tree,
+        ):
             raise ConfidenceLedgerError(
                 "canonical_loaded_runtime_mismatch",
                 f"decorated direct source binding is unresolved: {module_name}.{export_name}",
@@ -10414,6 +10807,12 @@ def _source_module_direct_binding_route(
                 raise ValueError("annotation-only binding")
             ast.literal_eval(value)
         except (ValueError, TypeError, SyntaxError, MemoryError) as exc:
+            if _read_api_surface_source_binding_supported(
+                module_name,
+                export_name,
+                tree,
+            ):
+                return "symbol", module_name, export_name
             raise ConfidenceLedgerError(
                 "canonical_loaded_runtime_mismatch",
                 f"side-effecting direct source assignment is unresolved: "

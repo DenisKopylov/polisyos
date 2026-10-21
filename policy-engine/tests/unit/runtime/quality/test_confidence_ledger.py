@@ -7532,6 +7532,89 @@ def test_source_facade_projection_reconciles_full_core_contracts_map_and_fails_c
             vars(facade)[export] = original_cached
 
 
+def test_read_api_surface_runtime_projection_binds_source_values_and_object_identity() -> None:
+    """Literal source values defeat paired mutation; refs defeat equal-value rebinding."""
+
+    closure = ledger_module._resolve_authority_import_closure(
+        REPO_ROOT,
+        ledger_module.__name__,
+    )
+    ledger_module._import_authority_closure_modules(closure)
+    runtime_refs: list[ledger_module._FacadeRuntimeBindingReference] = []
+    projection, _supplemental = ledger_module._source_facade_runtime_projection(
+        REPO_ROOT,
+        closure,
+        runtime_binding_references=runtime_refs,
+    )
+    projection_rows = json.loads(projection)["read_api_surfaces"]["routes"]
+    assert len(projection_rows) == 4
+    pinned_refs = tuple(runtime_refs)
+
+    routes = sys.modules["polisyos.data_forge.read_api.surface_routes"]
+    surfaces = sys.modules["polisyos.data_forge.read_api.surfaces"]
+    package = sys.modules["polisyos.data_forge.read_api"]
+    original_modules = dict(routes.READ_API_SURFACE_MODULES)
+    original_summaries = dict(routes.READ_API_SURFACE_SUMMARIES)
+    original_surface_class = surfaces.ReadApiSurface
+    original_rows = surfaces.READ_API_SURFACES
+    try:
+        first_name = next(iter(original_modules))
+        routes.READ_API_SURFACE_MODULES[first_name] = original_modules[first_name] + ".wrong"
+        routes.READ_API_SURFACE_SUMMARIES[first_name] = original_summaries[first_name] + " wrong"
+        paired_wrong_rows = tuple(
+            original_surface_class(name, routes.READ_API_SURFACE_MODULES[name], summary)
+            for name, summary in routes.READ_API_SURFACE_SUMMARIES.items()
+        )
+        surfaces.READ_API_SURFACES = paired_wrong_rows
+        package.READ_API_SURFACES = paired_wrong_rows
+        with pytest.raises(
+            ConfidenceLedgerError,
+            match="canonical_loaded_runtime_mismatch",
+        ):
+            ledger_module._source_facade_runtime_projection(REPO_ROOT, closure)
+    finally:
+        routes.READ_API_SURFACE_MODULES.clear()
+        routes.READ_API_SURFACE_MODULES.update(original_modules)
+        routes.READ_API_SURFACE_SUMMARIES.clear()
+        routes.READ_API_SURFACE_SUMMARIES.update(original_summaries)
+        surfaces.READ_API_SURFACES = original_rows
+        package.READ_API_SURFACES = original_rows
+
+    replacement_class = dataclasses.make_dataclass(
+        "ReadApiSurface",
+        [("name", str), ("module", str), ("summary", str)],
+        frozen=True,
+        slots=True,
+    )
+    replacement_class.__module__ = surfaces.__name__
+    replacement_class.__qualname__ = "ReadApiSurface"
+    replacement_rows = tuple(
+        replacement_class(name, original_modules[name], original_summaries[name])
+        for name in original_modules
+    )
+    try:
+        surfaces.ReadApiSurface = replacement_class
+        surfaces.READ_API_SURFACES = replacement_rows
+        package.ReadApiSurface = replacement_class
+        package.READ_API_SURFACES = replacement_rows
+        rebound_refs: list[ledger_module._FacadeRuntimeBindingReference] = []
+        rebound_projection, _supplemental = ledger_module._source_facade_runtime_projection(
+            REPO_ROOT,
+            closure,
+            runtime_binding_references=rebound_refs,
+        )
+        assert rebound_projection == projection
+        assert not ledger_module._runtime_binding_references_match(
+            rebound_refs,
+            pinned_refs,
+        )
+    finally:
+        surfaces.ReadApiSurface = original_surface_class
+        surfaces.READ_API_SURFACES = original_rows
+        package.ReadApiSurface = original_surface_class
+        package.READ_API_SURFACES = original_rows
+
+
 # R8 restores the R6 whole-class behavioral controls alongside R7 projection tests.
 
 

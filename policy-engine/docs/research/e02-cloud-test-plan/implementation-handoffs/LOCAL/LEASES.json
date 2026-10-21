@@ -49833,5 +49833,116 @@
     "source_profile_freeze": false,
     "G_acceptance": false,
     "closure_ids": []
+  },
+  "root-c05-real-producer-consumer-test-adoption-20261021-r1": {
+    "slice_base": "635413bcd1bd1d7e7b829d9123765e28e6bf23d6",
+    "canonical_writer": "root only; reviewed present patch, retired exact originals through native Trash",
+    "mechanism_and_mandatory_companion_paths": {
+      "policy-engine/tests/unit/fabric/test_retrieval_service_catalog.py": {
+        "operation": "update",
+        "mode": "100644",
+        "preimage_sha256": "2ef8261144a6b8fb65aac73f6100b301134f2f360d18e7365ea289944382509f",
+        "postimage_path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/c05-material-full13-composition-20261021-r2/test.postimage.py",
+        "postimage_sha256": "ebd7a4dd5ab3c69794fd261f5900bf64e2bc035cca16503f7f33ce2f26cbd827",
+        "postimage_bytes": 82497
+      }
+    },
+    "application": {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/root-c05-real-producer-consumer-test-adoption-20261021-r1/source-application.json",
+      "sha256": "68032c0aa9f15d2113a5fbe6643fb725dcad61e4329b7a95b1c65514b260c67a"
+    },
+    "native_trash_receipt": {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/root-c05-real-producer-consumer-test-adoption-20261021-r1/native-trash-receipt.json",
+      "sha256": "057f81b6e161c37eaec854c352b59148420f1f1711163b9005834b723e193dcf"
+    },
+    "reviewed_inputs": [
+      {
+        "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/c05-material-full13-composition-20261021-r2/manifest.json",
+        "sha256": "9a46f3f5a7c32708ffb72a3cfe0592370957081c2d7104224f2076e3e69d8ec1"
+      },
+      {
+        "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/c05-material-full13-composition-20261021-r2/proposed-c05-vertical-test.patch",
+        "sha256": "f0284b1dfebb6a73a65e2d4a1b46220bfc6286f97e56e2a4f37178bd41875dad"
+      },
+      {
+        "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/independent-c05-vertical-test-review-20261021-r1/review.json",
+        "sha256": "f5697bbb29e8241e12e11dc3a6646277b0621144c491a9f61717973a93f52d03"
+      },
+      {
+        "path": "policy-engine/src/polisyos/data_forge/domains/catalog/_resources.py",
+        "sha256": "6c36ffce957ade642ba1cc1dab2367c2620dd7c75d0219520c64b3eec94bf0a6"
+      },
+      {
+        "path": "policy-engine/src/polisyos/data_forge/domains/catalog/batch/_core_sources_ingest_contracts.py",
+        "sha256": "c3a8019dce00106229de2ac207c1568ba44b743e64ca9e03620372131be0c040"
+      },
+      {
+        "path": "policy-engine/src/polisyos/data_forge/domains/catalog/batch/benchmark.py",
+        "sha256": "6dc5b011698874a32d0b3ae285f832768794ec3f080c7b9c19b0344fe1878e1b"
+      },
+      {
+        "path": "policy-engine/src/polisyos/data_forge/domains/catalog/batch/core_sources/api.py",
+        "sha256": "cdc9587279db23a2d99b419bf385961e555db2b0c68dae252293f53733542c23"
+      },
+      {
+        "path": "policy-engine/src/polisyos/data_forge/domains/catalog/batch/core_sources/registry.py",
+        "sha256": "9b3a2dc1d861d4c26607a61b1d7cbeb4179a7b74e411c504dc340d47ab0b67fa"
+      },
+      {
+        "path": "policy-engine/src/polisyos/data_forge/domains/catalog/batch/core_sources/transformers.py",
+        "sha256": "231959818a0fc3fb8192ede89108bf32b1355bb52abe1a38d9b99e28f71c1494"
+      },
+      {
+        "path": "policy-engine/src/polisyos/data_forge/domains/catalog/batch/core_sources/validators.py",
+        "sha256": "4a1c014b2f346dc4906d7cf4acabba4f586b8b43f1bc3eac7021aff742aa8252"
+      },
+      {
+        "path": "policy-engine/src/polisyos/data_forge/domains/catalog/batch/core_sources/writers.py",
+        "sha256": "c71931574b691570d8a124e8e582c5fadf685c4973d763adb1ccba97a1d44371"
+      },
+      {
+        "path": "policy-engine/src/polisyos/data_forge/domains/catalog/batch/pipeline.py",
+        "sha256": "e29a95719931d0e473c13ceadd8d0601f315ee224da7cb817e39f29b0ece44dd"
+      },
+      {
+        "path": "policy-engine/src/polisyos/data_forge/domains/catalog/batch/source_registry.py",
+        "sha256": "45b495ce015e0ee7efdf2ab10d69cd0d165c406b331f56e77d8ce93e0c2d28ed"
+      },
+      {
+        "path": "policy-engine/src/polisyos/data_forge/domains/catalog/knowledge/variable_alignment.py",
+        "sha256": "bb547db9fee687f463b633b4f0d6ee24ab527c1b0ea207160aaffddf6c7d1422"
+      },
+      {
+        "path": "policy-engine/src/polisyos/data_forge/domains/catalog/registry.py",
+        "sha256": "9c873a02b832b6d01dd3bff85193e73a89e78cf03926bba9c6d47081c93f206a"
+      },
+      {
+        "path": "policy-engine/src/polisyos/data_forge/domains/catalog/source_modules.py",
+        "sha256": "582275c5a5bb4f4f395a8402b6f10d8f97e813ae1246da6cc7598f1bb4d46b0a"
+      }
+    ],
+    "owned_applied_provenance": null,
+    "preserved_other_owned_rows": {},
+    "preserved_other_owned_provenance": null,
+    "preserved_other_owned_tracked_paths": [],
+    "preserved_other_owned_untracked_paths": [],
+    "preserved_other_owned_unchanged_before_after": true,
+    "P40": {
+      "bucket": "same producer/receipt/consumer content-currentness",
+      "action": "Wire existing producer/reader; exact output inventory and meaningful stale-plan removal control; no marker-based proof."
+    },
+    "bounded_proof": "Independent f5697b source review, all13 supplier byte checks, native canonical Ruff preflight and exact branch blob readback.",
+    "limitations": [
+      "Test implementation only; no new product source or public facade change.",
+      "Runtime UNRUN on adopted source. Prior native static and independent source review are not runtime receipt.",
+      "Local HTTP and synthetic QC/benchmark prerequisite fixtures are not production or native quality authority.",
+      "This does not validate all13 supplier behaviors or Runtime ControlRuntime/C10 serving paths.",
+      "No formal G closure or historical adjudication changed."
+    ],
+    "runtime": "UNRUN on adopted source",
+    "next_check": "Replay full tests/unit/fabric/test_retrieval_service_catalog.py under current frozen source; retain all phases/output/removal outcomes and profile/resource identities; separately complete native QC/benchmark and Runtime serving chains.",
+    "source_profile_freeze": false,
+    "G_acceptance": false,
+    "closure_ids": []
   }
 }

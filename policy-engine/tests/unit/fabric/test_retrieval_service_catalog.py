@@ -2093,3 +2093,294 @@ def test_catalog_plan_requires_generation_profile_input_coverage(
     assert service._catalog_profile_plan_admission(
         "fixture_profile", {"schema_version": "wrong", "profiles": {}}
     ) == (False, "catalog_profile_input_coverage_malformed")
+
+
+def test_real_harvest_currentness_recomputes_and_fresh_catalog_consumer_sees_new_generation(
+    tmp_path: Path, monkeypatch: pytest.MonkeyPatch
+) -> None:
+    """Bind real producer material to its persisted catalog and fresh reader."""
+    import hashlib
+    from http.server import BaseHTTPRequestHandler, ThreadingHTTPServer
+    from threading import Thread
+    from urllib.parse import urlsplit
+
+    from polisyos.data_forge.domains.catalog import registry as catalog_registry
+    from polisyos.data_forge.domains.catalog.batch.pipeline import (
+        _should_skip_stage,
+        current_catalog_publish_receipt,
+        current_content_stage_receipt,
+        run_dataset_pipeline_sync,
+    )
+    from polisyos.data_forge.read_api import catalog as catalog_read_api
+
+    profile_registry = _install_builtin_worldbank_profile_scope(monkeypatch)
+    registry_path = tmp_path / "source_registry.yaml"
+
+    def write_registry(endpoint: str) -> None:
+        registry_path.write_text(
+            "\n".join(
+                (
+                    "version: 1",
+                    "sources:",
+                    "  - name: worldbank",
+                    "    family: worldbank",
+                    "    wave: B",
+                    f"    endpoint: {endpoint}",
+                    "    connector_id: worldbank.wdi",
+                    "    profile_id: worldbank_wdi",
+                    "    execution_tier: transport_ready",
+                    "    run_lane: empirical",
+                    "    publish_blocking: true",
+                    "    metrics_required: true",
+                    "    enabled: true",
+                    "",
+                )
+            ),
+            encoding="utf-8",
+        )
+
+    served_routes: list[str] = []
+
+    class WorldBankFixtureHandler(BaseHTTPRequestHandler):
+        def do_GET(self) -> None:
+            route = urlsplit(self.path).path.rsplit("/", maxsplit=1)[-1]
+            served_routes.append(route)
+            title = "GDP per capita baseline" if route == "a" else "GDP per capita revised"
+            payload = json.dumps(
+                [
+                    {"page": 1, "pages": 1, "per_page": "1000", "total": 1},
+                    [
+                        {
+                            "id": "NY.GDP.PCAP.CD",
+                            "name": title,
+                            "source": {"value": "World Development Indicators"},
+                        }
+                    ],
+                ]
+            ).encode("utf-8")
+            self.send_response(200)
+            self.send_header("Content-Type", "application/json")
+            self.send_header("Content-Length", str(len(payload)))
+            self.end_headers()
+            self.wfile.write(payload)
+
+        def log_message(self, _format: str, *args: object) -> None:
+            del _format, args
+
+    server = ThreadingHTTPServer(("127.0.0.1", 0), WorldBankFixtureHandler)
+    server_thread = Thread(target=server.serve_forever, daemon=True)
+    server_thread.start()
+    endpoint_root = f"http://127.0.0.1:{server.server_port}"
+    endpoint_before = f"{endpoint_root}/a"
+    endpoint_after = f"{endpoint_root}/b"
+    assert len(endpoint_before) == len(endpoint_after)
+
+    try:
+        write_registry(endpoint_before)
+        original_registry_bytes = registry_path.read_bytes()
+        monkeypatch.setattr(
+            catalog_read_api,
+            "load_catalog_source_registry",
+            lambda: catalog_registry.load_catalog_source_registry(registry_path),
+        )
+        config = DatasetBatchConfig(
+            snapshot_root=tmp_path / "snapshot",
+            registry_path=registry_path,
+            run_profile="prod_core_blocking",
+            wave="B",
+            stages=frozenset({"harvest", "normalize", "merge_dedup", "graph_load", "publish"}),
+            resume=True,
+            max_datasets_per_source=10,
+        )
+        assert config.metrics_map_path is None
+        assert config.resolved_metrics_map_path.is_file()
+
+        # These are test-only publish prerequisites. They do not exercise the
+        # native benchmark/QC producers or assert empirical readiness.
+        config.qc_report_path.parent.mkdir(parents=True, exist_ok=True)
+        config.qc_report_path.write_text(
+            json.dumps({"scope": "datasets", "passed": True, "metrics": {}, "checks": []}),
+            encoding="utf-8",
+        )
+        config.benchmark_report_path.write_text(
+            json.dumps(
+                {
+                    "kind": "datasets_benchmark",
+                    "evaluation_mode": "full-ready",
+                    "metrics": {
+                        "benchmark_search_top5_relevance_pct": 100.0,
+                        "benchmark_retrieval_ready_pct": 100.0,
+                        "benchmark_transport_ready_pct": 100.0,
+                        "benchmark_foundry_fitness_pct": 100.0,
+                        "benchmark_source_preflight_ready_pct": 100.0,
+                        "benchmark_bulk_equivalence_mismatch_rate": 0.0,
+                        "benchmark_bulk_equivalence_blocking_sources_total": 0,
+                    },
+                    "source_preflight": {
+                        "sources": [{"source": "worldbank", "status": "complete", "ready": True}]
+                    },
+                }
+            ),
+            encoding="utf-8",
+        )
+
+        def _assert_harvest_inventory_matches_independent_oracle() -> None:
+            receipt = current_content_stage_receipt(config, "harvest")
+            assert receipt is not None and receipt["state"] == "current"
+            basis = receipt["input_basis"]
+            inputs = basis["inputs"]
+            registry_record = inputs["source_registry"]["records"][0]
+            assert (
+                registry_record["sha256"] == hashlib.sha256(registry_path.read_bytes()).hexdigest()
+            )
+            selected = config.load_registry().enabled_sources(
+                wave=config.wave,
+                run_profile=config.run_profile,
+            )
+            assert [source.name for source in selected] == ["worldbank"]
+            inventory = receipt["output_inventory"]
+            assert inventory["selected_sources"] == [source.name for source in selected]
+            entries = inventory["entries"]
+            expected_paths = {
+                config.manifests_dir / "harvest.json",
+                config.harvest_checkpoint_path,
+                config.raw_dir / "worldbank" / config.snapshot_root.name / "payload.jsonl",
+                config.raw_dir / "worldbank" / config.snapshot_root.name / "manifest.json",
+            }
+            assert {Path(entry["path"]) for entry in entries} == {
+                path.resolve() for path in expected_paths
+            }
+            for entry in entries:
+                artifact = Path(entry["path"])
+                assert entry["kind"] == "file" and entry["exists"] is True
+                assert entry["size"] == artifact.stat().st_size
+                assert entry["sha256"] == hashlib.sha256(artifact.read_bytes()).hexdigest()
+
+        first_run = run_dataset_pipeline_sync(config)
+        assert first_run.metrics["harvest_records"] == 1
+        assert served_routes == ["a"]
+        _assert_harvest_inventory_matches_independent_oracle()
+        unchanged_run = run_dataset_pipeline_sync(config)
+        assert {
+            "harvest",
+            "normalize",
+            "merge_dedup",
+            "graph_load",
+            "publish",
+        }.issubset(set(unchanged_run.skipped_stages))
+        assert served_routes == ["a"]
+        _assert_harvest_inventory_matches_independent_oracle()
+        first_receipt = current_catalog_publish_receipt(
+            config.db_path, run_profile=config.run_profile
+        )
+        assert first_receipt["state"] == "current"
+        first_digest = first_receipt["input_basis_digest"]
+        first_inventory = first_receipt["output_inventory_digest"]
+        first_coverage = first_receipt["profile_input_coverage"]
+
+        def open_consumer(label: str) -> tuple[DatasetCatalogGraph, RetrievalService]:
+            catalog = DatasetCatalogGraph(
+                config.db_path,
+                config.index_dir,
+                overlay_path=tmp_path / f"missing-{label}-overlay.duckdb",
+            )
+            service = RetrievalService(
+                curated_dir=tmp_path / f"curated-{label}",
+                dataset_catalog=catalog,
+                profiles=profile_registry,
+            )
+            return catalog, service
+
+        request = DataResolveRequest(
+            data_needs=[DataNeed(metric="gdp_per_capita")],
+            mode="fastlane",
+            allow_explore_fallback=False,
+        )
+        catalog, warm_service = open_consumer("warm")
+        try:
+            initial = warm_service.resolve(request, run_profile=config.run_profile)
+            assert len(initial.fetch_plans) == 1
+            first_plan = initial.fetch_plans[0]
+            assert first_plan.connector_id == "worldbank.wdi"
+            assert first_plan.profile_id == "worldbank_wdi"
+            assert first_plan.metadata["catalog_title"] == "GDP per capita baseline"
+            first_dataset_id = first_plan.dataset_id
+
+            old_stat = registry_path.stat()
+            write_registry(endpoint_after)
+            os.utime(registry_path, ns=(old_stat.st_atime_ns, old_stat.st_mtime_ns))
+            changed_stat = registry_path.stat()
+            assert changed_stat.st_size == old_stat.st_size
+            assert changed_stat.st_mtime_ns == old_stat.st_mtime_ns
+            assert registry_path.read_bytes() != original_registry_bytes
+            assert _should_skip_stage(config, "harvest") is False
+
+            stale_receipt = current_catalog_publish_receipt(
+                config.db_path, run_profile=config.run_profile
+            )
+            assert stale_receipt["state"] == "stale"
+            stale = warm_service.resolve(request, run_profile=config.run_profile)
+            assert stale.fetch_plans == []
+            assert any(item.startswith("catalog_source_stale:") for item in stale.warnings)
+
+            # Removal control: if the currentness gate is removed, the warm
+            # reader emits the stale baseline plan. This tests the property,
+            # rather than a marker or exit code.
+            monkeypatch.setattr(
+                warm_service,
+                "_catalog_publish_admission",
+                lambda _catalog, _run_profile: (
+                    "current",
+                    "removed_currentness_gate_control",
+                    first_coverage,
+                ),
+            )
+            stale_without_gate = warm_service.resolve(request, run_profile=config.run_profile)
+            assert len(stale_without_gate.fetch_plans) == 1
+            assert (
+                stale_without_gate.fetch_plans[0].metadata["catalog_title"]
+                == "GDP per capita baseline"
+            )
+        finally:
+            catalog.close()
+
+        second_run = run_dataset_pipeline_sync(config)
+        assert served_routes == ["a", "b"]
+        assert not {
+            "harvest",
+            "normalize",
+            "merge_dedup",
+            "graph_load",
+            "publish",
+        }.intersection(second_run.skipped_stages)
+        second_receipt = current_catalog_publish_receipt(
+            config.db_path, run_profile=config.run_profile
+        )
+        assert second_receipt["state"] == "current"
+        assert second_receipt["input_basis_digest"] != first_digest
+        assert second_receipt["output_inventory_digest"] != first_inventory
+
+        fresh_catalog = DatasetCatalogGraph(
+            config.db_path,
+            config.index_dir,
+            overlay_path=tmp_path / "missing-fresh-overlay.duckdb",
+        )
+        try:
+            fresh_service = RetrievalService(
+                curated_dir=tmp_path / "curated-fresh",
+                dataset_catalog=fresh_catalog,
+                profiles=profile_registry,
+            )
+            fresh = fresh_service.resolve(request, run_profile=config.run_profile)
+            assert len(fresh.fetch_plans) == 1
+            final_plan = fresh.fetch_plans[0]
+            assert final_plan.connector_id == first_plan.connector_id
+            assert final_plan.profile_id == first_plan.profile_id
+            assert final_plan.dataset_id == first_dataset_id
+            assert final_plan.metadata["catalog_title"] == "GDP per capita revised"
+        finally:
+            fresh_catalog.close()
+    finally:
+        server.shutdown()
+        server.server_close()
+        server_thread.join(timeout=5)

@@ -6,7 +6,7 @@ import dataclasses
 import hashlib
 import math
 import struct
-from collections.abc import Iterable, Sequence
+from collections.abc import Iterable, Mapping, Sequence
 from dataclasses import dataclass
 from io import BytesIO
 from pathlib import Path
@@ -62,6 +62,16 @@ _MAX_BOUNDED_INPUT_SNAPSHOT_BYTES = 256 * 1024
 _MAX_BOUNDED_INPUT_STATE_BLOB_BYTES = 5 * 1024 * 1024
 _MAX_BOUNDED_INPUT_ENTRIES = 32
 _MAX_BOUNDED_INPUT_ELEMENTS = 1_000_000
+
+
+def _is_snapshot_slot_id(value: object) -> bool:
+    """Return whether a sparse slot key has one unambiguous NPZ basename."""
+    return (
+        type(value) is str
+        and 0 < len(value) <= 256
+        and value.isascii()
+        and value.replace("_", "").isalnum()
+    )
 
 
 class _BoundedStateSnapshotStore(
@@ -291,10 +301,7 @@ def read_state_snapshot_inputs_bounded(
         or snapshot_ref.manifest_profile_sha256 is None
         or not slot_ids
         or len(slot_ids) > 32
-        or any(
-            type(slot_id) is not str or not slot_id or not slot_id.replace("_", "").isalnum()
-            for slot_id in slot_ids
-        )
+        or any(not _is_snapshot_slot_id(slot_id) for slot_id in slot_ids)
         or len(set(slot_ids)) != len(slot_ids)
     ):
         refuse("state_snapshot_selected_input_contract_invalid")
@@ -368,6 +375,9 @@ def read_state_snapshot_inputs_bounded(
         }
     )
     integrity["snapshot_payload_integrity_verified"] = bounded.payload_integrity_verified
+    method_input_manifest_schema = StateSnapshot.SCHEMA_MANIFEST_VERSION_BY_PAYLOAD_VERSION[
+        StateSnapshot.METHOD_INPUT_SCHEMA_VERSION
+    ]
     if (
         bounded.effective_ref.artifact_id != snapshot_ref.artifact_id
         or bounded.effective_ref.kind != snapshot_ref.kind
@@ -376,7 +386,7 @@ def read_state_snapshot_inputs_bounded(
         or bounded.manifest.kind != "foundry.state_snapshot"
         or bounded.manifest.media_type != "application/json"
         or bounded.manifest.artifact_schema
-        != SchemaInfo(name="polisyos.core.StateSnapshot", version="2.2.0")
+        != SchemaInfo(name="polisyos.core.StateSnapshot", version=method_input_manifest_schema)
     ):
         refuse("state_snapshot_manifest_identity_mismatch")
     if not bounded.payload_integrity_verified:
@@ -387,9 +397,10 @@ def read_state_snapshot_inputs_bounded(
     except Exception:
         refuse("state_snapshot_payload_parse_failed")
     if (
-        snapshot.schema_version != "2.2"
+        snapshot.schema_version != StateSnapshot.METHOD_INPUT_SCHEMA_VERSION
         or snapshot.codec != _SNAPSHOT_CODEC
         or snapshot.format_version != _SNAPSHOT_FORMAT_VERSION
+        or snapshot.layout != StateSnapshot.METHOD_INPUT_LAYOUT
         or snapshot.lineage_inputs is None
         or snapshot.entry_count != len(slot_ids)
         or snapshot.state_ref.kind != "foundry.state_blob"
@@ -636,10 +647,15 @@ def load_state_snapshot(
 ) -> GlobalState:
     """Load state snapshot."""
     snapshot = load_model(store, snapshot_ref, StateSnapshot)
+    if snapshot.layout is not None or "layout" in snapshot.model_fields_set:
+        raise _SnapshotStateLayoutError(
+            "Snapshot layout is explicit and cannot be reconstructed as canonical GlobalState"
+        )
     _validate_snapshot_lineage(store, snapshot_ref=snapshot_ref, snapshot=snapshot)
     # v2.0/v2.1 persisted the state-blob edge by bare artifact ID. Preserve
     # that historical projection even when the payload happens to contain a
-    # newer selected-view marker. Only v2.2 binds reads to the exact view.
+    # newer selected-view marker. The full-state reader uses v2.2 exact-view lineage;
+    # v2.3 also binds its selected blob view but is rejected above as sparse input.
     state_blob_ref: ArtifactRef | ArtifactID = snapshot.state_ref
     if snapshot.schema_version in {"2.0", "2.1"}:
         state_blob_ref = snapshot.state_ref.artifact_id
@@ -650,6 +666,12 @@ def load_state_snapshot(
     _validate_snapshot_blob(snapshot, data)
     with np.load(BytesIO(data), allow_pickle=False) as blob:
         nested = _nest_state_from_keys(blob.files)
+        try:
+            _validate_legacy_global_state_layout(GlobalState, nested)
+        except (TypeError, ValueError) as exc:
+            raise _SnapshotStateLayoutError(
+                "Snapshot state layout is incompatible with canonical GlobalState"
+            ) from exc
         try:
             cpu_devices = list(jax.devices("cpu"))
         except (RuntimeError, TypeError, ValueError):
@@ -674,7 +696,7 @@ def _validate_snapshot_lineage(
     """Validate historical bare lineage or the current exact-view lineage."""
     if snapshot.schema_version == "2.0":
         return
-    if snapshot.schema_version not in {"2.1", "2.2"}:
+    if snapshot.schema_version not in StateSnapshot.SCHEMA_MANIFEST_VERSION_BY_PAYLOAD_VERSION:
         raise ValueError(f"Unsupported StateSnapshot schema_version: {snapshot.schema_version}")
     if snapshot.lineage_inputs is None:
         raise ValueError(f"StateSnapshot {snapshot.schema_version} payload missing lineage_inputs")
@@ -689,11 +711,12 @@ def _validate_snapshot_lineage(
         manifest_ref: ArtifactRef | ArtifactID | str = (
             snapshot_ref.artifact_id if isinstance(snapshot_ref, ArtifactRef) else snapshot_ref
         )
-        schema_version = "2.1.0"
     else:
         expected_state_blob = artifact_input_ref(snapshot.state_ref, role="state_blob")
         manifest_ref = snapshot_ref
-        schema_version = "2.2.0"
+    schema_version = StateSnapshot.SCHEMA_MANIFEST_VERSION_BY_PAYLOAD_VERSION[
+        snapshot.schema_version
+    ]
 
     if not snapshot.lineage_inputs or snapshot.lineage_inputs[-1] != expected_state_blob:
         raise ValueError(
@@ -718,8 +741,13 @@ def put_state_snapshot(
     step: int | None = None,
     inputs: list[InputRef] | None = None,
     return_selected_profile: bool = False,
-) -> ArtifactRef:
-    """Persist a GlobalState-compatible object as a checksummed NPZ snapshot."""
+) -> StateSnapshotRef:
+    """Persist dataclass state or a flat numeric slot map as an NPZ snapshot.
+
+    Flat slot maps are sparse method-input captures. Their consumer is
+    ``read_state_snapshot_inputs_bounded``; ``load_state_snapshot`` remains the
+    GlobalState reconstruction path.
+    """
     _validate_return_selected_profile(return_selected_profile)
     if return_selected_profile:
         _require_return_selected_profile_writer(store, "put_bytes")
@@ -745,27 +773,40 @@ def put_state_snapshot(
         )
     snapshot_inputs = list(inputs or [])
     snapshot_inputs.append(artifact_input_ref(blob_ref, role="state_blob"))
-    snapshot = StateSnapshot(
-        schema_version="2.2",
-        state_ref=blob_ref,
-        step=step,
-        format_version=_SNAPSHOT_FORMAT_VERSION,
-        checksum_sha256=checksum,
-        entry_count=len(flat),
-        codec=_SNAPSHOT_CODEC,
-        lineage_inputs=snapshot_inputs,
-        notes=[f"snapshot_format:{_SNAPSHOT_FORMAT_VERSION}"],
+    is_method_input_snapshot = isinstance(state, Mapping) and not dataclasses.is_dataclass(state)
+    payload_schema_version = (
+        StateSnapshot.METHOD_INPUT_SCHEMA_VERSION if is_method_input_snapshot else "2.2"
     )
-    return store.put_json(
+    snapshot_values: dict[str, Any] = {
+        "schema_version": payload_schema_version,
+        "state_ref": blob_ref,
+        "step": step,
+        "format_version": _SNAPSHOT_FORMAT_VERSION,
+        "checksum_sha256": checksum,
+        "entry_count": len(flat),
+        "codec": _SNAPSHOT_CODEC,
+        "lineage_inputs": snapshot_inputs,
+        "notes": [f"snapshot_format:{_SNAPSHOT_FORMAT_VERSION}"],
+    }
+    if is_method_input_snapshot:
+        snapshot_values["layout"] = StateSnapshot.METHOD_INPUT_LAYOUT
+    snapshot = StateSnapshot(**snapshot_values)
+    snapshot_ref = store.put_json(
         snapshot,
         PutOptions(
             kind="foundry.state_snapshot",
             media_type="application/json",
-            schema=SchemaInfo(name="polisyos.core.StateSnapshot", version="2.2.0"),
+            schema=SchemaInfo(
+                name="polisyos.core.StateSnapshot",
+                version=StateSnapshot.SCHEMA_MANIFEST_VERSION_BY_PAYLOAD_VERSION[
+                    payload_schema_version
+                ],
+            ),
             inputs=snapshot_inputs,
         ),
         return_selected_profile=return_selected_profile,
     )
+    return StateSnapshotRef.model_validate(snapshot_ref.model_dump(mode="python"))
 
 
 def export_seed_state_npz(state: GlobalState, path: str | Path) -> Path:
@@ -782,6 +823,12 @@ def import_seed_state_npz(path: str | Path) -> GlobalState:
     with np.load(Path(path), allow_pickle=False) as loaded:
         nested = _nest_state_from_keys(loaded.files)
         try:
+            _validate_legacy_global_state_layout(GlobalState, nested)
+        except (TypeError, ValueError) as exc:
+            raise _SnapshotStateLayoutError(
+                "Seed snapshot state layout is incompatible with canonical GlobalState"
+            ) from exc
+        try:
             cpu_devices = list(jax.devices("cpu"))
         except (RuntimeError, TypeError, ValueError):
             cpu_devices = []
@@ -797,6 +844,7 @@ def import_seed_state_npz(path: str | Path) -> GlobalState:
 
 
 def _flatten_state(obj: Any, prefix: str = "") -> Iterable[tuple[str, np.ndarray]]:
+    """Flatten dataclass state or one bounded, named sparse input map."""
     stack: list[tuple[Any, str]] = [(obj, prefix)]
     while stack:
         current, current_prefix = stack.pop()
@@ -806,6 +854,36 @@ def _flatten_state(obj: Any, prefix: str = "") -> Iterable[tuple[str, np.ndarray
             fields = list(dataclasses.fields(current))
             for field in reversed(fields):
                 stack.append((getattr(current, field.name), f"{current_prefix}{field.name}."))
+            continue
+        if isinstance(current, Mapping):
+            if current_prefix:
+                raise ValueError("Sparse snapshot input maps must be at the root")
+            if not current:
+                raise ValueError("Cannot snapshot an empty mapping")
+            items = list(current.items())
+            if len(items) > _MAX_BOUNDED_INPUT_ENTRIES:
+                raise ValueError("Snapshot input mapping exceeds the slot limit")
+            if any(not _is_snapshot_slot_id(name) for name, _value in items) or len(
+                {name for name, _value in items}
+            ) != len(items):
+                raise ValueError("Invalid snapshot mapping key")
+            total_elements = 0
+            for name, value in items:
+                if type(value) is not np.ndarray:
+                    raise TypeError("Snapshot input mappings require NumPy arrays")
+                if (
+                    value.ndim != 1
+                    or value.size == 0
+                    or value.dtype.hasobject
+                    or value.dtype.kind not in {"i", "u", "f"}
+                    or (value.dtype.kind == "f" and not np.isfinite(value).all())
+                ):
+                    raise ValueError("Snapshot input arrays must be finite numeric vectors")
+                total_elements += int(value.size)
+                if total_elements > _MAX_BOUNDED_INPUT_ELEMENTS:
+                    raise ValueError("Snapshot input mapping exceeds the element limit")
+            for name, value in sorted(items, key=lambda item: item[0], reverse=True):
+                stack.append((value, f"{name}."))
             continue
         key = current_prefix[:-1]
         if not key:
@@ -933,6 +1011,41 @@ def _build_dataclass(cls, data: dict[str, Any], *, blob: Any | None = None) -> A
                 raise ValueError(f"Missing value for '{field.name}'")
             kwargs[field.name] = _decode_snapshot_leaf(value, blob=blob)
     return cls(**kwargs)
+
+
+def _validate_legacy_global_state_layout(cls: type[Any], data: dict[str, Any]) -> None:
+    """Require an untyped historical NPZ to contain a complete GlobalState shape."""
+    if not dataclasses.is_dataclass(cls) or not isinstance(data, dict):
+        raise ValueError("legacy_state_snapshot_layout_not_a_dataclass_mapping")
+    known_fields = {field.name: field for field in dataclasses.fields(cls)}
+    if set(data) - set(known_fields):
+        raise ValueError("legacy_state_snapshot_has_unknown_fields")
+    type_hints = _dataclass_type_hints(cls)
+    for field_name, field in known_fields.items():
+        if field_name not in data:
+            has_default = (
+                field.default is not dataclasses.MISSING
+                or field.default_factory is not dataclasses.MISSING
+            )
+            field_type = type_hints.get(field_name, field.type)
+            _nested_cls, optional_nested = _resolve_nested_dataclass_type(field_type)
+            _model_cls, optional_model = _resolve_basemodel_type(field_type)
+            if not has_default and not optional_nested and not optional_model:
+                raise ValueError("legacy_state_snapshot_missing_required_field")
+            continue
+        value = data[field_name]
+        field_type = type_hints.get(field_name, field.type)
+        nested_cls, _optional_nested = _resolve_nested_dataclass_type(field_type)
+        model_cls, _optional_model = _resolve_basemodel_type(field_type)
+        if nested_cls is not None:
+            if not isinstance(value, dict):
+                raise ValueError("legacy_state_snapshot_nested_field_is_not_a_mapping")
+            _validate_legacy_global_state_layout(nested_cls, value)
+        elif model_cls is not None:
+            if not isinstance(value, (_SnapshotLeaf, _SnapshotScalar)):
+                raise ValueError("legacy_state_snapshot_model_field_is_not_a_leaf")
+        elif not isinstance(value, (_SnapshotLeaf, _SnapshotScalar)):
+            raise ValueError("legacy_state_snapshot_value_field_is_not_a_leaf")
 
 
 def _decode_model_leaf(

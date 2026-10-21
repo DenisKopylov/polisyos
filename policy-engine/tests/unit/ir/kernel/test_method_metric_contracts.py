@@ -1,12 +1,15 @@
 from __future__ import annotations
 
 import hashlib
+import inspect
 import json
 import struct
 from datetime import UTC, datetime, timedelta
 
 import pytest
+from pydantic import ValidationError
 
+from polisyos.foundry.methods.catalog.policy.evaluation import ExAnteSimulationEstimator
 from polisyos.ir import kernel as kernel_facade
 from polisyos.ir.kernel.method_metrics import (
     METHOD_METRIC_DIRECT_OUTPUT_LAW_ID,
@@ -443,6 +446,19 @@ def _input_digest(values: tuple[int | float, ...], *, dtype: str = "<f8") -> str
     return digest.hexdigest()
 
 
+def _ex_ante_method_identity() -> dict[str, str]:
+    signature = ExAnteSimulationEstimator.signature
+    source = inspect.getsource(ExAnteSimulationEstimator).encode("utf-8")
+    return {
+        "method_fqn": signature.fqn,
+        "method_version": signature.version,
+        "method_abi_digest": signature.abi_digest(),
+        "method_abi_digest_algorithm": "blake2b",
+        "method_build_digest": "sha256:" + hashlib.sha256(source).hexdigest(),
+        "method_build_digest_scope": "class_source_only",
+    }
+
+
 def _ex_ante_execution_context(
     *,
     baseline: tuple[int | float, ...] = (1.0, 2.0, 5.0),
@@ -453,30 +469,39 @@ def _ex_ante_execution_context(
     started_at = datetime(2026, 10, 20, tzinfo=UTC)
     baseline_digest = _input_digest(baseline, dtype=dtype)
     scenario_digest = _input_digest(scenario, dtype=dtype)
+    signature = ExAnteSimulationEstimator.signature
     template = _execution_context().model_dump(mode="python")
+    template.update(_ex_ante_method_identity())
     template.update(
         {
-            "dispatch_outcome": "succeeded",
-            "method_fqn": "policy.evaluation.ex_ante_simulation@1.0.0",
-            "method_version": "1.0.0",
-            "method_build_digest": "sha256:" + "f" * 64,
-            "method_build_digest_scope": "class_source_only",
             "output_slot_id": "result",
             "output_value_path": ("mean_change",),
+            "signature_input_slot_ids": tuple(sorted(slot.name for slot in signature.input_slots)),
+            "signature_output_slot_ids": tuple(
+                sorted(slot.name for slot in signature.output_slots)
+            ),
+            "signature_parameter_names": tuple(sorted(item.name for item in signature.parameters)),
+            "dispatch_outcome": "succeeded",
             "started_at": started_at,
             "completed_at": started_at + timedelta(milliseconds=1),
             "graph_input_ids": ("baseline", "scenario"),
-            "signature_input_slot_ids": ("baseline", "scenario"),
-            "signature_output_slot_ids": ("result",),
-            "signature_parameter_names": ("poverty_line",),
             "parameter_resolution_status": "captured",
-            "parameter_values": (
+            "parameter_values": tuple(
                 MethodMetricParameterContext(
-                    name="poverty_line",
+                    name=parameter.name,
                     source="signature_default",
                     status="captured",
-                    value_sha256=hashlib.sha256(b"null").hexdigest(),
-                ),
+                    value_sha256=hashlib.sha256(
+                        json.dumps(
+                            parameter.default,
+                            ensure_ascii=False,
+                            allow_nan=False,
+                            sort_keys=True,
+                            separators=(",", ":"),
+                        ).encode("utf-8")
+                    ).hexdigest(),
+                )
+                for parameter in signature.parameters
             ),
             "prestate_identity_status": "captured",
             "prestate_identity_sha256": prestate_sha256,
@@ -506,12 +531,14 @@ def _ex_ante_execution_context(
             ),
             "requested_backend": "numpy",
             "selected_backend": "numpy",
+            "backend_selection_reason": "registered_numpy_method",
             "actual_backend": "numpy",
             "backend_trace_status": "captured",
             "backend_attempts": (MethodMetricBackendAttempt(backend="numpy", outcome="success"),),
             "fallback_status": "not_fell_back",
             "backend_identity_status": "reconciled",
             "seed_status": "reconciled",
+            "rng_state_status": "runner_rng_state_not_retained",
         }
     )
     context = MethodMetricExecutionContext.model_validate(template)
@@ -547,17 +574,18 @@ def _ex_ante_law(
     output_path: tuple[str, ...] = ("mean_change",),
 ):
     default_context, default_inputs = _ex_ante_execution_context()
+    identity = _ex_ante_method_identity()
     return apply_registered_ex_ante_mean_change_law(
         value,
         semantics or _ex_ante_semantics(),
         execution_context=context or default_context,
         input_values=inputs or default_inputs,
         input_capture_prestate_identity_sha256=prestate_sha256,
-        expected_method_fqn="policy.evaluation.ex_ante_simulation@1.0.0",
-        expected_method_version="1.0.0",
-        expected_method_abi_digest="a" * 64,
-        expected_method_abi_digest_algorithm="blake2b",
-        expected_method_build_digest="sha256:" + "f" * 64,
+        expected_method_fqn=identity["method_fqn"],
+        expected_method_version=identity["method_version"],
+        expected_method_abi_digest=identity["method_abi_digest"],
+        expected_method_abi_digest_algorithm=identity["method_abi_digest_algorithm"],
+        expected_method_build_digest=identity["method_build_digest"],
         expected_output_slot_id="result",
         expected_output_value_path=output_path,
         target_unit=GenericUnit(label="value"),
@@ -585,6 +613,162 @@ def test_registered_ex_ante_semantics_are_exact_and_method_scoped() -> None:
     )
 
 
+@pytest.mark.parametrize(
+    ("updates", "limitation"),
+    [
+        pytest.param(
+            {"dispatch_outcome": "failed"},
+            "ex_ante_execution_context_not_established",
+            id="failed-dispatch",
+        ),
+        pytest.param(
+            {"parameter_resolution_status": "not_established"},
+            "ex_ante_execution_context_not_established",
+            id="parameter-resolution-not-established",
+        ),
+        pytest.param(
+            {"graph_input_ids": ("baseline",)},
+            "ex_ante_execution_context_not_established",
+            id="graph-input-inventory-incomplete",
+        ),
+        pytest.param(
+            {"signature_parameter_names": (), "parameter_values": ()},
+            "ex_ante_execution_context_not_established",
+            id="signature-parameter-inventory-does-not-match-law",
+        ),
+        pytest.param(
+            {
+                "signature_input_slot_ids": ("baseline",),
+                "input_slot_values": (
+                    MethodMetricInputContext(
+                        method_input_slot_id="baseline", status="captured", value_sha256="d" * 64
+                    ),
+                ),
+                "input_role_values": (
+                    MethodMetricInputRoleContext(
+                        role_id="baseline", method_input_slot_id="baseline", value_sha256="d" * 64
+                    ),
+                ),
+            },
+            "ex_ante_execution_context_not_established",
+            id="signature-input-inventory-incomplete",
+        ),
+        pytest.param(
+            {"requested_backend": "accelerator"},
+            "ex_ante_execution_context_not_established",
+            id="requested-backend-disagrees-with-registered-method",
+        ),
+        pytest.param(
+            {
+                "selected_backend": "cpu",
+                "actual_backend": "cpu",
+                "backend_attempts": (MethodMetricBackendAttempt(backend="cpu", outcome="success"),),
+            },
+            "ex_ante_execution_context_not_established",
+            id="selected-and-observed-backend-disagree-with-registered-method",
+        ),
+        pytest.param(
+            {
+                "backend_trace_status": "not_established",
+                "backend_attempts": (),
+                "fallback_status": "not_established",
+                "backend_identity_status": "not_established",
+                "actual_backend": None,
+            },
+            "ex_ante_execution_context_not_established",
+            id="backend-trace-not-established",
+        ),
+        pytest.param(
+            {
+                "backend_attempts": (
+                    MethodMetricBackendAttempt(backend="cpu", outcome="failure"),
+                    MethodMetricBackendAttempt(backend="numpy", outcome="success"),
+                ),
+                "fallback_status": "fell_back",
+            },
+            "ex_ante_execution_context_not_established",
+            id="backend-fell-back",
+        ),
+        pytest.param(
+            {"backend_identity_status": "mismatch", "actual_backend": None},
+            "ex_ante_execution_context_not_established",
+            id="backend-identity-mismatch",
+        ),
+        pytest.param(
+            {"backend_identity_status": "not_established", "actual_backend": None},
+            "ex_ante_execution_context_not_established",
+            id="backend-identity-not-established",
+        ),
+        pytest.param(
+            {"seed_status": "mismatch"},
+            "ex_ante_execution_context_not_established",
+            id="seed-not-reconciled",
+        ),
+        pytest.param(
+            {"rng_state_status": "key_captured"},
+            "ex_ante_execution_context_not_established",
+            id="runner-rng-retention-not-established",
+        ),
+    ],
+)
+def test_ex_ante_law_refuses_each_incomplete_execution_premise_independently(
+    updates: dict[str, object], limitation: str
+) -> None:
+    context, inputs = _ex_ante_execution_context()
+    payload = context.model_dump(mode="python")
+    payload.update(updates)
+    changed_context = MethodMetricExecutionContext.model_validate(payload)
+
+    result = _ex_ante_law(1.0, context=changed_context, inputs=inputs)
+
+    assert result.status == "unavailable"
+    assert result.value is None
+    assert result.limitation == limitation
+
+
+def test_ex_ante_execution_context_rejects_unregistered_abi_digest_algorithm() -> None:
+    context, _inputs = _ex_ante_execution_context()
+    payload = context.model_dump(mode="python")
+    payload["method_abi_digest_algorithm"] = "sha256"
+
+    with pytest.raises(ValueError, match="method_abi_digest_algorithm"):
+        MethodMetricExecutionContext.model_validate(payload)
+
+
+@pytest.mark.parametrize(
+    "updates",
+    [
+        pytest.param({"method_fqn": "other.method@1.0.0"}, id="method-fqn"),
+        pytest.param({"method_version": "2.0.0"}, id="method-version"),
+        pytest.param({"method_abi_digest": "0" * 64}, id="method-abi-digest"),
+        pytest.param(
+            {"method_build_digest": "sha256:" + "0" * 64},
+            id="method-build-digest",
+        ),
+        pytest.param(
+            {"method_build_digest": None, "method_build_digest_scope": "unavailable"},
+            id="method-build-digest-scope",
+        ),
+        pytest.param({"output_slot_id": "other"}, id="output-slot"),
+        pytest.param({"output_value_path": ("median_change",)}, id="output-value-path"),
+        pytest.param({"signature_output_slot_ids": ()}, id="declared-output-inventory"),
+    ],
+)
+def test_ex_ante_law_refuses_each_method_binding_identity_mismatch_independently(
+    updates: dict[str, object],
+) -> None:
+    context, inputs = _ex_ante_execution_context()
+    payload = context.model_dump(mode="python")
+    payload.update(updates)
+    changed_context = MethodMetricExecutionContext.model_validate(payload)
+
+    result = _ex_ante_law(1.0, context=changed_context, inputs=inputs)
+
+    assert result.status == "unavailable"
+    assert result.value is None
+    assert result.limitation == "method_execution_binding_identity_mismatch"
+
+
 def test_ex_ante_mean_change_recomputes_actual_paired_input_rows() -> None:
     result = _ex_ante_law(1.0)
 
@@ -610,6 +794,174 @@ def test_ex_ante_mean_change_requires_graph_input_slot_alignment() -> None:
 
     assert result.status == "unavailable"
     assert result.limitation == "ex_ante_execution_context_not_established"
+
+
+@pytest.mark.parametrize(
+    "context_updates",
+    [
+        pytest.param({"dispatch_outcome": "failed"}, id="failed-dispatch"),
+        pytest.param(
+            {"parameter_resolution_status": "not_established"},
+            id="parameter-resolution-unestablished",
+        ),
+        pytest.param({"graph_input_ids": ("baseline",)}, id="graph-input-omitted"),
+        pytest.param({"parameter_values": ()}, id="parameter-inventory-omitted"),
+        pytest.param(
+            {"signature_parameter_names": ("other",)},
+            id="parameter-signature-changed",
+        ),
+        pytest.param(
+            {"signature_input_slot_ids": ("baseline",)},
+            id="input-signature-incomplete",
+        ),
+        pytest.param(
+            {"signature_output_slot_ids": ("result", "other")},
+            id="output-signature-expanded",
+        ),
+        pytest.param({"requested_backend": None}, id="requested-backend-absent"),
+        pytest.param({"selected_backend": "jax"}, id="selected-backend-differs"),
+        pytest.param({"actual_backend": None}, id="actual-backend-absent"),
+        pytest.param(
+            {"backend_trace_status": "not_established"},
+            id="backend-trace-unestablished",
+        ),
+        pytest.param(
+            {"backend_identity_status": "not_established"},
+            id="backend-identity-unreconciled",
+        ),
+        pytest.param({"fallback_status": "fell_back"}, id="backend-fell-back"),
+        pytest.param({"seed_status": "mismatch"}, id="seed-mismatch"),
+        pytest.param(
+            {"rng_state_status": "key_captured"},
+            id="runner-rng-retention-missing",
+        ),
+    ],
+)
+def test_ex_ante_law_rejects_each_unestablished_dispatch_context_predicate(
+    context_updates: dict[str, object],
+) -> None:
+    context, inputs = _ex_ante_execution_context()
+
+    result = _ex_ante_law(1.0, context=context.model_copy(update=context_updates), inputs=inputs)
+
+    assert result.status == "unavailable"
+    assert result.limitation == "ex_ante_execution_context_not_established"
+
+
+@pytest.mark.parametrize(
+    ("updates", "dto_accepts"),
+    [
+        pytest.param({"requested_backend": "accelerator"}, True, id="wrong-requested"),
+        pytest.param(
+            {
+                "selected_backend": "cpu",
+                "actual_backend": "cpu",
+                "backend_attempts": (
+                    MethodMetricBackendAttempt(backend="numpy", outcome="failure"),
+                    MethodMetricBackendAttempt(backend="cpu", outcome="success"),
+                ),
+                "fallback_status": "fell_back",
+            },
+            True,
+            id="reconciled-but-wrong-selected-and-actual",
+        ),
+        pytest.param(
+            {
+                "backend_attempts": (
+                    MethodMetricBackendAttempt(backend="cpu", outcome="failure"),
+                    MethodMetricBackendAttempt(backend="numpy", outcome="success"),
+                ),
+                "fallback_status": "fell_back",
+            },
+            True,
+            id="reconciled-with-fallback",
+        ),
+        pytest.param(
+            {"backend_identity_status": "mismatch", "actual_backend": None},
+            True,
+            id="mismatch-without-identity",
+        ),
+        pytest.param(
+            {"backend_identity_status": "not_established", "actual_backend": None},
+            True,
+            id="not-established-without-identity",
+        ),
+        pytest.param(
+            {
+                "backend_trace_status": "not_established",
+                "backend_attempts": (),
+                "fallback_status": "not_established",
+                "backend_identity_status": "not_established",
+                "actual_backend": None,
+            },
+            True,
+            id="trace-not-established",
+        ),
+        pytest.param(
+            {"backend_identity_status": "reconciled", "actual_backend": None},
+            False,
+            id="reconciled-without-actual",
+        ),
+        pytest.param(
+            {"backend_identity_status": "mismatch", "actual_backend": "cpu"},
+            False,
+            id="unexpected-actual-under-mismatch",
+        ),
+        pytest.param(
+            {"backend_identity_status": "not_established", "actual_backend": "numpy"},
+            False,
+            id="actual-present-under-unestablished-status",
+        ),
+        pytest.param({"requested_backend": None}, False, id="requested-absent"),
+        pytest.param({"selected_backend": None}, False, id="selected-absent"),
+    ],
+)
+def test_ex_ante_backend_provider_truth_matrix(
+    updates: dict[str, object], dto_accepts: bool
+) -> None:
+    context, inputs = _ex_ante_execution_context()
+    payload = context.model_dump(mode="python")
+    payload.update(updates)
+
+    if not dto_accepts:
+        with pytest.raises(ValidationError):
+            MethodMetricExecutionContext.model_validate(payload)
+        return
+
+    changed_context = MethodMetricExecutionContext.model_validate(payload)
+    result = _ex_ante_law(1.0, context=changed_context, inputs=inputs)
+
+    assert changed_context.actual_backend is None or (
+        changed_context.backend_identity_status == "reconciled"
+        and changed_context.actual_backend == changed_context.selected_backend
+    )
+    assert result.status == "unavailable"
+    assert result.value is None
+    assert result.limitation == "ex_ante_execution_context_not_established"
+
+
+@pytest.mark.parametrize(
+    "context_updates",
+    [
+        pytest.param({"method_fqn": "policy.evaluation.other@1.0.0"}, id="fqn"),
+        pytest.param({"method_version": "2.0.0"}, id="version"),
+        pytest.param({"method_abi_digest": "b" * 64}, id="abi-digest"),
+        pytest.param({"method_build_digest": "sha256:" + "0" * 64}, id="build-digest"),
+        pytest.param({"method_build_digest_scope": "unavailable"}, id="build-scope"),
+        pytest.param({"output_slot_id": "other"}, id="output-slot"),
+        pytest.param({"output_value_path": ("median_change",)}, id="output-path"),
+        pytest.param({"signature_output_slot_ids": ("other",)}, id="signature-output"),
+    ],
+)
+def test_ex_ante_law_rejects_each_method_identity_rebinding(
+    context_updates: dict[str, object],
+) -> None:
+    context, inputs = _ex_ante_execution_context()
+
+    result = _ex_ante_law(1.0, context=context.model_copy(update=context_updates), inputs=inputs)
+
+    assert result.status == "unavailable"
+    assert result.limitation == "method_execution_binding_identity_mismatch"
 
 
 def test_ex_ante_mean_change_rejects_integer_loss_before_float_conversion() -> None:

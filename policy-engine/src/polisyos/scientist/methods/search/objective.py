@@ -508,10 +508,19 @@ def observe_source_government_balance(
 
         metrics = Metrics.model_validate(load_core_json_artifact(store, source_metrics_ref))
         snapshot = StateSnapshot.model_validate(load_core_json_artifact(store, source_snapshot_ref))
-        if snapshot_manifest.artifact_schema.version != f"{snapshot.schema_version}.0":
+        expected_snapshot_schema = StateSnapshot.SCHEMA_MANIFEST_VERSION_BY_PAYLOAD_VERSION.get(
+            snapshot.schema_version
+        )
+        if snapshot_manifest.artifact_schema.version != expected_snapshot_schema:
             return not_observed(
                 "invalid",
                 "state_snapshot_schema_version_mismatch",
+                snapshot_ref=source_snapshot_ref,
+            )
+        if snapshot.layout is not None:
+            return not_observed(
+                "invalid",
+                "simulation_state_snapshot_layout_not_global_state",
                 snapshot_ref=source_snapshot_ref,
             )
         if snapshot.step is None:

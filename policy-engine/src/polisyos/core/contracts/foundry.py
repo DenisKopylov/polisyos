@@ -5,6 +5,7 @@ from __future__ import annotations
 from collections.abc import Mapping
 from datetime import UTC, datetime
 from decimal import Decimal
+from types import MappingProxyType
 from typing import Any, ClassVar, Literal
 
 from pydantic import (
@@ -2429,13 +2430,25 @@ class WelfareBoundReport(BaseModel):
 
 
 class StateSnapshot(BaseModel):
-    """Reference bundle for a materialized execution state at a simulation step.
+    """Reference bundle for a persisted Foundry state or method-input capture.
 
-    ``lineage_inputs`` is the ordered manifest input list.  Version 2.1
-    preserves its historical bare state-blob edge; version 2.2 binds the exact
-    selected state-blob view.  ``None`` is reserved for legacy 2.0 payloads whose
-    lineage was recorded only in the immutable manifest sidecar.
+    ``lineage_inputs`` is the ordered manifest input list. Version 2.1 preserves
+    its historical bare state-blob edge; versions 2.2 and 2.3 bind the exact
+    selected state-blob view. Version 2.3 is reserved for sparse method-input
+    slot maps and requires its explicit layout discriminator. Older payloads omit
+    that discriminator and retain their historical GlobalState wire bytes.
     """
+
+    SCHEMA_MANIFEST_VERSION_BY_PAYLOAD_VERSION: ClassVar[Mapping[str, str]] = MappingProxyType(
+        {
+            "2.0": "1.0",
+            "2.1": "2.1.0",
+            "2.2": "2.2.0",
+            "2.3": "2.3.0",
+        }
+    )
+    METHOD_INPUT_SCHEMA_VERSION: ClassVar[str] = "2.3"
+    METHOD_INPUT_LAYOUT: ClassVar[Literal["method_input_slots"]] = "method_input_slots"
 
     model_config = ConfigDict(extra="forbid")
 
@@ -2449,6 +2462,21 @@ class StateSnapshot(BaseModel):
     codec: str = "numpy-npz"
     lineage_inputs: list[InputRef] | None = None
     notes: list[str] = Field(default_factory=list)
+    layout: Literal["method_input_slots"] | None = Field(
+        default=None,
+        exclude_if=lambda value: value is None,
+    )
+
+    @model_validator(mode="after")
+    def validate_versioned_layout(self) -> StateSnapshot:
+        """Bind the sparse method-input layout to schema 2.3 only."""
+        layout_was_supplied = "layout" in self.model_fields_set
+        if self.schema_version == self.METHOD_INPUT_SCHEMA_VERSION:
+            if not layout_was_supplied or self.layout != self.METHOD_INPUT_LAYOUT:
+                raise ValueError("state_snapshot_2_3_requires_explicit_method_input_layout")
+        elif layout_was_supplied:
+            raise ValueError("state_snapshot_layout_requires_schema_2_3")
+        return self
 
 
 class TreasurySeed(BaseModel):

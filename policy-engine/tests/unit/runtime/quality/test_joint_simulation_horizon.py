@@ -1,6 +1,8 @@
 from __future__ import annotations
 
 import copy
+import hashlib
+import inspect
 import json
 import subprocess
 from decimal import Decimal
@@ -1447,6 +1449,8 @@ def test_program_graph_horizon_preserves_one_complete_method_capture(
         MethodMetricBinding,
         MethodMetricBindingSet,
         MethodMetricBindingSetRef,
+        StateDelta,
+        StateSnapshotRef,
     )
     from polisyos.foundry.execute.executor import put_state_snapshot
     from polisyos.foundry.methods.base import (
@@ -1546,6 +1550,10 @@ def test_program_graph_horizon_preserves_one_complete_method_capture(
         return_selected_profile=True,
     )
     signature = _HorizonCaptureMethod.signature
+    method_build_digest = (
+        "sha256:"
+        + hashlib.sha256(inspect.getsource(_HorizonCaptureMethod).encode("utf-8")).hexdigest()
+    )
     graph_ref = store.put_json(
         ProgramGraph(
             ir_ref=policy_ref,
@@ -1581,8 +1589,8 @@ def test_program_graph_horizon_preserves_one_complete_method_capture(
         method_version=signature.version,
         method_abi_digest=signature.abi_digest(),
         method_abi_digest_algorithm="blake2b",
-        method_build_digest=None,
-        method_build_digest_scope="unavailable",
+        method_build_digest=method_build_digest,
+        method_build_digest_scope="class_source_only",
         output_slot_id="result",
         output_shape="scalar",
         source_unit=MethodMetricSourceUnit(dimension="ratio", symbol="ratio", scale=1),
@@ -1705,6 +1713,13 @@ def test_program_graph_horizon_preserves_one_complete_method_capture(
             for row in rows
         )
         assert all(row["method_execution_bundle_ref"]["manifest_profile_sha256"] for row in rows)
+        state_delta = validate_core_model_json_artifact(
+            StateDelta,
+            store,
+            joint.points[0].engine_state["state_delta_ref"],
+        )
+        assert isinstance(state_delta.base_ref, StateSnapshotRef)
+        assert state_delta.base_ref.manifest_profile_sha256 is not None
         occurrence_ids = [item["occurrence_id"] for row in rows for item in row["occurrences"]]
         assert len(occurrence_ids) == len(set(occurrence_ids)) == 2
         bundle = validate_core_model_json_artifact(
@@ -1745,7 +1760,17 @@ def test_program_graph_horizon_preserves_one_complete_method_capture(
             ArtifactRef.model_validate(failure_capture["method_execution_bundle_ref"]),
         )
         assert len(failed_bundle.occurrences) == 1
-        assert failed_bundle.occurrences[0].status == "failed"
+        failed_occurrence = failed_bundle.occurrences[0]
+        assert failed_occurrence.status == "failed"
+        assert failed_occurrence.dispatch is not None
+        assert failed_occurrence.dispatch.outcome == "failed"
+        assert failed_occurrence.dispatch.backend_trace_status == "not_established"
+        assert failed_occurrence.dispatch.backend_attempts == ()
+        assert failed_occurrence.dispatch.actual_backend is None
+        assert failed_occurrence.dispatch.backend_identity_status == "not_established"
+        assert failed_occurrence.dispatch.fallback_status == "not_established"
+        assert failed_occurrence.dispatch.seed_status == "not_established"
+        assert failed_occurrence.dispatch.rng_state_status == "runner_rng_state_not_retained"
     finally:
         close = getattr(store, "close", None)
         if callable(close):

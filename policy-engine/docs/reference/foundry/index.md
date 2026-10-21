@@ -69,6 +69,7 @@ boundary.
 | --- | --- |
 | [Compile Execute](compile-execute.md) | Public APIs, compile artifacts, input binding, execution, and replay contract. |
 | [State](state.md) | `GlobalState`, slot layout, snapshots, and state-delta application. |
+| [StateSnapshot Format](state-snapshot-format.md) | Persisted snapshot schema versions, sparse method-input layout, and reader compatibility. |
 | [Methods Catalog](methods-catalog.md) | Registry, dispatch, method metadata, and method capability evidence. |
 | [Calibration](calibration.md) | Fit loops, measurement-aware loss, penalties, and uncertainty boundaries. |
 | [Causal Statistical Validity](causal-statistical-validity.md) | Known-answer, placebo, negative-control, sensitivity, power, missingness, and uncertainty-calibration checks. |

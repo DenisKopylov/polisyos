@@ -20,6 +20,12 @@ ABM/RL package `polisyos.foundry.agent_sim.state` defines a different
 `GlobalState`; use [Agent Sim](agent-sim.md) when working on that runtime
 directly.
 
+`StateSnapshot` persists both full `GlobalState` snapshots and a separate sparse
+method-input layout. Full-state snapshots retain the existing `2.2` format;
+new method-input captures use explicit `2.3` `method_input_slots` and cannot be
+reconstructed as `GlobalState`. See [StateSnapshot Format](state-snapshot-format.md)
+for the payload/manifest pairings and reader boundaries.
+
 ## Historical Plan Coverage (Not Status)
 
 These phase names are retained from the Foundry plan. This table describes

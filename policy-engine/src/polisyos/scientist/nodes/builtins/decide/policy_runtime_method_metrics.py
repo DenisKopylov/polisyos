@@ -3377,7 +3377,7 @@ def _captured_input_arrays_from_snapshot(
     signature: Any,
 ) -> tuple[tuple[Any, ...], str]:
     """Resolve and independently bind every captured method input to its prestate."""
-    from polisyos.core.contracts.foundry import StateSnapshotRef
+    from polisyos.core.contracts.foundry import StateSnapshot, StateSnapshotRef
     from polisyos.foundry.execute import (
         StateSnapshotInputReadRefusal,
         read_state_snapshot_inputs_bounded,
@@ -3465,7 +3465,7 @@ def _captured_input_arrays_from_snapshot(
         )
     if (
         _ref_key(bounded.snapshot_ref) != _ref_key(snapshot_ref)
-        or bounded.snapshot.schema_version != "2.2"
+        or bounded.snapshot.schema_version != StateSnapshot.METHOD_INPUT_SCHEMA_VERSION
         or bounded.state_blob_ref.kind != "foundry.state_blob"
         or bounded.state_blob_ref.media_type != "application/x-npz"
         or len(bounded.arrays) != len(signature_slot_ids)

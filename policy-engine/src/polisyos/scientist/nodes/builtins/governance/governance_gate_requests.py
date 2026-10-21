@@ -79,7 +79,7 @@ class _ReplayArtifactContract:
     payload_model: type[BaseModel]
     schema: tuple[str, str] | None
     legacy_schemas: frozenset[tuple[str, str] | None] = frozenset()
-    payload_schema_versions: dict[str, str] | None = None
+    payload_schema_versions: Mapping[str, str] | None = None
 
 
 @dataclass(frozen=True)
@@ -122,7 +122,7 @@ _REPLAY_INPUT_CONTRACTS: dict[str, _ReplayArtifactContract] = {
         ref_model=StateSnapshotRef,
         payload_model=StateSnapshot,
         schema=None,
-        payload_schema_versions={"2.0": "1.0", "2.1": "2.1.0", "2.2": "2.2.0"},
+        payload_schema_versions=StateSnapshot.SCHEMA_MANIFEST_VERSION_BY_PAYLOAD_VERSION,
     ),
     INPUT_INPUT_BINDINGS_REF: _ReplayArtifactContract(
         kind="foundry.input_bindings",

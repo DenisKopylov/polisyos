@@ -2,6 +2,7 @@ from __future__ import annotations
 
 import asyncio
 
+import numpy as np
 import pytest
 
 from polisyos.common.canonical_profile import CanonicalProfileRefusalError
@@ -101,6 +102,34 @@ def _tamper_snapshot_lineage(cas: FileSystemCAS, data_snapshot_ref: str) -> None
             )
         )
     )
+
+
+def test_state_snapshot_probe_refuses_sparse_method_input_as_agent_state(tmp_path) -> None:
+    cas = FileSystemCAS(tmp_path)
+    state_snapshot_ref = put_state_snapshot(
+        cas,
+        state={
+            "baseline": np.asarray([1.0, 2.0], dtype=np.float64),
+            "scenario": np.asarray([2.0, 3.0], dtype=np.float64),
+        },
+        step=0,
+    )
+    data_snapshot = DataSnapshot(data_ref=state_snapshot_ref)
+    data_snapshot_ref = cas.put_json(
+        data_snapshot.model_dump(mode="json"),
+        PutOptions(
+            kind=DataSnapshot.ARTIFACT_KIND,
+            media_type=DataSnapshot.ARTIFACT_MEDIA_TYPE,
+            schema=SchemaInfo(
+                name=DataSnapshot.ARTIFACT_SCHEMA_NAME,
+                version=DataSnapshot.ARTIFACT_SCHEMA_VERSION,
+            ),
+        ),
+    )
+    probe = StateSnapshotFeasibilityProbe(cas)
+
+    with pytest.raises(ValueError, match="cannot be reconstructed as agent state"):
+        probe._load_state_for_snapshot(str(data_snapshot_ref.artifact_id))
 
 
 def test_state_snapshot_probe_counts_matching_agents(tmp_path) -> None:

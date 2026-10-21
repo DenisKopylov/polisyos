@@ -90,6 +90,7 @@ from polisyos.runtime.quality.generation_cycle import (
     _disposition_candidates,
     _grounding_disposition_denominator,
     _joint_simulation_port_outcome,
+    _n5_snapshot_manifest_version,
     _summary_with_value_observation,
     enforce_no_retry_without_new_grammar,
     generation_cycle_terminal_state,
@@ -4168,6 +4169,19 @@ def test_owner_program_graph_n5_consumes_selected_wmr_view_and_rejects_sibling(
                 sibling_port._bound_program_plan(request, request.engine_plan[0])
     finally:
         witness.store.close()
+
+
+def test_n5_snapshot_reader_recognizes_2_3_but_refuses_sparse_method_layout() -> None:
+    assert _n5_snapshot_manifest_version(schema_version="2.2", layout=None) == "2.2.0"
+    assert _n5_snapshot_manifest_version(schema_version="2.3", layout=None) is None
+    with pytest.raises(
+        generation_cycle_module.WorldModelRecordError,
+        match="n5_bound_state_snapshot_layout_not_global_state",
+    ):
+        _n5_snapshot_manifest_version(
+            schema_version="2.3",
+            layout="method_input_slots",
+        )
 
 
 def test_owner_program_graph_n5_consumes_selected_state_blob_view(

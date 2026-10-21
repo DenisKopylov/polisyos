@@ -266,6 +266,8 @@ class StateSnapshotFeasibilityProbe:
 
         snapshot_payload = load_core_json_artifact(self._cas, snapshot_artifact_id)
         snapshot = StateSnapshot.model_validate(snapshot_payload)
+        if snapshot.layout is not None:
+            raise ValueError("Method-input StateSnapshot cannot be reconstructed as agent state")
         blob = np.load(BytesIO(self._cas.get_bytes(snapshot.state_ref)))
         flat = {key: np.asarray(blob[key]) for key in blob.files}
         return self._to_namespace(self._nest_state(flat))

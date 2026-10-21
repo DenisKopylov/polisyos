@@ -49350,5 +49350,234 @@
     "source_profile_freeze": false,
     "G_acceptance": false,
     "closure_ids": []
+  },
+  "root-ad01-r6-versioned-snapshot-full-source-adoption-20261021-r1": {
+    "slice_base": "5d31a170d25fa567af96f9ecaf4185c376e6f8ce",
+    "canonical_writer": "root only; reviewed present patch, retired exact originals through native Trash",
+    "mechanism_and_mandatory_companion_paths": {
+      "policy-engine/docs/reference/foundry/index.md": {
+        "operation": "update",
+        "mode": "100644",
+        "preimage_sha256": "7a21441318ae4fcedd8fdde54bc8af2779f4af8124c8b1bad0723f7e0cd71892",
+        "postimage_path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/ad01-producer-whole-composed-failure-repair-r6-20261021-r1/postimages/policy-engine/docs/reference/foundry/index.md",
+        "postimage_sha256": "3f5da5c7a8c3ca878b40683b0143c35344a47d33e79618bcbec7fb9941f23014",
+        "postimage_bytes": 12303
+      },
+      "policy-engine/docs/reference/foundry/state-snapshot-format.md": {
+        "operation": "create",
+        "mode": "100644",
+        "preimage_sha256": null,
+        "postimage_path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/ad01-producer-whole-composed-failure-repair-r6-20261021-r1/postimages/policy-engine/docs/reference/foundry/state-snapshot-format.md",
+        "postimage_sha256": "76a2b6a26dc48aaa40280b44b71389d9f1add81e7adace9f35e1921ce645dfe0",
+        "postimage_bytes": 2808
+      },
+      "policy-engine/docs/reference/foundry/state.md": {
+        "operation": "update",
+        "mode": "100644",
+        "preimage_sha256": "a7659ca18cb4769a6aedc12f6b244fdd523766bc7a90c4bc0a72973d9caefea7",
+        "postimage_path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/ad01-producer-whole-composed-failure-repair-r6-20261021-r1/postimages/policy-engine/docs/reference/foundry/state.md",
+        "postimage_sha256": "75d47a00414042cd1fc30af392cac5ed4cd32127b8b8f838a60800b088ab0266",
+        "postimage_bytes": 6276
+      },
+      "policy-engine/src/polisyos/core/contracts/foundry.py": {
+        "operation": "update",
+        "mode": "100644",
+        "preimage_sha256": "9bf3f473499a87f335ab14e850cac2ed73209195ffba7758d1481d73807ff05f",
+        "postimage_path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/ad01-producer-whole-composed-failure-repair-r6-20261021-r1/postimages/policy-engine/src/polisyos/core/contracts/foundry.py",
+        "postimage_sha256": "799f756f6c00d0383db832297dc32a623970926768115842406821cb691b8bec",
+        "postimage_bytes": 113167
+      },
+      "policy-engine/src/polisyos/foundry/execute/_internal/snapshots/__init__.py": {
+        "operation": "update",
+        "mode": "100644",
+        "preimage_sha256": "8f7b24f2509eb72b6ffa2998c2b4eceb6d2620a8174b21b3e9f8764f854dec05",
+        "postimage_path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/ad01-producer-whole-composed-failure-repair-r6-20261021-r1/postimages/policy-engine/src/polisyos/foundry/execute/_internal/snapshots/__init__.py",
+        "postimage_sha256": "4ecc0536c37aec4949d0a355a08c08df2d2141d9719157e47f5a1b05c89332e9",
+        "postimage_bytes": 47067
+      },
+      "policy-engine/src/polisyos/runtime/quality/generation_cycle.py": {
+        "operation": "update",
+        "mode": "100644",
+        "preimage_sha256": "59d2a61cf14d7e0e6eaf36a0b3617af68159714bce39be1fea31ed41c6b960f6",
+        "postimage_path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/ad01-producer-whole-composed-failure-repair-r6-20261021-r1/postimages/policy-engine/src/polisyos/runtime/quality/generation_cycle.py",
+        "postimage_sha256": "4b7226891ad66cc60a0dc244dd4c69a7b0b6530f1889f41988e3978140971052",
+        "postimage_bytes": 932333
+      },
+      "policy-engine/src/polisyos/scientist/agent/feasibility.py": {
+        "operation": "update",
+        "mode": "100644",
+        "preimage_sha256": "ac090039869ea13a934549984d1474a795749949c19f4aa2675c16bd50c4c8b4",
+        "postimage_path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/ad01-producer-whole-composed-failure-repair-r6-20261021-r1/postimages/policy-engine/src/polisyos/scientist/agent/feasibility.py",
+        "postimage_sha256": "d5c11a295ef1bc5347275d2a3403e9a384620688e50536644fa9cbe6b6e01df5",
+        "postimage_bytes": 15512
+      },
+      "policy-engine/src/polisyos/scientist/methods/search/objective.py": {
+        "operation": "update",
+        "mode": "100644",
+        "preimage_sha256": "65a18617ca0c7ca6b4b0c3603849a652d3dee8f697bbbe833c864636f6f83065",
+        "postimage_path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/ad01-producer-whole-composed-failure-repair-r6-20261021-r1/postimages/policy-engine/src/polisyos/scientist/methods/search/objective.py",
+        "postimage_sha256": "381b0703e046724eb566242b5907f31c3a8598d99a82f5477d5cddf89a79c4a6",
+        "postimage_bytes": 119799
+      },
+      "policy-engine/src/polisyos/scientist/nodes/builtins/decide/policy_runtime_method_metrics.py": {
+        "operation": "update",
+        "mode": "100644",
+        "preimage_sha256": "b70fe4c1da3850723200e4601e3ee2a516d498bd87f19d90cb48292fcb146c30",
+        "postimage_path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/ad01-producer-whole-composed-failure-repair-r6-20261021-r1/postimages/policy-engine/src/polisyos/scientist/nodes/builtins/decide/policy_runtime_method_metrics.py",
+        "postimage_sha256": "22d89702e67a30411ed838b97b404dfbf3384fba6519f8a4256e306dade112e5",
+        "postimage_bytes": 192231
+      },
+      "policy-engine/src/polisyos/scientist/nodes/builtins/governance/governance_gate_requests.py": {
+        "operation": "update",
+        "mode": "100644",
+        "preimage_sha256": "635a33383c94ccba6e3be48dde267cf718cbf07e08ae31502f2c16837eb2ce3e",
+        "postimage_path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/ad01-producer-whole-composed-failure-repair-r6-20261021-r1/postimages/policy-engine/src/polisyos/scientist/nodes/builtins/governance/governance_gate_requests.py",
+        "postimage_sha256": "284d0f5567d3ddbcd9b56cc131b2fa497ed0d0f78dd39fbfb2688683d935b54f",
+        "postimage_bytes": 35639
+      },
+      "policy-engine/tests/unit/foundry/runtime/test_executor_snapshots.py": {
+        "operation": "update",
+        "mode": "100644",
+        "preimage_sha256": "e95ee53f08a58fad7e5893f663453e7660d93f6e96adbd390a27134aa7a48e76",
+        "postimage_path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/ad01-producer-whole-composed-failure-repair-r6-20261021-r1/postimages/policy-engine/tests/unit/foundry/runtime/test_executor_snapshots.py",
+        "postimage_sha256": "acdf8a5ab9d9a89274e1036bf9a4ec411248211d62aef2a55c5207cbfab8f4e2",
+        "postimage_bytes": 51846
+      },
+      "policy-engine/tests/unit/foundry/runtime/test_method_metric_capture.py": {
+        "operation": "update",
+        "mode": "100644",
+        "preimage_sha256": "b6ac6d767cc7d38a829eb769540b968e4765413cc76f70325cf5aed726cd49a5",
+        "postimage_path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/ad01-producer-whole-composed-failure-repair-r6-20261021-r1/postimages/policy-engine/tests/unit/foundry/runtime/test_method_metric_capture.py",
+        "postimage_sha256": "c1e6ff3f587eb08641feff70dcf6b0a962bf4f44dc7265b469d4a0f9b661e7cc",
+        "postimage_bytes": 52188
+      },
+      "policy-engine/tests/unit/ir/kernel/test_method_metric_contracts.py": {
+        "operation": "update",
+        "mode": "100644",
+        "preimage_sha256": "a3ec89b54d89ed8d6005cb4bcf8544e7ce358c09678d2c3cc4638aa3c4c20a62",
+        "postimage_path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/ad01-producer-whole-composed-failure-repair-r6-20261021-r1/postimages/policy-engine/tests/unit/ir/kernel/test_method_metric_contracts.py",
+        "postimage_sha256": "75e80eefc432f8a1c20d8ab52eb576b6a4671bba24e10653fc7c2509265063c1",
+        "postimage_bytes": 40552
+      },
+      "policy-engine/tests/unit/runtime/quality/test_generation_cycle.py": {
+        "operation": "update",
+        "mode": "100644",
+        "preimage_sha256": "cdd03be7d81c539a337d6ea3194ac6dfd8964c2752275146b91d5174f3a9f248",
+        "postimage_path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/ad01-producer-whole-composed-failure-repair-r6-20261021-r1/postimages/policy-engine/tests/unit/runtime/quality/test_generation_cycle.py",
+        "postimage_sha256": "c9d514f1749cf71f3f294e81b50285363c9112c8b2e4c7181592374d9675d449",
+        "postimage_bytes": 505697
+      },
+      "policy-engine/tests/unit/runtime/quality/test_joint_simulation_horizon.py": {
+        "operation": "update",
+        "mode": "100644",
+        "preimage_sha256": "ee8630554d017bfbb8c7bddf946c9cce1d48ced303b718cc02f4ca05fcc066bc",
+        "postimage_path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/ad01-producer-whole-composed-failure-repair-r6-20261021-r1/postimages/policy-engine/tests/unit/runtime/quality/test_joint_simulation_horizon.py",
+        "postimage_sha256": "653b3857055fc944f76794c815f4fd831a98a35469a91035adf476d04be08b9e",
+        "postimage_bytes": 128633
+      },
+      "policy-engine/tests/unit/scientist/agent/test_feasibility_probe.py": {
+        "operation": "update",
+        "mode": "100644",
+        "preimage_sha256": "76d1309428766347b49c58e26293ec89b7f20536c4faeb4678d1e431a00fd38e",
+        "postimage_path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/ad01-producer-whole-composed-failure-repair-r6-20261021-r1/postimages/policy-engine/tests/unit/scientist/agent/test_feasibility_probe.py",
+        "postimage_sha256": "d97091eb1129a2c56b90f8789005354a1885eba49e2fbca14d88fa52a0067544",
+        "postimage_bytes": 8137
+      },
+      "policy-engine/tests/unit/scientist/nodes/builtins/governance/test_governance_gate_requests.py": {
+        "operation": "update",
+        "mode": "100644",
+        "preimage_sha256": "76eb1324fa121333120f6c3d562038b021a3c375331f812db794c5be2f7b2643",
+        "postimage_path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/ad01-producer-whole-composed-failure-repair-r6-20261021-r1/postimages/policy-engine/tests/unit/scientist/nodes/builtins/governance/test_governance_gate_requests.py",
+        "postimage_sha256": "53156e80d1fb880508d52e748d511fe72a0f752722d4dd870453fe06d29be216",
+        "postimage_bytes": 44044
+      },
+      "policy-engine/tests/unit/scientist/search/funnel/test_policy_runtime_production_source_join.py": {
+        "operation": "update",
+        "mode": "100644",
+        "preimage_sha256": "f337ff75490e848dacc451c1e3f51e0b7a9d5c00e30c7db334e3a710113287d1",
+        "postimage_path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/ad01-producer-whole-composed-failure-repair-r6-20261021-r1/postimages/policy-engine/tests/unit/scientist/search/funnel/test_policy_runtime_production_source_join.py",
+        "postimage_sha256": "098bf4a810735549d926ddf58b53115e59a147f5ef5ce4d25fe6a4939f211fdc",
+        "postimage_bytes": 30490
+      }
+    },
+    "application": {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/root-ad01-r6-versioned-snapshot-full-source-adoption-20261021-r1/source-application.json",
+      "sha256": "d8c0a8c2a626a0fbc7410d5fd9a611fb6724f68c4c245c88b3217d68cc5f0555"
+    },
+    "native_trash_receipt": {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/root-ad01-r6-versioned-snapshot-full-source-adoption-20261021-r1/native-trash-receipt.json",
+      "sha256": "057f81b6e161c37eaec854c352b59148420f1f1711163b9005834b723e193dcf"
+    },
+    "reviewed_inputs": [
+      {
+        "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/ad01-producer-whole-composed-failure-repair-r6-20261021-r1/manifest.json",
+        "sha256": "fcc9fab03237f4ad06a916395042ef0e86433a80b4c15a2338d0e3f90dd924e1"
+      },
+      {
+        "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/ad01-producer-whole-composed-failure-repair-r6-20261021-r1/r6-repair.patch",
+        "sha256": "91aa8fd517741e65ba27b35e9c283e0476b5355c2eb3a78c5e60135e89f979b8"
+      },
+      {
+        "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/ad01-producer-whole-composed-failure-repair-r6-20261021-r1/schema-version-census.json",
+        "sha256": "2c32bd10dd0d60f3da59f070efb67851910f4d08f903604103cbd7ef40b47992"
+      },
+      {
+        "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/ad01-producer-whole-composed-failure-repair-r6-20261021-r1/source-census.json",
+        "sha256": "535000913a8c6e3ae4bf887095fa8276f31647548a8690d7df2265579931c8f0"
+      },
+      {
+        "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/ad01-producer-whole-composed-failure-repair-r6-20261021-r1/native-static-check-r4.json",
+        "sha256": "7268d99ec16c4953d54b81da681fd8afb1ca61e1c4a0e3998cf28b720c459efe"
+      },
+      {
+        "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/ad01-producer-whole-composed-failure-repair-r6-20261021-r1/patch-check.json",
+        "sha256": "4db59e7c786b58648d14bc59d6c25ce7696df7ad9034a080a3a90b9597e131a8"
+      },
+      {
+        "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/independent-ad01-r6-source-review-20261021-r1/review.json",
+        "sha256": "4247560907750ed49145a754bf238e2d549528d575a9f882e494835fde762451"
+      },
+      {
+        "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/independent-ad01-r6-source-review-20261021-r1/static-check.json",
+        "sha256": "e5cc98a80d6f74b143ccf6d0bfff0db004c4c19c5eeeb66dda8c166b88fc6e3d"
+      },
+      {
+        "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/root-runtime13-can-http3-composed-5d31a170d25f-20261021-r1/actual/result.json",
+        "sha256": "580d071ecc96a9b24eb9f246c91728f91a5b28f54d693285bf9be3bb93e13175"
+      },
+      {
+        "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/ad01-producer-whole-composed-failure-repair-r6-20261021-r1/postimages/policy-engine/tests/unit/scientist/methods/search/test_objective.py",
+        "sha256": "3d15744585bb92be526b7a20991e5637230d137c1fdaf994a42ba9e729e252c3"
+      },
+      {
+        "path": "policy-engine/tests/unit/scientist/methods/search/test_objective.py",
+        "sha256": "3d15744585bb92be526b7a20991e5637230d137c1fdaf994a42ba9e729e252c3"
+      }
+    ],
+    "owned_applied_provenance": null,
+    "preserved_other_owned_rows": {},
+    "preserved_other_owned_provenance": null,
+    "preserved_other_owned_tracked_paths": [],
+    "preserved_other_owned_untracked_paths": [],
+    "preserved_other_owned_unchanged_before_after": true,
+    "P40": {
+      "bucket": "legacy fallback swallowing validation and occupied schema identity classes",
+      "action": "Pre-fallback validation plus explicit readers-first2.3/2.3.0 rollout; no weakening2.2 schema or implicit malformed-to-default paths."
+    },
+    "bounded_proof": "Independent424756full19postimage/18changedpath review plus e5cc98static32commands and complete identitycensus; currentpreimagesexact beforeR7nativechecks and branchblobs afterordinarycommit.",
+    "limitations": [
+      "R6 is an author source proposal, not G-accepted code and not a formal finding closure.",
+      "The prior 402 actual is pre-repair and does not prove the R6 candidate. Run composed source after root patch adoption, including actual graph producer, selected CAS, R12 law consumer, all original 9 AD01 failures and removal controls.",
+      "The v2.2 layout-less method-input migration refusal must be reviewed. There is no shape-based auto-migration; any existing law-input artifact must be regenerated with typed 2.3 receipt or remain limited.",
+      "Native repository gates beyond AST/Ruff and runtime/consumer tests remain UNRUN.",
+      "ActualRuntime16at5d31collected393partialitems then3collectionERROR/0calls. Separate4test-fixturecaller companion batch independently authoring, not productPASS and not R6 evidence.",
+      "Prior402251-case237PASS14FAIL remains historical; currentDS17R6source adopted815d still needs actualreplay and officialN11 check/drifts.",
+      "AD04HTE/anchor/Runtime/Search successor and currentgenerated/installed/nativeglobal consumers not proved by this source commit."
+    ],
+    "runtime": "UNRUN on adopted source",
+    "next_check": "After independent complete collection-companion repair, one composed actual Core/AD01+DS17+Runtime/CANHTTP source/profile replay; fullnegative/removal signals,2.2 legacybyte/2.3CAS roundtrip and lawful captured input consume. CanonicalN11/Q2/generated/installed/native closeout remain.",
+    "source_profile_freeze": false,
+    "G_acceptance": false,
+    "closure_ids": []
   }
 }

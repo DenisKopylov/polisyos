@@ -1,11 +1,15 @@
 from __future__ import annotations
 
+import ast
 import dataclasses
 import hashlib
+import inspect
+from io import BytesIO
 from typing import TYPE_CHECKING, Any
 
 import numpy as np
 import pytest
+from pydantic import ValidationError
 
 import polisyos.foundry.execute._internal.snapshots as snapshots_module
 from polisyos.core.artifacts._manifest_lifecycle import ManifestLifecycle
@@ -13,12 +17,14 @@ from polisyos.core.artifacts.ids import ArtifactID
 from polisyos.core.artifacts.manifest import ArtifactRef, InputRef, SchemaInfo
 from polisyos.core.artifacts.ownership import ArtifactOwnershipError
 from polisyos.core.artifacts.store import ArtifactIntegrityError, FileSystemCAS, PutOptions
-from polisyos.core.contracts.foundry import StateSnapshot
+from polisyos.core.canon import CanonSpec
+from polisyos.core.contracts.foundry import StateSnapshot, StateSnapshotRef
 from polisyos.core.security.tenant_context import tenant_scope
 from polisyos.foundry.contracts.state import GlobalState
 from polisyos.foundry.execute import SnapshotStateLayoutError
 from polisyos.foundry.execute._internal.models import load_model
 from polisyos.foundry.execute._internal.snapshots import (
+    StateSnapshotInputReadRefusal,
     _build_dataclass,
     _dataclass_type_hints,
     _decode_snapshot_leaf,
@@ -27,8 +33,11 @@ from polisyos.foundry.execute._internal.snapshots import (
     _nest_state_from_keys,
     _SnapshotLeaf,
     _validate_snapshot_blob,
+    export_seed_state_npz,
+    import_seed_state_npz,
     load_state_snapshot,
     put_state_snapshot,
+    read_state_snapshot_inputs_bounded,
 )
 from polisyos.runtime.http.resilience import guard_runtime_cas
 
@@ -81,6 +90,90 @@ def _seed_legacy_state_blob(tmp_path, state: GlobalState):
     return store, legacy_ref, legacy_inputs
 
 
+def _put_legacy_snapshot_with_unknown_field(tmp_path, field_path: str):
+    """Build a valid v2.2 GlobalState NPZ plus one unknown root or nested field."""
+    store = FileSystemCAS(tmp_path)
+    state = GlobalState.empty(n_agents=1, n_firms=1)
+    flat = dict(_flatten_state(state))
+    flat[field_path] = np.asarray([17], dtype=np.int64)
+    buffer = BytesIO()
+    np.savez(buffer, **flat)
+    blob_bytes = buffer.getvalue()
+    blob_ref = store.put_bytes(
+        blob_bytes,
+        PutOptions(kind="foundry.state_blob", media_type="application/x-npz"),
+        return_selected_profile=True,
+    )
+    state_blob_edge = InputRef(
+        artifact_id=blob_ref.artifact_id,
+        role="state_blob",
+        manifest_profile_sha256=blob_ref.manifest_profile_sha256,
+    )
+    snapshot = StateSnapshot(
+        schema_version="2.2",
+        state_ref=blob_ref,
+        step=0,
+        format_version="npz-v2",
+        checksum_sha256=hashlib.sha256(blob_bytes).hexdigest(),
+        entry_count=len(flat),
+        codec="numpy-npz",
+        lineage_inputs=[state_blob_edge],
+        notes=["snapshot_format:npz-v2"],
+    )
+    snapshot_ref = store.put_json(
+        snapshot,
+        PutOptions(
+            kind="foundry.state_snapshot",
+            media_type="application/json",
+            schema=SchemaInfo(name="polisyos.core.StateSnapshot", version="2.2.0"),
+            inputs=[state_blob_edge],
+        ),
+        return_selected_profile=True,
+    )
+    return store, snapshot_ref
+
+
+def _without_legacy_global_state_layout_validation(function):
+    """Return an in-memory mutant with only the shared layout guard call removed."""
+    tree = ast.parse(inspect.getsource(function))
+
+    class _RemoveGuardCall(ast.NodeTransformer):
+        removed = 0
+
+        def visit_Expr(self, node: ast.Expr) -> ast.AST:
+            value = node.value
+            if (
+                isinstance(value, ast.Call)
+                and isinstance(value.func, ast.Name)
+                and value.func.id == "_validate_legacy_global_state_layout"
+            ):
+                self.removed += 1
+                return ast.copy_location(ast.Pass(), node)
+            return self.generic_visit(node)
+
+    transformer = _RemoveGuardCall()
+    mutated = ast.fix_missing_locations(transformer.visit(tree))
+    if transformer.removed != 1:
+        raise AssertionError("expected to remove only the legacy layout validation call")
+    namespace: dict[str, object] = {}
+    exec(
+        compile(mutated, inspect.getsourcefile(function) or "", "exec"),
+        snapshots_module.__dict__,
+        namespace,
+    )
+    return namespace[function.__name__]
+
+
+def _load_state_snapshot_without_legacy_layout_guard():
+    """Return an in-memory loader mutant with only the layout call removed."""
+    return _without_legacy_global_state_layout_validation(snapshots_module.load_state_snapshot)
+
+
+def _import_seed_state_without_legacy_layout_guard():
+    """Return an in-memory seed importer mutant with only the layout call removed."""
+    return _without_legacy_global_state_layout_validation(snapshots_module.import_seed_state_npz)
+
+
 def test_execute_facade_exports_the_canonical_snapshot_layout_error() -> None:
     assert SnapshotStateLayoutError is snapshots_module._SnapshotStateLayoutError
 
@@ -90,10 +183,15 @@ def test_snapshot_metadata_includes_version_checksum_and_entry_count(tmp_path) -
     state = GlobalState.empty(n_agents=3, n_firms=2)
 
     snapshot_ref = put_state_snapshot(store, state=state, step=4)
+    assert isinstance(snapshot_ref, StateSnapshotRef)
     snapshot = load_model(store, snapshot_ref, StateSnapshot)
     blob_bytes = store.get_bytes(snapshot.state_ref.artifact_id)
 
+    assert "layout" not in snapshot.model_fields_set
     assert snapshot.schema_version == "2.2"
+    assert snapshot.layout is None
+    assert "layout" not in snapshot.model_dump(mode="json")
+    assert b'"layout"' not in store.get_bytes(snapshot_ref.artifact_id)
     assert snapshot.format_version == "npz-v2"
     assert snapshot.codec == "numpy-npz"
     assert snapshot.checksum_sha256 == hashlib.sha256(blob_bytes).hexdigest()
@@ -107,6 +205,285 @@ def test_snapshot_metadata_includes_version_checksum_and_entry_count(tmp_path) -
     assert store.get_manifest(snapshot_ref.artifact_id).artifact_schema == SchemaInfo(
         name="polisyos.core.StateSnapshot", version="2.2.0"
     )
+
+
+def test_snapshot_flattens_named_mapping_values_deterministically() -> None:
+    first = dict(
+        _flatten_state(
+            {
+                "scenario": np.asarray([2.0, 4.0]),
+                "baseline": np.asarray([1.0, 3.0]),
+            }
+        )
+    )
+    second = dict(
+        _flatten_state(
+            {
+                "baseline": np.asarray([1.0, 3.0]),
+                "scenario": np.asarray([2.0, 4.0]),
+            }
+        )
+    )
+
+    assert tuple(first) == ("baseline", "scenario")
+    assert tuple(second) == tuple(first)
+    assert np.array_equal(first["baseline"], second["baseline"])
+    assert np.array_equal(first["scenario"], second["scenario"])
+
+
+def test_sparse_method_input_snapshot_has_typed_layout_and_never_loads_as_global_state(
+    tmp_path,
+) -> None:
+    store = FileSystemCAS(tmp_path)
+    snapshot_ref = StateSnapshotRef.model_validate(
+        put_state_snapshot(
+            store,
+            state={
+                "baseline": np.asarray([1.0, 2.0]),
+                "scenario": np.asarray([2.0, 4.0]),
+            },
+            step=0,
+            return_selected_profile=True,
+        ).model_dump(mode="python")
+    )
+    snapshot = load_model(store, snapshot_ref, StateSnapshot)
+
+    assert snapshot.schema_version == StateSnapshot.METHOD_INPUT_SCHEMA_VERSION
+    assert snapshot.layout == StateSnapshot.METHOD_INPUT_LAYOUT
+    assert "layout" in snapshot.model_fields_set
+    assert store.get_manifest(snapshot_ref).artifact_schema == SchemaInfo(
+        name="polisyos.core.StateSnapshot",
+        version=StateSnapshot.SCHEMA_MANIFEST_VERSION_BY_PAYLOAD_VERSION["2.3"],
+    )
+    missing_layout = snapshot.model_dump(mode="python")
+    missing_layout.pop("layout")
+    with pytest.raises(ValidationError):
+        StateSnapshot.model_validate(missing_layout)
+    wrong_version_layout = snapshot.model_dump(mode="python")
+    wrong_version_layout["schema_version"] = "2.2"
+    with pytest.raises(ValidationError):
+        StateSnapshot.model_validate(wrong_version_layout)
+    with pytest.raises(ValidationError):
+        StateSnapshot.model_validate({**snapshot.model_dump(mode="python"), "layout": "unknown"})
+    with pytest.raises(SnapshotStateLayoutError, match="layout is explicit"):
+        load_state_snapshot(store, snapshot_ref=snapshot_ref)
+
+    for layout_state in ("missing", "explicit-null"):
+        payload = snapshot.model_dump(mode="json")
+        if layout_state == "missing":
+            payload.pop("layout")
+        else:
+            payload["layout"] = None
+        unqualified_ref = store.put_json(
+            payload,
+            PutOptions(
+                kind="foundry.state_snapshot",
+                media_type="application/json",
+                schema=SchemaInfo(name="polisyos.core.StateSnapshot", version="2.3.0"),
+                inputs=snapshot.lineage_inputs,
+            ),
+            canon_spec=CanonSpec(exclude_none=False),
+            return_selected_profile=True,
+        )
+        with pytest.raises(
+            StateSnapshotInputReadRefusal,
+            match="state_snapshot_payload_parse_failed",
+        ):
+            read_state_snapshot_inputs_bounded(
+                store,
+                snapshot_ref=StateSnapshotRef.model_validate(
+                    unqualified_ref.model_dump(mode="python")
+                ),
+                slot_ids=("baseline", "scenario"),
+                max_manifest_bytes=64 * 1024,
+                max_snapshot_payload_bytes=256 * 1024,
+                max_state_blob_bytes=1024 * 1024,
+                max_entries=8,
+                max_elements=32,
+            )
+
+
+def test_legacy_layoutless_2_2_mapping_is_not_admitted_as_method_input(tmp_path) -> None:
+    """Legacy 2.2 data cannot self-identify as sparse method input."""
+    store = FileSystemCAS(tmp_path)
+    arrays = {
+        "baseline": np.asarray([1.0, 2.0], dtype=np.float64),
+        "scenario": np.asarray([2.0, 4.0], dtype=np.float64),
+    }
+    buffer = BytesIO()
+    np.savez(buffer, **arrays)
+    blob_bytes = buffer.getvalue()
+    blob_ref = store.put_bytes(
+        blob_bytes,
+        PutOptions(kind="foundry.state_blob", media_type="application/x-npz"),
+        return_selected_profile=True,
+    )
+    blob_edge = InputRef(
+        artifact_id=blob_ref.artifact_id,
+        role="state_blob",
+        manifest_profile_sha256=blob_ref.manifest_profile_sha256,
+    )
+    legacy_snapshot = StateSnapshot(
+        schema_version="2.2",
+        state_ref=blob_ref,
+        step=0,
+        format_version="npz-v2",
+        checksum_sha256=hashlib.sha256(blob_bytes).hexdigest(),
+        entry_count=len(arrays),
+        codec="numpy-npz",
+        lineage_inputs=[blob_edge],
+    )
+    legacy_ref = store.put_json(
+        legacy_snapshot,
+        PutOptions(
+            kind="foundry.state_snapshot",
+            media_type="application/json",
+            schema=SchemaInfo(name="polisyos.core.StateSnapshot", version="2.2.0"),
+            inputs=[blob_edge],
+        ),
+        return_selected_profile=True,
+    )
+
+    with pytest.raises(
+        StateSnapshotInputReadRefusal,
+        match="state_snapshot_manifest_identity_mismatch",
+    ):
+        read_state_snapshot_inputs_bounded(
+            store,
+            snapshot_ref=StateSnapshotRef.model_validate(legacy_ref.model_dump(mode="python")),
+            slot_ids=("baseline", "scenario"),
+            max_manifest_bytes=64 * 1024,
+            max_snapshot_payload_bytes=256 * 1024,
+            max_state_blob_bytes=1024 * 1024,
+            max_entries=8,
+            max_elements=32,
+        )
+
+
+def test_state_snapshot_schema_registry_pins_historical_and_sparse_versions() -> None:
+    assert dict(StateSnapshot.SCHEMA_MANIFEST_VERSION_BY_PAYLOAD_VERSION) == {
+        "2.0": "1.0",
+        "2.1": "2.1.0",
+        "2.2": "2.2.0",
+        "2.3": "2.3.0",
+    }
+    assert StateSnapshot.METHOD_INPUT_SCHEMA_VERSION == "2.3"
+    assert StateSnapshot.METHOD_INPUT_LAYOUT == "method_input_slots"
+
+
+def test_valid_legacy_global_state_uses_cpu_fallback_when_jax_discovery_fails(
+    tmp_path,
+    monkeypatch: pytest.MonkeyPatch,
+) -> None:
+    store = FileSystemCAS(tmp_path)
+    expected_state = GlobalState.empty(n_agents=1, n_firms=1)
+    snapshot_ref = put_state_snapshot(store, state=expected_state, step=3)
+    discovered_backends: list[object] = []
+
+    def unavailable_devices(*args: object, **_kwargs: object) -> list[object]:
+        discovered_backends.extend(args)
+        raise ValueError("simulated JAX backend discovery failure")
+
+    monkeypatch.setattr(snapshots_module.jax, "devices", unavailable_devices)
+
+    restored = load_state_snapshot(store, snapshot_ref=snapshot_ref)
+
+    assert discovered_backends == ["cpu"]
+    assert int(np.asarray(restored.step)) == int(np.asarray(expected_state.step))
+
+
+def _write_legacy_seed_npz_with_unknown_field(tmp_path, field_path: str):
+    state = GlobalState.empty(n_agents=1, n_firms=1)
+    flat = dict(_flatten_state(state))
+    flat[field_path] = np.asarray([17], dtype=np.int64)
+    path = tmp_path / "legacy_seed_with_unknown_field.npz"
+    np.savez(path, **flat)
+    return path
+
+
+@pytest.mark.parametrize("unknown_path", ["unknown_root", "agents.unknown_nested"])
+def test_seed_global_state_rejects_unknown_fields_before_jax_fallback(
+    tmp_path,
+    monkeypatch: pytest.MonkeyPatch,
+    unknown_path: str,
+) -> None:
+    path = _write_legacy_seed_npz_with_unknown_field(tmp_path, unknown_path)
+    device_discovery_calls: list[object] = []
+
+    def unavailable_devices(*args: object, **_kwargs: object) -> list[object]:
+        device_discovery_calls.extend(args)
+        raise ValueError("simulated JAX backend discovery failure")
+
+    monkeypatch.setattr(snapshots_module.jax, "devices", unavailable_devices)
+    with pytest.raises(SnapshotStateLayoutError, match="incompatible with canonical GlobalState"):
+        import_seed_state_npz(path)
+    assert device_discovery_calls == []
+
+
+@pytest.mark.parametrize("unknown_path", ["unknown_root", "agents.unknown_nested"])
+def test_seed_layout_guard_removal_probe_accepts_unknown_fields(
+    tmp_path,
+    unknown_path: str,
+) -> None:
+    path = _write_legacy_seed_npz_with_unknown_field(tmp_path, unknown_path)
+    mutant_importer = _import_seed_state_without_legacy_layout_guard()
+
+    restored = mutant_importer(path)
+
+    assert isinstance(restored, GlobalState)
+
+
+def test_valid_seed_global_state_uses_cpu_fallback_when_jax_discovery_fails(
+    tmp_path,
+    monkeypatch: pytest.MonkeyPatch,
+) -> None:
+    expected_state = GlobalState.empty(n_agents=1, n_firms=1)
+    path = export_seed_state_npz(expected_state, tmp_path / "valid_seed.npz")
+    device_discovery_calls: list[object] = []
+
+    def unavailable_devices(*args: object, **_kwargs: object) -> list[object]:
+        device_discovery_calls.extend(args)
+        raise ValueError("simulated JAX backend discovery failure")
+
+    monkeypatch.setattr(snapshots_module.jax, "devices", unavailable_devices)
+
+    restored = import_seed_state_npz(path)
+
+    assert device_discovery_calls == ["cpu"]
+    assert int(np.asarray(restored.step)) == int(np.asarray(expected_state.step))
+
+
+@pytest.mark.parametrize("unknown_path", ["unknown_root", "agents.unknown_nested"])
+def test_legacy_global_state_snapshot_rejects_unknown_fields_before_jax_fallback(
+    tmp_path,
+    monkeypatch: pytest.MonkeyPatch,
+    unknown_path: str,
+) -> None:
+    store, snapshot_ref = _put_legacy_snapshot_with_unknown_field(tmp_path, unknown_path)
+    device_discovery_calls: list[object] = []
+
+    def unavailable_devices(*args: object, **_kwargs: object) -> list[object]:
+        device_discovery_calls.extend(args)
+        raise ValueError("simulated JAX backend discovery failure")
+
+    monkeypatch.setattr(snapshots_module.jax, "devices", unavailable_devices)
+    with pytest.raises(SnapshotStateLayoutError, match="incompatible with canonical GlobalState"):
+        load_state_snapshot(store, snapshot_ref=snapshot_ref)
+    assert device_discovery_calls == []
+
+
+@pytest.mark.parametrize("unknown_path", ["unknown_root", "agents.unknown_nested"])
+def test_legacy_layout_guard_removal_probe_accepts_unknown_fields(
+    tmp_path,
+    unknown_path: str,
+) -> None:
+    """Removing only the call leaves its helper but makes the bad payload loadable."""
+    store, snapshot_ref = _put_legacy_snapshot_with_unknown_field(tmp_path, unknown_path)
+    mutant_loader = _load_state_snapshot_without_legacy_layout_guard()
+
+    restored = mutant_loader(store, snapshot_ref=snapshot_ref)
+
+    assert isinstance(restored, GlobalState)
 
 
 def test_state_snapshot_payload_without_version_keeps_historical_2_1_default() -> None:
@@ -510,7 +887,7 @@ def test_state_snapshot_2_1_readback_requires_lineage_payload(tmp_path) -> None:
         load_state_snapshot(store, snapshot_ref=incomplete_ref)
 
 
-@pytest.mark.parametrize("schema_version", ["2.3", "9.9"])
+@pytest.mark.parametrize("schema_version", ["2.4", "9.9"])
 def test_unknown_state_snapshot_schema_fails_closed_before_lineage_bypass(
     tmp_path, schema_version: str
 ) -> None:
@@ -755,12 +1132,67 @@ def test_flatten_state_iterative_codec_handles_scalar_values() -> None:
     assert bool(np.asarray(restored.active)) is True
 
 
+def test_flatten_state_supports_root_named_numeric_input_mappings() -> None:
+    baseline = np.asarray([1.0, 2.0], dtype=np.float64)
+    scenario = np.asarray([2.0, 1.0], dtype=np.float64)
+
+    flat = dict(_flatten_state({"baseline": baseline, "scenario": scenario}))
+
+    assert set(flat) == {"baseline", "scenario"}
+    assert np.array_equal(flat["baseline"], baseline)
+    assert np.array_equal(flat["scenario"], scenario)
+
+
 def test_snapshot_helpers_fail_closed_on_invalid_shapes_and_types() -> None:
     with pytest.raises(ValueError, match="unnamed scalar root"):
         dict(_flatten_state(1))
 
     with pytest.raises(TypeError, match="Unsupported snapshot value"):
         dict(_flatten_state({"not": "a dataclass"}, prefix="payload."))
+
+    with pytest.raises(ValueError, match="Invalid snapshot mapping key"):
+        dict(_flatten_state({"invalid.key": np.asarray([1.0])}))
+
+    with pytest.raises(ValueError, match="Invalid snapshot mapping key"):
+        dict(_flatten_state({1: np.asarray([1.0])}))
+
+    with pytest.raises(ValueError, match="Cannot snapshot an empty mapping"):
+        dict(_flatten_state({}))
+
+    with pytest.raises(TypeError, match="require NumPy arrays"):
+        dict(_flatten_state({"baseline": [1.0, 2.0]}))
+
+    with pytest.raises(ValueError, match="finite numeric vectors"):
+        dict(_flatten_state({"baseline": np.asarray([[1.0, 2.0]])}))
+
+    cyclic: dict[str, object] = {}
+    cyclic["self"] = cyclic
+    with pytest.raises(TypeError, match="require NumPy arrays"):
+        dict(_flatten_state(cyclic))
+
+    with pytest.raises(ValueError, match="Invalid snapshot mapping key"):
+        dict(_flatten_state({"baseline.slot": np.asarray([1.0])}))
+
+    with pytest.raises(ValueError, match="Invalid snapshot mapping key"):
+        dict(_flatten_state({"é": np.asarray([1.0])}))
+
+    with pytest.raises(TypeError, match="require NumPy arrays"):
+        dict(_flatten_state({"baseline": {"nested": np.asarray([1.0])}}))
+
+    with pytest.raises(ValueError, match="finite numeric vectors"):
+        dict(_flatten_state({"baseline": np.asarray([np.nan])}))
+
+    with pytest.raises(ValueError, match="finite numeric vectors"):
+        dict(_flatten_state({"baseline": np.asarray([True])}))
+
+    with pytest.raises(ValueError, match="finite numeric vectors"):
+        dict(_flatten_state({"baseline": np.asarray([object()], dtype=object)}))
+
+    with pytest.raises(ValueError, match="slot limit"):
+        dict(_flatten_state({f"slot_{index}": np.asarray([index]) for index in range(33)}))
+
+    with pytest.raises(ValueError, match="element limit"):
+        dict(_flatten_state({"baseline": np.zeros(1_000_001, dtype=np.float64)}))
 
     with pytest.raises(ValueError, match="Invalid snapshot key"):
         _nest_state_from_keys(["agents..income"])

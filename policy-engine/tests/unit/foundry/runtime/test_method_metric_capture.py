@@ -3,7 +3,7 @@ from __future__ import annotations
 import hashlib
 import inspect
 import json
-from dataclasses import dataclass, replace
+from dataclasses import replace
 from types import SimpleNamespace
 from typing import ClassVar
 
@@ -100,12 +100,6 @@ from polisyos.ir.kernel.method_metrics import (
 )
 from polisyos.ir.kernel.metrics import MetricRegistry, MetricSpec
 from polisyos.ir.kernel.units import GenericUnit, RateUnit, UnitsRegistry
-
-
-@dataclass(frozen=True)
-class _NamedSnapshotInputs:
-    baseline: np.ndarray
-    scenario: np.ndarray
 
 
 def _put_owned(
@@ -205,6 +199,10 @@ def _make_graph_and_plan(store: FileSystemCAS) -> tuple[ProgramGraphRef, ExecPla
     law_id, law_version, law_digest = registered_method_metric_law_metadata()
     adapter_id, adapter_version, adapter_digest = registered_method_metric_unit_adapter_metadata()
     signature = _ReturnsMetricScalar.signature
+    method_build_digest = (
+        "sha256:"
+        + hashlib.sha256(inspect.getsource(_ReturnsMetricScalar).encode("utf-8")).hexdigest()
+    )
     binding = MethodMetricBinding(
         binding_id="metric.binding.capture_scalar",
         objective_id="objective.capture_scalar",
@@ -214,8 +212,8 @@ def _make_graph_and_plan(store: FileSystemCAS) -> tuple[ProgramGraphRef, ExecPla
         method_version=signature.version,
         method_abi_digest=signature.abi_digest(),
         method_abi_digest_algorithm="blake2b",
-        method_build_digest=None,
-        method_build_digest_scope="unavailable",
+        method_build_digest=method_build_digest,
+        method_build_digest_scope="class_source_only",
         output_slot_id="result",
         output_shape="scalar",
         semantics=MethodMetricSemanticContract(
@@ -833,7 +831,34 @@ def test_ex_ante_graph_capture_persists_actual_inputs_and_bound_output(
     assert writer_occurrence.artifacts == []
     assert occurrence.node_id == "ex_ante_node"
     assert occurrence.dispatch is not None
-    assert occurrence.dispatch.method_metric_input_capture_status == "captured"
+    dispatch = occurrence.dispatch
+    signature = ExAnteSimulationEstimator.signature
+    method_build_digest = (
+        "sha256:"
+        + hashlib.sha256(inspect.getsource(ExAnteSimulationEstimator).encode("utf-8")).hexdigest()
+    )
+    assert occurrence.method_fqn == signature.fqn
+    assert occurrence.method_version == signature.version
+    assert occurrence.method_abi_digest == signature.abi_digest()
+    assert occurrence.method_build_digest == method_build_digest
+    assert occurrence.method_build_digest_scope == "class_source_only"
+    assert dispatch.outcome == "succeeded"
+    assert dispatch.requested_backend == "numpy"
+    assert dispatch.selected_backend == "numpy"
+    assert dispatch.actual_backend == "numpy"
+    assert dispatch.backend_trace_status == "captured"
+    assert tuple((item.backend, item.outcome) for item in dispatch.backend_attempts) == (
+        ("numpy", "success"),
+    )
+    assert dispatch.backend_identity_status == "reconciled"
+    assert dispatch.fallback_status == "not_fell_back"
+    assert dispatch.seed_status == "reconciled"
+    assert dispatch.rng_state_status == "runner_rng_state_not_retained"
+    assert dispatch.graph_input_ids == ("baseline", "scenario")
+    assert dispatch.signature_input_slot_ids == ("baseline", "scenario")
+    assert dispatch.signature_output_slot_ids == ("result",)
+    assert dispatch.signature_parameter_names == ("poverty_line",)
+    assert dispatch.method_metric_input_capture_status == "captured"
     assert occurrence.dispatch.input_role_values[0].value_sha256
     assert {row.slot_id for row in occurrence.returned_slots} == {"result"}
     assert all(row.declared_slot_type == SlotType.SCALAR.name for row in occurrence.returned_slots)
@@ -853,6 +878,7 @@ def test_ex_ante_graph_capture_persists_actual_inputs_and_bound_output(
         store,
         input_capture_ref,
     )
+    assert input_capture.pre_dispatch_state_ref.kind == "foundry.state_snapshot"
     assert input_capture.pre_dispatch_state_ref != source_state_ref
     assert occurrence.dispatch.input_state_status == "captured"
     assert occurrence.dispatch.input_state_ref == input_capture.pre_dispatch_state_ref
@@ -869,6 +895,9 @@ def test_ex_ante_graph_capture_persists_actual_inputs_and_bound_output(
         max_entries=8,
         max_elements=32,
     )
+    assert bounded_inputs.snapshot.schema_version == "2.3"
+    assert bounded_inputs.snapshot.layout == "method_input_slots"
+    assert bounded_inputs.snapshot_manifest.artifact_schema.version == "2.3.0"
     assert bounded_inputs.payload_integrity_verified is True
     assert bounded_inputs.usage.payload_integrity_verified is True
     assert bounded_inputs.observed_source_bytes == bounded_inputs.usage.observed_source_bytes
@@ -911,6 +940,19 @@ def test_ex_ante_graph_capture_persists_actual_inputs_and_bound_output(
     actual_arrays = dict(bounded_inputs.arrays)
     assert np.array_equal(actual_arrays["baseline"], baseline)
     assert np.array_equal(actual_arrays["scenario"], scenario)
+    capture_slots = {slot.slot_id: slot for slot in input_capture.slots}
+    assert set(capture_slots) == {"baseline", "scenario"}
+    for slot_id, expected in (("baseline", baseline), ("scenario", scenario)):
+        array = actual_arrays[slot_id]
+        slot = capture_slots[slot_id]
+        assert array.dtype.str == slot.dtype
+        assert array.shape == slot.shape
+        digest = hashlib.sha256()
+        digest.update(array.dtype.str.encode("ascii"))
+        digest.update(json.dumps(array.shape, separators=(",", ":")).encode("ascii"))
+        digest.update(memoryview(array).cast("B"))
+        assert digest.hexdigest() == slot.value_sha256
+        assert np.array_equal(array, expected)
     independent = hashlib.sha256(b"policyos.method_dispatch_input_map.sha256.v1\0")
     for slot_id in ("baseline", "scenario"):
         array = actual_arrays[slot_id]
@@ -1039,10 +1081,10 @@ def test_snapshot_refusal_usage_uses_transferred_bytes_not_member_size(
     snapshot_ref = StateSnapshotRef.model_validate(
         put_state_snapshot(
             store,
-            state=_NamedSnapshotInputs(
-                baseline=np.asarray([1.0, 2.0]),
-                scenario=np.asarray([2.0, 4.0]),
-            ),
+            state={
+                "baseline": np.asarray([1.0, 2.0]),
+                "scenario": np.asarray([2.0, 4.0]),
+            },
             step=0,
             return_selected_profile=True,
         ).model_dump(mode="python")
@@ -1123,10 +1165,10 @@ def test_snapshot_json_refusal_does_not_treat_declared_size_as_transfer_usage(
     snapshot_ref = StateSnapshotRef.model_validate(
         put_state_snapshot(
             store,
-            state=_NamedSnapshotInputs(
-                baseline=np.asarray([1.0]),
-                scenario=np.asarray([2.0]),
-            ),
+            state={
+                "baseline": np.asarray([1.0]),
+                "scenario": np.asarray([2.0]),
+            },
             step=0,
             return_selected_profile=True,
         ).model_dump(mode="python")

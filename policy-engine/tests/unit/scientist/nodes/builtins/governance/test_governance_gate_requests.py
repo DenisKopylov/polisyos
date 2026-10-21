@@ -28,11 +28,13 @@ from polisyos.ir.loading.norm_pack import NormPack
 from polisyos.ir.model_layer.model_spec import ModelSpec
 from polisyos.ir.trinity import TrinityBundle
 from polisyos.scientist.nodes.builtins.governance.governance_gate_requests import (
+    _REPLAY_INPUT_CONTRACTS,
     _create_gate_request,
     _ensure_human_review_gate_request,
     _gate_replay_readiness,
     _gate_replay_summary,
     _policy_summary_from_state,
+    _replay_schema_matches,
     _simulation_results_from_state,
 )
 from polisyos.scientist.nodes.builtins.governance.run_governance import (
@@ -53,6 +55,34 @@ from polisyos.scientist.nodes.builtins.state_keys import (
 from polisyos.scientist.orchestration.engine.context import ExecutionContext
 from polisyos.scientist.orchestration.engine.state import ExperimentState
 from polisyos.scientist.orchestration.kernel.gate_protocol import HumanGateProtocol
+
+
+def test_state_snapshot_replay_dispatch_accepts_versioned_method_input_layout() -> None:
+    payload = StateSnapshot(
+        schema_version=StateSnapshot.METHOD_INPUT_SCHEMA_VERSION,
+        state_ref=ArtifactRef(
+            artifact_id=ArtifactID.from_sha256_hex("a" * 64),
+            kind="foundry.state_blob",
+            media_type="application/x-npz",
+        ),
+        layout=StateSnapshot.METHOD_INPUT_LAYOUT,
+        lineage_inputs=[],
+    )
+    contract = _REPLAY_INPUT_CONTRACTS[INPUT_STATE_SNAPSHOT_REF]
+
+    assert _replay_schema_matches(
+        contract,
+        SchemaInfo(
+            name="polisyos.core.StateSnapshot",
+            version=StateSnapshot.SCHEMA_MANIFEST_VERSION_BY_PAYLOAD_VERSION["2.3"],
+        ),
+        payload,
+    )
+    assert not _replay_schema_matches(
+        contract,
+        SchemaInfo(name="polisyos.core.StateSnapshot", version="2.2.0"),
+        payload,
+    )
 
 
 def test_replay_readiness_moves_from_incomplete_to_partial_to_complete(tmp_path) -> None:

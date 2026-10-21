@@ -3602,6 +3602,21 @@ class PolicyGroundingPort:
         )
 
 
+def _n5_snapshot_manifest_version(*, schema_version: str, layout: str | None) -> str | None:
+    """Resolve a GlobalState snapshot schema while refusing sparse method inputs."""
+    if schema_version == core_contracts.StateSnapshot.METHOD_INPUT_SCHEMA_VERSION:
+        if layout is not None:
+            raise WorldModelRecordError("n5_bound_state_snapshot_layout_not_global_state")
+        return None
+    if layout is not None:
+        raise WorldModelRecordError("n5_bound_state_snapshot_layout_not_global_state")
+    if schema_version not in {"2.1", "2.2"}:
+        return None
+    return core_contracts.StateSnapshot.SCHEMA_MANIFEST_VERSION_BY_PAYLOAD_VERSION.get(
+        schema_version
+    )
+
+
 class JointSimulationPort:
     """Default N5 port assembling and calling the canonical joint controller."""
 
@@ -4344,8 +4359,10 @@ class JointSimulationPort:
         if not store.verify(snapshot_ref).ok:
             raise WorldModelRecordError("n5_bound_state_owner_profile_invalid")
         snapshot = StateSnapshot.model_validate(load_core_json_artifact(store, snapshot_ref))
-        supported_snapshot_schemas = {"2.1": "2.1.0", "2.2": "2.2.0"}
-        expected_snapshot_schema = supported_snapshot_schemas.get(snapshot.schema_version)
+        expected_snapshot_schema = _n5_snapshot_manifest_version(
+            schema_version=snapshot.schema_version,
+            layout=snapshot.layout,
+        )
         state_blob_ref = snapshot.state_ref
         if snapshot.schema_version == "2.1":
             # Historical N5 and the v2.1 loader consume only the default view.
@@ -4391,7 +4408,7 @@ class JointSimulationPort:
         )
         if actual_lineage != expected_lineage:
             raise WorldModelRecordError("n5_bound_state_lineage_mismatch")
-        if snapshot.schema_version == "2.2":
+        if snapshot.schema_version in {"2.2", StateSnapshot.METHOD_INPUT_SCHEMA_VERSION}:
             state_blob_edge = snapshot.lineage_inputs[-1] if snapshot.lineage_inputs else None
             if (
                 snapshot_manifest.inputs != snapshot.lineage_inputs

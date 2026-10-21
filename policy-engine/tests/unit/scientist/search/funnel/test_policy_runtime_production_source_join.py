@@ -8,6 +8,7 @@ from types import SimpleNamespace
 from typing import Any
 
 import jax.numpy as jnp
+import numpy as np
 import pytest
 
 from polisyos.core.artifacts import input_ref_from_artifact_ref, load_core_json_artifact
@@ -379,6 +380,56 @@ def test_runtime_session_recomputes_indexed_balance_before_selection(
         ),
     }
     assert {(item.role, item.artifact_id.hex) for item in manifest.inputs} == expected_inputs
+
+
+def test_source_balance_rejects_sparse_method_input_snapshot_as_simulation_state(
+    tmp_path: Path,
+) -> None:
+    store = FileSystemCAS(tmp_path / "cas")
+    simulation_ref, metrics_ref, _ = _put_profiled_balance_source(store, value=35.0)
+    sparse_snapshot_ref = put_state_snapshot(
+        store,
+        state={
+            "baseline": np.asarray([1.0], dtype=np.float64),
+            "scenario": np.asarray([2.0], dtype=np.float64),
+        },
+        step=3,
+        return_selected_profile=True,
+    )
+    original_simulation = SimulationResult.model_validate(
+        load_core_json_artifact(store, simulation_ref)
+    )
+    simulation = original_simulation.model_copy(update={"state_snapshot_ref": sparse_snapshot_ref})
+    simulation_ref_raw = store.put_json(
+        simulation,
+        PutOptions(
+            kind=SimulationResult.ARTIFACT_KIND,
+            media_type=SimulationResult.ARTIFACT_MEDIA_TYPE,
+            schema=SchemaInfo(
+                name=SimulationResult.ARTIFACT_SCHEMA_NAME,
+                version=SimulationResult.ARTIFACT_SCHEMA_VERSION,
+            ),
+            inputs=[
+                input_ref_from_artifact_ref(metrics_ref, role="metrics"),
+                input_ref_from_artifact_ref(sparse_snapshot_ref, role="state_snapshot"),
+            ],
+        ),
+        return_selected_profile=True,
+    )
+    simulation_ref = SimulationResultRef.model_validate(
+        simulation_ref_raw.model_dump(mode="python")
+    )
+
+    observed = observe_source_government_balance(
+        store,
+        simulation_result_ref=simulation_ref,
+        metrics_ref=metrics_ref,
+        state_snapshot_ref=sparse_snapshot_ref,
+    )
+
+    assert observed.source_status == "invalid"
+    assert observed.value is None
+    assert observed.limitation == "simulation_state_snapshot_layout_not_global_state"
 
 
 def test_profiled_balance_observation_rejects_unselected_or_divergent_sources(

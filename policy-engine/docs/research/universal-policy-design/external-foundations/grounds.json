@@ -2904,6 +2904,1150 @@
       "research_stream": "INS",
       "standing": "editorial research ground; not task-admitted evidence, translation authority, or legal advice",
       "application_basis": "statement contains the bounded source account; task uses, proposed acquisition, alternative comparisons and constructed counterexamples are editorial reasoning, not source-issued requirements or task authority."
+    },
+    {
+      "id": "G4-MIS-01",
+      "title": "Missingness assumptions and recoverability depend on the missingness model",
+      "kind": "editorial",
+      "statement": "Rubin (1976) states that ignoring missingness for direct-likelihood or Bayesian inference requires MAR and distinct missingness and target parameters; sampling-distribution inference has a different condition. Mohan and Pearl (2014) show some specified missingness graphs have testable implications and others do not. Statistically indistinguishable graphs can imply different recoverability for the same query. Testability is therefore graph- and query-specific.",
+      "source_refs": [
+        {
+          "source_id": "S4-MIS-01",
+          "url": "https://dash.harvard.edu/entities/publication/73120378-8764-6bd4-e053-0100007fdf3b",
+          "locator": "Repository record and abstract; published article is Biometrika 63(3), 581–592 (1976).",
+          "access": "Harvard repository metadata and abstract reviewed; article full text not reviewed."
+        },
+        {
+          "source_id": "S4-MIS-02",
+          "url": "https://proceedings.mlr.press/v33/mohan14.pdf",
+          "locator": "Mohan and Pearl (2014), pp. 643–650; §§1, 4, 6–8, including Examples 11–12 and conclusion.",
+          "access": "Official PMLR proceedings PDF opened; selected sections read."
+        }
+      ],
+      "scope": "Inference or causal queries involving partially observed variables, including survey items, administrative outcomes, and longitudinal follow-up.",
+      "required_inputs": [
+        "Variable-level missingness indicators, collection times, follow-up events, and observed covariates.",
+        "Target query, proposed missingness model, and its testable implications."
+      ],
+      "alternatives": [
+        "Acquire a validation/follow-up sample or a separately sourced outcome with verified coverage.",
+        "Compare explicit MAR/MNAR scenarios or bounds when the dependence on missing values is unobserved.",
+        "Report which model restrictions are testable and retain the rest as assumptions."
+      ],
+      "non_substitution": "Rejecting one model does not identify its alternative. Compatibility with observed data does not prove all independence assumptions; imputation or weighting does not verify MAR.",
+      "counterexample": "Mohan and Pearl's Example 11 gives statistically indistinguishable graphs with different recoverability for the same joint query.",
+      "task_uses": "Bind the missingness model, target query, tested restrictions, and remaining assumptions to each estimate. Search can seek validation data when it changes recoverability; learning can compare declared mechanisms without promoting one to authority.",
+      "acquisition_next": "Request disposition and variable-level missingness indicators, follow-up records, auxiliary measures, and model provenance. If validation is unavailable, specify the sensitivity range that limits the claim.",
+      "currentness_limit": "Rubin's repository abstract and selected sections of the 2014 PMLR paper were reviewed; no survey of later testability methods was performed.",
+      "research_stream": "MIS",
+      "standing": "editorial research ground; not task-admitted evidence or authority",
+      "application_basis": "Model/query scoping and PolicyOS uses are editorial applications, not source-issued runtime requirements; an observed-data test is not authority.",
+      "editorial_family_ids": [
+        "EF-05",
+        "EF-08",
+        "EF-26"
+      ]
+    },
+    {
+      "id": "G4-MIS-02",
+      "title": "Treatment-related attrition can change the estimand and require selection bounds",
+      "kind": "editorial",
+      "statement": "For continuous outcomes, Lee's result concerns outcomes observed only when a post-assignment selection indicator is one. Under assignment independence and monotonicity in the effect of assignment on selection, trimming gives sharp effect bounds for the always-selected stratum. It does not identify the effect for everyone assigned. Lee notes that monotonicity cannot be tested from observed outcome, selection, and assignment alone.",
+      "source_refs": [
+        {
+          "source_id": "S4-MIS-03",
+          "url": "https://www.princeton.edu/~davidlee/wp/resrevision8.pdf",
+          "locator": "Lee, author manuscript (August 2008), Assumptions 1 and 2a and Proposition 1a, pp. 13–15; monotonicity discussion, pp. 13 and 29–30.",
+          "access": "Princeton author manuscript opened; selected identification assumptions and application discussion read. Published-version differences not checked."
+        }
+      ],
+      "scope": "Binary treatment evaluations where outcome observation or sample inclusion may itself be affected by treatment assignment, such as employment-conditioned wages or post-program follow-up.",
+      "required_inputs": [
+        "Assignment and selection for all assigned units; outcomes for observed units.",
+        "Declared target stratum and a defensible direction for selection monotonicity."
+      ],
+      "alternatives": [
+        "Use follow-up collection or a separately linked outcome when it recovers attriters.",
+        "If monotonicity is implausible, use bounds or sensitivity analysis under other explicit assumptions.",
+        "If no added assumption is justified, preserve the widest identified interval."
+      ],
+      "non_substitution": "Similar arm-level attrition rates do not prove individual monotonicity. An always-selected effect is not the population-wide effect; a missing outcome is not evidence of no effect.",
+      "counterexample": "Lee notes job-search assistance could increase employment for some while inducing others to pursue education and leave the labor force, violating one-direction selection.",
+      "task_uses": "Keep assignment, outcome observation, and target population separate. Compare the declared-stratum effect with population outcomes requiring more acquisition; keep monotonicity-based bounds conditional.",
+      "acquisition_next": "Obtain arm-specific dispositions, follow-up attempts, outcome coverage, and linked employment/service outcomes. Context can inform monotonicity plausibility but cannot test it from the observed triple alone.",
+      "currentness_limit": "Accessed an August 2008 author manuscript; publisher-version differences and later bounds were not reviewed.",
+      "research_stream": "MIS",
+      "standing": "editorial research ground; not task-admitted evidence or authority",
+      "application_basis": "Variable separation and acquisition routes are editorial applications; Lee's result depends on assignment independence and monotonicity.",
+      "editorial_family_ids": [
+        "EF-05",
+        "EF-08",
+        "EF-24",
+        "EF-26"
+      ]
+    },
+    {
+      "id": "G4-MIS-03",
+      "title": "Record-linkage error can become outcome missingness, misclassification, or selection bias",
+      "kind": "editorial",
+      "statement": "ONS guidance describes false and missed links as sources of missing variables, misclassification, sample inclusion errors, and split or merged entity histories. Bias depends on how errors vary over analysis variables, so aggregate match rates do not establish fitness for a target estimate. The guidance recommends study-specific assessment and retaining uncertain links and link-level quality measures for sensitivity analysis.",
+      "source_refs": [
+        {
+          "source_id": "S4-MIS-04",
+          "url": "https://www.gov.uk/government/publications/joined-up-data-in-government-the-future-of-data-linking-methods/quality-assessment-in-data-linkage",
+          "locator": "Office for National Statistics / Government Analysis Function guidance, updated 16 July 2021; §§2.4–2.5, 3, and conclusions.",
+          "access": "Official GOV.UK guidance opened; cited sections read."
+        }
+      ],
+      "scope": "Person, household, business, place, or event records linked across registers, surveys, or administrative sources when the linked data feed an estimate, cohort definition, or causal analysis.",
+      "required_inputs": [
+        "Linkage purpose, matching fields, preprocessing, thresholds, and linked-cluster unit.",
+        "Error estimates by target subgroup, identifier quality, and suitable linked/unlinked or reference data."
+      ],
+      "alternatives": [
+        "Retain uncertain links with match weights and vary thresholds in sensitivity analyses.",
+        "Use clerical review, representative controls, linked/unlinked comparisons, or reference statistics when their assumptions fit.",
+        "If subgroup errors are not measurable, carry a bounded limitation."
+      ],
+      "non_substitution": "High overall linkage rate, precision, or recall does not rule out differential error by subgroup or outcome. Unmatched records are not automatically random missingness.",
+      "counterexample": "The ONS guide reports a mother-and-baby linkage example with 99% of records linked while stillbirths, preterm births, and some other groups were overrepresented among unmatched records. A high aggregate rate therefore coexisted with subgroup-specific analytic risk.",
+      "task_uses": "Bind linked evidence to identity resolution and its uncertainty. Search can compare thresholds and acquisition routes; effect learning should propagate match error into sample membership and outcomes.",
+      "acquisition_next": "Request thresholds, match weights, subgroup error assessment, duplicate/cluster handling, identifier quality, review design, and pseudonymized outputs for analyst checks.",
+      "currentness_limit": "The guidance was updated in July 2021; actual linkage and target-analysis validation remain necessary.",
+      "research_stream": "MIS",
+      "standing": "editorial research ground; not task-admitted evidence or authority",
+      "application_basis": "PolicyOS identity binding and error propagation are editorial applications; the guidance certifies no particular linkage.",
+      "editorial_family_ids": [
+        "EF-04",
+        "EF-05",
+        "EF-26"
+      ]
+    },
+    {
+      "id": "G4-MIS-04",
+      "title": "An empty statistical cell can encode structural absence, noncollection, or suppression",
+      "kind": "editorial",
+      "statement": "An older SDMX guide distinguishes normal values from missing because data cannot exist, data exist but were not collected, and data were suppressed; it also separates observation status from confidentiality status. It warns that status concepts can overlap and a single flag can lose information. The current catalog lists later code-list versions, so the older codes are only a format-specific illustration that must be checked against the provider schema.",
+      "source_refs": [
+        {
+          "source_id": "S4-MIS-05",
+          "url": "https://sdmx.org/sdmx_cdcl/",
+          "locator": "SDMx Cross-Domain Code Lists page: Observation Status (CL_OBS_STATUS), v2.3 adopted 5 November 2025; Confidentiality Status (CL_CONF_STATUS), v1.4 adopted 30 June 2025.",
+          "access": "Official catalog page opened; version metadata and code-list descriptions read. Linked code-list documents were not opened."
+        },
+        {
+          "source_id": "S4-MIS-06",
+          "url": "https://sdmx.org/wp-content/uploads/CL_OBS_STATUS_implementation_20-10-2014.pdf",
+          "locator": "Possible Ways of Implementing the Observation Status Concept, October 2014, pp. 1–3; code hierarchy and one-flag/multiple-flag discussion.",
+          "access": "Official six-page PDF opened; selected pages read. The document itself says it is outdated."
+        }
+      ],
+      "scope": "Statistical observations exchanged under an SDMX-style status and confidentiality vocabulary; not a universal classification for every administrative or research dataset.",
+      "required_inputs": [
+        "Provider value/status/confidentiality fields and exact code-list and schema versions.",
+        "Eligible universe, reference time, denominator, and row-existence rule.",
+        "Suppression rules and any permitted aggregate or protected-access route."
+      ],
+      "alternatives": [
+        "Keep observed zero, structural absence, noncollection, suppression, and unknown as separate candidate states.",
+        "Use eligibility rules for structural absence; assess a missingness mechanism for noncollection.",
+        "For suppression, seek approved aggregates or protected access; do not fill with zero."
+      ],
+      "non_substitution": "A reported numeric zero is a quantity on the provider’s scale, potentially subject to rounding; non-applicability, noncollection and suppression describe different absences. SDMX does not define an unrelated provider’s blank cell.",
+      "counterexample": "In a monthly service table, an age-ineligible group may be out of scope, an eligible area may have zero cases, a small cell may be suppressed, and a late feed may be uncollected. Collapsing them changes denominators and disclosure meaning.",
+      "task_uses": "Keep value and absence reason separate. Search can choose measurement, clarification, protected access, or limitation; learning must not train a zero from suppressed or out-of-universe cells.",
+      "acquisition_next": "Request the live code list/schema, universe rules, collection disposition, suppression policy, ingest status, and approved aggregate or secure-access route.",
+      "currentness_limit": "The 2014 guide says it is outdated. The catalog lists later versions, but their linked documents were not read; verify provider-specific semantics.",
+      "research_stream": "MIS",
+      "standing": "editorial research ground; not task-admitted evidence or authority",
+      "application_basis": "Absence states and PolicyOS uses are editorial proposals, not a production taxonomy or authority.",
+      "editorial_family_ids": [
+        "EF-05",
+        "EF-06",
+        "EF-26"
+      ]
+    },
+    {
+      "id": "G4-EQM-01",
+      "title": "Scale can change prices and effects on treated and untreated groups",
+      "kind": "editorial",
+      "statement": "Heckman, Lochner, and Taber model tuition and tax policies in a dynamic general-equilibrium setting with endogenous skill formation and skill prices. In their tuition-policy analysis, expanding enrollment changes skill prices and feeds back into enrollment incentives and earnings; effects also reach nonparticipants and include the taxes used to finance the policy. Their result is a model-specific demonstration that an individual-level treatment response need not equal a national policy effect.",
+      "source_refs": [
+        {
+          "source_id": "S4-EQM-01",
+          "url": "https://users.ssc.wisc.edu/~ctaber/Papers/gentuit.pdf",
+          "locator": "AER Papers and Proceedings reprint, pp. 381–386; especially the discussion of partial-equilibrium assumptions, induced skill-price changes, nonparticipants, and tuition-policy results on pp. 382–386.",
+          "access": "Author-hosted copy of the primary article; selected text read. The result is from the authors' specified US tuition and skill-market model."
+        }
+      ],
+      "scope": "The cited model is a dynamic US tuition and skill-market policy analysis with endogenous skill prices, financing, and human-capital choices. It gives no universal scale correction or local estimate.",
+      "required_inputs": [
+        "Coverage/saturation and the markets connecting participants with nonparticipants.",
+        "Baseline and induced quantities, prices, capacity, response elasticities, and adjustment horizon.",
+        "Financing path and groups whose choices change as prices or returns move.",
+        "Separate direct partial-equilibrium response from market-wide or long-run response."
+      ],
+      "alternatives": [
+        "Use a local partial-equilibrium estimate only when scale is small and evidence bounds price, capacity, and nonparticipant effects.",
+        "Where coupling is uncertain, show partial-equilibrium and bounded price-feedback scenarios, including decision reversals.",
+        "For large or persistent rollouts, model market feedback directly or simulate staged expansion with price and capacity responses; real rollout remains subject to institutional mandate and applicable safeguards."
+      ],
+      "non_substitution": "An individual-level treatment effect or low-coverage pilot does not by itself establish the effect of a large rollout when treatment changes market prices, capacity, financing, or untreated groups' outcomes. The cited tuition result does not imply that all pilots fail to scale.",
+      "counterexample": "Illustrative PolicyOS inference: a small scholarship pilot raises completion while skill prices are treated as fixed; broad eligibility expands skilled-worker supply, changes relative earnings, alters later enrollment choices, and affects workers who did not receive scholarships. Multiplying the pilot response by the national eligible population omits those feedbacks.",
+      "task_uses": "Expose saturation and price-feedback paths; preserve participant and nonparticipant outcomes; compare direct and joint effects. Simulate candidate eligibility phases or review triggers tied to capacity, prices, and enrollment; simulation does not authorize deployment.",
+      "acquisition_next": "Acquire local market boundaries, quantities and prices over time, capacity, supply/demand response, participant composition, nonparticipant outcomes, financing, and adjustment time.",
+      "currentness_limit": "The article is a 1998 model-based analysis. No claim is made that its US calibration, response magnitude, or institutional setting transfers to a current task; local model inputs and later evidence remain to be acquired.",
+      "research_stream": "EQM",
+      "standing": "editorial research ground; not task-admitted evidence or authority",
+      "interpretation_status": "Statement/source_refs summarize the named model; other application fields are PolicyOS inference.",
+      "application_basis": "Treat small-scale evidence as locally predictive only when omitted price, capacity, financing, and spillover paths are immaterial to the claim.",
+      "editorial_family_ids": [
+        "EF-08",
+        "EF-09",
+        "EF-11",
+        "EF-12"
+      ]
+    },
+    {
+      "id": "G4-EQM-02",
+      "title": "Economic incidence depends on pass-through, elasticities, and market structure",
+      "kind": "editorial",
+      "statement": "Weyl and Fabinger distinguish physical incidence from economic incidence and analyze how taxes divide surplus between consumers and producers under perfect and imperfect competition. Their associated demand-forms paper states that competitive pass-through depends on supply and demand elasticities, while in its imperfect-competition models demand curvature and market conduct also shape pass-through; supply conditions matter outside the stated constant-returns case. These are model relations, not universal local estimates.",
+      "source_refs": [
+        {
+          "source_id": "S4-EQM-02",
+          "url": "https://doi.org/10.1086/670401",
+          "locator": "Journal of Political Economy 121(3), abstract: five incidence principles, including independence of physical and economic incidence, consumer/producer tax splitting, and pass-through determinants.",
+          "access": "Official publisher abstract and publication metadata checked; full article not accessed."
+        },
+        {
+          "source_id": "S4-EQM-03",
+          "url": "https://www.aeaweb.org/conference/2013/retrieve.php?pdfid=473",
+          "locator": "Fabinger and Weyl, December 2012 paper, §§1.1 and 1.3, pp. 3–5: competitive versus imperfect-competition pass-through and the role of demand curvature under stated market assumptions.",
+          "access": "Primary conference-paper text opened; selected sections read. It is related to, and not independent corroboration of, S4-EQM-02."
+        }
+      ],
+      "scope": "The sources analyze tax/cost pass-through under specified market structures. Detailed curvature claims are model-conditional; no local market estimate, legal rule, or normative choice follows.",
+      "required_inputs": [
+        "Statutory remitter, tax base and scope, plus separately observed outcomes for buyers and sellers.",
+        "Transaction prices, quantities, substitution, and supply/demand response over the relevant horizon.",
+        "Concentration, product differentiation, markups, supply-chain stages, cost changes, and demand/market conduct evidence.",
+        "Buyer, producer, worker, and government effects under a declared population and accounting boundary."
+      ],
+      "alternatives": [
+        "Use an elasticity-based competitive benchmark only where local evidence supports that approximation.",
+        "With material market power, estimate or bound pass-through across plausible demand, conduct, and supply conditions.",
+        "Show statutory cash responsibility separately; explore candidate rankings under named hypothetical or authorized value frames, preserving sensitivity and not presenting an unmandated frame as a principal choice."
+      ],
+      "non_substitution": "The person or firm legally required to remit a tax is not thereby established as its sole economic bearer. Observed price changes, producer surplus, and group welfare are also distinct; incidence analysis does not itself choose which distribution is fair or authorized.",
+      "counterexample": "Illustrative PolicyOS inference: an excise statute names a retailer as remitter, but the retail price changes by less than, exactly, or more than the tax depending on demand and competition; the remitter field alone cannot determine the final consumer and producer burden.",
+      "task_uses": "Keep legal remittance, price pass-through, producer response, and group incidence distinct. Compare supported market structures and preserve uncertainty when elasticity, conduct, or curvature is unknown.",
+      "acquisition_next": "Acquire dated prices and quantities, market shares/substitutes, costs and markups, response evidence, and the legal remittance rule; bound local pass-through over a named market and horizon.",
+      "currentness_limit": "The 2013 article's abstract and selected 2012 draft sections were checked. No current local market estimate, full review of the 2013 article, or audit of later literature is claimed; the draft and article are one related research lineage, not independent evidence.",
+      "research_stream": "EQM",
+      "standing": "editorial research ground; not task-admitted evidence or authority",
+      "interpretation_status": "Source claims are limited to the cited abstract and selected draft sections; applications are PolicyOS inference.",
+      "application_basis": "Local incidence needs task-bound transactions and a response model; a cited paper does not establish local authority or estimates.",
+      "editorial_family_ids": [
+        "EF-06",
+        "EF-08",
+        "EF-16"
+      ]
+    },
+    {
+      "id": "G4-EQM-03",
+      "title": "Congested networks separate user equilibrium from system optimum",
+      "kind": "editorial",
+      "statement": "The Australian Bureau of Transport Economics summarizes Wardrop's user equilibrium as a flow pattern where no user can lower their travel cost by switching routes unilaterally, and system optimum as minimizing total transport cost. In his deterministic road-network example, Braess shows that flow-dependent route costs and individual route choice can make a network extension redistribute traffic toward longer travel times in a particular configuration. The example establishes a possibility under its assumptions, not a typical effect of added capacity.",
+      "source_refs": [
+        {
+          "source_id": "S4-EQM-04",
+          "url": "https://www.bitre.gov.au/sites/default/files/wp_039.pdf",
+          "locator": "Bureau of Transport Economics, Working Paper 39, Urban Transport Models: A Review (1998), ch. 2, Box 2.4 and surrounding text, printed pp. 16–17: Wardrop principles, route-flow costs, and price responsiveness in transport models.",
+          "access": "Official Australian government working paper; selected sections read. It summarizes the principles rather than establishing local route behavior."
+        },
+        {
+          "source_id": "S4-EQM-05",
+          "url": "https://supernet.isenberg.umass.edu/braess/paradox-original.pdf",
+          "locator": "Braess, Über ein Paradoxon aus der Verkehrsplanung (1968), English summary and §§1–5; especially the distinction between individual route choice and total-flow optimum and the constructed network example.",
+          "access": "UMass-hosted copy of the primary German article; English summary and selected text read. The counterexample is model-specific."
+        }
+      ],
+      "scope": "The sources cover static road networks with specified origin-destination demand and flow-dependent route costs. Dynamic traffic, induced demand, heterogeneous users, information, safety, and transit need separate treatment or an explicit limit.",
+      "required_inputs": [
+        "Network topology and links/services whose costs share flows.",
+        "Origin-destination demand, time profile, route choice, capacity, and cost-versus-flow functions.",
+        "Declared evaluation objective: user cost, total transport cost, or wider welfare measure; a hypothetical value frame supports conditional comparison, not an adopted ranking.",
+        "For claims of actual feasibility or deployment: institutional powers for control, pricing, routing and coordination with provenance. Unknown powers do not prohibit hypothetical candidate analysis."
+      ],
+      "alternatives": [
+        "Use a local link-cost estimate only where shared-flow costs and route substitution are immaterial.",
+        "When flow externalities matter, compare user equilibrium with feasible pricing, routing, capacity management, or demand management.",
+        "For changing demand or queues, use dynamic assignment or bounded scenarios; do not project static equilibrium as a forecast."
+      ],
+      "non_substitution": "A system-optimal flow pattern is not evidence that travelers will select it voluntarily, and a user equilibrium is not proof that total system cost is minimized. A theoretical capacity paradox is not evidence that a particular real-world expansion will worsen congestion.",
+      "counterexample": "Braess's constructed network is the counterexample: adding a link changes individually chosen routes and raises travel times in that network. A planning rule that treats each added link as an independent capacity benefit would miss the route-flow feedback; the example does not predict the sign for another network.",
+      "task_uses": "Compose interventions that share users or capacity as a joint network candidate. Compare self-selected equilibrium with feasible coordinated or priced flows; simulate reversible or staged capacity options where response is uncertain, without implying deployment authority.",
+      "acquisition_next": "Acquire local origin-destination and link counts, travel times by period, capacities/queues, route-switching observations, and controls. Calibrate on observed flows and validate on held-out periods or a separate corridor.",
+      "currentness_limit": "The cited government review is from 1998 and the Braess article from 1968. They establish modeling distinctions and a theoretical counterexample, not current empirical conditions or the magnitude of effects in a named network.",
+      "research_stream": "EQM",
+      "standing": "editorial research ground; not task-admitted evidence or authority",
+      "interpretation_status": "The definitions and constructed example are source summaries; local application fields are PolicyOS inference.",
+      "application_basis": "Infer network coupling from local topology, shared-flow costs, and route responses; shared domain labels alone do not establish it.",
+      "editorial_family_ids": [
+        "EF-08",
+        "EF-09",
+        "EF-18",
+        "EF-24"
+      ]
+    },
+    {
+      "id": "G4-EQM-04",
+      "title": "Allocation rules must account for strategic reports and participation constraints",
+      "kind": "editorial",
+      "statement": "Myerson formulates a single-item auction with privately known bidder values as a mechanism-design problem: feasible rules must satisfy incentive-compatibility and participation conditions, and the seller chooses among them to maximize expected utility under the paper's type model. The result shows that allocation and payment rules shape strategic incentives; it does not supply a public-policy objective or a universal mechanism.",
+      "source_refs": [
+        {
+          "source_id": "S4-EQM-06",
+          "url": "https://www.cs.princeton.edu/courses/archive/spr09/cos444/papers/myerson81.pdf",
+          "locator": "Myerson, Mathematics of Operations Research 6(1) (1981), pp. 58–73; §§2–4, especially the feasibility constraints, revelation principle, and incentive-compatibility characterization on pp. 60–63.",
+          "access": "Publisher metadata checked; selected primary-text pages read in the Princeton-hosted published-article copy."
+        }
+      ],
+      "scope": "Myerson analyzes a single-item auction with private information under stated utility and auction assumptions. Public applications require their own objectives, participants, evidence, and legal constraints.",
+      "required_inputs": [
+        "Actors, private types/information, available actions/reports, and payoffs by outcome.",
+        "Allocation/payment/eligibility constraints; record objective provenance and whether the frame is hypothetical, authorized, contested, or unknown.",
+        "Participation, incentive, information, interaction, and equilibrium assumptions with evidence of fit.",
+        "Distributional effects by group; revenue or truthful reporting alone is not welfare."
+      ],
+      "alternatives": [
+        "Consider an eligibility rule, queue, or lottery when justified by the objective; compare access, fairness, and manipulation risks.",
+        "Where private information matters, compare mechanisms under named hypothetical objectives and constraints, then distinguish conditional rankings from an adopted principal objective.",
+        "If behavior assumptions are unestablished, keep simulations conditional and seek existing comparable-regime evidence, an authorized audit, or authorized elicitation. Any new intervention or data collection requires the responsible institution’s mandate and approvals."
+      ],
+      "non_substitution": "Observed bids, applications, take-up, or compliance are choices made under particular rules and constraints. They do not by themselves reveal a public mandate, social welfare ranking, or intrinsic preference independent of the mechanism; incentive compatibility in an auction model does not establish fairness or legal authority.",
+      "counterexample": "Illustrative PolicyOS inference: an auction allocates a scarce permit using bids and a reserve price. Changing the reserve or payment rule can change bids and allocation, so the winning bid cannot by itself be read as a vote for the permit's public value or as an authorized distributional choice.",
+      "task_uses": "Treat rules as part of the intervention when actors respond strategically. Compare candidate outcomes under named hypothetical or authorized objectives, preserve equilibrium assumptions, and treat observed choices as mechanism-conditioned evidence; a conditional ranking is not mandate.",
+      "acquisition_next": "Acquire the governing rule, incentives, private-information structure, participation/appeal constraints, distributional effects, and existing evidence from comparable regimes. Identify who could authorize an objective; any new data collection requires institutional authority.",
+      "currentness_limit": "The 1981 paper is a foundational single-item auction model. No claim is made that its assumptions fit a current public program, or that it resolves multi-unit, dynamic, collusive, bounded-rationality, or legally constrained settings.",
+      "research_stream": "EQM",
+      "standing": "editorial research ground; not task-admitted evidence or authority",
+      "interpretation_status": "Myerson summary is bounded to the paper; public-policy applications and examples are PolicyOS inference.",
+      "application_basis": "Incentives make behavior rule-dependent; compatibility and welfare require task-specific evidence. Hypothetical frames may support candidate comparison; mandate is needed to represent an adopted principal choice or authoritative recommendation.",
+      "editorial_family_ids": [
+        "EF-09",
+        "EF-16",
+        "EF-18",
+        "EF-26"
+      ]
+    },
+    {
+      "id": "G4-DST-01",
+      "title": "A multidimensional poverty judgment requires two cutoffs and an explicit unit of identification",
+      "kind": "editorial",
+      "statement": "Alkire–Foster counting first applies within-dimension deprivation cutoffs z_j, forms weighted deprivation scores c_i = Σ_j w_j g^0_ij, and identifies person i as poor when c_i ≥ k. With normalized dimension weights and a nonempty population of n persons (n > 0), its direct aggregation is M0 = (1/n) Σ_i Σ_j w_j g^0_ij(k), where g^0_ij(k) censors deprivations of non-poor persons; when q > 0, this also equals H × A. If q = 0, the direct sum gives M0 = 0 while A, the mean among poor persons, is undefined. UNDP’s 2026 Global MPI FAQ is a current example of household deprivation profiles used to classify residents.",
+      "source_refs": [
+        {
+          "source_id": "S4-DST-01",
+          "url": "https://doi.org/10.1016/j.jpubeco.2010.11.006",
+          "locator": "Journal of Public Economics 95(7–8), 476–487 (2011), abstract; dual-cutoff identification and M0",
+          "access": "abstract_or_metadata"
+        },
+        {
+          "source_id": "S4-DST-02",
+          "url": "https://hdr.undp.org/mpi-2026-faqs",
+          "locator": "2026 Global MPI FAQ: same-survey indicators, household attribution to residents, headcount and intensity",
+          "access": "primary_text_or_selected_sections"
+        },
+        {
+          "source_id": "S4-DST-07",
+          "url": "https://ophi.org.uk/sites/default/files/OPHIWP086_Ch5.pdf",
+          "locator": "Alkire et al., OPHI Working Paper 86 (2015), ch. 5 §§5.1, 5.2.1–5.2.4 and 5.3, especially equations (5.1)–(5.3)",
+          "access": "primary_text_or_selected_sections"
+        }
+      ],
+      "scope": "AF-style counting measures of multidimensional poverty. The formal chapter uses person-level achievement data; household-to-person attribution below is a bounded Global MPI example, not a universal unit rule.",
+      "required_inputs": [
+        "Purpose, target population, analysis and reporting units; define any household-to-person attribution and population or survey-weight denominator.",
+        "Indicators, reference period, within-dimension deprivation cutoffs z_j, weights w_j, cross-dimensional cutoff k, and weight normalization.",
+        "Compatible data coverage for the chosen unit, eligibility, missingness, survey vintage, and treatment of nonresponse.",
+        "Label each rule set as an exploratory candidate or an adopted rule; an adopted/public institutional ranking needs its governing mandate, while research enumeration does not.",
+        "An empty target population or zero total survey weight is an undefined population mean, not evidence of zero poverty; the q = 0 case presumes a nonempty valid denominator."
+      ],
+      "alternatives": [
+        "For research, calculate conditional profiles and scalar results under declared hypothetical z_j, w_j, and k; show sensitivity across candidates without prior authority to adopt them.",
+        "If no scalar is needed, report deprivation profiles and subgroup incidence; report A only when q > 0. For an adopted/public institutional ranking, follow its mandate and disclose rule choices and sensitivity."
+      ],
+      "non_substitution": "AF does not select domains, z_j, weights, k, population unit, or policy decision. A household-derived resident classification does not establish each person’s observed deprivation. Candidate calculations support conditional analysis, not an adopted or public ranking.",
+      "counterexample": "If no person meets k, q = 0: the direct censored-sum formula gives M0 = 0, while A is a mean over an empty poor group and is undefined; defining M0 only as H × A would yield 0 × undefined. Separately, a household profile cannot establish a person-specific condition that was not observed for that person.",
+      "task_uses": "Enumerate plausible rule sets, compare subgroup incidence and intensity, and test whether a design’s estimated effect survives alternative declared z_j, w_j, and k. Keep every scalar conditional on its unit and rule set; use an institutional mandate for an adopted/public ranking.",
+      "acquisition_next": "For exploratory work, obtain compatible microdata and declare candidate dimensions, cutoffs, weights, k, unit, denominator, and sensitivity cases; prior authority is not needed to enumerate hypothetical scenarios. For an adopted/public ranking, document the mandate and decision rationale. When q = 0, report M0 = 0 and A as undefined, not zero.",
+      "currentness_limit": "The AF methodological chapter dates to 2015; UNDP’s 2026 Global MPI FAQ is a current operational example at access time. Neither establishes suitable local domains, unit, weights, cutoffs, or mandate for another population or institutional ranking.",
+      "research_stream": "DST",
+      "standing": "editorial research ground; not task-admitted evidence or an authorized poverty rule",
+      "application_basis": "AF identification, censoring, and aggregation formulas are source claims in Alkire et al., ch. 5 §§5.1–5.3; household attribution is the bounded UNDP FAQ example. The q = 0 handling follows algebraically from the direct censored-sum formula while A has an empty denominator; the sources do not state this edge-case wording. Candidate sensitivity without adoption authority, and the mandate requirement for an adopted/public ranking, are PolicyOS applications.",
+      "editorial_family_ids": [
+        "EF-05",
+        "EF-07",
+        "EF-16"
+      ]
+    },
+    {
+      "id": "G4-DST-02",
+      "title": "Achieved functioning and the real opportunity set answer different welfare questions",
+      "kind": "editorial",
+      "statement": "Sen distinguishes achieved functionings (what a person does or is) from capability (the set of alternative functioning combinations actually available to the person). He argues that capability sets provide a central informational base for assessing individual and social advantage, including freedom to live well; the chapter uses fasting versus involuntary starvation to show why an observed state can omit choice.",
+      "source_refs": [
+        {
+          "source_id": "S4-DST-03",
+          "url": "https://academic.oup.com/book/9949/chapter/157296473",
+          "locator": "Sen, “Capability and Well-Being,” The Quality of Life (1993), pp. 30–53; sections 2 and 7",
+          "access": "primary_text_or_selected_sections"
+        }
+      ],
+      "scope": "Welfare and social-advantage evaluation where both achieved states and substantive opportunities or choice matter. This is an evaluative framework, not a ready-made capability index.",
+      "required_inputs": [
+        "Valued functioning domains, achieved states, and feasible alternatives people can realistically choose.",
+        "Material constraints and conversion conditions at personal, household, social or environmental levels.",
+        "A declared comparison procedure and evidence on opportunities/choice, not outcomes alone."
+      ],
+      "alternatives": [
+        "Use achievement-only measures for achievement claims; label capability as unmeasured.",
+        "Use opportunity/barrier profiles or bounded proxies with validation and missing domains disclosed."
+      ],
+      "non_substitution": "Sen supplies no universal capability list or weights; an observed functioning does not reveal all available alternatives. Income, resources, happiness and achievement are distinct informational spaces and cannot be silently substituted.",
+      "counterexample": "Sen's fasting/starvation example shares the observed functioning of not eating, while the option to eat differs. A policy evaluation that reads both cases as the same welfare state loses the choice distinction the capability account is designed to preserve.",
+      "task_uses": "Separate designs that improve an achieved outcome from those that expand feasible choice; assess whether gains coincide with new constraints. Do not infer capability gain from outcomes alone.",
+      "acquisition_next": "Identify affected opportunities; collect availability, eligibility, affordability, time, safety and social-barrier evidence plus outcomes; use participation/qualitative inquiry where choices are not recorded; re-observe and retain missing domains as limitations.",
+      "currentness_limit": "This is a foundational 1993 theoretical chapter, not a current measurement standard or empirical estimate. Later capability measures and domain lists are outside the reviewed sections.",
+      "research_stream": "DST",
+      "standing": "editorial research ground; not task-admitted evidence or an authorized value ranking",
+      "application_basis": "The distinction and fasting/starvation example are Sen's argument. Policy tests and acquisition steps are editorial applications, not measurement rules from the chapter.",
+      "editorial_family_ids": [
+        "EF-03",
+        "EF-16"
+      ]
+    },
+    {
+      "id": "G4-DST-03",
+      "title": "Time-use measurement must preserve simultaneous care and keep physical time separate from imputed value",
+      "kind": "editorial",
+      "statement": "The UN time-use guide recommends collecting simultaneous or secondary activities because unpaid care, especially supervisory care, is often done alongside another activity and is missed by primary-only tables; it also reports no single allocation rule that fits all cases. The official SNA Chapter 34 V11 update text places unpaid household service work outside the SNA production boundary but within the general production boundary, and proposes parallel physical-time accounts alongside monetary values under SNA exchange-value concepts. OECD contrasts replacement-cost and opportunity-cost valuations, which rely on different wage and substitution assumptions and may overstate value.",
+      "source_refs": [
+        {
+          "source_id": "S4-DST-04",
+          "url": "https://unstats.un.org/unsd/publication/SeriesF/Seriesf_127e.pdf",
+          "locator": "UNSD, Guide to Producing Statistics on Time Use (2024), ch. II §B and ch. IX, simultaneous activity tables; only indexed extracts consulted",
+          "access": "search_extract_only"
+        },
+        {
+          "source_id": "S4-DST-08",
+          "url": "https://unstats.un.org/unsd/nationalaccount/snaupdate/2025/2025SNA_CH34_V11.pdf",
+          "locator": "2025 SNA, ch. 34 §D.3, V11 paras. 34.86, 34.89 and 34.93: production-boundary distinction; limits of monetary-only analysis and parallel physical-time account; variables and valuation concepts",
+          "access": "primary_text_or_selected_sections"
+        },
+        {
+          "source_id": "S4-DST-05",
+          "url": "https://www.oecd.org/en/publications/bringing-household-services-out-of-the-shadows_fbea8f6e-en/full-report/component-5.html",
+          "locator": "OECD, Bringing Household Services Out of the Shadows (2021), ch. 3 §3.2 and Box 3.2",
+          "access": "primary_text_or_selected_sections"
+        }
+      ],
+      "scope": "Time-use measurement and supplementary accounting of unpaid domestic and care services, with monetary valuation as one optional view. The cited OECD estimates concern non-care housework and should not be generalized to every care activity.",
+      "required_inputs": [
+        "Representative time-use data: period, activity definitions/duration, main and simultaneous activity, care recipient and context.",
+        "Declared denominator and concurrency rule: preserve overlap or specify allocation for any 24-hour table.",
+        "For monetary accounts, state service boundary, valuation method, wage/price basis, input costs and productivity/substitution assumptions."
+      ],
+      "alternatives": [
+        "Publish main-activity, simultaneous-activity and physical-time tables separately.",
+        "Keep a physical time account, or report replacement- and opportunity-cost extensions separately with assumptions."
+      ],
+      "non_substitution": "A care hour is not automatically lost paid work, leisure or market output. Primary-only diaries omit some care; split/priority rules can bias time shares. A satellite-account value is not a complete welfare measure.",
+      "counterexample": "A caregiver supervises a child while cooking. A primary-only diary may record cooking and omit care; an equal split reduces the reported minutes in both activities and changes measured gender gaps. Assigning average wage to the omitted hour would add a separate valuation assumption, not repair the missing observation.",
+      "task_uses": "For childcare, eldercare, leave or household-support designs, track who supplies unpaid time and whether provision shifts it alongside paid work/rest. Keep physical time, monetary extension and outcomes separate; imputed GDP is not a welfare weight.",
+      "acquisition_next": "Use a tested diary that records concurrency and context across relevant people/days; repeat around implementation. Use longer periods for infrequent activity. Obtain local price, wage and input data only for a declared monetary account.",
+      "currentness_limit": "The UN guide is dated 2024; its cited passages were accessed as indexed extracts. S4-DST-08 is the official revision-marked SNA Chapter 34 V11 update text; equivalence to the final published chapter and national implementation were not checked. The OECD report is from 2021 and its valuation example focuses on non-care housework.",
+      "research_stream": "DST",
+      "standing": "editorial research ground; not task-admitted evidence or an authorized value-of-time schedule",
+      "application_basis": "Measurement and valuation distinctions are source claims; the caregiver example and policy fields are editorial. The chapter-specific SNA claim is bound to S4-DST-08; the existing generic S-MEASURE-05 card is unchanged and is not used for this chapter claim.",
+      "editorial_family_ids": [
+        "EF-05",
+        "EF-06",
+        "EF-16"
+      ]
+    },
+    {
+      "id": "G4-DST-04",
+      "title": "Health-service use is realized access, not a stand-alone measure of need or unmet need",
+      "kind": "editorial",
+      "statement": "Levesque, Harris and Russell conceptualize health-care access as a pathway from identifying a need and seeking services through reaching, obtaining or using care and having the need fulfilled. Their framework pairs five service-side accessibility dimensions—approachability, acceptability, availability/accommodation, affordability and appropriateness—with population abilities to perceive, seek, reach, pay and engage; they describe utilization as realized access.",
+      "source_refs": [
+        {
+          "source_id": "S4-DST-06",
+          "url": "https://pmc.ncbi.nlm.nih.gov/articles/PMC3610159/",
+          "locator": "Levesque, Harris & Russell (2013), abstract and framework definition/results",
+          "access": "abstract_or_metadata"
+        }
+      ],
+      "scope": "Conceptual analysis of access to health-care services. Extending the pathway to other public services is a PolicyOS analogy that requires domain-specific evidence and is not established by this paper.",
+      "required_inputs": [
+        "A need/eligibility basis and source, separate from perceived need.",
+        "Service availability, approachability, acceptability, affordability, reach, appropriateness and population-side barriers.",
+        "Seeking, service offer, use, delay and need fulfillment, including non-users."
+      ],
+      "alternatives": [
+        "With utilization data alone, report observed use and leave need/barriers unresolved.",
+        "Use a validated domain-specific access or unmet-need instrument with respondent, period and construct limits."
+      ],
+      "non_substitution": "The article offers a conceptual framework based on prior access literature; it does not provide a universally validated scale or clinical rule for determining objective need. Low observed use alone cannot distinguish low need from unperceived need, supply constraints or access barriers.",
+      "counterexample": "Two areas with the same low clinic-use rate could differ because one has less need while the other has long waits, travel barriers or unaffordable care. Treating both rates as proof of equally low need would collapse distinct stages in the framework.",
+      "task_uses": "Name whether a design changes information, capacity, cost, travel, acceptability or care quality; assess pathway and fulfillment separately. Non-use is not a negative need finding; contact does not prove need was met.",
+      "acquisition_next": "Collect need/eligibility data for users and non-users, capacity/barrier data, and repeated measures of seeking, reaching, use and fulfillment. For clinical claims, obtain the governing standard and qualified assessment; preserve perceived and institutional determinations separately.",
+      "currentness_limit": "The 2013 paper is a conceptual synthesis, not a current clinical standard. No subsequent validation review or domain transfer was performed.",
+      "research_stream": "DST",
+      "standing": "editorial research ground; not task-admitted evidence or an authorized clinical-need determination",
+      "application_basis": "The pathway and five paired dimensions are the authors' framework. The area example and PolicyOS decomposition are editorial; the source establishes no local need or barrier.",
+      "editorial_family_ids": [
+        "EF-03",
+        "EF-05",
+        "EF-11"
+      ]
+    },
+    {
+      "id": "G4-ROB-01",
+      "title": "Robustness criteria preserve different assumptions and value choices",
+      "kind": "editorial",
+      "statement": "Without defensible probabilities, scenario-based robustness can compare strategies over a declared plausible-case set, but run counts are not likelihoods. Minimax regret requires a defined set, loss measure and per-case benchmark; a satisficing comparison needs a declared performance target. Distributionally robust optimization also uses the name robust satisficing, but starts from an empirical distribution and ambiguity measure, so it is not probability-free. None supplies a public objective, scenario boundary, risk tolerance or authority.",
+      "source_refs": [
+        {
+          "source_id": "S-LEARN-04",
+          "locator": "RAND MR-1626-RPC, robust decisionmaking and plausible-futures discussion.",
+          "access": "Reused card; RAND PDF previously opened and searched.",
+          "url": "https://www.rand.org/content/dam/rand/pubs/monograph_reports/2007/MR1626.pdf"
+        },
+        {
+          "source_id": "S4-ROB-01",
+          "locator": "Abstract: minimax-regret treatment choice with unknown missing-outcome distribution.",
+          "access": "Official publisher abstract/metadata; direct open failed.",
+          "url": "https://doi.org/10.1016/j.jeconom.2006.06.006"
+        },
+        {
+          "source_id": "S4-ROB-02",
+          "locator": "Abstract: empirical distribution, distribution shift, target/loss and Wasserstein ambiguity.",
+          "access": "Official abstract; full paper not inspected.",
+          "url": "https://doi.org/10.1287/opre.2021.2238"
+        }
+      ],
+      "scope": "DMDU scenarios (RAND source reused), Manski’s missing-outcome treatment choice, and data-driven distributionally robust optimization. These are method examples, not universal public decision rules.",
+      "required_inputs": [
+        "Alternatives, comparator, outcome/loss measure and model version.",
+        "Declared plausible-case set or probability/ambiguity assumptions, with source or explicit hypothetical status, generation design, bounds and exclusions.",
+        "Declared objective, threshold/benchmark, rights and risk assumptions; for adoption, identify the responsible authority and version."
+      ],
+      "alternatives": [
+        "Compare expected utility conditionally under a supported or explicitly hypothetical probability model and stated value assumptions.",
+        "Compare dominance, regret and threshold rules conditionally; retain a candidate set when the set or criterion is unresolved."
+      ],
+      "non_substitution": "An ensemble share is not a future probability without a justified sampling law. A score cannot authorize the objective, threshold, benchmark or policy choice; robustness over a set says nothing about omitted futures.",
+      "counterexample": "A water plan passes a service threshold in 99% of exploratory runs, but the generator omitted a plausible prolonged intake outage. Calling 99% a chance of success or robustness to all relevant futures turns design frequency into unsupported likelihood and hides an omitted vulnerability.",
+      "task_uses": [
+        "Expose criterion, outcome measure, uncertainty set, sampling law or its absence, and the source of each value choice.",
+        "Compare sensitivity to futures and value profiles; do not let run frequency or generated criteria select an authorized policy."
+      ],
+      "acquisition_next": "For a proposed adoption, acquire the responsible authority’s objective and threshold/regret basis; outcome evidence for each option and comparator; support for uncertainty ranges and model alternatives; and omitted-case challenges from technical custodians and affected groups. Acquire probability evidence separately if empirical probabilities are needed.",
+      "research_stream": "ROB",
+      "standing": "editorial research ground; not task-admitted evidence, decision authority, or a runtime rule",
+      "application_basis": "Source summaries are bounded; example and PolicyOS use are editorial. Criteria remain candidate analysis until task-specific authority/evidence is admitted.",
+      "currentness_limit": "Manski and Long et al. are represented from publisher abstracts only. The existing RAND card records its own access limit. This is not an exhaustive review of robustness criteria.",
+      "editorial_family_ids": [
+        "EF-24",
+        "EF-12",
+        "EF-16"
+      ]
+    },
+    {
+      "id": "G4-ROB-02",
+      "title": "A policy adaptation tipping point is not a physical system tipping point",
+      "kind": "editorial",
+      "statement": "In adaptive pathways, an adaptation tipping point is where an action ceases to meet stated objectives; its scenario-dependent timing is a policy-performance sell-by date that calls for a next action. In IPCC climate science, a physical tipping point is a critical threshold beyond which a system reorganizes, often abruptly or irreversibly. Crossing a service threshold need not imply physical reorganization, and a physical transition need not immediately fail a selected service criterion. A real policy signpost/trigger needs an observable, timely indicator and an authorized, feasible response; a physical tipping claim needs system and mechanism evidence.",
+      "source_refs": [
+        {
+          "source_id": "S4-ROB-03",
+          "locator": "Sections 1–2.1 and abstract: Dynamic Adaptive Policy Pathways; adaptation tipping point, scenario-dependent sell-by date, signposts, and sequenced actions.",
+          "access": "Full published PDF from institutional repository; selected sections read.",
+          "url": "https://doi.org/10.1016/j.gloenvcha.2012.12.006"
+        },
+        {
+          "source_id": "S4-ROB-04",
+          "locator": "Chapter 4 §4.7.2 and Glossary definition of tipping point and tipping element.",
+          "access": "Official IPCC extract only; direct retrieval returned 403.",
+          "url": "https://www.ipcc.ch/report/ar6/wg1/chapter/chapter-4/"
+        }
+      ],
+      "scope": "DAPP is illustrated with Dutch water management; the physical definition is from IPCC AR6 WGI. The distinction travels as an analytical safeguard. Real local objective, threshold, mechanism and trigger claims require task evidence; candidate cases may state assumptions.",
+      "required_inputs": [
+        "Declared objective and version; action and performance threshold; for operational monitoring, validated time-indexed indicators and monitoring latency.",
+        "For an operational trigger, identify its authority, decision/construction lead times, and a resourced successor action that remains feasible when the signpost arrives.",
+        "For a physical claim: named system, state/driver, threshold and mechanism evidence, confidence and reversibility horizon."
+      ],
+      "alternatives": [
+        "Explore a candidate pathway with lead-time-aware signposts and stated next actions; authorize and validate before using an operational trigger.",
+        "For physical transitions, use a validated system model or scientific assessment and report its confidence and time-scale limits.",
+        "Keep conditional or contested conclusions when either threshold is unresolved."
+      ],
+      "non_substitution": "An adaptation threshold does not establish abrupt physical change; a physical assessment does not set acceptable service loss, local trigger timing or authority. Naming a signpost does not prove that it is observable or timely.",
+      "counterexample": "A constructed flood plan switches barriers when protection falls below a candidate service standard under sea-level rise. That policy threshold can be crossed without a climate-system tipping event; a physical tipping element could also change while current protection still meets its standard.",
+      "task_uses": [
+        "Type each tipping claim as a policy-performance threshold or physical-system transition, with its own evidence and time semantics.",
+        "Monitor validated signposts early enough to prepare the authorized next action; source safety limits and values to their responsible holders."
+      ],
+      "acquisition_next": "For an operational trigger, verify the current objective and authority; also acquire validated local measurements, relevant physical hazard/mechanism assessment, decision and construction lead times, and successor-action permissions, resources and capacity. Review false-alarm and missed-trigger consequences with authorized risk holders.",
+      "research_stream": "ROB",
+      "standing": "editorial research ground; not task-admitted evidence, a physical tipping-point finding, or a trigger authorization",
+      "application_basis": "Definitions are source-bounded; example and PolicyOS implications are editorial and need task evidence and authority.",
+      "currentness_limit": "The DAPP paper is a 2013 method article and Dutch case. The IPCC physical definition is supported by official search extracts only; no local climate threshold was established.",
+      "editorial_family_ids": [
+        "EF-24",
+        "EF-25",
+        "EF-19",
+        "EF-16"
+      ]
+    },
+    {
+      "id": "G4-ROB-03",
+      "title": "Option value depends on a real ability to wait and later act",
+      "kind": "editorial",
+      "statement": "In irreversible-investment models, commitment consumes an actual option to wait for information that could change whether or when to invest. An actual public-policy wait option requires a responsible actor with legal and operational discretion to defer, information arriving before expiry, and a feasible later action; hypothetical holder/control assumptions support only conditional analysis. VOI and option value differ: information may matter when the actor cannot wait, and nominal flexibility is useless if delay causes harm or the later action cannot be delivered. A staged plan must account for delay costs, expiry, lead time, reversibility and future authority/capacity.",
+      "source_refs": [
+        {
+          "source_id": "S4-ROB-05",
+          "locator": "Journal of Economic Literature, pp. 1111–1118; §§I–III on the lost wait option and investment timing.",
+          "access": "Author-hosted full PDF; selected sections read.",
+          "url": "https://www.mit.edu/~rpindyck/Papers/IrreverUncertInvestmentJEL1991.pdf"
+        },
+        {
+          "source_id": "S-FEAS-02",
+          "locator": "2026 Chapter 6, scenario/real-options discussion; existing atlas card.",
+          "access": "Reused official source card; 2026 HTML previously opened.",
+          "url": "https://www.gov.uk/government/publications/the-green-book--2/the-green-book-2026"
+        },
+        {
+          "source_id": "S2-LRN-04",
+          "locator": "Methods and limitations: sequential designs account for sampling, analysis and delay costs; existing ground G2-LRN-03.",
+          "access": "Reused card; published version opened from White Rose repository.",
+          "url": "https://eprints.whiterose.ac.uk/id/eprint/181245/1/0272989x211045036.pdf"
+        }
+      ],
+      "scope": "Pindyck studies firm investment; public-policy use is a bounded analogy about discretion, commitment and information. Market valuation does not transfer automatically to public welfare, rights or non-market harm.",
+      "required_inputs": [
+        "Declare holder/control assumptions for candidate analysis; verify the actual option-holder, legal decision right/duty, deadlines, consent and expiry before claiming an exercisable public option.",
+        "Irreversibility, exit/salvage, implementation lead time and feasibility of the later action.",
+        "Evidence on benefits and harms of delay, information arrival, future outcomes, risk/discount assumptions and group effects; declared public objectives and rights assumptions, with authorization for adoption."
+      ],
+      "alternatives": [
+        "Commit now where delay harms or duties/expiry bind, and disclose foregone learning.",
+        "Stage, pilot reversible components or secure specific future capacity/permissions only where a real later choice remains exercisable.",
+        "Use conditional pathways rather than a numerical option price when authority or payoff process is unknown."
+      ],
+      "non_substitution": "Uncertainty alone does not make waiting valuable. Monitoring cannot create authority or future capacity, and financial option value does not price unmodeled public harm, rights or distribution. Real-options theory does not say delay is always best.",
+      "counterexample": "A city says phasing flood works preserves options but has no reserved land, funded successor, procurement route or switch authority. Lead time exceeds the warning horizon, and residents remain exposed during the delay; the nominal option cannot be exercised and delay harm is unpriced.",
+      "task_uses": [
+        "Separate information acquisition from control over decision timing, and reversible staging from irreversible commitment.",
+        "Bind conditional option analysis to holder assumptions, expiry, trigger, lead time and future action; verify actual control and authorize the welfare basis before adoption."
+      ],
+      "acquisition_next": "Acquire the delegation and decision calendar; successor-action funding, capacity and lead time; outcomes of delay by group; information source/timing; and expiry, cancellation and salvage conditions. Reassess after a task-specific model includes delay harms.",
+      "research_stream": "ROB",
+      "standing": "editorial research ground; not an investment recommendation, public option price, or authority to delay",
+      "application_basis": "Firm-investment theory is source-bounded; policy conditions, example and acquisition path are editorial inferences.",
+      "currentness_limit": "Pindyck is a 1991 review/model exposition with specified economic assumptions. The existing Green Book source is UK-specific; this record is not a survey of later methods.",
+      "editorial_family_ids": [
+        "EF-24",
+        "EF-18",
+        "EF-16",
+        "EF-25"
+      ]
+    },
+    {
+      "id": "G4-ROB-04",
+      "title": "Scenario discovery locates vulnerabilities in the modeled cases, not likelihoods of future events",
+      "kind": "editorial",
+      "statement": "Robust decisionmaking uses computational cases to find combinations of conditions under which a strategy is vulnerable, then considers hedges or adaptive actions. A discovered region describes the model, ranges and experiment design. Its coverage/share of generated runs is not future likelihood, expected frequency or proof that other conditions cannot occur. A condition becomes a monitorable signpost only after validating its measurement, connection to failure, timeliness and response feasibility.",
+      "source_refs": [
+        {
+          "source_id": "S4-ROB-06",
+          "locator": "Abstract and official article metadata: iterative RDM identifies clusters of future states to which candidate strategies are vulnerable and assesses hedging trade-offs.",
+          "access": "Official abstract/metadata only.",
+          "url": "https://doi.org/10.1287/mnsc.1050.0472"
+        },
+        {
+          "source_id": "S-LEARN-04",
+          "locator": "RAND MR-1626-RPC, plausible futures and strategies that fail under them.",
+          "access": "Reused card; see its recorded access limits.",
+          "url": "https://www.rand.org/content/dam/rand/pubs/monograph_reports/2007/MR1626.pdf"
+        }
+      ],
+      "scope": "Scenario discovery as exploratory modeling for strategy analysis; the cited RDM article demonstrates pollution-control planning. Use depends on task-specific model, objective and uncertainty design.",
+      "required_inputs": [
+        "Declared strategy/comparator, model version, outcome measures and failure criteria; label hypothetical criteria, and independently source criteria used for empirical or adopted claims.",
+        "Input ranges, structural alternatives, sample design/weights, exclusions, generated-case provenance and discovery settings.",
+        "Adversarial or held-out cases; for monitoring, a validated observable indicator, latency, lead time, trigger authority and feasible response."
+      ],
+      "alternatives": [
+        "Use discovery to locate vulnerability conditions and create reviewable scenarios.",
+        "Use probabilistic forecasting only with a separate evidential probability model; keep run frequency distinct.",
+        "Use structural sensitivity, alternative models, stress tests or more acquisition if the region is unstable or key mechanisms are absent."
+      ],
+      "non_substitution": "A scenario cluster does not establish causal identification, action feasibility, indicator validity, event likelihood or a complete uncertainty set. Counts are interpretable only relative to the generated cases and sampling procedure.",
+      "counterexample": "An analyst intentionally oversamples high-demand/high-price model cases; a discovery region contains most simulated failures. It can guide further research, but its share of runs is not the share of real futures where the policy will fail.",
+      "task_uses": [
+        "Keep discovered hypotheses candidate-grade and preserve model/experiment provenance.",
+        "Check stability across scenario designs; map only validated, timely indicators to a trigger the responsible actor can exercise."
+      ],
+      "acquisition_next": "Acquire independent support for uncertainty ranges and failure criteria; challenge model structure with custodians and affected groups; test omitted cases; and obtain local evidence for any proposed signpost and response lead time. If no leading indicator is validated, report the vulnerability as not yet monitorable.",
+      "research_stream": "ROB",
+      "standing": "editorial research ground; not a forecast, probability estimate, verified causal result, or monitoring capability",
+      "application_basis": "Source summaries are limited to abstracts/reused card; probability caution and monitoring design are editorial applications.",
+      "currentness_limit": "Lempert et al. is summarized from the official publisher abstract only; its example is domain-specific. No local model, case corpus or physical dataset was examined.",
+      "editorial_family_ids": [
+        "EF-12",
+        "EF-24",
+        "EF-25",
+        "EF-23"
+      ]
+    },
+    {
+      "id": "G4-SYN-01",
+      "title": "Missing studies and missing results are distinct synthesis risks",
+      "kind": "editorial",
+      "statement": "Source-grounded: Cochrane calls result availability that depends on a result's P value, magnitude, or direction non-reporting bias; this can affect a whole eligible study or a particular result within it. It distinguishes this from selecting one reported result among multiple analyses. Protocol/registry comparisons and attempts to obtain results address identified studies directly. Funnel asymmetry is a small-study-effects signal with several possible causes; it is not diagnostic, and tests have low power; Cochrane gives at least ten studies of varying size only as a rule of thumb for considering them. PolicyOS application (inference): preserve study-level availability and result-level availability as separate relations.",
+      "source_refs": [
+        {
+          "source_id": "S-EVID-02",
+          "url": "https://www.cochrane.org/authors/handbooks-and-manuals/handbook/current/chapter-13",
+          "locator": "Cochrane Handbook v6.5, Chapter 13 §§13.1, 13.3.1.3–13.3.1.4, 13.3.4.4–13.3.4.6, 13.4",
+          "access": "primary_text_or_selected_sections"
+        }
+      ],
+      "scope": "Systematic review and quantitative synthesis where eligible studies or specific planned outcomes/analyses may be unavailable because of result-dependent dissemination or reporting.",
+      "required_inputs": [
+        "Question, eligibility criteria, outcome/analysis definitions, and synthesis protocol versions.",
+        "Study/report identities; registry entries and histories; protocols and analysis plans; published, regulatory, sponsor, and investigator-held results where accessible.",
+        "For each eligible study-result pair: what was expected, found, reported, unavailable, and why; access attempts and unresolved missingness.",
+        "If used, funnel-plot/test assumptions, number and size range of studies, effect measure, heterogeneity and sensitivity analyses."
+      ],
+      "alternatives": [
+        "Compare planned outcomes and analyses with all located reports and registry history; seek missing results from investigators, sponsors, or regulators where appropriate and permitted.",
+        "When records are unavailable, report qualitative missingness concerns and prespecified sensitivity analyses; use funnel methods only where their assumptions and study count are reasonable.",
+        "Keep a result unresolved when availability or selection cannot be established; do not convert a null funnel test into evidence of complete reporting."
+      ],
+      "non_substitution": "A comprehensive search does not prove that the unknown set of unpublished studies is complete. Funnel asymmetry can arise from non-reporting, true heterogeneity, study limitations, artifacts, or chance; a test cannot prove publication bias, and its non-significance cannot rule it out. Risk of bias due to missing evidence attaches to the synthesis result and its evidence set, not automatically to an individual paper.",
+      "counterexample": "A review finds eight similar-sized trials and a non-significant asymmetry test, then declares no reporting bias. A registry comparison shows a prespecified primary harm outcome omitted from two located trials. The test is underpowered and does not negate the direct missing-result evidence.",
+      "task_uses": [
+        "Review missing-result risk across studies and outcomes."
+      ],
+      "acquisition_next": "Resolve study identities, retrieve dated registry/protocol and report versions, request the specific missing outcomes from eligible studies where lawful, and document nonresponse. For unknown-study risk, name the databases, registers, regulators and languages actually searched and their cutoff.",
+      "research_stream": "SYN",
+      "standing": "editorial research ground; not task-admitted evidence or authority",
+      "application_basis": "Cochrane statements are limited to its intervention-review methods; field-general relations and PolicyOS record design are editorial inferences.",
+      "currentness_limit": "Read 2026-10-21; Cochrane lists v6.5.1 maintenance in 2026, so pin the applicable version before task use.",
+      "editorial_family_ids": [
+        "EF-21",
+        "EF-26"
+      ]
+    },
+    {
+      "id": "G4-SYN-02",
+      "title": "A non-significant result does not establish absence or practical equivalence",
+      "kind": "editorial",
+      "statement": "Source-grounded: a non-significant null-hypothesis test can be inconclusive because the design may not distinguish a negligible effect from a meaningful one. Lakens et al. describe TOST equivalence testing against predeclared bounds derived from a smallest effect size of interest (SESOI); equivalence is supported only when both one-sided tests reject effects outside those bounds. Bounds selected after seeing results invalidate the usual error-rate interpretation. PolicyOS application (inference): keep the decision-relevant bound and its authority/source visible alongside the estimate and uncertainty.",
+      "source_refs": [
+        {
+          "source_id": "S4-SYN-01",
+          "url": "https://journals.sagepub.com/doi/10.1177/2515245918770963",
+          "locator": "Introduction; §§2–3, especially ‘Justifying the Smallest Effect Size of Interest’ and Example 1",
+          "access": "primary_text_or_selected_sections"
+        }
+      ],
+      "scope": "Quantitative comparison or effect estimate where a decision-relevant claim concerns an effect being small enough to treat as negligible within a declared bound.",
+      "required_inputs": [
+        "Estimand, target population, measurement, design/model, estimate and uncertainty interval.",
+        "SESOI/equivalence bounds, direction and scale, chosen before outcome inspection, with a substantive or authorized rationale.",
+        "Decision purpose, who set or authorized the bound, relevant costs of false equivalence and limits on transport to the policy setting."
+      ],
+      "alternatives": [
+        "Report the estimate and interval as inconclusive when neither difference nor equivalence is established; acquire more informative data if the decision warrants it.",
+        "Use a prespecified TOST or equivalent interval-based method for a justified bound; show conditional results across disputed bounds when no single threshold is authorized.",
+        "If no defensible bound exists, state what effect sizes remain compatible with the data and leave practical absence unresolved."
+      ],
+      "non_substitution": "Failure to reject a zero-effect null does not establish zero, negligible effect, or equivalence. Statistical equivalence is conditional on the chosen bound, model, measurement and error rate; it does not establish that the bound is substantively acceptable, legally permitted, or authorized for the affected population.",
+      "counterexample": "A small evaluation reports p=.44 and calls a service change ineffective, although its wide interval includes a reduction large enough to alter eligibility decisions. The null test neither rules out that effect nor tests equivalence against a declared threshold.",
+      "task_uses": [
+        "Distinguish inconclusive null findings from evidence within a justified equivalence bound."
+      ],
+      "acquisition_next": "Obtain a decision-relevant bound from the competent policy/measurement owner or the affected principal under a declared process; retrieve the analysis plan and data needed to test it. If no authorized threshold can be obtained, retain a conditional result rather than ratifying one by analysis.",
+      "research_stream": "SYN",
+      "standing": "editorial research ground; not task-admitted evidence or authority",
+      "application_basis": "The statistical distinction is source-grounded; treating an action threshold as a separate, authority-bearing input is PolicyOS editorial application.",
+      "currentness_limit": "The 2018 tutorial was read 2026-10-21; its examples are psychological research, so bound choice needs domain grounding.",
+      "editorial_family_ids": [
+        "EF-21",
+        "EF-22",
+        "EF-24"
+      ]
+    },
+    {
+      "id": "G4-SYN-03",
+      "title": "A pooled mean, a prediction interval, and independent cohorts answer different questions",
+      "kind": "editorial",
+      "statement": "Source-grounded: in random-effects meta-analysis, the summary confidence interval describes uncertainty about the mean of underlying study effects, not their spread; a prediction interval summarizes plausible underlying effects in a similar new study and depends on the fitted effect distribution and amount of heterogeneity. Cochrane cautions that normality and small study counts can make prediction intervals unreliable. Multiple reports, repeated outcomes, shared arms or overlapping samples can create dependent estimates; treating those as independent can double-count information and distort uncertainty. PolicyOS application (inference): preserve cohort/report lineage and distinguish uncertainty about an average from variation across settings.",
+      "source_refs": [
+        {
+          "source_id": "S4-SYN-06",
+          "url": "https://www.cochrane.org/authors/handbooks-and-manuals/handbook/current/chapter-10",
+          "locator": "Cochrane Handbook v6.5, Chapter 10 §§10.10.4.2–10.10.4.3",
+          "access": "primary_text_or_selected_sections"
+        },
+        {
+          "source_id": "S-EVID-02",
+          "url": "https://www.cochrane.org/authors/handbooks-and-manuals/handbook/current/chapter-05",
+          "locator": "Cochrane Handbook Chapter 5 §5.2.1: studies, not individual reports, are the unit of interest.",
+          "access": "primary_text_or_selected_sections",
+          "card_relation": "Related chapter explicitly identified in the existing Handbook source card; separate section, not an independent corroborating work."
+        },
+        {
+          "source_id": "S-EVID-02",
+          "url": "https://www.cochrane.org/authors/handbooks-and-manuals/handbook/current/chapter-06",
+          "locator": "Cochrane Handbook Chapter 6 §6.2.9: shared participants in multiple intervention-group comparisons.",
+          "access": "primary_text_or_selected_sections",
+          "card_relation": "Related chapter explicitly identified in the existing Handbook source card; separate section, not an independent corroborating work."
+        },
+        {
+          "source_id": "S4-SYN-02",
+          "url": "https://www.bmj.com/content/342/bmj.d549",
+          "locator": "Riley, Higgins & Deeks (2011), article sections explaining the mean-effect confidence interval and prediction interval",
+          "access": "primary_text_or_selected_sections"
+        },
+        {
+          "source_id": "S4-SYN-03",
+          "url": "https://doi.org/10.1002/jrsm.1441",
+          "locator": "Bom (2020), abstract and highlights on sample overlap and covariance-aware generalized weights",
+          "access": "abstract_or_metadata"
+        }
+      ],
+      "scope": "Quantitative synthesis of related study estimates, including repeated publications, multiple outcomes/comparisons, panel or administrative cohorts reused across estimates, and target settings that may differ from sampled studies.",
+      "required_inputs": [
+        "Target estimand and whether the intended claim concerns a mean effect, between-study spread, or a new setting.",
+        "Study, report, cohort, participants, arm/control, outcome, time and geography identities; known or possible overlap and covariance.",
+        "Model, heterogeneity estimate and uncertainty, prediction target, distributional assumptions, small-k limits, and any dependence adjustment."
+      ],
+      "alternatives": [
+        "Link reports and map shared cohorts/arms before counting independent information; select a justified one-estimate-per-cohort rule or use a method that models known dependence.",
+        "Use multilevel, multivariate, robust-variance, or covariance-aware methods only when their assumptions and inputs fit; compare plausible choices as sensitivity analyses.",
+        "If overlap or target transport cannot be resolved, show conditional results and cap claims about independent support or local prediction."
+      ],
+      "non_substitution": "A narrow interval around a pooled mean is not evidence that effects are similar across contexts. A prediction interval is not a guarantee for a new policy setting. Random-effects modeling does not automatically repair shared participants or duplicated reports, and a paper or dataset count is not an independent-evidence count.",
+      "counterexample": "Twelve papers reuse three overlapping administrative cohorts and two control groups. A synthesis counts twelve independent studies, reports a very narrow mean-effect interval, and predicts the same effect for a new jurisdiction although cohort overlap and effect variation were never examined.",
+      "task_uses": [
+        "Separate mean-effect and new-setting questions; detect shared cohorts and dependent estimates."
+      ],
+      "acquisition_next": "Resolve study and cohort identifiers, recruitment windows, repeated waves, comparison arms, and sample sizes; obtain covariance information where possible. Define the prediction target and compare a mean-only interpretation with a dependence-aware analysis and prespecified heterogeneity sensitivities.",
+      "research_stream": "SYN",
+      "standing": "editorial research ground; not task-admitted evidence or authority",
+      "application_basis": "Cochrane and the named methods papers establish bounded synthesis principles. The policy-setting transfer and atlas lineage fields are editorial proposals, not source-issued requirements.",
+      "currentness_limit": "Cochrane v6.5 pages and 2011/2020 papers were checked 2026-10-21; Bom was abstract-only; no universal estimator is selected.",
+      "editorial_family_ids": [
+        "EF-10",
+        "EF-11",
+        "EF-21",
+        "EF-26"
+      ]
+    },
+    {
+      "id": "G4-SYN-04",
+      "title": "Expert calibration evaluates uncertainty judgments, not values or mandate",
+      "kind": "editorial",
+      "statement": "Source-grounded: EFSA guidance treats expert knowledge elicitation as a documented way to express uncertainty about well-defined quantities when evidence is limited, with steps for question framing, expert selection, evidence review, bias mitigation, aggregation and rationale. In Cooke-style structured judgment, seed questions with observed answers can score experts and inform performance-weighted combinations; the method paper notes that target quantities often lack observable truth for direct validation. PolicyOS application (inference): preserve calibration scope and dissent, and keep empirical uncertainty, preferences and authority as separate objects.",
+      "source_refs": [
+        {
+          "source_id": "S4-SYN-04",
+          "url": "https://efsa.onlinelibrary.wiley.com/doi/full/10.2903/j.efsa.2018.5123",
+          "locator": "EFSA Scientific Committee (2018), §12.6 and referenced §§10, 12 and 16",
+          "access": "primary_text_or_selected_sections"
+        },
+        {
+          "source_id": "S4-SYN-05",
+          "url": "https://doi.org/10.1093/reep/rex022",
+          "locator": "Colson & Cooke (2018), abstract, introduction and discussion of classical-model calibration and out-of-sample validity",
+          "access": "primary_text_or_selected_sections"
+        },
+        {
+          "source_id": "S2-VAL-01",
+          "url": "https://doi.org/10.2903/j.efsa.2014.3734",
+          "locator": "EFSA (2014), Part I §2.1.2; Part II §§3–4, 6–7; Appendix A.4.2–A.4.3",
+          "access": "primary_text_or_selected_sections"
+        }
+      ],
+      "scope": "Structured expert judgments used to quantify uncertain empirical/model quantities when direct evidence is insufficient, including risk, feasibility, forecast or causal-model inputs after adapting the method to the field.",
+      "required_inputs": [
+        "Exact target quantity, unit, population/context, horizon and decision use; relevant empirical evidence and alternative models.",
+        "Expert selection, expertise and conflicts; protocol, elicitation scale, training, aggregation rule, rationale and dissent.",
+        "For calibration: seed-item identities, observed truths and their provenance, item-to-target relevance, scoring rule, weighting sensitivity and limits on out-of-sample transfer.",
+        "For preferences or mandate: respondent/principal, frame, inclusion and authorization process as separate evidence."
+      ],
+      "alternatives": [
+        "Use measured data or model-based uncertainty where adequate; elicit only the material uncertainties that remain.",
+        "Where seed questions or a justified calibration domain are absent, keep individual distributions or show equal and alternative aggregation sensitivities instead of claiming calibration-based authority.",
+        "Use a separate affected-group preference process and obtain the competent institution's actual mandate for objectives or trade-offs."
+      ],
+      "non_substitution": "Expert credentials, consensus, calibration scores and performance weights do not establish public preference, fairness, legal authority, a causal warrant, or which losses society should accept. Calibration tests performance on selected items; it cannot guarantee accuracy on a distinct target question, and the truth of an unobserved target is not established by weighting.",
+      "counterexample": "Experts receive high weights after calibration on historical regional exposure quantities, then an optimizer treats their probability judgments as evidence that a distributional trade-off is publicly acceptable. The elicitation supplied uncertain empirical inputs, not affected-group preferences or a mandate.",
+      "task_uses": [
+        "Quantify uncertain model inputs while preserving calibration limits, dissent, preferences and mandate."
+      ],
+      "acquisition_next": "First test whether a producer can acquire the missing observation or resolve the model uncertainty. If elicitation is warranted, obtain a purpose-scoped protocol, expert/conflict records, question and seed sets, truth provenance, raw or protected distributions, aggregation and dissent; separately acquire the authorized preference/mandate input.",
+      "research_stream": "SYN",
+      "standing": "editorial research ground; not task-admitted evidence or authority",
+      "application_basis": "EFSA scopes and method findings are source-grounded. The separation of calibration, preference and institutional authority reuses G2-VAL-01 and is an editorial application, not a new authority rule.",
+      "currentness_limit": "EFSA 2018 and the selected method paper were read 2026-10-21; neither establishes universal expert ranking or transfer.",
+      "editorial_family_ids": [
+        "EF-10",
+        "EF-16",
+        "EF-20",
+        "EF-21"
+      ]
+    },
+    {
+      "id": "G4-GEO-01",
+      "title": "Areal association is not an individual relationship",
+      "kind": "editorial",
+      "statement": "Fotheringham and Wong report that multivariate regression results vary with zoning and scale, with sensitivity not generally predictable. Robinson shows why a group-level correlation need not describe individuals: his 1930 U.S. example gives ecological correlation .946 versus individual .203, and ecological correlation .773 for states versus .946 for Census divisions. Keep the estimand at the observed support unless cross-level data and a defensible model support translation. This motivates sensitivity checks; it does not invalidate aggregate analysis.",
+      "source_refs": [
+        {
+          "source_id": "S4-GEO-01",
+          "url": "https://doi.org/10.1068/a231025",
+          "locator": "Publisher abstract: multivariate regression sensitivity to scale and zoning",
+          "access": "Search extract only; full text not reviewed."
+        },
+        {
+          "source_id": "S4-GEO-02",
+          "url": "https://fisher.stats.uwo.ca/faculty/aim/2015/9938/articles/Robinson1950AmericanSociologicalReview.pdf",
+          "locator": "pp. 351–353, 355–357: definitions and 1930 correlation examples",
+          "access": "Selected original text read from university-hosted scan."
+        }
+      ],
+      "scope": "Area-level comparisons used to infer people, households, establishments, or other finer units, or results sensitive to scale/zoning.",
+      "required_inputs": [
+        "Claim estimand and observed unit/support.",
+        "Boundary vintage, scale, zoning, aggregation and denominators.",
+        "Within-area or individual data plus explicit assumptions for person-level inference."
+      ],
+      "alternatives": [
+        "Keep conclusions at group/jurisdiction level.",
+        "Use suitable individual data and an explicit cross-level model.",
+        "Repeat over defensible scales/zoning schemes and disclose instability."
+      ],
+      "non_substitution": "Polygon averages, reaggregation, and population weights do not reveal the within-area joint distribution or identify an individual effect.",
+      "counterexample": "A state-level association between poverty and clinic use is presented as proof about poor residents. State shares omit the within-state joint distribution; changing zoning may change the ecological association.",
+      "task_uses": "Bind each claim to its measured support. Keep person-targeted effects limited absent within-area evidence; use scale sensitivity and seek finer data when that gap can change a decision.",
+      "acquisition_next": "Seek ethically admissible individual or finer cross-tabulated data with denominators, selection process, geography version and time; compare within-area with aggregate results.",
+      "currentness_limit": "Robinson (1950) is a historical example; Fotheringham–Wong (1991) was available here as abstract only. Not a survey of modern ecological-inference methods.",
+      "research_stream": "GEO",
+      "standing": "Editorial method ground, not task-admitted evidence or an individual causal estimate.",
+      "application_basis": "Numeric examples and methodological findings are source-derived; clinic scenario and workflow are editorial applications.",
+      "editorial_family_ids": [
+        "EF-04",
+        "EF-05"
+      ]
+    },
+    {
+      "id": "G4-GEO-02",
+      "title": "A crosswalk allocates a variable under a weighting model",
+      "kind": "editorial",
+      "statement": "Areal interpolation estimates values on non-coincident zones. Intersection-area weighting assumes within-zone uniformity; population-assisted weights substitute an auxiliary population surface. Do et al. find, within their count-data comparison, that error depends on target/auxiliary association and no compared method always dominates. Population weighting is therefore a population-related allocation model, not a general crosswalk for jobs, emissions, capacity or flows.",
+      "source_refs": [
+        {
+          "source_id": "S4-GEO-03",
+          "url": "https://asu.elsevierpure.com/en/publications/areal-interpolation-a-variant-of-the-traditional-spatial-problem/",
+          "locator": "Abstract: non-coincident zones and intersection-area weights",
+          "access": "University research portal abstract/metadata only."
+        },
+        {
+          "source_id": "S4-GEO-04",
+          "url": "https://arxiv.org/abs/1501.07506",
+          "locator": "Abstract and selected §§1, 3–5: count-data methods and auxiliary-variable dependence",
+          "access": "Selected preprint sections read; 2015 version."
+        }
+      ],
+      "scope": "Transferring counts or statistics between polygon systems, including grids and jurisdictions.",
+      "required_inputs": [
+        "Variable meaning and support (count, rate, exposure, jobs, flow, etc.).",
+        "Source/target polygons and vintages.",
+        "Weights, auxiliary data and their temporal/resolution fit.",
+        "Total-conservation rule and finer reference data for validation, if available."
+      ],
+      "alternatives": [
+        "Use direct target-geography observations where available.",
+        "Use area weights only when uniformity is plausible and declared.",
+        "Use population, employment, land-use or source-specific weights only when they track the target; validate out of sample.",
+        "For rates, transfer valid numerators and denominators separately and recompute; retain uncertainty."
+      ],
+      "non_substitution": "A generic or population-weighted crosswalk does not establish exact placement or correct allocation of another variable. Preserving a total does not establish spatial accuracy.",
+      "counterexample": "Area weights allocate residents into uninhabited water; population weights misallocate jobs concentrated at a business park or emissions from a point source.",
+      "task_uses": "Retain the original statistic/support. Label derived target estimates with weighting basis, auxiliary vintage, model and uncertainty; compare plausible allocations and let validated finer data reduce uncertainty.",
+      "acquisition_next": "Select weights for the target construct (e.g. residential addresses, work locations, source inventories); obtain contemporaneous finer data and validate on withheld zones.",
+      "currentness_limit": "Goodchild–Lam (1980) was abstract-only. Do et al. (2015) covers a count-data model and selected methods, not all variables or a universal best method.",
+      "research_stream": "GEO",
+      "standing": "Editorial research ground; allocated values remain estimates pending task-specific validation/admission.",
+      "application_basis": "Method distinctions and bounded no-dominance result are source-derived; examples and workflow are editorial.",
+      "editorial_family_ids": [
+        "EF-04",
+        "EF-05",
+        "EF-07"
+      ]
+    },
+    {
+      "id": "G4-GEO-03",
+      "title": "Boundary correspondence requires geography vintage and effective time",
+      "kind": "editorial",
+      "statement": "Geography is versioned in time. U.S. Census products date entities to January 1 of the reference year; later-effective changes appear in the next year’s products. Census 2010–2020 block relationships include 1:1, many:1, 1:many and many:many links; the relationship files do not supply population or housing counts. A correspondence table identifies links, not a variable-specific reconstruction on new boundaries.",
+      "source_refs": [
+        {
+          "source_id": "S4-GEO-05",
+          "url": "https://cdn.www.census.gov/programs-surveys/geography/technical-documentation/records-layout/2020-census-block-record-layout.html",
+          "locator": "2010–2020 block relationship record layout; multiplicity and part flag",
+          "access": "Official Census selected sections read."
+        },
+        {
+          "source_id": "S4-GEO-06",
+          "url": "https://www.census.gov/programs-surveys/geography/technical-documentation/county-changes.html",
+          "locator": "Reference date rule and Jan. 2, 2019 to 2020 example",
+          "access": "Official Census page selected text; revised 2021-10-08."
+        },
+        {
+          "source_id": "S4-GEO-11",
+          "url": "https://www.census.gov/geographies/reference-files/time-series/geo/relationship-files.2020.html",
+          "locator": "2020 relationship files: purpose and omitted population/housing counts",
+          "access": "Official Census product page selected text read."
+        }
+      ],
+      "scope": "Longitudinal joins and boundary changes where administrative or statistical geography changes.",
+      "required_inputs": [
+        "Observation/phenomenon valid time.",
+        "Boundary effective date, statistical geography vintage, release/revision.",
+        "Source/target geometries and official relationship/intersection data.",
+        "Variable-specific weights and uncertainty for split/merge restatement."
+      ],
+      "alternatives": [
+        "Publish on each observed geography/vintage.",
+        "Aggregate to a stable common geography when nesting and meaning allow.",
+        "Restate to common geography using explicit variable-specific allocation and label as estimate.",
+        "Show a break or parallel series when no defensible transformation exists."
+      ],
+      "non_substitution": "Names, codes, polygon overlap or relationship files alone do not establish equal population, legal scope, denominator or outcome distribution through time.",
+      "counterexample": "A county change effective Jan. 2, 2019 appears in reference-year 2020 Census geography; an apparent 2019–2020 count change may combine population change and boundary reassignment.",
+      "task_uses": "Keep observation time, boundary-valid time, geography vintage and product release separate. Preserve originals and mark harmonized series as derived estimates with model/version.",
+      "acquisition_next": "Get the issuing authority’s change history and exact boundary versions; resolve reference date, acquire weights/counts appropriate to the variable, and reconcile the resulting denominator.",
+      "currentness_limit": "Census references cover named U.S. products; the county-change page was revised in 2021. Check current jurisdiction-specific rules for live work.",
+      "research_stream": "GEO",
+      "standing": "Editorial research ground, not a legal boundary determination or universal comparison rule.",
+      "application_basis": "Census reference-date and relationship properties are source-derived; trend scenario and treatments are editorial.",
+      "editorial_family_ids": [
+        "EF-04",
+        "EF-23"
+      ]
+    },
+    {
+      "id": "G4-GEO-04",
+      "title": "An OD edge is a defined relation, not necessarily an observed trip",
+      "kind": "editorial",
+      "statement": "Origin and destination flows inherit the product’s unit, locations and period. U.S. LODES v7 describes job-residence/workplace links that may not represent trips: it has no mode, workers may telework or attend infrequently, and reported workplace may differ from regular work location. Treat OD values as directed, time-scoped relations; do not infer path, mode, daily travel or individual mobility from the pair alone.",
+      "source_refs": [
+        {
+          "source_id": "S4-GEO-07",
+          "url": "https://www2.census.gov/library/working-papers/2025/adrm/ces/CES-WP-25-52.pdf",
+          "locator": "CES-25-52 (Aug. 2025), §3.1.6, pp. 7–8",
+          "access": "Official Census report; selected full-text section read."
+        }
+      ],
+      "scope": "OD matrices used for movement, demand, labor-market ties or spillover reasoning.",
+      "required_inputs": [
+        "Edge unit and definition (people, jobs, shipments, observed/modelled trips).",
+        "Origin/destination, direction, spatial resolution and reference interval.",
+        "Coverage, assignment/collection, disclosure treatment and release version.",
+        "For travel claims: route/network, mode, departure time and supporting travel/service evidence."
+      ],
+      "alternatives": [
+        "Use travel diaries or transport OD surveys for observed trips/mode.",
+        "Use passenger/ticket counts for observed service use with coverage limits.",
+        "Use job OD only for its documented job/location relation; label modeled flows as modeled."
+      ],
+      "non_substitution": "An OD matrix is not a path, trip diary, causal spillover estimate or proof that a person can reach a destination.",
+      "counterexample": "LODES job links are used as daily bus trips to claim residents reach a hospital in 30 minutes, despite no mode/path and a workplace destination construct.",
+      "task_uses": "Store OD as directed and period-specific; use it to identify where to investigate demand/spillovers. Obtain network/schedule and travel evidence for mobility interventions.",
+      "acquisition_next": "Acquire relevant travel/service records with mode, time and coverage plus dated network schedules; preserve the original OD definition next to any synthesis.",
+      "currentness_limit": "LODES v7 is a U.S. employment product described in an Aug. 2025 report. Inspect other products’ own definitions rather than generalizing these limits.",
+      "research_stream": "GEO",
+      "standing": "Editorial research ground, not proof of travel or a task causal effect.",
+      "application_basis": "LODES construct/limits are source-derived; hospital example and graph/search uses are editorial.",
+      "editorial_family_ids": [
+        "EF-04",
+        "EF-05"
+      ]
+    },
+    {
+      "id": "G4-GEO-05",
+      "title": "Accessibility models distinct from proximity, use and entitlement",
+      "kind": "editorial",
+      "statement": "Separate straight-line proximity, network access to stops, reachable opportunities, a person’s feasible access, and observed use. UN SDG 11.2.1 uses street-network walking distance to recognized stops (500 m low-capacity and/or 1 km high-capacity) and population in the service area; its metadata separately flags disability, frequency, informal services without stops and the assumption that streets are walkable at the same elevation. Kwan’s abstract contrasts place-level integral measures with space-time feasible-opportunity measures. ITF/OECD models travel time using stated walking, waiting, transfer and schedule assumptions. These estimate potential access, not actual use or universal entitlement.",
+      "source_refs": [
+        {
+          "source_id": "S4-GEO-08",
+          "url": "https://unstats.un.org/sdgs/metadata/files/Metadata-11-02-01.pdf",
+          "locator": "2025 metadata §§2.a, 4.c and secondary indicators; pp. 1–2, 6–8, 12–13",
+          "access": "Official UN metadata; selected sections read."
+        },
+        {
+          "source_id": "S4-GEO-09",
+          "url": "https://doi.org/10.1111/j.1538-4632.1998.tb00396.x",
+          "locator": "Abstract, Geographical Analysis 30(3), 191–216",
+          "access": "Publisher abstract/metadata only; full article not reviewed."
+        },
+        {
+          "source_id": "S4-GEO-10",
+          "url": "https://www.oecd.org/content/dam/oecd/en/publications/reports/2023/10/transit-oriented-development-and-accessibility_f206c381/41b95623-en.pdf",
+          "locator": "ITF/OECD 2023 methodology annex, pp. 46–48",
+          "access": "Official report; selected methodology pages read."
+        }
+      ],
+      "scope": "Comparisons of spatial proximity, transit access, reachable services and individualized mobility constraints.",
+      "required_inputs": [
+        "Chosen construct, mode, threshold, departure/time window and destination type.",
+        "Dated pedestrian/transit networks, stops, crossings, schedules, frequency and transfers.",
+        "Population/destination inventories and relevant group disaggregation.",
+        "For individual feasibility: schedule, mobility constraints and a suitable privacy/authorization basis."
+      ],
+      "alternatives": [
+        "Report geometric and network distance separately.",
+        "Use cumulative opportunity, gravity or travel-time metrics only with declared assumptions.",
+        "Use individual space-time constraints when relevant and authorized.",
+        "Measure observed use separately via appropriate travel/service records."
+      ],
+      "non_substitution": "Stop proximity is not service quality; modeled opportunity is not feasible access for every person; either is distinct from use, legal entitlement or mandate.",
+      "counterexample": "A home is within 500m of a mapped stop, but steep stairs, inaccessible boarding or infrequent service make the modeled trip infeasible for a wheelchair user or outside the needed time window.",
+      "task_uses": "Keep proximity, network reach, opportunity count/time, group distribution and observed use as distinct claims. Search route, frequency or barrier-removal scenarios, with value/entitlement judgments grounded by their authorized source.",
+      "acquisition_next": "Acquire dated schedules/GTFS, stop/destination inventories, pedestrian network with crossings/grades/accessibility and population by relevant group; validate informal service and local coverage. Seek individual constraints only where authorized and decision-relevant.",
+      "currentness_limit": "UN metadata updated 2025-04-23 (template format v1.1, not indicator-method version) is one monitoring indicator, not universal convenience. Kwan (1998) is abstract-only; ITF/OECD (2023) models selected Southeast Asian cities under stated peak-hour assumptions.",
+      "research_stream": "GEO",
+      "standing": "Editorial research ground; metrics are candidate estimates pending task-specific inputs and scope.",
+      "application_basis": "Indicator definitions, abstract finding and modeled travel-time components are source-derived; barrier scenario and interventions are editorial.",
+      "editorial_family_ids": [
+        "EF-04",
+        "EF-05",
+        "EF-07",
+        "EF-18"
+      ]
     }
   ]
 }

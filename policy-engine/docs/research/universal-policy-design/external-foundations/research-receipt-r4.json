@@ -1,0 +1,149 @@
+{
+  "format": "editorial-research-receipt-v4",
+  "date": "2026-10-21",
+  "input_head": "798bd1ab9646378f49fd127b3f04ebe71aca67d2",
+  "scope": "Substantive atlas documentation and bounded primary-source research; no runtime implementation, task evidence admission, code acceptance or finding closure.",
+  "architecture_boundary": "Earlier approved SDD changes remain in force; this wave changes no system-design-decisions or product files. Existing 26 editorial families remain open navigation, not an exhaustive ontology.",
+  "denominator": {
+    "families": 26,
+    "grounds": 98,
+    "source_cards": 190,
+    "new_grounds": 25,
+    "new_source_cards": 43
+  },
+  "denominator_files": [
+    "policy-engine/docs/research/universal-policy-design/external-foundations/families.json",
+    "policy-engine/docs/research/universal-policy-design/external-foundations/grounds.json",
+    "policy-engine/docs/research/universal-policy-design/external-foundations/sources.json"
+  ],
+  "new_ground_streams": {
+    "MIS": 4,
+    "EQM": 4,
+    "DST": 4,
+    "ROB": 4,
+    "SYN": 4,
+    "GEO": 5
+  },
+  "new_source_access": {
+    "abstract_or_metadata": 10,
+    "primary_text_or_selected_sections": 30,
+    "search_extract_only": 3
+  },
+  "existing_source_ids_reused": [
+    "S-EVID-02",
+    "S-FEAS-02",
+    "S-LEARN-04",
+    "S2-LRN-04",
+    "S2-VAL-01"
+  ],
+  "researchers": [
+    "ef4_missingness",
+    "ef4_equilibrium",
+    "ef4_distribution",
+    "ef4_robustness",
+    "ef4_synthesis",
+    "ef4_geography"
+  ],
+  "independent_reviewers": [
+    "ef4_coverage_review",
+    "ef4_substance_review"
+  ],
+  "delegation": "One level; root sole tracked writer; researchers wrote only assigned ignored scratch; independent reviewers did not author the records.",
+  "review_corrections": [
+    "AF formula grounded in selected OPHI primary chapter; normalized censored sum, nonempty population and q=0/A-undefined case explicit.",
+    "Hypothetical objectives, weights, probabilities and thresholds remain allowed in conditional candidate analysis; adoption/actual action requirements do not become search stops.",
+    "Protective response separated from causal diagnosis and authority; W5-K03/K04 do not choose withheld WP-04–WP-08 action rules; stakes and reversibility remain relevant.",
+    "Cochrane Chapter10 given a specific source card; Chapters5/6 remain explicitly related sections already listed in the reused Handbook card; stale companion pointer corrected.",
+    "Actual Myerson and DAPP full-text access locations recorded; DOI/PMC relation explicit for the health-access paper.",
+    "UN SDG11.2.1 template format v1.1 distinguished from indicator-method version; ecological coefficients and ONS linkage counterexample checked against primary/official text.",
+    "SNA Chapter34 claim separated from generic landing-page card, bound to exact V11 update resource and selected D.3 paragraphs; revision markup and unverified final-edition equivalence explicit.",
+    "Numeric zero separated from absence while allowing rounding; source/template identity and method validity remain separate.",
+    "Constructed loss/regret example checked independently; arbitrary scenario frequencies remain distinct from probabilities; outside inputs distinguished from derived analysis."
+  ],
+  "root_review": "Reviewed every new ground, all new source cards and source bindings; independently opened selected OPHI, UNDP, ONS, Robinson, Cochrane, RAND and UNSD primary materials. Reviewed and resolved independent critique. No claim of reading every complete work or surveying all later literature.",
+  "checks": {
+    "all_prior_records_and_bytes_preserved": true,
+    "json_unique_ids_and_source_refs": "PASS",
+    "new_url_and_family_bindings": "PASS",
+    "changed_markdown_local_links_checked": 29,
+    "scope_and_diff_check": "PASS",
+    "scope": "Finite documentation checks only; product tests/builds/imports/install/data processing not run.",
+    "complete_output": {
+      "path": "policy-engine/_build/external-foundations-20261021-r4/documentation-check.json",
+      "sha256": "a399bb3a1ba4b509647aa1b8719d16674211690f14d337ec2b193b3571130e0c"
+    }
+  },
+  "local_complete_reviews": [
+    {
+      "path": "policy-engine/_build/external-foundations-20261021-r4/coverage-review.md",
+      "sha256": "cbeaa6cbe8706b3820830651dce3038360f361dcb3e28a3e0ef8f85be46a708f"
+    },
+    {
+      "path": "policy-engine/_build/external-foundations-20261021-r4/substance-review.md",
+      "sha256": "e809db630e4da2b43cd4b23e6030f4b2a446223f265a581c166cf72a03db424c"
+    }
+  ],
+  "files": [
+    {
+      "path": "policy-engine/docs/research/universal-policy-design/external-foundations/README.md",
+      "sha256": "a2d4b18866e2eff70207b54d6c39e42b40ec0deed6963b4c335e6a659facff8c"
+    },
+    {
+      "path": "policy-engine/docs/research/universal-policy-design/external-foundations/08-substantive-foundations.md",
+      "sha256": "3ebf30742be182a5ba46114dd4a73e01c21bca3b2d571790a248cce09e77d965"
+    },
+    {
+      "path": "policy-engine/docs/research/universal-policy-design/external-foundations/10-selection-scale-and-adaptive-design.md",
+      "sha256": "51a40293ea40551ec0499d15f29bc3da8b7f21f26d09773e29f3c7e8e891848a"
+    },
+    {
+      "path": "policy-engine/docs/research/universal-policy-design/external-foundations/grounds.json",
+      "sha256": "383cb49f8f731e4927189b12be71d829c3af22f66324458c6655730c0301af1a"
+    },
+    {
+      "path": "policy-engine/docs/research/universal-policy-design/external-foundations/sources.json",
+      "sha256": "5fdcb652758e3058508a7f42300f9f9ae0b41e81305436efd322fed4f3369052"
+    }
+  ],
+  "remaining_limits": [
+    "These sources describe bounded methods, propositions and acquisition routes; local datasets, rights, institutional acts, response parameters and mandates are not supplied by atlas prose.",
+    "Selected-text, abstract/metadata and indexed-extract access are distinguished per source and ground. Historical SDMX and revision-marked SNA examples need live provider/version reconciliation.",
+    "No external payload snapshots or content digests retained; research URLs and versions do not constitute admitted immutable evidence.",
+    "No new family is required by the reviewed additions; completeness of families, literature, current law or actual task inputs is not established.",
+    "Full reviewer notes remain local ignored files, cited by digest; substantive corrections and scope are recorded here. Previous receipts describe previous versions."
+  ],
+  "product_tests_builds_imports_installs_executed": false,
+  "dataset_downloads_or_scans_executed": false,
+  "G_code_acceptance": false,
+  "closure_ids": [],
+  "pattern_pass": [
+    "P01",
+    "P02",
+    "P05",
+    "P07",
+    "P08",
+    "P10",
+    "P14",
+    "P15",
+    "P16",
+    "P17",
+    "P18",
+    "P19",
+    "P20",
+    "P21",
+    "P22",
+    "P23",
+    "P24",
+    "P25",
+    "P32",
+    "P35",
+    "P37",
+    "P38"
+  ],
+  "historical_receipts": [
+    "research-receipt.json",
+    "research-receipt-r2.json",
+    "research-receipt-r3.json"
+  ],
+  "independent_review_result": "Scoped source/quantitative/authority review and final SNA delta resolved; no remaining actionable issue reported in new records. Not a full-atlas or runtime audit."
+}

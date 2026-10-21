@@ -51,6 +51,7 @@ logger = common_logger.get_logger("polisyos.runtime.http.services.control.run_li
 
 _SERIOUS_EXECUTION_PROFILES = frozenset({"research", "governed", "production"})
 _CONTROL_JOB_EXECUTION_BINDING_KEY = "control_job_execution_binding"
+_OBSERVATIONAL_METHOD_INTENT_PAYLOAD_KEY = "observational_method_execution"
 
 
 class _DiagnosticExecutionScopeRecord(BaseModel):
@@ -760,6 +761,39 @@ class ControlJobDiagnosticsMixin:
                 pipeline_id=pipeline_id,
                 payload_ref=payload_ref,
             )
+            creation_event_payload = {
+                **self._job_created_event_payload(
+                    job_id=job_id,
+                    job_kind=job_kind,
+                    run_id=run_id,
+                    pipeline_id=pipeline_id,
+                    payload_ref=payload_ref,
+                    submitted_by=submitted_by,
+                    requested_execution_profile=policy.requested_profile,
+                    effective_execution_profile=policy.effective_profile,
+                    policy_flags=policy.policy_flags.model_dump(mode="json"),
+                    capability_manifest_ref=capability_manifest_ref,
+                    execution_scope=execution_scope,
+                ),
+                **(
+                    {
+                        _EXECUTION_INTENT_BINDING_KEY: payload[_EXECUTION_INTENT_BINDING_KEY],
+                        "intent_digest": payload[_EXECUTION_INTENT_BINDING_KEY]["intent_digest"],
+                    }
+                    if job_kind == "natural_language_run"
+                    else {}
+                ),
+                **(
+                    {
+                        _OBSERVATIONAL_METHOD_INTENT_PAYLOAD_KEY: dict(
+                            payload[_OBSERVATIONAL_METHOD_INTENT_PAYLOAD_KEY]
+                        )
+                    }
+                    if job_kind == "workflow_run"
+                    and isinstance(payload.get(_OBSERVATIONAL_METHOD_INTENT_PAYLOAD_KEY), Mapping)
+                    else {}
+                ),
+            }
             record = self._control_store.create_job(
                 job_id=job_id,
                 kind=_coerce_control_job_kind(job_kind),
@@ -771,31 +805,7 @@ class ControlJobDiagnosticsMixin:
                 capability_manifest_ref=capability_manifest_ref,
                 payload_ref=payload_ref,
                 submitted_by=submitted_by,
-                creation_event_payload={
-                    **self._job_created_event_payload(
-                        job_id=job_id,
-                        job_kind=job_kind,
-                        run_id=run_id,
-                        pipeline_id=pipeline_id,
-                        payload_ref=payload_ref,
-                        submitted_by=submitted_by,
-                        requested_execution_profile=policy.requested_profile,
-                        effective_execution_profile=policy.effective_profile,
-                        policy_flags=policy.policy_flags.model_dump(mode="json"),
-                        capability_manifest_ref=capability_manifest_ref,
-                        execution_scope=execution_scope,
-                    ),
-                    **(
-                        {
-                            _EXECUTION_INTENT_BINDING_KEY: payload[_EXECUTION_INTENT_BINDING_KEY],
-                            "intent_digest": payload[_EXECUTION_INTENT_BINDING_KEY][
-                                "intent_digest"
-                            ],
-                        }
-                        if job_kind == "natural_language_run"
-                        else {}
-                    ),
-                },
+                creation_event_payload=creation_event_payload,
                 initial_state="failed" if initially_refused else "pending",
                 initial_error_message=(
                     "nl_job_execution_intent_not_established" if initially_refused else None

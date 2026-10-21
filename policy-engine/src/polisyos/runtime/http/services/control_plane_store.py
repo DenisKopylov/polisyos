@@ -968,6 +968,7 @@ class ControlJobRecord:
     attempt: int
     error_message: str | None
     progress: dict[str, Any]
+    method_execution_selection: dict[str, Any] | None = None
 
     def to_response(self, *, request_id: str | None = None) -> ControlJobResponse:
         """Convert a durable row snapshot into the public `ControlJobResponse` contract."""
@@ -3845,6 +3846,7 @@ class ControlPlaneStore:
                 j.lease_expires_at,
                 j.attempt,
                 j.error_message,
+                j.method_execution_selection_json,
                 p.progress_json
             FROM control_jobs j
             LEFT JOIN control_job_progress p ON p.job_id = j.job_id
@@ -3879,6 +3881,7 @@ class ControlPlaneStore:
                 j.lease_expires_at,
                 j.attempt,
                 j.error_message,
+                j.method_execution_selection_json,
                 p.progress_json
             FROM control_jobs j
             LEFT JOIN control_job_progress p ON p.job_id = j.job_id
@@ -3913,6 +3916,7 @@ class ControlPlaneStore:
                 j.lease_expires_at,
                 j.attempt,
                 j.error_message,
+                j.method_execution_selection_json,
                 p.progress_json
             FROM control_jobs j
             LEFT JOIN control_job_progress p ON p.job_id = j.job_id
@@ -3956,6 +3960,7 @@ class ControlPlaneStore:
                 j.lease_expires_at,
                 j.attempt,
                 j.error_message,
+                j.method_execution_selection_json,
                 p.progress_json
             FROM control_jobs j
             LEFT JOIN control_job_progress p ON p.job_id = j.job_id
@@ -4852,6 +4857,8 @@ class ControlPlaneStore:
         pipeline_id: str | None = None,
         capability_manifest_ref: str | None = None,
         progress: dict[str, Any] | None = None,
+        method_execution_selection: object | None = None,
+        method_metric_projection_admission: object | None = None,
         expected_lease_owner: str | None = None,
         expected_attempt: int | None = None,
     ) -> None:
@@ -4868,6 +4875,8 @@ class ControlPlaneStore:
                 pipeline_id=pipeline_id,
                 capability_manifest_ref=capability_manifest_ref,
                 progress=progress,
+                method_execution_selection=method_execution_selection,
+                method_metric_projection_admission=method_metric_projection_admission,
                 fence=fence,
             )
 
@@ -5072,10 +5081,136 @@ class ControlPlaneStore:
         pipeline_id: str | None,
         capability_manifest_ref: str | None,
         progress: dict[str, Any] | None,
+        method_execution_selection: object | None,
+        method_metric_projection_admission: object | None,
         fence: tuple[str, int] | None,
     ) -> None:
         """Apply one completion and all of its evidence rows in one transaction."""
         now = _utc_now()
+        selection_payload: dict[str, Any] | None = None
+        if method_execution_selection is not None:
+            from pydantic import TypeAdapter
+
+            from polisyos.core.contracts.runtime import (
+                DirectMethodExecutionSelection,
+                GraphMethodExecutionSelection,
+                MethodExecutionSelection,
+            )
+
+            if fence is None:
+                raise ControlJobLeaseLostError(
+                    "method_execution_selection_requires_current_job_fence"
+                )
+            selection = TypeAdapter(MethodExecutionSelection).validate_python(
+                method_execution_selection
+            )
+            if not isinstance(
+                selection,
+                (DirectMethodExecutionSelection, GraphMethodExecutionSelection),
+            ):
+                raise ValueError("method_execution_selection_discriminator_invalid")
+            if (
+                selection.job_id != job_id
+                or selection.run_id != str(run_id or "")
+                or selection.attempt != fence[1]
+            ):
+                raise ValueError("method_execution_selection_fence_tuple_mismatch")
+            current = self._fetchone(
+                """
+                SELECT job_kind, state, run_id, attempt, lease_owner, lease_expires_at
+                FROM control_jobs WHERE job_id = ?
+                """,
+                (job_id,),
+            )
+            if current is None:
+                raise ControlJobLeaseLostError("method_execution_selection_job_missing")
+            if isinstance(current, Mapping):
+                current_values = (
+                    current.get("job_kind"),
+                    current.get("state"),
+                    current.get("run_id"),
+                    current.get("attempt"),
+                    current.get("lease_owner"),
+                    current.get("lease_expires_at"),
+                )
+            else:
+                current_values = (
+                    current[0],
+                    current[1],
+                    current[2],
+                    current[3],
+                    current[4],
+                    current[5],
+                )
+            current_expires_at = _parse_dt(current_values[5])
+            if (
+                current_values[0] != "workflow_run"
+                or current_values[1] != "running"
+                or current_values[2] != selection.run_id
+                or int(current_values[3] or 0) != fence[1]
+                or current_values[4] != fence[0]
+                or current_expires_at is None
+                or current_expires_at <= now
+            ):
+                raise ControlJobLeaseLostError("method_execution_selection_current_fence_mismatch")
+            if isinstance(selection, GraphMethodExecutionSelection):
+                if selection.metric_verification_status == "verified":
+                    from polisyos.scientist.nodes.builtins.decide.policy_runtime_method_metrics import (
+                        is_verified_method_metric_projection_admission,
+                    )
+
+                    if not is_verified_method_metric_projection_admission(
+                        method_metric_projection_admission
+                    ):
+                        raise ValueError("method_metric_projection_admission_not_verified")
+                    source_tuple = method_metric_projection_admission.source_tuple
+                    source_candidate_ref = getattr(
+                        method_metric_projection_admission,
+                        "source_candidate_ref",
+                        None,
+                    )
+                    projection = selection.method_metric_projection
+                    if projection is None:
+                        raise ValueError("method_metric_projection_selection_missing")
+                    if (
+                        source_tuple.job_id != selection.job_id
+                        or source_tuple.run_id != selection.run_id
+                        or source_tuple.attempt != selection.attempt
+                        or source_tuple.method_result_ref != selection.method_result_ref
+                        or source_tuple.simulation_result_ref != selection.simulation_result_ref
+                        or source_tuple.method_execution_bundle_ref
+                        != selection.method_execution_bundle_ref
+                        or source_tuple.method_metric_binding_set_ref
+                        != selection.method_metric_binding_set_ref
+                        or source_candidate_ref != selection.source_candidate_ref
+                        or method_metric_projection_admission.vector_ref != projection.vector_ref
+                        or method_metric_projection_admission.verifier_revision
+                        != projection.verifier_revision
+                        or method_metric_projection_admission.verifier_implementation_sha256
+                        != projection.verifier_implementation_sha256
+                    ):
+                        raise ValueError("method_metric_projection_source_tuple_mismatch")
+                elif method_metric_projection_admission is not None:
+                    raise ValueError("unselected_method_metric_projection_admission")
+            elif method_metric_projection_admission is not None:
+                raise ValueError("direct_method_has_graph_metric_projection_admission")
+            selection_payload = selection.model_dump(mode="json")
+            existing = self._fetchone(
+                "SELECT method_execution_selection_json FROM control_jobs WHERE job_id = ?",
+                (job_id,),
+            )
+            existing_raw = (
+                existing[0]
+                if existing is not None and not isinstance(existing, Mapping)
+                else (existing.get("method_execution_selection_json") if existing else None)
+            )
+            if existing_raw is not None:
+                try:
+                    existing_payload = json.loads(str(existing_raw))
+                except (TypeError, json.JSONDecodeError) as exc:
+                    raise RuntimeError("method_execution_selection_existing_malformed") from exc
+                if existing_payload != selection_payload:
+                    raise ValueError("method_execution_selection_immutable_conflict")
         if progress is not None:
             progress = _progress_with_quality_scorecard_summary(progress)
             progress = self._terminal_progress_with_current_source_projection(
@@ -5104,6 +5239,7 @@ class ControlPlaneStore:
             UPDATE control_jobs
             SET state = ?, run_id = COALESCE(?, run_id), pipeline_id = COALESCE(?, pipeline_id),
                 capability_manifest_ref = COALESCE(?, capability_manifest_ref),
+                method_execution_selection_json = COALESCE(method_execution_selection_json, ?),
                 finished_at = ?, lease_owner = NULL, lease_expires_at = NULL, error_message = NULL
             WHERE {where}
             """,
@@ -5112,6 +5248,9 @@ class ControlPlaneStore:
                 run_id,
                 pipeline_id,
                 capability_manifest_ref,
+                json.dumps(selection_payload, sort_keys=True)
+                if selection_payload is not None
+                else None,
                 _iso(now),
                 *where_params,
             ),
@@ -5119,6 +5258,8 @@ class ControlPlaneStore:
         self._require_fenced_write(job_id=job_id, fence=fence, affected_rows=affected_rows)
         self._admit_terminal_publication(job_id=job_id, fence=fence, state="completed")
         event_payload: dict[str, Any] = {"state": "completed"}
+        if selection_payload is not None:
+            event_payload["method_execution_selection"] = selection_payload
         if fence is not None:
             event_payload.update({"lease_owner": fence[0], "attempt": fence[1]})
         self.append_event(job_id=job_id, event_type="job_completed", payload=event_payload)
@@ -6097,6 +6238,11 @@ class ControlPlaneStore:
 
     def _row_to_record(self, row: Any) -> ControlJobRecord:
         progress_json = row["progress_json"] if "progress_json" in row.keys() else "{}"
+        selection_json = (
+            row["method_execution_selection_json"]
+            if "method_execution_selection_json" in row.keys()
+            else None
+        )
         policy_flags_json = row["policy_flags_json"] if "policy_flags_json" in row.keys() else "{}"
         return ControlJobRecord(
             job_id=str(row["job_id"]),
@@ -6120,6 +6266,9 @@ class ControlPlaneStore:
             attempt=int(row["attempt"] or 0),
             error_message=row["error_message"],
             progress=json.loads(progress_json or "{}"),
+            method_execution_selection=(
+                json.loads(selection_json) if selection_json is not None else None
+            ),
         )
 
     def _row_to_acquisition_action_head(self, row: Any) -> AcquisitionActionHeadRecord:
@@ -6630,7 +6779,8 @@ class ControlPlaneStore:
                         lease_owner TEXT,
                         lease_expires_at TEXT,
                         attempt INTEGER NOT NULL DEFAULT 0,
-                        error_message TEXT
+                        error_message TEXT,
+                        method_execution_selection_json TEXT
                     );
                     CREATE TABLE IF NOT EXISTS control_job_events (
                         event_id INTEGER PRIMARY KEY AUTOINCREMENT,
@@ -6876,6 +7026,13 @@ class ControlPlaneStore:
                         raise RuntimeError(
                             "runtime_operation_scope_migration_has_unclassified_rows"
                         )
+                    control_job_columns = {
+                        str(row[1]) for row in conn.execute("PRAGMA table_info(control_jobs)")
+                    }
+                    if "method_execution_selection_json" not in control_job_columns:
+                        conn.execute(
+                            "ALTER TABLE control_jobs ADD COLUMN method_execution_selection_json TEXT"
+                        )
                     attempt_columns = {
                         str(row[1])
                         for row in conn.execute("PRAGMA table_info(control_pre_admission_attempts)")
@@ -6992,9 +7149,13 @@ class ControlPlaneStore:
                     lease_owner TEXT,
                     lease_expires_at TIMESTAMPTZ,
                     attempt INTEGER NOT NULL DEFAULT 0,
-                    error_message TEXT
+                    error_message TEXT,
+                    method_execution_selection_json TEXT
                 )
                 """
+            )
+            cur.execute(
+                "ALTER TABLE control_jobs ADD COLUMN IF NOT EXISTS method_execution_selection_json TEXT"
             )
             cur.execute(
                 """

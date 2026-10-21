@@ -11,7 +11,7 @@ from copy import deepcopy
 from dataclasses import dataclass, field
 from enum import StrEnum
 from types import MappingProxyType
-from typing import TYPE_CHECKING, Any, Protocol, cast
+from typing import TYPE_CHECKING, Any, Literal, Protocol, cast
 
 from polisyos.runtime.http.access_audit import (
     RuntimeAuthorizationAuditError,
@@ -71,6 +71,7 @@ else:
 
 _UNSAFE_HTTP_METHODS = frozenset({"POST", "PUT", "PATCH", "DELETE"})
 _VERIFICATION_STATE_FIELD = "action_permission_verification"
+_OPTIONAL_ACTION_RESULT_STATE_FIELD = "optional_action_permission_result"
 _BOUND_ACTION_PERMISSION_SEAL = object()
 CANONICAL_ROLE_AUTHORIZATION_SOURCE = "canonical_role_permissions"
 DEPLOYMENT_SERVICE_AUTHORIZATION_SOURCE = "deployment_service_principal"
@@ -531,6 +532,58 @@ class ActionPermissionDependency:
                 ) from exc
         return verification
 
+
+@dataclass(frozen=True, slots=True)
+class OptionalActionPermissionResult:
+    """Carry a fail-closed decision for one optional protected projection."""
+
+    requirement: RouteAuthorizationRequirement
+    allowed: bool
+    denial_class: Literal["permission_denied", "policy_denied"] | None = None
+
+    def __post_init__(self) -> None:
+        if type(self.requirement) is not RouteAuthorizationRequirement:
+            raise TypeError("requirement must be a RouteAuthorizationRequirement")
+        if not isinstance(self.allowed, bool):
+            raise TypeError("allowed must be a boolean")
+        if self.allowed and self.denial_class is not None:
+            raise ValueError("an allowed optional action cannot carry a denial class")
+        if not self.allowed and self.denial_class not in {"permission_denied", "policy_denied"}:
+            raise ValueError("a denied optional action requires a typed denial class")
+
+
+@dataclass(frozen=True, slots=True)
+class OptionalActionPermissionDependency:
+    """Declare a separate action gate whose denial withholds one response projection."""
+
+    requirement: RouteAuthorizationRequirement
+    __polisyos_optional_action_permission__: RouteAuthorizationRequirement = field(
+        init=False,
+        repr=False,
+    )
+
+    def __post_init__(self) -> None:
+        if type(self.requirement) is not RouteAuthorizationRequirement:
+            raise TypeError("requirement must be a RouteAuthorizationRequirement")
+        object.__setattr__(
+            self,
+            "__polisyos_optional_action_permission__",
+            self.requirement,
+        )
+
+    def __call__(self, request: Request) -> OptionalActionPermissionResult:
+        """Return the exact middleware decision or fail closed if it was skipped."""
+        result = getattr(request.state, _OPTIONAL_ACTION_RESULT_STATE_FIELD, None)
+        if (
+            type(result) is not OptionalActionPermissionResult
+            or result.requirement is not self.requirement
+        ):
+            raise service_unavailable(
+                "Optional action authorization was not evaluated",
+                code="optional_action_preflight_missing",
+            )
+        return result
+
     def _authorize(
         self,
         request: Request,
@@ -698,6 +751,23 @@ def require_action_permission(
     )
 
 
+def require_optional_action_permission(
+    permission: RuntimePermission,
+    resource_binding: ResourceBindingSpec,
+) -> OptionalActionPermissionDependency:
+    """Build one optional projection gate using the shared action contract."""
+    if not isinstance(permission, RuntimePermission):
+        raise TypeError("permission must be a RuntimePermission")
+    if type(resource_binding) is not ResourceBindingSpec:
+        raise TypeError("resource_binding must be a ResourceBindingSpec")
+    return OptionalActionPermissionDependency(
+        RouteAuthorizationRequirement(
+            permission=permission,
+            resource_binding=resource_binding,
+        )
+    )
+
+
 def iter_route_dependency_calls(route: _Route) -> Iterator[object]:
     """Yield every dependency call in ``route`` recursively and in tree order."""
 
@@ -722,6 +792,58 @@ def route_action_permission_dependencies(
         for dependency in iter_route_dependency_calls(route)
         if type(dependency) is ActionPermissionDependency
     )
+
+
+def route_optional_action_permission_dependencies(
+    route: _Route,
+) -> tuple[OptionalActionPermissionDependency, ...]:
+    """Return exact optional projection gates declared by one route."""
+    return tuple(
+        dependency
+        for dependency in iter_route_dependency_calls(route)
+        if type(dependency) is OptionalActionPermissionDependency
+    )
+
+
+def get_route_optional_action_permission_dependency(
+    route: _Route,
+) -> OptionalActionPermissionDependency:
+    """Return one direct optional gate or reject an ambiguous route declaration."""
+    label = _route_label(route)
+    dependency_calls = tuple(iter_route_dependency_calls(route))
+    impostors = [
+        dependency
+        for dependency in dependency_calls
+        if getattr(dependency, "__polisyos_optional_action_permission__", None) is not None
+        and type(dependency) is not OptionalActionPermissionDependency
+    ]
+    dependencies = tuple(
+        dependency
+        for dependency in dependency_calls
+        if type(dependency) is OptionalActionPermissionDependency
+    )
+    direct_dependencies = tuple(
+        child.call
+        for child in route.dependant.dependencies
+        if type(child.call) is OptionalActionPermissionDependency
+    )
+    if impostors:
+        raise RuntimeError(f"{label} has a marker-only optional action-permission dependency")
+    if len(dependencies) != 1 or len(direct_dependencies) != 1:
+        raise RuntimeError(
+            f"{label} requires one direct OptionalActionPermissionDependency; "
+            f"found={len(dependencies)} direct={len(direct_dependencies)}"
+        )
+    if route_action_permission_dependencies(route):
+        raise RuntimeError(f"{label} cannot combine required and optional action dependencies")
+    dependency = dependencies[0]
+    marker = dependency.__polisyos_optional_action_permission__
+    if marker is not dependency.requirement or not isinstance(
+        marker.permission,
+        RuntimePermission,
+    ):
+        raise RuntimeError(f"{label} has an invalid optional action-permission marker")
+    return dependency
 
 
 def _route_label(route: _Route) -> str:
@@ -809,13 +931,21 @@ def install_route_authorization_openapi_contract(app: object) -> None:
         candidate_methods = set(candidate.methods)
         guarded_safe_methods = candidate_methods - _UNSAFE_HTTP_METHODS
         route = cast("_Route", cast("object", candidate))
-        if not guarded_safe_methods or not route_action_permission_dependencies(route):
+        optional_dependencies = route_optional_action_permission_dependencies(route)
+        if not guarded_safe_methods or not (
+            route_action_permission_dependencies(route) or optional_dependencies
+        ):
             continue
-        requirement = get_route_authorization_requirement(route)
-        if not requirement.resource_binding.allow_empty_body:
-            safe_body_violations.extend(
-                f"{method} {candidate.path}" for method in sorted(guarded_safe_methods)
-            )
+        requirements = [
+            dependency.requirement for dependency in route_action_permission_dependencies(route)
+        ]
+        requirements.extend(dependency.requirement for dependency in optional_dependencies)
+        for requirement in requirements:
+            if not requirement.resource_binding.allow_empty_body:
+                safe_body_violations.extend(
+                    f"{method} {candidate.path} ({requirement.permission.value})"
+                    for method in sorted(guarded_safe_methods)
+                )
     if safe_body_violations:
         details = "\n".join(f"- {violation}" for violation in safe_body_violations)
         raise RuntimeError("guarded safe route must declare allow_empty_body=True:\n" + details)
@@ -834,67 +964,88 @@ def install_route_authorization_openapi_contract(app: object) -> None:
             candidate_methods = set(candidate.methods)
             unsafe_methods = candidate_methods & _UNSAFE_HTTP_METHODS
             route = cast("_Route", cast("object", candidate))
+            optional_dependencies = route_optional_action_permission_dependencies(route)
             guarded_safe_methods = (
                 candidate_methods - _UNSAFE_HTTP_METHODS
-                if route_action_permission_dependencies(route)
+                if route_action_permission_dependencies(route) or optional_dependencies
                 else set()
             )
             protected_methods = unsafe_methods | guarded_safe_methods
             if not protected_methods:
                 continue
-            requirement = get_route_authorization_requirement(route)
-            binding = requirement.resource_binding
-            binding_payload = {
-                "source": binding.source.value,
-                "resource_kind": binding.resource_kind,
-                **(
-                    {"path_parameter": binding.path_parameter}
-                    if binding.path_parameter is not None
-                    else {}
-                ),
-                **(
-                    {"path_selector_parameters": list(binding.path_selector_parameters)}
-                    if binding.path_selector_parameters
-                    else {}
-                ),
-                **(
-                    {"query_selector_parameters": list(binding.query_selector_parameters)}
-                    if binding.query_selector_parameters
-                    else {}
-                ),
-                **({"body_field": binding.body_field} if binding.body_field is not None else {}),
-                **(
-                    {"parent_field": binding.parent_field}
-                    if binding.parent_field is not None
-                    else {}
-                ),
-                **(
-                    {"selector_fields": list(binding.selector_fields)}
-                    if binding.selector_fields
-                    else {}
-                ),
-                **(
-                    {"required_selector_fields": list(binding.required_selector_fields)}
-                    if binding.required_selector_fields
-                    else {}
-                ),
-                **(
-                    {
-                        "required_selector_alternatives": [
-                            list(alternative)
-                            for alternative in binding.required_selector_alternatives
-                        ]
-                    }
-                    if binding.required_selector_alternatives
-                    else {}
-                ),
-                **({"parent_required": True} if binding.parent_required else {}),
-                **({"allow_empty_body": True} if binding.allow_empty_body else {}),
-            }
+            requirements = [
+                dependency.requirement for dependency in route_action_permission_dependencies(route)
+            ]
+            optional_dependencies = route_optional_action_permission_dependencies(route)
+            if unsafe_methods:
+                requirements = [get_route_authorization_requirement(route)]
+
+            def _binding_payload(requirement: RouteAuthorizationRequirement) -> dict[str, Any]:
+                binding = requirement.resource_binding
+                return {
+                    "source": binding.source.value,
+                    "resource_kind": binding.resource_kind,
+                    **(
+                        {"path_parameter": binding.path_parameter}
+                        if binding.path_parameter is not None
+                        else {}
+                    ),
+                    **(
+                        {"path_selector_parameters": list(binding.path_selector_parameters)}
+                        if binding.path_selector_parameters
+                        else {}
+                    ),
+                    **(
+                        {"query_selector_parameters": list(binding.query_selector_parameters)}
+                        if binding.query_selector_parameters
+                        else {}
+                    ),
+                    **(
+                        {"body_field": binding.body_field} if binding.body_field is not None else {}
+                    ),
+                    **(
+                        {"parent_field": binding.parent_field}
+                        if binding.parent_field is not None
+                        else {}
+                    ),
+                    **(
+                        {"selector_fields": list(binding.selector_fields)}
+                        if binding.selector_fields
+                        else {}
+                    ),
+                    **(
+                        {"required_selector_fields": list(binding.required_selector_fields)}
+                        if binding.required_selector_fields
+                        else {}
+                    ),
+                    **(
+                        {
+                            "required_selector_alternatives": [
+                                list(alternative)
+                                for alternative in binding.required_selector_alternatives
+                            ]
+                        }
+                        if binding.required_selector_alternatives
+                        else {}
+                    ),
+                    **({"parent_required": True} if binding.parent_required else {}),
+                    **({"allow_empty_body": True} if binding.allow_empty_body else {}),
+                }
+
             for method in protected_methods:
                 operation = schema["paths"][candidate.path][method.lower()]
-                operation["x-polisyos-action-permission"] = requirement.permission.value
-                operation["x-polisyos-resource-binding"] = binding_payload
+                if requirements:
+                    requirement = requirements[0]
+                    operation["x-polisyos-action-permission"] = requirement.permission.value
+                    operation["x-polisyos-resource-binding"] = _binding_payload(requirement)
+                if optional_dependencies:
+                    operation["x-polisyos-optional-action-permissions"] = [
+                        {
+                            "permission": dependency.requirement.permission.value,
+                            "resource_binding": _binding_payload(dependency.requirement),
+                        }
+                        for dependency in optional_dependencies
+                    ]
         cached = schema
         return schema
 

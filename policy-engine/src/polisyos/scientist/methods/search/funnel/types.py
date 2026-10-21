@@ -4,9 +4,10 @@ from __future__ import annotations
 
 from abc import abstractmethod
 from collections.abc import Mapping
-from dataclasses import dataclass, field
+from copy import deepcopy
+from dataclasses import dataclass, field, replace
 from math import isfinite
-from typing import TYPE_CHECKING, Any, Literal
+from typing import TYPE_CHECKING, Any, Literal, NoReturn
 
 from pydantic import AwareDatetime, ConfigDict, Field, model_validator
 
@@ -437,8 +438,14 @@ class FunnelTraceStep:
         )
 
 
+class _FunnelTicketMethodMetricCapabilitySlot:
+    """Hold a short-lived owner basis outside the ticket's dataclass fields."""
+
+    __slots__ = ("_method_metric_projection_basis",)
+
+
 @dataclass(slots=True)
-class FunnelTicket:
+class FunnelTicket(_FunnelTicketMethodMetricCapabilitySlot):
     """Stateful handle for one candidate moving through the funnel."""
 
     ticket_id: str
@@ -462,6 +469,36 @@ class FunnelTicket:
     lineage: tuple[str, ...] = ()
     continuation_reason: str | None = None
     terminal_basis: str | None = None
+
+    def __post_init__(self) -> None:
+        object.__setattr__(self, "_method_metric_projection_basis", None)
+
+    def _set_method_metric_projection_basis(self, basis: object | None) -> None:
+        """Replace the in-process-only source basis after a fresh owner lookup."""
+        object.__setattr__(self, "_method_metric_projection_basis", basis)
+
+    def __copy__(self) -> FunnelTicket:
+        """Copy public state while dropping the ephemeral admission capability."""
+        return replace(
+            self,
+            candidate=dict(self.candidate),
+            context=dict(self.context),
+            stage_results=deepcopy(self.stage_results),
+            trace=deepcopy(self.trace),
+            lesson_refs=list(self.lesson_refs),
+            lineage=tuple(self.lineage),
+        )
+
+    def __deepcopy__(self, memo: dict[int, Any]) -> FunnelTicket:
+        """Deep-copy persisted ticket state without carrying the source capability."""
+        duplicate = self.__copy__()
+        memo[id(self)] = duplicate
+        return duplicate
+
+    def __reduce_ex__(self, protocol: int) -> NoReturn:
+        """Refuse generic pickle snapshots of tickets containing live runtime context."""
+        del protocol
+        raise TypeError("FunnelTicket requires its explicit bounded work-packet serializer")
 
     @property
     def last_result(self) -> FunnelStageResult | None:

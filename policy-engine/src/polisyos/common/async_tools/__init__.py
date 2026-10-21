@@ -10,6 +10,7 @@ import functools
 import os
 import threading
 import time
+import traceback
 from dataclasses import dataclass, field
 from typing import TYPE_CHECKING, Literal, cast
 
@@ -21,26 +22,170 @@ class SharedExecutorReentrancyError(RuntimeError):
     """Reject nested work that requires an already occupied shared worker."""
 
 
+class SharedExecutorBackpressureError(RuntimeError):
+    """Reject work when the process-wide FIFO worker queue is full."""
+
+    retryable = True
+    code = "shared_executor_queue_full"
+
+    def __init__(self, *, queue_depth: int, queue_capacity: int, capacity: int) -> None:
+        super().__init__(self.code)
+        self.queue_depth = queue_depth
+        self.queue_capacity = queue_capacity
+        self.capacity = capacity
+
+
+class SharedExecutorWaitTimeoutError(TimeoutError):
+    """Report a wait timeout without claiming a running callable has stopped."""
+
+    retryable = True
+
+    def __init__(self, *, cancelled_before_start: bool) -> None:
+        disposition = (
+            "queued shared work was cancelled before start"
+            if cancelled_before_start
+            else "running shared work retains its physical worker slot"
+        )
+        super().__init__(disposition)
+        self.cancelled_before_start = cancelled_before_start
+        self.running_slot_retained = not cancelled_before_start
+        self.retryable = cancelled_before_start
+
+
+@dataclass(frozen=True, slots=True)
+class SharedExecutionFailure:
+    """Small failure summary that never retains the worker exception or traceback."""
+
+    exception_type: str
+    message_excerpt: str = ""
+    code: Literal["shared_execution_failed"] = "shared_execution_failed"
+    retryable: Literal[False] = False
+
+    def __post_init__(self) -> None:
+        """Bound the strings kept by a completed handle."""
+        if type(self.exception_type) is not str or type(self.message_excerpt) is not str:
+            raise TypeError("shared_execution_failure_fields_must_be_strings")
+        object.__setattr__(self, "exception_type", self.exception_type[:160])
+        object.__setattr__(self, "message_excerpt", self.message_excerpt[:512])
+
+
+@dataclass(frozen=True, slots=True)
+class SharedExecutionCompletion[T]:
+    """Store either the callable result or a bounded, traceback-free failure."""
+
+    status: Literal["completed", "failed"]
+    value: T | None = None
+    failure: SharedExecutionFailure | None = None
+
+    def __post_init__(self) -> None:
+        """Keep completion and failure states mutually exclusive."""
+        if self.status == "completed" and self.failure is not None:
+            raise ValueError("completed_shared_execution_cannot_contain_failure")
+        if self.status == "failed" and (self.failure is None or self.value is not None):
+            raise ValueError("failed_shared_execution_requires_only_failure")
+
+
+def _summarize_shared_execution_failure(exc: BaseException) -> SharedExecutionFailure:
+    """Extract only bounded scalar diagnostics from a worker exception."""
+    exception_type = type(exc)
+    type_name = f"{exception_type.__module__}.{exception_type.__qualname__}"[:160]
+    first_arg = exc.args[0] if exc.args else ""
+    excerpt = first_arg[:512] if type(first_arg) is str else ""
+    return SharedExecutionFailure(exception_type=type_name, message_excerpt=excerpt)
+
+
+def _capture_shared_execution[T](fn: Callable[[], T]) -> SharedExecutionCompletion[T]:
+    """Run one callable and discard traceback frames before storing its failure."""
+    try:
+        return SharedExecutionCompletion(status="completed", value=fn())
+    except BaseException as exc:
+        failure = _summarize_shared_execution_failure(exc)
+        if exc.__traceback__ is not None:
+            traceback.clear_frames(exc.__traceback__)
+        exc.__traceback__ = None
+        return SharedExecutionCompletion(status="failed", failure=failure)
+
+
+class SharedExecutionHandle[T]:
+    """Cancellable wait handle for shared work with traceback-free completion."""
+
+    def __init__(self, future: concurrent.futures.Future[SharedExecutionCompletion[T]]) -> None:
+        self._future = future
+
+    def done(self) -> bool:
+        """Return whether worker completion has reached this handle."""
+        return self._future.done()
+
+    def cancel(self) -> bool:
+        """Cancel queued work; a running callable keeps its slot until return."""
+        return self._future.cancel()
+
+    def result(self, timeout: float | None = None) -> SharedExecutionCompletion[T]:
+        """Wait for completion and cancel only work that has not started."""
+        try:
+            return self._future.result(timeout=timeout)
+        except concurrent.futures.TimeoutError:
+            if self._future.done():
+                return self._future.result()
+            cancelled = self.cancel()
+            if not cancelled and self._future.done():
+                return self._future.result()
+            raise SharedExecutorWaitTimeoutError(cancelled_before_start=cancelled) from None
+
+    async def result_async(self, timeout: float | None = None) -> SharedExecutionCompletion[T]:
+        """Wait without occupying a shared worker and preserve running slot ownership."""
+        wrapped = asyncio.wrap_future(self._future)
+        try:
+            return await asyncio.wait_for(asyncio.shield(wrapped), timeout=timeout)
+        except TimeoutError:
+            if self._future.done():
+                return self._future.result()
+            cancelled = self.cancel()
+            if not cancelled and self._future.done():
+                return self._future.result()
+            raise SharedExecutorWaitTimeoutError(cancelled_before_start=cancelled) from None
+        except asyncio.CancelledError:
+            self.cancel()
+            raise
+
+
 class _SharedFuture[T](concurrent.futures.Future[T]):
-    """Keep job ownership through worker completion and synchronous callbacks."""
+    """Keep a physical job reservation until its worker wrapper returns."""
 
     def __init__(self, executor: _SharedExecutor) -> None:
         super().__init__()
         self._executor = executor
         self._worker_future: concurrent.futures.Future[None] | None = None
         self._work_finished = False
-        self._callbacks_active = 0
         self._slot_held = True
+        self._work_reserved = False
+        self._queued_slot = False
+
+    def _mark_work_reserved(self) -> None:
+        """Record the queue and work reservations made at admission."""
+        self._work_reserved = True
+        self._queued_slot = True
+
+    def _mark_worker_started_locked(self) -> None:
+        """Release queue depth when the physical worker begins this job."""
+        if self._queued_slot:
+            self._queued_slot = False
+            self._executor._queued_jobs -= 1
 
     def _release_if_finished(self) -> None:
         # The caller holds the admission lock; Future.done() is not capacity.
-        if self._slot_held and self._work_finished and not self._callbacks_active:
+        if self._slot_held and self._work_finished:
             self._slot_held = False
             self._executor._outstanding_jobs -= 1
+            self._executor._capacity_changed.notify_all()
 
     def _finish_work(self) -> None:
         with self._executor._admission_lock:
             self._work_finished = True
+            self._mark_worker_started_locked()
+            if self._work_reserved:
+                self._work_reserved = False
+                self._executor._work_jobs -= 1
             self._release_if_finished()
 
     def _bind_worker(self, future: concurrent.futures.Future[None]) -> None:
@@ -59,69 +204,85 @@ class _SharedFuture[T](concurrent.futures.Future[T]):
             self._finish_work()
 
     def cancel(self) -> bool:
-        """Cancel unstarted work and synchronously revoke its queue entry."""
-        cancelled = super().cancel()
-        if cancelled:
-            with self._condition:
-                worker_future = self._worker_future
-            if worker_future is not None:
-                worker_future.cancel()
-        return cancelled
+        """Cancel unstarted work while retaining its reservation until dequeued.
+
+        ThreadPoolExecutor leaves cancelled work items in its unbounded internal
+        queue. Keeping this owner's bounded reservation until the tombstone is
+        dequeued prevents repeated cancel/submit cycles from accumulating hidden
+        uncounted queue entries. The worker wrapper observes cancellation before
+        invoking the submitted callable.
+        """
+        return super().cancel()
 
     def add_done_callback(self, fn: Callable[[concurrent.futures.Future[T]], object]) -> None:
-        """Preserve Future callback order/thread and mark late callbacks too."""
+        """Run callback bodies under the shared owner, including late callbacks.
+
+        A callback registered before completion runs inline on the worker that
+        completes this Future. A callback registered after completion is
+        submitted through the same finite queue and its registering thread
+        waits for that bounded owner work. The stored Future callback retains
+        only this small wrapper after invocation, not the caller's closure.
+        """
         executor = self._executor
+        callback: Callable[[concurrent.futures.Future[T]], object] | None = fn
 
         def invoke(future: concurrent.futures.Future[T]) -> None:
-            with executor._admission_lock:
-                if not self._slot_held:
-                    self._slot_held = True
-                    executor._outstanding_jobs += 1
-                self._callbacks_active += 1
-            previous = getattr(executor._worker_context, "active", False)
-            executor._worker_context.active = True
-            try:
-                fn(future)
-            finally:
-                executor._worker_context.active = previous
-                with executor._admission_lock:
-                    self._callbacks_active -= 1
-                    self._release_if_finished()
+            nonlocal callback
+            selected_callback = callback
+            callback = None
+            if selected_callback is not None:
+                executor.run_callback_sync(selected_callback, future)
 
         super().add_done_callback(invoke)
 
 
 class _SharedExecutor(concurrent.futures.ThreadPoolExecutor):
-    """Own physical workers and callback reservations separately from Future state.
+    """Own physical workers and a finite queue separately from Future state.
 
     External callers may queue ordinary work. A worker or callback cannot submit
     nested work when worker capacity is fully reserved or occupied. A completed proxy retains
-    its logical reservation until its callable wrapper and synchronous callbacks
-    return. Running arbitrary user code is cooperative and cannot be interrupted.
+    its logical reservation until its callable wrapper and any callbacks invoked
+    during completion return. Late callbacks are separate bounded owner work.
+    Running arbitrary user code is cooperative and cannot be interrupted.
     """
 
     def __init__(
-        self, *, max_workers: int, thread_name_prefix: str = "polisyos-run-coro-sync"
+        self,
+        *,
+        max_workers: int,
+        max_queued: int | None = None,
+        thread_name_prefix: str = "polisyos-run-coro-sync",
     ) -> None:
         super().__init__(max_workers=max_workers, thread_name_prefix=thread_name_prefix)
+        self._max_queued = max_workers if max_queued is None else max_queued
         self._admission_lock = threading.Lock()
+        self._capacity_changed = threading.Condition(self._admission_lock)
+        self._submit_lock = threading.Lock()
+        # Draining workers and shutdown-time inline callbacks share this guard.
+        self._physical_slot_guard = threading.BoundedSemaphore(max_workers)
         self._worker_context = threading.local()
         self._physical_workers = 0
         self._outstanding_jobs = 0
+        self._work_jobs = 0
+        self._queued_jobs = 0
         self._admission_closed = False
 
     def is_current_worker(self) -> bool:
-        """Return whether the current thread is a physical worker of this pool."""
+        """Return whether the current thread belongs to a pool worker."""
         return bool(getattr(self._worker_context, "physical_worker", False))
 
+    def _is_current_owner_slot(self) -> bool:
+        """Return whether this thread currently owns a guarded executor slot."""
+        return bool(getattr(self._worker_context, "owner_slot", False))
+
     def run_sync[T](self, fn: Callable[..., T], /, *args: object, **kwargs: object) -> T:
-        """Run synchronously, inlining physical workers and bounding external callbacks."""
-        if self.is_current_worker():
+        """Run synchronously, inlining the current slot owner and bounding callbacks."""
+        if self._is_current_owner_slot():
             return fn(*args, **kwargs)
 
-        # Late Future callbacks execute on their registering thread. Let this
-        # synchronous bridge queue a bounded worker while preserving the direct
-        # submit() reentrancy refusal for arbitrary callback code.
+        # External late callbacks use this synchronous bridge to queue the
+        # actual callback body on a bounded worker. Preserve direct submit()
+        # reentrancy refusal for arbitrary code already running as a callback.
         was_active = getattr(self._worker_context, "active", False)
         if was_active:
             self._worker_context.active = False
@@ -131,59 +292,186 @@ class _SharedExecutor(concurrent.futures.ThreadPoolExecutor):
             self._worker_context.active = was_active
         return future.result()
 
+    def run_callback_sync[T](
+        self,
+        fn: Callable[..., T],
+        /,
+        *args: object,
+        **kwargs: object,
+    ) -> T:
+        """Run callback code on a shared worker, waiting outside the owner for room.
+
+        Ordinary work receives immediate typed backpressure when the finite
+        queue is full. Future callbacks have no result channel for that error, so
+        a late callback waits on this caller thread until the owner can admit
+        the callback. After shutdown closes admission, the completing or
+        registration caller may run the callback inline only while holding the
+        same physical-slot guard as draining workers.
+        """
+        if self._is_current_owner_slot():
+            return fn(*args, **kwargs)
+        while True:
+            closed = False
+            with self._capacity_changed:
+                if self._admission_closed:
+                    closed = True
+                elif self._outstanding_jobs >= (self._max_workers + self._max_queued):
+                    self._capacity_changed.wait()
+                    continue
+            if closed:
+                return self._run_callback_under_slot_guard(fn, *args, **kwargs)
+            was_active = getattr(self._worker_context, "active", False)
+            if was_active:
+                self._worker_context.active = False
+            try:
+                try:
+                    future = self.submit(fn, *args, **kwargs)
+                except SharedExecutorBackpressureError:
+                    # This exception came from submit(), before the callback
+                    # was admitted, so retrying cannot repeat its body.
+                    continue
+                except RuntimeError:
+                    # Shutdown can race the admission check, but only a
+                    # submit-time refusal proves the callback never started.
+                    with self._admission_lock:
+                        closed = self._admission_closed
+                    if closed:
+                        return self._run_callback_under_slot_guard(fn, *args, **kwargs)
+                    raise
+            finally:
+                self._worker_context.active = was_active
+            # Keep result delivery outside the retry handler. The callback body
+            # may itself raise either exception caught during admission above.
+            return future.result()
+
+    def _run_callback_under_slot_guard[T](
+        self,
+        fn: Callable[..., T],
+        /,
+        *args: object,
+        **kwargs: object,
+    ) -> T:
+        """Run a shutdown callback inside a slot shared with draining workers."""
+        self._physical_slot_guard.acquire()
+        previous_active = getattr(self._worker_context, "active", False)
+        previous_physical_worker = getattr(self._worker_context, "physical_worker", False)
+        previous_owner_slot = getattr(self._worker_context, "owner_slot", False)
+        self._worker_context.active = True
+        self._worker_context.owner_slot = True
+        try:
+            return fn(*args, **kwargs)
+        finally:
+            self._worker_context.active = previous_active
+            self._worker_context.physical_worker = previous_physical_worker
+            self._worker_context.owner_slot = previous_owner_slot
+            self._physical_slot_guard.release()
+
     def submit[T](
         self, fn: Callable[..., T], /, *args: object, **kwargs: object
     ) -> concurrent.futures.Future[T]:
-        with self._admission_lock:
-            if self._admission_closed:
-                raise RuntimeError("cannot schedule new futures after shutdown")
-            if getattr(self._worker_context, "active", False) and (
-                self._outstanding_jobs >= self._max_workers
-                or self._physical_workers >= self._max_workers
-            ):
-                raise SharedExecutorReentrancyError("shared executor worker capacity is reserved")
-            self._outstanding_jobs += 1
-            future: _SharedFuture[T] = _SharedFuture(self)
-        context = contextvars.copy_context()
-
-        def invoke() -> None:
-            if not future.set_running_or_notify_cancel():
-                return
-            try:
-                result = fn(*args, **kwargs)
-            except BaseException as exc:
-                future.set_exception(exc)
-            else:
-                future.set_result(result)
-
-        def run() -> None:
-            previous = getattr(self._worker_context, "active", False)
-            previous_physical_worker = getattr(self._worker_context, "physical_worker", False)
-            self._worker_context.active = True
-            self._worker_context.physical_worker = True
+        # The admission lock alone does not order ThreadPoolExecutor enqueues:
+        # callers could reserve FIFO positions, release it, and submit out of
+        # order. Serialize reservation through enqueue so accepted order matches
+        # the executor's FIFO queue while workers remain free to start promptly.
+        with self._submit_lock:
             with self._admission_lock:
-                self._physical_workers += 1
-            try:
-                context.run(invoke)
-            finally:
-                self._worker_context.active = previous
-                self._worker_context.physical_worker = previous_physical_worker
-                with self._admission_lock:
-                    self._physical_workers -= 1
-                future._finish_work()
+                if self._admission_closed:
+                    raise RuntimeError("cannot schedule new futures after shutdown")
+                max_admitted = self._max_workers + self._max_queued
+                if self._outstanding_jobs >= max_admitted:
+                    if getattr(self._worker_context, "active", False):
+                        raise SharedExecutorReentrancyError(
+                            "shared executor worker capacity is reserved"
+                        )
+                    raise SharedExecutorBackpressureError(
+                        queue_depth=self._queued_jobs,
+                        queue_capacity=self._max_queued,
+                        capacity=self._max_workers,
+                    )
+                if getattr(self._worker_context, "active", False) and (
+                    self._outstanding_jobs >= self._max_workers
+                    or self._physical_workers >= self._max_workers
+                ):
+                    raise SharedExecutorReentrancyError(
+                        "shared executor worker capacity is reserved"
+                    )
+                self._outstanding_jobs += 1
+                self._work_jobs += 1
+                self._queued_jobs += 1
+                future: _SharedFuture[T] = _SharedFuture(self)
+                future._mark_work_reserved()
+            context = contextvars.copy_context()
 
-        try:
-            worker_future = super().submit(run)
-        except BaseException:
-            future._finish_work()
-            raise
-        future._bind_worker(worker_future)
-        return future
+            def invoke() -> None:
+                if not future.set_running_or_notify_cancel():
+                    return
+                try:
+                    result = fn(*args, **kwargs)
+                except BaseException as exc:
+                    future.set_exception(exc)
+                else:
+                    future.set_result(result)
+
+            def run() -> None:
+                slot_acquired = False
+                worker_counted = False
+                previous = getattr(self._worker_context, "active", False)
+                previous_physical_worker = getattr(self._worker_context, "physical_worker", False)
+                previous_owner_slot = getattr(self._worker_context, "owner_slot", False)
+                try:
+                    self._physical_slot_guard.acquire()
+                    slot_acquired = True
+                    self._worker_context.active = True
+                    self._worker_context.physical_worker = True
+                    self._worker_context.owner_slot = True
+                    with self._admission_lock:
+                        future._mark_worker_started_locked()
+                        self._physical_workers += 1
+                        worker_counted = True
+                    context.run(invoke)
+                except BaseException as exc:
+                    if not future.done():
+                        future.set_exception(exc)
+                    raise
+                finally:
+                    self._worker_context.active = previous
+                    self._worker_context.physical_worker = previous_physical_worker
+                    self._worker_context.owner_slot = previous_owner_slot
+                    try:
+                        if worker_counted:
+                            with self._admission_lock:
+                                self._physical_workers -= 1
+                        future._finish_work()
+                    finally:
+                        if slot_acquired:
+                            self._physical_slot_guard.release()
+
+            try:
+                worker_future = super().submit(run)
+            except BaseException:
+                future._finish_work()
+                raise
+            future._bind_worker(worker_future)
+            return future
+
+    def submit_cancellable[T](self, fn: Callable[[], T], /) -> SharedExecutionHandle[T]:
+        """Submit work with typed cancellation and traceback-free failure storage.
+
+        This generic helper bounds queue admission and failure retention, but its
+        callable/result contract does not prove that arguments or results are
+        reference-only. Qualified callers must supply their fixed typed worker.
+        """
+
+        def capture_completion() -> SharedExecutionCompletion[T]:
+            return _capture_shared_execution(fn)
+
+        return SharedExecutionHandle(self.submit(capture_completion))
 
     def shutdown(self, wait: bool = True, *, cancel_futures: bool = False) -> None:
         """Close admission before base shutdown invokes queued cancel callbacks."""
         with self._admission_lock:
             self._admission_closed = True
+            self._capacity_changed.notify_all()
         super().shutdown(wait=wait, cancel_futures=cancel_futures)
 
 
@@ -207,6 +495,7 @@ class SharedExecutorProfile:
 
     capacity: int
     revision: str
+    queue_capacity: int | None = None
     source: Literal["runtime_config", "legacy_host_fallback"] = "runtime_config"
     authority: Literal["candidate"] = "candidate"
 
@@ -217,6 +506,12 @@ class SharedExecutorProfile:
         if type(self.revision) is not str or not self.revision.strip():
             raise SharedExecutorConfigurationError("shared_executor_revision_required")
         object.__setattr__(self, "revision", self.revision.strip())
+        if self.queue_capacity is None:
+            object.__setattr__(self, "queue_capacity", self.capacity)
+        elif type(self.queue_capacity) is not int or self.queue_capacity < 0:
+            raise SharedExecutorConfigurationError(
+                "shared_executor_queue_capacity_must_be_nonnegative_integer"
+            )
         if self.source not in {"runtime_config", "legacy_host_fallback"}:
             raise SharedExecutorConfigurationError("shared_executor_source_invalid")
         if self.authority != "candidate":
@@ -237,13 +532,17 @@ def _get_shared_executor() -> concurrent.futures.ThreadPoolExecutor:
                 _SHARED_EXECUTOR_PROFILE = resolve_shared_executor_profile()
             _RUN_CORO_SYNC_EXECUTOR = _SharedExecutor(
                 max_workers=_SHARED_EXECUTOR_PROFILE.capacity,
+                max_queued=_SHARED_EXECUTOR_PROFILE.queue_capacity or 0,
                 thread_name_prefix="polisyos-run-coro-sync",
             )
     return _RUN_CORO_SYNC_EXECUTOR
 
 
 def resolve_shared_executor_profile(
-    *, capacity: int | None = None, revision: str | None = None
+    *,
+    capacity: int | None = None,
+    revision: str | None = None,
+    queue_capacity: int | None = None,
 ) -> SharedExecutorProfile:
     """Resolve explicit process capacity or the legacy candidate-only fallback."""
     if capacity is None and revision is None:
@@ -251,12 +550,17 @@ def resolve_shared_executor_profile(
             capacity=max(4, min(32, os.cpu_count() or 1)),
             revision="legacy-host-derived-v1",
             source="legacy_host_fallback",
+            queue_capacity=queue_capacity,
         )
     if capacity is None or revision is None:
         raise SharedExecutorConfigurationError(
             "shared_executor_profile_requires_capacity_and_revision"
         )
-    return SharedExecutorProfile(capacity=capacity, revision=revision)
+    return SharedExecutorProfile(
+        capacity=capacity,
+        revision=revision,
+        queue_capacity=queue_capacity,
+    )
 
 
 def configure_shared_executor_profile(profile: SharedExecutorProfile) -> SharedExecutorProfile:
@@ -272,6 +576,10 @@ def configure_shared_executor_profile(profile: SharedExecutorProfile) -> SharedE
             raise SharedExecutorConfigurationError("shared_executor_profile_conflict")
         if _RUN_CORO_SYNC_EXECUTOR is not None and (
             _RUN_CORO_SYNC_EXECUTOR._max_workers != profile.capacity
+            or (
+                isinstance(_RUN_CORO_SYNC_EXECUTOR, _SharedExecutor)
+                and _RUN_CORO_SYNC_EXECUTOR._max_queued != profile.queue_capacity
+            )
         ):
             raise SharedExecutorConfigurationError("shared_executor_capacity_already_in_use")
         _SHARED_EXECUTOR_PROFILE = profile
@@ -311,11 +619,32 @@ def is_current_shared_executor_worker() -> bool:
 
 
 def run_shared_executor_sync[T](func: Callable[..., T], /, *args: object, **kwargs: object) -> T:
-    """Run sync work on the process executor, inline only on its physical workers."""
+    """Run sync work on the process executor, inline only while owning its slot."""
     executor = _get_shared_executor()
     if isinstance(executor, _SharedExecutor):
         return executor.run_sync(func, *args, **kwargs)
     return executor.submit(func, *args, **kwargs).result()
+
+
+def submit_shared_executor_cancellable[T](func: Callable[[], T], /) -> SharedExecutionHandle[T]:
+    """Submit one cancellable shared task and return a bounded completion handle.
+
+    The helper provides finite FIFO admission and does not retain worker
+    exceptions. Callers that need a reference-only memory guarantee must use a
+    fixed worker whose descriptor and result types enforce that contract.
+    """
+    executor = _get_shared_executor()
+    if isinstance(executor, _SharedExecutor):
+        if executor._is_current_owner_slot():
+            completed: concurrent.futures.Future[SharedExecutionCompletion[T]] = (
+                concurrent.futures.Future()
+            )
+            completed.set_result(_capture_shared_execution(func))
+            return SharedExecutionHandle(completed)
+        return executor.submit_cancellable(func)
+    raise SharedExecutorConfigurationError(
+        "cancellable_work_requires_the_canonical_bounded_shared_executor"
+    )
 
 
 def _normalize_timeout(timeout_seconds: float | None) -> float:

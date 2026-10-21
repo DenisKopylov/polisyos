@@ -62,6 +62,7 @@ from polisyos.scientist.methods.search.judge_stack import to_search_uncertainty_
 from polisyos.scientist.methods.search.objective import (
     ObjectiveScoreStatus,
     SourceMetricObservation,
+    method_metric_observation_input_refs,
     source_observation_input_refs,
 )
 from polisyos.scientist.nodes.builtins.decide.policy_runtime_metrics import (
@@ -191,6 +192,13 @@ def _persist_policy_evaluation_vector_to_store_impl(
             input_ref_from_artifact_ref(ref, role=role)
             for role, ref in source_observation_input_refs(observation)
         )
+    if evaluation_vector.method_metric_observations:
+        inputs.extend(
+            input_ref_from_artifact_ref(ref, role=role)
+            for role, ref in method_metric_observation_input_refs(
+                evaluation_vector.method_metric_observations
+            )
+        )
     return store.put_json(
         evaluation_vector,
         PutOptions(
@@ -198,7 +206,7 @@ def _persist_policy_evaluation_vector_to_store_impl(
             media_type="application/json",
             schema=SchemaInfo(
                 name="polisyos.scientist.policy_design.PolicyEvaluationVector",
-                version="1.1",
+                version=("1.3" if evaluation_vector.method_metric_observations else "1.2"),
             ),
             inputs=inputs,
         ),

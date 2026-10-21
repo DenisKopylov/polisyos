@@ -26,6 +26,17 @@ commits filtered out.
   composition to declare its candidate capacity/profile revision. Omitting both settings retains the
   legacy host-derived candidate fallback; neither setting establishes deployment authority or a
   cross-process quota.
+- Add a qualified refs-only observational method route that bounds FIFO admission and keeps input
+  preparation, selected-manifest and JSON-payload-bounded decoding, intent admission, dispatch,
+  artifact persistence, and cleanup under one shared physical worker lease. Selected-read limits do
+  not impose a whole-request memory ceiling. The existing legacy `MethodBackend.run(...)` route
+  retains its dispatch-only memory-bound limitation.
+- Add a fixed graph metric-projection admission operation on the same shared worker owner. It
+  accepts only the fenced job tuple and full-profile graph refs and returns the existing verifier's
+  bounded typed admission outcome for Runtime's atomic attempt selection.
+- Preserve selected method-execution bundle and metric-binding-set refs on legacy Scientist
+  `SimulationResults` lineage and return their bounded availability on `JobResult`; this does not
+  promote the legacy result to Foundry graph admission or policy authority.
 - Allow `run_experiment` callers to provide the existing Foundry port seam, and use it to bind each
   Scientist backtest replica's seed to its actual `ExecuteRequest` while preserving the public workflow
   route.

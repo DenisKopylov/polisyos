@@ -145,6 +145,7 @@ class Level4FullFidelity(FunnelStage):
             is_promising=result.is_promising,
             score_status=result.score_status,
             score_assessment=result.score_assessment,
+            score_admission=result.score_admission,
             stage_name=self.stage_name,
             duration_seconds=duration,
             simulation_results=result.simulation_results,

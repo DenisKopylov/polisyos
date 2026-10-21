@@ -315,13 +315,18 @@ def launch_run(
         tenant_id=getattr(request.state, "tenant_id", None),
         kind="control.launch_run",
     )
-    # Validate that at least one data source is provided
-    ds = body.data_source
-    if not ds.data_snapshot_ref and not ds.input_bindings_ref and not ds.data_view_request_ref:
-        raise bad_request(
-            "At least one data source must be provided",
-            code="missing_data_source",
-        )
+    # Keep the established data-source requirement for ordinary workflows. The
+    # direct observational route has its own full-profile ArtifactRef and must
+    # not be coerced through this legacy binding DTO.
+    if body.observational_input is None:
+        ds = body.data_source
+        if ds is None or not (
+            ds.data_snapshot_ref or ds.input_bindings_ref or ds.data_view_request_ref
+        ):
+            raise bad_request(
+                "At least one data source must be provided",
+                code="missing_data_source",
+            )
     control = _get_control_service(request)
     request_id = ensure_request_id(request)
     return control.launch_workflow_run(

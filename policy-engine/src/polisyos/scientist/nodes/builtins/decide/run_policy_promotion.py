@@ -11,10 +11,9 @@ from pydantic import ValidationError
 from polisyos.core.artifacts import ensure_ir_artifact_store as _ensure_ir_artifact_store
 from polisyos.core.artifacts.manifest import (
     ArtifactRef,
-    SchemaInfo,
     input_ref_from_artifact_ref,
 )
-from polisyos.core.artifacts.store import FileSystemCAS, PutOptions
+from polisyos.core.artifacts.store import FileSystemCAS
 from polisyos.core.components import Capability, ComponentId, ComponentKind, ComponentMetadata
 from polisyos.core.contracts.foundry import Metrics
 from polisyos.ir.analytics.causal import CausalEffectReport
@@ -58,6 +57,7 @@ from polisyos.scientist.nodes.builtins.decide.policy_runtime_support import (
     build_selection_benchmark_evaluation,
     load_ambiguity_certificate,
     load_prior_knowledge_bundle_for_state,
+    persist_policy_evaluation_vector,
     resolve_effective_latent_discovery_bundle_for_state,
 )
 from polisyos.scientist.nodes.builtins.state_keys import (
@@ -310,17 +310,8 @@ def _resolve_policy_evaluation(
                 ambiguity_certificate=load_ambiguity_certificate(ctx, state),
             )
         )
-    ref = ctx.store.put_json(
-        parsed,
-        PutOptions(
-            kind="scientist.policy_evaluation_vector",
-            media_type="application/json",
-            schema=SchemaInfo(
-                name="polisyos.scientist.policy_design.PolicyEvaluationVector",
-                version="1.0",
-            ),
-            inputs=[input_ref_from_artifact_ref(candidate_ref, role="candidate")],
-        ),
+    ref = persist_policy_evaluation_vector(
+        ctx, candidate_ref=candidate_ref, evaluation_vector=parsed
     )
     return parsed, ref
 

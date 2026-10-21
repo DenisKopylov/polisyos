@@ -3405,3 +3405,112 @@ def test_pre_admission_route_claim_shares_the_generic_owner_across_store_instanc
     fresh = reopened.get_pre_admission_attempt(attempt_id)
     assert fresh is not None and fresh.status == "started"
     assert reopened.get_runtime_operation_intent(operation_key).status == "pending"
+
+
+def test_graph_projection_completion_binds_candidate_to_verified_receipt(
+    tmp_path: Path,
+    monkeypatch: pytest.MonkeyPatch,
+) -> None:
+    """The atomic completion cannot attach a receipt to a different candidate."""
+    import sys
+    from types import SimpleNamespace
+
+    from polisyos.core.artifacts.ids import ArtifactID
+    from polisyos.core.artifacts.manifest import ArtifactRef
+    from polisyos.core.contracts.runtime import (
+        GraphMethodExecutionSelection,
+        MethodMetricProjectionSelection,
+    )
+
+    def selected_ref(kind: str, artifact_char: str, profile_char: str) -> ArtifactRef:
+        return ArtifactRef(
+            artifact_id=ArtifactID.model_validate("sha256:" + artifact_char * 64),
+            kind=kind,
+            media_type="application/json",
+            manifest_profile_sha256="sha256:" + profile_char * 64,
+        )
+
+    simulation_ref = selected_ref("foundry.simulation_result", "a", "1")
+    bundle_ref = selected_ref("foundry.method_execution_bundle", "b", "2")
+    binding_ref = selected_ref("foundry.method_metric_binding_set", "c", "3")
+    state_ref = selected_ref("scientist.experiment_state", "d", "4")
+    candidate_ref = selected_ref("scientist.policy_design.candidate", "e", "5")
+    changed_candidate_ref = selected_ref("scientist.policy_design.candidate", "e", "6")
+    vector_ref = selected_ref("scientist.policy_evaluation_vector", "f", "7")
+    source_tuple = SimpleNamespace(
+        job_id="job_execution_admission",
+        run_id="run_execution_admission",
+        attempt=1,
+        method_result_ref=None,
+        simulation_result_ref=simulation_ref,
+        method_execution_bundle_ref=bundle_ref,
+        method_metric_binding_set_ref=binding_ref,
+    )
+    admission = SimpleNamespace(
+        source_tuple=source_tuple,
+        source_candidate_ref=candidate_ref,
+        vector_ref=vector_ref,
+        verifier_revision="1.0",
+        verifier_implementation_sha256="sha256:" + "8" * 64,
+    )
+    module_name = "polisyos.scientist.nodes.builtins.decide.policy_runtime_method_metrics"
+    monkeypatch.setitem(
+        sys.modules,
+        module_name,
+        SimpleNamespace(
+            is_verified_method_metric_projection_admission=lambda value: value is admission
+        ),
+    )
+
+    def selection(source_candidate_ref: ArtifactRef) -> GraphMethodExecutionSelection:
+        return GraphMethodExecutionSelection(
+            job_id="job_execution_admission",
+            run_id="run_execution_admission",
+            attempt=1,
+            method_result_ref=None,
+            source_experiment_state_ref=state_ref,
+            simulation_result_ref=simulation_ref,
+            method_execution_bundle_ref=bundle_ref,
+            method_metric_binding_set_ref=binding_ref,
+            source_candidate_ref=source_candidate_ref,
+            metric_verification_status="verified",
+            method_metric_projection=MethodMetricProjectionSelection(
+                vector_ref=vector_ref,
+                verifier_revision="1.0",
+                verifier_implementation_sha256="sha256:" + "8" * 64,
+            ),
+        )
+
+    raw = _make_store(tmp_path)
+    store = guard_runtime_control_store(raw)
+    job = _create_execution_admission_job(raw, execution_scope=_job_execution_scope())
+    with _fence_leased_execution(store, job=job):
+        with pytest.raises(ValueError, match="method_metric_projection_source_tuple_mismatch"):
+            store.complete_job(
+                job_id=job.job_id,
+                run_id=job.run_id,
+                method_execution_selection=selection(changed_candidate_ref),
+                method_metric_projection_admission=admission,
+                expected_lease_owner="worker-execution-admission",
+                expected_attempt=1,
+            )
+        still_running = store.get_job(job.job_id)
+        assert still_running is not None
+        assert still_running.state == "running"
+        assert still_running.method_execution_selection is None
+
+        store.complete_job(
+            job_id=job.job_id,
+            run_id=job.run_id,
+            method_execution_selection=selection(candidate_ref),
+            method_metric_projection_admission=admission,
+            expected_lease_owner="worker-execution-admission",
+            expected_attempt=1,
+        )
+        completed = store.get_job(job.job_id)
+        assert completed is not None
+        assert completed.state == "completed"
+        assert completed.method_execution_selection is not None
+        assert completed.method_execution_selection["source_candidate_ref"] == (
+            candidate_ref.model_dump(mode="json")
+        )

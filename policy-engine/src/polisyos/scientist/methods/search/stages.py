@@ -180,7 +180,11 @@ class ExpensiveStage(SearchStage):
             "ir": candidate,
             "user_request": context.get("user_request", ""),
             "optimize": True,
-            **{k: v for k, v in context.items() if k not in ("ir", "user_request")},
+            **{
+                k: v
+                for k, v in context.items()
+                if k not in ("ir", "user_request") and not k.startswith("_funnel_")
+            },
         }
 
         try:
@@ -204,18 +208,39 @@ class ExpensiveStage(SearchStage):
         feedback = dict(feedback) if isinstance(feedback, dict) else {}
         verdict = feedback.get("verdict", "UNKNOWN")
 
-        objective_assessment = _assess_default_search_objective(
-            sim_results, expected_unit=self._expected_objective_unit
+        from polisyos.scientist.nodes.builtins.decide.policy_runtime_method_metrics import (
+            admit_funnel_method_metric_objective_score,
         )
-        score_status = selected_score_admission_status(
-            objective_assessment.score_assessment, sim_results
-        )
-        objective = (
-            objective_assessment.objective_value
-            if score_status is ObjectiveScoreStatus.AVAILABLE
-            else None
-        )
-        _apply_default_search_objective_limitations(feedback, objective_assessment)
+
+        method_metric_admission = admit_funnel_method_metric_objective_score(context)
+        if method_metric_admission is None:
+            objective_assessment = _assess_default_search_objective(
+                sim_results, expected_unit=self._expected_objective_unit
+            )
+            score_status = selected_score_admission_status(
+                objective_assessment.score_assessment, sim_results
+            )
+            objective = (
+                objective_assessment.objective_value
+                if score_status is ObjectiveScoreStatus.AVAILABLE
+                else None
+            )
+            _apply_default_search_objective_limitations(feedback, objective_assessment)
+            score_admission = None
+        else:
+            score_admission = method_metric_admission
+            objective_assessment = None
+            score_status = score_admission.status
+            objective = (
+                score_admission.recomputed_assessment.value
+                if score_status is ObjectiveScoreStatus.AVAILABLE
+                and score_admission.recomputed_assessment is not None
+                else None
+            )
+            feedback["completed_method_metric_objective_score"] = {
+                "status": score_status.value,
+                "reason": score_admission.reason,
+            }
         is_promising = verdict == "APPROVE" and score_status is ObjectiveScoreStatus.AVAILABLE
         if verdict == "APPROVE" and score_status is not ObjectiveScoreStatus.AVAILABLE:
             feedback["selected_objective_admission"] = score_status.value
@@ -225,7 +250,12 @@ class ExpensiveStage(SearchStage):
             objective_value=objective,
             is_promising=is_promising,
             score_status=score_status,
-            score_assessment=objective_assessment.score_assessment,
+            score_assessment=(
+                objective_assessment.score_assessment
+                if method_metric_admission is None
+                else method_metric_admission.reported_assessment
+            ),
+            score_admission=score_admission,
             stage_name=self.stage_name,
             duration_seconds=duration,
             simulation_results=sim_results,

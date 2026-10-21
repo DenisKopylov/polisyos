@@ -410,13 +410,80 @@ def _production_case_intake_ref_schema(schema: dict[str, Any]) -> None:
     ]
 
 
+class ObservationalRunMethodSelection(BaseModel):
+    """Select a method by exact version or request one-time latest resolution."""
+
+    model_config = ConfigDict(extra="forbid", frozen=True)
+
+    fqn: str = Field(min_length=1, max_length=256)
+    version: str | None = Field(default=None, min_length=1, max_length=64)
+    params: dict[str, Any] | None = None
+
+    @model_validator(mode="after")
+    def _require_absent_optional_values(self) -> Self:
+        """Treat explicit null as a conflicting selection, not as omission."""
+        fields_set = self.model_fields_set
+        if "version" in fields_set and self.version is None:
+            raise ValueError("observational_method_version_explicit_null")
+        if "params" in fields_set and self.params is None:
+            raise ValueError("observational_method_params_explicit_null")
+        if not self.fqn.strip() or any(character.isspace() for character in self.fqn):
+            raise ValueError("observational_method_fqn_invalid")
+        if "@" in self.fqn:
+            method_base, separator, embedded_version = self.fqn.rpartition("@")
+            if not separator or not method_base or not embedded_version:
+                raise ValueError("observational_method_fqn_invalid")
+            if self.version is not None and embedded_version != self.version:
+                raise ValueError("observational_method_version_conflict")
+        return self
+
+
+class ObservationalRunInput(BaseModel):
+    """Bind a selected-profile observation artifact to one direct method run."""
+
+    model_config = ConfigDict(extra="forbid", frozen=True)
+
+    protocol: Literal["method_input_envelope_v1", "legacy_hte_json_v1"]
+    source_ref: ArtifactRef
+    method: ObservationalRunMethodSelection
+
+    @model_validator(mode="after")
+    def _require_selected_source_view(self) -> Self:
+        """Require the source kind, media type, and selected manifest profile."""
+        expected_kind = (
+            "ir.observation_method_input"
+            if self.protocol == "method_input_envelope_v1"
+            else "ir.observational_data"
+        )
+        if (
+            self.source_ref.kind != expected_kind
+            or self.source_ref.media_type != "application/json"
+            or self.source_ref.manifest_profile_sha256 is None
+        ):
+            raise ValueError("observational_input_source_view_invalid")
+        return self
+
+
+_OBSERVATIONAL_INPUT_CONSUMED_REQUEST_FIELDS = frozenset(
+    {
+        "mode",
+        "data_source",
+        "observational_input",
+        "execution_profile",
+        "policy_flags",
+        "params",
+    }
+)
+
+
 class WorkflowRunRequest(BaseModel):
     """POST /api/v1/control/runs — launch a workflow run."""
 
     model_config = ConfigDict(extra="forbid")
 
     mode: RunMode = "workflow"
-    data_source: WorkflowDataSourceBinding
+    data_source: WorkflowDataSourceBinding | None = None
+    observational_input: ObservationalRunInput | None = None
     trinity_bundle_ref: str | None = None
     policy_spec_ref: str | None = None
     model_spec_ref: str | None = None
@@ -436,6 +503,33 @@ class WorkflowRunRequest(BaseModel):
     execution_profile: ExecutionProfile | None = None
     policy_flags: PolicyFlags = Field(default_factory=PolicyFlags)
     params: dict[str, Any] = Field(default_factory=dict)
+
+    @model_validator(mode="after")
+    def _validate_input_selection(self) -> Self:
+        """Keep the established workflow source and the direct method source atomic."""
+        fields_set = self.model_fields_set
+        if "data_source" in fields_set and self.data_source is None:
+            raise ValueError("workflow_data_source_explicit_null")
+        if "observational_input" in fields_set and self.observational_input is None:
+            raise ValueError("observational_input_explicit_null")
+
+        if self.observational_input is None:
+            if self.data_source is None:
+                raise ValueError("workflow_data_source_required_without_observational_input")
+            return self
+
+        if self.data_source is not None:
+            raise ValueError("observational_input_data_source_conflict")
+        if self.params:
+            raise ValueError("observational_input_top_level_params_conflict")
+
+        unconsumed_fields = self.model_fields_set.difference(
+            _OBSERVATIONAL_INPUT_CONSUMED_REQUEST_FIELDS
+        )
+        if unconsumed_fields:
+            names = ",".join(sorted(unconsumed_fields))
+            raise ValueError(f"observational_input_unconsumed_request_fields:{names}")
+        return self
 
     @model_validator(mode="after")
     def _production_case_ref_matches_legacy_param(self) -> Self:
@@ -611,6 +705,40 @@ class RunLaunchResponse(BaseModel):
     job_id: str
     effective_execution_profile: ExecutionProfile
     message: str
+    observational_run_intent_ref: ArtifactRef | None = None
+    observational_selection_digest: str | None = Field(default=None, pattern=r"^[0-9a-f]{64}$")
+    observational_method_fqn: (
+        Literal["causal.hte.forest_dr@1.0.0", "causal.hte.forest_dr@1.1.0"] | None
+    ) = None
+    observational_contract_target_id: Literal["foundry.causal.hte_observational_data.v1"] | None = (
+        None
+    )
+    observational_contract_target_fqn: (
+        Literal["polisyos.foundry.methods.catalog.causal.protocols.HTEObservationalData"] | None
+    ) = None
+
+    @model_validator(mode="after")
+    def _require_observational_identity_pair(self) -> Self:
+        identity_values = (
+            self.observational_run_intent_ref,
+            self.observational_selection_digest,
+            self.observational_method_fqn,
+            self.observational_contract_target_id,
+            self.observational_contract_target_fqn,
+        )
+        if any(value is None for value in identity_values) and any(
+            value is not None for value in identity_values
+        ):
+            raise ValueError("run_launch_observational_identity_incomplete")
+        if self.observational_run_intent_ref is not None and (
+            self.observational_run_intent_ref.kind != "runtime.observational_run_intent"
+            or self.observational_run_intent_ref.media_type != "application/json"
+            or self.observational_run_intent_ref.manifest_profile_sha256 is None
+        ):
+            raise ValueError("run_launch_observational_intent_ref_invalid")
+        if self.observational_run_intent_ref is not None and self.status != "accepted":
+            raise ValueError("run_launch_rejected_observational_identity_invalid")
+        return self
 
 
 # ---------------------------------------------------------------------------
@@ -2091,6 +2219,8 @@ __all__ = [
     "ModelProfileInfo",
     "ModelProfilesListResponse",
     "NaturalLanguageRunRequest",
+    "ObservationalRunInput",
+    "ObservationalRunMethodSelection",
     "OperatorDiagnostic",
     "OperatorProjectionAuthority",
     "OperatorProjectionState",

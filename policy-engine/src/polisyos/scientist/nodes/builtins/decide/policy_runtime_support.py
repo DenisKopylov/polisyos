@@ -25,6 +25,7 @@ from polisyos.core import components as core_components
 from polisyos.core.artifacts import (
     ArtifactStore,
     CoreJSONArtifactStore,
+    CoreJSONArtifactStreamingReader,
     RootedArtifactStore,
     matches_runtime_protocol,
     matches_runtime_protocol_definition,
@@ -79,7 +80,16 @@ from polisyos.scientist.nodes.builtins.decide import (
     policy_runtime_artifacts as _runtime_artifacts,
 )
 from polisyos.scientist.nodes.builtins.decide import (
+    policy_runtime_method_metrics as _runtime_method_metrics,
+)
+from polisyos.scientist.nodes.builtins.decide import (
     policy_runtime_metrics as _runtime_metrics,
+)
+from polisyos.scientist.nodes.builtins.decide.policy_runtime_method_metrics import (
+    CompletedMethodMetricProjectionReadResult,
+    CompletedMethodMetricSelectionOwner,
+    MethodExecutionSelectionOwner,
+    MethodMetricProjectionReadResult,
 )
 from polisyos.scientist.nodes.builtins.state_keys import (
     ARTIFACT_CHAMPION_POLICY_DOSSIER_REF,
@@ -577,14 +587,65 @@ def _production_policy_evaluation_safety_blockers(
     )
 
 
-@dataclass(frozen=True)
-class ProductionPolicyEvaluationBackend:
+class _MethodMetricProjectionCapabilitySlot:
+    """Non-serializable storage reserved for one in-process admission capability."""
+
+    __slots__ = (
+        "_policyos_method_metric_projection_basis",
+        "_policyos_method_metric_projection_candidate_ref",
+    )
+
+
+@dataclass(frozen=True, slots=True)
+class ProductionPolicyEvaluationBackend(_MethodMetricProjectionCapabilitySlot):
     """Production policy evaluation backend implementation."""
 
     eval_safety_execution_context: EvaluationExecutionContext | None = None
     eval_safety_verifier: EvalSafetyVerifierPort | None = None
     world_model_record: WorldModelRecord | None = None
     backend_kind: str = "production"
+
+    def __post_init__(self) -> None:
+        object.__setattr__(self, "_policyos_method_metric_projection_basis", None)
+        object.__setattr__(self, "_policyos_method_metric_projection_candidate_ref", None)
+
+    def __copy__(self) -> ProductionPolicyEvaluationBackend:
+        """Copy public configuration without carrying an owner-issued capability."""
+        return replace(self)
+
+    def __deepcopy__(self, memo: dict[int, Any]) -> ProductionPolicyEvaluationBackend:
+        """Deep-copy public configuration without carrying an owner-issued capability."""
+        duplicate = replace(self)
+        memo[id(self)] = duplicate
+        return duplicate
+
+    def __reduce_ex__(self, protocol: int) -> tuple[Any, tuple[Any, ...]]:
+        """Serialize only ordinary backend configuration, never ephemeral admission."""
+        del protocol
+        return (
+            type(self),
+            (
+                self.eval_safety_execution_context,
+                self.eval_safety_verifier,
+                self.world_model_record,
+                self.backend_kind,
+            ),
+        )
+
+    def with_method_metric_projection_basis(
+        self,
+        *,
+        basis: object | None,
+        candidate_ref: ArtifactRef | None,
+    ) -> ProductionPolicyEvaluationBackend:
+        """Bind one in-process owner basis outside dataclass and serialization fields."""
+        if basis is None and candidate_ref is not None:
+            raise ValueError("method_metric_projection_candidate_ref_without_basis")
+        if basis is not None and candidate_ref is None:
+            raise ValueError("method_metric_projection_candidate_ref_missing")
+        object.__setattr__(self, "_policyos_method_metric_projection_basis", basis)
+        object.__setattr__(self, "_policyos_method_metric_projection_candidate_ref", candidate_ref)
+        return self
 
     def evaluate(
         self,
@@ -658,6 +719,23 @@ class ProductionPolicyEvaluationBackend:
             runtime_execution=runtime_execution,
             fiscal_measurement=fiscal_measurement,
         )
+        method_metric_projection_basis = getattr(
+            self, "_policyos_method_metric_projection_basis", None
+        )
+        method_metric_projection_candidate_ref = getattr(
+            self, "_policyos_method_metric_projection_candidate_ref", None
+        )
+        if method_metric_projection_basis is not None:
+            if method_metric_projection_candidate_ref is None:
+                raise ValueError("method_metric_projection_candidate_ref_missing")
+            evaluation_vector = (
+                _runtime_method_metrics.attach_completed_method_metric_observation_projection(
+                    evaluation_vector,
+                    candidate_ref=method_metric_projection_candidate_ref,
+                    basis=method_metric_projection_basis,
+                )
+            )
+            source_components_list.append("completed_method_metric_observation_projection")
         promotable_source = (
             fidelity == "full"
             and causal_effect_report is not None
@@ -843,6 +921,59 @@ def persist_policy_evaluation_vector_to_store(
     """Persist a native policy-runtime evaluation vector to the supplied CAS."""
     return _runtime_artifacts._persist_policy_evaluation_vector_to_store_impl(
         store, candidate_ref=candidate_ref, evaluation_vector=evaluation_vector
+    )
+
+
+def read_current_admitted_method_metric_projection(
+    store: ArtifactStore,
+    *,
+    owner: MethodExecutionSelectionOwner,
+    run_id: str,
+    tenant_id: str,
+    cell_id: str,
+) -> MethodMetricProjectionReadResult:
+    """Read a metric projection through the authenticated current Runtime owner."""
+    return _runtime_method_metrics.read_current_admitted_method_metric_projection(
+        store,
+        owner=owner,
+        run_id=run_id,
+        tenant_id=tenant_id,
+        cell_id=cell_id,
+    )
+
+
+def read_completed_admitted_method_metric_projection(
+    store: CoreJSONArtifactStreamingReader,
+    *,
+    owner: CompletedMethodMetricSelectionOwner | None,
+    source_run_id: str | None,
+    candidate_ref: ArtifactRef,
+    tenant_id: str | None,
+    cell_id: str | None,
+    request_status: Literal["absent", "requested", "invalid"],
+) -> CompletedMethodMetricProjectionReadResult:
+    """Resolve a completed source through the Runtime owner for a later evaluation."""
+    if request_status == "invalid":
+        return CompletedMethodMetricProjectionReadResult(
+            status="invalid",
+            limitations=("completed_method_metric_source_run_request_invalid",),
+        )
+    if request_status == "absent" or owner is None:
+        return CompletedMethodMetricProjectionReadResult(
+            status="verification_missing",
+            limitations=(
+                "completed_method_metric_source_not_requested"
+                if request_status == "absent"
+                else "completed_method_metric_runtime_owner_not_installed",
+            ),
+        )
+    return _runtime_method_metrics.read_completed_admitted_method_metric_projection(
+        store,
+        owner=owner,
+        source_run_id=source_run_id,
+        candidate_ref=candidate_ref,
+        tenant_id=tenant_id,
+        cell_id=cell_id,
     )
 
 
@@ -1523,6 +1654,8 @@ __all__ = [
     "load_search_uncertainty",
     "maybe_artifact_ref",
     "persist_policy_evaluation_vector",
+    "read_current_admitted_method_metric_projection",
+    "read_completed_admitted_method_metric_projection",
     "resolve_effective_latent_discovery_bundle_for_state",
     "resolve_funnel_outcome",
     "resolve_latent_discovery_bundle_for_state",

@@ -4,7 +4,7 @@ from __future__ import annotations
 
 import logging
 from dataclasses import dataclass, field
-from typing import TYPE_CHECKING, Any, Protocol, runtime_checkable
+from typing import TYPE_CHECKING, Any, Literal, Protocol, runtime_checkable
 
 if TYPE_CHECKING:
     from polisyos.core.security import AuditLog
@@ -77,6 +77,80 @@ class LexPort(Protocol):
 
 
 @runtime_checkable
+class MethodMetricProjectionAssociation(Protocol):
+    """Runtime-owned projection association selected for an authorized run."""
+
+    vector_ref: ArtifactRef
+    verifier_revision: str
+    verifier_implementation_sha256: str
+
+
+@runtime_checkable
+class OwnedMethodExecutionSelection(Protocol):
+    """Current method selection read from the owning Runtime control record."""
+
+    selection_kind: Literal["graph_method", "direct_method"]
+    job_id: str
+    run_id: str
+    attempt: int
+    method_result_ref: ArtifactRef | None
+    simulation_result_ref: ArtifactRef | None
+    method_execution_bundle_ref: ArtifactRef | None
+    method_metric_binding_set_ref: ArtifactRef | None
+    source_candidate_ref: ArtifactRef | None
+    metric_verification_status: Literal["verified", "verification_missing"]
+    method_metric_projection: MethodMetricProjectionAssociation | None
+
+
+@runtime_checkable
+class MethodExecutionSelectionOwner(Protocol):
+    """Resolve the authenticated current selection from Runtime ownership."""
+
+    def get_method_execution_selection(
+        self,
+        *,
+        run_id: str,
+        tenant_id: str,
+        cell_id: str,
+    ) -> OwnedMethodExecutionSelection | None: ...
+
+
+@runtime_checkable
+class CompletedOwnedMethodExecutionSelection(OwnedMethodExecutionSelection, Protocol):
+    """Completed graph selection with Runtime-owned candidate and terminal-state joins."""
+
+    source_candidate_ref: ArtifactRef | None
+    source_experiment_state_ref: ArtifactRef
+
+
+@runtime_checkable
+class CompletedMethodMetricSource(Protocol):
+    """Exact completed graph source resolved by the current Runtime owner."""
+
+    source_run_id: str
+    source_candidate_ref: ArtifactRef
+    source_experiment_state_ref: ArtifactRef
+    selection: CompletedOwnedMethodExecutionSelection
+
+
+@runtime_checkable
+class CompletedMethodMetricSelectionOwner(Protocol):
+    """Resolve completed current graph evidence for a later policy evaluation."""
+
+    def resolve_completed_method_metric_selection(
+        self,
+        *,
+        source_run_id: str,
+        candidate_ref: ArtifactRef,
+        tenant_id: str,
+        cell_id: str | None,
+    ) -> CompletedMethodMetricSource | None: ...
+
+
+MethodMetricSelectionOwnerPort = CompletedMethodMetricSelectionOwner
+
+
+@runtime_checkable
 class Tracer(Protocol):
     """Tracer public type."""
 
@@ -128,6 +202,11 @@ class ExecutionContext:
     epoch_certificate_issuance_owner: EpochCertificateIssuanceOwner | None = field(
         default=None,
         kw_only=True,
+    )
+    method_metric_selection_owner: MethodMetricSelectionOwnerPort | None = field(
+        default=None,
+        kw_only=True,
+        repr=False,
     )
     prepared_skg_read: PreparedSKGRead | None = field(
         default=None,

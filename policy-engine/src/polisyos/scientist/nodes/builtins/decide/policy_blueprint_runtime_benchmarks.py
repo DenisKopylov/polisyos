@@ -899,6 +899,12 @@ def build_runtime_funnel_context(session: _RuntimeSession) -> None:
         "transfer_context": transfer_context,
         "policy_candidate_schema": candidate,
         "policy_candidate_ref": session.candidate_ref,
+        "_funnel_method_metric_projection_identity": session.method_metric_projection_identity,
+        "_funnel_method_metric_projection_basis": (session.method_metric_projection_basis),
+        "_funnel_method_metric_score_required": (session.method_metric_score_required),
+        "_funnel_method_metric_source_request_status": (
+            session.method_metric_source_request_status
+        ),
         "welfare_bundle_ref": owner.maybe_artifact_ref(
             state.artifacts_index.get(ARTIFACT_WELFARE_BUNDLE_REF)
         ),

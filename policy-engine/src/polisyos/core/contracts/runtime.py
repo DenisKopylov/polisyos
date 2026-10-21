@@ -23,8 +23,15 @@ from pydantic import (
 
 from polisyos.ir import governance, observation
 
-from ..artifacts.manifest import ArtifactRef, InputRef, artifact_ref_identity_key
+from ..artifacts.manifest import (
+    ArtifactGovernanceInfo,
+    ArtifactRef,
+    ArtifactTenantContextInfo,
+    InputRef,
+    artifact_ref_identity_key,
+)
 from ..trace import RunTerminality
+from .bounded_liveness import BoundedLivenessResolution
 from .decision_validity import DecisionValidityStatus
 from .execution_plan import (
     EvaluatorVerdict,
@@ -3855,6 +3862,930 @@ class RunGenericCycleSimulationProjection(BaseModel):
         return self
 
 
+class MethodExecutionPosteriorSummaryRef(BaseModel):
+    """Point to one bounded posterior summary produced by a direct method run."""
+
+    model_config = ConfigDict(extra="forbid", frozen=True)
+
+    point_role: str = Field(min_length=1, max_length=96)
+    ref: ArtifactRef
+
+    @model_validator(mode="after")
+    def _require_selected_profile(self) -> MethodExecutionPosteriorSummaryRef:
+        if self.ref.manifest_profile_sha256 is None:
+            raise ValueError("method_execution_posterior_summary_profile_missing")
+        return self
+
+
+class ObservationalInputResourcePolicy(BaseModel):
+    """Pin bounded input reads and the selected estimator parameter profile."""
+
+    model_config = ConfigDict(extra="forbid", frozen=True, strict=True)
+
+    schema_version: Literal[
+        "polisyos.runtime.observational_input_resource_policy.v1",
+        "polisyos.runtime.observational_input_resource_policy.v2",
+        "polisyos.runtime.observational_input_resource_policy.v3",
+    ] = "polisyos.runtime.observational_input_resource_policy.v1"
+    revision: Literal["r1", "r2", "r3"] = "r1"
+    max_manifest_bytes: int = Field(default=65_536, gt=0, le=1_048_576)
+    max_bytes: int = Field(default=8_388_608, gt=0, le=134_217_728)
+    max_depth: int = Field(default=64, gt=0, le=256)
+    max_elements: int = Field(default=200_000, gt=0, le=5_000_000)
+    method_contract_target: (
+        Literal["polisyos.foundry.methods.catalog.causal.protocols.HTEObservationalData"] | None
+    ) = None
+    required_estimator_n_jobs: Literal[1] | None = None
+    method_execution_wait_policy: BoundedLivenessResolution | None = None
+
+    @model_validator(mode="after")
+    def _require_coherent_profile_revision(self) -> ObservationalInputResourcePolicy:
+        if self.revision == "r1":
+            if (
+                self.schema_version != "polisyos.runtime.observational_input_resource_policy.v1"
+                or self.method_contract_target is not None
+                or self.required_estimator_n_jobs is not None
+                or self.method_execution_wait_policy is not None
+            ):
+                raise ValueError("observational_input_resource_policy_r1_shape_invalid")
+            return self
+        if self.revision == "r2":
+            if (
+                self.schema_version != "polisyos.runtime.observational_input_resource_policy.v2"
+                or self.method_contract_target
+                != "polisyos.foundry.methods.catalog.causal.protocols.HTEObservationalData"
+                or self.required_estimator_n_jobs != 1
+                or self.method_execution_wait_policy is not None
+            ):
+                raise ValueError("observational_input_resource_policy_r2_shape_invalid")
+            return self
+        wait_policy = self.method_execution_wait_policy
+        if (
+            self.schema_version != "polisyos.runtime.observational_input_resource_policy.v3"
+            or self.method_contract_target
+            != "polisyos.foundry.methods.catalog.causal.protocols.HTEObservationalData"
+            or self.required_estimator_n_jobs != 1
+            or wait_policy is None
+            or wait_policy.producer_key != "runtime.observational_method_execution"
+            or wait_policy.retry_ceiling != 0
+            or wait_policy.escalation != "runtime_escalation"
+        ):
+            raise ValueError("observational_input_resource_policy_r3_shape_invalid")
+        return self
+
+    def digest(self) -> str:
+        """Return the unprefixed SHA-256 of the complete versioned budget."""
+        payload = self.model_dump(mode="json")
+        if self.revision in {"r1", "r2"}:
+            # Preserve the exact canonical identity of historical persisted intents.
+            payload.pop("method_execution_wait_policy")
+        if self.revision == "r1":
+            payload.pop("method_contract_target")
+            payload.pop("required_estimator_n_jobs")
+        encoded = json.dumps(
+            payload,
+            ensure_ascii=False,
+            allow_nan=False,
+            sort_keys=True,
+            separators=(",", ":"),
+        ).encode("utf-8")
+        return hashlib.sha256(encoded).hexdigest()
+
+
+_OBSERVATIONAL_RUN_BASE_LIMITATIONS = (
+    "candidate_input_not_external_truth",
+    "scientific_validity_not_established",
+    "units_and_context_not_established",
+)
+
+
+class ObservationalRunIntent(BaseModel):
+    """Persist submitted and resolved pins before a direct observational run is queued."""
+
+    model_config = ConfigDict(extra="forbid", frozen=True)
+
+    schema_version: Literal["polisyos.runtime.observational_run_intent.v1"] = (
+        "polisyos.runtime.observational_run_intent.v1"
+    )
+    job_id: str = Field(min_length=1, max_length=128)
+    run_id: str = Field(min_length=1, max_length=128)
+    requested_source_ref: ArtifactRef
+    source_manifest_sha256: str = Field(pattern=r"^[0-9a-f]{64}$")
+    protocol: Literal["method_input_envelope_v1", "legacy_hte_json_v1"]
+    method_fqn: str = Field(min_length=1, max_length=256)
+    method_version: str = Field(min_length=1, max_length=64)
+    method_abi_digest: str = Field(pattern=r"^[0-9a-f]{64}$")
+    method_build_digest: str = Field(pattern=r"^[0-9a-f]{64}$")
+    method_build_digest_scope: Literal["class_source_only"] = "class_source_only"
+    submitted_params_present: bool
+    submitted_params: dict[str, JsonValue] = Field(default_factory=dict)
+    resolved_params: dict[str, JsonValue]
+    seed: int = Field(default=0, strict=True, ge=0, le=4_294_967_295)
+    seed_policy_revision: Literal["server_seed_zero_v1"] = "server_seed_zero_v1"
+    resource_policy: ObservationalInputResourcePolicy
+    # Optional only for immutable pre-R3 history; current R3 admissions require
+    # a selected CAS artifact carrying the exact policy body and profile.
+    resource_policy_ref: ArtifactRef | None = None
+    contract_target_id: Literal["foundry.causal.hte_observational_data.v1"] | None = None
+    contract_target_fqn: (
+        Literal["polisyos.foundry.methods.catalog.causal.protocols.HTEObservationalData"] | None
+    ) = None
+    resource_policy_digest: str = Field(pattern=r"^[0-9a-f]{64}$")
+    source_governance: ArtifactGovernanceInfo
+    source_tenant_context: ArtifactTenantContextInfo | None = None
+    purpose: Literal["candidate_method_execution"] = "candidate_method_execution"
+    source_access_revalidation_status: Literal["not_established"] | None = None
+    limitations: tuple[
+        Literal["candidate_input_not_external_truth"],
+        Literal["scientific_validity_not_established"],
+        Literal["units_and_context_not_established"],
+        Literal["source_access_revalidation_not_established"],
+    ] = _OBSERVATIONAL_RUN_BASE_LIMITATIONS
+    created_at: datetime = Field(default_factory=_utc_now)
+
+    def selection_digest(self) -> str:
+        """Return a stable digest over every persisted accepted request pin."""
+        payload = self.model_dump(mode="json")
+        if self.resource_policy_ref is None:
+            # Preserve the historical canonical digest for intents that predate
+            # the selected policy artifact and exact target tuple.
+            payload.pop("resource_policy_ref", None)
+            payload.pop("contract_target_id", None)
+            payload.pop("contract_target_fqn", None)
+        encoded = json.dumps(
+            payload,
+            ensure_ascii=False,
+            allow_nan=False,
+            sort_keys=True,
+            separators=(",", ":"),
+        ).encode("utf-8")
+        return hashlib.sha256(encoded).hexdigest()
+
+    @model_validator(mode="after")
+    def _require_pinned_source_and_policy(self) -> ObservationalRunIntent:
+        method_base, separator, fqn_version = self.method_fqn.rpartition("@")
+        if (
+            self.requested_source_ref.manifest_profile_sha256 is None
+            or not separator
+            or method_base != "causal.hte.forest_dr"
+            or fqn_version != self.method_version
+        ):
+            raise ValueError("observational_run_intent_method_identity_invalid")
+        if self.resource_policy_digest != self.resource_policy.digest():
+            raise ValueError("observational_run_intent_resource_policy_digest_mismatch")
+        if self.resource_policy_ref is not None and (
+            self.resource_policy_ref.kind != "runtime.observational_input_resource_policy"
+            or self.resource_policy_ref.media_type != "application/json"
+            or self.resource_policy_ref.manifest_profile_sha256 is None
+        ):
+            raise ValueError("observational_run_intent_resource_policy_ref_invalid")
+        if self.resource_policy.revision == "r3" and (
+            self.resource_policy_ref is None
+            or self.contract_target_id != "foundry.causal.hte_observational_data.v1"
+            or self.contract_target_fqn
+            != "polisyos.foundry.methods.catalog.causal.protocols.HTEObservationalData"
+        ):
+            raise ValueError("observational_run_intent_r3_selected_contract_required")
+        if self.resource_policy_ref is None and (
+            self.contract_target_id is not None or self.contract_target_fqn is not None
+        ):
+            raise ValueError("observational_run_intent_target_without_policy_ref")
+        if self.limitations != _expected_observational_limitations(
+            self.protocol,
+            source_access_revalidation_status=self.source_access_revalidation_status,
+        ):
+            raise ValueError("observational_run_intent_limitations_invalid")
+        if not self.submitted_params_present and self.submitted_params:
+            raise ValueError("observational_run_intent_submitted_params_presence_mismatch")
+        if self.resource_policy.revision in {"r2", "r3"}:
+            if (
+                self.method_fqn != "causal.hte.forest_dr@1.1.0"
+                or self.resource_policy.method_contract_target
+                != "polisyos.foundry.methods.catalog.causal.protocols.HTEObservationalData"
+                or self.resource_policy.required_estimator_n_jobs != 1
+                or type(self.resolved_params.get("n_jobs")) is not int
+                or self.resolved_params.get("n_jobs") != 1
+            ):
+                raise ValueError("observational_run_intent_method_resource_profile_invalid")
+        elif self.method_version != "1.0.0":
+            raise ValueError("observational_run_intent_historical_profile_version_invalid")
+        return self
+
+
+def _expected_observational_normalization(source_protocol: str) -> str:
+    """Return the only source normalization allowed for an admitted protocol."""
+    if source_protocol == "method_input_envelope_v1":
+        return "canonical_passthrough"
+    if source_protocol == "legacy_hte_json_v1":
+        return "legacy_to_method_input_envelope_v1"
+    raise ValueError("observational_source_protocol_invalid")
+
+
+def _expected_observational_limitations(
+    source_protocol: str,
+    *,
+    source_access_revalidation_status: str | None = None,
+) -> tuple[str, ...]:
+    """Return immutable caveats, preserving old history and recording current access limits."""
+    if source_protocol not in {"method_input_envelope_v1", "legacy_hte_json_v1"}:
+        raise ValueError("observational_source_protocol_invalid")
+    limitations = list(_OBSERVATIONAL_RUN_BASE_LIMITATIONS)
+    if source_access_revalidation_status == "not_established":
+        limitations.append("source_access_revalidation_not_established")
+    elif source_access_revalidation_status is not None:
+        raise ValueError("observational_source_access_status_invalid")
+    return tuple(limitations)
+
+
+def _expected_content_admitted_limitations(
+    source_protocol: str,
+    *,
+    source_access_revalidation_status: str | None = None,
+) -> tuple[str, ...]:
+    """Return requested caveats plus producer-proven normalization caveats."""
+    limitations = list(
+        _expected_observational_limitations(
+            source_protocol,
+            source_access_revalidation_status=source_access_revalidation_status,
+        )
+    )
+    if source_protocol == "legacy_hte_json_v1":
+        limitations.append("legacy_hte_json_v1_source_normalized")
+    return tuple(limitations)
+
+
+class ContentAdmittedObservationalRunIntent(BaseModel):
+    """Bind worker-admitted bounded content to the prequeued method and source pins."""
+
+    model_config = ConfigDict(extra="forbid", frozen=True)
+
+    schema_version: Literal["polisyos.runtime.content_admitted_observational_run_intent.v1"] = (
+        "polisyos.runtime.content_admitted_observational_run_intent.v1"
+    )
+    job_id: str = Field(min_length=1, max_length=128)
+    run_id: str = Field(min_length=1, max_length=128)
+    attempt: int = Field(ge=1, strict=True)
+    requested_intent_ref: ArtifactRef
+    requested_source_ref: ArtifactRef
+    source_manifest_sha256: str = Field(pattern=r"^[0-9a-f]{64}$")
+    resource_policy_ref: ArtifactRef
+    submitted_input_ref: ArtifactRef
+    effective_input_ref: ArtifactRef
+    contract_target_id: Literal["foundry.causal.hte_observational_data.v1"] | None = None
+    contract_target: Literal[
+        "polisyos.foundry.methods.catalog.causal.protocols.HTEObservationalData"
+    ]
+    selection_digest: str | None = Field(default=None, pattern=r"^[0-9a-f]{64}$")
+    source_access_revalidation_status: Literal["not_established"] | None = None
+    method_fqn: Literal["causal.hte.forest_dr@1.0.0", "causal.hte.forest_dr@1.1.0"]
+    source_protocol: Literal["method_input_envelope_v1", "legacy_hte_json_v1"]
+    normalization: Literal[
+        "canonical_passthrough",
+        "legacy_to_method_input_envelope_v1",
+    ]
+    limitations: tuple[
+        Literal[
+            "candidate_input_not_external_truth",
+            "scientific_validity_not_established",
+            "units_and_context_not_established",
+            "source_access_revalidation_not_established",
+            "legacy_hte_json_v1_source_normalized",
+        ],
+        ...,
+    ]
+    source_governance: ArtifactGovernanceInfo
+    source_tenant_context: ArtifactTenantContextInfo | None = None
+    observed_manifest_bytes: int = Field(ge=0, strict=True)
+    observed_manifest_selection_bytes: int = Field(ge=0, strict=True)
+    observed_manifest_verification_bytes: int = Field(ge=0, strict=True)
+    observed_payload_bytes: int = Field(ge=0, strict=True)
+    observed_source_bytes: int = Field(ge=0, strict=True)
+    payload_integrity_verified: Literal[True]
+    observed_bytes: int = Field(ge=0, strict=True)
+    observed_depth: int = Field(ge=0, strict=True)
+    observed_elements: int = Field(ge=0, strict=True)
+    resource_policy_digest: str = Field(pattern=r"^[0-9a-f]{64}$")
+    admitted_at: datetime = Field(default_factory=_utc_now)
+
+    @model_validator(mode="after")
+    def _require_selected_input_views(self) -> ContentAdmittedObservationalRunIntent:
+        refs = (
+            self.requested_intent_ref,
+            self.requested_source_ref,
+            self.resource_policy_ref,
+            self.submitted_input_ref,
+            self.effective_input_ref,
+        )
+        if any(ref.manifest_profile_sha256 is None for ref in refs):
+            raise ValueError("content_admitted_observational_intent_profile_missing")
+        expected_source_kind = (
+            "ir.observation_method_input"
+            if self.source_protocol == "method_input_envelope_v1"
+            else "ir.observational_data"
+        )
+        if (
+            self.requested_intent_ref.kind != "runtime.observational_run_intent"
+            or self.requested_intent_ref.media_type != "application/json"
+            or self.requested_source_ref.kind != expected_source_kind
+            or self.requested_source_ref.media_type != "application/json"
+            or self.resource_policy_ref.kind != "runtime.observational_input_resource_policy"
+            or self.resource_policy_ref.media_type != "application/json"
+            or self.submitted_input_ref != self.requested_source_ref
+        ):
+            raise ValueError("content_admitted_observational_submitted_source_mismatch")
+        if (
+            self.effective_input_ref.kind != "ir.observation_method_input"
+            or self.effective_input_ref.media_type != "application/json"
+        ):
+            raise ValueError("content_admitted_observational_effective_input_invalid")
+        if (
+            self.contract_target_id is not None
+            and self.contract_target_id != "foundry.causal.hte_observational_data.v1"
+        ) or self.contract_target != (
+            "polisyos.foundry.methods.catalog.causal.protocols.HTEObservationalData"
+        ):
+            raise ValueError("content_admitted_observational_target_invalid")
+        if self.selection_digest is not None and len(self.selection_digest) != 64:
+            raise ValueError("content_admitted_observational_selection_digest_invalid")
+        if self.normalization != _expected_observational_normalization(self.source_protocol):
+            raise ValueError("content_admitted_observational_protocol_normalization_mismatch")
+        if self.limitations != _expected_content_admitted_limitations(
+            self.source_protocol,
+            source_access_revalidation_status=self.source_access_revalidation_status,
+        ):
+            raise ValueError("content_admitted_observational_limitations_invalid")
+        if (
+            self.observed_manifest_bytes != self.observed_manifest_selection_bytes
+            or self.observed_source_bytes
+            != self.observed_manifest_selection_bytes
+            + self.observed_manifest_verification_bytes
+            + self.observed_payload_bytes
+            or self.observed_payload_bytes != self.observed_bytes
+        ):
+            raise ValueError("content_admitted_observational_read_usage_mismatch")
+        if (
+            self.source_protocol == "method_input_envelope_v1"
+            and self.effective_input_ref != self.submitted_input_ref
+        ):
+            raise ValueError("content_admitted_observational_passthrough_mismatch")
+        return self
+
+
+class MethodMetricProjectionResponse(BaseModel):
+    """Bounded API projection of owner-selected method metric rows."""
+
+    model_config = ConfigDict(extra="forbid", frozen=True)
+
+    meta: ApiMeta
+    run_id: str = Field(min_length=1, max_length=128)
+    status: Literal["selected", "verification_missing", "invalid"]
+    vector_ref: ArtifactRef | None = None
+    observations: tuple[JsonValue, ...] = Field(default_factory=tuple, max_length=8192)
+    limitations: tuple[str, ...] = Field(default_factory=tuple, max_length=32)
+
+    @model_validator(mode="after")
+    def _require_projection_shape(self) -> MethodMetricProjectionResponse:
+        if self.vector_ref is not None and (
+            self.vector_ref.kind != "scientist.policy_evaluation_vector"
+            or self.vector_ref.media_type != "application/json"
+            or self.vector_ref.manifest_profile_sha256 is None
+        ):
+            raise ValueError("method_metric_projection_response_vector_invalid")
+        if self.status == "selected":
+            if self.vector_ref is None:
+                raise ValueError("method_metric_projection_response_vector_required")
+        elif self.vector_ref is not None or self.observations:
+            raise ValueError("method_metric_projection_response_limited_shape_invalid")
+        return self
+
+
+class MethodMetricProjectionSelection(BaseModel):
+    """Identify an AD01 vector and the verifier implementation that admitted it."""
+
+    model_config = ConfigDict(extra="forbid", frozen=True)
+
+    vector_ref: ArtifactRef
+    verifier_revision: str = Field(min_length=1, max_length=96)
+    verifier_implementation_sha256: str = Field(pattern=r"^sha256:[0-9a-f]{64}$")
+
+    @model_validator(mode="after")
+    def _require_selected_vector(self) -> MethodMetricProjectionSelection:
+        if (
+            self.vector_ref.kind != "scientist.policy_evaluation_vector"
+            or self.vector_ref.media_type != "application/json"
+            or self.vector_ref.manifest_profile_sha256 is None
+        ):
+            raise ValueError("method_metric_projection_vector_view_invalid")
+        return self
+
+
+class MethodExecutionCandidateOutcome(BaseModel):
+    """Scalar-only candidate summary captured from the producer's typed report."""
+
+    model_config = ConfigDict(extra="forbid", frozen=True, strict=True)
+
+    method: Literal["forest_dr"] = "forest_dr"
+    status: Literal["success", "input_invalid", "assumption_failed", "numerical_failure"]
+    estimand: str = Field(min_length=1, max_length=256)
+    point_estimate: float | None = None
+    confidence_interval: tuple[float, float] | None = None
+    confidence_level: float | None = Field(default=None, gt=0.0, lt=1.0)
+    standard_error: float | None = Field(default=None, ge=0.0)
+    p_value: float | None = Field(default=None, ge=0.0, le=1.0)
+    sample_size: int = Field(ge=0, strict=True)
+    n_treated: int = Field(ge=0, strict=True)
+    n_control: int = Field(ge=0, strict=True)
+    candidate_only: Literal[True] = True
+    limitations: tuple[
+        Literal[
+            "causal_identification_not_established",
+            "scientific_validity_not_established",
+        ],
+        ...,
+    ] = (
+        "causal_identification_not_established",
+        "scientific_validity_not_established",
+    )
+
+    @model_validator(mode="after")
+    def _require_candidate_report_shape(self) -> MethodExecutionCandidateOutcome:
+        if self.status == "success" and (
+            self.point_estimate is None or self.confidence_interval is None
+        ):
+            raise ValueError("method_execution_candidate_success_summary_incomplete")
+        if self.confidence_interval is not None:
+            low, high = self.confidence_interval
+            if not math.isfinite(low) or not math.isfinite(high) or low > high:
+                raise ValueError("method_execution_candidate_interval_invalid")
+        if self.point_estimate is not None and not math.isfinite(self.point_estimate):
+            raise ValueError("method_execution_candidate_estimate_non_finite")
+        for name, value in (
+            ("confidence_level", self.confidence_level),
+            ("standard_error", self.standard_error),
+            ("p_value", self.p_value),
+        ):
+            if value is not None and not math.isfinite(value):
+                raise ValueError(f"method_execution_candidate_{name}_non_finite")
+        if self.n_treated + self.n_control > self.sample_size:
+            raise ValueError("method_execution_candidate_counts_exceed_sample")
+        if self.limitations != (
+            "causal_identification_not_established",
+            "scientific_validity_not_established",
+        ):
+            raise ValueError("method_execution_candidate_limitations_invalid")
+        return self
+
+
+class DirectMethodExecutionSelection(BaseModel):
+    """Persist the immutable input, runtime pins, and outputs of direct method work."""
+
+    model_config = ConfigDict(extra="forbid", frozen=True)
+
+    selection_kind: Literal["direct_method"] = "direct_method"
+    job_id: str = Field(min_length=1, max_length=128)
+    run_id: str = Field(min_length=1, max_length=128)
+    attempt: int = Field(ge=1, strict=True)
+    requested_source_ref: ArtifactRef
+    observational_run_intent_ref: ArtifactRef
+    content_admitted_intent_ref: ArtifactRef
+    resource_policy_ref: ArtifactRef
+    submitted_input_ref: ArtifactRef
+    effective_input_ref: ArtifactRef
+    method_result_ref: ArtifactRef
+    method_evidence_ref: ArtifactRef
+    contract_target_id: Literal["foundry.causal.hte_observational_data.v1"] | None = None
+    contract_target: Literal[
+        "polisyos.foundry.methods.catalog.causal.protocols.HTEObservationalData"
+    ]
+    selection_digest: str | None = Field(default=None, pattern=r"^[0-9a-f]{64}$")
+    source_access_revalidation_status: Literal["not_established"] | None = None
+    method_fqn: Literal["causal.hte.forest_dr@1.0.0", "causal.hte.forest_dr@1.1.0"]
+    method_version: Literal["1.0.0", "1.1.0"]
+    method_abi_digest: str = Field(pattern=r"^[0-9a-f]{64}$")
+    method_build_digest: str = Field(pattern=r"^[0-9a-f]{64}$")
+    method_build_digest_scope: Literal["class_source_only"]
+    resource_policy_digest: str = Field(pattern=r"^[0-9a-f]{64}$")
+    source_protocol: Literal["method_input_envelope_v1", "legacy_hte_json_v1"]
+    normalization: Literal[
+        "canonical_passthrough",
+        "legacy_to_method_input_envelope_v1",
+    ]
+    limitations: tuple[
+        Literal[
+            "candidate_input_not_external_truth",
+            "scientific_validity_not_established",
+            "units_and_context_not_established",
+            "source_access_revalidation_not_established",
+            "legacy_hte_json_v1_source_normalized",
+        ],
+        ...,
+    ]
+    method_dispatch_binding_status: Literal["recomputed", "not_established"]
+    candidate_outcome: MethodExecutionCandidateOutcome | None = None
+    posterior_summary_refs: tuple[MethodExecutionPosteriorSummaryRef, ...] = Field(default=())
+
+    @model_validator(mode="after")
+    def _require_selected_views(self) -> DirectMethodExecutionSelection:
+        if self.method_fqn != f"causal.hte.forest_dr@{self.method_version}":
+            raise ValueError("direct_method_execution_method_version_mismatch")
+        if self.candidate_outcome is not None and self.candidate_outcome.method != "forest_dr":
+            raise ValueError("direct_method_execution_candidate_outcome_method_invalid")
+        if self.selection_digest is not None and len(self.selection_digest) != 64:
+            raise ValueError("direct_method_execution_selection_digest_invalid")
+        if self.limitations != _expected_content_admitted_limitations(
+            self.source_protocol,
+            source_access_revalidation_status=self.source_access_revalidation_status,
+        ):
+            raise ValueError("direct_method_execution_limitations_invalid")
+        refs = (
+            self.requested_source_ref,
+            self.observational_run_intent_ref,
+            self.content_admitted_intent_ref,
+            self.resource_policy_ref,
+            self.submitted_input_ref,
+            self.effective_input_ref,
+            self.method_result_ref,
+            self.method_evidence_ref,
+        )
+        if any(ref.manifest_profile_sha256 is None for ref in refs):
+            raise ValueError("direct_method_execution_selected_profile_missing")
+        expected_source_kind = (
+            "ir.observation_method_input"
+            if self.source_protocol == "method_input_envelope_v1"
+            else "ir.observational_data"
+        )
+        if (
+            self.requested_source_ref.kind != expected_source_kind
+            or self.requested_source_ref.media_type != "application/json"
+            or self.submitted_input_ref != self.requested_source_ref
+            or self.effective_input_ref.kind != "ir.observation_method_input"
+            or self.effective_input_ref.media_type != "application/json"
+            or self.observational_run_intent_ref.kind != "runtime.observational_run_intent"
+            or self.observational_run_intent_ref.media_type != "application/json"
+            or self.content_admitted_intent_ref.kind
+            != "runtime.content_admitted_observational_run_intent"
+            or self.content_admitted_intent_ref.media_type != "application/json"
+            or self.resource_policy_ref.kind != "runtime.observational_input_resource_policy"
+            or self.resource_policy_ref.media_type != "application/json"
+            or self.contract_target_id != "foundry.causal.hte_observational_data.v1"
+            or self.contract_target
+            != "polisyos.foundry.methods.catalog.causal.protocols.HTEObservationalData"
+        ):
+            raise ValueError("direct_method_execution_input_selection_invalid")
+        if self.normalization != _expected_observational_normalization(self.source_protocol):
+            raise ValueError("direct_method_execution_protocol_normalization_mismatch")
+        if (
+            self.source_protocol == "method_input_envelope_v1"
+            and self.effective_input_ref != self.submitted_input_ref
+        ):
+            raise ValueError("direct_method_execution_passthrough_mismatch")
+        if (
+            self.method_result_ref.kind != "scientist.method_result.causal.hte"
+            or self.method_result_ref.media_type != "application/json"
+            or self.method_evidence_ref.kind != "scientist.method_evidence"
+            or self.method_evidence_ref.media_type != "application/json"
+        ):
+            raise ValueError("direct_method_execution_output_view_invalid")
+        return self
+
+
+class DirectMethodExecutionRequestSummary(BaseModel):
+    """Privacy-bounded immutable request summary for one accepted direct method job."""
+
+    model_config = ConfigDict(extra="forbid", frozen=True, strict=True)
+
+    requested_source_ref: ArtifactRef
+    requested_intent_ref: ArtifactRef
+    resource_policy_ref: ArtifactRef
+    source_protocol: Literal["method_input_envelope_v1", "legacy_hte_json_v1"]
+    method_fqn: str = Field(min_length=1, max_length=256)
+    method_version: str = Field(min_length=1, max_length=64)
+    method_abi_digest: str = Field(pattern=r"^[0-9a-f]{64}$")
+    method_build_digest: str = Field(pattern=r"^[0-9a-f]{64}$")
+    method_build_digest_scope: Literal["class_source_only"]
+    resource_policy_digest: str = Field(pattern=r"^[0-9a-f]{64}$")
+    resolved_params_sha256: str = Field(pattern=r"^[0-9a-f]{64}$")
+    seed: int = Field(ge=0, le=4_294_967_295, strict=True)
+    seed_policy_revision: Literal["server_seed_zero_v1"]
+    required_estimator_n_jobs: int | None = Field(default=None, ge=1, strict=True)
+    max_manifest_bytes: int = Field(ge=1, strict=True)
+    max_bytes: int = Field(ge=1, strict=True)
+    max_depth: int = Field(ge=1, strict=True)
+    max_elements: int = Field(ge=1, strict=True)
+    requested_at: datetime
+
+    @model_validator(mode="after")
+    def _require_selected_request_refs(self) -> DirectMethodExecutionRequestSummary:
+        if (
+            self.requested_source_ref.manifest_profile_sha256 is None
+            or self.requested_intent_ref.kind != "runtime.observational_run_intent"
+            or self.requested_intent_ref.media_type != "application/json"
+            or self.requested_intent_ref.manifest_profile_sha256 is None
+        ):
+            raise ValueError("direct_method_execution_request_summary_refs_invalid")
+        if (
+            self.resource_policy_ref.kind != "runtime.observational_input_resource_policy"
+            or self.resource_policy_ref.media_type != "application/json"
+            or self.resource_policy_ref.manifest_profile_sha256 is None
+        ):
+            raise ValueError("direct_method_execution_request_policy_ref_invalid")
+        if self.method_fqn != f"causal.hte.forest_dr@{self.method_version}":
+            raise ValueError("direct_method_execution_request_method_version_mismatch")
+        return self
+
+
+class DirectMethodExecutionTimeRoles(BaseModel):
+    """Keep request, admission, execution, owner verification, and read times distinct."""
+
+    model_config = ConfigDict(extra="forbid", frozen=True, strict=True)
+
+    admitted_at: datetime | None = None
+    execution_started_at: datetime | None = None
+    execution_finished_at: datetime | None = None
+    source_observation_epoch: datetime | None = None
+    owner_verified_at: datetime | None = None
+    reader_at: datetime
+
+
+class DirectMethodExecutionRunProjection(BaseModel):
+    """Audience-bounded current projection of one persisted direct method run."""
+
+    model_config = ConfigDict(extra="forbid", frozen=True, strict=True)
+
+    status: Literal[
+        "withheld",
+        "absent",
+        "legacy_unbound",
+        "accepted_pending",
+        "selected",
+        "input_refused",
+        "execution_failed",
+        "unavailable",
+    ]
+    request: DirectMethodExecutionRequestSummary | None = None
+    selection: DirectMethodExecutionSelection | None = None
+    time_roles: DirectMethodExecutionTimeRoles | None = None
+    refusal_code: Literal["observational_input_refused"] | None = None
+    limitations: tuple[
+        Literal[
+            "selected_view_permission_required",
+            "owned_run_cell_scope_required",
+            "no_direct_method_request",
+            "legacy_selection_unbound",
+            "candidate_execution_pending",
+            "execution_outcome_not_established",
+            "selection_persistence_not_established",
+            "input_refused_before_dispatch",
+            "candidate_input_not_external_truth",
+            "causal_identification_not_established",
+            "scientific_validity_not_established",
+            "units_and_context_not_established",
+            "source_access_revalidation_not_established",
+            "legacy_hte_json_v1_source_normalized",
+        ],
+        ...,
+    ] = Field(default_factory=tuple, max_length=32)
+    candidate_only: Literal[True] = True
+
+    @model_validator(mode="after")
+    def _require_projection_status_shape(self) -> DirectMethodExecutionRunProjection:
+        if self.status == "withheld":
+            if (
+                self.request is not None
+                or self.selection is not None
+                or self.time_roles is not None
+            ):
+                raise ValueError("direct_method_execution_withheld_projection_leaks_selection")
+            if self.limitations not in {
+                ("selected_view_permission_required",),
+                ("owned_run_cell_scope_required",),
+            }:
+                raise ValueError("direct_method_execution_withheld_reason_invalid")
+        elif self.status in {"absent", "legacy_unbound"}:
+            if (
+                self.request is not None
+                or self.selection is not None
+                or self.refusal_code is not None
+            ):
+                raise ValueError("direct_method_execution_empty_status_has_selection")
+            if self.time_roles is not None:
+                raise ValueError("direct_method_execution_empty_status_has_times")
+            expected_limitations = {
+                "absent": ("no_direct_method_request",),
+                "legacy_unbound": ("legacy_selection_unbound",),
+            }[self.status]
+            if self.limitations != expected_limitations:
+                raise ValueError("direct_method_execution_empty_status_reason_invalid")
+        elif self.status == "unavailable":
+            if self.selection is not None or self.refusal_code is not None:
+                raise ValueError("direct_method_execution_unavailable_has_selection")
+            if (self.request is None) != (self.time_roles is None):
+                raise ValueError("direct_method_execution_unavailable_request_times_mismatch")
+            if self.limitations not in {
+                ("execution_outcome_not_established",),
+                ("selection_persistence_not_established",),
+            }:
+                raise ValueError("direct_method_execution_unavailable_reason_invalid")
+        elif self.status == "selected":
+            if (
+                self.request is None
+                or self.selection is None
+                or self.selection.candidate_outcome is None
+                or self.time_roles is None
+                or self.time_roles.admitted_at is None
+                or self.time_roles.execution_started_at is None
+                or self.time_roles.execution_finished_at is None
+                or self.time_roles.owner_verified_at is None
+                or self.refusal_code is not None
+                or self.request.requested_source_ref != self.selection.requested_source_ref
+                or self.request.method_fqn != self.selection.method_fqn
+                or self.request.method_version != self.selection.method_version
+                or self.limitations != self.selection.limitations
+            ):
+                raise ValueError("direct_method_execution_selected_projection_incomplete")
+        else:
+            if self.request is None or self.selection is not None or self.time_roles is None:
+                raise ValueError("direct_method_execution_request_projection_incomplete")
+            if (self.status == "input_refused") != (
+                self.refusal_code == "observational_input_refused"
+            ):
+                raise ValueError("direct_method_execution_refusal_status_invalid")
+            expected_limitations = (
+                ("candidate_execution_pending",)
+                if self.status == "accepted_pending"
+                else (
+                    ("input_refused_before_dispatch",)
+                    if self.status == "input_refused"
+                    else ("execution_outcome_not_established",)
+                )
+            )
+            if self.limitations != expected_limitations:
+                raise ValueError("direct_method_execution_request_status_reason_invalid")
+        return self
+
+
+class GraphMethodExecutionSelection(BaseModel):
+    """Persist one graph result's exact method bundle and optional AD01 projection."""
+
+    model_config = ConfigDict(extra="forbid", frozen=True)
+
+    selection_kind: Literal["graph_method"] = "graph_method"
+    job_id: str = Field(min_length=1, max_length=128)
+    run_id: str = Field(min_length=1, max_length=128)
+    attempt: int = Field(ge=1, strict=True)
+    method_result_ref: None = None
+    source_experiment_state_ref: ArtifactRef
+    simulation_result_ref: ArtifactRef
+    method_execution_bundle_ref: ArtifactRef
+    method_metric_binding_set_ref: ArtifactRef
+    source_candidate_ref: ArtifactRef | None = None
+    metric_verification_status: Literal["verified", "verification_missing"]
+    method_metric_projection: MethodMetricProjectionSelection | None = None
+    metric_projection_wait_policy: BoundedLivenessResolution | None = None
+
+    @model_validator(mode="after")
+    def _require_exact_graph_source(self) -> GraphMethodExecutionSelection:
+        refs = (
+            self.source_experiment_state_ref,
+            self.simulation_result_ref,
+            self.method_execution_bundle_ref,
+            self.method_metric_binding_set_ref,
+        )
+        if any(ref.manifest_profile_sha256 is None for ref in refs):
+            raise ValueError("graph_method_execution_selected_profile_missing")
+        if (
+            self.source_experiment_state_ref.kind != "scientist.experiment_state"
+            or self.source_experiment_state_ref.media_type != "application/json"
+            or self.simulation_result_ref.kind != "foundry.simulation_result"
+            or self.method_execution_bundle_ref.kind != "foundry.method_execution_bundle"
+            or self.method_metric_binding_set_ref.kind != "foundry.method_metric_binding_set"
+            or any(ref.media_type != "application/json" for ref in refs[1:])
+        ):
+            raise ValueError("graph_method_execution_source_tuple_invalid")
+        if self.source_candidate_ref is not None and (
+            self.source_candidate_ref.kind != "scientist.policy_design.candidate"
+            or self.source_candidate_ref.media_type != "application/json"
+            or self.source_candidate_ref.manifest_profile_sha256 is None
+        ):
+            raise ValueError("graph_method_execution_source_candidate_invalid")
+        if (self.metric_verification_status == "verified") != (
+            self.method_metric_projection is not None
+        ) or (self.metric_verification_status == "verified") != (
+            self.source_candidate_ref is not None
+        ):
+            raise ValueError("graph_method_execution_projection_status_mismatch")
+        if self.metric_projection_wait_policy is not None and (
+            self.metric_projection_wait_policy.producer_key != "runtime.method_metric_projection"
+            or self.metric_projection_wait_policy.retry_ceiling != 0
+            or self.metric_projection_wait_policy.escalation != "runtime_escalation"
+        ):
+            raise ValueError("graph_method_execution_wait_policy_invalid")
+        return self
+
+
+MethodExecutionSelection = Annotated[
+    DirectMethodExecutionSelection | GraphMethodExecutionSelection,
+    Field(discriminator="selection_kind"),
+]
+
+
+class MethodExecutionProducerEmissionDiagnostic(BaseModel):
+    """One bounded actual ExecuteResult output inventory, without authority claims."""
+
+    model_config = ConfigDict(extra="forbid", frozen=True)
+
+    emission_index: int = Field(ge=0)
+    execute_result_status: Literal["ok", "failed", "not_established"]
+    output_ref_status: Literal["complete", "partial", "none"]
+    simulation_result_ref: ArtifactRef | None = None
+    method_execution_bundle_refs: tuple[ArtifactRef, ...] = Field(
+        default_factory=tuple,
+        max_length=8,
+    )
+    method_metric_binding_set_refs: tuple[ArtifactRef, ...] = Field(
+        default_factory=tuple,
+        max_length=8,
+    )
+
+    @model_validator(mode="after")
+    def validate_selected_output_refs(self) -> MethodExecutionProducerEmissionDiagnostic:
+        """Require every exposed reference to be selected and kind-correct."""
+        expected = (
+            (self.simulation_result_ref, "foundry.simulation_result"),
+            *(
+                (ref, "foundry.method_execution_bundle")
+                for ref in self.method_execution_bundle_refs
+            ),
+            *(
+                (ref, "foundry.method_metric_binding_set")
+                for ref in self.method_metric_binding_set_refs
+            ),
+        )
+        for ref, kind in expected:
+            if ref is None:
+                continue
+            if (
+                ref.kind != kind
+                or ref.media_type != "application/json"
+                or ref.manifest_profile_sha256 is None
+            ):
+                raise ValueError("method_execution_producer_diagnostic_ref_invalid")
+        output_ref_count = (
+            int(self.simulation_result_ref is not None)
+            + len(self.method_execution_bundle_refs)
+            + len(self.method_metric_binding_set_refs)
+        )
+        complete = (
+            self.simulation_result_ref is not None
+            and len(self.method_execution_bundle_refs) == 1
+            and len(self.method_metric_binding_set_refs) == 1
+        )
+        if (
+            (self.output_ref_status == "complete" and not complete)
+            or (self.output_ref_status == "partial" and output_ref_count == 0)
+            or (self.output_ref_status == "none" and output_ref_count != 0)
+        ):
+            raise ValueError("method_execution_producer_diagnostic_status_mismatch")
+        return self
+
+
+class MethodExecutionProducerDiagnostic(BaseModel):
+    """Candidate-only per-attempt inventory of actual Foundry method emissions."""
+
+    model_config = ConfigDict(extra="forbid", frozen=True)
+
+    job_id: str = Field(min_length=1, max_length=128)
+    run_id: str = Field(min_length=1, max_length=128)
+    attempt: int = Field(ge=1)
+    authority_status: Literal["candidate_only"] = "candidate_only"
+    emissions: tuple[MethodExecutionProducerEmissionDiagnostic, ...] = Field(
+        default_factory=tuple,
+        max_length=16,
+    )
+    inventory_truncated: bool = False
+    limitations: tuple[
+        Literal[
+            "producer_diagnostic_only",
+            "workflow_authority_not_established",
+            "scientific_validity_not_established",
+        ],
+        ...,
+    ] = (
+        "producer_diagnostic_only",
+        "workflow_authority_not_established",
+        "scientific_validity_not_established",
+    )
+
+    @model_validator(mode="after")
+    def validate_emission_order(self) -> MethodExecutionProducerDiagnostic:
+        """Keep the bounded inventory stable and unambiguous."""
+        if tuple(item.emission_index for item in self.emissions) != tuple(
+            range(len(self.emissions))
+        ):
+            raise ValueError("method_execution_producer_diagnostic_order_invalid")
+        return self
+
+
 class RunDetails(RunRecordV1):
     """Run details public type."""
 
@@ -3874,6 +4805,8 @@ class RunDetails(RunRecordV1):
     policy_design_case_projection: PolicyDesignCaseProjection | None = None
     candidate_simulation: RunCandidateSimulationProjection | None = None
     generic_cycle_simulation: RunGenericCycleSimulationProjection | None = None
+    method_execution_producer_diagnostic: MethodExecutionProducerDiagnostic | None = None
+    method_execution_selection: DirectMethodExecutionRunProjection | None = None
 
 
 class RunTimelineEvent(BaseModel):
@@ -5603,6 +6536,7 @@ __all__ = [
     "CompareResponseStatus",
     "CompareRunResponse",
     "ComparisonFrame",
+    "ContentAdmittedObservationalRunIntent",
     "CounterfactualMetric",
     "CounterfactualMetricsResponse",
     "CounterfactualMode",
@@ -5621,6 +6555,10 @@ __all__ = [
     "DeltaDominance",
     "DeltaQuantity",
     "DeltaSignificance",
+    "DirectMethodExecutionRequestSummary",
+    "DirectMethodExecutionRunProjection",
+    "DirectMethodExecutionSelection",
+    "DirectMethodExecutionTimeRoles",
     "DisputeStatus",
     "EngineeringCapabilityAbsenceView",
     "EpochBoundaryLineageView",
@@ -5650,6 +6588,7 @@ __all__ = [
     "FeedbackActionResponse",
     "GovernanceDebugResponse",
     "GovernanceDebugView",
+    "GraphMethodExecutionSelection",
     "InstitutionalAuthorityAbsenceView",
     "IterationLifecycleView",
     "LineageBatchRequest",
@@ -5666,6 +6605,13 @@ __all__ = [
     "LineageRef",
     "LineageResponse",
     "LineageSummaryKind",
+    "MethodExecutionCandidateOutcome",
+    "MethodExecutionPosteriorSummaryRef",
+    "MethodExecutionProducerDiagnostic",
+    "MethodExecutionProducerEmissionDiagnostic",
+    "MethodExecutionSelection",
+    "MethodMetricProjectionResponse",
+    "MethodMetricProjectionSelection",
     "MobilityBoundsRequest",
     "MobilityBoundsResponse",
     "MobilityDiagnosticsResponse",
@@ -5675,6 +6621,8 @@ __all__ = [
     "NodeDebugResponse",
     "NodeDebugView",
     "NodeStatus",
+    "ObservationalInputResourcePolicy",
+    "ObservationalRunIntent",
     "PredictiveCoverageDiagnosticPreview",
     "PredictiveCoverageScenarioPreview",
     "PreflightDiagnosticView",

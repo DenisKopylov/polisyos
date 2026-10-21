@@ -667,3 +667,83 @@ def test_scholar_raw_source_binding_survives_fresh_cas_read_and_rejects_invented
     assert refusal.passed is False
     assert any(item.startswith("span_text_mismatch:") for item in refusal.violations)
     assert verify_web_evidence_bundle(invented_bundle, cas=reader).passed is False
+
+
+def test_observational_and_method_selection_contracts_resolve_from_stable_facades() -> None:
+    """Runtime-owned observational DTOs resolve identically through the lazy facade."""
+    import polisyos.core.contracts as contracts
+
+    exports = {
+        "control": (
+            "ObservationalRunInput",
+            "ObservationalRunMethodSelection",
+        ),
+        "runtime": (
+            "ContentAdmittedObservationalRunIntent",
+            "DirectMethodExecutionSelection",
+            "GraphMethodExecutionSelection",
+            "MethodExecutionPosteriorSummaryRef",
+            "MethodExecutionProducerDiagnostic",
+            "MethodExecutionProducerEmissionDiagnostic",
+            "MethodExecutionSelection",
+            "MethodMetricProjectionResponse",
+            "MethodMetricProjectionSelection",
+            "ObservationalInputResourcePolicy",
+            "ObservationalRunIntent",
+        ),
+    }
+    for module_name, names in exports.items():
+        module = importlib.import_module(f"polisyos.core.contracts.{module_name}")
+        for name in names:
+            assert name in module.__all__
+            assert name in contracts.__all__
+            assert getattr(contracts, name) is getattr(module, name)
+
+
+def test_method_metric_owner_port_returns_one_typed_completed_source() -> None:
+    """Scientist and node consumer share the same typed Runtime owner contract."""
+    from typing import get_type_hints
+
+    from polisyos.scientist.nodes.builtins.decide.policy_runtime_method_metrics import (
+        CompletedMethodMetricSelectionOwner as ConsumerOwner,
+    )
+    from polisyos.scientist.nodes.builtins.decide.policy_runtime_method_metrics import (
+        CompletedMethodMetricSource as ConsumerSource,
+    )
+    from polisyos.scientist.nodes.builtins.decide.policy_runtime_method_metrics import (
+        CompletedOwnedMethodExecutionSelection as ConsumerSelection,
+    )
+    from polisyos.scientist.nodes.builtins.decide.policy_runtime_method_metrics import (
+        MethodExecutionSelectionOwner as CurrentOwner,
+    )
+    from polisyos.scientist.nodes.builtins.decide.policy_runtime_method_metrics import (
+        MethodMetricProjectionAssociation as ProjectionAssociation,
+    )
+    from polisyos.scientist.nodes.builtins.decide.policy_runtime_method_metrics import (
+        OwnedMethodExecutionSelection as CurrentSelection,
+    )
+    from polisyos.scientist.orchestration.engine.context import (
+        CompletedMethodMetricSelectionOwner,
+        CompletedMethodMetricSource,
+        CompletedOwnedMethodExecutionSelection,
+        MethodExecutionSelectionOwner,
+        MethodMetricProjectionAssociation,
+        MethodMetricSelectionOwnerPort,
+        OwnedMethodExecutionSelection,
+    )
+
+    assert ConsumerOwner is CompletedMethodMetricSelectionOwner
+    assert ConsumerSource is CompletedMethodMetricSource
+    assert ConsumerSelection is CompletedOwnedMethodExecutionSelection
+    assert CurrentOwner is MethodExecutionSelectionOwner
+    assert CurrentSelection is OwnedMethodExecutionSelection
+    assert ProjectionAssociation is MethodMetricProjectionAssociation
+    assert MethodMetricSelectionOwnerPort is CompletedMethodMetricSelectionOwner
+    resolved = get_type_hints(
+        CompletedMethodMetricSelectionOwner.resolve_completed_method_metric_selection
+    )
+    assert resolved["return"] == CompletedMethodMetricSource | None
+    assert (
+        get_type_hints(CompletedMethodMetricSource)["selection"]
+        is CompletedOwnedMethodExecutionSelection
+    )

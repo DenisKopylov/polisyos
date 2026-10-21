@@ -34,6 +34,9 @@ from polisyos.core.contracts.runtime import (
     ArtifactLineageView,
     CompareCandidatesResponse,
     CompareRunResponse,
+    DirectMethodExecutionRunProjection,
+    MethodExecutionProducerDiagnostic,
+    MethodMetricProjectionResponse,
     RunCandidateSimulationAcquisitionHistoryEntry,
     RunCandidateSimulationChildProfileBinding,
     RunCandidateSimulationN5Observation,
@@ -70,10 +73,12 @@ from polisyos.fabric.evidence.decision_data import (
     TemporalRef as FabricTemporalRef,
 )
 from polisyos.runtime.http.authorization import (
+    OptionalActionPermissionResult,
     ResourceBindingSource,
     ResourceBindingSpec,
     principal_from_access_scope,
     require_action_permission,
+    require_optional_action_permission,
 )
 from polisyos.runtime.http.container import resolve_production_approval_resolver
 from polisyos.runtime.http.dependencies import (
@@ -215,6 +220,24 @@ _GET_RUN_PREDICTIVE_CALIBRATION_AUTHZ = require_action_permission(
     ResourceBindingSpec(
         source=ResourceBindingSource.OWNED_EXISTING_PATH,
         resource_kind="runtime.run.predictive_calibration",
+        path_parameter="run_id",
+        allow_empty_body=True,
+    ),
+)
+_GET_RUN_METHOD_METRICS_AUTHZ = require_action_permission(
+    RuntimePermission.RUNS_REVIEW,
+    ResourceBindingSpec(
+        source=ResourceBindingSource.OWNED_EXISTING_PATH,
+        resource_kind="runtime.run.method_metrics",
+        path_parameter="run_id",
+        allow_empty_body=True,
+    ),
+)
+_GET_RUN_METHOD_SELECTION_AUTHZ = require_optional_action_permission(
+    RuntimePermission.RUNS_REVIEW,
+    ResourceBindingSpec(
+        source=ResourceBindingSource.OWNED_EXISTING_PATH,
+        resource_kind="runtime.run.method_execution_selection",
         path_parameter="run_id",
         allow_empty_body=True,
     ),
@@ -4298,10 +4321,80 @@ if router is not None:
         branch: str | None = Query(default=None),
         snapshot_id: str | None = Query(default=None),
         scenario_id: str | None = Query(default=None),
+        method_selection_authorization: OptionalActionPermissionResult = Depends(
+            _GET_RUN_METHOD_SELECTION_AUTHZ
+        ),
         ctx: RuntimeApiContext = Depends(get_runtime_api_context),
     ) -> RunDetailsResponse:
         run = ctx.run_index.get_run(run_id)
         enforce_run_tenant_access(request, ctx=ctx, run=run)
+        if not method_selection_authorization.allowed:
+            method_execution_projection = DirectMethodExecutionRunProjection(
+                status="withheld",
+                limitations=("selected_view_permission_required",),
+            )
+            record_data_access_audit(
+                request,
+                resource_id=run_id,
+                resource_kind="runtime.run.method_execution_selection",
+                tenant_id=run.details.tenant_id,
+                outcome="denied",
+                metadata={"view": "selected_method_execution"},
+            )
+        else:
+            review_scope = require_access_scope(request)
+            if (
+                not run.details.tenant_id
+                or review_scope.tenant_id != run.details.tenant_id
+                or not run.details.cell_id
+                or review_scope.cell_id != run.details.cell_id
+            ):
+                method_execution_projection = DirectMethodExecutionRunProjection(
+                    status="withheld",
+                    limitations=("owned_run_cell_scope_required",),
+                )
+                record_data_access_audit(
+                    request,
+                    resource_id=run_id,
+                    resource_kind="runtime.run.method_execution_selection",
+                    tenant_id=run.details.tenant_id,
+                    outcome="denied",
+                    metadata={"view": "selected_method_execution"},
+                )
+            else:
+                record_data_access_audit(
+                    request,
+                    resource_id=run_id,
+                    resource_kind="runtime.run.method_execution_selection",
+                    tenant_id=run.details.tenant_id,
+                    metadata={"view": "selected_method_execution"},
+                )
+                control_service = _control_service_from_request(request)
+                read_method_execution_projection = getattr(
+                    control_service,
+                    "get_observational_method_run_projection",
+                    None,
+                )
+                if callable(read_method_execution_projection):
+                    method_execution_projection = read_method_execution_projection(
+                        run_id=run_id,
+                        expected_job_id=run.details.control_job_id,
+                        tenant_id=run.details.tenant_id,
+                        cell_id=run.details.cell_id,
+                    )
+                    if not isinstance(
+                        method_execution_projection,
+                        DirectMethodExecutionRunProjection,
+                    ):
+                        raise service_unavailable(
+                            "The selected method execution projection is unavailable",
+                            code="method_execution_projection_contract_invalid",
+                        )
+                else:
+                    method_execution_projection = DirectMethodExecutionRunProjection(
+                        status="unavailable",
+                        limitations=("execution_outcome_not_established",),
+                    )
         temporal_scope = _resolve_temporal_scope(
             ctx,
             run,
@@ -4336,6 +4429,20 @@ if router is not None:
             run_id,
         )
         updates: dict[str, Any] = {}
+        updates["method_execution_selection"] = method_execution_projection
+        get_method_execution_producer_diagnostic = getattr(
+            control_service,
+            "get_method_execution_producer_diagnostic",
+            None,
+        )
+        if callable(get_method_execution_producer_diagnostic):
+            producer_diagnostic = get_method_execution_producer_diagnostic(
+                run_id=run_id,
+                tenant_id=run.details.tenant_id,
+                cell_id=run.details.cell_id,
+            )
+            if isinstance(producer_diagnostic, MethodExecutionProducerDiagnostic):
+                updates["method_execution_producer_diagnostic"] = producer_diagnostic
         candidate_simulation = _candidate_simulation_for_indexed_run(
             run,
             store=ctx.store,
@@ -4362,6 +4469,102 @@ if router is not None:
             meta=build_meta(request, source_kinds=[run.source_kind]),
             temporal_scope=temporal_scope,
             run=run_details,
+        )
+
+    @router.get(
+        "/{run_id}/method-metrics",
+        response_model=MethodMetricProjectionResponse,
+        operation_id="get_run_method_metrics",
+        dependencies=[Depends(_GET_RUN_METHOD_METRICS_AUTHZ)],
+    )
+    def get_run_method_metrics(
+        run_id: str,
+        request: Request,
+        ctx: Annotated[RuntimeApiContext, Depends(get_runtime_api_context)],
+    ) -> MethodMetricProjectionResponse:
+        """Return only the bounded current AD01 metric projection for an owned run."""
+        run = ctx.run_index.get_run(run_id)
+        enforce_run_tenant_access(request, ctx=ctx, run=run)
+        scope = require_access_scope(request)
+        if (
+            not run.details.tenant_id
+            or scope.tenant_id != run.details.tenant_id
+            or not run.details.cell_id
+            or scope.cell_id != run.details.cell_id
+        ):
+            raise forbidden(
+                "Method metric projections require the verified run tenant and cell scope",
+                code="method_metric_projection_scope_mismatch",
+            )
+        set_authz_resource(
+            request,
+            tenant_id=run.details.tenant_id,
+            kind="runtime.run.method_metrics",
+            artifact_id=(
+                str(run.details.manifest_ref.artifact_id)
+                if run.details.manifest_ref is not None
+                else None
+            ),
+        )
+        control_service = _control_service_from_request(request)
+        read_projection = getattr(
+            control_service,
+            "read_current_admitted_method_metric_projection",
+            None,
+        )
+        projection_status: Literal["selected", "verification_missing", "invalid"] = (
+            "verification_missing"
+        )
+        projection_vector_ref: ArtifactRef | None = None
+        projection_observations: tuple[Any, ...] = ()
+        projection_limitations: tuple[str, ...] = ("current_method_metric_owner_unavailable",)
+        if callable(read_projection):
+            projection = read_projection(
+                run_id=run_id,
+                tenant_id=run.details.tenant_id,
+                cell_id=run.details.cell_id,
+            )
+            projection_status = getattr(projection, "status", None)
+            projection_vector_ref = getattr(projection, "vector_ref", None)
+            projection_observations = tuple(getattr(projection, "observations", ()))
+            projection_limitations = tuple(getattr(projection, "limitations", ()))
+        if projection_status not in {"selected", "verification_missing", "invalid"}:
+            raise service_unavailable(
+                "The current method metric projection is unavailable",
+                code="method_metric_projection_read_unavailable",
+            )
+        if projection_vector_ref is not None and type(projection_vector_ref) is not ArtifactRef:
+            dump = getattr(projection_vector_ref, "model_dump", None)
+            if not callable(dump):
+                raise service_unavailable(
+                    "The current method metric projection has an invalid selected ref",
+                    code="method_metric_projection_read_invalid",
+                )
+            try:
+                projection_vector_ref = ArtifactRef.model_validate(dump(mode="json"))
+            except (TypeError, ValueError) as exc:
+                raise service_unavailable(
+                    "The current method metric projection has an invalid selected ref",
+                    code="method_metric_projection_read_invalid",
+                ) from exc
+        record_data_access_audit(
+            request,
+            resource_id=run_id,
+            resource_kind="runtime.run.method_metrics",
+            tenant_id=run.details.tenant_id,
+            outcome=f"method_metric_projection_{projection_status}",
+        )
+        observations = tuple(
+            item.model_dump(mode="json") if hasattr(item, "model_dump") else item
+            for item in projection_observations
+        )
+        return MethodMetricProjectionResponse(
+            meta=build_meta(request, source_kinds=[_as_source_kind(run.source_kind)]),
+            run_id=run_id,
+            status=projection_status,
+            vector_ref=projection_vector_ref,
+            observations=observations,
+            limitations=projection_limitations,
         )
 
     @router.post(

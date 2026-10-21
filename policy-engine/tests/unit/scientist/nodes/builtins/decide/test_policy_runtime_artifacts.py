@@ -174,7 +174,7 @@ def test_policy_evaluation_vector_owner_returns_selected_cas_view(cas_store) -> 
     assert manifest.kind == "scientist.policy_evaluation_vector"
     assert manifest.artifact_schema == SchemaInfo(
         name="polisyos.scientist.policy_design.PolicyEvaluationVector",
-        version="1.1",
+        version="1.2",
     )
     assert manifest.inputs == [input_ref_from_artifact_ref(candidate_ref, role="candidate")]
 
@@ -357,7 +357,7 @@ def test_policy_evaluation_vector_serialization_keeps_required_nullable_score_fi
     assert manifest.media_type == "application/json"
     assert manifest.artifact_schema == SchemaInfo(
         name="polisyos.scientist.policy_design.PolicyEvaluationVector",
-        version="1.1",
+        version="1.2",
     )
     assert manifest.canon is not None
     assert manifest.canon.forbid_floats is False

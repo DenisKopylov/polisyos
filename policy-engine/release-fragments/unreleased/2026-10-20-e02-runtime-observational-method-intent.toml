@@ -1,0 +1,14 @@
+[release]
+kind = "feature"
+summary = "Bind observational method runs to explicit selected-input governance, immutable method pins, and attempt-fenced producer refs."
+details = [
+  "Workflow run admission accepts one optional selected-profile observational input while preserving the legacy data-source path by absence.",
+  "Runtime applies selected manifest, payload, depth, and element limits, pins the exact raw manifest bytes and method/resource policy identity, and persists candidate-only selections under the current job fence. It records exact selected-store transfer counters; these do not establish a physical-I/O or whole-process memory bound.",
+  "New admissions resolve an exact registered ForestDR version once before enqueue; Runtime policy revision `r3` pins `required_estimator_n_jobs = 1` and checks the registered estimator's declared `n_jobs` contract and resolved value. This is an estimator parameter constraint, not a process-wide CPU or memory quota.",
+  "The method identity records the loaded class-source digest only. A built package digest and observed native thread-pool behavior remain not established. Bounded worker waits preserve whether queued work was cancelled or an already-running slot was retained; a timeout does not claim that running native work stopped.",
+  "Content-admitted caveats retain the complete immutable request limitations and the protocol-specific producer caveat; completion and readback reject a stripped tuple.",
+  "Only explicitly classified public, unscoped sources are admitted; restricted or tenant-scoped sources are refused because current source-read authorization revalidation is not established.",
+  "Graph metric selection requires the final state refs to match refs captured from an actual Foundry ExecuteResult emitted within the same leased attempt.",
+  "The dedicated GET /api/v1/runs/{run_id}/method-metrics surface rechecks owned run scope and reads only the current bounded AD01 projection; generic RunDetails does not expose the selection or metric rows.",
+  "ForestDR 1.0 remains readable as historical intent, but new bounded-profile admissions refuse it because its registered signature does not declare n_jobs.",
+]

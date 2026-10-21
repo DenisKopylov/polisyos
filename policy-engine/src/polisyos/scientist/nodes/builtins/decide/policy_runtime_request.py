@@ -2,7 +2,9 @@
 
 from __future__ import annotations
 
+from collections.abc import Mapping
 from dataclasses import dataclass
+from typing import Literal
 
 from polisyos.core.artifacts import ensure_ir_artifact_store as _ensure_ir_artifact_store
 from polisyos.core.artifacts.manifest import ArtifactRef
@@ -38,6 +40,20 @@ from polisyos.scientist.policy_design.phase3 import (
 from polisyos.scientist.policy_design.schema import PolicyCandidateSchema
 
 
+def _parse_method_metric_source_request(
+    params: Mapping[str, object],
+) -> tuple[str | None, Literal["absent", "requested", "invalid"]]:
+    """Preserve explicit selector presence and validate its bounded value."""
+    key = "method_metric_source_run_id"
+    if key not in params:
+        return None, "absent"
+
+    value = params[key]
+    if type(value) is str and value.strip() and len(value) <= 256:
+        return value, "requested"
+    return None, "invalid"
+
+
 @dataclass(frozen=True)
 class PolicyRuntimeRequest:
     """Resolved runtime inputs needed by blueprint policy execution."""
@@ -53,6 +69,8 @@ class PolicyRuntimeRequest:
     simulation_metrics: object | None
     ambiguity_certificate: object | None
     ambiguity_certificate_ref: ArtifactRef | None
+    method_metric_source_run_id: str | None = None
+    method_metric_source_request_status: Literal["absent", "requested", "invalid"] = "absent"
 
 
 def resolve_policy_runtime_request(
@@ -69,6 +87,9 @@ def resolve_policy_runtime_request(
         state,
         candidate,
         candidate_ref,
+    )
+    method_metric_source_run_id, method_metric_source_request_status = (
+        _parse_method_metric_source_request(state.params)
     )
     ambiguity_required = phase3_ambiguity_required(ctx, state, candidate=candidate)
     ambiguity_certificate_ref = ensure_optimization_ambiguity_certificate(
@@ -99,6 +120,8 @@ def resolve_policy_runtime_request(
         simulation_metrics=load_simulation_metrics(ctx, state) or None,
         ambiguity_certificate=ambiguity_certificate,
         ambiguity_certificate_ref=ambiguity_certificate_ref,
+        method_metric_source_run_id=method_metric_source_run_id,
+        method_metric_source_request_status=method_metric_source_request_status,
     )
 
 

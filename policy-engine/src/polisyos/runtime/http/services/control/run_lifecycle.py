@@ -4,19 +4,26 @@ from __future__ import annotations
 
 import asyncio
 import hashlib
+import inspect
+import json
+import math
 import uuid
 from collections.abc import Callable, Mapping
+from contextvars import ContextVar
 from dataclasses import dataclass, replace
 from datetime import UTC, datetime
 from decimal import Decimal
 from pathlib import Path
-from typing import TYPE_CHECKING, Any, Literal, TypeVar, cast
+from typing import TYPE_CHECKING, Any, Literal, Protocol, TypeVar, cast
+
+from pydantic import BaseModel
 
 from polisyos.common.canonical_profile import CanonicalProfileRefusalError
 from polisyos.common.logger import get_logger
 from polisyos.core import artifacts, run
 from polisyos.core.artifacts import (
     artifact_ref_for_manifest,
+    input_ref_from_artifact_ref,
     read_core_json_artifact,
     read_core_manifest_profile,
 )
@@ -122,6 +129,13 @@ from polisyos.runtime.http.services.control.artifacts import (
     _resolve_curated_dir,
     write_runtime_authority_artifact,
 )
+from polisyos.runtime.http.services.control.bounded_wait import (
+    ControlProducerExecutionError,
+    ControlProducerWaitTimeoutError,
+    require_shared_execution_value,
+    wait_for_shared_execution,
+    wrap_shared_execution_exception,
+)
 from polisyos.runtime.http.services.control.capabilities import CapabilityManifestMixin
 from polisyos.runtime.http.services.control.evaluation_safety import (
     EvaluationSafetyAdmissionVerifier,
@@ -146,6 +160,7 @@ from polisyos.runtime.http.services.control.job_attempt_publication import (
     _nl_request_snapshot_content_hash as _nl_request_snapshot_content_hash,
 )
 from polisyos.runtime.http.services.control.job_diagnostics import (
+    _OBSERVATIONAL_METHOD_INTENT_PAYLOAD_KEY,
     ControlJobDiagnosticsMixin,
 )
 from polisyos.runtime.http.services.control.job_nl_admission import (
@@ -400,6 +415,964 @@ _NL_REQUEST_SNAPSHOT_KEY = "nl_request_snapshot"
 _NL_REQUEST_SNAPSHOT_DIGEST_PROFILE = (
     "polisyos.runtime.authorization.nl_request_snapshot.canonical_json.v1"
 )
+_OBSERVATIONAL_METHOD_BASE_FQN = "causal.hte.forest_dr"
+_OBSERVATIONAL_METHOD_FQN_V1_0 = "causal.hte.forest_dr@1.0.0"
+_OBSERVATIONAL_METHOD_FQN_V1_1 = "causal.hte.forest_dr@1.1.0"
+_OBSERVATIONAL_METHOD_CONTRACT_TARGET_ID = "foundry.causal.hte_observational_data.v1"
+_OBSERVATIONAL_METHOD_CONTRACT_TARGET = (
+    "polisyos.foundry.methods.catalog.causal.protocols.HTEObservationalData"
+)
+_OBSERVATIONAL_SOURCE_ACCESS_STATUS = "not_established"
+_OBSERVATIONAL_METHOD_N_JOBS_PARAMETER = "n_jobs"
+_GRAPH_METHOD_EXECUTION_BUNDLE_ROLE = "method_execution_bundle"
+_GRAPH_METHOD_BINDING_SET_ROLE = "method_metric_binding_set"
+_MAX_GRAPH_PRODUCER_EMISSIONS = 16
+_MAX_GRAPH_ROLE_REFS_PER_EMISSION = 8
+_MAX_GRAPH_DERIVED_REF_SCAN = 256
+_GRAPH_PRODUCER_RECEIPT_SEAL = object()
+_BoundedArtifactModelT = TypeVar("_BoundedArtifactModelT", bound=BaseModel)
+
+
+def _read_observational_resource_policy_artifact(
+    *,
+    store: _CoreJSONArtifactStreamingReader,
+    policy_ref: ArtifactRef,
+    source_ref: ArtifactRef,
+    source_governance: ArtifactGovernanceInfo,
+    source_tenant_context: ArtifactTenantContextInfo | None,
+    limits: CoreJsonReadLimits,
+) -> _ObservationalInputResourcePolicy:
+    """Resolve the exact Runtime policy artifact and its selected source lineage."""
+    from polisyos.core.artifacts import (
+        read_core_json_artifact_bounded,
+        validate_core_model_bounded_read,
+    )
+    from polisyos.core.contracts.runtime import ObservationalInputResourcePolicy
+
+    bounded = read_core_json_artifact_bounded(store, policy_ref, limits=limits)
+    manifest = bounded.manifest
+    policy_governance, policy_tenant_context, _ = _explicit_source_manifest_metadata(
+        raw_manifest_bytes=bounded.raw_manifest_bytes,
+        typed_governance=manifest.governance,
+        tenant_context=manifest.tenant_context,
+    )
+    if (
+        bounded.effective_ref != policy_ref
+        or policy_ref.kind != "runtime.observational_input_resource_policy"
+        or policy_ref.media_type != "application/json"
+        or policy_ref.manifest_profile_sha256 is None
+        or manifest.kind != "runtime.observational_input_resource_policy"
+        or manifest.media_type != "application/json"
+        or manifest.artifact_schema
+        != SchemaInfo(name="polisyos.runtime.ObservationalInputResourcePolicy", version="1.0")
+        or policy_governance != source_governance
+        or policy_tenant_context != source_tenant_context
+        or len(manifest.inputs) != 1
+        or manifest.inputs[0].artifact_id != source_ref.artifact_id
+        or manifest.inputs[0].manifest_profile_sha256 != source_ref.manifest_profile_sha256
+    ):
+        raise ValueError("observational_resource_policy_manifest_binding_mismatch")
+    policy = validate_core_model_bounded_read(ObservationalInputResourcePolicy, bounded)
+    if type(policy) is not ObservationalInputResourcePolicy:
+        raise ValueError("observational_resource_policy_payload_invalid")
+    return policy
+
+
+def _validate_direct_method_execution_selection_artifacts(
+    *,
+    store: _CoreJSONArtifactStreamingReader,
+    selection: _DirectMethodExecutionSelection,
+    limits: CoreJsonReadLimits,
+) -> None:
+    """Bind persisted direct-method refs to exact producer manifests and lineage edges."""
+    from polisyos.core.artifacts import (
+        read_core_json_artifact_bounded,
+        read_core_manifest_profile_bounded,
+        validate_core_model_bounded_read,
+    )
+    from polisyos.core.contracts.runtime import (
+        ContentAdmittedObservationalRunIntent,
+        MethodExecutionCandidateOutcome,
+        ObservationalRunIntent,
+        _expected_content_admitted_limitations,
+    )
+
+    def read_manifest(
+        ref: ArtifactRef,
+        *,
+        kind: str,
+        schema: SchemaInfo | None,
+    ) -> CoreJsonManifestBoundedRead:
+        bounded = read_core_manifest_profile_bounded(
+            store,
+            ref,
+            max_manifest_bytes=limits.max_manifest_bytes,
+        )
+        manifest = bounded.manifest
+        if (
+            bounded.effective_ref != ref
+            or manifest.kind != kind
+            or manifest.media_type != "application/json"
+            or manifest.artifact_schema != schema
+        ):
+            raise ValueError("direct_method_execution_manifest_contract_mismatch")
+        return bounded
+
+    def read_intent(
+        ref: ArtifactRef,
+        *,
+        model: type[_BoundedArtifactModelT],
+        kind: str,
+        schema_name: str,
+    ) -> _BoundedArtifactModelT:
+        bounded = read_core_json_artifact_bounded(store, ref, limits=limits)
+        manifest = bounded.manifest
+        if (
+            bounded.effective_ref != ref
+            or manifest.kind != kind
+            or manifest.media_type != "application/json"
+            or manifest.artifact_schema != SchemaInfo(name=schema_name, version="1.0")
+        ):
+            raise ValueError("direct_method_execution_intent_manifest_mismatch")
+        return validate_core_model_bounded_read(model, bounded)
+
+    requested_intent = cast(
+        "ObservationalRunIntent",
+        read_intent(
+            selection.observational_run_intent_ref,
+            model=ObservationalRunIntent,
+            kind="runtime.observational_run_intent",
+            schema_name="polisyos.runtime.ObservationalRunIntent",
+        ),
+    )
+    admitted_intent = cast(
+        "ContentAdmittedObservationalRunIntent",
+        read_intent(
+            selection.content_admitted_intent_ref,
+            model=ContentAdmittedObservationalRunIntent,
+            kind="runtime.content_admitted_observational_run_intent",
+            schema_name="polisyos.runtime.ContentAdmittedObservationalRunIntent",
+        ),
+    )
+    if (
+        requested_intent.job_id != selection.job_id
+        or requested_intent.run_id != selection.run_id
+        or requested_intent.requested_source_ref != selection.requested_source_ref
+        or requested_intent.protocol != selection.source_protocol
+        or requested_intent.method_fqn != selection.method_fqn
+        or requested_intent.method_version != selection.method_version
+        or requested_intent.method_abi_digest != selection.method_abi_digest
+        or requested_intent.method_build_digest != selection.method_build_digest
+        or requested_intent.method_build_digest_scope != selection.method_build_digest_scope
+        or requested_intent.resource_policy_ref != selection.resource_policy_ref
+        or admitted_intent.resource_policy_ref != selection.resource_policy_ref
+        or requested_intent.resource_policy_digest != selection.resource_policy_digest
+        or selection.selection_digest is None
+        or requested_intent.selection_digest() != selection.selection_digest
+        or admitted_intent.selection_digest != selection.selection_digest
+        or requested_intent.source_access_revalidation_status
+        != selection.source_access_revalidation_status
+        or admitted_intent.source_access_revalidation_status
+        != selection.source_access_revalidation_status
+        or selection.source_access_revalidation_status != _OBSERVATIONAL_SOURCE_ACCESS_STATUS
+        or admitted_intent.job_id != selection.job_id
+        or admitted_intent.run_id != selection.run_id
+        or admitted_intent.attempt != selection.attempt
+        or admitted_intent.requested_intent_ref != selection.observational_run_intent_ref
+        or admitted_intent.requested_source_ref != selection.requested_source_ref
+        or admitted_intent.submitted_input_ref != selection.submitted_input_ref
+        or admitted_intent.effective_input_ref != selection.effective_input_ref
+        or admitted_intent.contract_target_id != selection.contract_target_id
+        or admitted_intent.contract_target_id != _OBSERVATIONAL_METHOD_CONTRACT_TARGET_ID
+        or admitted_intent.contract_target != selection.contract_target
+        or admitted_intent.method_fqn != selection.method_fqn
+        or admitted_intent.source_protocol != selection.source_protocol
+        or admitted_intent.normalization != selection.normalization
+        or admitted_intent.limitations != selection.limitations
+        or admitted_intent.resource_policy_digest != selection.resource_policy_digest
+        or requested_intent.contract_target_id != selection.contract_target_id
+        or requested_intent.contract_target_fqn != selection.contract_target
+        or admitted_intent.source_manifest_sha256 != requested_intent.source_manifest_sha256
+        or admitted_intent.limitations
+        != _expected_content_admitted_limitations(
+            selection.source_protocol,
+            source_access_revalidation_status=selection.source_access_revalidation_status,
+        )
+        or admitted_intent.observed_manifest_bytes
+        != admitted_intent.observed_manifest_selection_bytes
+        or admitted_intent.observed_manifest_selection_bytes
+        > requested_intent.resource_policy.max_manifest_bytes
+        or admitted_intent.observed_manifest_verification_bytes
+        > requested_intent.resource_policy.max_manifest_bytes
+        or admitted_intent.observed_payload_bytes > requested_intent.resource_policy.max_bytes
+        or admitted_intent.observed_depth > requested_intent.resource_policy.max_depth
+        or admitted_intent.observed_elements > requested_intent.resource_policy.max_elements
+        or admitted_intent.observed_source_bytes
+        > (
+            2 * requested_intent.resource_policy.max_manifest_bytes
+            + requested_intent.resource_policy.max_bytes
+        )
+    ):
+        raise ValueError("direct_method_execution_intent_lineage_mismatch")
+
+    input_policy = requested_intent.resource_policy
+    if (
+        admitted_intent.observed_manifest_selection_bytes > input_policy.max_manifest_bytes
+        or admitted_intent.observed_manifest_verification_bytes > input_policy.max_manifest_bytes
+        or admitted_intent.observed_payload_bytes > input_policy.max_bytes
+        or admitted_intent.observed_depth > input_policy.max_depth
+        or admitted_intent.observed_elements > input_policy.max_elements
+        or admitted_intent.observed_source_bytes
+        > (2 * input_policy.max_manifest_bytes + input_policy.max_bytes)
+    ):
+        raise ValueError("direct_method_execution_read_usage_exceeds_requested_policy")
+
+    expected_source_schema = (
+        SchemaInfo(name="polisyos.ir.ObservationMethodInputEnvelope", version="1.0")
+        if selection.source_protocol == "method_input_envelope_v1"
+        else None
+    )
+    source_read = read_manifest(
+        selection.requested_source_ref,
+        kind=selection.requested_source_ref.kind,
+        schema=expected_source_schema,
+    )
+    source_manifest = source_read.manifest
+    source_governance, source_tenant_context, source_manifest_sha256 = (
+        _explicit_source_manifest_metadata(
+            raw_manifest_bytes=source_read.raw_manifest_bytes,
+            typed_governance=source_manifest.governance,
+            tenant_context=source_manifest.tenant_context,
+            expected_sha256=requested_intent.source_manifest_sha256,
+        )
+    )
+    expected_source_kind = (
+        "ir.observation_method_input"
+        if selection.source_protocol == "method_input_envelope_v1"
+        else "ir.observational_data"
+    )
+    _require_public_candidate_source(source_governance, source_tenant_context)
+    requested_intent_manifest = read_manifest(
+        selection.observational_run_intent_ref,
+        kind="runtime.observational_run_intent",
+        schema=SchemaInfo(name="polisyos.runtime.ObservationalRunIntent", version="1.0"),
+    ).manifest
+    admitted_intent_manifest = read_manifest(
+        selection.content_admitted_intent_ref,
+        kind="runtime.content_admitted_observational_run_intent",
+        schema=SchemaInfo(
+            name="polisyos.runtime.ContentAdmittedObservationalRunIntent",
+            version="1.0",
+        ),
+    ).manifest
+
+    def has_exact_selected_inputs(
+        inputs: tuple[object, ...] | list[object],
+        refs: tuple[ArtifactRef, ...],
+    ) -> bool:
+        if len(inputs) != len(refs):
+            return False
+        unmatched = list(refs)
+        for edge in inputs:
+            edge_id = getattr(edge, "artifact_id", None)
+            edge_profile = getattr(edge, "manifest_profile_sha256", None)
+            match = next(
+                (
+                    index
+                    for index, ref in enumerate(unmatched)
+                    if edge_id == ref.artifact_id and edge_profile == ref.manifest_profile_sha256
+                ),
+                None,
+            )
+            if match is None:
+                return False
+            unmatched.pop(match)
+        return not unmatched
+
+    if (
+        source_manifest.kind != expected_source_kind
+        or requested_intent.source_manifest_sha256 != source_manifest_sha256
+        or requested_intent.source_governance != source_governance
+        or requested_intent.source_tenant_context != source_tenant_context
+        or admitted_intent.source_governance != source_governance
+        or admitted_intent.source_tenant_context != source_tenant_context
+        or requested_intent.source_access_revalidation_status != _OBSERVATIONAL_SOURCE_ACCESS_STATUS
+        or not has_exact_selected_inputs(
+            requested_intent_manifest.inputs,
+            (selection.requested_source_ref, selection.resource_policy_ref),
+        )
+        or not has_exact_selected_inputs(
+            admitted_intent_manifest.inputs,
+            (
+                selection.observational_run_intent_ref,
+                selection.requested_source_ref,
+                selection.resource_policy_ref,
+                selection.submitted_input_ref,
+                selection.effective_input_ref,
+            ),
+        )
+    ):
+        raise ValueError("direct_method_execution_source_manifest_lineage_mismatch")
+
+    selected_policy = _read_observational_resource_policy_artifact(
+        store=store,
+        policy_ref=selection.resource_policy_ref,
+        source_ref=selection.requested_source_ref,
+        source_governance=source_governance,
+        source_tenant_context=source_tenant_context,
+        limits=limits,
+    )
+    if (
+        selected_policy != requested_intent.resource_policy
+        or selected_policy.digest() != selection.resource_policy_digest
+        or admitted_intent.resource_policy_digest != selection.resource_policy_digest
+    ):
+        raise ValueError("direct_method_execution_resource_policy_lineage_mismatch")
+
+    effective_read = read_manifest(
+        selection.effective_input_ref,
+        kind="ir.observation_method_input",
+        schema=SchemaInfo(name="polisyos.ir.ObservationMethodInputEnvelope", version="1.0"),
+    )
+    effective_governance, effective_tenant_context, _ = _explicit_source_manifest_metadata(
+        raw_manifest_bytes=effective_read.raw_manifest_bytes,
+        typed_governance=effective_read.manifest.governance,
+        tenant_context=effective_read.manifest.tenant_context,
+    )
+    if (
+        effective_governance != source_governance
+        or effective_tenant_context != source_tenant_context
+    ):
+        raise ValueError("direct_method_execution_effective_input_metadata_mismatch")
+    if selection.source_protocol == "method_input_envelope_v1":
+        if selection.effective_input_ref != selection.submitted_input_ref:
+            raise ValueError("direct_method_execution_effective_input_passthrough_mismatch")
+    else:
+        effective_source_edges = [
+            edge
+            for edge in effective_read.manifest.inputs
+            if edge.role == "legacy_hte_json_v1_source"
+        ]
+        if (
+            len(effective_read.manifest.inputs) != 1
+            or len(effective_source_edges) != 1
+            or effective_source_edges[0].artifact_id != selection.submitted_input_ref.artifact_id
+            or effective_source_edges[0].manifest_profile_sha256
+            != selection.submitted_input_ref.manifest_profile_sha256
+        ):
+            raise ValueError("direct_method_execution_effective_input_lineage_mismatch")
+    result_read = read_manifest(
+        selection.method_result_ref,
+        kind="scientist.method_result.causal.hte",
+        schema=SchemaInfo(name="polisyos.scientist.MethodResult", version="0.1.0"),
+    )
+    evidence_manifest_read = read_manifest(
+        selection.method_evidence_ref,
+        kind="scientist.method_evidence",
+        schema=SchemaInfo(
+            name="polisyos.scientist.MethodExecutionEvidence",
+            version="0.1.0",
+        ),
+    )
+    for output_read in (result_read, evidence_manifest_read):
+        output_governance, output_tenant_context, _ = _explicit_source_manifest_metadata(
+            raw_manifest_bytes=output_read.raw_manifest_bytes,
+            typed_governance=output_read.manifest.governance,
+            tenant_context=output_read.manifest.tenant_context,
+        )
+        if output_governance != source_governance or output_tenant_context != source_tenant_context:
+            raise ValueError("direct_method_execution_output_metadata_mismatch")
+    result_manifest = result_read.manifest
+    evidence_manifest = evidence_manifest_read.manifest
+
+    evidence_read = read_core_json_artifact_bounded(
+        store,
+        selection.method_evidence_ref,
+        limits=limits,
+    )
+    evidence_payload = evidence_read.value
+    if not isinstance(evidence_payload, Mapping):
+        raise ValueError("direct_method_execution_evidence_content_invalid")
+    evidence_candidate_outcome = evidence_payload.get("candidate_outcome")
+    if selection.candidate_outcome is None:
+        if evidence_candidate_outcome is not None:
+            raise ValueError("direct_method_execution_candidate_outcome_unbound")
+    else:
+        try:
+            checked_candidate_outcome = MethodExecutionCandidateOutcome.model_validate(
+                evidence_candidate_outcome
+            )
+        except (TypeError, ValueError) as exc:
+            raise ValueError("direct_method_execution_candidate_outcome_invalid") from exc
+        if checked_candidate_outcome != selection.candidate_outcome:
+            raise ValueError("direct_method_execution_candidate_outcome_mismatch")
+    try:
+        evidence_result_ref = ArtifactRef.model_validate(evidence_payload.get("method_result_ref"))
+    except (TypeError, ValueError) as exc:
+        raise ValueError("direct_method_execution_evidence_content_invalid") from exc
+    if (
+        evidence_payload.get("authority_purpose") != "method_execution"
+        or evidence_payload.get("method_fqn") != selection.method_fqn
+        or evidence_payload.get("method_version") != selection.method_version
+        or evidence_payload.get("method_abi_digest") != selection.method_abi_digest
+        or evidence_payload.get("method_build_digest") != selection.method_build_digest
+        or evidence_payload.get("resource_policy_digest") != selection.resource_policy_digest
+        or evidence_payload.get("resource_policy_ref")
+        != selection.resource_policy_ref.model_dump(mode="json")
+        or evidence_payload.get("source_protocol") != selection.source_protocol
+        or evidence_payload.get("normalization") != selection.normalization
+        or evidence_payload.get("limitations") != list(selection.limitations)
+        or evidence_payload.get("requested_source_ref")
+        != selection.requested_source_ref.model_dump(mode="json")
+        or evidence_payload.get("observational_run_intent_ref")
+        != selection.observational_run_intent_ref.model_dump(mode="json")
+        or evidence_payload.get("content_admitted_intent_ref")
+        != selection.content_admitted_intent_ref.model_dump(mode="json")
+        or evidence_payload.get("submitted_input_ref")
+        != selection.submitted_input_ref.model_dump(mode="json")
+        or evidence_payload.get("effective_input_ref")
+        != selection.effective_input_ref.model_dump(mode="json")
+        or evidence_payload.get("result_ref") != str(selection.method_result_ref.artifact_id)
+        or evidence_result_ref != selection.method_result_ref
+    ):
+        raise ValueError("direct_method_execution_evidence_content_mismatch")
+
+    expected_lineage = (
+        ("requested_source", selection.requested_source_ref),
+        ("observational_run_intent", selection.observational_run_intent_ref),
+        ("content_admitted_intent", selection.content_admitted_intent_ref),
+        ("submitted_method_input", selection.submitted_input_ref),
+        ("effective_method_input", selection.effective_input_ref),
+        ("method_resource_policy", selection.resource_policy_ref),
+    )
+
+    def has_exact_inputs(
+        inputs: tuple[object, ...] | list[object],
+        expected: tuple[tuple[str, ArtifactRef], ...],
+    ) -> bool:
+        if len(inputs) != len(expected):
+            return False
+        remaining = list(expected)
+        for edge in inputs:
+            edge_role = getattr(edge, "role", None)
+            edge_id = getattr(edge, "artifact_id", None)
+            edge_profile = getattr(edge, "manifest_profile_sha256", None)
+            match = next(
+                (
+                    index
+                    for index, (role, ref) in enumerate(remaining)
+                    if edge_role == role
+                    and edge_id == ref.artifact_id
+                    and edge_profile == ref.manifest_profile_sha256
+                ),
+                None,
+            )
+            if match is None:
+                return False
+            remaining.pop(match)
+        return not remaining
+
+    evidence_lineage = (("method_result", selection.method_result_ref), *expected_lineage)
+    if not has_exact_inputs(result_manifest.inputs, expected_lineage) or not has_exact_inputs(
+        evidence_manifest.inputs, evidence_lineage
+    ):
+        raise ValueError("direct_method_execution_output_lineage_mismatch")
+
+
+def _reject_duplicate_json_object_members(pairs: list[tuple[str, Any]]) -> dict[str, Any]:
+    """Decode one raw metadata object without ambiguous duplicate keys."""
+    result: dict[str, Any] = {}
+    for key, value in pairs:
+        if key in result:
+            raise ValueError("observational_manifest_duplicate_member")
+        result[key] = value
+    return result
+
+
+def _require_public_candidate_source(
+    governance: ArtifactGovernanceInfo,
+    tenant_context: ArtifactTenantContextInfo | None,
+) -> None:
+    """Allow candidate execution only for an unscoped public source.
+
+    Runtime currently has no owner-issued source-read authorization receipt for
+    asynchronous method work. This bounded case carries that absence explicitly;
+    tenant or non-public inputs fail closed instead of treating CAS ownership as
+    authorization.
+    """
+    if governance.classification != "public" or tenant_context is not None:
+        raise ValueError("observational_source_current_access_not_established")
+
+
+def _explicit_source_manifest_metadata(
+    *,
+    raw_manifest_bytes: bytes,
+    typed_governance: ArtifactGovernanceInfo | None,
+    tenant_context: ArtifactTenantContextInfo | None,
+    expected_sha256: str | None = None,
+) -> tuple[ArtifactGovernanceInfo, ArtifactTenantContextInfo | None, str]:
+    """Bind raw explicit classification, selected typed metadata, and its digest."""
+    if type(raw_manifest_bytes) is not bytes:
+        raise ValueError("observational_source_manifest_raw_invalid")
+    try:
+        raw_manifest = json.loads(
+            raw_manifest_bytes.decode("utf-8"),
+            object_pairs_hook=_reject_duplicate_json_object_members,
+        )
+    except (UnicodeDecodeError, json.JSONDecodeError, TypeError, ValueError) as exc:
+        raise ValueError("observational_source_manifest_raw_invalid") from exc
+    raw_governance = raw_manifest.get("governance") if isinstance(raw_manifest, Mapping) else None
+    raw_classification = (
+        raw_governance.get("classification") if isinstance(raw_governance, Mapping) else None
+    )
+    if (
+        not isinstance(typed_governance, ArtifactGovernanceInfo)
+        or type(raw_classification) is not str
+        or not raw_classification.strip()
+        or raw_classification != typed_governance.classification
+    ):
+        raise ValueError("observational_source_governance_not_explicit")
+    if tenant_context is not None and not isinstance(tenant_context, ArtifactTenantContextInfo):
+        raise ValueError("observational_source_tenant_context_invalid")
+    manifest_sha256 = hashlib.sha256(raw_manifest_bytes).hexdigest()
+    if expected_sha256 is not None and manifest_sha256 != expected_sha256:
+        raise ValueError("observational_source_manifest_pin_drift")
+    return typed_governance, tenant_context, manifest_sha256
+
+
+@dataclass(frozen=True, slots=True)
+class _RuntimeGraphProducerEmission:
+    """Bounded refs-only facts from one actual Foundry ExecuteResult."""
+
+    emission_index: int
+    execute_result_status: Literal["ok", "failed", "not_established"]
+    output_ref_status: Literal["complete", "partial", "none"]
+    simulation_result_ref: ArtifactRef | None
+    method_execution_bundle_refs: tuple[ArtifactRef, ...]
+    method_metric_binding_set_refs: tuple[ArtifactRef, ...]
+
+
+@dataclass(frozen=True, slots=True)
+class _RuntimeGraphProducerReceipt:
+    """Private ref-only evidence captured at the actual Foundry execute boundary."""
+
+    job_id: str
+    run_id: str
+    attempt: int
+    lease_owner: str
+    emissions: tuple[tuple[ArtifactRef, ArtifactRef, ArtifactRef], ...]
+    diagnostics: tuple[_RuntimeGraphProducerEmission, ...]
+    inventory_truncated: bool
+    seal: object
+
+    def is_runtime_minted(self) -> bool:
+        """Return whether this receipt was minted by the scoped server wrapper."""
+        return self.seal is _GRAPH_PRODUCER_RECEIPT_SEAL
+
+    def diagnostic_model(self) -> MethodExecutionProducerDiagnostic:
+        """Build a strict candidate-only projection of the bounded output inventory."""
+        from polisyos.core.contracts.runtime import (
+            MethodExecutionProducerDiagnostic,
+            MethodExecutionProducerEmissionDiagnostic,
+        )
+
+        return MethodExecutionProducerDiagnostic(
+            job_id=self.job_id,
+            run_id=self.run_id,
+            attempt=self.attempt,
+            emissions=tuple(
+                MethodExecutionProducerEmissionDiagnostic(
+                    emission_index=item.emission_index,
+                    execute_result_status=item.execute_result_status,
+                    output_ref_status=item.output_ref_status,
+                    simulation_result_ref=item.simulation_result_ref,
+                    method_execution_bundle_refs=item.method_execution_bundle_refs,
+                    method_metric_binding_set_refs=item.method_metric_binding_set_refs,
+                )
+                for item in self.diagnostics
+            ),
+            inventory_truncated=self.inventory_truncated,
+        )
+
+
+@dataclass(frozen=True, slots=True)
+class _ScientistGraphOutputRefs:
+    """Retain only selected graph refs after the Scientist state is released."""
+
+    simulation_result_ref: ArtifactRef | None
+    method_execution_bundle_ref: ArtifactRef | None
+    method_metric_binding_set_ref: ArtifactRef | None
+
+
+@dataclass(frozen=True, slots=True)
+class _LegacyScientistWorkflowRun:
+    """Internal output from one selected Scientist invocation and Foundry capture."""
+
+    graph_output_refs: _ScientistGraphOutputRefs
+    source_experiment_state_ref: ArtifactRef | None
+    graph_producer_receipt: _RuntimeGraphProducerReceipt | None
+
+
+@dataclass(frozen=True, slots=True)
+class CompletedMethodMetricSource:
+    """Owner-resolved graph source for a later candidate evaluation request.
+
+    The request candidate is compared against the source candidate captured by the
+    sealed AD01 admission. The Core state ref is retained as run provenance; it is
+    not interpreted as scientific evidence.
+    """
+
+    source_run_id: str
+    source_candidate_ref: ArtifactRef
+    source_experiment_state_ref: ArtifactRef
+    selection: _GraphMethodExecutionSelection
+
+
+class _FoundryPortProtocol(Protocol):
+    """The exact small Foundry boundary needed by the Runtime origin collector."""
+
+    def compile(self, store: object, request: object) -> object: ...
+
+    def execute(self, store: object, request: object) -> object: ...
+
+
+class _CurrentMethodMetricProjectionReadResult(Protocol):
+    """Small result returned by the bounded current AD01 projection reader."""
+
+    status: Literal["selected", "verification_missing", "invalid"]
+    vector_ref: object | None
+    observations: tuple[object, ...]
+    limitations: tuple[str, ...]
+
+
+class _MethodParameterSpecProtocol(Protocol):
+    """One already-registered method parameter contract."""
+
+    name: str
+    default: object
+    bounds: tuple[int | float | None, int | float | None]
+
+
+class _MethodSignatureProtocol(Protocol):
+    """The small exact registration view needed by Runtime admission."""
+
+    fqn: str
+    version: str
+    parameters: tuple[_MethodParameterSpecProtocol, ...]
+
+    def abi_digest(self) -> str: ...
+
+
+@dataclass(frozen=True, slots=True)
+class _RuntimeObservationalMethodRegistration:
+    """One startup-pinned registration and its bounded input-family profile."""
+
+    method_class: type[Any]
+    signature: _MethodSignatureProtocol
+    build_digest: str
+    contract_target: str
+    n_jobs_parameter: str
+
+
+class _MethodMetricSourceTupleProtocol(Protocol):
+    """The fixed selected graph refs admitted by the AD01 worker."""
+
+    job_id: str
+    run_id: str
+    attempt: int
+    method_result_ref: ArtifactRef | None
+    simulation_result_ref: ArtifactRef
+    method_execution_bundle_ref: ArtifactRef
+    method_metric_binding_set_ref: ArtifactRef
+
+
+class _VerifiedMethodMetricProjectionAdmissionProtocol(Protocol):
+    """The sealed AD01 receipt fields that Runtime must reconcile before commit."""
+
+    source_tuple: _MethodMetricSourceTupleProtocol
+    source_candidate_ref: ArtifactRef
+    vector_ref: ArtifactRef
+    verifier_revision: str
+    verifier_implementation_sha256: str
+
+
+class _RuntimeOriginCapturingFoundryPort:
+    """Delegate Foundry calls while retaining a bounded receipt of actual graph outputs."""
+
+    def __init__(
+        self,
+        *,
+        delegate: _FoundryPortProtocol,
+        job_id: str,
+        run_id: str,
+        attempt: int,
+        lease_owner: str,
+    ) -> None:
+        if not job_id or not run_id or type(attempt) is not int or attempt < 1 or not lease_owner:
+            raise ValueError("runtime_graph_producer_scope_not_established")
+        self._delegate = delegate
+        self._job_id = job_id
+        self._run_id = run_id
+        self._attempt = attempt
+        self._lease_owner = lease_owner
+        self._emissions: list[tuple[ArtifactRef, ArtifactRef, ArtifactRef]] = []
+        self._diagnostics: list[_RuntimeGraphProducerEmission] = []
+        self._inventory_truncated = False
+
+    def compile(self, store: object, request: object) -> object:
+        """Forward compilation to the server-selected Foundry port."""
+        return self._delegate.compile(store, request)
+
+    def execute(self, store: object, request: object) -> object:
+        """Capture actual ExecuteResult refs without retaining payloads or arrays."""
+        result = self._delegate.execute(store, request)
+        self._capture_execute_result(result)
+        return result
+
+    def producer_receipt(self) -> _RuntimeGraphProducerReceipt | None:
+        """Freeze the bounded collector after the scoped Scientist invocation."""
+        return _RuntimeGraphProducerReceipt(
+            job_id=self._job_id,
+            run_id=self._run_id,
+            attempt=self._attempt,
+            lease_owner=self._lease_owner,
+            emissions=tuple(self._emissions),
+            diagnostics=tuple(self._diagnostics),
+            inventory_truncated=self._inventory_truncated,
+            seal=_GRAPH_PRODUCER_RECEIPT_SEAL,
+        )
+
+    def _capture_execute_result(self, result: object) -> None:
+        simulation_observed = getattr(result, "simulation_result_ref", None)
+        derived_refs = getattr(result, "derived_refs", None)
+        if not isinstance(derived_refs, (list, tuple)):
+            derived_refs = ()
+        bundle_refs: list[ArtifactRef] = []
+        binding_refs: list[ArtifactRef] = []
+        bundle_observed = False
+        binding_observed = False
+        invalid_output_ref = False
+        derived_scan_truncated = False
+        for index, item in enumerate(derived_refs):
+            if index >= _MAX_GRAPH_DERIVED_REF_SCAN:
+                derived_scan_truncated = True
+                break
+            role = getattr(item, "role", None)
+            if role not in {
+                _GRAPH_METHOD_EXECUTION_BUNDLE_ROLE,
+                _GRAPH_METHOD_BINDING_SET_ROLE,
+            }:
+                continue
+            target = bundle_refs if role == _GRAPH_METHOD_EXECUTION_BUNDLE_ROLE else binding_refs
+            if role == _GRAPH_METHOD_EXECUTION_BUNDLE_ROLE:
+                bundle_observed = True
+                expected_kind = "foundry.method_execution_bundle"
+            else:
+                binding_observed = True
+                expected_kind = "foundry.method_metric_binding_set"
+            ref = getattr(item, "ref", None)
+            if (
+                not isinstance(ref, ArtifactRef)
+                or ref.kind != expected_kind
+                or ref.media_type != "application/json"
+                or ref.manifest_profile_sha256 is None
+            ):
+                invalid_output_ref = True
+                continue
+            if len(target) >= _MAX_GRAPH_ROLE_REFS_PER_EMISSION:
+                derived_scan_truncated = True
+                continue
+            target.append(ref)
+
+        simulation_ref: ArtifactRef | None = None
+        if simulation_observed is not None:
+            if (
+                isinstance(simulation_observed, ArtifactRef)
+                and simulation_observed.kind == "foundry.simulation_result"
+                and simulation_observed.media_type == "application/json"
+                and simulation_observed.manifest_profile_sha256 is not None
+            ):
+                simulation_ref = simulation_observed
+            else:
+                invalid_output_ref = True
+
+        if not (simulation_observed is not None or bundle_observed or binding_observed):
+            if derived_scan_truncated:
+                self._inventory_truncated = True
+            return
+
+        if len(self._diagnostics) >= _MAX_GRAPH_PRODUCER_EMISSIONS:
+            self._inventory_truncated = True
+            return
+
+        direct_bundle_ref = getattr(result, "method_execution_bundle_ref", None)
+        direct_bundle_mismatch = direct_bundle_ref is not None and (
+            not isinstance(direct_bundle_ref, ArtifactRef)
+            or len(bundle_refs) != 1
+            or direct_bundle_ref != bundle_refs[0]
+        )
+        complete_ref_set = (
+            simulation_ref is not None and len(bundle_refs) == 1 and len(binding_refs) == 1
+        )
+        complete_inventory = (
+            complete_ref_set
+            and not invalid_output_ref
+            and not direct_bundle_mismatch
+            and not derived_scan_truncated
+        )
+        complete = getattr(result, "ok", None) is True and complete_inventory
+        output_ref_count = int(simulation_ref is not None) + len(bundle_refs) + len(binding_refs)
+        output_status: Literal["complete", "partial", "none"] = (
+            "complete" if complete_inventory else "partial" if output_ref_count else "none"
+        )
+        result_ok = getattr(result, "ok", None)
+        result_status: Literal["ok", "failed", "not_established"] = (
+            "ok" if result_ok is True else "failed" if result_ok is False else "not_established"
+        )
+        self._diagnostics.append(
+            _RuntimeGraphProducerEmission(
+                emission_index=len(self._diagnostics),
+                execute_result_status=result_status,
+                output_ref_status=output_status,
+                simulation_result_ref=simulation_ref,
+                method_execution_bundle_refs=tuple(bundle_refs),
+                method_metric_binding_set_refs=tuple(binding_refs),
+            )
+        )
+        if derived_scan_truncated:
+            self._inventory_truncated = True
+        if complete:
+            selected_refs = (simulation_ref, bundle_refs[0], binding_refs[0])
+            if selected_refs not in self._emissions:
+                self._emissions.append(selected_refs)
+
+
+def _selected_graph_source_refs_from_receipt(
+    *,
+    graph_output_refs: _ScientistGraphOutputRefs,
+    receipt: _RuntimeGraphProducerReceipt | None,
+    job_id: str,
+    run_id: str,
+    attempt: int,
+    lease_owner: str | None,
+) -> tuple[ArtifactRef, ArtifactRef, ArtifactRef] | None:
+    """Accept only final-state refs that equal a scoped actual ExecuteResult emission."""
+    if (
+        type(receipt) is not _RuntimeGraphProducerReceipt
+        or not receipt.is_runtime_minted()
+        or receipt.job_id != job_id
+        or receipt.run_id != run_id
+        or receipt.attempt != attempt
+        or receipt.inventory_truncated
+        or not lease_owner
+        or receipt.lease_owner != lease_owner
+    ):
+        return None
+    if type(graph_output_refs) is not _ScientistGraphOutputRefs:
+        return None
+    refs = (
+        graph_output_refs.simulation_result_ref,
+        graph_output_refs.method_execution_bundle_ref,
+        graph_output_refs.method_metric_binding_set_ref,
+    )
+    if any(not isinstance(ref, ArtifactRef) for ref in refs):
+        return None
+    selected_refs = cast(
+        "tuple[ArtifactRef, ArtifactRef, ArtifactRef]",
+        refs,
+    )
+    expected_kinds = (
+        "foundry.simulation_result",
+        "foundry.method_execution_bundle",
+        "foundry.method_metric_binding_set",
+    )
+    if any(
+        ref.kind != kind
+        or ref.media_type != "application/json"
+        or ref.manifest_profile_sha256 is None
+        for ref, kind in zip(selected_refs, expected_kinds, strict=True)
+    ):
+        return None
+    if selected_refs not in receipt.emissions:
+        return None
+    return selected_refs
+
+
+def _scientist_graph_output_refs(state: Mapping[str, Any]) -> _ScientistGraphOutputRefs:
+    """Keep only three full-profile producer refs from the mutable workflow result."""
+    artifacts_index = state.get("artifacts_index")
+    if not isinstance(artifacts_index, Mapping):
+        return _ScientistGraphOutputRefs(None, None, None)
+    selected: list[ArtifactRef | None] = []
+    for key, expected_kind in (
+        ("simulation_result_ref", "foundry.simulation_result"),
+        ("method_execution_bundle_ref", "foundry.method_execution_bundle"),
+        ("method_metric_binding_set_ref", "foundry.method_metric_binding_set"),
+    ):
+        try:
+            ref = ArtifactRef.model_validate(artifacts_index[key])
+        except (KeyError, TypeError, ValueError):
+            selected.append(None)
+            continue
+        if (
+            ref.kind != expected_kind
+            or ref.media_type != "application/json"
+            or ref.manifest_profile_sha256 is None
+        ):
+            selected.append(None)
+            continue
+        selected.append(ref)
+    return _ScientistGraphOutputRefs(
+        simulation_result_ref=selected[0],
+        method_execution_bundle_ref=selected[1],
+        method_metric_binding_set_ref=selected[2],
+    )
+
+
+@dataclass(frozen=True, slots=True)
+class _RuntimeMethodExecutionAdmission:
+    """Server-resolved request pins supplied to the selected worker slot."""
+
+    store: _MethodExecutionArtifactStore
+    requested_source_ref: ArtifactRef
+    observational_run_intent_ref: ArtifactRef
+    source_manifest_sha256: str
+    lease_owner: str
+    protocol: Literal["method_input_envelope_v1", "legacy_hte_json_v1"]
+    method_fqn: str
+    method_version: str
+    method_abi_digest: str
+    method_build_digest: str
+    effective_params: dict[str, Any]
+    submitted_params: dict[str, Any]
+    submitted_params_present: bool
+    seed: int
+    resource_policy_ref: ArtifactRef
+    resource_policy_digest: str
+    selection_digest: str
+    source_access_revalidation_status: Literal["not_established"]
+    requested_limitations: tuple[str, ...]
+    source_governance: ArtifactGovernanceInfo
+    source_tenant_context: ArtifactTenantContextInfo | None
+    limits: CoreJsonReadLimits
+
+
+@dataclass(frozen=True, slots=True)
+class _RuntimeGraphMetricSource:
+    """Bind a fixed metric task to producer refs returned by the current workflow call."""
+
+    job_id: str
+    run_id: str
+    attempt: int
+    lease_owner: str
+    simulation_result_ref: ArtifactRef
+    method_execution_bundle_ref: ArtifactRef
+    method_metric_binding_set_ref: ArtifactRef
+
+
+_RUNTIME_GRAPH_METRIC_SOURCE: ContextVar[_RuntimeGraphMetricSource | None] = ContextVar(
+    "runtime_graph_metric_source", default=None
+)
 
 
 _EPOCH_VALIDITY_INTAKE_FAILURE_CODES = frozenset(
@@ -552,18 +1525,45 @@ class PublishedSignatureCustodyLifecyclePublication:
 if TYPE_CHECKING:
     from collections.abc import Callable
     from contextlib import AbstractContextManager
-    from typing import Literal, Protocol
+    from typing import Literal
 
     from polisyos.core import contracts as core_contracts
+    from polisyos.core.artifacts.canonical_profile import (
+        CoreJsonManifestBoundedRead,
+        CoreJsonReadLimits,
+    )
     from polisyos.core.artifacts.protocol import (
         ArtifactStore,
         AsyncArtifactStore,
         RootedArtifactStore,
     )
+    from polisyos.core.artifacts.protocol import (
+        CoreJSONArtifactStreamingReader as _CoreJSONArtifactStreamingReader,
+    )
+    from polisyos.core.contracts.runtime import (
+        DirectMethodExecutionRunProjection as _DirectMethodExecutionRunProjection,
+    )
+    from polisyos.core.contracts.runtime import (
+        DirectMethodExecutionSelection as _DirectMethodExecutionSelection,
+    )
+    from polisyos.core.contracts.runtime import (
+        GraphMethodExecutionSelection as _GraphMethodExecutionSelection,
+    )
+    from polisyos.core.contracts.runtime import (
+        MethodExecutionProducerDiagnostic,
+        MethodExecutionSelection,
+    )
+    from polisyos.core.contracts.runtime import (
+        ObservationalInputResourcePolicy as _ObservationalInputResourcePolicy,
+    )
     from polisyos.core.observability import MetricsRegistry, PolicyOSTracer
     from polisyos.fabric.connectors.profiles.registry import SourceProfileRegistry
     from polisyos.fabric.connectors.registry import ConnectorRegistry
     from polisyos.fabric.retrieval import RetrievalProviders, RetrievalService
+    from polisyos.foundry.methods import MethodSignature
+    from polisyos.ir.observation.bundles import (
+        ContractCompatibilityTarget as _ContractCompatibilityTarget,
+    )
     from polisyos.pdc import ArtifactRef as EvalSafetyArtifactRef
     from polisyos.runtime.http.services.adapters.core_run import TerminalCoreRunSource
     from polisyos.runtime.http.services.control.generation_cycle import (
@@ -599,6 +1599,12 @@ if TYPE_CHECKING:
     )
     from polisyos.runtime.quality.substrate_registry import CatalogServingSourcePaths
     from polisyos.scientist import BudgetState
+    from polisyos.scientist.compute.runner import (
+        MethodExecutionAdmission,
+        MethodExecutionWork,
+        MethodMetricProjectionWork,
+        _MethodExecutionArtifactStore,
+    )
     from polisyos.scientist.orchestration.engine import BudgetLedgerProducerRunBinding
 
     from ...step_up import StepUpReplayStore
@@ -2471,6 +3477,35 @@ class ControlPlaneService(
             )
         else:
             self._control_store = control_store
+        (
+            self._method_registry,
+            self._observational_method_registrations,
+        ) = self._bootstrap_observational_method_registration()
+        from polisyos.core.contracts.bounded_liveness import BoundedLivenessConfig
+        from polisyos.core.contracts.runtime import ObservationalInputResourcePolicy
+        from polisyos.scientist.compute.runner import MethodBackend
+
+        self._bounded_liveness_config = BoundedLivenessConfig()
+        method_wait_policy = self._bounded_liveness_config.resolve(
+            "runtime.observational_method_execution",
+            requested_retries=0,
+        )
+        self._method_metric_projection_wait_policy = self._bounded_liveness_config.resolve(
+            "runtime.method_metric_projection",
+            requested_retries=0,
+        )
+        self._observational_resource_policy = ObservationalInputResourcePolicy(
+            schema_version="polisyos.runtime.observational_input_resource_policy.v3",
+            revision="r3",
+            method_contract_target=_OBSERVATIONAL_METHOD_CONTRACT_TARGET,
+            required_estimator_n_jobs=1,
+            method_execution_wait_policy=method_wait_policy,
+        )
+        self._method_backend = MethodBackend(
+            admission_service=self,
+            registry_provider=lambda: self._method_registry,
+            metric_projection_service=self,
+        )
         if evaluation_safety_persistence_service is not None and not isinstance(
             evaluation_safety_persistence_service,
             EvaluationSafetyPersistenceService,
@@ -3296,6 +4331,8 @@ class ControlPlaneService(
         schema_name: str,
         schema_version: str = "1.0",
         tenant_context: ArtifactTenantContextInfo | None = None,
+        governance: ArtifactGovernanceInfo | None = None,
+        inputs: list[ArtifactRef] | None = None,
     ) -> ArtifactRef:
         """Persist JSON and retain the exact store-selected manifest view."""
         artifact_ref = self._artifact_store.put_json(
@@ -3304,6 +4341,12 @@ class ControlPlaneService(
                 kind=kind,
                 media_type="application/json",
                 schema=SchemaInfo(name=schema_name, version=schema_version),
+                inputs=(
+                    [input_ref_from_artifact_ref(reference) for reference in inputs]
+                    if inputs
+                    else None
+                ),
+                governance=governance,
                 tenant_context=tenant_context,
             ),
             canon_spec=CanonSpec(forbid_floats=False),
@@ -3432,6 +4475,1242 @@ class ControlPlaneService(
             "execution_scope": ControlPlaneService._execution_scope_payload(execution_scope),
         }
 
+    def _bootstrap_observational_method_registration(
+        self,
+    ) -> tuple[Any, dict[str, _RuntimeObservationalMethodRegistration]]:
+        """Register and pin only the supported versions of one HTE method family.
+
+        Registry metadata is resolved during Runtime composition. This does not
+        scan entry points or import estimator dependencies; each worker later
+        resolves the exact FQN/version frozen into the durable intent.
+        """
+        from polisyos.foundry.methods.catalog.causal.forest_dr import (
+            ForestDRLearnerEstimator,
+            ForestDRLearnerEstimatorV11,
+        )
+        from polisyos.foundry.methods.selection.registry import MethodRegistry
+
+        registry = MethodRegistry.get_instance()
+        registrations: dict[str, _RuntimeObservationalMethodRegistration] = {}
+        for method_class in (ForestDRLearnerEstimator, ForestDRLearnerEstimatorV11):
+            signature = method_class.signature
+            if (
+                not signature.fqn.startswith(f"{_OBSERVATIONAL_METHOD_BASE_FQN}@")
+                or signature.fqn != f"{_OBSERVATIONAL_METHOD_BASE_FQN}@{signature.version}"
+            ):
+                raise RuntimeError("observational_method_startup_fqn_mismatch")
+            existing_signature = registry.get_signature(signature.fqn)
+            if existing_signature is None:
+                registry.register(method_class)
+            elif (
+                existing_signature.fqn != signature.fqn
+                or existing_signature.version != signature.version
+                or existing_signature.abi_digest() != signature.abi_digest()
+            ):
+                raise RuntimeError("observational_method_startup_registry_conflict")
+            try:
+                registered_class = registry.get(signature.fqn, version=signature.version)
+            except Exception as exc:
+                raise RuntimeError("observational_method_startup_registration_unavailable") from exc
+            if registered_class is not method_class:
+                raise RuntimeError("observational_method_startup_class_conflict")
+            try:
+                source = inspect.getsource(registered_class).encode("utf-8")
+            except (OSError, TypeError) as exc:
+                raise RuntimeError("observational_method_startup_build_not_established") from exc
+            registrations[signature.fqn] = _RuntimeObservationalMethodRegistration(
+                method_class=registered_class,
+                signature=signature,
+                build_digest=hashlib.sha256(source).hexdigest(),
+                contract_target=_OBSERVATIONAL_METHOD_CONTRACT_TARGET,
+                n_jobs_parameter=_OBSERVATIONAL_METHOD_N_JOBS_PARAMETER,
+            )
+        if set(registrations) != {
+            _OBSERVATIONAL_METHOD_FQN_V1_0,
+            _OBSERVATIONAL_METHOD_FQN_V1_1,
+        }:
+            raise RuntimeError("observational_method_supported_registration_set_invalid")
+        return registry, registrations
+
+    def _resolve_observational_method_registration(
+        self,
+        *,
+        fqn: str,
+        version: str | None,
+    ) -> _RuntimeObservationalMethodRegistration:
+        """Resolve exact or latest registry metadata once, before durable acceptance."""
+        from polisyos.foundry.methods.selection.resolution import (
+            ResolutionError,
+            ResolutionPolicy,
+            resolve_version,
+        )
+
+        if "@" in fqn:
+            requested_base, separator, embedded_version = fqn.rpartition("@")
+            if not separator or not embedded_version:
+                raise ValueError("observational_method_fqn_invalid")
+            if version is not None and version != embedded_version:
+                raise ValueError("observational_method_version_conflict")
+            requested_version = embedded_version
+        else:
+            requested_base = fqn
+            requested_version = version
+        if requested_base != _OBSERVATIONAL_METHOD_BASE_FQN:
+            raise ValueError("observational_method_registration_not_supported")
+        available_versions = self._method_registry.list_versions(requested_base)
+        policy = (
+            ResolutionPolicy.EXACT if requested_version is not None else ResolutionPolicy.LATEST
+        )
+        try:
+            resolved_version = resolve_version(
+                available_versions,
+                requested_version,
+                policy,
+            )
+        except (ResolutionError, TypeError, ValueError) as exc:
+            raise ValueError("observational_method_registration_not_available") from exc
+        resolved_fqn = f"{requested_base}@{resolved_version}"
+        registration = self._observational_method_registrations.get(resolved_fqn)
+        live_signature = self._method_registry.get_signature(resolved_fqn)
+        if (
+            registration is None
+            or live_signature is None
+            or live_signature.fqn != registration.signature.fqn
+            or live_signature.version != registration.signature.version
+            or live_signature.abi_digest() != registration.signature.abi_digest()
+        ):
+            raise ValueError("observational_method_registration_not_supported")
+        return registration
+
+    def _require_observational_method_resource_profile(
+        self,
+        registration: _RuntimeObservationalMethodRegistration,
+        resolved_params: Mapping[str, object],
+    ) -> None:
+        """Require the selected signature and values to meet the pinned n_jobs profile."""
+        policy = self._observational_resource_policy
+        if (
+            policy.revision not in {"r2", "r3"}
+            or policy.method_contract_target != registration.contract_target
+            or policy.required_estimator_n_jobs != 1
+            or registration.n_jobs_parameter != _OBSERVATIONAL_METHOD_N_JOBS_PARAMETER
+        ):
+            raise ValueError("observational_method_resource_profile_not_supported")
+        parameter_specs = [
+            parameter
+            for parameter in registration.signature.parameters
+            if parameter.name == registration.n_jobs_parameter
+        ]
+        if len(parameter_specs) != 1:
+            raise ValueError("observational_method_resource_profile_not_supported")
+        parameter = parameter_specs[0]
+        lower, upper = parameter.bounds
+        selected_value = resolved_params.get(registration.n_jobs_parameter)
+        if (
+            type(parameter.default) is not int
+            or parameter.default != policy.required_estimator_n_jobs
+            or type(lower) is not int
+            or lower != policy.required_estimator_n_jobs
+            or type(upper) is not int
+            or upper != policy.required_estimator_n_jobs
+            or type(selected_value) is not int
+            or selected_value != policy.required_estimator_n_jobs
+        ):
+            raise ValueError("observational_method_resource_profile_not_supported")
+
+    def _observational_read_limits(self) -> CoreJsonReadLimits:
+        """Build the exact Core reader limits from the immutable Runtime policy."""
+        from polisyos.core.artifacts.canonical_profile import CoreJsonReadLimits
+
+        policy = self._observational_resource_policy
+        return CoreJsonReadLimits(
+            max_bytes=policy.max_bytes,
+            max_depth=policy.max_depth,
+            max_elements=policy.max_elements,
+            max_manifest_bytes=policy.max_manifest_bytes,
+        )
+
+    def _read_observational_source_manifest(
+        self,
+        source_ref: ArtifactRef,
+        *,
+        expected_sha256: str | None = None,
+    ) -> tuple[object, ArtifactGovernanceInfo, ArtifactTenantContextInfo | None, str]:
+        """Bound-read one selected source manifest and require raw explicit governance."""
+        from polisyos.core.artifacts import read_core_manifest_profile_bounded
+
+        limits = self._observational_read_limits()
+        bounded = read_core_manifest_profile_bounded(
+            self._artifact_store,
+            source_ref,
+            max_manifest_bytes=limits.max_manifest_bytes,
+        )
+        if bounded.effective_ref != source_ref:
+            raise ValueError("observational_source_selected_profile_drift")
+        manifest = bounded.manifest
+        if (
+            manifest.kind != source_ref.kind
+            or manifest.media_type != "application/json"
+            or artifact_ref_for_manifest(manifest).manifest_profile_sha256
+            != source_ref.manifest_profile_sha256
+        ):
+            raise ValueError("observational_source_manifest_identity_mismatch")
+        typed_governance, tenant_context, manifest_sha256 = _explicit_source_manifest_metadata(
+            raw_manifest_bytes=bounded.raw_manifest_bytes,
+            typed_governance=manifest.governance,
+            tenant_context=manifest.tenant_context,
+            expected_sha256=expected_sha256,
+        )
+        return bounded, typed_governance, tenant_context, manifest_sha256
+
+    @staticmethod
+    def _resolve_observational_method_params(
+        signature: _MethodSignatureProtocol,
+        submitted: Mapping[str, object],
+    ) -> dict[str, object]:
+        """Resolve only declared parameter names and defaults from the pinned signature."""
+        specs = {spec.name: spec for spec in signature.parameters}
+        if len(specs) != len(signature.parameters) or any(
+            type(name) is not str or not name for name in specs
+        ):
+            raise ValueError("observational_method_parameter_contract_invalid")
+        if any(type(name) is not str or name not in specs for name in submitted):
+            raise ValueError("observational_method_parameter_unknown")
+        resolved = {name: spec.default for name, spec in specs.items()}
+        for name, value in submitted.items():
+            spec = specs[name]
+            default = spec.default
+            if value is None:
+                if default is not None:
+                    raise ValueError(f"observational_method_parameter_type_invalid:{name}")
+            elif type(default) is bool:
+                if type(value) is not bool:
+                    raise ValueError(f"observational_method_parameter_type_invalid:{name}")
+            elif type(default) is int:
+                if type(value) is not int:
+                    raise ValueError(f"observational_method_parameter_type_invalid:{name}")
+            elif type(default) is float:
+                if type(value) not in {int, float} or not math.isfinite(float(value)):
+                    raise ValueError(f"observational_method_parameter_type_invalid:{name}")
+            elif type(default) is str:
+                if type(value) is not str:
+                    raise ValueError(f"observational_method_parameter_type_invalid:{name}")
+            elif default is None:
+                raise ValueError(f"observational_method_parameter_type_not_established:{name}")
+            else:
+                raise ValueError(f"observational_method_parameter_type_not_established:{name}")
+            lower, upper = spec.bounds
+            if lower is not None or upper is not None:
+                if type(value) not in {int, float} or not math.isfinite(float(value)):
+                    raise ValueError(f"observational_method_parameter_bounds_invalid:{name}")
+                if (lower is not None and value < lower) or (upper is not None and value > upper):
+                    raise ValueError(f"observational_method_parameter_bounds_invalid:{name}")
+            resolved[name] = value
+        try:
+            json.dumps(resolved, ensure_ascii=False, allow_nan=False, sort_keys=True)
+        except (TypeError, ValueError) as exc:
+            raise ValueError("observational_method_parameters_not_json") from exc
+        return resolved
+
+    def _launch_observational_workflow_run(
+        self,
+        request: WorkflowRunRequest,
+        *,
+        run_id: str,
+        job_id: str,
+        policy: ResolvedExecutionPolicy,
+        request_id: str | None,
+        principal: RuntimePrincipal | None,
+    ) -> RunLaunchResponse:
+        """Persist selected source/method pins, then enqueue a refs-only direct job."""
+        from polisyos.core.contracts.runtime import ObservationalRunIntent
+        from polisyos.ir.observation.bundles import ContractCompatibilityTarget
+
+        selection = request.observational_input
+        if selection is None or request.mode != "workflow":
+            raise unprocessable_entity(
+                "observational_input_requires_workflow_mode",
+                code="observational_input_mode_invalid",
+            )
+        if request.params:
+            raise unprocessable_entity(
+                "Top-level workflow parameters cannot accompany observational_input.",
+                code="observational_input_top_level_params_conflict",
+            )
+        try:
+            bounded_manifest, source_governance, source_tenant, source_manifest_sha256 = (
+                self._read_observational_source_manifest(selection.source_ref)
+            )
+        except Exception as exc:
+            raise unprocessable_entity(
+                "Selected observation manifest is not admissible for bounded method input.",
+                code="observational_source_manifest_not_admitted",
+            ) from exc
+        manifest = bounded_manifest.manifest
+        expected_kind = (
+            "ir.observation_method_input"
+            if selection.protocol == "method_input_envelope_v1"
+            else "ir.observational_data"
+        )
+        if manifest.kind != expected_kind:
+            raise unprocessable_entity(
+                "Selected observation kind does not match the declared protocol.",
+                code="observational_source_kind_mismatch",
+            )
+        if selection.protocol == "method_input_envelope_v1":
+            if manifest.artifact_schema != SchemaInfo(
+                name="polisyos.ir.ObservationMethodInputEnvelope",
+                version="1.0",
+            ):
+                raise unprocessable_entity(
+                    "Selected method-input envelope schema does not match the declared protocol.",
+                    code="observational_source_schema_mismatch",
+                )
+        elif manifest.artifact_schema is not None:
+            raise unprocessable_entity(
+                "Legacy observational JSON must not assert an artifact schema.",
+                code="observational_source_schema_mismatch",
+            )
+
+        try:
+            registration = self._resolve_observational_method_registration(
+                fqn=selection.method.fqn,
+                version=selection.method.version,
+            )
+        except (TypeError, ValueError) as exc:
+            code = str(exc) or "observational_method_registration_not_available"
+            raise unprocessable_entity(
+                "The requested method does not resolve to a supported exact registration.",
+                code=code,
+            ) from exc
+        signature = registration.signature
+        submitted_present = "params" in selection.method.model_fields_set
+        submitted_params = dict(selection.method.params or {})
+        try:
+            resolved_params = self._resolve_observational_method_params(
+                signature,
+                submitted_params,
+            )
+        except (TypeError, ValueError) as exc:
+            raise unprocessable_entity(
+                "Submitted method parameters do not resolve against the selected method contract.",
+                code="observational_method_parameters_invalid",
+            ) from exc
+        try:
+            self._require_observational_method_resource_profile(
+                registration,
+                resolved_params,
+            )
+        except ValueError as exc:
+            raise unprocessable_entity(
+                "The exact selected method does not meet Runtime's declared n_jobs profile.",
+                code="observational_method_resource_profile_not_supported",
+            ) from exc
+
+        try:
+            _require_public_candidate_source(source_governance, source_tenant)
+        except ValueError as exc:
+            raise forbidden(
+                "Asynchronous candidate execution requires an unscoped public observation.",
+                code="observational_source_current_access_not_established",
+            ) from exc
+        resource_policy = self._observational_resource_policy
+        resource_policy_digest = resource_policy.digest()
+        resource_policy_ref = self._put_json_artifact_ref(
+            resource_policy.model_dump(mode="json"),
+            kind="runtime.observational_input_resource_policy",
+            schema_name="polisyos.runtime.ObservationalInputResourcePolicy",
+            schema_version="1.0",
+            governance=source_governance,
+            tenant_context=source_tenant,
+            inputs=[selection.source_ref],
+        )
+        if resource_policy_ref.manifest_profile_sha256 is None:
+            raise RuntimeError("observational_resource_policy_profile_not_established")
+        selected_resource_policy = _read_observational_resource_policy_artifact(
+            store=self._artifact_store,
+            policy_ref=resource_policy_ref,
+            source_ref=selection.source_ref,
+            source_governance=source_governance,
+            source_tenant_context=source_tenant,
+            limits=self._observational_read_limits(),
+        )
+        if (
+            selected_resource_policy != resource_policy
+            or selected_resource_policy.digest() != resource_policy_digest
+        ):
+            raise RuntimeError("observational_resource_policy_readback_mismatch")
+        contract_target = ContractCompatibilityTarget(
+            contract_id=_OBSERVATIONAL_METHOD_CONTRACT_TARGET_ID,
+            contract_fqn=_OBSERVATIONAL_METHOD_CONTRACT_TARGET,
+        )
+        intent = ObservationalRunIntent(
+            job_id=job_id,
+            run_id=run_id,
+            requested_source_ref=selection.source_ref,
+            source_manifest_sha256=source_manifest_sha256,
+            protocol=selection.protocol,
+            method_fqn=registration.signature.fqn,
+            method_version=registration.signature.version,
+            method_abi_digest=registration.signature.abi_digest(),
+            method_build_digest=registration.build_digest,
+            method_build_digest_scope="class_source_only",
+            submitted_params_present=submitted_present,
+            submitted_params=submitted_params,
+            resolved_params=resolved_params,
+            seed=0,
+            seed_policy_revision="server_seed_zero_v1",
+            resource_policy=resource_policy,
+            resource_policy_ref=resource_policy_ref,
+            contract_target_id=contract_target.contract_id,
+            contract_target_fqn=contract_target.contract_fqn,
+            resource_policy_digest=resource_policy_digest,
+            source_governance=source_governance,
+            source_tenant_context=source_tenant,
+            source_access_revalidation_status=_OBSERVATIONAL_SOURCE_ACCESS_STATUS,
+            limitations=(
+                "candidate_input_not_external_truth",
+                "scientific_validity_not_established",
+                "units_and_context_not_established",
+                "source_access_revalidation_not_established",
+            ),
+        )
+        intent_ref = self._put_json_artifact_ref(
+            intent.model_dump(mode="json"),
+            kind="runtime.observational_run_intent",
+            schema_name="polisyos.runtime.ObservationalRunIntent",
+            schema_version="1.0",
+            governance=source_governance,
+            tenant_context=source_tenant,
+            inputs=[selection.source_ref, resource_policy_ref],
+        )
+        if intent_ref.manifest_profile_sha256 is None:
+            raise RuntimeError("observational_run_intent_profile_not_established")
+        selection_digest = intent.selection_digest()
+        state_payload: dict[str, Any] = {
+            "run_id": run_id,
+            "inputs": {},
+            "params": {},
+        }
+        payload = {
+            "run_id": run_id,
+            "state_payload": state_payload,
+            _OBSERVATIONAL_METHOD_INTENT_PAYLOAD_KEY: {
+                "requested_source_ref": selection.source_ref.model_dump(mode="json"),
+                "observational_run_intent_ref": intent_ref.model_dump(mode="json"),
+                "observational_selection_digest": selection_digest,
+            },
+        }
+        self._enqueue_job(
+            job_id=job_id,
+            job_kind="workflow_run",
+            run_id=run_id,
+            pipeline_id=None,
+            payload=payload,
+            policy=policy,
+            request_id=request_id,
+        )
+        return RunLaunchResponse(
+            meta=_build_api_meta(request_id),
+            status="accepted",
+            run_id=run_id,
+            job_id=job_id,
+            effective_execution_profile=policy.effective_profile,
+            message=f"Workflow run {run_id} accepted and queued for durable execution.",
+            observational_run_intent_ref=intent_ref,
+            observational_selection_digest=selection_digest,
+            observational_method_fqn=registration.signature.fqn,
+            observational_contract_target_id=contract_target.contract_id,
+            observational_contract_target_fqn=contract_target.contract_fqn,
+        )
+
+    def _read_bounded_intent_artifact(self, intent_ref: ArtifactRef) -> object:
+        """Resolve one full-profile intent using Core's bounded selected JSON reader."""
+        from polisyos.core.artifacts import read_core_json_artifact_bounded
+
+        result = read_core_json_artifact_bounded(
+            self._artifact_store,
+            intent_ref,
+            limits=self._observational_read_limits(),
+        )
+        if result.effective_ref != intent_ref:
+            raise ValueError("observational_run_intent_selected_profile_drift")
+        return result.value
+
+    def resolve_method_execution_admission(
+        self, *, work: MethodExecutionWork
+    ) -> MethodExecutionAdmission:
+        """Resolve immutable intent and lease identity before input materialization."""
+        from polisyos.core.contracts.runtime import (
+            ObservationalInputResourcePolicy,
+            ObservationalRunIntent,
+        )
+
+        current = self._control_store.current_execution_job_admission()
+        job = current.job
+        if (
+            job.kind != "workflow_run"
+            or job.state != "running"
+            or job.job_id != work.job_id
+            or job.run_id != work.run_id
+            or job.attempt != work.attempt
+            or not job.lease_owner
+        ):
+            raise ControlJobLeaseLostError("observational_method_live_lease_mismatch")
+        payload = self._load_payload_ref(
+            self._require_control_job_payload_ref(job),
+            kind="runtime.control_job_payload.workflow_run",
+        )
+        marker = payload.get(_OBSERVATIONAL_METHOD_INTENT_PAYLOAD_KEY)
+        if not isinstance(marker, Mapping):
+            raise ValueError("observational_method_job_intent_missing")
+        try:
+            persisted_source_ref = ArtifactRef.model_validate(marker["requested_source_ref"])
+            persisted_intent_ref = ArtifactRef.model_validate(
+                marker["observational_run_intent_ref"]
+            )
+            persisted_selection_digest = marker["observational_selection_digest"]
+        except (KeyError, TypeError, ValueError) as exc:
+            raise ValueError("observational_method_job_intent_malformed") from exc
+        if (
+            persisted_source_ref != work.requested_source_ref
+            or persisted_intent_ref != work.observational_run_intent_ref
+        ):
+            raise ValueError("observational_method_work_refs_not_job_bound")
+        raw_intent = self._read_bounded_intent_artifact(persisted_intent_ref)
+        intent = ObservationalRunIntent.model_validate(raw_intent)
+        if (
+            type(persisted_selection_digest) is not str
+            or persisted_selection_digest != intent.selection_digest()
+        ):
+            raise ValueError("observational_method_job_selection_digest_mismatch")
+        bounded_source, source_governance, source_tenant_context, source_manifest_sha256 = (
+            self._read_observational_source_manifest(
+                persisted_source_ref,
+                expected_sha256=intent.source_manifest_sha256,
+            )
+        )
+        if intent.resource_policy_ref is None:
+            raise ValueError("observational_method_resource_policy_ref_missing")
+        selected_resource_policy = _read_observational_resource_policy_artifact(
+            store=self._artifact_store,
+            policy_ref=intent.resource_policy_ref,
+            source_ref=persisted_source_ref,
+            source_governance=source_governance,
+            source_tenant_context=source_tenant_context,
+            limits=self._observational_read_limits(),
+        )
+        if (
+            type(selected_resource_policy) is not ObservationalInputResourcePolicy
+            or selected_resource_policy != intent.resource_policy
+            or selected_resource_policy.digest() != intent.resource_policy_digest
+        ):
+            raise ValueError("observational_method_resource_policy_pin_drift")
+        expected_kind = (
+            "ir.observation_method_input"
+            if intent.protocol == "method_input_envelope_v1"
+            else "ir.observational_data"
+        )
+        try:
+            _require_public_candidate_source(source_governance, source_tenant_context)
+        except ValueError as exc:
+            raise ValueError("observational_method_source_current_access_not_established") from exc
+        if bounded_source.manifest.kind != expected_kind:
+            raise ValueError("observational_method_source_kind_pin_drift")
+        if intent.protocol == "method_input_envelope_v1":
+            if bounded_source.manifest.artifact_schema != SchemaInfo(
+                name="polisyos.ir.ObservationMethodInputEnvelope",
+                version="1.0",
+            ):
+                raise ValueError("observational_method_source_schema_pin_drift")
+        elif bounded_source.manifest.artifact_schema is not None:
+            raise ValueError("observational_method_source_schema_pin_drift")
+        registration = self._observational_method_registrations.get(intent.method_fqn)
+        if (
+            registration is None
+            or source_governance != intent.source_governance
+            or source_tenant_context != intent.source_tenant_context
+            or source_manifest_sha256 != intent.source_manifest_sha256
+            or intent.job_id != job.job_id
+            or intent.run_id != str(job.run_id or "")
+            or intent.requested_source_ref != persisted_source_ref
+            or intent.resource_policy_ref is None
+            or intent.resource_policy_digest != self._observational_resource_policy.digest()
+            or intent.resource_policy != self._observational_resource_policy
+            or intent.contract_target_id != _OBSERVATIONAL_METHOD_CONTRACT_TARGET_ID
+            or intent.contract_target_fqn != _OBSERVATIONAL_METHOD_CONTRACT_TARGET
+            or intent.selection_digest() != persisted_selection_digest
+            or intent.source_access_revalidation_status != _OBSERVATIONAL_SOURCE_ACCESS_STATUS
+            or intent.method_fqn != registration.signature.fqn
+            or intent.method_version != registration.signature.version
+            or intent.method_abi_digest != registration.signature.abi_digest()
+            or intent.method_build_digest != registration.build_digest
+            or intent.resource_policy.method_contract_target != registration.contract_target
+        ):
+            raise ValueError("observational_method_intent_pin_drift")
+        try:
+            self._require_observational_method_resource_profile(
+                registration,
+                intent.resolved_params,
+            )
+        except ValueError as exc:
+            raise ValueError("observational_method_intent_resource_profile_drift") from exc
+        return _RuntimeMethodExecutionAdmission(
+            store=cast("_MethodExecutionArtifactStore", self._artifact_store),
+            requested_source_ref=persisted_source_ref,
+            observational_run_intent_ref=persisted_intent_ref,
+            source_manifest_sha256=source_manifest_sha256,
+            lease_owner=str(job.lease_owner),
+            protocol=intent.protocol,
+            method_fqn=intent.method_fqn,
+            method_version=intent.method_version,
+            method_abi_digest=intent.method_abi_digest,
+            method_build_digest=intent.method_build_digest,
+            effective_params=dict(intent.resolved_params),
+            submitted_params=dict(intent.submitted_params),
+            submitted_params_present=intent.submitted_params_present,
+            seed=intent.seed,
+            resource_policy_ref=intent.resource_policy_ref,
+            resource_policy_digest=intent.resource_policy_digest,
+            selection_digest=intent.selection_digest(),
+            source_access_revalidation_status=_OBSERVATIONAL_SOURCE_ACCESS_STATUS,
+            requested_limitations=intent.limitations,
+            source_governance=intent.source_governance,
+            source_tenant_context=intent.source_tenant_context,
+            limits=self._observational_read_limits(),
+        )
+
+    def verify_method_registration(
+        self,
+        admission: MethodExecutionAdmission,
+        signature: MethodSignature,
+        method_class: type,
+    ) -> None:
+        """Refuse exact method ABI or class-source drift before input decoding."""
+        registration = self._observational_method_registrations.get(admission.method_fqn)
+        if (
+            type(admission) is not _RuntimeMethodExecutionAdmission
+            or registration is None
+            or signature.fqn != admission.method_fqn
+            or signature.version != admission.method_version
+            or signature.abi_digest() != admission.method_abi_digest
+            or method_class is not registration.method_class
+        ):
+            raise ValueError("observational_method_registration_pin_mismatch")
+        try:
+            self._require_observational_method_resource_profile(
+                registration,
+                admission.effective_params,
+            )
+        except ValueError as exc:
+            raise ValueError("observational_method_resource_profile_pin_mismatch") from exc
+        try:
+            build_digest = hashlib.sha256(
+                inspect.getsource(method_class).encode("utf-8")
+            ).hexdigest()
+        except (OSError, TypeError) as exc:
+            raise ValueError("observational_method_build_not_established") from exc
+        if (
+            build_digest != admission.method_build_digest
+            or build_digest != registration.build_digest
+        ):
+            raise ValueError("observational_method_build_pin_mismatch")
+
+    def persist_content_admitted_intent(
+        self,
+        *,
+        work: MethodExecutionWork,
+        admission: MethodExecutionAdmission,
+        submitted_ref: ArtifactRef,
+        effective_ref: ArtifactRef,
+        contract_target: _ContractCompatibilityTarget,
+        method_fqn: str,
+        source_protocol: str,
+        normalization: str,
+        limitations: tuple[str, ...],
+        source_governance: ArtifactGovernanceInfo | None,
+        source_tenant_context: ArtifactTenantContextInfo | None,
+        observed_bytes: int,
+        observed_depth: int,
+        observed_elements: int,
+        observed_manifest_bytes: int,
+        observed_manifest_selection_bytes: int,
+        observed_manifest_verification_bytes: int,
+        observed_payload_bytes: int,
+        observed_source_bytes: int,
+        payload_integrity_verified: Literal[True],
+    ) -> ArtifactRef:
+        """Persist only worker-admitted refs and counters before the method dispatches."""
+        from polisyos.core.contracts.runtime import (
+            ContentAdmittedObservationalRunIntent,
+            ObservationalRunIntent,
+            _expected_content_admitted_limitations,
+            _expected_observational_limitations,
+            _expected_observational_normalization,
+        )
+        from polisyos.ir.observation.bundles import ContractCompatibilityTarget
+
+        if (
+            type(admission) is not _RuntimeMethodExecutionAdmission
+            or type(contract_target) is not ContractCompatibilityTarget
+        ):
+            raise ValueError("content_admitted_intent_admission_owner_invalid")
+        admission = cast("_RuntimeMethodExecutionAdmission", admission)
+        contract_target_id = contract_target.contract_id
+        contract_target_fqn = contract_target.contract_fqn
+        current = self._control_store.current_execution_job_admission()
+        job = current.job
+        if (
+            job.job_id != work.job_id
+            or job.run_id != work.run_id
+            or job.attempt != work.attempt
+            or job.state != "running"
+            or job.lease_owner != admission.lease_owner
+            or admission.requested_source_ref != work.requested_source_ref
+            or admission.observational_run_intent_ref != work.observational_run_intent_ref
+        ):
+            raise ControlJobLeaseLostError("content_admitted_intent_live_lease_mismatch")
+        _, current_governance, current_tenant_context, current_manifest_sha256 = (
+            self._read_observational_source_manifest(
+                admission.requested_source_ref,
+                expected_sha256=admission.source_manifest_sha256,
+            )
+        )
+        if (
+            current_governance != admission.source_governance
+            or current_tenant_context != admission.source_tenant_context
+            or current_manifest_sha256 != admission.source_manifest_sha256
+        ):
+            raise ValueError("content_admitted_intent_source_manifest_pin_drift")
+        _require_public_candidate_source(current_governance, current_tenant_context)
+        requested_intent = ObservationalRunIntent.model_validate(
+            self._read_bounded_intent_artifact(admission.observational_run_intent_ref)
+        )
+        expected_normalization = _expected_observational_normalization(source_protocol)
+        expected_request_limitations = _expected_observational_limitations(
+            source_protocol,
+            source_access_revalidation_status=admission.source_access_revalidation_status,
+        )
+        required_producer_limitations = _expected_content_admitted_limitations(
+            source_protocol,
+            source_access_revalidation_status=None,
+        )
+        producer_limitations = tuple(limitations)
+        expected_admitted_limitations = _expected_content_admitted_limitations(
+            source_protocol,
+            source_access_revalidation_status=admission.source_access_revalidation_status,
+        )
+        if (
+            requested_intent.job_id != work.job_id
+            or requested_intent.run_id != work.run_id
+            or requested_intent.requested_source_ref != admission.requested_source_ref
+            or requested_intent.protocol != admission.protocol
+            or requested_intent.source_manifest_sha256 != admission.source_manifest_sha256
+            or requested_intent.method_fqn != admission.method_fqn
+            or requested_intent.method_version != admission.method_version
+            or requested_intent.method_abi_digest != admission.method_abi_digest
+            or requested_intent.method_build_digest != admission.method_build_digest
+            or requested_intent.resource_policy_ref != admission.resource_policy_ref
+            or requested_intent.resource_policy_digest != admission.resource_policy_digest
+            or requested_intent.resource_policy != self._observational_resource_policy
+            or requested_intent.contract_target_id != contract_target_id
+            or requested_intent.contract_target_fqn != contract_target_fqn
+            or requested_intent.selection_digest() != admission.selection_digest
+            or requested_intent.limitations != admission.requested_limitations
+            or requested_intent.limitations != expected_request_limitations
+            or requested_intent.source_access_revalidation_status
+            != admission.source_access_revalidation_status
+            or admission.source_access_revalidation_status != _OBSERVATIONAL_SOURCE_ACCESS_STATUS
+            or submitted_ref != admission.requested_source_ref
+            or method_fqn != admission.method_fqn
+            or source_protocol != admission.protocol
+            or normalization != expected_normalization
+            or len(set(producer_limitations)) != len(producer_limitations)
+            or set(producer_limitations) != set(required_producer_limitations)
+            or source_governance != admission.source_governance
+            or source_tenant_context != admission.source_tenant_context
+            or contract_target_id != _OBSERVATIONAL_METHOD_CONTRACT_TARGET_ID
+            or contract_target_fqn != _OBSERVATIONAL_METHOD_CONTRACT_TARGET
+            or type(observed_manifest_bytes) is not int
+            or observed_manifest_bytes < 1
+            or observed_manifest_bytes > admission.limits.max_manifest_bytes
+            or type(observed_manifest_selection_bytes) is not int
+            or observed_manifest_selection_bytes < 0
+            or observed_manifest_selection_bytes > admission.limits.max_manifest_bytes
+            or observed_manifest_bytes != observed_manifest_selection_bytes
+            or type(observed_manifest_verification_bytes) is not int
+            or observed_manifest_verification_bytes < 0
+            or observed_manifest_verification_bytes > admission.limits.max_manifest_bytes
+            or type(observed_payload_bytes) is not int
+            or observed_payload_bytes < 0
+            or observed_payload_bytes > admission.limits.max_bytes
+            or type(observed_source_bytes) is not int
+            or observed_source_bytes
+            != (
+                observed_manifest_selection_bytes
+                + observed_manifest_verification_bytes
+                + observed_payload_bytes
+            )
+            or observed_source_bytes
+            > (2 * admission.limits.max_manifest_bytes + admission.limits.max_bytes)
+            or payload_integrity_verified is not True
+            or type(observed_bytes) is not int
+            or observed_bytes != observed_payload_bytes
+            or observed_bytes > admission.limits.max_bytes
+            or type(observed_depth) is not int
+            or observed_depth < 0
+            or observed_depth > admission.limits.max_depth
+            or type(observed_elements) is not int
+            or observed_elements < 0
+            or observed_elements > admission.limits.max_elements
+        ):
+            raise ValueError("content_admitted_intent_source_binding_mismatch")
+        intent = ContentAdmittedObservationalRunIntent(
+            job_id=job.job_id,
+            run_id=str(job.run_id or ""),
+            attempt=job.attempt,
+            requested_intent_ref=admission.observational_run_intent_ref,
+            requested_source_ref=admission.requested_source_ref,
+            source_manifest_sha256=admission.source_manifest_sha256,
+            resource_policy_ref=admission.resource_policy_ref,
+            submitted_input_ref=submitted_ref,
+            effective_input_ref=effective_ref,
+            contract_target_id=contract_target_id,
+            contract_target=contract_target_fqn,
+            selection_digest=admission.selection_digest,
+            source_access_revalidation_status=admission.source_access_revalidation_status,
+            method_fqn=method_fqn,
+            source_protocol=source_protocol,
+            normalization=expected_normalization,
+            limitations=expected_admitted_limitations,
+            source_governance=source_governance,
+            source_tenant_context=source_tenant_context,
+            observed_manifest_bytes=observed_manifest_bytes,
+            observed_manifest_selection_bytes=observed_manifest_selection_bytes,
+            observed_manifest_verification_bytes=observed_manifest_verification_bytes,
+            observed_payload_bytes=observed_payload_bytes,
+            observed_source_bytes=observed_source_bytes,
+            payload_integrity_verified=payload_integrity_verified,
+            observed_bytes=observed_bytes,
+            observed_depth=observed_depth,
+            observed_elements=observed_elements,
+            resource_policy_digest=admission.resource_policy_digest,
+        )
+        ref = self._put_json_artifact_ref(
+            intent.model_dump(mode="json"),
+            kind="runtime.content_admitted_observational_run_intent",
+            schema_name="polisyos.runtime.ContentAdmittedObservationalRunIntent",
+            schema_version="1.0",
+            governance=source_governance,
+            tenant_context=source_tenant_context,
+            inputs=[
+                admission.observational_run_intent_ref,
+                admission.requested_source_ref,
+                admission.resource_policy_ref,
+                submitted_ref,
+                effective_ref,
+            ],
+        )
+        if ref.manifest_profile_sha256 is None:
+            raise RuntimeError("content_admitted_intent_profile_not_established")
+        return ref
+
+    def resolve_method_metric_projection_store(
+        self, *, work: MethodMetricProjectionWork
+    ) -> _MethodExecutionArtifactStore:
+        """Resolve AD01 CAS only for the exact raw graph refs returned by this workflow."""
+        source = _RUNTIME_GRAPH_METRIC_SOURCE.get()
+        if source is None or (
+            source.job_id != work.job_id
+            or source.run_id != work.run_id
+            or source.attempt != work.attempt
+            or not source.lease_owner
+            or source.simulation_result_ref != work.simulation_result_ref
+            or source.method_execution_bundle_ref != work.method_execution_bundle_ref
+            or source.method_metric_binding_set_ref != work.method_metric_binding_set_ref
+            or work.method_result_ref is not None
+        ):
+            raise ValueError("method_metric_projection_source_not_workflow_bound")
+        current = self._control_store.current_execution_job_admission()
+        job = current.job
+        if (
+            job.job_id != source.job_id
+            or job.run_id != source.run_id
+            or job.attempt != source.attempt
+            or job.lease_owner != source.lease_owner
+            or job.state != "running"
+        ):
+            raise ControlJobLeaseLostError("method_metric_projection_live_lease_mismatch")
+        return cast("_MethodExecutionArtifactStore", self._artifact_store)
+
+    def _validate_direct_method_execution_selection_artifacts(
+        self, selection: _DirectMethodExecutionSelection
+    ) -> None:
+        """Bind the selected refs to their exact bounded producer manifests."""
+        _validate_direct_method_execution_selection_artifacts(
+            store=self._artifact_store,
+            selection=selection,
+            limits=self._observational_read_limits(),
+        )
+
+    def _is_observational_method_job(self, payload: Mapping[str, Any]) -> bool:
+        """Return whether this persisted job payload selected the direct method path."""
+        return _OBSERVATIONAL_METHOD_INTENT_PAYLOAD_KEY in payload
+
+    def _complete_observational_method_control_job(
+        self,
+        *,
+        job: ControlJobRecord,
+        payload: Mapping[str, Any],
+        capability_manifest_ref: str,
+        execution_scope: ControlJobExecutionScope,
+    ) -> None:
+        """Dispatch one refs-only method work item and atomically publish its selection."""
+        from polisyos.core.contracts.runtime import (
+            ContentAdmittedObservationalRunIntent,
+            DirectMethodExecutionSelection,
+            MethodExecutionCandidateOutcome,
+            ObservationalRunIntent,
+            _expected_content_admitted_limitations,
+        )
+        from polisyos.scientist.compute.runner import MethodExecutionWork
+
+        marker = payload.get(_OBSERVATIONAL_METHOD_INTENT_PAYLOAD_KEY)
+        if not isinstance(marker, Mapping):
+            raise ValueError("observational_method_job_marker_invalid")
+        try:
+            requested_source_ref = ArtifactRef.model_validate(marker["requested_source_ref"])
+            intent_ref = ArtifactRef.model_validate(marker["observational_run_intent_ref"])
+            selection_digest = marker["observational_selection_digest"]
+        except (KeyError, TypeError, ValueError) as exc:
+            raise ValueError("observational_method_job_marker_invalid") from exc
+        if (
+            requested_source_ref.manifest_profile_sha256 is None
+            or intent_ref.manifest_profile_sha256 is None
+        ):
+            raise ValueError("observational_method_job_marker_profile_missing")
+        requested_intent = ObservationalRunIntent.model_validate(
+            self._read_bounded_intent_artifact(intent_ref)
+        )
+        wait_policy = requested_intent.resource_policy.method_execution_wait_policy
+        if (
+            type(selection_digest) is not str
+            or selection_digest != requested_intent.selection_digest()
+            or wait_policy is None
+            or wait_policy.producer_key != "runtime.observational_method_execution"
+            or wait_policy.retry_ceiling != 0
+        ):
+            raise ValueError("observational_method_job_selection_or_wait_policy_invalid")
+        work = MethodExecutionWork(
+            job_id=job.job_id,
+            run_id=str(job.run_id or ""),
+            attempt=job.attempt,
+            requested_source_ref=requested_source_ref,
+            observational_run_intent_ref=intent_ref,
+        )
+        try:
+            handle = self._method_backend.submit_method_execution_work(work)
+        except Exception as exc:
+            raise wrap_shared_execution_exception(exc, wait_policy) from None
+        completion = cast("Any", wait_for_shared_execution(handle, wait_policy))
+        outcome = cast("Any", require_shared_execution_value(completion, wait_policy))
+        admitted_intent = ContentAdmittedObservationalRunIntent.model_validate(
+            self._read_bounded_intent_artifact(outcome.content_admitted_intent_ref)
+        )
+        producer_limitations = _expected_content_admitted_limitations(
+            outcome.source_protocol,
+            source_access_revalidation_status=None,
+        )
+        registration = self._observational_method_registrations.get(outcome.method_fqn)
+        if (
+            registration is None
+            or outcome.job_id != job.job_id
+            or outcome.run_id != str(job.run_id or "")
+            or outcome.attempt != job.attempt
+            or outcome.requested_source_ref != requested_source_ref
+            or outcome.observational_run_intent_ref != intent_ref
+            or outcome.method_fqn != registration.signature.fqn
+            or outcome.method_version != registration.signature.version
+            or outcome.method_abi_digest != registration.signature.abi_digest()
+            or outcome.method_build_digest != registration.build_digest
+            or outcome.resource_policy_ref != requested_intent.resource_policy_ref
+            or outcome.resource_policy_ref != admitted_intent.resource_policy_ref
+            or outcome.resource_policy_digest != self._observational_resource_policy.digest()
+            or type(outcome.candidate_outcome) is not MethodExecutionCandidateOutcome
+            or admitted_intent.job_id != outcome.job_id
+            or admitted_intent.run_id != outcome.run_id
+            or admitted_intent.attempt != outcome.attempt
+            or admitted_intent.requested_intent_ref != outcome.observational_run_intent_ref
+            or admitted_intent.requested_source_ref != outcome.requested_source_ref
+            or admitted_intent.submitted_input_ref != outcome.submitted_input_ref
+            or admitted_intent.effective_input_ref != outcome.effective_input_ref
+            or admitted_intent.selection_digest != selection_digest
+            or admitted_intent.contract_target_id != _OBSERVATIONAL_METHOD_CONTRACT_TARGET_ID
+            or admitted_intent.contract_target != _OBSERVATIONAL_METHOD_CONTRACT_TARGET
+            or admitted_intent.method_fqn != outcome.method_fqn
+            or admitted_intent.source_protocol != outcome.source_protocol
+            or admitted_intent.normalization != outcome.normalization
+            or set(outcome.limitations) != set(producer_limitations)
+            or admitted_intent.limitations
+            != _expected_content_admitted_limitations(
+                outcome.source_protocol,
+                source_access_revalidation_status=_OBSERVATIONAL_SOURCE_ACCESS_STATUS,
+            )
+            or admitted_intent.source_access_revalidation_status
+            != _OBSERVATIONAL_SOURCE_ACCESS_STATUS
+        ):
+            raise ValueError("observational_method_execution_outcome_binding_mismatch")
+        posterior_refs = tuple(
+            {
+                "point_role": summary.point_role,
+                "ref": summary.ref,
+            }
+            for summary in outcome.posterior_summary_refs
+        )
+        selection = DirectMethodExecutionSelection(
+            job_id=job.job_id,
+            run_id=str(job.run_id or ""),
+            attempt=job.attempt,
+            requested_source_ref=outcome.requested_source_ref,
+            observational_run_intent_ref=outcome.observational_run_intent_ref,
+            content_admitted_intent_ref=outcome.content_admitted_intent_ref,
+            resource_policy_ref=outcome.resource_policy_ref,
+            submitted_input_ref=outcome.submitted_input_ref,
+            effective_input_ref=outcome.effective_input_ref,
+            method_result_ref=outcome.method_result_ref,
+            method_evidence_ref=outcome.method_evidence_ref,
+            contract_target_id=admitted_intent.contract_target_id,
+            contract_target=admitted_intent.contract_target,
+            selection_digest=admitted_intent.selection_digest,
+            source_access_revalidation_status=admitted_intent.source_access_revalidation_status,
+            method_fqn=outcome.method_fqn,
+            method_version=outcome.method_version,
+            method_abi_digest=outcome.method_abi_digest,
+            method_build_digest=outcome.method_build_digest,
+            method_build_digest_scope=outcome.method_build_digest_scope,
+            resource_policy_digest=outcome.resource_policy_digest,
+            source_protocol=outcome.source_protocol,
+            normalization=admitted_intent.normalization,
+            limitations=admitted_intent.limitations,
+            method_dispatch_binding_status=(
+                outcome.method_dispatch_binding_status
+                if outcome.method_dispatch_binding_status in {"recomputed", "not_established"}
+                else "not_established"
+            ),
+            candidate_outcome=outcome.candidate_outcome,
+            posterior_summary_refs=posterior_refs,
+        )
+        self._validate_direct_method_execution_selection_artifacts(selection)
+        progress = {
+            "state": "completed",
+            "phase": "direct_method_execution",
+            "runtime_state": "candidate_only",
+            "authority_path": "direct_method_candidate",
+            "authority_result": "candidate_only",
+            "run_id": job.run_id,
+            "method_fqn": outcome.method_fqn,
+            "method_version": outcome.method_version,
+            "observational_selection_digest": selection.selection_digest,
+            "method_execution_wait_policy": wait_policy.model_dump(mode="json"),
+            "limitations": list(selection.limitations),
+        }
+        self._control_store.complete_job(
+            job_id=job.job_id,
+            run_id=job.run_id,
+            capability_manifest_ref=capability_manifest_ref,
+            progress=progress,
+            method_execution_selection=selection,
+            expected_lease_owner=job.lease_owner,
+            expected_attempt=job.attempt,
+        )
+        terminal_record = self._control_store.get_job(job.job_id)
+        terminal_state = terminal_record.state if terminal_record is not None else "completed"
+        self._emit_runtime_diagnostic_event(
+            execution_scope=execution_scope,
+            job_id=job.job_id,
+            run_id=job.run_id,
+            execution_profile=job.effective_execution_profile,
+            phase="job_execution",
+            event_type="polisyos.runtime.diagnostic.phase_transition.v1",
+            state_before="running",
+            state_after=terminal_state,
+            payload=dict(payload),
+            event_payload={
+                "job_kind": job.kind,
+                "method_execution": "direct_candidate",
+            },
+            blocking_status="blocking" if terminal_state == "failed" else None,
+        )
+
+    @staticmethod
+    def _selected_graph_source_refs(
+        graph_output_refs: _ScientistGraphOutputRefs,
+        *,
+        job: ControlJobRecord,
+        producer_receipt: _RuntimeGraphProducerReceipt | None,
+    ) -> tuple[ArtifactRef, ArtifactRef, ArtifactRef] | None:
+        """Require the final state tuple to equal an actual scoped ExecuteResult."""
+        return _selected_graph_source_refs_from_receipt(
+            graph_output_refs=graph_output_refs,
+            receipt=producer_receipt,
+            job_id=job.job_id,
+            run_id=str(job.run_id or ""),
+            attempt=job.attempt,
+            lease_owner=job.lease_owner,
+        )
+
+    def _submit_graph_metric_projection(
+        self,
+        *,
+        job: ControlJobRecord,
+        source_refs: tuple[ArtifactRef, ArtifactRef, ArtifactRef],
+    ) -> tuple[_VerifiedMethodMetricProjectionAdmissionProtocol | None, dict[str, object] | None]:
+        """Run the AD01 fixed refs-only task bound to the exact final-state tuple."""
+        from polisyos.scientist.compute.runner import (
+            MethodMetricProjectionWork,
+        )
+
+        simulation_ref, bundle_ref, binding_ref = source_refs
+        source = _RuntimeGraphMetricSource(
+            job_id=job.job_id,
+            run_id=str(job.run_id or ""),
+            attempt=job.attempt,
+            lease_owner=str(job.lease_owner or ""),
+            simulation_result_ref=simulation_ref,
+            method_execution_bundle_ref=bundle_ref,
+            method_metric_binding_set_ref=binding_ref,
+        )
+        token = _RUNTIME_GRAPH_METRIC_SOURCE.set(source)
+        try:
+            work = MethodMetricProjectionWork(
+                job_id=source.job_id,
+                run_id=source.run_id,
+                attempt=source.attempt,
+                simulation_result_ref=simulation_ref,
+                method_execution_bundle_ref=bundle_ref,
+                method_metric_binding_set_ref=binding_ref,
+                method_result_ref=None,
+            )
+            handle = self._method_backend.submit_method_metric_projection_work(work)
+            completion = cast(
+                "Any",
+                wait_for_shared_execution(handle, self._method_metric_projection_wait_policy),
+            )
+        except ControlProducerWaitTimeoutError as exc:
+            return None, exc.diagnostic()
+        except Exception as exc:
+            failure = wrap_shared_execution_exception(
+                exc,
+                self._method_metric_projection_wait_policy,
+            )
+            logger.warning(
+                "Method metric projection unavailable for candidate run %s (%s: %s)",
+                source.run_id,
+                failure.exception_type,
+                failure.code,
+            )
+            return None, {**failure.diagnostic(), "status": "failed"}
+        finally:
+            _RUNTIME_GRAPH_METRIC_SOURCE.reset(token)
+        if completion.status != "completed" or completion.value is None:
+            failure = getattr(completion, "failure", None)
+            exception_type = getattr(failure, "exception_type", "not_established")
+            code = getattr(failure, "code", "method_metric_projection_not_established")
+            retryable = getattr(failure, "retryable", False)
+            failure_diagnostic = ControlProducerExecutionError(
+                resolution=self._method_metric_projection_wait_policy,
+                exception_type=(
+                    exception_type if isinstance(exception_type, str) else "not_established"
+                ),
+                code=code if isinstance(code, str) else "method_metric_projection_not_established",
+                retryable=retryable if type(retryable) is bool else False,
+            ).diagnostic()
+            return None, {**failure_diagnostic, "status": "failed"}
+        admission = completion.value.admission
+        try:
+            from polisyos.scientist.nodes.builtins.decide.policy_runtime_method_metrics import (
+                is_verified_method_metric_projection_admission,
+            )
+
+            if not is_verified_method_metric_projection_admission(admission):
+                return None, {"code": "method_metric_projection_receipt_invalid"}
+        except (ImportError, AttributeError):
+            return None, {"code": "method_metric_projection_verifier_unavailable"}
+        source_tuple = admission.source_tuple
+        source_candidate_ref = getattr(admission, "source_candidate_ref", None)
+        if (
+            source_tuple.job_id != source.job_id
+            or source_tuple.run_id != source.run_id
+            or source_tuple.attempt != source.attempt
+            or source_tuple.method_result_ref is not None
+            or source_tuple.simulation_result_ref != simulation_ref
+            or source_tuple.method_execution_bundle_ref != bundle_ref
+            or source_tuple.method_metric_binding_set_ref != binding_ref
+            or not isinstance(source_candidate_ref, ArtifactRef)
+            or source_candidate_ref.kind != "scientist.policy_design.candidate"
+            or source_candidate_ref.media_type != "application/json"
+            or source_candidate_ref.manifest_profile_sha256 is None
+        ):
+            return None, {"code": "method_metric_projection_source_tuple_mismatch"}
+        return admission, None
+
+    def _graph_method_execution_selection(
+        self,
+        *,
+        job: ControlJobRecord,
+        graph_output_refs: _ScientistGraphOutputRefs,
+        source_experiment_state_ref: ArtifactRef | None,
+        producer_receipt: _RuntimeGraphProducerReceipt | None,
+    ) -> tuple[Any, Any | None, dict[str, object] | None] | None:
+        """Prepare an exact graph source selection and optional verified vector receipt."""
+        from polisyos.core.contracts.runtime import GraphMethodExecutionSelection
+
+        source_refs = self._selected_graph_source_refs(
+            graph_output_refs,
+            job=job,
+            producer_receipt=producer_receipt,
+        )
+        if (
+            source_refs is None
+            or not isinstance(source_experiment_state_ref, ArtifactRef)
+            or source_experiment_state_ref.kind != "scientist.experiment_state"
+            or source_experiment_state_ref.media_type != "application/json"
+            or source_experiment_state_ref.manifest_profile_sha256 is None
+        ):
+            return None
+        admission, wait_diagnostic = self._submit_graph_metric_projection(
+            job=job,
+            source_refs=source_refs,
+        )
+        projection = None
+        source_candidate_ref = None
+        status: Literal["verified", "verification_missing"] = "verification_missing"
+        if admission is not None:
+            from polisyos.core.contracts.runtime import MethodMetricProjectionSelection
+
+            projection = MethodMetricProjectionSelection(
+                vector_ref=admission.vector_ref,
+                verifier_revision=admission.verifier_revision,
+                verifier_implementation_sha256=admission.verifier_implementation_sha256,
+            )
+            source_candidate_ref = admission.source_candidate_ref
+            status = "verified"
+        selection = GraphMethodExecutionSelection(
+            job_id=job.job_id,
+            run_id=str(job.run_id or ""),
+            attempt=job.attempt,
+            method_result_ref=None,
+            source_experiment_state_ref=source_experiment_state_ref,
+            simulation_result_ref=source_refs[0],
+            method_execution_bundle_ref=source_refs[1],
+            method_metric_binding_set_ref=source_refs[2],
+            source_candidate_ref=source_candidate_ref,
+            metric_verification_status=status,
+            method_metric_projection=projection,
+            metric_projection_wait_policy=self._method_metric_projection_wait_policy,
+        )
+        return selection, admission, wait_diagnostic
+
     def get_job_status(
         self,
         job_id: str,
@@ -3443,6 +5722,557 @@ class ControlPlaneService(
         if record is None:
             raise KeyError(job_id)
         return self._current_normative_job_record(record).to_response(request_id=request_id)
+
+    def get_method_execution_selection(
+        self,
+        *,
+        run_id: str,
+        tenant_id: str,
+        cell_id: str | None,
+    ) -> MethodExecutionSelection | None:
+        """Read the sole completed workflow selection after the route has authorized scope.
+
+        The route supplies its already-verified run tenant and cell. This lookup reads
+        only the fenced control-job row and immutable creation event; it never reads
+        method payloads, vectors, simulation arrays, or compute state.
+        """
+        from pydantic import TypeAdapter
+
+        from polisyos.core.contracts.runtime import (
+            DirectMethodExecutionSelection,
+            GraphMethodExecutionSelection,
+            MethodExecutionSelection,
+        )
+
+        if not run_id or not tenant_id:
+            return None
+        try:
+            record = self._control_store.get_unique_completed_job_by_run_and_kind(
+                run_id=run_id,
+                kind="workflow_run",
+            )
+            if record is None or record.method_execution_selection is None:
+                return None
+            created = self._control_store.get_job_created_event_payload(record.job_id)
+        except (RuntimeError, ValueError):
+            return None
+        if (
+            created.get("job_id") != record.job_id
+            or created.get("run_id") != run_id
+            or created.get("job_kind") != "workflow_run"
+        ):
+            return None
+        execution_scope = created.get("execution_scope")
+        if not isinstance(execution_scope, Mapping):
+            return None
+        if (
+            execution_scope.get("tenant_id") != tenant_id
+            or execution_scope.get("cell_id") != cell_id
+        ):
+            return None
+        try:
+            selection = TypeAdapter(MethodExecutionSelection).validate_python(
+                record.method_execution_selection
+            )
+        except (TypeError, ValueError):
+            return None
+        if (
+            selection.job_id != record.job_id
+            or selection.run_id != run_id
+            or selection.attempt != record.attempt
+        ):
+            return None
+        if isinstance(selection, DirectMethodExecutionSelection):
+            try:
+                self._validate_direct_method_execution_selection_artifacts(selection)
+            except (OSError, RuntimeError, TypeError, ValueError):
+                return None
+        if isinstance(selection, GraphMethodExecutionSelection):
+            terminal_state_ref = self._terminal_experiment_state_ref_for_control_job(
+                job_id=record.job_id,
+                run_id=run_id,
+                tenant_id=tenant_id,
+                cell_id=cell_id,
+            )
+            if terminal_state_ref != selection.source_experiment_state_ref:
+                return None
+        return selection
+
+    def get_observational_method_run_projection(
+        self,
+        *,
+        run_id: str,
+        expected_job_id: str | None,
+        tenant_id: str,
+        cell_id: str | None,
+    ) -> _DirectMethodExecutionRunProjection:
+        """Read a current direct-method request and selection from fenced owner state.
+
+        The route authorizes the selected review view before this lookup. It reads the
+        durable job row, the small direct-run payload marker, and bounded intent and
+        evidence artifacts. It never materializes method result arrays.
+        """
+        from pydantic import TypeAdapter
+
+        from polisyos.core.contracts.runtime import (
+            ContentAdmittedObservationalRunIntent,
+            DirectMethodExecutionRequestSummary,
+            DirectMethodExecutionRunProjection,
+            DirectMethodExecutionSelection,
+            DirectMethodExecutionTimeRoles,
+            MethodExecutionCandidateOutcome,
+            MethodExecutionSelection,
+            ObservationalRunIntent,
+        )
+
+        reader_at = datetime.now(UTC)
+
+        def unavailable(
+            limitation: Literal[
+                "execution_outcome_not_established",
+                "selection_persistence_not_established",
+            ],
+            *,
+            request: DirectMethodExecutionRequestSummary | None = None,
+            record: ControlJobRecord | None = None,
+        ) -> DirectMethodExecutionRunProjection:
+            roles = None
+            if request is not None:
+                roles = DirectMethodExecutionTimeRoles(
+                    execution_started_at=record.started_at if record is not None else None,
+                    execution_finished_at=record.finished_at if record is not None else None,
+                    owner_verified_at=datetime.now(UTC),
+                    reader_at=reader_at,
+                )
+            return DirectMethodExecutionRunProjection(
+                status="unavailable",
+                request=request,
+                time_roles=roles,
+                limitations=(limitation,),
+            )
+
+        if not run_id or not tenant_id:
+            return unavailable("execution_outcome_not_established")
+        if not expected_job_id:
+            return DirectMethodExecutionRunProjection(
+                status="absent",
+                limitations=("no_direct_method_request",),
+            )
+        try:
+            record = self._control_store.get_job(expected_job_id)
+            if record is None:
+                return unavailable("execution_outcome_not_established")
+            created = self._control_store.get_job_created_event_payload(record.job_id)
+        except (OSError, RuntimeError, TypeError, ValueError):
+            return unavailable("execution_outcome_not_established")
+        if (
+            record.job_id != expected_job_id
+            or record.run_id != run_id
+            or created.get("job_id") != record.job_id
+            or created.get("run_id") != run_id
+            or created.get("job_kind") != record.kind
+        ):
+            return unavailable("execution_outcome_not_established", record=record)
+        if record.kind != "workflow_run":
+            return DirectMethodExecutionRunProjection(
+                status="absent",
+                limitations=("no_direct_method_request",),
+            )
+        execution_scope = created.get("execution_scope")
+        if not isinstance(execution_scope, Mapping) or (
+            execution_scope.get("tenant_id") != tenant_id
+            or execution_scope.get("cell_id") != cell_id
+        ):
+            return unavailable("execution_outcome_not_established", record=record)
+        marker = created.get(_OBSERVATIONAL_METHOD_INTENT_PAYLOAD_KEY)
+        if not isinstance(marker, Mapping):
+            raw_selection = record.method_execution_selection
+            if isinstance(raw_selection, Mapping) and raw_selection.get("selection_kind") == (
+                "direct_method"
+            ):
+                return DirectMethodExecutionRunProjection(
+                    status="legacy_unbound",
+                    limitations=("legacy_selection_unbound",),
+                )
+            return DirectMethodExecutionRunProjection(
+                status="absent",
+                limitations=("no_direct_method_request",),
+            )
+        try:
+            requested_source_ref = ArtifactRef.model_validate(marker["requested_source_ref"])
+            intent_ref = ArtifactRef.model_validate(marker["observational_run_intent_ref"])
+            selection_digest = marker["observational_selection_digest"]
+            if (
+                requested_source_ref.manifest_profile_sha256 is None
+                or intent_ref.manifest_profile_sha256 is None
+                or type(selection_digest) is not str
+            ):
+                return unavailable("execution_outcome_not_established", record=record)
+            intent = ObservationalRunIntent.model_validate(
+                self._read_bounded_intent_artifact(intent_ref)
+            )
+            if (
+                intent.job_id != record.job_id
+                or intent.run_id != run_id
+                or intent.requested_source_ref != requested_source_ref
+                or intent.resource_policy_ref is None
+                or intent.resource_policy_ref.manifest_profile_sha256 is None
+                or intent.selection_digest() != selection_digest
+                or intent.method_fqn != f"causal.hte.forest_dr@{intent.method_version}"
+            ):
+                return unavailable("execution_outcome_not_established", record=record)
+            resolved_params_bytes = json.dumps(
+                intent.resolved_params,
+                ensure_ascii=False,
+                allow_nan=False,
+                sort_keys=True,
+                separators=(",", ":"),
+            ).encode("utf-8")
+            request_summary = DirectMethodExecutionRequestSummary(
+                requested_source_ref=requested_source_ref,
+                requested_intent_ref=intent_ref,
+                resource_policy_ref=intent.resource_policy_ref,
+                source_protocol=intent.protocol,
+                method_fqn=intent.method_fqn,
+                method_version=intent.method_version,
+                method_abi_digest=intent.method_abi_digest,
+                method_build_digest=intent.method_build_digest,
+                method_build_digest_scope=intent.method_build_digest_scope,
+                resource_policy_digest=intent.resource_policy_digest,
+                resolved_params_sha256=hashlib.sha256(resolved_params_bytes).hexdigest(),
+                seed=intent.seed,
+                seed_policy_revision=intent.seed_policy_revision,
+                required_estimator_n_jobs=intent.resource_policy.required_estimator_n_jobs,
+                max_manifest_bytes=intent.resource_policy.max_manifest_bytes,
+                max_bytes=intent.resource_policy.max_bytes,
+                max_depth=intent.resource_policy.max_depth,
+                max_elements=intent.resource_policy.max_elements,
+                requested_at=intent.created_at,
+            )
+        except (OSError, RuntimeError, TypeError, ValueError):
+            return unavailable("execution_outcome_not_established", record=record)
+
+        def time_roles(*, admitted_at: datetime | None = None) -> DirectMethodExecutionTimeRoles:
+            return DirectMethodExecutionTimeRoles(
+                admitted_at=admitted_at,
+                execution_started_at=record.started_at,
+                execution_finished_at=record.finished_at,
+                owner_verified_at=datetime.now(UTC),
+                reader_at=reader_at,
+            )
+
+        if record.state in {"pending", "queued", "running"}:
+            return DirectMethodExecutionRunProjection(
+                status="accepted_pending",
+                request=request_summary,
+                time_roles=time_roles(),
+                limitations=("candidate_execution_pending",),
+            )
+        if record.state == "failed":
+            failure = record.progress.get("failure")
+            is_typed_refusal = (
+                isinstance(failure, Mapping)
+                and failure.get("code") == "observational_input_refused"
+                and failure.get("exception_type")
+                == "polisyos.foundry.data_plane.bindings.HTEInputPreparationRefusal"
+                and failure.get("phase") == "direct_method_execution"
+                and failure.get("run_id") == run_id
+                and failure.get("job_id") == record.job_id
+                and failure.get("attempt") == record.attempt
+            )
+            if is_typed_refusal:
+                return DirectMethodExecutionRunProjection(
+                    status="input_refused",
+                    request=request_summary,
+                    time_roles=time_roles(),
+                    refusal_code="observational_input_refused",
+                    limitations=("input_refused_before_dispatch",),
+                )
+            return DirectMethodExecutionRunProjection(
+                status="execution_failed",
+                request=request_summary,
+                time_roles=time_roles(),
+                limitations=("execution_outcome_not_established",),
+            )
+        if record.state != "completed" or record.method_execution_selection is None:
+            return unavailable(
+                "selection_persistence_not_established",
+                request=request_summary,
+                record=record,
+            )
+        try:
+            selection = TypeAdapter(MethodExecutionSelection).validate_python(
+                record.method_execution_selection
+            )
+            if type(selection) is not DirectMethodExecutionSelection:
+                return unavailable(
+                    "selection_persistence_not_established",
+                    request=request_summary,
+                    record=record,
+                )
+            if (
+                selection.job_id != record.job_id
+                or selection.run_id != run_id
+                or selection.attempt != record.attempt
+                or selection.observational_run_intent_ref != intent_ref
+                or selection.requested_source_ref != requested_source_ref
+                or selection.selection_digest != selection_digest
+                or selection.method_fqn != request_summary.method_fqn
+                or selection.method_version != request_summary.method_version
+            ):
+                return unavailable(
+                    "selection_persistence_not_established",
+                    request=request_summary,
+                    record=record,
+                )
+            self._validate_direct_method_execution_selection_artifacts(selection)
+            if (
+                selection.candidate_outcome is None
+                or type(selection.candidate_outcome) is not MethodExecutionCandidateOutcome
+            ):
+                return unavailable(
+                    "selection_persistence_not_established",
+                    request=request_summary,
+                    record=record,
+                )
+            admitted_intent = ContentAdmittedObservationalRunIntent.model_validate(
+                self._read_bounded_intent_artifact(selection.content_admitted_intent_ref)
+            )
+            if (
+                admitted_intent.job_id != record.job_id
+                or admitted_intent.run_id != run_id
+                or admitted_intent.attempt != record.attempt
+                or admitted_intent.requested_intent_ref != intent_ref
+                or admitted_intent.selection_digest != selection_digest
+            ):
+                return unavailable(
+                    "selection_persistence_not_established",
+                    request=request_summary,
+                    record=record,
+                )
+        except (OSError, RuntimeError, TypeError, ValueError):
+            return unavailable(
+                "selection_persistence_not_established",
+                request=request_summary,
+                record=record,
+            )
+        return DirectMethodExecutionRunProjection(
+            status="selected",
+            request=request_summary,
+            selection=selection,
+            time_roles=time_roles(admitted_at=admitted_intent.admitted_at),
+            limitations=selection.limitations,
+        )
+
+    def read_current_admitted_method_metric_projection(
+        self,
+        *,
+        run_id: str,
+        tenant_id: str,
+        cell_id: str,
+    ) -> _CurrentMethodMetricProjectionReadResult:
+        """Read the current owner-selected AD01 projection with bounded CAS reads."""
+        from polisyos.scientist.nodes.builtins.decide.policy_runtime_method_metrics import (
+            read_current_admitted_method_metric_projection,
+        )
+
+        return read_current_admitted_method_metric_projection(
+            self._artifact_store,
+            owner=self,
+            run_id=run_id,
+            tenant_id=tenant_id,
+            cell_id=cell_id,
+        )
+
+    def resolve_completed_method_metric_selection(
+        self,
+        *,
+        source_run_id: str,
+        candidate_ref: ArtifactRef,
+        tenant_id: str,
+        cell_id: str | None,
+    ) -> CompletedMethodMetricSource | None:
+        """Resolve an exact completed graph source for an authorized follow-up.
+
+        ``source_run_id`` and ``candidate_ref`` are lookup keys only. The method
+        returns a selection only after the completed Runtime owner, creation scope,
+        terminal Core source-state output, verified AD01 association, and full
+        candidate reference all agree.
+        """
+        from polisyos.core.contracts.runtime import GraphMethodExecutionSelection
+
+        if (
+            not source_run_id
+            or not tenant_id
+            or not isinstance(candidate_ref, ArtifactRef)
+            or candidate_ref.kind != "scientist.policy_design.candidate"
+            or candidate_ref.media_type != "application/json"
+            or candidate_ref.manifest_profile_sha256 is None
+        ):
+            return None
+        selection = self.get_method_execution_selection(
+            run_id=source_run_id,
+            tenant_id=tenant_id,
+            cell_id=cell_id,
+        )
+        if (
+            not isinstance(selection, GraphMethodExecutionSelection)
+            or selection.metric_verification_status != "verified"
+            or selection.method_metric_projection is None
+            or selection.source_candidate_ref != candidate_ref
+        ):
+            return None
+        return CompletedMethodMetricSource(
+            source_run_id=source_run_id,
+            source_candidate_ref=selection.source_candidate_ref,
+            source_experiment_state_ref=selection.source_experiment_state_ref,
+            selection=selection,
+        )
+
+    def _terminal_experiment_state_ref_for_control_job(
+        self,
+        *,
+        job_id: str,
+        run_id: str,
+        tenant_id: str,
+        cell_id: str | None,
+    ) -> ArtifactRef | None:
+        """Resolve the exact final state named by the terminal workflow receipt."""
+        from polisyos.core.artifacts import read_core_json_artifact_bounded
+        from polisyos.core.artifacts.canonical_profile import (
+            CoreJsonReadLimits,
+            validate_core_model_bounded_read,
+        )
+        from polisyos.core.contracts.runtime import ObservationalInputResourcePolicy
+        from polisyos.runtime.http.services.adapters.core_run import (
+            load_terminal_core_run_source,
+        )
+        from polisyos.scientist.orchestration.engine.finalization import (
+            FINALIZATION_KIND,
+            FINALIZATION_SCHEMA_NAME,
+            FINALIZATION_SCHEMA_VERSION,
+            WorkflowStateFinalization,
+        )
+
+        if not job_id or not run_id or not tenant_id:
+            return None
+        try:
+            terminal = load_terminal_core_run_source(
+                store=self._artifact_store,
+                core_runs_root=self._core_runs_root,
+                run_id=run_id,
+            )
+            manifest = terminal.manifest
+            finalization_ref = terminal.workflow_finalization_ref
+        except (OSError, RuntimeError, TypeError, ValueError):
+            return None
+        if (
+            terminal.run_id != run_id
+            or manifest.run_id != run_id
+            or manifest.control_job_id != job_id
+            or manifest.tenant_id != tenant_id
+            or manifest.cell_id != cell_id
+            or terminal.tenant_id != tenant_id
+            or terminal.cell_id != cell_id
+            or not isinstance(finalization_ref, ArtifactRef)
+            or finalization_ref not in manifest.outputs
+            or sum(ref == finalization_ref for ref in manifest.outputs) != 1
+        ):
+            return None
+        policy = ObservationalInputResourcePolicy()
+        limits = CoreJsonReadLimits(
+            max_bytes=policy.max_bytes,
+            max_depth=policy.max_depth,
+            max_elements=policy.max_elements,
+            max_manifest_bytes=policy.max_manifest_bytes,
+        )
+        try:
+            bounded = read_core_json_artifact_bounded(
+                self._artifact_store,
+                finalization_ref,
+                limits=limits,
+            )
+            if (
+                bounded.effective_ref != finalization_ref
+                or bounded.manifest.kind != FINALIZATION_KIND
+                or bounded.manifest.media_type != "application/json"
+                or bounded.manifest.artifact_schema
+                != SchemaInfo(
+                    name=FINALIZATION_SCHEMA_NAME,
+                    version=FINALIZATION_SCHEMA_VERSION,
+                )
+            ):
+                return None
+            finalization = validate_core_model_bounded_read(
+                WorkflowStateFinalization,
+                bounded,
+            )
+        except (OSError, RuntimeError, TypeError, ValueError):
+            return None
+        selected_state = finalization.final_state_ref
+        if (
+            finalization.run_id != run_id
+            or selected_state.kind != "scientist.experiment_state"
+            or selected_state.media_type != "application/json"
+            or selected_state.manifest_profile_sha256 is None
+            or selected_state not in manifest.outputs
+            or sum(ref == selected_state for ref in manifest.outputs) != 1
+        ):
+            return None
+        return selected_state
+
+    def get_method_execution_producer_diagnostic(
+        self,
+        *,
+        run_id: str,
+        tenant_id: str,
+        cell_id: str | None,
+    ) -> MethodExecutionProducerDiagnostic | None:
+        """Read bounded candidate producer refs after the route authorizes this run."""
+        from polisyos.core.contracts.runtime import MethodExecutionProducerDiagnostic
+
+        if not run_id or not tenant_id:
+            return None
+        try:
+            record = self.get_latest_job_for_run(run_id)
+            if (
+                record is None
+                or record.kind != "workflow_run"
+                or record.run_id != run_id
+                or record.state not in {"completed", "failed"}
+                or record.progress.get("authority_path") != "legacy_shadow"
+            ):
+                return None
+            created = self._control_store.get_job_created_event_payload(record.job_id)
+        except (RuntimeError, ValueError):
+            return None
+        if (
+            created.get("job_id") != record.job_id
+            or created.get("run_id") != run_id
+            or created.get("job_kind") != "workflow_run"
+        ):
+            return None
+        execution_scope = created.get("execution_scope")
+        if not isinstance(execution_scope, Mapping) or (
+            execution_scope.get("tenant_id") != tenant_id
+            or execution_scope.get("cell_id") != cell_id
+        ):
+            return None
+        raw_diagnostic = record.progress.get("method_execution_producer_diagnostic")
+        if not isinstance(raw_diagnostic, Mapping):
+            return None
+        try:
+            diagnostic = MethodExecutionProducerDiagnostic.model_validate(raw_diagnostic)
+        except (TypeError, ValueError):
+            return None
+        if (
+            diagnostic.job_id != record.job_id
+            or diagnostic.run_id != run_id
+            or diagnostic.attempt != record.attempt
+            or diagnostic.authority_status != "candidate_only"
+        ):
+            return None
+        return diagnostic
 
     def get_pre_admission_attempt_status_by_idempotency_key(
         self,
@@ -4151,6 +6981,15 @@ class ControlPlaneService(
             policy_flags=request.policy_flags,
             principal=principal,
         )
+        if request.observational_input is not None:
+            return self._launch_observational_workflow_run(
+                request,
+                run_id=run_id,
+                job_id=job_id,
+                policy=policy,
+                request_id=request_id,
+                principal=principal,
+            )
 
         # Build inputs dict
         inputs: dict[str, Any] = {}
@@ -4618,7 +7457,12 @@ class ControlPlaneService(
             ),
         }
 
-    def _run_legacy_scientist_workflow(self, state_payload: dict[str, Any]) -> None:
+    def _run_legacy_scientist_workflow(
+        self,
+        state_payload: dict[str, Any],
+        *,
+        job: ControlJobRecord | None = None,
+    ) -> _LegacyScientistWorkflowRun:
         from polisyos.scientist.api import run_experiment
 
         execution_payload = dict(state_payload)
@@ -4637,16 +7481,89 @@ class ControlPlaneService(
             if raw_context is not None
             else None
         )
-        run_experiment(
-            execution_payload,
-            store=self._artifact_store,
-            epoch_certificate_issuance_owner=self._epoch_certificate_issuance_owner,
-            eval_safety_execution_context=execution_context,
-            eval_safety_verifier=(
-                self._evaluation_safety_admission_verifier
-                if execution_context is not None
-                else None
+        foundry_capture: _RuntimeOriginCapturingFoundryPort | None = None
+        source_experiment_state_ref: ArtifactRef | None = None
+        if job is not None:
+            if job.kind != "workflow_run" or not job.run_id or not job.lease_owner:
+                raise ValueError("runtime_graph_producer_scope_not_established")
+            from polisyos.scientist.adapters.foundry_bridge import DefaultFoundryPort
+
+            foundry_capture = _RuntimeOriginCapturingFoundryPort(
+                delegate=DefaultFoundryPort(),
+                job_id=job.job_id,
+                run_id=str(job.run_id),
+                attempt=job.attempt,
+                lease_owner=job.lease_owner,
+            )
+        try:
+            final_state = run_experiment(
+                execution_payload,
+                store=self._artifact_store,
+                foundry=foundry_capture,
+                epoch_certificate_issuance_owner=self._epoch_certificate_issuance_owner,
+                eval_safety_execution_context=execution_context,
+                eval_safety_verifier=(
+                    self._evaluation_safety_admission_verifier
+                    if execution_context is not None
+                    else None
+                ),
+                method_metric_selection_owner=self if job is not None else None,
+            )
+            if not isinstance(final_state, dict):
+                raise TypeError("legacy_scientist_workflow_final_state_not_mapping")
+        except Exception as exc:
+            if foundry_capture is None:
+                raise
+            from polisyos.runtime.http.services.control.workspace_loop_transition import (
+                _LegacyScientistWorkflowError,
+            )
+
+            raise _LegacyScientistWorkflowError(
+                str(exc),
+                graph_producer_receipt=foundry_capture.producer_receipt(),
+            ) from exc
+        graph_output_refs = _scientist_graph_output_refs(final_state)
+        if job is not None:
+            source_experiment_state_ref = self._legacy_scientist_final_state_ref(job=job)
+        del final_state
+        return _LegacyScientistWorkflowRun(
+            graph_output_refs=graph_output_refs,
+            source_experiment_state_ref=source_experiment_state_ref,
+            graph_producer_receipt=(
+                foundry_capture.producer_receipt() if foundry_capture is not None else None
             ),
+        )
+
+    def _legacy_scientist_final_state_ref(
+        self,
+        *,
+        job: ControlJobRecord,
+    ) -> ArtifactRef | None:
+        """Resolve the final-state output from this job's actual terminal Core run."""
+        if job.kind != "workflow_run" or not isinstance(job.run_id, str) or not job.run_id:
+            return None
+        try:
+            created = self._control_store.get_job_created_event_payload(job.job_id)
+        except (RuntimeError, ValueError):
+            return None
+        if (
+            created.get("job_id") != job.job_id
+            or created.get("run_id") != job.run_id
+            or created.get("job_kind") != "workflow_run"
+        ):
+            return None
+        execution_scope = created.get("execution_scope")
+        if not isinstance(execution_scope, Mapping):
+            return None
+        tenant_id = execution_scope.get("tenant_id")
+        cell_id = execution_scope.get("cell_id")
+        if not isinstance(tenant_id, str) or not tenant_id:
+            return None
+        return self._terminal_experiment_state_ref_for_control_job(
+            job_id=job.job_id,
+            run_id=job.run_id,
+            tenant_id=tenant_id,
+            cell_id=cell_id if isinstance(cell_id, str) else None,
         )
 
     # ---- NL launch (agent circuit) ----------------------------------------

@@ -11,9 +11,18 @@ from dataclasses import dataclass, field
 from enum import Enum
 from typing import Any, Literal, Protocol
 
-from pydantic import BaseModel, ConfigDict, Field, ValidationError, model_validator
+from pydantic import (
+    BaseModel,
+    ConfigDict,
+    Field,
+    StrictInt,
+    StrictStr,
+    ValidationError,
+    model_validator,
+)
 
-from polisyos.core.artifacts.manifest import ArtifactRef
+from polisyos.core.artifacts.manifest import ArtifactRef, artifact_ref_identity_key
+from polisyos.ir.kernel.units import UnitSpecType
 
 _MISSING = object()
 _INVALID = object()
@@ -86,6 +95,312 @@ class SourceMetricObservation(BaseModel):
         ):
             raise ValueError("non_observed_government_balance_cannot_carry_a_measurement")
         return self
+
+
+class SelectedMethodMetricArtifactRef(ArtifactRef):
+    """Deep-immutable, selected-profile ArtifactRef used in metric evidence."""
+
+    model_config = ConfigDict(extra="forbid", frozen=True)
+
+    manifest_profile_sha256: StrictStr = Field(pattern=r"^sha256:[0-9a-f]{64}$")
+
+
+_METHOD_METRIC_REF_KINDS = {
+    "binding_set": "foundry.method_metric_binding_set",
+    "execution_bundle": "foundry.method_execution_bundle",
+    "simulation_result": "foundry.simulation_result",
+    "output": "foundry.method_output",
+    "environment": "foundry.environment_manifest",
+    "input_capture": "foundry.method_metric_input_capture",
+}
+_SHA256_DIGEST_PATTERN = r"^(?:sha256:)?[0-9a-f]{64}$"
+
+
+class MethodMetricSourceUnit(BaseModel):
+    """Immutable Foundry unit representation captured for one selected method output."""
+
+    model_config = ConfigDict(extra="forbid", frozen=True, from_attributes=True)
+
+    dimension: StrictStr = Field(min_length=1)
+    symbol: StrictStr
+    scale: float = Field(gt=0.0)
+
+    @model_validator(mode="before")
+    @classmethod
+    def normalize_numeric_scale(cls, value: Any) -> Any:
+        """Reject booleans and text while preserving Foundry's numeric scale value."""
+        if isinstance(value, Mapping):
+            payload = dict(value)
+            raw_scale = payload.get("scale", 1.0)
+            if isinstance(raw_scale, bool) or not isinstance(raw_scale, (int, float)):
+                raise ValueError("method_metric_source_unit_scale_must_be_numeric")
+            payload["scale"] = float(raw_scale)
+            return payload
+        raw_scale = getattr(value, "scale", None)
+        if raw_scale is not None:
+            if isinstance(raw_scale, bool) or not isinstance(raw_scale, (int, float)):
+                raise ValueError("method_metric_source_unit_scale_must_be_numeric")
+            return {
+                "dimension": getattr(value, "dimension", None),
+                "symbol": getattr(value, "symbol", None),
+                "scale": float(raw_scale),
+            }
+        return value
+
+    @model_validator(mode="after")
+    def validate_finite_scale(self) -> MethodMetricSourceUnit:
+        """Keep source unit scale finite and strictly positive."""
+        if not math.isfinite(self.scale) or self.scale <= 0.0:
+            raise ValueError("method_metric_source_unit_scale_must_be_finite_positive")
+        return self
+
+
+class MethodMetricPredicateEvidence(BaseModel):
+    """One typed predicate outcome retained with a method metric observation."""
+
+    model_config = ConfigDict(extra="forbid", frozen=True)
+
+    predicate_id: StrictStr = Field(min_length=1)
+    classification: Literal[
+        "recomputed",
+        "independently_reconciled",
+        "consumer_asserted",
+        "institutionally_supplied",
+        "not_established",
+    ]
+    evidence_ref: SelectedMethodMetricArtifactRef | None = None
+    evidence_sha256: StrictStr | None = Field(default=None, pattern=_SHA256_DIGEST_PATTERN)
+    limitation: StrictStr | None = None
+
+    @model_validator(mode="after")
+    def validate_evidence_boundary(self) -> MethodMetricPredicateEvidence:
+        """Require an evidence pointer for recomputed predicates and label limitations."""
+        if self.evidence_ref is not None and self.evidence_ref.manifest_profile_sha256 is None:
+            raise ValueError("method_metric_predicate_evidence_ref_requires_selected_profile")
+        if self.classification in {"recomputed", "independently_reconciled"} and (
+            self.evidence_ref is None
+        ):
+            raise ValueError("method_metric_predicate_evidence_basis_missing")
+        if self.classification in {
+            "consumer_asserted",
+            "institutionally_supplied",
+            "not_established",
+        } and not (self.limitation and self.limitation.strip()):
+            raise ValueError("method_metric_unestablished_predicate_requires_limitation")
+        return self
+
+
+class MethodMetricObservation(BaseModel):
+    """Candidate-only, source-bound observation produced by the AD01 admission worker.
+
+    The status and evidence fields describe the worker's result; they do not grant
+    authority on their own. Consumers require the Runtime-owned selected projection
+    association before using this observation.
+    """
+
+    model_config = ConfigDict(extra="forbid", frozen=True)
+
+    schema_version: Literal["1.3"] = "1.3"
+    source_status: Literal["observed", "unavailable", "invalid", "not_established"]
+    binding_set_ref: SelectedMethodMetricArtifactRef
+    execution_bundle_ref: SelectedMethodMetricArtifactRef
+    simulation_result_ref: SelectedMethodMetricArtifactRef
+    environment_manifest_ref: SelectedMethodMetricArtifactRef | None = None
+    output_ref: SelectedMethodMetricArtifactRef | None = None
+    input_capture_ref: SelectedMethodMetricArtifactRef | None = None
+    binding_id: StrictStr = Field(min_length=1)
+    objective_id: StrictStr = Field(min_length=1)
+    metric_id: StrictStr = Field(min_length=1)
+    metric_unit_id: StrictStr | None = Field(default=None, min_length=1)
+    objective_direction: StrictStr | None = None
+    objective_weight: StrictStr | None = None
+    objective_target_present: bool | None = None
+    objective_target_sha256: StrictStr | None = Field(default=None, pattern=_SHA256_DIGEST_PATTERN)
+    objective_spec_sha256: StrictStr | None = Field(default=None, pattern=_SHA256_DIGEST_PATTERN)
+    configured_objective_count: StrictInt | None = Field(default=None, ge=1)
+    occurrence_id: StrictStr | None = Field(default=None, min_length=1)
+    invocation_id: StrictStr | None = Field(default=None, min_length=1)
+    plan_index: StrictInt | None = Field(default=None, ge=0)
+    node_id: StrictStr = Field(min_length=1)
+    method_fqn: StrictStr = Field(min_length=1)
+    method_version: StrictStr = Field(min_length=1)
+    method_abi_digest: StrictStr = Field(pattern=r"^[0-9a-f]{64}$")
+    method_abi_digest_algorithm: Literal["blake2b"]
+    method_build_digest: StrictStr | None = Field(default=None, pattern=_SHA256_DIGEST_PATTERN)
+    method_build_digest_scope: Literal["class_source_only", "unavailable"] = "unavailable"
+    slot_id: StrictStr = Field(min_length=1)
+    population_id: StrictStr | None = None
+    axes: tuple[StrictStr, ...] = Field(default_factory=tuple)
+    denominator_id: StrictStr | None = None
+    time_role: StrictStr | None = None
+    quantity_kind: StrictStr | None = None
+    quantity_role: StrictStr | None = None
+    source_unit: MethodMetricSourceUnit
+    target_unit: UnitSpecType
+    value: float | None = Field(default=None, strict=True)
+    law_id: StrictStr = Field(min_length=1)
+    law_version: StrictStr = Field(min_length=1)
+    law_code_digest: StrictStr = Field(pattern=_SHA256_DIGEST_PATTERN)
+    adapter_id: StrictStr = Field(min_length=1)
+    adapter_version: StrictStr = Field(min_length=1)
+    adapter_code_digest: StrictStr = Field(pattern=_SHA256_DIGEST_PATTERN)
+    verifier_id: StrictStr = Field(min_length=1)
+    verifier_revision: StrictStr = Field(min_length=1)
+    verifier_code_digest: StrictStr = Field(pattern=_SHA256_DIGEST_PATTERN)
+    checked_context_sha256: StrictStr = Field(pattern=_SHA256_DIGEST_PATTERN)
+    predicate_evidence: tuple[MethodMetricPredicateEvidence, ...] = Field(default_factory=tuple)
+    limitations: tuple[StrictStr, ...] = Field(default_factory=tuple)
+
+    @model_validator(mode="before")
+    @classmethod
+    def reject_coercible_metric_values(cls, value: Any) -> Any:
+        """Reject bool/text values before Pydantic can coerce them to floats."""
+        if isinstance(value, Mapping):
+            payload = dict(value)
+            raw_value = payload.get("value")
+            if raw_value is not None:
+                if isinstance(raw_value, bool) or not isinstance(raw_value, (int, float)):
+                    raise ValueError("method_metric_value_must_be_numeric")
+                payload["value"] = float(raw_value)
+            return payload
+        return value
+
+    @model_validator(mode="after")
+    def validate_observation_boundary(self) -> MethodMetricObservation:
+        """Require exact profiled source refs and a finite value for observed outputs."""
+        expected_refs = (
+            (self.binding_set_ref, _METHOD_METRIC_REF_KINDS["binding_set"]),
+            (self.execution_bundle_ref, _METHOD_METRIC_REF_KINDS["execution_bundle"]),
+            (self.simulation_result_ref, _METHOD_METRIC_REF_KINDS["simulation_result"]),
+        )
+        if self.environment_manifest_ref is not None:
+            expected_refs += (
+                (self.environment_manifest_ref, _METHOD_METRIC_REF_KINDS["environment"]),
+            )
+        for ref, kind in expected_refs:
+            if (
+                ref.kind != kind
+                or ref.media_type != "application/json"
+                or ref.manifest_profile_sha256 is None
+            ):
+                raise ValueError("method_metric_source_ref_must_be_selected_and_typed")
+        if self.output_ref is not None and (
+            self.output_ref.kind != _METHOD_METRIC_REF_KINDS["output"]
+            or self.output_ref.media_type != "application/json"
+            or self.output_ref.manifest_profile_sha256 is None
+        ):
+            raise ValueError("method_metric_output_ref_must_be_selected_and_typed")
+        if self.input_capture_ref is not None and (
+            self.input_capture_ref.kind != _METHOD_METRIC_REF_KINDS["input_capture"]
+            or self.input_capture_ref.media_type != "application/json"
+            or self.input_capture_ref.manifest_profile_sha256 is None
+        ):
+            raise ValueError("method_metric_input_capture_ref_must_be_selected_and_typed")
+        if self.source_status == "observed":
+            if (
+                self.occurrence_id is None
+                or self.invocation_id is None
+                or self.plan_index is None
+                or self.output_ref is None
+                or self.input_capture_ref is None
+                or self.environment_manifest_ref is None
+                or self.population_id is None
+                or not self.axes
+                or self.time_role is None
+                or self.quantity_kind is None
+                or self.quantity_role is None
+                or self.value is None
+                or not math.isfinite(self.value)
+                or not self.predicate_evidence
+                or self.metric_unit_id is None
+                or self.objective_direction is None
+                or self.objective_weight is None
+                or self.objective_target_present is None
+                or self.objective_spec_sha256 is None
+                or self.configured_objective_count is None
+                or (self.objective_target_present != (self.objective_target_sha256 is not None))
+            ):
+                raise ValueError("observed_method_metric_source_basis_is_incomplete")
+            try:
+                from decimal import Decimal, InvalidOperation
+
+                parsed_weight = Decimal(self.objective_weight)
+            except (InvalidOperation, TypeError, ValueError) as exc:
+                raise ValueError("observed_method_metric_objective_weight_invalid") from exc
+            if not parsed_weight.is_finite() or parsed_weight < 0:
+                raise ValueError("observed_method_metric_objective_weight_invalid")
+        elif self.value is not None:
+            raise ValueError("non_observed_method_metric_cannot_carry_a_value")
+        elif not any(note.strip() for note in self.limitations):
+            raise ValueError("non_observed_method_metric_requires_limitation")
+        if self.occurrence_id is None:
+            if (
+                self.invocation_id is not None
+                or self.plan_index is not None
+                or self.output_ref is not None
+            ):
+                raise ValueError("unmatched_method_metric_binding_cannot_claim_an_occurrence")
+        elif (
+            self.invocation_id is None
+            or self.plan_index is None
+            or self.occurrence_id != f"{self.invocation_id}:{self.plan_index}:{self.node_id}"
+        ):
+            raise ValueError("method_metric_occurrence_identity_mismatch")
+        if self.method_build_digest_scope == "class_source_only":
+            if self.method_build_digest is None:
+                raise ValueError("class_source_method_build_scope_requires_digest")
+        elif self.method_build_digest is not None:
+            raise ValueError("unavailable_method_build_scope_cannot_carry_digest")
+        if len({item.predicate_id for item in self.predicate_evidence}) != len(
+            self.predicate_evidence
+        ):
+            raise ValueError("method_metric_predicate_evidence_ids_must_be_unique")
+        return self
+
+
+def method_metric_observation_input_refs(
+    observations: tuple[MethodMetricObservation, ...],
+) -> tuple[tuple[str, SelectedMethodMetricArtifactRef], ...]:
+    """Return deterministic selected CAS input edges for inline method observations."""
+    by_role: dict[str, SelectedMethodMetricArtifactRef] = {}
+    for observation in observations:
+        refs: list[tuple[str, SelectedMethodMetricArtifactRef | None]] = [
+            ("method_metric_binding_set", observation.binding_set_ref),
+            ("method_execution_bundle", observation.execution_bundle_ref),
+            ("method_simulation_result", observation.simulation_result_ref),
+            ("method_environment_manifest", observation.environment_manifest_ref),
+            (
+                f"method_metric_output:{observation.binding_id}:"
+                f"{observation.occurrence_id or 'unmatched'}",
+                observation.output_ref,
+            ),
+            (
+                f"method_metric_input_capture:{observation.binding_id}:"
+                f"{observation.occurrence_id or 'unmatched'}",
+                observation.input_capture_ref,
+            ),
+        ]
+        refs.extend(
+            (
+                "method_metric_evidence:"
+                f"{observation.binding_id}:{observation.occurrence_id or 'unmatched'}:"
+                f"{evidence.predicate_id}",
+                evidence.evidence_ref,
+            )
+            for evidence in observation.predicate_evidence
+        )
+        for role, ref in refs:
+            if ref is None:
+                continue
+            if ref.manifest_profile_sha256 is None:
+                raise ValueError("method_metric_input_ref_requires_selected_profile")
+            prior = by_role.get(role)
+            if prior is not None and artifact_ref_identity_key(prior) != artifact_ref_identity_key(
+                ref
+            ):
+                raise ValueError("method_metric_input_role_conflicts_across_observations")
+            by_role[role] = ref
+    return tuple((role, by_role[role]) for role in sorted(by_role))
 
 
 def observe_source_government_balance(
@@ -505,6 +820,7 @@ class ObjectiveScoreAssessment:
                 "composite",
                 "policy_vector_channel",
                 "policy_vector_legacy_scalar",
+                "completed_method_metric_objectives",
             } and (
                 not self.source_unit_bindings
                 or any(
@@ -582,7 +898,7 @@ class ObjectiveScoreAssessment:
             return _unestablished_score_assessment("objective_assessment_payload_invalid")
 
 
-@dataclass(frozen=True, slots=True)
+@dataclass(frozen=True)
 class ObjectiveScoreAdmission:
     """Carry one consumer-recomputed score status and the basis it checked.
 
@@ -592,11 +908,25 @@ class ObjectiveScoreAdmission:
     source cannot turn a previous invalidation into an absent score.
     """
 
+    __slots__ = (
+        "_policyos_ephemeral_score_owner_context",
+        "predicate_status",
+        "reason",
+        "recomputed_assessment",
+        "reported_assessment",
+        "status",
+    )
+
     status: ObjectiveScoreStatus
     predicate_status: Literal["recomputed", "not_established"]
     reported_assessment: ObjectiveScoreAssessment | None
     recomputed_assessment: ObjectiveScoreAssessment | None
     reason: str
+
+    @property
+    def _owner_context(self) -> object | None:
+        """Return an in-process basis held outside fields and serializer-visible state."""
+        return getattr(self, "_policyos_ephemeral_score_owner_context", None)
 
     def __post_init__(self) -> None:
         if self.predicate_status not in {"recomputed", "not_established"}:
@@ -666,6 +996,31 @@ class ObjectiveScoreAdmission:
             "recomputed_source_sha256": None if recomputed is None else recomputed.source_sha256,
         }
 
+    def __deepcopy__(self, memo: dict[int, Any]) -> ObjectiveScoreAdmission:
+        """Copy only persisted fields; owner context must be reacquired after copying."""
+        copied = type(self)(
+            status=self.status,
+            predicate_status=self.predicate_status,
+            reported_assessment=self.reported_assessment,
+            recomputed_assessment=self.recomputed_assessment,
+            reason=self.reason,
+        )
+        memo[id(self)] = copied
+        return copied
+
+    def __reduce__(self) -> tuple[Any, tuple[Any, ...]]:
+        """Keep pickle snapshots limited to the declared, reloadable score record."""
+        return (
+            type(self),
+            (
+                self.status,
+                self.predicate_status,
+                self.reported_assessment,
+                self.recomputed_assessment,
+                self.reason,
+            ),
+        )
+
     @classmethod
     def from_payload(cls, payload: Any) -> ObjectiveScoreAdmission:
         """Parse a complete admission record without treating malformed data as absence."""
@@ -699,6 +1054,16 @@ class ObjectiveScoreAdmission:
             recomputed_assessment=parse_assessment(payload["recomputed_assessment"]),
             reason=payload["reason"],
         )
+
+
+def _attach_score_admission_owner_context(
+    admission: ObjectiveScoreAdmission,
+    owner_context: object | None,
+) -> ObjectiveScoreAdmission:
+    """Attach an ephemeral replay capability outside declared serialization fields."""
+    if owner_context is not None:
+        object.__setattr__(admission, "_policyos_ephemeral_score_owner_context", owner_context)
+    return admission
 
 
 def _unestablished_score_assessment(reason: str) -> ObjectiveScoreAssessment:
@@ -1049,9 +1414,12 @@ def _assess_search_fiscal_measurement(
     if usable is False:
         if results["budget_deficit_objective_value"] is not None:
             return None, ObjectiveScoreStatus.INVALID
-        if objective.score_status is not ObjectiveScoreStatus.UNAVAILABLE:
+        if objective.score_status not in {
+            ObjectiveScoreStatus.UNAVAILABLE,
+            ObjectiveScoreStatus.NOT_ESTABLISHED,
+        }:
             return None, ObjectiveScoreStatus.INVALID
-        return None, ObjectiveScoreStatus.UNAVAILABLE
+        return None, objective.score_status
 
     normalized_value, value_status = _read_finite_numeric_metric(
         results, "budget_deficit_objective_value"
@@ -1086,7 +1454,11 @@ def _assess_default_search_objective(
     limitation = (
         "search_objective_fiscal_measurement_unavailable"
         if status is ObjectiveScoreStatus.UNAVAILABLE
-        else "search_objective_fiscal_measurement_invalid"
+        else (
+            "search_objective_fiscal_period_flow_not_established"
+            if status is ObjectiveScoreStatus.NOT_ESTABLISHED
+            else "search_objective_fiscal_measurement_invalid"
+        )
     )
     return _DefaultSearchObjectiveAssessment(
         objective_value=None,
@@ -1107,6 +1479,7 @@ def _apply_default_search_objective_limitations(
         "search_objective_score_invalid_present_metric",
         "search_objective_fiscal_measurement_unavailable",
         "search_objective_fiscal_measurement_invalid",
+        "search_objective_fiscal_period_flow_not_established",
     }
     previous = feedback.get("objective_limitations")
     retained = (
@@ -1413,6 +1786,45 @@ def _selected_measurement_fields(spec: dict[str, Any], results: dict[str, Any]) 
     )
 
 
+def _fiscal_alias_source_unit_error(spec: dict[str, Any], results: dict[str, Any]) -> str | None:
+    """Reject malformed or contradictory units without treating units as fiscal law."""
+    requirements = _rule_metric_unit_requirements(spec)
+    if requirements is None:
+        return "objective_rule_unit_binding_malformed"
+    raw_units = results.get("metric_units", _MISSING)
+    if raw_units is _MISSING:
+        return None
+    if not isinstance(raw_units, dict):
+        return "objective_source_unit_malformed_or_conflicting"
+
+    selected_fields = _selected_measurement_fields(spec, results)
+    selected_units: list[str] = []
+    for field_name in selected_fields:
+        observed_unit = raw_units.get(field_name, _MISSING)
+        if observed_unit is _INVALID:
+            return "objective_source_unit_malformed_or_conflicting"
+        if observed_unit is _MISSING:
+            continue
+        if (
+            not isinstance(observed_unit, str)
+            or not observed_unit.strip()
+            or observed_unit != observed_unit.strip()
+        ):
+            return "objective_source_unit_malformed_or_conflicting"
+        expected_unit = requirements.get(field_name, _MISSING)
+        if expected_unit is _INVALID or (
+            expected_unit is not _MISSING
+            and expected_unit is not None
+            and observed_unit != expected_unit
+        ):
+            return "objective_source_unit_malformed_or_conflicting"
+        selected_units.append(observed_unit)
+
+    if len(set(selected_units)) > 1:
+        return "objective_source_unit_malformed_or_conflicting"
+    return None
+
+
 def _objective_source_results(source: Any, spec: dict[str, Any]) -> dict[str, Any] | None:
     """Resolve only selected rule operands from actual result containers.
 
@@ -1658,11 +2070,20 @@ def _assessment_for_rule_spec(
                 status = ObjectiveScoreStatus.INVALID
                 limitation = "objective_basis_conflicting_fiscal_measurements"
             else:
-                status = ObjectiveScoreStatus.AVAILABLE
-                score = balance_score if balance_score is not None else deficit_score
+                unit_error = _fiscal_alias_source_unit_error(spec, results)
+                if unit_error is not None:
+                    status = ObjectiveScoreStatus.INVALID
+                    limitation = unit_error
+                else:
+                    # A scalar unit and a source-provided role label cannot prove that a
+                    # stock or unqualified deficit alias is a period-flow measurement.
+                    # Keep its numeric value diagnostic-only until an owner-bound flow
+                    # contract is admitted through the typed method-metric path.
+                    status = ObjectiveScoreStatus.NOT_ESTABLISHED
+                    limitation = "budget_deficit_period_flow_source_not_established"
         derived_values["balance_score"] = balance_score if balance is not _INVALID else None
         derived_values["deficit_score"] = deficit_score if deficit is not _INVALID else None
-        derived_values["score"] = score
+        derived_values["score"] = None
     elif kind == "default_policy_scalar":
         gdp, gdp_status = _read_finite_numeric_metric(results, "gdp_change")
         expected_units = spec.get("expected_units")
@@ -1680,7 +2101,13 @@ def _assessment_for_rule_spec(
         elif gdp_status is not ObjectiveScoreStatus.AVAILABLE or (
             fiscal_status is not ObjectiveScoreStatus.AVAILABLE
         ):
-            status = ObjectiveScoreStatus.UNAVAILABLE
+            status = (
+                ObjectiveScoreStatus.NOT_ESTABLISHED
+                if fiscal_status is ObjectiveScoreStatus.NOT_ESTABLISHED
+                else ObjectiveScoreStatus.UNAVAILABLE
+            )
+            if fiscal_status is ObjectiveScoreStatus.NOT_ESTABLISHED:
+                limitation = "budget_deficit_period_flow_source_not_established"
         else:
             assert gdp is not None
             assert fiscal_value is not None
@@ -1698,6 +2125,15 @@ def _assessment_for_rule_spec(
             status = ObjectiveScoreStatus.INVALID
         elif any(item.status is ObjectiveScoreStatus.NOT_ESTABLISHED for item in children):
             status = ObjectiveScoreStatus.NOT_ESTABLISHED
+            limitation = next(
+                (
+                    item.limitation
+                    for item in children
+                    if item.status is ObjectiveScoreStatus.NOT_ESTABLISHED
+                    and item.limitation is not None
+                ),
+                None,
+            )
         elif any(item.status is ObjectiveScoreStatus.UNAVAILABLE for item in children):
             status = ObjectiveScoreStatus.UNAVAILABLE
         else:
@@ -1849,6 +2285,8 @@ def _assess_configured_objective(
 def _recompute_score_assessment(
     assessment: ObjectiveScoreAssessment | None,
     source: Any,
+    *,
+    owner_context: object | None = None,
 ) -> ObjectiveScoreAssessment | None:
     """Recompute every carried score state from its selected rule and source."""
     if assessment is None or not assessment.rule_spec:
@@ -1859,6 +2297,18 @@ def _recompute_score_assessment(
         return None
     if not isinstance(spec, dict):
         return None
+    if spec.get("kind") == "completed_method_metric_objectives":
+        try:
+            from polisyos.scientist.nodes.builtins.decide.policy_runtime_method_metrics import (
+                recompute_completed_method_metric_score,
+            )
+
+            return recompute_completed_method_metric_score(
+                assessment,
+                owner_context=owner_context,
+            )
+        except (ImportError, TypeError, ValueError):
+            return None
     if spec.get("kind") == "policy_vector_channel":
         payload = source
         if hasattr(payload, "model_dump"):
@@ -1901,12 +2351,22 @@ def _recompute_score_assessment(
 
 
 def score_assessment_matches_source(
-    assessment: ObjectiveScoreAssessment | None, source: Any
+    assessment: ObjectiveScoreAssessment | None,
+    source: Any,
+    *,
+    owner_context: object | None = None,
 ) -> bool:
     """Recompute a carried assessment from its actual source result payload."""
     if assessment is None:
         return False
-    return _recompute_score_assessment(assessment, source) == assessment
+    return (
+        _recompute_score_assessment(
+            assessment,
+            source,
+            owner_context=owner_context,
+        )
+        == assessment
+    )
 
 
 def reconcile_objective_score_assessment(
@@ -1916,6 +2376,7 @@ def reconcile_objective_score_assessment(
     prior_admission: ObjectiveScoreAdmission | None = None,
     reported_status: ObjectiveScoreStatus | None = None,
     reported_value: float | None = None,
+    owner_context: object | None = None,
 ) -> ObjectiveScoreAdmission:
     """Produce one typed source-recomputed score state for all consumers.
 
@@ -1924,11 +2385,19 @@ def reconcile_objective_score_assessment(
     source cannot replay is INVALID. A numeric value is admitted only when the
     current replay exactly matches both the carried assessment and value.
     """
+    if owner_context is None and prior_admission is not None:
+        owner_context = prior_admission._owner_context
+
+    def _admission(**values: Any) -> ObjectiveScoreAdmission:
+        return _attach_score_admission_owner_context(
+            ObjectiveScoreAdmission(**values), owner_context
+        )
+
     if assessment is None:
         if reported_status is ObjectiveScoreStatus.INVALID or (
             prior_admission is not None and prior_admission.status is ObjectiveScoreStatus.INVALID
         ):
-            return ObjectiveScoreAdmission(
+            return _admission(
                 status=ObjectiveScoreStatus.INVALID,
                 predicate_status=(
                     "not_established"
@@ -1945,7 +2414,7 @@ def reconcile_objective_score_assessment(
                     else "invalid_score_status_without_assessment"
                 ),
             )
-        return ObjectiveScoreAdmission(
+        return _admission(
             status=ObjectiveScoreStatus.NOT_ESTABLISHED,
             predicate_status="not_established",
             reported_assessment=None,
@@ -1955,14 +2424,14 @@ def reconcile_objective_score_assessment(
 
     if not assessment.rule_spec:
         if assessment.status is ObjectiveScoreStatus.NOT_ESTABLISHED:
-            return ObjectiveScoreAdmission(
+            return _admission(
                 status=ObjectiveScoreStatus.NOT_ESTABLISHED,
                 predicate_status="not_established",
                 reported_assessment=assessment,
                 recomputed_assessment=None,
                 reason=assessment.limitation or "selected_rule_not_established",
             )
-        return ObjectiveScoreAdmission(
+        return _admission(
             status=ObjectiveScoreStatus.INVALID,
             predicate_status="not_established",
             reported_assessment=assessment,
@@ -1970,9 +2439,46 @@ def reconcile_objective_score_assessment(
             reason="declared_score_has_no_replayable_rule",
         )
 
-    recomputed = _recompute_score_assessment(assessment, source)
+    try:
+        selected_rule = json.loads(assessment.rule_spec)
+    except (TypeError, ValueError, json.JSONDecodeError):
+        selected_rule = None
+    if (
+        isinstance(selected_rule, dict)
+        and selected_rule.get("kind") == "completed_method_metric_objectives"
+        and owner_context is None
+    ):
+        invalid_was_already_selected = reported_status is ObjectiveScoreStatus.INVALID or (
+            prior_admission is not None and prior_admission.status is ObjectiveScoreStatus.INVALID
+        )
+        if invalid_was_already_selected:
+            reason = (
+                prior_admission.reason
+                if prior_admission is not None
+                else "reported_score_status_invalid"
+            )
+            return _admission(
+                status=ObjectiveScoreStatus.INVALID,
+                predicate_status="not_established",
+                reported_assessment=assessment,
+                recomputed_assessment=None,
+                reason=reason,
+            )
+        return _admission(
+            status=ObjectiveScoreStatus.NOT_ESTABLISHED,
+            predicate_status="not_established",
+            reported_assessment=assessment,
+            recomputed_assessment=None,
+            reason="completed_method_metric_owner_context_not_retained",
+        )
+
+    recomputed = _recompute_score_assessment(
+        assessment,
+        source,
+        owner_context=owner_context,
+    )
     if recomputed is None:
-        return ObjectiveScoreAdmission(
+        return _admission(
             status=ObjectiveScoreStatus.INVALID,
             predicate_status="not_established",
             reported_assessment=assessment,
@@ -1980,7 +2486,7 @@ def reconcile_objective_score_assessment(
             reason="selected_score_source_replay_failed",
         )
     if recomputed != assessment:
-        return ObjectiveScoreAdmission(
+        return _admission(
             status=ObjectiveScoreStatus.INVALID,
             predicate_status="recomputed",
             reported_assessment=assessment,
@@ -1988,7 +2494,7 @@ def reconcile_objective_score_assessment(
             reason="selected_score_source_mismatch",
         )
     if reported_status is ObjectiveScoreStatus.INVALID:
-        return ObjectiveScoreAdmission(
+        return _admission(
             status=ObjectiveScoreStatus.INVALID,
             predicate_status="recomputed",
             reported_assessment=assessment,
@@ -2000,14 +2506,14 @@ def reconcile_objective_score_assessment(
         and reported_value is not None
         and reported_value != assessment.value
     ):
-        return ObjectiveScoreAdmission(
+        return _admission(
             status=ObjectiveScoreStatus.INVALID,
             predicate_status="recomputed",
             reported_assessment=assessment,
             recomputed_assessment=recomputed,
             reason="reported_score_value_mismatch",
         )
-    return ObjectiveScoreAdmission(
+    return _admission(
         status=assessment.status,
         predicate_status="recomputed",
         reported_assessment=assessment,
@@ -2165,13 +2671,19 @@ def _project_score_assessment_source(
 def selected_score_admission_status(
     assessment: ObjectiveScoreAssessment | None,
     source: Any,
+    *,
+    owner_context: object | None = None,
 ) -> ObjectiveScoreStatus:
     """Return only a source-recomputed available score as admissible."""
     if assessment is None:
         return ObjectiveScoreStatus.NOT_ESTABLISHED
     if assessment.status is not ObjectiveScoreStatus.AVAILABLE:
         return assessment.status
-    if score_assessment_matches_source(assessment, source):
+    if score_assessment_matches_source(
+        assessment,
+        source,
+        owner_context=owner_context,
+    ):
         return ObjectiveScoreStatus.AVAILABLE
     return ObjectiveScoreStatus.INVALID
 

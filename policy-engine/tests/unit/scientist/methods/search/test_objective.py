@@ -17,67 +17,48 @@ FISCAL_UNIT_FIXTURE = "usd"
 
 
 @pytest.mark.parametrize(
-    ("results", "expected"),
+    "results",
     [
-        (
-            {
-                "budget_deficit": 100.0,
-                "metric_units": {"budget_deficit": FISCAL_UNIT_FIXTURE},
+        {"budget_deficit": 100.0, "metric_units": {"budget_deficit": FISCAL_UNIT_FIXTURE}},
+        {
+            "gov_balance": None,
+            "budget_deficit": 100.0,
+            "metric_units": {"budget_deficit": FISCAL_UNIT_FIXTURE},
+        },
+        {"gov_balance": 0.0, "metric_units": {"gov_balance": FISCAL_UNIT_FIXTURE}},
+        {
+            "gov_balance": 0.0,
+            "budget_deficit": 0.0,
+            "metric_units": {
+                "gov_balance": FISCAL_UNIT_FIXTURE,
+                "budget_deficit": FISCAL_UNIT_FIXTURE,
             },
-            100.0,
-        ),
-        (
-            {
-                "gov_balance": None,
-                "budget_deficit": 100.0,
-                "metric_units": {"budget_deficit": FISCAL_UNIT_FIXTURE},
-            },
-            100.0,
-        ),
-        (
-            {
-                "gov_balance": 0.0,
-                "metric_units": {"gov_balance": FISCAL_UNIT_FIXTURE},
-            },
-            0.0,
-        ),
-        (
-            {
-                "gov_balance": 0.0,
-                "budget_deficit": 0.0,
-                "metric_units": {
-                    "gov_balance": FISCAL_UNIT_FIXTURE,
-                    "budget_deficit": FISCAL_UNIT_FIXTURE,
-                },
-            },
-            0.0,
-        ),
-        (
-            {
-                "gov_balance": -5.0,
-                "metric_units": {"gov_balance": FISCAL_UNIT_FIXTURE},
-            },
-            5.0,
-        ),
-        (
-            {
-                "government_balance": -12.0,
-                "metric_units": {"government_balance": FISCAL_UNIT_FIXTURE},
-            },
-            12.0,
-        ),
+        },
+        {"gov_balance": -5.0, "metric_units": {"gov_balance": FISCAL_UNIT_FIXTURE}},
+        {
+            "government_balance": -12.0,
+            "metric_units": {"government_balance": FISCAL_UNIT_FIXTURE},
+        },
+        {
+            "gov_balance": -35.0,
+            "metric_units": {"gov_balance": FISCAL_UNIT_FIXTURE},
+            "quantity_role": "period_flow",
+        },
     ],
 )
-def test_budget_deficit_normalizes_unit_bound_aliases_and_sign(
+def test_untyped_fiscal_aliases_do_not_establish_period_flow(
     results: dict[str, Any],
-    expected: float,
 ) -> None:
-    """Explicitly unit-bound measurements normalize without inventing a zero."""
+    """Raw aliases and unit or role labels cannot turn a stock into a period flow."""
     evaluated = BudgetDeficitObjective(expected_unit=FISCAL_UNIT_FIXTURE).evaluate(results)
 
-    assert evaluated.score_status is ObjectiveScoreStatus.AVAILABLE
-    assert evaluated.raw_value == expected
-    assert evaluated.is_satisfied is True
+    assert math.isnan(evaluated.raw_value)
+    assert evaluated.score_status is ObjectiveScoreStatus.NOT_ESTABLISHED
+    assert evaluated.score_assessment is not None
+    assert evaluated.score_assessment.limitation == (
+        "budget_deficit_period_flow_source_not_established"
+    )
+    assert evaluated.is_satisfied is False
 
 
 def test_budget_deficit_marks_missing_metric_unusable() -> None:
@@ -154,6 +135,36 @@ def test_budget_deficit_rejects_conflicting_balance_aliases() -> None:
                 "government_balance": FISCAL_UNIT_FIXTURE,
             },
         }
+    )
+
+    assert math.isnan(evaluated.raw_value)
+    assert evaluated.score_status is ObjectiveScoreStatus.INVALID
+    assert evaluated.is_satisfied is False
+
+
+def test_budget_deficit_rejects_conflicting_unit_views_even_when_score_is_limited() -> None:
+    """A limited score still rejects contradictory source-unit metadata."""
+    evaluated = BudgetDeficitObjective(expected_unit=FISCAL_UNIT_FIXTURE).evaluate(
+        {
+            "gov_balance": -35.0,
+            "metric_units": {"gov_balance": FISCAL_UNIT_FIXTURE},
+            "metrics": {
+                "gov_balance": -35.0,
+                "metric_units": {"gov_balance": "eur"},
+            },
+        }
+    )
+
+    assert math.isnan(evaluated.raw_value)
+    assert evaluated.score_status is ObjectiveScoreStatus.INVALID
+    assert evaluated.is_satisfied is False
+
+
+@pytest.mark.parametrize("unit", ["usd ", "", None, True])
+def test_budget_deficit_rejects_malformed_units_on_present_alias(unit: Any) -> None:
+    """Malformed unit evidence remains invalid instead of being hidden by limitation."""
+    evaluated = BudgetDeficitObjective(expected_unit=FISCAL_UNIT_FIXTURE).evaluate(
+        {"gov_balance": -35.0, "metric_units": {"gov_balance": unit}}
     )
 
     assert math.isnan(evaluated.raw_value)

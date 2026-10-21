@@ -33,6 +33,7 @@ from polisyos.runtime.http.services.control.response_shapes import (
     _decision_validity_dedupe_payload,
 )
 from polisyos.runtime.http.services.control.workspace_loop_transition import (
+    _LegacyShadowWorkflowResult,
     _WorkflowExecutionNonAuthorityError,
 )
 from polisyos.runtime.quality.authority import GovernanceMetadata, SameInputClosure
@@ -870,6 +871,14 @@ class ControlJobScopeAdmissionMixin:
             job=job,
             capability_manifest_ref=capability_manifest_ref,
         )
+        if self._is_observational_method_job(payload):
+            self._complete_observational_method_control_job(
+                job=job,
+                payload=payload,
+                capability_manifest_ref=capability_manifest_ref,
+                execution_scope=execution_scope,
+            )
+            return
         evaluation_safety = self._admit_evaluation_safety_attempt(
             extension_payload=cast("Mapping[str, Any]", state_payload.get("params") or {}),
             job=job,
@@ -889,7 +898,7 @@ class ControlJobScopeAdmissionMixin:
             state_payload[_EVALUATION_SAFETY_EXECUTION_CONTEXT_KEY] = (
                 evaluation_safety.execution_context.model_dump(mode="json")
             )
-        progress = self._execute_workflow_control_transition(
+        transition_result = self._execute_workflow_control_transition(
             state_payload,
             payload["checkpoint_policy"],
             job=job,
@@ -902,15 +911,54 @@ class ControlJobScopeAdmissionMixin:
                 (payload.get("_telemetry") or {}).get("request_id") or f"control-job:{job.job_id}"
             ),
         )
+        producer_output_refs = (
+            transition_result.graph_output_refs
+            if isinstance(transition_result, _LegacyShadowWorkflowResult)
+            else None
+        )
+        producer_receipt = (
+            transition_result.graph_producer_receipt
+            if isinstance(transition_result, _LegacyShadowWorkflowResult)
+            else None
+        )
+        progress = dict(transition_result)
+        if producer_receipt is not None:
+            diagnostic_model = producer_receipt.diagnostic_model()
+            if diagnostic_model.emissions or diagnostic_model.inventory_truncated:
+                progress["method_execution_producer_diagnostic"] = diagnostic_model.model_dump(
+                    mode="json"
+                )
         progress = self._limit_workflow_progress_for_execution_scope(
             progress,
             execution_scope,
         )
+        method_selection = None
+        metric_admission = None
+        metric_wait_diagnostic = None
+        if producer_output_refs is not None:
+            graph_selection = self._graph_method_execution_selection(
+                job=job,
+                graph_output_refs=producer_output_refs,
+                source_experiment_state_ref=(
+                    transition_result.source_experiment_state_ref
+                    if isinstance(transition_result, _LegacyShadowWorkflowResult)
+                    else None
+                ),
+                producer_receipt=producer_receipt,
+            )
+            if graph_selection is not None:
+                method_selection, metric_admission, metric_wait_diagnostic = graph_selection
+        if metric_wait_diagnostic is not None:
+            progress["method_metric_projection_wait"] = metric_wait_diagnostic
         self._control_store.complete_job(
             job_id=job.job_id,
             run_id=job.run_id,
             capability_manifest_ref=capability_manifest_ref,
             progress=progress,
+            method_execution_selection=method_selection,
+            method_metric_projection_admission=metric_admission,
+            expected_lease_owner=job.lease_owner,
+            expected_attempt=job.attempt,
         )
         terminal_record = self._control_store.get_job(job.job_id)
         terminal_state = terminal_record.state if terminal_record is not None else "completed"

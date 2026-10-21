@@ -30,3 +30,35 @@ establish a complete upstream universe. A missing registry remains
 not the report-level source/unknown fields. These artifacts remain candidate
 material and do not confer runtime authority. See the
 [artifact migration and rollout guidance](../../../../ops/migrations/ir/README.md#scientist-frontier-artifact-v3).
+## Completed Graph-Method Metric Observations
+
+The Scientist runtime candidate can consume a completed, Runtime-owner-selected
+graph-method execution as bounded metric observations. It rechecks the selected
+SimulationResult, execution bundle, binding set, current sparse pre-dispatch
+input snapshot, output, and compiled objective/unit contract through selected
+Core artifact profiles. The registered Ex-Ante mean-change path is specific to
+`policy.evaluation.ex_ante_simulation@1.0.0`; it recomputes the paired
+scenario-minus-baseline quantity from the captured current inputs. Direct HTE
+method results, unverified or stale projections, legacy vector schemas, missing
+owner selection, and incomplete bindings do not become graph observations by
+label or shape alone.
+
+An admitted observation is candidate evidence for the configured objective
+scorer. It does not establish population representativeness, causal validity,
+empirical calibration, legal meaning, permission, or publication authority.
+Those predicates remain separate and must retain their own typed limitations.
+The source proposal's selected producer/consumer tests and native lint receipt
+do not replace the composed Runtime integration replay; that replay remains
+required before this candidate is treated as verified.
+
+
+For the completed method-metric follow-up, an omitted
+`method_metric_source_run_id` remains the explicit absence that selects the
+legacy route. Runtime emits projection identity, projection basis, required
+flag, and request status as one capsule: the consumer checks their consistency
+before scoring, and a missing status or partial/unknown family cannot become a
+legacy request. Total erasure of all four protocol keys remains indistinguishable
+from a historical empty context; a removal test records this bounded residual.
+A present malformed selector remains invalid through the funnel
+and cannot fall back to a default score. The concrete Runtime owner and protected
+read surface are still required for the composed capability.

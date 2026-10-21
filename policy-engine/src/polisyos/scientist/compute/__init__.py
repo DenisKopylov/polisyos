@@ -5,8 +5,8 @@ from __future__ import annotations
 import importlib
 from typing import Any
 
-from .job_spec import JobKey, JobResult, JobSpec
-from .runner import MethodBackend, run_job
+from .job_spec import JobKey, JobResult, JobSpec, MethodExecutionCaptureProvenance
+from .runner import MethodBackend, read_job_result_method_execution_capture, run_job
 
 __all__ = [
     "C7AdvancedInputs",
@@ -15,7 +15,9 @@ __all__ = [
     "JobKey",
     "JobResult",
     "JobSpec",
+    "MethodExecutionCaptureProvenance",
     "MethodBackend",
+    "read_job_result_method_execution_capture",
     "run_c7_advanced_suite",
     "run_job",
 ]

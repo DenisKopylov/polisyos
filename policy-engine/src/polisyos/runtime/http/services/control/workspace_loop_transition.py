@@ -40,6 +40,37 @@ class _WorkflowExecutionNonAuthorityError(RuntimeError):
         self.progress = progress
 
 
+class _LegacyScientistWorkflowError(RuntimeError):
+    """Carry bounded actual Foundry outputs when a later legacy node raises."""
+
+    def __init__(self, message: str, *, graph_producer_receipt: object | None) -> None:
+        super().__init__(message)
+        self.graph_producer_receipt = graph_producer_receipt
+
+
+class _LegacyShadowWorkflowResult(dict[str, Any]):
+    """Keep candidate progress mapping-compatible and retain actual producer state."""
+
+    __slots__ = (
+        "graph_output_refs",
+        "graph_producer_receipt",
+        "source_experiment_state_ref",
+    )
+
+    def __init__(
+        self,
+        *,
+        progress: dict[str, Any],
+        graph_output_refs: object,
+        source_experiment_state_ref: object | None,
+        graph_producer_receipt: object | None,
+    ) -> None:
+        super().__init__(progress)
+        self.graph_output_refs = graph_output_refs
+        self.source_experiment_state_ref = source_experiment_state_ref
+        self.graph_producer_receipt = graph_producer_receipt
+
+
 class RunBoundDesignRecordTenantNonReceipt(BaseModel):
     """Typed refusal to execute or persist S2 outputs without ambient tenancy."""
 
@@ -1083,9 +1114,34 @@ class ControlPlaneWorkspaceLoopTransitionMixin:
         checkpoint_policy: str,
         *,
         job: ControlJobRecord,
-    ) -> dict[str, Any]:
+    ) -> _LegacyShadowWorkflowResult:
         try:
-            self._run_legacy_scientist_workflow(state_payload)
+            workflow_run = self._run_legacy_scientist_workflow(state_payload, job=job)
+            graph_output_refs = workflow_run.graph_output_refs
+        except _LegacyScientistWorkflowError as exc:
+            progress = self._workflow_failure_progress(
+                job=job,
+                phase="legacy_workflow_failed",
+                reason="Legacy workflow failed and cannot produce authority.",
+                failure_code="legacy_workflow_failed_non_authority",
+                failure_message=str(exc),
+            )
+            receipt = exc.graph_producer_receipt
+            if receipt is not None:
+                from polisyos.runtime.http.services.control.run_lifecycle import (
+                    _RuntimeGraphProducerReceipt,
+                )
+
+                if type(receipt) is _RuntimeGraphProducerReceipt and receipt.is_runtime_minted():
+                    diagnostic = receipt.diagnostic_model()
+                    if diagnostic.emissions or diagnostic.inventory_truncated:
+                        progress["method_execution_producer_diagnostic"] = diagnostic.model_dump(
+                            mode="json"
+                        )
+            raise _WorkflowExecutionNonAuthorityError(
+                str(exc),
+                progress=progress,
+            ) from exc
         except Exception as exc:
             progress = self._workflow_failure_progress(
                 job=job,
@@ -1095,10 +1151,16 @@ class ControlPlaneWorkspaceLoopTransitionMixin:
                 failure_message=str(exc),
             )
             raise _WorkflowExecutionNonAuthorityError(str(exc), progress=progress) from exc
-        return self._legacy_shadow_progress(
+        progress = self._legacy_shadow_progress(
             job=job,
             phase="legacy_workflow_shadow",
             reason="Legacy workflow path is candidate-only until migrated behind WorkspaceLoop.",
+        )
+        return _LegacyShadowWorkflowResult(
+            progress=progress,
+            graph_output_refs=graph_output_refs,
+            source_experiment_state_ref=workflow_run.source_experiment_state_ref,
+            graph_producer_receipt=workflow_run.graph_producer_receipt,
         )
 
     def _legacy_shadow_progress(

@@ -1078,6 +1078,11 @@ class ControlJobAttemptPublicationMixin:
         logger: _DebugLogger,
     ) -> None:
         """Finalize any open Core attempt and persist the job's failure state."""
+        from polisyos.runtime.http.services.control.bounded_wait import (
+            ControlProducerExecutionError,
+            ControlProducerWaitTimeoutError,
+        )
+
         failure_core_progress: dict[str, object] = {}
         if (
             core_run_context is not None
@@ -1107,6 +1112,51 @@ class ControlJobAttemptPublicationMixin:
                 )
         if isinstance(exc, _WorkflowExecutionNonAuthorityError):
             progress = dict(exc.progress)
+        elif isinstance(exc, ControlProducerExecutionError):
+            failure_phase = "direct_method_execution"
+            diagnostic = exc.diagnostic()
+            progress = {
+                "state": "failed",
+                "phase": failure_phase,
+                "runtime_state": "candidate_only",
+                "authority_path": "direct_method_candidate",
+                "authority_result": "candidate_only",
+                "run_id": job.run_id,
+                "job_id": job.job_id,
+                "attempt": job.attempt,
+                "method_execution_failure": diagnostic,
+                "failure": {
+                    "code": exc.code,
+                    "exception_type": exc.exception_type,
+                    "layer": "runtime_method_execution",
+                    "phase": failure_phase,
+                    "retryable": exc.retryable,
+                    "run_id": job.run_id,
+                    "job_id": job.job_id,
+                    "attempt": job.attempt,
+                },
+            }
+        elif isinstance(exc, ControlProducerWaitTimeoutError):
+            failure_phase = "direct_method_execution"
+            progress = {
+                "state": "failed",
+                "phase": failure_phase,
+                "runtime_state": "candidate_only",
+                "authority_path": "direct_method_candidate",
+                "authority_result": "candidate_only",
+                "run_id": job.run_id,
+                "job_id": job.job_id,
+                "method_execution_wait": exc.diagnostic(),
+                "failure": {
+                    "code": "bounded_producer_wait_deadline_exceeded",
+                    "layer": "runtime_method_execution",
+                    "phase": failure_phase,
+                    "message": str(exc),
+                    "retryable": exc.retryable,
+                    "run_id": job.run_id,
+                    "job_id": job.job_id,
+                },
+            }
         elif isinstance(exc, RuntimeDependencyError):
             failure_phase = "job_execution"
             progress = {

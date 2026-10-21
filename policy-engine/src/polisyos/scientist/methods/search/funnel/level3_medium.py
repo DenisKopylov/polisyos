@@ -162,19 +162,39 @@ class Level3MediumFidelity(FunnelStage):
         work_packet_ref, work_packet_status = parse_funnel_work_packet_feedback(feedback)
         verdict = feedback.get("verdict", "UNKNOWN")
 
-        # Compute objective (same formula as ExpensiveStage).
-        objective_assessment = _assess_default_search_objective(
-            sim_results, expected_unit=self._expected_objective_unit
+        # Preserve the old non-AD01 route when no source run was requested. Once
+        # requested, a missing completed owner basis cannot fall back to raw aliases.
+        from polisyos.scientist.nodes.builtins.decide.policy_runtime_method_metrics import (
+            admit_funnel_method_metric_objective_score,
         )
-        score_status = selected_score_admission_status(
-            objective_assessment.score_assessment, sim_results
-        )
-        objective = (
-            objective_assessment.objective_value
-            if score_status is ObjectiveScoreStatus.AVAILABLE
-            else None
-        )
-        _apply_default_search_objective_limitations(feedback, objective_assessment)
+
+        method_metric_admission = admit_funnel_method_metric_objective_score(context)
+        if method_metric_admission is None:
+            objective_assessment = _assess_default_search_objective(
+                sim_results, expected_unit=self._expected_objective_unit
+            )
+            score_status = selected_score_admission_status(
+                objective_assessment.score_assessment, sim_results
+            )
+            objective = (
+                objective_assessment.objective_value
+                if score_status is ObjectiveScoreStatus.AVAILABLE
+                else None
+            )
+            _apply_default_search_objective_limitations(feedback, objective_assessment)
+        else:
+            objective_assessment = None
+            score_status = method_metric_admission.status
+            objective = (
+                method_metric_admission.recomputed_assessment.value
+                if score_status is ObjectiveScoreStatus.AVAILABLE
+                and method_metric_admission.recomputed_assessment is not None
+                else None
+            )
+            feedback["completed_method_metric_objective_score"] = {
+                "status": score_status.value,
+                "reason": method_metric_admission.reason,
+            }
         is_promising = verdict == "APPROVE" and score_status is ObjectiveScoreStatus.AVAILABLE
         terminal_action = None
         if verdict == "APPROVE" and score_status is not ObjectiveScoreStatus.AVAILABLE:
@@ -201,7 +221,12 @@ class Level3MediumFidelity(FunnelStage):
             objective_value=objective,
             is_promising=is_promising,
             score_status=score_status,
-            score_assessment=objective_assessment.score_assessment,
+            score_assessment=(
+                objective_assessment.score_assessment
+                if method_metric_admission is None
+                else method_metric_admission.reported_assessment
+            ),
+            score_admission=method_metric_admission,
             stage_name=self.stage_name,
             duration_seconds=duration,
             simulation_results=sim_results,

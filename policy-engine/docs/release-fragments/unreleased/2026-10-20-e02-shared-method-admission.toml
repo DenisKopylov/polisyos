@@ -1,0 +1,36 @@
+id = "2026-10-20-e02-shared-method-admission"
+title = "Admit observational method work through the shared compute owner"
+type = "changed"
+component = "scientist"
+owner = "team-polisyos"
+summary = "Add a refs-only leased MethodBackend route that keeps observational-input preparation, bounded selected-manifest and JSON-payload decode, content-intent persistence, dispatch, output persistence, and cleanup in the existing shared worker; add a second fixed graph metric-admission operation on that same owner."
+evidence = [
+  "src/polisyos/common/async_tools/__init__.py",
+  "src/polisyos/scientist/compute/runner.py",
+  "tests/unit/common/test_async_tools.py",
+  "tests/unit/scientist/compute/test_runner_method_execution_work.py",
+]
+compatibility = "Existing ready-input MethodBackend.run(...) callers keep their dispatch-only worker boundary and retain the corresponding input/output memory limitation. The new observational route is separately selected by Runtime with a typed immutable work descriptor; graph metric verification receives only full-profile source refs and does not replace or relabel the raw graph result."
+change_class = "python-public-api"
+surface_classification = "internal: polisyos.scientist.compute.runner qualified Runtime backend operations"
+migration = "Runtime composition must inject its server-owned current-attempt admission service and graph store resolver into the cached MethodBackend. No request creates a backend or supplies a store/path/callback. Existing ready-input callers may continue on the legacy run(...) boundary until their caller migration is separately established."
+api = "MethodBackend.submit_method_execution_work(MethodExecutionWork) returns SharedExecutionHandle[MethodExecutionRefOutcome]. MethodBackend.submit_method_metric_projection_work(MethodMetricProjectionWork) returns SharedExecutionHandle[MethodMetricProjectionRefOutcome]. Both operations use the process-wide configured shared executor and strict full-profile ArtifactRef snapshots."
+limitations = "The worker cap is process-local physical worker capacity; selected manifest-byte and JSON payload byte/depth/element limits do not bound Core owner control-index or transaction-intent records and do not provide a whole-request RSS ceiling. This change does not claim deployment-wide concurrency, CPU-core or native-thread limits, or interruptibility of running native work. The legacy ready-input boundary is not memory-qualified. A verified graph admission token is candidate evidence until Runtime atomically binds it to the current attempt fence."
+generated_client_compatibility = "not_applicable"
+public_surface_inventory_reviewed = false
+migration_docs = []
+runbook_docs = []
+
+[[compatibility_change]]
+id = "e02-shared-method-admission"
+change_class = "python-public-api"
+impact = "compatible"
+surface = "internal: polisyos.scientist.compute.runner qualified Runtime backend operations"
+owner = "team-polisyos"
+version_owner = "team-polisyos"
+deprecation_window = "not_applicable"
+release_note = "Runtime can submit immutable full-profile work references through the existing process-wide shared compute owner. The pre-existing ready-input MethodBackend.run(...) behavior and its dispatch-only memory limitation remain unchanged."
+generated_client_compatibility = "not_applicable"
+public_surface_inventory_reviewed = false
+migration_docs = []
+runbook_docs = []

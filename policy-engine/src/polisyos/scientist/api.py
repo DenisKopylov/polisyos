@@ -48,7 +48,10 @@ if TYPE_CHECKING:
     from polisyos.core.governance.passes.base import ValidatorPass
     from polisyos.pdc import EvalSafetyVerifierPort, EvaluationExecutionContext
     from polisyos.scientist.governance.pipeline import ValidationPipeline
-    from polisyos.scientist.orchestration.engine.context import FoundryPort
+    from polisyos.scientist.orchestration.engine.context import (
+        FoundryPort,
+        MethodMetricSelectionOwnerPort,
+    )
     from polisyos.scientist.orchestration.engine.metrics_protocol import EngineMetricsCollector
     from polisyos.scientist.orchestration.engine.registry import NodeBootstrapReport, NodeRegistry
     from polisyos.scientist.orchestration.engine.state import ExperimentState
@@ -226,6 +229,7 @@ def run_experiment(
     eval_safety_execution_context: EvaluationExecutionContext | None = None,
     eval_safety_verifier: EvalSafetyVerifierPort | None = None,
     epoch_certificate_issuance_owner: EpochCertificateIssuanceOwner | None = None,
+    method_metric_selection_owner: MethodMetricSelectionOwnerPort | None = None,
 ) -> dict[str, Any]:
     """Execute the Scientist workflow selected by the initial state contract.
 
@@ -241,6 +245,8 @@ def run_experiment(
         foundry: Optional Foundry port override forwarded to the selected workflow.
         epoch_certificate_issuance_owner: Privileged in-process owner installed
             by Runtime composition; never read from or serialized into state.
+        method_metric_selection_owner: Runtime-owned completed-source lookup installed
+            for an authorized follow-up policy-design run; never read from workflow state.
 
     Returns:
         Final `ExperimentState` serialized as a JSON-compatible dictionary with
@@ -318,6 +324,7 @@ def run_experiment(
                     eval_safety_execution_context=eval_safety_execution_context,
                     eval_safety_verifier=eval_safety_verifier,
                     epoch_certificate_issuance_owner=epoch_certificate_issuance_owner,
+                    method_metric_selection_owner=method_metric_selection_owner,
                 )
             final_state = result.state
             status = "success" if result.report.status == "ok" else "error"

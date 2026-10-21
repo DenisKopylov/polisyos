@@ -9,7 +9,7 @@ from contextlib import suppress
 from dataclasses import dataclass
 from functools import partial
 from types import MappingProxyType
-from typing import TYPE_CHECKING, Any, Never, cast
+from typing import TYPE_CHECKING, Any, Literal, Never, cast
 
 from anyio import to_thread
 
@@ -28,19 +28,25 @@ from polisyos.fabric.connectors.resilience.circuit_breaker import (
     CircuitOpenError,
 )
 from polisyos.runtime.http.access_audit import (
+    RuntimeAuthorizationAuditError,
     RuntimeAuthorizationOutcome,
     emit_runtime_authorization_audit_async,
 )
 from polisyos.runtime.http.authorization import (
     CANONICAL_ROLE_AUTHORIZATION_SOURCE,
     DEPLOYMENT_SERVICE_AUTHORIZATION_SOURCE,
+    ActionPermissionDependency,
     ActionPermissionVerification,
     BoundActionPermissionVerification,
     DeploymentPrincipalGrantResolver,
     MatchedAuthorizationRoute,
+    OptionalActionPermissionDependency,
+    OptionalActionPermissionResult,
     RouteAuthorizationRequirement,
     get_route_action_permission_dependency,
+    get_route_optional_action_permission_dependency,
     route_action_permission_dependencies,
+    route_optional_action_permission_dependencies,
 )
 from polisyos.runtime.http.errors import (
     RuntimeHTTPError,
@@ -59,6 +65,7 @@ from polisyos.runtime.http.security import (
 )
 
 logger = get_logger("polisyos.security.authz")
+_MISSING_AUTHORIZATION_STATE = object()
 
 
 @dataclass(frozen=True, slots=True)
@@ -593,11 +600,19 @@ class AuthzMiddleware:
             return
         matched: tuple[APIRoute, dict[str, Any]] | None = None
         action_guarded = unsafe
+        optional_action_dependency: OptionalActionPermissionDependency | None = None
         if not unsafe:
             matched = self._match_route(scope, method=method)
             if matched is not None:
                 action_guarded = bool(route_action_permission_dependencies(cast("Any", matched[0])))
-        if not action_guarded and self._opa is None:
+                optional_dependencies = route_optional_action_permission_dependencies(
+                    cast("Any", matched[0])
+                )
+                if optional_dependencies:
+                    optional_action_dependency = get_route_optional_action_permission_dependency(
+                        cast("Any", matched[0])
+                    )
+        if not action_guarded and optional_action_dependency is None and self._opa is None:
             await self._app(scope, receive, send)
             return
 
@@ -733,6 +748,7 @@ class AuthzMiddleware:
 
         shadow_deny = False
         if self._opa is not None:
+            base_authz_input: AuthzInput | None = None
             resource = self._opa_resource(
                 request,
                 bound_resource=bound_resource,
@@ -904,7 +920,7 @@ class AuthzMiddleware:
                                 return
             opa_scope_token = set_current_access_scope(effective_scope)
             try:
-                opa_response, shadow_deny = await self._evaluate_opa(
+                opa_response, shadow_deny, _policy_allowed = await self._evaluate_opa(
                     request,
                     authz_input,
                     fail_closed=action_guarded,
@@ -914,6 +930,62 @@ class AuthzMiddleware:
             if opa_response is not None:
                 await opa_response(scope, receive, send)
                 return
+        else:
+            base_authz_input = None
+
+        if optional_action_dependency is not None:
+            if matched is None:
+                await self._send_failure(
+                    request,
+                    _AuthorizationFailure(
+                        response=self._problem(
+                            request,
+                            status_code=503,
+                            code="authorization_contract_violation",
+                            detail="The optional action route could not be matched",
+                        ),
+                        reason="authorization_contract_violation",
+                    ),
+                    scope=scope,
+                    receive=downstream_receive,
+                    send=send,
+                )
+                return
+            optional_result, optional_failure = await self._evaluate_optional_action(
+                request,
+                matched,
+                optional_action_dependency,
+                peer_spiffe_id=peer_spiffe_id,
+                base_authz_input=base_authz_input,
+            )
+            if optional_failure is not None:
+                await self._send_failure(
+                    request,
+                    optional_failure,
+                    scope=scope,
+                    receive=downstream_receive,
+                    send=send,
+                    audit=False,
+                )
+                return
+            if type(optional_result) is not OptionalActionPermissionResult:
+                await self._send_failure(
+                    request,
+                    _AuthorizationFailure(
+                        response=self._problem(
+                            request,
+                            status_code=503,
+                            code="authorization_contract_violation",
+                            detail="The optional action result is invalid",
+                        ),
+                        reason="authorization_contract_violation",
+                    ),
+                    scope=scope,
+                    receive=downstream_receive,
+                    send=send,
+                )
+                return
+            request.state.optional_action_permission_result = optional_result
 
         if action_guarded and bound_resource is not None:
             dependency_error = await to_thread.run_sync(
@@ -1379,16 +1451,274 @@ class AuthzMiddleware:
             "artifact_id": "",
         }
 
+    async def _evaluate_optional_action(
+        self,
+        request: Request,
+        matched: tuple[APIRoute, dict[str, Any]],
+        dependency: OptionalActionPermissionDependency,
+        *,
+        peer_spiffe_id: str,
+        base_authz_input: AuthzInput | None,
+    ) -> tuple[OptionalActionPermissionResult | None, _AuthorizationFailure | None]:
+        """Evaluate one optional projection action through the shared OPA/binder path."""
+        route, child_scope = matched
+        matched_scope = dict(request.scope)
+        matched_scope.update(child_scope)
+        matched_request = Request(matched_scope, receive=request.receive)
+        requirement = dependency.requirement
+        action_dependency = ActionPermissionDependency(requirement)
+        verification_field = "action_permission_verification"
+        previous_verification = getattr(request.state, verification_field, None)
+        try:
+            verification = action_dependency._authorize(matched_request)
+        except RuntimeHTTPError as exc:
+            if exc.code != "action_permission_denied":
+                return None, _AuthorizationFailure(
+                    response=_response_for_runtime_error(request, exc),
+                    reason=exc.code or exc.error,
+                )
+            result = OptionalActionPermissionResult(
+                requirement=requirement,
+                allowed=False,
+                denial_class="permission_denied",
+            )
+            audit_failure = await self._audit_optional_action(
+                request,
+                route=route,
+                child_scope=child_scope,
+                requirement=requirement,
+                bound_resource=None,
+                outcome=RuntimeAuthorizationOutcome.DENY,
+                denial_reason="action_permission_denied",
+            )
+            if audit_failure is not None:
+                return None, audit_failure
+            return result, None
+
+        if type(verification) is not ActionPermissionVerification:
+            return None, _AuthorizationFailure(
+                response=self._problem(
+                    request,
+                    status_code=503,
+                    code="authorization_contract_violation",
+                    detail="Optional action preflight returned an invalid proof",
+                ),
+                reason="authorization_contract_violation",
+            )
+
+        try:
+            bound_resource = await to_thread.run_sync(
+                partial(
+                    bind_authorization_resource,
+                    matched_request,
+                    requirement,
+                    b"",
+                    max_body_bytes=self._body_ceiling,
+                )
+            )
+        except RuntimeHTTPError as exc:
+            audit_failure = await self._audit_optional_action(
+                request,
+                route=route,
+                child_scope=child_scope,
+                requirement=requirement,
+                bound_resource=None,
+                outcome=RuntimeAuthorizationOutcome.DENY,
+                denial_reason=exc.code or exc.error,
+            )
+            if audit_failure is not None:
+                return None, audit_failure
+            return None, _AuthorizationFailure(
+                response=_response_for_runtime_error(request, exc),
+                reason=exc.code or exc.error,
+            )
+        finally:
+            if previous_verification is None:
+                with suppress(AttributeError):
+                    delattr(request.state, verification_field)
+            else:
+                setattr(request.state, verification_field, previous_verification)
+
+        scope = getattr(request.state, "authz_effective_scope", None)
+        if not isinstance(scope, AccessScope):
+            return None, _AuthorizationFailure(
+                response=self._problem(
+                    request,
+                    status_code=503,
+                    code="authorization_binding_identity_required",
+                    detail="Optional action binding has no verified access scope",
+                ),
+                reason="authorization_binding_identity_required",
+            )
+        action_input: AuthzInput | None = None
+        if self._opa is not None:
+            if base_authz_input is None:
+                return None, _AuthorizationFailure(
+                    response=self._problem(
+                        request,
+                        status_code=503,
+                        code="authorization_contract_violation",
+                        detail="Optional action OPA input is unavailable",
+                    ),
+                    reason="authorization_contract_violation",
+                )
+            action_base_input = AuthzInput.for_http_request(
+                request_method=base_authz_input.request_method,
+                request_path=base_authz_input.request_path,
+                request_headers=dict(base_authz_input.request_headers),
+                scope=scope,
+                peer_spiffe_id=peer_spiffe_id,
+                resource_tenant_id=bound_resource.tenant_id or "",
+                resource_kind=bound_resource.resource_kind,
+                resource_artifact_id=bound_resource.resource_id,
+                resource_pii_tier=base_authz_input.resource_pii_tier,
+                resource_metric_id=base_authz_input.resource_metric_id,
+                resource_columns=base_authz_input.resource_columns,
+                resource_requires_anonymization=base_authz_input.resource_requires_anonymization,
+            )
+            try:
+                action_input = RuntimeActionAuthzInput.from_bound_action(
+                    base_input=action_base_input,
+                    verification=verification,
+                    bound_resource=bound_resource,
+                )
+            except (TypeError, ValueError) as exc:
+                return None, _AuthorizationFailure(
+                    response=self._problem(
+                        request,
+                        status_code=503,
+                        code="authorization_contract_violation",
+                        detail=str(exc),
+                    ),
+                    reason="authorization_contract_violation",
+                )
+
+        outcome = RuntimeAuthorizationOutcome.ALLOW
+        denial_class: Literal["permission_denied", "policy_denied"] | None = None
+        if action_input is not None:
+            opa_scope_token = set_current_access_scope(scope)
+            try:
+                opa_response, _shadow_deny, policy_allowed = await self._evaluate_opa(
+                    request,
+                    action_input,
+                    fail_closed=True,
+                    defer_policy_denial=True,
+                )
+            finally:
+                reset_current_access_scope(opa_scope_token)
+            if opa_response is not None:
+                return None, _AuthorizationFailure(
+                    response=opa_response,
+                    reason="optional_action_authorization_unavailable",
+                )
+            if policy_allowed is not True:
+                outcome = RuntimeAuthorizationOutcome.DENY
+                denial_class = "policy_denied"
+
+        denial_reason = (
+            "authorization_denied" if outcome is RuntimeAuthorizationOutcome.DENY else ""
+        )
+        audit_failure = await self._audit_optional_action(
+            request,
+            route=route,
+            child_scope=child_scope,
+            requirement=requirement,
+            bound_resource=bound_resource,
+            outcome=outcome,
+            denial_reason=denial_reason,
+        )
+        if audit_failure is not None:
+            return None, audit_failure
+        return (
+            OptionalActionPermissionResult(
+                requirement=requirement,
+                allowed=outcome is RuntimeAuthorizationOutcome.ALLOW,
+                denial_class=denial_class,
+            ),
+            None,
+        )
+
+    async def _audit_optional_action(
+        self,
+        request: Request,
+        *,
+        route: APIRoute,
+        child_scope: dict[str, Any],
+        requirement: RouteAuthorizationRequirement,
+        bound_resource: BoundAuthorizationResource | None,
+        outcome: RuntimeAuthorizationOutcome,
+        denial_reason: str,
+    ) -> _AuthorizationFailure | None:
+        """Append an optional action audit under its exact permission/resource context."""
+        state = request.state
+        previous_values = {
+            name: getattr(state, name, _MISSING_AUTHORIZATION_STATE)
+            for name in (
+                "authz_route_requirement",
+                "authz_matched_route",
+                "authz_bound_resource",
+                "authz_resource_frozen",
+                "authz_resource",
+                "authz_policy",
+                "authz_reasons",
+            )
+        }
+        path_parameters = tuple(
+            sorted(
+                (str(key), str(value)) for key, value in child_scope.get("path_params", {}).items()
+            )
+        )
+        state.authz_route_requirement = requirement
+        state.authz_matched_route = MatchedAuthorizationRoute(
+            method=request.method.upper(),
+            path_template=route.path,
+            name=route.name,
+            path_parameters=path_parameters,
+        )
+        state.authz_bound_resource = bound_resource
+        state.authz_resource_frozen = bound_resource is not None
+        if outcome is RuntimeAuthorizationOutcome.DENY and denial_reason != "authorization_denied":
+            state.authz_policy = ""
+            state.authz_reasons = []
+        if bound_resource is not None:
+            state.authz_resource = bound_resource.to_opa_resource()
+        try:
+            await emit_runtime_authorization_audit_async(
+                request,
+                outcome=outcome,
+                denial_reason=denial_reason,
+                raise_on_failure=True,
+            )
+        except RuntimeAuthorizationAuditError:
+            return _AuthorizationFailure(
+                response=self._problem(
+                    request,
+                    status_code=503,
+                    code="authorization_audit_unavailable",
+                    detail="Authorization audit is unavailable; optional projection withheld",
+                ),
+                reason="authorization_audit_unavailable",
+            )
+        finally:
+            for name, value in previous_values.items():
+                if value is _MISSING_AUTHORIZATION_STATE:
+                    with suppress(AttributeError):
+                        delattr(state, name)
+                else:
+                    setattr(state, name, value)
+        return None
+
     async def _evaluate_opa(
         self,
         request: Request,
         authz_input: AuthzInput,
         *,
         fail_closed: bool,
-    ) -> tuple[Response | None, bool]:
+        defer_policy_denial: bool = False,
+    ) -> tuple[Response | None, bool, bool | None]:
         opa = self._opa
         if opa is None:
-            return None, False
+            return None, False, None
         from polisyos.runtime.http.deployment_security_attestation import (
             require_attested_deployment_component,
         )
@@ -1424,6 +1754,7 @@ class AuthzMiddleware:
                     detail="Authorization dependency timed out",
                 ),
                 False,
+                None,
             )
         except CircuitOpenError:
             await emit_runtime_authorization_audit_async(
@@ -1441,6 +1772,7 @@ class AuthzMiddleware:
                     detail="Authorization dependency is temporarily unavailable",
                 ),
                 False,
+                None,
             )
         request.state.authz_decision = result.decision.value
         request.state.authz_policy = result.policy
@@ -1463,9 +1795,12 @@ class AuthzMiddleware:
                     detail="Authorization dependency is temporarily unavailable",
                 ),
                 False,
+                None,
             )
         if result.is_allowed:
-            return None, False
+            return None, False, True
+        if defer_policy_denial:
+            return None, False, False
         if fail_closed or (self._enforce and not self._shadow_mode):
             await emit_runtime_authorization_audit_async(
                 request,
@@ -1489,6 +1824,7 @@ class AuthzMiddleware:
                     },
                 ),
                 False,
+                None,
             )
         logger.warning(
             "AUTHZ_SHADOW_DENY %s",
@@ -1498,7 +1834,7 @@ class AuthzMiddleware:
                 "reasons": list(result.reasons),
             },
         )
-        return None, True
+        return None, True, False
 
     def _deny_or_shadow(
         self,

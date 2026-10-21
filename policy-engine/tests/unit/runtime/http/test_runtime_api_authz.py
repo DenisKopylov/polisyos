@@ -70,6 +70,33 @@ class _CaptureOPA:
         return AuthzResult(decision=AuthzDecision.ALLOW, policy="polisyos/authz/decision")
 
 
+class _MethodSelectionOPA(_CaptureOPA):
+    def __init__(self, *, decision: str) -> None:
+        super().__init__()
+        self._decision = decision
+
+    async def check(self, authz_input):
+        self.inputs.append(authz_input)
+        if (
+            getattr(authz_input, "action_permission", None) is RuntimePermission.RUNS_REVIEW
+            and getattr(authz_input, "action_resource_class", None)
+            == "runtime.run.method_execution_selection"
+        ):
+            if self._decision == "deny":
+                return AuthzResult(
+                    decision=AuthzDecision.DENY,
+                    policy="polisyos/authz/decision",
+                    reasons=("METHOD_SELECTION_DENIED",),
+                )
+            if self._decision == "unavailable":
+                return AuthzResult(
+                    decision=AuthzDecision.DENY,
+                    policy="polisyos/authz/decision",
+                    reasons=("OPA_UNREACHABLE",),
+                )
+        return AuthzResult(decision=AuthzDecision.ALLOW, policy="polisyos/authz/decision")
+
+
 class _InterleavingOPA(_CaptureOPA):
     def __init__(self) -> None:
         super().__init__()
@@ -3503,9 +3530,10 @@ def test_handler_cannot_replace_frozen_authorization_resource(runtime_api_env) -
 
 def test_runtime_api_allows_tenant_scoped_access(runtime_api_env) -> None:
     claims_bearer = _fixture_bearer("a")
+    opa = _CaptureOPA()
     client, cell, provider = _build_secure_client(
         runtime_api_env,
-        opa_client=_AllowOPA(),
+        opa_client=opa,
         claims_by_token={},
     )
     provider.put_claim(
@@ -3525,6 +3553,238 @@ def test_runtime_api_allows_tenant_scoped_access(runtime_api_env) -> None:
         },
     )
     assert response.status_code == 200
+    method_selection_inputs = [
+        item
+        for item in opa.inputs
+        if getattr(item, "action_resource_class", None) == "runtime.run.method_execution_selection"
+    ]
+    assert len(method_selection_inputs) == 1
+    method_selection_input = method_selection_inputs[0]
+    assert method_selection_input.action_permission is RuntimePermission.RUNS_REVIEW
+    assert method_selection_input.resource_tenant_id == runtime_api_env["tenant_a"]
+    assert method_selection_input.action_binding_authority.value == "ownership_verified"
+    assert method_selection_input.resource_artifact_id.startswith(
+        "urn:polisyos:runtime-authorization-resource:v1:sha256:"
+    )
+
+
+def test_method_selection_policy_denial_withholds_only_the_owned_projection(
+    runtime_api_env,
+    monkeypatch: pytest.MonkeyPatch,
+) -> None:
+    opa = _MethodSelectionOPA(decision="deny")
+    bearer = _fixture_bearer("method-selection-policy-denied")
+    client, cell, provider = _build_secure_client(
+        runtime_api_env,
+        opa_client=opa,
+        claims_by_token={},
+        raise_server_exceptions=False,
+    )
+    provider.put_claim(
+        bearer,
+        _claims(
+            tenant_id=runtime_api_env["tenant_a"],
+            cell_id=cell.cell_id,
+            jti="jwt-method-selection-policy-denied",
+        ),
+    )
+    owner = client.app.state._control_service
+
+    def unexpected_owner_lookup(**kwargs: Any) -> Any:
+        raise AssertionError(f"denied method selection reached owner lookup: {kwargs}")
+
+    monkeypatch.setattr(owner, "get_observational_method_run_projection", unexpected_owner_lookup)
+    request_id = "method-selection-policy-denied-audit"
+    response = client.get(
+        f"/api/v1/runs/{runtime_api_env['core_run_id']}",
+        headers={
+            "Authorization": f"Bearer {bearer}",
+            "X-Tenant-ID": runtime_api_env["tenant_a"],
+            "X-Request-ID": request_id,
+        },
+    )
+
+    assert response.status_code == 200, response.text
+    run = response.json()["run"]
+    assert run["run_id"] == runtime_api_env["core_run_id"]
+    assert run["method_execution_selection"] == {
+        "status": "withheld",
+        "request": None,
+        "selection": None,
+        "time_roles": None,
+        "refusal_code": None,
+        "limitations": ["selected_view_permission_required"],
+        "candidate_only": True,
+    }
+    bound_inputs = [
+        item
+        for item in opa.inputs
+        if getattr(item, "action_resource_class", None) == "runtime.run.method_execution_selection"
+    ]
+    assert len(bound_inputs) == 1
+    assert bound_inputs[0].action_permission is RuntimePermission.RUNS_REVIEW
+    assert bound_inputs[0].resource_tenant_id == runtime_api_env["tenant_a"]
+    assert bound_inputs[0].resource_kind.endswith(".ownership_verified")
+    from polisyos.runtime.http.access_audit import RuntimeDataAccessAuditTrail
+
+    audit_path = runtime_api_env["cas_root"] / "runtime" / "audit" / "access.jsonl"
+    scan = RuntimeDataAccessAuditTrail(path=audit_path).scan_read_only()
+    assert scan.audit_read_error_count == 0
+    events = [entry for entry in scan.entries if entry.get("request_id") == request_id]
+    assert len(events) == 1
+    event = events[0]
+    assert event["permission"] == RuntimePermission.RUNS_REVIEW.value
+    assert event["resource_kind"].endswith(".ownership_verified")
+    assert event["binding_authority"] == "ownership_verified"
+    assert event["outcome"] == "deny"
+    assert event["denial_reason"] == "authorization_denied"
+    assert event["opa_policy"] == "polisyos/authz/decision"
+    assert event["opa_reasons"] == ["METHOD_SELECTION_DENIED"]
+
+
+def test_viewer_keeps_run_details_but_gets_uniform_withheld_selection(
+    runtime_api_env,
+    monkeypatch: pytest.MonkeyPatch,
+) -> None:
+    opa = _CaptureOPA()
+    bearer = _fixture_bearer("method-selection-viewer")
+    client, cell, provider = _build_secure_client(
+        runtime_api_env,
+        opa_client=opa,
+        claims_by_token={},
+        raise_server_exceptions=False,
+    )
+    provider.put_claim(
+        bearer,
+        _claims(
+            tenant_id=runtime_api_env["tenant_a"],
+            cell_id=cell.cell_id,
+            jti="jwt-method-selection-viewer",
+            roles=frozenset({PolicyOSRole.VIEWER}),
+        ),
+    )
+    owner = client.app.state._control_service
+
+    def unexpected_owner_lookup(**kwargs: Any) -> Any:
+        raise AssertionError(f"viewer reached protected selection lookup: {kwargs}")
+
+    monkeypatch.setattr(owner, "get_observational_method_run_projection", unexpected_owner_lookup)
+    response = client.get(
+        f"/api/v1/runs/{runtime_api_env['core_run_id']}",
+        headers={
+            "Authorization": f"Bearer {bearer}",
+            "X-Tenant-ID": runtime_api_env["tenant_a"],
+        },
+    )
+
+    assert response.status_code == 200, response.text
+    run = response.json()["run"]
+    assert run["run_id"] == runtime_api_env["core_run_id"]
+    assert run["method_execution_selection"] == {
+        "status": "withheld",
+        "request": None,
+        "selection": None,
+        "time_roles": None,
+        "refusal_code": None,
+        "limitations": ["selected_view_permission_required"],
+        "candidate_only": True,
+    }
+    assert "requested_source_ref" not in response.text
+    assert "method_result_ref" not in response.text
+    assert len(opa.inputs) == 1
+    assert getattr(opa.inputs[0], "action_permission", None) is None
+
+
+def test_method_selection_audit_failure_fails_closed_before_owner_lookup(
+    runtime_api_env,
+    monkeypatch: pytest.MonkeyPatch,
+) -> None:
+    opa = _CaptureOPA()
+    bearer = _fixture_bearer("method-selection-audit-unavailable")
+    client, cell, provider = _build_secure_client(
+        runtime_api_env,
+        opa_client=opa,
+        claims_by_token={},
+        raise_server_exceptions=False,
+    )
+    provider.put_claim(
+        bearer,
+        _claims(
+            tenant_id=runtime_api_env["tenant_a"],
+            cell_id=cell.cell_id,
+            jti="jwt-method-selection-audit-unavailable",
+        ),
+    )
+    owner = client.app.state._control_service
+
+    def unexpected_owner_lookup(**kwargs: Any) -> Any:
+        raise AssertionError(f"audit failure reached selection lookup: {kwargs}")
+
+    def reject_audit_append(entry: dict[str, Any]) -> None:
+        raise OSError(f"audit unavailable for {entry.get('request_id', '')}")
+
+    monkeypatch.setattr(owner, "get_observational_method_run_projection", unexpected_owner_lookup)
+    client.app.state.runtime_container.runtime_access_audit.append = reject_audit_append
+    client.app.state.runtime_access_audit.append = reject_audit_append
+    response = client.get(
+        f"/api/v1/runs/{runtime_api_env['core_run_id']}",
+        headers={
+            "Authorization": f"Bearer {bearer}",
+            "X-Tenant-ID": runtime_api_env["tenant_a"],
+        },
+    )
+
+    assert response.status_code == 503
+    assert response.json()["code"] == "authorization_audit_unavailable"
+    bound_inputs = [
+        item
+        for item in opa.inputs
+        if getattr(item, "action_resource_class", None) == "runtime.run.method_execution_selection"
+    ]
+    assert len(bound_inputs) == 1
+    assert bound_inputs[0].action_permission is RuntimePermission.RUNS_REVIEW
+
+
+def test_method_selection_opa_failure_fails_closed_before_owner_lookup(
+    runtime_api_env,
+    monkeypatch: pytest.MonkeyPatch,
+) -> None:
+    opa = _MethodSelectionOPA(decision="unavailable")
+    bearer = _fixture_bearer("method-selection-opa-unavailable")
+    client, cell, provider = _build_secure_client(
+        runtime_api_env,
+        opa_client=opa,
+        claims_by_token={},
+        raise_server_exceptions=False,
+    )
+    provider.put_claim(
+        bearer,
+        _claims(
+            tenant_id=runtime_api_env["tenant_a"],
+            cell_id=cell.cell_id,
+            jti="jwt-method-selection-opa-unavailable",
+        ),
+    )
+    owner = client.app.state._control_service
+
+    def unexpected_owner_lookup(**kwargs: Any) -> Any:
+        raise AssertionError(f"OPA failure reached owner lookup: {kwargs}")
+
+    monkeypatch.setattr(owner, "get_observational_method_run_projection", unexpected_owner_lookup)
+    response = client.get(
+        f"/api/v1/runs/{runtime_api_env['core_run_id']}",
+        headers={
+            "Authorization": f"Bearer {bearer}",
+            "X-Tenant-ID": runtime_api_env["tenant_a"],
+        },
+    )
+
+    assert response.status_code == 503
+    assert response.json()["code"] == "authz_dependency_unavailable"
+    assert len(opa.inputs) == 2
+    assert getattr(opa.inputs[-1], "action_resource_class", None) == (
+        "runtime.run.method_execution_selection"
+    )
 
 
 def test_runtime_api_denies_cross_tenant_run_access(runtime_api_env) -> None:

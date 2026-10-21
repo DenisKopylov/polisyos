@@ -9,8 +9,9 @@ from collections.abc import Mapping
 from enum import Enum
 from typing import Any
 
-from pydantic import BaseModel, ConfigDict, Field, StrictStr
+from pydantic import BaseModel, ConfigDict, Field, StrictStr, model_validator
 
+from polisyos.core.artifacts.manifest import artifact_ref_identity_key
 from polisyos.foundry.methods.catalog.optimization.protocols import (
     AmbiguityCertificate,
     ConstraintCertificate,
@@ -32,6 +33,7 @@ from polisyos.scientist.methods.search.objective import (
     _DEFICIT_ALIASES,
     _POLICY_RUNTIME_INVOCATION_ABSENT,
     _POLICY_RUNTIME_INVOCATION_FIELDS,
+    MethodMetricObservation,
     ObjectiveScoreAssessment,
     ObjectiveScoreStatus,
     _make_score_assessment,
@@ -146,6 +148,56 @@ class PolicyEvaluationVector(BaseModel):
     metadata: dict[str, Any] = Field(default_factory=dict)
     score_assessment: ObjectiveScoreAssessment | None = None
     score_source: dict[str, Any] | None = None
+    method_metric_observations: tuple[MethodMetricObservation, ...] = Field(
+        default_factory=tuple, exclude_if=lambda observations: not observations
+    )
+
+    @model_validator(mode="before")
+    @classmethod
+    def require_absent_method_metric_field_when_empty(cls, value: Any) -> Any:
+        """Encode no method metrics by field absence; reject null and empty carriers."""
+        if isinstance(value, Mapping) and "method_metric_observations" in value:
+            observations = value["method_metric_observations"]
+            if observations is None or observations == () or observations == []:
+                raise ValueError("method_metric_observations_must_be_nonempty_or_absent")
+        return value
+
+    @model_validator(mode="after")
+    def validate_method_metric_source_tuple(self) -> PolicyEvaluationVector:
+        """Prevent one evaluation vector from mixing independently selected runs."""
+        observations = self.method_metric_observations
+        if not observations:
+            return self
+        first = observations[0]
+        source_key = (
+            artifact_ref_identity_key(first.binding_set_ref),
+            artifact_ref_identity_key(first.execution_bundle_ref),
+            artifact_ref_identity_key(first.simulation_result_ref),
+            artifact_ref_identity_key(first.environment_manifest_ref)
+            if first.environment_manifest_ref is not None
+            else None,
+            first.verifier_id,
+            first.verifier_revision,
+            first.verifier_code_digest,
+        )
+        observation_ids = {(item.binding_id, item.occurrence_id) for item in observations}
+        if len(observation_ids) != len(observations):
+            raise ValueError("method_metric_binding_occurrence_pairs_must_be_unique_per_vector")
+        for item in observations[1:]:
+            candidate_key = (
+                artifact_ref_identity_key(item.binding_set_ref),
+                artifact_ref_identity_key(item.execution_bundle_ref),
+                artifact_ref_identity_key(item.simulation_result_ref),
+                artifact_ref_identity_key(item.environment_manifest_ref)
+                if item.environment_manifest_ref is not None
+                else None,
+                item.verifier_id,
+                item.verifier_revision,
+                item.verifier_code_digest,
+            )
+            if candidate_key != source_key:
+                raise ValueError("method_metric_observations_must_share_one_owned_source_tuple")
+        return self
 
     @property
     def legacy_scalar_proxy(self) -> float:

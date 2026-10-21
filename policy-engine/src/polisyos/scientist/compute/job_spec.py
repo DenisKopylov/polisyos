@@ -3,7 +3,7 @@
 from __future__ import annotations
 
 import json
-from typing import Any
+from typing import Any, Literal
 
 from pydantic import BaseModel, ConfigDict, Field, model_validator
 
@@ -64,6 +64,46 @@ class JobKey(BaseModel):
         return JobKey(value=f"job:{digest}")
 
 
+class MethodExecutionCaptureProvenance(BaseModel):
+    """Report availability of selected method-capture refs on a legacy result."""
+
+    model_config = ConfigDict(extra="forbid", frozen=True)
+
+    availability: Literal["available", "partial", "unavailable"]
+    method_execution_bundle_ref: ArtifactRef | None = None
+    method_metric_binding_set_ref: ArtifactRef | None = None
+    limitations: tuple[
+        Literal[
+            "method_execution_bundle_role_absent",
+            "method_metric_binding_set_role_absent",
+            "simulation_results_lineage_not_verified",
+            "simulation_results_profile_unselected",
+            "simulation_results_ref_absent",
+        ],
+        ...,
+    ] = ()
+
+    @model_validator(mode="after")
+    def _validate_capture_availability(self) -> MethodExecutionCaptureProvenance:
+        refs_present = sum(
+            ref is not None
+            for ref in (
+                self.method_execution_bundle_ref,
+                self.method_metric_binding_set_ref,
+            )
+        )
+        expected = (
+            "available" if refs_present == 2 else "partial" if refs_present == 1 else "unavailable"
+        )
+        if self.availability != expected:
+            raise ValueError("capture availability must match the number of selected refs")
+        if self.availability == "available" and self.limitations:
+            raise ValueError("available capture provenance cannot carry availability limitations")
+        if self.availability != "available" and not self.limitations:
+            raise ValueError("incomplete capture provenance must explain its limitation")
+        return self
+
+
 class JobResult(BaseModel):
     """Job result data model."""
 
@@ -78,6 +118,10 @@ class JobResult(BaseModel):
     simulation_results_ref: ArtifactRef | None = None
     method_result_ref: ArtifactRef | None = None
     method_evidence_ref: ArtifactRef | None = None
+    method_execution_capture: MethodExecutionCaptureProvenance | None = Field(
+        default=None,
+        exclude_if=lambda value: value is None,
+    )
     posterior_summary_refs: dict[PosteriorPointRole, PosteriorSummaryRef] = Field(
         default_factory=dict
     )

@@ -20,13 +20,28 @@ C7 advanced-suite path used by causal and simulation-oriented workflow nodes.
 - Runtime execution in [`runner.py`](runner.py): `run_job(...)` and `MethodBackend`
 - Advanced suite in [`advanced_methods.py`](advanced_methods.py): `C7AdvancedInputs`, `C7AdvancedSuiteResult`, `C7PersistedArtifact`, and `run_c7_advanced_suite(...)`
 
-`MethodBackend` submits the actual Foundry dispatcher call through the one
-process-wide `polisyos.common.async_tools` executor. Runtime composition can pin
-its candidate capacity with `process_worker_capacity` and
-`process_worker_profile_revision`; absent settings keep the legacy host-derived
-candidate fallback. This is a process-local execution bound, not a deployment
-profile or a cross-process quota. Method result and evidence writes remain after
-the dispatch slot is released.
+`MethodBackend` uses the one process-wide `polisyos.common.async_tools` executor.
+Runtime composition can pin its candidate capacity with
+`process_worker_capacity` and `process_worker_profile_revision`; absent settings
+keep the legacy host-derived candidate fallback. This is a process-local
+execution bound, not a deployment profile or a cross-process quota.
+
+The legacy `run(...)` entrypoint retains its dispatch-only slot boundary. The
+qualified `submit_method_execution_work(MethodExecutionWork)` route snapshots
+the leased job identity and full selected source/intent refs before FIFO
+admission. Its single physical worker resolves the current Runtime admission,
+verifies the pinned method registration, reads the selected manifest under its
+byte limit and the JSON payload under its byte/depth/element limits,
+persists the content-admitted intent, fingerprints at dispatch, writes result
+and evidence, and returns only full-profile refs plus bounded scalar metadata.
+The worker frame owns decoded arrays through persistence and cleanup. Queue
+backpressure and wait timeouts distinguish queued cancellation from a running
+worker whose physical slot remains occupied.
+
+The selected manifest and JSON payload limits apply to this input admission read.
+They do not bound Core owner control-index or transaction-intent records and do
+not impose a whole-request RSS ceiling. This bridge therefore claims a bounded
+process worker queue and selected-read limits, not a total-memory bound.
 
 When a Bayesian method result includes a content-bound native posterior-draw
 payload, the post-evidence path persists candidate-only v1.1 summaries for both
@@ -34,6 +49,30 @@ supported point roles. `JobResult.posterior_summary_refs` exposes those typed
 refs by role; the exact method-result and method-evidence views remain in CAS
 lineage. This does not select a point role for a consumer or make the summaries
 gate-eligible.
+
+The graph workflow can also submit a `MethodMetricProjectionWork` after its
+result, execution bundle, and compiled binding set have been persisted and its
+producer buffers have been released. The worker resolves a server-configured
+store, verifies that exact full-profile source tuple through the existing
+method-metric admission helper, and returns its bounded typed outcome. A verified
+admission token remains candidate evidence until Runtime binds it to the current
+job/run/attempt fence; missing verification does not invalidate the raw graph
+result. This route shares the same process executor and does not create a child
+pool.
+
+Legacy `run_job(...)` keeps `SimulationResults@0.1.0` as its payload contract and
+adds full-profile manifest edges for the actual `ExecuteArtifacts` method-execution
+bundle and metric-binding-set refs when the producer emitted them. The bounded
+`read_job_result_method_execution_capture(...)` consumer resolves those roles from
+`JobResult.simulation_results_ref` and exposes typed `available`, `partial`, or
+`unavailable` provenance on `JobResult.method_execution_capture`. `available` means
+the two exact role refs resolve; it does not establish Foundry graph admission,
+method validity, or policy authority. The consumer requires an explicit manifest
+byte limit; the legacy path uses a 256 KiB operational metadata bound, not a payload
+quota or process-memory guarantee. Missing or malformed refs remain unavailable or
+fail closed and are never inferred from artifact labels. Refs emitted with a
+producer failure or partial status remain diagnostic; this availability field does
+not establish successful execution.
 
 ## Depends On / Depended On By
 
@@ -63,4 +102,4 @@ uv run pytest tests/unit/scientist/compute/test_runner_polyglot.py tests/unit/sc
 
 ## Last Updated
 
-- Last updated: 2026-10-09
+- Last updated: 2026-10-21 (qualified execution and legacy capture lineage routes)

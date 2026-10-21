@@ -60,6 +60,10 @@ class _RuntimeSession:
     ambiguity_certificate_ref: ArtifactRef | None
     runtime_backend: ProductionPolicyEvaluationBackend
     input_signature: str
+    method_metric_projection_identity: dict[str, Any] = field(default_factory=dict)
+    method_metric_source_run_id: str | None = None
+    method_metric_score_required: bool = False
+    method_metric_source_request_status: str = "absent"
     source_measurement: SourceMetricObservation | None = None
     runtime_artifacts_index: dict[str, ArtifactRef] = field(default_factory=dict)
     selection_artifact: Any = None
@@ -97,6 +101,56 @@ class _RuntimeSession:
     voi_report_ref: ArtifactRef | None = None
     new_state: ExperimentState | None = None
 
+    @property
+    def method_metric_projection_basis(self) -> object | None:
+        """Return the in-process admission held outside this session's dataclass fields."""
+        return getattr(self.runtime_backend, "_policyos_method_metric_projection_basis", None)
+
+
+def _method_metric_projection_cache_identity(
+    projection: Any,
+    *,
+    requested_source_run_id: str | None,
+    tenant_id: str | None,
+    cell_id: str | None,
+    request_status: str,
+) -> dict[str, Any]:
+    """Project only stable source identity into the funnel's cache context.
+
+    The owner lookup runs before the funnel is submitted. A cache hit is eligible only
+    for the same current resolution result and exact selected vector/profile; this
+    mapping contains no observations, store, or admission capability.
+    """
+    identity: dict[str, Any] = {
+        "request_status": request_status,
+        "requested_source_run_id": requested_source_run_id,
+        "resolved_status": getattr(projection, "status", "invalid"),
+        "tenant_id": tenant_id,
+        "cell_id": cell_id,
+    }
+    basis = getattr(projection, "basis", None)
+    if basis is None:
+        identity["limitations"] = list(getattr(projection, "limitations", ()))
+        return identity
+
+    try:
+        identity["selected_source"] = {
+            **basis.cache_source_identity(),
+            "candidate_ref": basis.source_candidate_ref.materialize().model_dump(mode="json"),
+            "experiment_state_ref": basis.source_experiment_state_ref.materialize().model_dump(
+                mode="json"
+            ),
+            "projection_vector_ref": basis.projection_vector_ref.materialize().model_dump(
+                mode="json"
+            ),
+            "verifier_revision": basis.verifier_revision,
+            "verifier_implementation_sha256": basis.verifier_implementation_sha256,
+        }
+    except (AttributeError, TypeError, ValueError):
+        identity["resolved_status"] = "invalid"
+        identity["limitations"] = ["completed_method_metric_cache_identity_invalid"]
+    return identity
+
 
 def prepare_runtime_session(
     ctx: ExecutionContext,
@@ -114,10 +168,30 @@ def prepare_runtime_session(
         cross_graph_profile=cross_graph_profile,
         evidence_sources=evidence_sources,
     )
+    method_metric_projection = owner.read_completed_admitted_method_metric_projection(
+        ctx.store,
+        owner=ctx.method_metric_selection_owner,
+        source_run_id=runtime_request.method_metric_source_run_id,
+        candidate_ref=candidate_ref,
+        tenant_id=ctx.run.tenant_id,
+        cell_id=ctx.run.cell_id,
+        request_status=runtime_request.method_metric_source_request_status,
+    )
+    runtime_source_statuses["completed_method_metric_projection"] = method_metric_projection.status
     runtime_backend = owner.ProductionPolicyEvaluationBackend(
         eval_safety_execution_context=ctx.eval_safety_execution_context,
         eval_safety_verifier=ctx.eval_safety_verifier,
         world_model_record=owner._world_model_record_from_state(state),
+    ).with_method_metric_projection_basis(
+        basis=method_metric_projection.basis,
+        candidate_ref=(candidate_ref if method_metric_projection.basis is not None else None),
+    )
+    method_metric_projection_identity = _method_metric_projection_cache_identity(
+        method_metric_projection,
+        requested_source_run_id=runtime_request.method_metric_source_run_id,
+        tenant_id=ctx.run.tenant_id,
+        cell_id=ctx.run.cell_id,
+        request_status=runtime_request.method_metric_source_request_status,
     )
     input_signature = owner.policy_runtime_input_signature(
         candidate_ref=candidate_ref,
@@ -279,6 +353,8 @@ def prepare_runtime_session(
         ambiguity_certificate_ref=ambiguity_certificate_ref,
         runtime_backend=runtime_backend,
         input_signature=input_signature,
+        method_metric_projection_identity=method_metric_projection_identity,
+        method_metric_source_run_id=runtime_request.method_metric_source_run_id,
         runtime_artifacts_index=runtime_artifacts_index,
         selection_artifact=selection_artifact,
         selection_vector=selection_vector,
@@ -288,6 +364,10 @@ def prepare_runtime_session(
         selection_ref=selection_ref,
         benchmark_scope=benchmark_scope,
         benchmark_registry=benchmark_registry,
+        method_metric_score_required=(
+            runtime_request.method_metric_source_request_status != "absent"
+        ),
+        method_metric_source_request_status=(runtime_request.method_metric_source_request_status),
     )
 
 

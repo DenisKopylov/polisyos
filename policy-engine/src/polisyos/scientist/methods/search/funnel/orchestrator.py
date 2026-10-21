@@ -100,6 +100,7 @@ _CACHE_CONTEXT_IDENTITY_FRAGMENTS = (
     "domain",
     "effective",
     "evaluation",
+    "method_metric",
     "mode",
     "model",
     "purpose",
@@ -408,6 +409,7 @@ class FunnelOrchestrator:
         candidate_hash = _stable_candidate_hash(candidate)
         sentinel_meta = extract_sentinel_metadata(candidate) or {}
         ticket_context = dict(context)
+        metric_projection_basis = ticket_context.pop("_funnel_method_metric_projection_basis", None)
         if sentinel_meta:
             ticket_context.update(sentinel_meta)
             ticket_context["is_sentinel"] = True
@@ -422,8 +424,9 @@ class FunnelOrchestrator:
         cached_ticket = self._cached_ticket_for_key(cache_key, routing_mode=routing_mode)
         if cached_ticket is not None:
             ticket = cached_ticket
+            ticket._set_method_metric_projection_basis(metric_projection_basis)
             ticket.submitted_via_cache = True
-            for key, value in context.items():
+            for key, value in ticket_context.items():
                 ticket.context.setdefault(key, value)
             for key, value in sentinel_meta.items():
                 ticket.context.setdefault(key, value)
@@ -442,6 +445,7 @@ class FunnelOrchestrator:
             cache_key=cache_key,
             lineage=(ticket_id,),
         )
+        ticket._set_method_metric_projection_basis(metric_projection_basis)
         if previous_ticket is not None:
             ticket.parent_ticket_id = previous_ticket.ticket_id
             ticket.lineage = (*previous_ticket.lineage, ticket_id)
@@ -1183,6 +1187,9 @@ class FunnelOrchestrator:
         ticket: FunnelTicket,
     ) -> dict[str, Any]:
         context = dict(ticket.context)
+        method_metric_basis = getattr(ticket, "_method_metric_projection_basis", None)
+        if method_metric_basis is not None:
+            context["_funnel_method_metric_projection_basis"] = method_metric_basis
         transfer_context = resolve_transfer_context(
             candidate=ticket.candidate,
             context=context,

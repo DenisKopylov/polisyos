@@ -1,0 +1,220 @@
+{
+  "format": "editorial-research-receipt-v8",
+  "date": "2026-10-21",
+  "status": "documentary_review_complete_runtime_unrun",
+  "input_head": "2ce49f82747ad62c094ecc986d497ac2e687b490",
+  "read_only_code_snapshot": "635413bcd1bd1d7e7b829d9123765e28e6bf23d6",
+  "topology_snapshot": "33c8e8d7b2a425cb637ee64b734b42269071d7d7",
+  "scope": "Concrete preseed/runtime acquisition across current atlas families; legal and institutional evidence; storage and per-use reuse; local/server/hybrid/cloud/offline deployment and access. Research/design only.",
+  "architecture_boundary": "Reuse existing owners. No product source, infrastructure, adopted system-design-decisions, or prior pending C03 edits. No E02 code acceptance or adjudication.",
+  "denominator": {
+    "families": 26,
+    "grounds": 103,
+    "source_cards": 197,
+    "new_grounds": 0,
+    "new_source_cards": 0,
+    "family_route_rows": 26,
+    "future_probe_rows": 15,
+    "research_agents": 7,
+    "independent_review_agents": 4,
+    "changed_markdown_files": 9
+  },
+  "denominator_scope": "Complete families/grounds/sources arrays; entire EF-family table in acquisition/02 and AP table in acquisition/05. Family labels do not prove executable connector/method coverage. Direct agents and their named note files are explicitly enumerated below.",
+  "delegation": "One level only; root sole tracked writer. Seven research notes and four independent initial plus bounded delta reviews. No children or heavy processes.",
+  "root_review": {
+    "path": "policy-engine/_build/external-foundations-acquisition-deployment-20261021/root-final-review.md",
+    "bytes": 3215,
+    "sha256": "0a5520815a7de96e4659eb496f082ae1cbae3b2170df85a70938055d319c6e5d"
+  },
+  "final_review_disposition": "Original design contradictions corrected or bounded as named missing implementation chains. Acquisition delta retains unallocated selected-act notice issuer/resolver and generic remote source rights producer/verifier/trust root; pagination remains outside first WDI route. Deployment delta preserves static ownership gap and unproven runner/resource/backend/airgap capabilities. Storage and skeptical deltas accept documentary corrections. No runtime GO or completeness certificate.",
+  "tracked_dispositions": "acquisition/05-implementation-and-review.md#6-что-изменено-после-независимых-атак",
+  "research_notes": [
+    {
+      "agent": "ef8_web",
+      "path": "policy-engine/_build/external-foundations-acquisition-deployment-20261021/scratch/web.md",
+      "bytes": 19059,
+      "sha256": "8eae9e55a9c10de8c60df4d95d35efc058700f86f95313bcec76a526f2a5a832"
+    },
+    {
+      "agent": "ef8_legal",
+      "path": "policy-engine/_build/external-foundations-acquisition-deployment-20261021/legal.md",
+      "bytes": 19320,
+      "sha256": "61fa1ab7bcef90568519ec293fa325d4fd6bf360e291872a13ee0f4697a844de"
+    },
+    {
+      "agent": "ef8_fabric",
+      "path": "policy-engine/_build/external-foundations-acquisition-deployment-20261021/fabric.md",
+      "bytes": 18480,
+      "sha256": "e2e51258dd92dee8b6878360a1a199d46cfbebbefaa399ddf5f6c5321c92b933"
+    },
+    {
+      "agent": "ef8_categories",
+      "path": "policy-engine/_build/external-foundations-acquisition-deployment-20261021/categories.md",
+      "bytes": 19242,
+      "sha256": "e0957c43ff6443b8c5893f791a43ddc731fef0ead272c73e6851801aa802632a"
+    },
+    {
+      "agent": "ef8_persistence",
+      "path": "policy-engine/_build/external-foundations-acquisition-deployment-20261021/persistence.md",
+      "bytes": 19821,
+      "sha256": "f6a57e8b0bda7908ef70f4fdaacccd9c4db61caa9071f2d1f18b62561b7a1542"
+    },
+    {
+      "agent": "ef8_deployment",
+      "path": "policy-engine/_build/external-foundations-acquisition-deployment-20261021/deployment.md",
+      "bytes": 19039,
+      "sha256": "da68aee9139a40544bb2d79941f83b8f124e65607da7c551f8f95374ce879ce6"
+    },
+    {
+      "agent": "ef8_access",
+      "path": "policy-engine/_build/external-foundations-acquisition-deployment-20261021/access.md",
+      "bytes": 17818,
+      "sha256": "a1ad6e3168373b6220a11a7d3be7aa53b4d403a846b453c4e1c0a6d9306b8b89"
+    }
+  ],
+  "independent_initial_and_delta_reviews": [
+    {
+      "agent": "ef8_red_acquisition",
+      "path": "policy-engine/_build/external-foundations-acquisition-deployment-20261021/scratch/red-acquisition.md",
+      "bytes": 11668,
+      "sha256": "fee060a9eaf4cef2e6b6b8f9fc7052c62cf5be0682592e0d9d104ee9928f885a"
+    },
+    {
+      "agent": "ef8_red_storage",
+      "path": "policy-engine/_build/external-foundations-acquisition-deployment-20261021/red-storage.md",
+      "bytes": 7170,
+      "sha256": "fd04192451ea868489acf4e546f3ab42cf0c1006977ad25e40ad72c28becede5"
+    },
+    {
+      "agent": "ef8_red_deployment",
+      "path": "policy-engine/_build/external-foundations-acquisition-deployment-20261021/red-deployment.md",
+      "bytes": 14733,
+      "sha256": "aff2e019ced8c72343667cf7198c2da89ce40eff5043cee0479189a98b46dd12"
+    },
+    {
+      "agent": "ef8_red_skeptic",
+      "path": "policy-engine/_build/external-foundations-acquisition-deployment-20261021/red-skeptic.md",
+      "bytes": 12239,
+      "sha256": "a818b93fad143ff01859f7719acca8c48de0987f9e5f80d70b0daa457438f0c9"
+    }
+  ],
+  "checks": {
+    "outcome": "PASS",
+    "scope": "document structure/local links/complete atlas array and family mapping census/named Git objects; not runtime or external link availability",
+    "complete_array_bytes_unchanged": true,
+    "adopted_sdd_unchanged": true,
+    "pending_C03_unchanged": true,
+    "local_links_checked": 90,
+    "named_git_objects_checked": 27,
+    "checker": {
+      "path": "policy-engine/_build/external-foundations-acquisition-deployment-20261021/check-documents.py",
+      "bytes": 4935,
+      "sha256": "f58baa19ce7c4825c3ee2f88aa6e20c9a27c63340eea22cab84d57477532b2ce"
+    },
+    "complete_output": {
+      "path": "policy-engine/_build/external-foundations-acquisition-deployment-20261021/documentation-check.json",
+      "bytes": 2075,
+      "sha256": "1ed19378bc5355f989269fc02a465fd530d2df2ceae294745fdc81eeaf29686d"
+    },
+    "receipt_self_hash_excluded": true
+  },
+  "source_access_limits": [
+    "Root read Cellar documentation; selected EUR-Lex help and ELI pages returned a JavaScript challenge. Official EUR-Lex search output supplied Article297 and eOJ/consolidated distinctions.",
+    "Selected Rada act returned HTTP403. No bypass or claim of repository-wide API absence.",
+    "Primary technical URLs support protocol/design facts, not PolicyOS execution; source terms and interfaces must be verified for the actual deployment. Provider-specific blanket web-search retention claims were not adopted."
+  ],
+  "remaining_limits": [
+    "All product behavioral, removal, source handshake, resource, backend conformance, deployment and authentic probes UNRUN.",
+    "Pinned code is not the latest implementation candidate. Reconcile delta before code changes; static target-job ownership finding is not a verified HTTP disclosure.",
+    "WDI first route is single-response; generic durable pagination, remote-private rights/secret resolution, external runner, shared resource reservations and remote tenant/cell CAS parity are not established by presence.",
+    "Actual source grants, processors/regions, legal effective events, custody/issuer/currentness and institutional acts require their real sources. Candidate exploration may continue within operation rights.",
+    "Composite lineage and output permission must be verified from actual producer inputs; a declared parent list is insufficient.",
+    "No universal all-copy erasure, perfect recall, perpetual replay, OOM safety or cloud/airgap readiness claim."
+  ],
+  "publication_check_scope": {
+    "normal_precommit": "May run the existing lightweight design checks; outcomes retained in local publication log, not product acceptance.",
+    "prepush_typecheck": "Explicitly excluded for this docs-only publication under the user instruction not to run heavy processes or compete with the coding agent. TypeScript compiler result remains UNRUN; no hook configuration changed."
+  },
+  "product_tests_builds_typechecks_imports_installs_executed": false,
+  "production_payload_access_or_dataset_downloads": false,
+  "cleanup_executed": false,
+  "infrastructure_created": false,
+  "G_code_acceptance": false,
+  "closure_ids": [],
+  "pattern_pass": [
+    "P01",
+    "P02",
+    "P03",
+    "P05",
+    "P07",
+    "P08",
+    "P10",
+    "P13",
+    "P14",
+    "P15",
+    "P25",
+    "P27",
+    "P29",
+    "P31",
+    "P32",
+    "P35",
+    "P37",
+    "P38",
+    "P40",
+    "P41"
+  ],
+  "historical_receipt": "research-receipt-r7.json",
+  "files": [
+    {
+      "path": "policy-engine/docs/research/universal-policy-design/external-foundations/README.md",
+      "bytes": 14956,
+      "sha256": "2bdf6bbf4fecebbaf146165cb101030519910e09a266d6fc19f445572ab52ac2"
+    },
+    {
+      "path": "policy-engine/docs/research/universal-policy-design/external-foundations/11-foundation-lifecycle.md",
+      "bytes": 13739,
+      "sha256": "dda8cd5de0b915cfa885c8fcb94925dbc0b4dcb6834d4e17aebcf439a7af0e96"
+    },
+    {
+      "path": "policy-engine/docs/research/universal-policy-design/external-foundations/12-acquisition-storage-and-deployment.md",
+      "bytes": 8442,
+      "sha256": "2dc5d415b54313d65b41e099b61114da85d8fb4250d11092da0c72b28eeae492"
+    },
+    {
+      "path": "policy-engine/docs/research/universal-policy-design/external-foundations/lifecycle/09-resource-execution-design.md",
+      "bytes": 39515,
+      "sha256": "962814796331194bf67cc2d3e5df724064ac73e816ffc6e16b30d309e83e2932"
+    },
+    {
+      "path": "policy-engine/docs/research/universal-policy-design/external-foundations/acquisition/01-acquisition-routes.md",
+      "bytes": 20931,
+      "sha256": "d27f01f1a549e1636b9ff03c8fcdee6a5a965fa0dc9152599cf3e8a112cbaff3"
+    },
+    {
+      "path": "policy-engine/docs/research/universal-policy-design/external-foundations/acquisition/02-foundation-and-legal-routes.md",
+      "bytes": 22836,
+      "sha256": "fe2019bec279c3b0cc56b9c0a82c6c262adf989a4aad09f78cdc39ae90f8ed1a"
+    },
+    {
+      "path": "policy-engine/docs/research/universal-policy-design/external-foundations/acquisition/03-storage-and-reuse.md",
+      "bytes": 21405,
+      "sha256": "f5de02935eb359b8de8802c1cef8db7924e5fb44b2a2f03ee7625ab22c53bd23"
+    },
+    {
+      "path": "policy-engine/docs/research/universal-policy-design/external-foundations/acquisition/04-deployment-and-access.md",
+      "bytes": 21542,
+      "sha256": "0a5646a6adef53acad21e8260e1023b538877da20a7384ce507bd4eb9b0e94ed"
+    },
+    {
+      "path": "policy-engine/docs/research/universal-policy-design/external-foundations/acquisition/05-implementation-and-review.md",
+      "bytes": 23124,
+      "sha256": "2c152d03af939b14864dd39c5310b5536b3f889514ffd2033a8cae8bba18c225"
+    }
+  ],
+  "resource_scope": {
+    "heavy_processes": false,
+    "free_gib_at_final_document_check": 5.2,
+    "new_markdown_bytes": 118280,
+    "allowed_operations": "Bounded text/Git reads/writes, primary-source web research, stdlib documentary validation, normal lightweight commit checks and scoped docs publication."
+  }
+}

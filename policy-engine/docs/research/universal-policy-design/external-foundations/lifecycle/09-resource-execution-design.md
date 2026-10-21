@@ -6,7 +6,7 @@
 
 Оптимизировать стоимость **допустимого результата в нужной границе**, а не число обработанных строк. Считать отдельно CPU, resident memory, temporary/retained storage, I/O, сетевые запросы, очередь, денежный spend и обязанности сопровождения. Быстрый результат с потерянной отрицательной записью, иной population или просроченным permission — другой результат, а не ускорение.
 
-Выбор: native control store/worker и существующий compute permit координируют физические ресурсы; Fabric управляет порциями работы; Core CAS — проверенным чтением/записью; предметные owners — допустимой эквивалентностью и approximation; Claim/DV — invalidation/use. Уточнение расширяет существующий owner contract, не вводит второй scheduler или universal budget-token authority. Денежный ledger не становится compute permit; priority задачи не становится правом её исполнить.
+Выбор для реализации: расширить native Runtime control store/worker и Fabric execution/admission seams до координации фактически общего resource pool; Core CAS отвечает за проверенное чтение/запись, предметные owners — за допустимую эквивалентность и approximation, Claim/DV — за invalidation/use. Существование общего cross-process CPU/RAM/disk permit в прочитанной карте не установлено: connector-local permit, bounded active concurrency и job lease не доказывают этот контракт. До именованного owner producer/consumer и проверок ресурсная часть остаётся `bridge_missing` / `verification_missing`. Уточнение расширяет существующих owners, не вводит второй scheduler или universal budget-token authority. Денежный ledger не становится compute permit; priority задачи не становится правом её исполнить.
 
 ### Статические опоры и границы
 

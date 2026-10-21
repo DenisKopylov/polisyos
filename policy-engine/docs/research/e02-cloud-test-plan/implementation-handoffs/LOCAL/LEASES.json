@@ -50354,5 +50354,75 @@
     "source_profile_freeze": false,
     "G_acceptance": false,
     "closure_ids": []
+  },
+  "root-authz-route-matrix-r2-adoption-20261021-r1": {
+    "slice_base": "12daa0c8ac9c1d037b91656ca07714ccb40eed76",
+    "canonical_writer": "root only; reviewed present patch, retired exact originals through native Trash",
+    "mechanism_and_mandatory_companion_paths": {
+      "policy-engine/tests/unit/runtime/http/test_runtime_api_authz.py": {
+        "operation": "update",
+        "mode": "100644",
+        "preimage_sha256": "b451fcf92495846d6d0e99dc25b8e61093a78c723c1a4bad1f7439618a9d8ac9",
+        "postimage_path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/root-authz-route-matrix-fullformat-successor-20261021-r2/postimages/policy-engine/tests/unit/runtime/http/test_runtime_api_authz.py",
+        "postimage_sha256": "e42b3221302234abbe59643116037929b2868676c3e268d61bb38b62411fbea2",
+        "postimage_bytes": 153941
+      }
+    },
+    "application": {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/root-authz-route-matrix-r2-adoption-20261021-r1/source-application.json",
+      "sha256": "91948f7bcbebae398b68705d610fee443b9de907c50515e92e6f019470cd3027"
+    },
+    "native_trash_receipt": {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/root-authz-route-matrix-r2-adoption-20261021-r1/native-trash-receipt.json",
+      "sha256": "057f81b6e161c37eaec854c352b59148420f1f1711163b9005834b723e193dcf"
+    },
+    "reviewed_inputs": [
+      {
+        "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/root-authz-route-matrix-fullformat-successor-20261021-r2/manifest.json",
+        "sha256": "e894c5a3efc09913246f7804f38edda0a636d79d2303e23ec484610c02b1feab"
+      },
+      {
+        "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/root-authz-route-matrix-fullformat-successor-20261021-r2/candidate.patch",
+        "sha256": "d513750599a9bc47dabe14bc4ae1f1a0c91b0afaafbead0b17b882025c16a802"
+      },
+      {
+        "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/root-authz-route-matrix-fullformat-successor-20261021-r2/formatting-only.patch",
+        "sha256": "4c21b413697ed31d3ecaeaf86a50f12f9eee7627cc4771a02237871d2547df6a"
+      },
+      {
+        "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/independent-authz-route-matrix-source-review-20261021-r2/review.json",
+        "sha256": "d3e023f6fe18291b6d3a9b8d846aa85ef9abc08749a471f1bf304cb84a3d1bd6"
+      },
+      {
+        "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/independent-authz-route-matrix-source-review-20261021-r1/review.json",
+        "sha256": "0dd858e3528375bcbb39cf728c8f81df0ee2c6445f700f9ef988f22889c9b334"
+      },
+      {
+        "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/authz-route-matrix-postimage-20261021-r1/packet.json",
+        "sha256": "47271aa765d7b746f9e1d29e8ce2fd76f48f5e7da8ce3f326e844dbc5e21ec59"
+      }
+    ],
+    "owned_applied_provenance": null,
+    "preserved_other_owned_rows": {},
+    "preserved_other_owned_provenance": null,
+    "preserved_other_owned_tracked_paths": [],
+    "preserved_other_owned_untracked_paths": [],
+    "preserved_other_owned_unchanged_before_after": true,
+    "P40": {
+      "bucket": "One omitted-live-route inventory class repaired consistently across actual route/perms/cases; one downstream-refusal class shared by two surfaces; fullfileformat native companion fixed after independentHOLD.",
+      "falsifier": "Discovered sibling route/permission removal controls remain; actual APIRoute pass-through endpoint witness required, downstream refusedpurpose/status/reason/consumedboundary assertions exact."
+    },
+    "bounded_proof": "IndependentR1semanticGO withnativeformatHOLD; freshR2normalizedAST/string/testdefinitionequality and independentcanonicalnativecheck/fullformat/sourceGO plus exactbranchreadback.",
+    "limitations": [
+      "Tests UNRUN on adoptedsource; historicalRuntime625 still635413=512P113F.",
+      "Authorized409 does not prove T1/T2 protectedpositive or issuer/custody/currentness.",
+      "Predictiveplaceholderrefs probeauthorizationanddisabledfeature boundary only; nocalibration/producer proof.",
+      "Productionapproval403 upstreamowner/profilefixture and remainingauthority/runtimefailures require actualreplay/repair."
+    ],
+    "runtime": "UNRUN on adopted source",
+    "next_check": "Run whole test_authorization.py and test_runtime_api_authz.py on composedsource withallunsafe routes/denies/audits/state/removecontrols, diagnoseactualproductionapprovalprofile403 and unscopedownerbranch; native/generatedOpenAPI afterN11ownerrepair.",
+    "source_profile_freeze": false,
+    "G_acceptance": false,
+    "closure_ids": []
   }
 }

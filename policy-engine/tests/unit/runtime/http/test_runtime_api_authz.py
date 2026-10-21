@@ -266,6 +266,7 @@ _EXPECTED_MUTATING_OPERATIONS = (
     ("POST", "/api/v1/runs/{run_id}/acquisition-routes/{route_id}/decision-request"),
     ("POST", "/api/v1/runs/{run_id}/acquisition-routes/{route_id}/execute"),
     ("POST", "/api/v1/runs/{run_id}/human-decisions"),
+    ("POST", "/api/v1/runs/{run_id}/predictive-calibration"),
     ("POST", "/api/v1/runs/{run_id}/production-approval"),
     ("POST", "/api/v1/runs/{run_id}/public-verification-record"),
     ("POST", "/api/v1/runs/{run_id}/scenarios"),
@@ -339,6 +340,10 @@ _EXPECTED_MUTATING_PERMISSIONS = {
     ): RuntimePermission.RUNS_HUMAN_DECISIONS_CREATE,
     (
         "POST",
+        "/api/v1/runs/{run_id}/predictive-calibration",
+    ): RuntimePermission.RUNS_FEEDBACK_EVALUATE,
+    (
+        "POST",
         "/api/v1/runs/{run_id}/production-approval",
     ): RuntimePermission.RUNS_PRODUCTION_APPROVAL_CREATE,
     (
@@ -387,6 +392,7 @@ _MUTATING_OPERATION_CASE_IDS = {
         "/api/v1/runs/{run_id}/acquisition-routes/{route_id}/execute",
     ): "execute-run-acquisition-route",
     ("POST", "/api/v1/runs/{run_id}/human-decisions"): ("create-run-human-decision"),
+    ("POST", "/api/v1/runs/{run_id}/predictive-calibration"): ("create-run-predictive-calibration"),
     ("POST", "/api/v1/runs/{run_id}/production-approval"): ("create-run-production-approval"),
     ("POST", "/api/v1/runs/{run_id}/public-verification-record"): (
         "issue-public-verification-record"
@@ -968,6 +974,57 @@ def _authorized_mutation_request(
             "accountability_statement": "I accept this exact decision authority.",
             "dissent_statement": "No dissent was recorded.",
         }
+    if case_id == "create-run-predictive-calibration":
+        from polisyos.runtime.http.dependencies import get_runtime_api_context
+
+        def _placeholder_ref(marker: str, kind: str) -> dict[str, str]:
+            return {
+                "artifact_id": "sha256:" + marker * 64,
+                "kind": kind,
+                "media_type": "application/json",
+                "manifest_profile_sha256": "sha256:" + marker * 64,
+            }
+
+        # The explicit disabled gate proves the authorized route reaches its handler.
+        # These syntactic refs are never resolved, admitted, or treated as evidence.
+        context = client.app.state.runtime_api_ctx
+        monkeypatch.setitem(
+            client.app.dependency_overrides,
+            get_runtime_api_context,
+            lambda: replace(
+                context,
+                allow_candidate_run_predictive_calibration_surface=False,
+            ),
+        )
+        return default_path, {
+            "intent_id": "authz-matrix-predictive-calibration",
+            "candidate_source_ref": _placeholder_ref(
+                "a", "runtime.quality.n4_candidate_scenario_source"
+            ),
+            "observed_source_ref": _placeholder_ref("b", "fabric.data_snapshot"),
+            "model_spec_ref": _placeholder_ref("c", "ir.model_spec"),
+            "policy_spec_ref": _placeholder_ref("d", "ir.policy_spec"),
+            "calibration_rule_ref": _placeholder_ref("e", "ir.forecast_calibration_rule"),
+            "calibration_threshold": 0.9,
+            "split": {
+                "train_start": 0,
+                "train_end": 11,
+                "holdout_start": 11,
+                "holdout_end": 15,
+                "horizon": 4,
+            },
+            "target_metric": "authz_matrix_only",
+            "method_params": {"horizon": 4, "alpha": 0.3, "beta": 0.1},
+            "temporal_roles": {
+                "data_valid_time": "2026-01-01T00:00:00Z",
+                "calibration_window_start": "2026-01-02T00:00:00Z",
+                "calibration_window_end": "2026-01-03T00:00:00Z",
+                "policy_effective_time": "2026-01-04T00:00:00Z",
+                "prediction_time": "2026-01-05T00:00:00Z",
+                "observation_time": "2026-01-06T00:00:00Z",
+            },
+            "seed": 0,
+        }
     if case_id == "create-run-production-approval":
         scorecard_ref = _create_production_scorecard(runtime_api_env, cell_id=cell_id)
         return default_path, {
@@ -1005,6 +1062,84 @@ def _response_code(response) -> str:
     except ValueError:
         return "<no-code>"
     return str(payload.get("code", "<no-code>"))
+
+
+def _observe_actual_route_handler(
+    client: TestClient,
+    *,
+    method: str,
+    route_path: str,
+    monkeypatch: pytest.MonkeyPatch,
+) -> tuple[list[str], str]:
+    """Wrap one real endpoint with a pass-through invocation witness."""
+    matches = [
+        route
+        for route in client.app.routes
+        if isinstance(route, APIRoute) and route_path == route.path and method in route.methods
+    ]
+    assert len(matches) == 1, (method, route_path, [route.path for route in matches])
+    route = matches[0]
+    original_call = route.dependant.call
+    assert callable(original_call)
+    operation_id = route.operation_id or route.name
+    calls: list[str] = []
+
+    def _delegate(*args: Any, **kwargs: Any) -> Any:
+        calls.append(operation_id)
+        return original_call(*args, **kwargs)
+
+    monkeypatch.setattr(route.dependant, "call", _delegate)
+    return calls, operation_id
+
+
+def _assert_authority_surface_admission_refusal(
+    response,
+    *,
+    expected_surface: str,
+) -> None:
+    payload = response.json()
+    assert payload["code"] == "authority_surface_admission_blocked"
+    decision = payload["extensions"]["authority_surface_decision"]
+    assert decision["surface"] == expected_surface
+    assert decision["purpose"] == "runtime_closeout_authority"
+    assert decision["status"] == "blocked"
+    assert decision["authority_result"] == "not_applicable"
+    assert decision["transition_disposition"] is None
+    assert decision["authority_boundary_ref"] is None
+    assert decision["consumed_authority_boundary"] is False
+    assert decision["may_not_use_for"] == []
+    assert decision["reason"] == "authority_surface_signal_missing"
+    assert decision["blocking"] is True
+    assert decision["visible_downgrade"] is True
+    assert decision["composed_gate_inputs"] == [
+        "authority_boundary",
+        "secret_pii_scan",
+        "cas_integrity",
+        "time_source_envelope",
+        "s12_dereference",
+        "candidate_firewall",
+    ]
+    assert decision["secret_pii_finding_kinds"] == []
+    assert decision["integrity_status"] == "verified"
+    assert decision["integrity_error"] is None
+    assert decision["time_source_dispositions"] == []
+    assert decision["s12_issue_codes"] == []
+    assert decision["candidate_firewall_issue_codes"] == []
+    assert decision["authority_contributors"] == [
+        {
+            "basis": "base_surface",
+            "status": "blocked",
+            "authority_result": "not_applicable",
+            "transition_disposition": None,
+            "authority_boundary_ref": None,
+            "consumed_authority_boundary": False,
+            "may_not_use_for": [],
+            "reason": "authority_surface_signal_missing",
+            "blocking": True,
+            "visible_downgrade": True,
+            "resolution_error": None,
+        }
+    ]
 
 
 def _build_secure_client(
@@ -1206,6 +1341,19 @@ def test_mutating_operation_authorized_request_reaches_handler(
             client=client,
             monkeypatch=monkeypatch,
         )
+        observed_calls: list[str] | None = None
+        observed_operation_id: str | None = None
+        if case_id in {
+            "get-artifact-batch",
+            "get-lineage-batch",
+            "create-run-predictive-calibration",
+        }:
+            observed_calls, observed_operation_id = _observe_actual_route_handler(
+                client,
+                method=method,
+                route_path=_route_path,
+                monkeypatch=monkeypatch,
+            )
         expected_step_up = HIGH_STAKES_PERMISSION_CLASSES.get(permission)
         if expected_step_up is not None:
             headers["X-PolicyOS-Step-Up"] = _install_bound_test_step_up(client)
@@ -1223,7 +1371,13 @@ def test_mutating_operation_authorized_request_reaches_handler(
     expected_status, expected_code = {
         "submit-normative-evidence": (400, "normative_evidence_binding_invalid"),
         "admit-epoch-validity-batch": (422, "verifier_not_configured"),
+        "get-artifact-batch": (409, "authority_surface_admission_blocked"),
+        "get-lineage-batch": (409, "authority_surface_admission_blocked"),
         "create-run-human-decision": (409, "DS9-DECISION-ARTIFACT-MISSING"),
+        "create-run-predictive-calibration": (
+            503,
+            "candidate_predictive_diagnostic_surface_disabled",
+        ),
         "create-run-production-approval": (503, "DS9-DECISION-PRODUCER-MISSING"),
         "issue-public-verification-record": (503, "http_error"),
     }.get(case_id, (200, None))
@@ -1232,6 +1386,14 @@ def test_mutating_operation_authorized_request_reaches_handler(
         assert response.json()["code"] == expected_code
     assert isinstance(response.json(), dict)
     assert len(opa.inputs) == 1
+    assert opa.inputs[0].action_permission == permission.value
+    if observed_calls is not None:
+        assert observed_operation_id is not None
+        assert observed_calls == [observed_operation_id]
+    if case_id == "get-artifact-batch":
+        _assert_authority_surface_admission_refusal(response, expected_surface="artifact")
+    elif case_id == "get-lineage-batch":
+        _assert_authority_surface_admission_refusal(response, expected_surface="lineage")
     assert opa.inputs[0].request_method == method
     assert opa.inputs[0].resource_kind
     assert opa.inputs[0].resource_artifact_id

@@ -1,0 +1,609 @@
+{
+  "schema": "policyos.e02.implementation_handoff.v1",
+  "unit": "LOCAL",
+  "slice": "econml-shared-adapter-and-serial-forestdr-source-runtime-20261021",
+  "record_type": "Author implementation handoff with independently reconciled bounded runtime evidence; proposal only",
+  "branch": "codex/e02-unified-local-20261009",
+  "slice_base_sha": "980ae24932d693ef2321c8326464b51b157c0770",
+  "implementation_commits": [
+    "6ebc5f3212d5376b8ac17fab89593ec123b3e7e9",
+    "f708ca052262836f05a4e294935a81a37e72e31e",
+    "10fdd017ca2665648d1629fc729001ffdeb5f134",
+    "80f7c18f1295e3d2ecbee7625e52cdcbacca97f2"
+  ],
+  "implementation_lineage": [
+    {
+      "sha": "6ebc5f3212d5376b8ac17fab89593ec123b3e7e9",
+      "tree": "4f8124789a0b202675e73989cdff6786d0edcf1e",
+      "parents": [
+        "980ae24932d693ef2321c8326464b51b157c0770"
+      ],
+      "changed_paths": [
+        "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/LEASES.json",
+        "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/candidate-component-delivery-index-20261015.json",
+        "policy-engine/pyproject.toml",
+        "policy-engine/release-fragments/unreleased/2026-10-21-e02-forest-dr-bounded-serial-abi.toml",
+        "policy-engine/src/polisyos/foundry/methods/catalog/causal/README.md",
+        "policy-engine/src/polisyos/foundry/methods/catalog/causal/__init__.py",
+        "policy-engine/src/polisyos/foundry/methods/catalog/causal/_registry_boot.py",
+        "policy-engine/src/polisyos/foundry/methods/catalog/causal/forest_dr.py",
+        "policy-engine/tests/unit/foundry/methods/catalog/causal/test_forest_dr.py",
+        "policy-engine/uv.lock"
+      ]
+    },
+    {
+      "sha": "f708ca052262836f05a4e294935a81a37e72e31e",
+      "tree": "4b4117f4aaa8b122110f7918945c6364f4875a5f",
+      "parents": [
+        "6e7460c33c363c4b53f677dfd160643b62d68001"
+      ],
+      "changed_paths": [
+        "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/LEASES.json",
+        "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/candidate-component-delivery-index-20261015.json",
+        "policy-engine/release-fragments/unreleased/2026-10-21-e02-econml-shared-hte-adapter.toml",
+        "policy-engine/src/polisyos/foundry/methods/catalog/causal/README.md",
+        "policy-engine/src/polisyos/foundry/methods/catalog/causal/_econml_adapter.py",
+        "policy-engine/tests/unit/foundry/methods/catalog/causal/test_econml_adapter.py",
+        "policy-engine/tests/unit/foundry/methods/catalog/causal/test_forest_dr.py"
+      ]
+    },
+    {
+      "sha": "10fdd017ca2665648d1629fc729001ffdeb5f134",
+      "tree": "e9510c33128dcd32db36590593d1ce06ede523a3",
+      "parents": [
+        "566d194402dec721d162cff83b4bf2d16442d52e"
+      ],
+      "changed_paths": [
+        "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/LEASES.json",
+        "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/candidate-component-delivery-index-20261015.json",
+        "policy-engine/src/polisyos/foundry/methods/catalog/causal/_econml_adapter.py",
+        "policy-engine/tests/unit/foundry/methods/catalog/causal/test_econml_adapter.py",
+        "policy-engine/tests/unit/foundry/methods/catalog/causal/test_forest_dr.py"
+      ]
+    },
+    {
+      "sha": "80f7c18f1295e3d2ecbee7625e52cdcbacca97f2",
+      "tree": "a77079ad3fe9569e819a79502c76d0f72e1a3c62",
+      "parents": [
+        "10fdd017ca2665648d1629fc729001ffdeb5f134"
+      ],
+      "changed_paths": [
+        "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/LEASES.json",
+        "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/candidate-component-delivery-index-20261015.json",
+        "policy-engine/tests/unit/foundry/methods/catalog/causal/test_econml_adapter.py"
+      ]
+    }
+  ],
+  "candidate_sha": "80f7c18f1295e3d2ecbee7625e52cdcbacca97f2",
+  "candidate_tree_sha": "a77079ad3fe9569e819a79502c76d0f72e1a3c62",
+  "candidate_parents": [
+    "10fdd017ca2665648d1629fc729001ffdeb5f134"
+  ],
+  "G_architecture_checkpoint": "b7adafe89423bc6906a5fb86c38e579a381ad2ee",
+  "G_source_acceptance": false,
+  "closure_ids": [],
+  "author_proposals": [
+    {
+      "id": "B31",
+      "outcome": "held",
+      "evidence_boundary": "The synthetic ForestDR witness demonstrates an actual native fit/inference call chain and typed numerical output, but supplies no owner-derived identification set or producer-owned join binding the output to the same source-derived estimand and unit consumed downstream. It therefore does not demonstrate B31's required separation and preservation of native statistical/model uncertainty from identification bounds for that coordinate, and does not close B31. The legacy 1.96/CATE-variance guard is a separate unqualified HTE-inference limitation documented by the HTE decision packet.",
+      "next_check": "Keep B31 held/not_adjudicated pending G and the B31-specific producer-owned source/assignment/estimand/unit join plus native-uncertainty consumer falsifier described in LOCAL/decisions/b31-s3-owner-coordinate-current-packet-v1-20261011.md@938c36d42a0401f79bb40040a34b79a5772055db476f814349fab717733dc54d. Treat any new point-without-ATE-inference or inference-basis contract as a separate technical proposal for G under LOCAL/decisions/g-choice-hte-ate-inference-unavailable-20261021.md@f9a2aaf523b3300498821e3ba8cedc8611f288baef23ab9e64467ec8826dbf6; that packet expressly does not adjudicate B31.",
+      "status_authority": "Author recommendation held/not_adjudicated only; G remains sole adjudicator."
+    }
+  ],
+  "changed_paths": [
+    "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/LEASES.json",
+    "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/candidate-component-delivery-index-20261015.json",
+    "policy-engine/pyproject.toml",
+    "policy-engine/release-fragments/unreleased/2026-10-21-e02-econml-shared-hte-adapter.toml",
+    "policy-engine/release-fragments/unreleased/2026-10-21-e02-forest-dr-bounded-serial-abi.toml",
+    "policy-engine/src/polisyos/foundry/methods/catalog/causal/README.md",
+    "policy-engine/src/polisyos/foundry/methods/catalog/causal/__init__.py",
+    "policy-engine/src/polisyos/foundry/methods/catalog/causal/_econml_adapter.py",
+    "policy-engine/src/polisyos/foundry/methods/catalog/causal/_registry_boot.py",
+    "policy-engine/src/polisyos/foundry/methods/catalog/causal/forest_dr.py",
+    "policy-engine/tests/unit/foundry/methods/catalog/causal/test_econml_adapter.py",
+    "policy-engine/tests/unit/foundry/methods/catalog/causal/test_forest_dr.py",
+    "policy-engine/uv.lock"
+  ],
+  "full_footprint": [
+    {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/LEASES.json",
+      "sha256_at_candidate": "87c0bdee73c952d835630ff33a8a1c588a002427bd13ff1595e8bb3c979e1aeb",
+      "bytes_at_candidate": 3406372,
+      "role": "coordination_metadata"
+    },
+    {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/candidate-component-delivery-index-20261015.json",
+      "sha256_at_candidate": "7e1bc2357afad2e55ab1b65071729450081074274fbeb5508aaab0eb1ced6cc5",
+      "bytes_at_candidate": 338875,
+      "role": "coordination_metadata"
+    },
+    {
+      "path": "policy-engine/pyproject.toml",
+      "sha256_at_candidate": "9ba07603d14a8d7616be98f268849f9b38b4c06bba441dcc2b40b03d2ffd6827",
+      "bytes_at_candidate": 11219,
+      "role": "mandatory_doc_or_release_companion"
+    },
+    {
+      "path": "policy-engine/release-fragments/unreleased/2026-10-21-e02-econml-shared-hte-adapter.toml",
+      "sha256_at_candidate": "cdb6a989b1a42a30b3584b82b519f5bbab3b6e23b9207c412567d8ccff640e79",
+      "bytes_at_candidate": 4195,
+      "role": "mandatory_doc_or_release_companion"
+    },
+    {
+      "path": "policy-engine/release-fragments/unreleased/2026-10-21-e02-forest-dr-bounded-serial-abi.toml",
+      "sha256_at_candidate": "d3354a52b3338d85838794d0e7e1b5d42caa0bf99e5d626bd36ba20a6ba54ab6",
+      "bytes_at_candidate": 3096,
+      "role": "mandatory_doc_or_release_companion"
+    },
+    {
+      "path": "policy-engine/src/polisyos/foundry/methods/catalog/causal/README.md",
+      "sha256_at_candidate": "75d4f5f02b5716a59b4677ffa27e2a9c441b121af0de5dd62e9da940e9e10369",
+      "bytes_at_candidate": 34093,
+      "role": "mandatory_doc_or_release_companion"
+    },
+    {
+      "path": "policy-engine/src/polisyos/foundry/methods/catalog/causal/__init__.py",
+      "sha256_at_candidate": "5ca88fe70e87d5c9ebbf61e5fbfd6e7760fce09973cd99d0778c8b4ea27675de",
+      "bytes_at_candidate": 16176,
+      "role": "source"
+    },
+    {
+      "path": "policy-engine/src/polisyos/foundry/methods/catalog/causal/_econml_adapter.py",
+      "sha256_at_candidate": "ac490befc277df3a623e5406677bd389b32ab2646c7f84e01f76c176e7feb9cc",
+      "bytes_at_candidate": 22622,
+      "role": "source"
+    },
+    {
+      "path": "policy-engine/src/polisyos/foundry/methods/catalog/causal/_registry_boot.py",
+      "sha256_at_candidate": "3e06cd5b6065dbfa251effab4f55e863c3cda9c6fd9ce992ac9a7930f222d944",
+      "bytes_at_candidate": 16862,
+      "role": "source"
+    },
+    {
+      "path": "policy-engine/src/polisyos/foundry/methods/catalog/causal/forest_dr.py",
+      "sha256_at_candidate": "45c1538414083262e1e55a3fe00a7a0f9ddb391e4328115bd3f96cb1d1c9445b",
+      "bytes_at_candidate": 13277,
+      "role": "source"
+    },
+    {
+      "path": "policy-engine/tests/unit/foundry/methods/catalog/causal/test_econml_adapter.py",
+      "sha256_at_candidate": "1dc97de9f86424949ff730703928d72f2bbb291736cb347ec8e68c68fddb55e8",
+      "bytes_at_candidate": 30024,
+      "role": "test"
+    },
+    {
+      "path": "policy-engine/tests/unit/foundry/methods/catalog/causal/test_forest_dr.py",
+      "sha256_at_candidate": "5a83bce4d6f8e6e8719b3be6b02fe5f62e9efe222c5c73bac94b615a278dba2c",
+      "bytes_at_candidate": 9697,
+      "role": "test"
+    },
+    {
+      "path": "policy-engine/uv.lock",
+      "sha256_at_candidate": "484dfe164235ea48164c8bf1b33190b3a25dd883c667a41e8a25b07bf5c5df3c",
+      "bytes_at_candidate": 808745,
+      "role": "mandatory_doc_or_release_companion"
+    }
+  ],
+  "selected_profile": {
+    "python": "CPython3.14.3",
+    "backend": "econml0.17.0 / NumPy2.3.5 / sklearn1.8.0 / scipy1.16.3 / SHAP0.54.1 / threadpoolctl3.6.0",
+    "installed_distribution_count": 304,
+    "provision_receipt": {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/root-econml-locked-profile-provision-20261021-r1/installation-r2-result.json",
+      "sha256": "377df41b09763fd0c86b5d4724842b62625264db72634be40846173defa31565",
+      "bytes": 812
+    },
+    "project_metadata": {
+      "path": "policy-engine/pyproject.toml",
+      "sha256": "9ba07603d14a8d7616be98f268849f9b38b4c06bba441dcc2b40b03d2ffd6827"
+    },
+    "lock": {
+      "path": "policy-engine/uv.lock",
+      "sha256": "484dfe164235ea48164c8bf1b33190b3a25dd883c667a41e8a25b07bf5c5df3c"
+    },
+    "method": "causal.hte.forest_dr@1.1.0",
+    "abi_digest": "c47789927627661e4eedd78368cc710181060dc1e705b8484cbf089fe50234e4",
+    "input": "Existing _make_hte_data(n=240,seed=20261021); hashes in coldwitness; samebuilderAST/source and current/185a positivearrayfingerprints match; failed3a arrays unrecorded."
+  },
+  "property": {
+    "statement": "Shared adapter preserves finite native per-row inference vectors and scoped optional-provider failures while malformed returned arrays fail closed; ForestDR1.1 executes entire producer inside cooperative serial scope without reinterpreting1.0 legacy ABI.",
+    "runtime_path": [
+      "registered exactForestDR1.1+immutable input fixture",
+      "real EconML constructor/fit/effect/effect_interval/effect_inference/ate_inference",
+      "typed HTEResult and causal effect report",
+      "method output envelope surface; direct synthetic witness only"
+    ],
+    "capability_boundary": "No ProgramGraph→Runtime persistence→HTTP/currentness surface proof is supplied by this slice. Later AD01–03 composition owns those routes.",
+    "proxy_divergence": "A constructor/import, population std_point, or finite CI cannot replace actual fit and correct row stderr/mean-level SE; nativeinference does not establish identification/calibration.",
+    "negative_controls": [
+      "Complete both-module optional-provider lookup/invocation failures, absentvectors and malformedreturn shapes/nonfinite/ranges; actualcaseIDs retained.",
+      "R6 all-three-vector presence/absence/malformed family; legacy1.0 scoped compatibility retained."
+    ],
+    "resource_limit": "n_jobsLiteral1 and observed nativepools1 are cooperative, not hostCPUquota."
+  },
+  "checks": [
+    {
+      "name": "pre_adoption_raw_test",
+      "target_frame": {
+        "head": "10fdd017ca2665648d1629fc729001ffdeb5f134",
+        "tree": "e9510c33128dcd32db36590593d1ce06ede523a3",
+        "branch": "codex/e02-unified-local-20261009"
+      },
+      "request": {
+        "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/root-econml-r6-raw-test-against-10fdd-two-whole-20261021-r1/request.json",
+        "sha256": "1779baf4a14e849d40cd6f06e52a6587e2863c2be68b257335781c03a9f4e51e",
+        "bytes": 44397
+      },
+      "command_and_environment": {
+        "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/root-econml-r6-raw-test-against-10fdd-two-whole-20261021-r1/actual/invocation.json",
+        "sha256": "2b9a031c370a4fd1c131107e3d487e462bd56f73f1003b50de937b574362d943",
+        "bytes": 5622
+      },
+      "outcome": "PASS",
+      "junit": {
+        "errors": 0,
+        "failures": 0,
+        "passed": 61,
+        "skipped": 0,
+        "tests": 61
+      },
+      "scope": "RAW test postimage against actual10f adapter, plus canonical ForestDR module; not canonical adoption receipt.",
+      "deciding_outputs": [
+        {
+          "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/root-econml-r6-raw-test-against-10fdd-two-whole-20261021-r1/actual/result.json",
+          "sha256": "b4e5fde228149c884b8ea52bd480c679718d0572c0d98c0dbbd553d0954b87a1",
+          "bytes": 8843
+        },
+        {
+          "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/root-econml-r6-raw-test-against-10fdd-two-whole-20261021-r1/actual/invocation.json",
+          "sha256": "2b9a031c370a4fd1c131107e3d487e462bd56f73f1003b50de937b574362d943",
+          "bytes": 5622
+        },
+        {
+          "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/root-econml-r6-raw-test-against-10fdd-two-whole-20261021-r1/actual/pytest.stdout.txt",
+          "sha256": "1d597162e3a97135b47a296931375c3d5c4fbc041b69f10cfe4245d76bd371ef",
+          "bytes": 21972
+        },
+        {
+          "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/root-econml-r6-raw-test-against-10fdd-two-whole-20261021-r1/actual/pytest.stderr.txt",
+          "sha256": "f6f27d6ae9fde2dfcb037c59f77821e563dfc65d4d9a1b407d3494904ed31fdc",
+          "bytes": 471
+        },
+        {
+          "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/root-econml-r6-raw-test-against-10fdd-two-whole-20261021-r1/actual/pytest.xml",
+          "sha256": "ca896517f5d2cc4cbf5a95f6dac95671fffdd43d4b3e1838ef374d29fd6787ec",
+          "bytes": 19199
+        },
+        {
+          "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/root-econml-r6-raw-test-against-10fdd-two-whole-20261021-r1/actual/collection.json",
+          "sha256": "61541307f0e62d58c1d4d777be8fb7b465efebdbce88a8e811234ceb728395a5",
+          "bytes": 22047
+        },
+        {
+          "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/root-econml-r6-raw-test-against-10fdd-two-whole-20261021-r1/actual/cases.jsonl",
+          "sha256": "4343b8e0c61ed43935dcf6d06cf4c8a15bd3d3dec49448c5a94d62229c840d2e",
+          "bytes": 82596
+        },
+        {
+          "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/root-econml-r6-raw-test-against-10fdd-two-whole-20261021-r1/actual/origins.json",
+          "sha256": "f65362b374a7f87f50b79bbb79342b0bab94e43b4d996386e4b18674827a209b",
+          "bytes": 931433
+        },
+        {
+          "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/root-econml-r6-raw-test-against-10fdd-two-whole-20261021-r1/actual/source-before.json",
+          "sha256": "40c1e0998f8d036d7e8c8b9ab29c6afc95358373ba43c853c5bd8238cd3a796e",
+          "bytes": 19627064
+        },
+        {
+          "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/root-econml-r6-raw-test-against-10fdd-two-whole-20261021-r1/actual/source-after.json",
+          "sha256": "40c1e0998f8d036d7e8c8b9ab29c6afc95358373ba43c853c5bd8238cd3a796e",
+          "bytes": 19627064
+        }
+      ],
+      "source_unchanged": true,
+      "calls_match_actual_collection": true,
+      "process_group_gone": true,
+      "max_sampled_rss_bytes": 726777856,
+      "wall_seconds": 12.770971584133804,
+      "minimum_sampled_free_disk_bytes": 10989699072
+    },
+    {
+      "name": "canonical_two_whole",
+      "target_frame": {
+        "head": "80f7c18f1295e3d2ecbee7625e52cdcbacca97f2",
+        "tree": "a77079ad3fe9569e819a79502c76d0f72e1a3c62",
+        "branch": "codex/e02-unified-local-20261009"
+      },
+      "request": {
+        "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/root-econml-r6-canonical-two-whole-80f7c18f1295-20261021-r2/request.json",
+        "sha256": "ce9831f4078670b0eb5caaf1112bff0ff92544661c9803556136bb2a47ebfa1f",
+        "bytes": 45469
+      },
+      "command_and_environment": {
+        "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/root-econml-r6-canonical-two-whole-80f7c18f1295-20261021-r2/actual/invocation.json",
+        "sha256": "8242ad3a3cd28631c1319a95b148a35e6fe0800e8b27b34ce195dc56ea3a4203",
+        "bytes": 5479
+      },
+      "outcome": "PASS",
+      "junit": {
+        "errors": 0,
+        "failures": 0,
+        "passed": 61,
+        "skipped": 0,
+        "tests": 61
+      },
+      "scope": "Both complete canonical adapter and ForestDR test modules at80f7.",
+      "deciding_outputs": [
+        {
+          "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/root-econml-r6-canonical-two-whole-80f7c18f1295-20261021-r2/actual/result.json",
+          "sha256": "8dfafdd86a4a68770a8585d9bcee9b0b813eef69573d2447f4ce1f62fc939c0f",
+          "bytes": 8415
+        },
+        {
+          "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/root-econml-r6-canonical-two-whole-80f7c18f1295-20261021-r2/actual/invocation.json",
+          "sha256": "8242ad3a3cd28631c1319a95b148a35e6fe0800e8b27b34ce195dc56ea3a4203",
+          "bytes": 5479
+        },
+        {
+          "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/root-econml-r6-canonical-two-whole-80f7c18f1295-20261021-r2/actual/pytest.stdout.txt",
+          "sha256": "d33df29f6a56d6758259ae17897952326b450d2ace66577a083e872731a65f8b",
+          "bytes": 14393
+        },
+        {
+          "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/root-econml-r6-canonical-two-whole-80f7c18f1295-20261021-r2/actual/pytest.stderr.txt",
+          "sha256": "f6f27d6ae9fde2dfcb037c59f77821e563dfc65d4d9a1b407d3494904ed31fdc",
+          "bytes": 471
+        },
+        {
+          "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/root-econml-r6-canonical-two-whole-80f7c18f1295-20261021-r2/actual/pytest.xml",
+          "sha256": "f919445417af565ab711c74876dd3e3a481e05b7ec033acdbbfd508617526a9a",
+          "bytes": 11620
+        },
+        {
+          "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/root-econml-r6-canonical-two-whole-80f7c18f1295-20261021-r2/actual/collection.json",
+          "sha256": "ca42e04696daa6a69da93c1d71c6e0594d3661b0cffacf5cb0dd83e1eb420363",
+          "bytes": 14039
+        },
+        {
+          "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/root-econml-r6-canonical-two-whole-80f7c18f1295-20261021-r2/actual/cases.jsonl",
+          "sha256": "88b3817c611952ce9455cc83c6d19eb580c247dfdee7a27d8ff96c831c35856e",
+          "bytes": 59845
+        },
+        {
+          "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/root-econml-r6-canonical-two-whole-80f7c18f1295-20261021-r2/actual/origins.json",
+          "sha256": "b01cfd57f1fd789f80f10e73ea9fc13c5e582f1568951b44261e3368bb74493a",
+          "bytes": 885816
+        },
+        {
+          "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/root-econml-r6-canonical-two-whole-80f7c18f1295-20261021-r2/actual/source-before.json",
+          "sha256": "3a228b1187d70a8bff5f1939df21e7606bab259af86a3fe8d9476c9acceacd67",
+          "bytes": 19627064
+        },
+        {
+          "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/root-econml-r6-canonical-two-whole-80f7c18f1295-20261021-r2/actual/source-after.json",
+          "sha256": "3a228b1187d70a8bff5f1939df21e7606bab259af86a3fe8d9476c9acceacd67",
+          "bytes": 19627064
+        }
+      ],
+      "source_unchanged": true,
+      "calls_match_actual_collection": true,
+      "process_group_gone": true,
+      "max_sampled_rss_bytes": 706297856,
+      "wall_seconds": 11.715756541816518,
+      "minimum_sampled_free_disk_bytes": 10963083264
+    },
+    {
+      "name": "cold_real_forest_dr",
+      "target_frame": {
+        "head": "80f7c18f1295e3d2ecbee7625e52cdcbacca97f2",
+        "tree": "a77079ad3fe9569e819a79502c76d0f72e1a3c62",
+        "branch": "codex/e02-unified-local-20261009"
+      },
+      "request": {
+        "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/root-forest-dr-v11-cold-current-80f7c18f1295-20261021-r1/request.json",
+        "sha256": "78416dee873799fc0c31bb8146cf6c9361234f173a11f24894cb08cbae55660d",
+        "bytes": 17635
+      },
+      "command_and_environment": {
+        "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/root-forest-dr-v11-cold-current-80f7c18f1295-20261021-r1/actual/invocation.json",
+        "sha256": "ea752e5de1f450a0774ffc6773e78b581486db743acb3ada97a32ec5695cc6cb",
+        "bytes": 5828
+      },
+      "outcome": "PASS",
+      "junit": {
+        "errors": 0,
+        "failures": 0,
+        "passed": 1,
+        "skipped": 0,
+        "tests": 1
+      },
+      "scope": "One cold pytest child, actual registeredForestDR1.1, 240-row syntheticfixture seed20261021; actualfit/effect/inference/SHAP/typedresult.",
+      "deciding_outputs": [
+        {
+          "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/root-forest-dr-v11-cold-current-80f7c18f1295-20261021-r1/actual/result.json",
+          "sha256": "01518a62c2aeeba7a037e8ea8d745148cd0d2bd3a75a902e477925f0ed0198ed",
+          "bytes": 8124
+        },
+        {
+          "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/root-forest-dr-v11-cold-current-80f7c18f1295-20261021-r1/actual/invocation.json",
+          "sha256": "ea752e5de1f450a0774ffc6773e78b581486db743acb3ada97a32ec5695cc6cb",
+          "bytes": 5828
+        },
+        {
+          "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/root-forest-dr-v11-cold-current-80f7c18f1295-20261021-r1/actual/pytest.stdout.txt",
+          "sha256": "07463403e7535700c28a2c058871de17ff6f5e92e0fdcc7ef99ada3bf4abb952",
+          "bytes": 4369
+        },
+        {
+          "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/root-forest-dr-v11-cold-current-80f7c18f1295-20261021-r1/actual/pytest.stderr.txt",
+          "sha256": "842b65c25f705ee86c3d3e28b20d81bcfa9320eef2f1949272cbcb9bb21547a8",
+          "bytes": 934
+        },
+        {
+          "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/root-forest-dr-v11-cold-current-80f7c18f1295-20261021-r1/actual/pytest.xml",
+          "sha256": "2bf8f8c4b76e6456444a918c80cce339c842088cfa1601bbeba69f06ecc07b8f",
+          "bytes": 498
+        },
+        {
+          "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/root-forest-dr-v11-cold-current-80f7c18f1295-20261021-r1/actual/collection.json",
+          "sha256": "6310314ef9c6844305103d86e945f6684a804282e79a968ccfb18456a4f00188",
+          "bytes": 4949
+        },
+        {
+          "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/root-forest-dr-v11-cold-current-80f7c18f1295-20261021-r1/actual/cases.jsonl",
+          "sha256": "ac5c85dd9c339c14291a8932577847a5f53b8c2594dff0c13630140a4a5c0c83",
+          "bytes": 1265
+        },
+        {
+          "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/root-forest-dr-v11-cold-current-80f7c18f1295-20261021-r1/actual/origins.json",
+          "sha256": "7c47810ec435e4435b09d94b2e99a449f2728de918f59846543f73b6eb9a411b",
+          "bytes": 819835
+        },
+        {
+          "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/root-forest-dr-v11-cold-current-80f7c18f1295-20261021-r1/actual/source-before.json",
+          "sha256": "3a228b1187d70a8bff5f1939df21e7606bab259af86a3fe8d9476c9acceacd67",
+          "bytes": 19627064
+        },
+        {
+          "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/root-forest-dr-v11-cold-current-80f7c18f1295-20261021-r1/actual/source-after.json",
+          "sha256": "3a228b1187d70a8bff5f1939df21e7606bab259af86a3fe8d9476c9acceacd67",
+          "bytes": 19627064
+        },
+        {
+          "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/root-forest-dr-v11-cold-current-80f7c18f1295-20261021-r1/actual/forestdr-witness.json",
+          "sha256": "44aec51d57321f036fa0f9a197a549b191b192b86b30af33c5ff8d9f0315aeee",
+          "bytes": 15929
+        }
+      ],
+      "source_unchanged": true,
+      "calls_match_actual_collection": true,
+      "process_group_gone": true,
+      "max_sampled_rss_bytes": 787333120,
+      "wall_seconds": 29.420704167103395,
+      "minimum_sampled_free_disk_bytes": 10944249856
+    }
+  ],
+  "independent_reviews": [
+    {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/independent-econml-current-actual-reconciliation-20261021-r1/review.json",
+      "sha256": "4d1bfffd91515a00e98e2e8ce5d767673c3c90d1c6b9bb426ca571b1c9ce66af",
+      "bytes": 84897
+    },
+    {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/independent-econml-current-actual-reconciliation-20261021-r1/reconciliation-addendum.json",
+      "sha256": "618f27d29ed19b7bba4a473e0d42a5f534e7d791a4ce22ab4245bfe309de4c9b",
+      "bytes": 12566
+    },
+    {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/independent-econml-r5-delta-review-20261021-r1/independent-review.json",
+      "sha256": "1b6c15260cbda5104db64012e9f44d3ee2bc448c0b309547767adf9f396ef385",
+      "bytes": 8108
+    },
+    {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/independent-econml-r6-vector-completeness-review-20261021-r2/review.json",
+      "sha256": "0b9d333a7401e572a2980621c2de76123dc5618092fd625fd5f41b3ca38f0645",
+      "bytes": 5656
+    }
+  ],
+  "retained_prior_results": [
+    {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/forest-dr-v11-real-cold-witness-20261021-r1/actual-r3/result.json",
+      "sha256": "d92d5fe08d07e33921d006e97a9a3ce3a5e8286288eeeb1d5b9a6f9d16eb4b29",
+      "bytes": 7957
+    },
+    {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/root-econml-adapter-and-forestdr-two-whole-185a0f327199-20261021-r1/actual/result.json",
+      "sha256": "64b0a331803837da8df8988e9cecadf3f132ff9da00c15c9819f516e43c99ca3",
+      "bytes": 8532
+    },
+    {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/root-econml-r5-adapter-and-forestdr-two-whole-10fdd017ca26-20261021-r1/actual/result.json",
+      "sha256": "8bbe5be665602c6d594afe34de680380913687a1c854525d55d7d2202e09ab0a",
+      "bytes": 8574
+    },
+    {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/root-hte-scm-post-econml-r3-r4r2-whole-185a0f327199-r1/actual/result.json",
+      "sha256": "a679fcf4f133f0c99ffce13552cf6209f92a850ae3e21351e0547cedc23a8386",
+      "bytes": 11986
+    },
+    {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/root-hte-scm-eighteen-current-80f7c18f1295-20261021-r1/actual/result.json",
+      "sha256": "e49c61a67827d85e55ba32e0214056f9e8a3afde695b30093814170396356532",
+      "bytes": 12076
+    }
+  ],
+  "predicate_basis": "independently_reconciled",
+  "capability_state_or_finding_state": "verification_missing for full E02 consumer chain; physical producer/adapter slice limited",
+  "limitations_and_next_owner": [
+    "No G acceptance or formalfinding adjudication; closure_ids empty; historicalclosures includingB198 unchanged.",
+    "Legacyfixed1.96 fallback and CATEvarianceguard/widening remain scientificallyunqualified; G HTEoutcome choice pending.",
+    "Three bounded PASS receipts target10fdd/80f7exactstates, not laterCore/DS17/currentglobaltree. No P41inheritedgreen claim.",
+    "Prior full18 SIGBUS remainedunexplained; current80f7full18 completed298=295PASS3FAIL, noSIGBUSthisrun. OneMacDoWhywrongprofile and2stalecausalqueryfixturefailures are separate openwork.",
+    "Constructor/import/marker/no-call-only checks are not promoted; recordedactualfit and outputbehavior are bounded syntheticwitnesses.",
+    "NativeallSOTA/archivewheel/sdist/generatedconsumers/global282ID291occurrencecloseout remain separateUNRUN/openqueue."
+  ],
+  "evidence_availability": {
+    "kind": "Same-Mac local ignoredRAW retained at cited relativepaths under owncandidatecheckout; SHAandfulloutputrefs verified",
+    "remote_raw_delivery": "RAW not tracked and not promisedavailablefromGit alone; G must read local citedbytes or rerunexactrequest/profile; ifunavailable evidencenot_established."
+  },
+  "pattern_pass": [
+    "P01",
+    "P02",
+    "P05",
+    "P10",
+    "P29",
+    "P32",
+    "P35",
+    "P37",
+    "P38",
+    "P40",
+    "P41"
+  ],
+  "source_input_backend_global_freeze": false,
+  "task_scope_proposals": [
+    {
+      "task_id": "V4",
+      "outcome": "limited",
+      "evidence_boundary": "Synthetic backend/source/runtime witness only; no empirical target-policy workload or predictive-calibration closure.",
+      "next_check": "Compose actual empirical consumer with admitted source/profile and falsifying/reissue controls under original occurrences.",
+      "formal_finding_closure": false
+    },
+    {
+      "task_id": "V7",
+      "outcome": "limited",
+      "evidence_boundary": "Same physical witness; method names, native fit, finiteintervals and n_jobs=1 do not establish calibration/causal/publication authority.",
+      "next_check": "Run original authentic consumer criterion after composedfreeze; retain external input gaps explicitly.",
+      "formal_finding_closure": false
+    }
+  ],
+  "proposal_denominator_note": "Only B31 is an originalfinding proposal in this slice. V4/V7 are task routes, kept separately and never counted as findings/closures or substitutes for peroccurrence291report.",
+  "root_postimage_correction": {
+    "prior_path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/root-econml-source-and-runtime-handoff-postimage-20261021-r2/econml-shared-adapter-and-serial-forestdr-source-runtime-20261021.json",
+    "prior_sha256": "e9395659aa9c6a4c05f46b6673905c2edb43d438127897e0ac1443bbdac845a2",
+    "change": "Apply exact independently requested B31 source-coordinate criterion correction; keep separate HTE technical proposal, historicactuals unchanged.",
+    "independent_review": {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/independent-econml-tracked-handoff-review-20261021-r1/review.json",
+      "sha256": "ad084071591b846079cdd3a19f30266b24d18ffab2dcd494736cd6d78c768f5a"
+    }
+  },
+  "technical_proposals": [
+    {
+      "key": "HTE-population-ATE-inference-basis",
+      "status": "G_choice_pending",
+      "not_a_formal_finding_id": true,
+      "packet": {
+        "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/decisions/g-choice-hte-ate-inference-unavailable-20261021.md",
+        "sha256": "f9a2aaf523b3300498821e3ba8cedc8611f288baef23ab9e64467ec8826dbf6c"
+      },
+      "boundary": "Versioned point/inference-limited/basis contract is separate from original B31 source-owned coordinate and uncertainty separation criterion."
+    }
+  ],
+  "source_criterion_inputs": [
+    {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/decisions/b31-s3-owner-coordinate-current-packet-v1-20261011.md",
+      "sha256": "938c36d42a0401f79bb40040a34b79a5772055db476f814349fab717733dc54d"
+    }
+  ]
+}

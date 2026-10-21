@@ -1,0 +1,210 @@
+{
+  "schema": "policyos.e02.implementation_handoff.v1",
+  "unit": "LOCAL",
+  "slice": "ad04-foundry-physical-hte-source-binding-r4-20261021",
+  "branch": "codex/e02-unified-local-20261009",
+  "slice_base_sha": "12daa0c8ac9c1d037b91656ca07714ccb40eed76",
+  "application_base_sha": "9743742e164c57503f4c8c68f308bc4f29973661",
+  "implementation_commits": [
+    "e43f424cd038a01043f1e480c8a31322d7969ffa"
+  ],
+  "candidate_sha": "e43f424cd038a01043f1e480c8a31322d7969ffa",
+  "candidate_tree_sha": "2be122eed43857eb693c7a3788636a3ef4349037",
+  "candidate_parents": [
+    "9743742e164c57503f4c8c68f308bc4f29973661"
+  ],
+  "G_acceptance": false,
+  "closure_ids": [],
+  "pull_request": null,
+  "bundle_ids": [
+    "AD04",
+    "R1"
+  ],
+  "changed_paths": [
+    "policy-engine/docs/release-fragments/unreleased/2026-10-21-e02-hte-physical-source-binding.toml",
+    "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/LEASES.json",
+    "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/candidate-component-delivery-index-20261015.json",
+    "policy-engine/src/polisyos/foundry/README.md",
+    "policy-engine/src/polisyos/foundry/data_plane/__init__.py",
+    "policy-engine/src/polisyos/foundry/data_plane/bindings.py",
+    "policy-engine/tests/unit/foundry/data_plane/test_hte_observational_input.py"
+  ],
+  "mechanism_and_mandatory_companions": [
+    {
+      "path": "policy-engine/src/polisyos/foundry/data_plane/bindings.py",
+      "base_sha256": "4f4a2766b5eb06d7f9241be6e2279a33c7c45b83aedf02434f2e16e7a48f005c",
+      "sha256": "e989120d12b8ea31e45a0fd7fa8d31b300e1f395c40ffde04f53b30a4d050f27",
+      "mode": "100644"
+    },
+    {
+      "path": "policy-engine/src/polisyos/foundry/data_plane/__init__.py",
+      "base_sha256": "a8600aca8bfe1b6e3a2a4281fb84e888965cdcb04d95bdbc68592692718aee39",
+      "sha256": "f227b3537dab6e81f9064d9e7466fc21b083ea99442a8a1b7ae0a556c7fa359a",
+      "mode": "100644"
+    },
+    {
+      "path": "policy-engine/src/polisyos/foundry/README.md",
+      "base_sha256": "a3ff00ae09401db36cd5a97bcd94730ec316a190c99d305dc2a51f000893d9ee",
+      "sha256": "50d090892c030235fdc6d80e867265929bacc5fadc1c4f15e80de486a0f3f517",
+      "mode": "100644"
+    },
+    {
+      "path": "policy-engine/tests/unit/foundry/data_plane/test_hte_observational_input.py",
+      "base_sha256": "5652d3bdca765049fdf9f0886966d1ffc4024006ea8bbbd19d239ab25c305255",
+      "sha256": "1cfe00070ce263ff84a604245a970cab337110f018a856e46bae1f8379c7cf73",
+      "mode": "100644"
+    },
+    {
+      "path": "policy-engine/docs/release-fragments/unreleased/2026-10-21-e02-hte-physical-source-binding.toml",
+      "base_sha256": null,
+      "sha256": "1682e14afd3ba5e1b5c6b1bd19b1d193dc0fcc372811a33728a52a305b413621",
+      "mode": "100644"
+    }
+  ],
+  "source_provenance": {
+    "preserved_early_application": {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/root-owned-materializer-canonical-application-preservation-20261021-r1/preservation.json",
+      "sha256": "60ca736800090dd08235c3c4e4d2c4ac4b3ccb1bab87b86107f9ae3a0168a607"
+    },
+    "clarification": "The same materializer actor earlier accidentally wrote canonical4a7 in four calls; root established ownership and preserved complete bytes/diff. R3-specific RAW-only claims apply to the successor work only, never erase that earlier actor provenance.",
+    "R3_proposal": {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/hte-materializer-source-binding-20261021-r3-format-review/materializer-source-binding-proposal.json",
+      "sha256": "cbe03f0654655da5ecd23470ea3713b91334addfda95bf1af5f35bc7f2f848d7"
+    },
+    "root_R4_canonical_context_successor": {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/root-hte-materializer-canonical-context-r4-20261021-r1/source-manifest.json",
+      "sha256": "f3a0aafc52dbd5aa3cba7ad5d59e7322d79498822c430944820b1e21c655e205"
+    },
+    "readback": {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/root-hte-physical-source-binding-r4-owned-adoption-20261021-r2/implementation-readback.json",
+      "sha256": "b219f807fc4deb015a30ffd87a8ee34d10837d65c5b0b7b69dfec0ee4eb10de2"
+    },
+    "base_paths_equal_12daa_to_974": "Four tracked source paths unchanged; release fragment newly created. Root application retains prior owned4a7bytes/diff through the preservation receipt and ordinary append-only commit."
+  },
+  "selected_profile_and_input": {
+    "producer": "prepare_hte_observational_input(..., materialization_binding_version=\"physical_v1\")",
+    "consumer": "load_hte_physical_source_materialization_binding(..., expected_submitted_ref, expected_effective_ref, limits, expected_data=prepared.data)",
+    "artifact": {
+      "kind": "foundry.hte.physical_source_materialization_binding",
+      "schema": "polisyos.foundry.HTEPhysicalSourceMaterializationBinding",
+      "schema_version": "1.0",
+      "media_type": "application/json",
+      "selected_manifest_profile": "Required independently for source, effective input and binding; no profileless fallback."
+    },
+    "backend": "Actual Core FileSystemCAS and bounded profiled reader, existing contributor Python3.14 venv; portable synthetic HTEDTOs, no ML fitting/download/production data.",
+    "request": {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/root-hte-materializer-canonical-context-r4-20261021-r1/runtime-request.json",
+      "sha256": "714539c0da735d235ba4cd2d08f9ddb47da84eaec746499099aef335965ed675"
+    }
+  },
+  "property": {
+    "statement": "Opt-in owner materializer persists exact profiled source/effective array bindings; fresh bounded reader replays normalization, rematerializes all physical fields and compares whole model/worker arrays. Default callers unchanged. Physical provenance never proves semantic variable/query/unit or causal authority.",
+    "real_chain": [
+      "Selected source payload and immutable manifest profile are read through Core bounded reader.",
+      "Actual HTE DTO/contract materialization and legacy normalization produce selected effective input.",
+      "Opt-in producer persists physical binding and exact source/effective lineage under fixed kind/media/schema.",
+      "Fresh reader resolves selected refs, replays normalization, rematerializes slots/shape/dtype/value/row order, compares complete typed model and optional worker DTO.",
+      "Public data_plane facade and Foundry README/release fragment expose additive physical-only candidate provenance."
+    ],
+    "proxy_divergence": "A forged normalized envelope can retain a correct Core profile and legacy source edge while changing outcome arrays. The public reader re-normalizes the original selected raw source and refuses the mismatch instead of trusting the label/edge.",
+    "negative_controls": [
+      "Validly re-persisted changed dtype, row-order digest and effective-payload digest refuse.",
+      "Swapped columns/rows, wrong worker DTO, forged field map, bool-as-int and foreign selected profile refuse.",
+      "Registry removal breaks real producer despite unchanged marker strings.",
+      "Actual reader/writer byte/depth/element guards; refused binding write leaves CAS IDs unchanged.",
+      "Legacy/default call emits no extra binding artifact."
+    ]
+  },
+  "checks": [
+    {
+      "command": "Source-bound full module via exact pinned run_bounded.py/runner and request (full argv/cwd/environment/limits retained)",
+      "target_sha": "e43f424cd038a01043f1e480c8a31322d7969ffa",
+      "source_overlay_base_sha": "9743742e164c57503f4c8c68f308bc4f29973661",
+      "outcome": "PASS",
+      "counts": {
+        "passed": 57,
+        "failed": 0,
+        "errors": 0,
+        "skipped": 0,
+        "warnings": 1
+      },
+      "output": {
+        "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/root-hte-materializer-canonical-context-r4-20261021-r1/runtime-result.json",
+        "sha256": "b60dfa5376dbcb5c26b7213fb122103dd2234a0de4bae9b0cf8db5c19195d0dc"
+      },
+      "stdout": {
+        "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/root-hte-materializer-canonical-context-r4-20261021-r1/outputs/pytest.stdout",
+        "sha256": "b90209bb2294fa6ee270a3206a01c62af549984b4878b88fe62e9f5b89406e10"
+      },
+      "stderr": {
+        "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/root-hte-materializer-canonical-context-r4-20261021-r1/outputs/pytest.stderr",
+        "sha256": "24f86bd0c5d0fec46d369bc0e82cf3558bb70de5c8b41dc820aa32b2a66dc651"
+      },
+      "wall_seconds": 13.085310500115156,
+      "maximum_sampled_process_tree_rss_bytes": 674463744,
+      "minimum_sampled_disk_free_bytes": 5328408576,
+      "group_reaped": true,
+      "interpretation": "Tests ran against exact postimages before commit; all five postimages were re-read from candidate branch after the ordinary commit. This is module-scoped byte-bound verification, not a canonical full Runtime/Search replay."
+    },
+    {
+      "command": "Canonical logical-path Ruff check/full format before application, after application, native commit hooks and branch blob readback",
+      "target_sha": "e43f424cd038a01043f1e480c8a31322d7969ffa",
+      "outcome": "PASS",
+      "output": {
+        "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/root-hte-physical-source-binding-r4-owned-adoption-20261021-r2/source-application.json",
+        "sha256": "163e4b4c67b76e72397a4c7fdaf7b8614fd296d48ff1b7c2a62821c43b1efa4a"
+      },
+      "native_commit_stdout": {
+        "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/root-hte-physical-source-binding-r4-owned-adoption-20261021-r2/native-commit.stdout",
+        "sha256": "fc8edec10612024d713451796a5cd3c40636ecd6d11805123d4324abd5944e13"
+      },
+      "native_commit_stderr": {
+        "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/root-hte-physical-source-binding-r4-owned-adoption-20261021-r2/native-commit.stderr",
+        "sha256": "5e7020d0ec03709a0c2be6a26e4607f47d4fff2ec2fb446b243c617c6bcf1368"
+      },
+      "readback": {
+        "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/root-hte-physical-source-binding-r4-owned-adoption-20261021-r2/implementation-readback.json",
+        "sha256": "b219f807fc4deb015a30ffd87a8ee34d10837d65c5b0b7b69dfec0ee4eb10de2"
+      }
+    },
+    {
+      "command": "Independent R3 full property review and R4 mechanical delta/actual-native-output review",
+      "outcome": "GO_LIMITED_SOURCE_AND_MODULE_OVERLAY",
+      "R3": {
+        "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/independent-hte-materializer-r3-delta-review-20261021-r1/independent-review.json",
+        "sha256": "037bc499c653f3a8be75d9ffa004af5ef525886e82d98ee1647a7425cf6b361b"
+      },
+      "R4": {
+        "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/independent-hte-materializer-r4-native-context-review-20261021-r1/independent-review.json",
+        "sha256": "b1bc68b9f04a326fe2c88f3876741da8cba609a3e5232b4b9c1db40e0c1b881f"
+      }
+    }
+  ],
+  "predicate_basis": "recomputed",
+  "predicate_scope": "Physical materialization only; independent code/evidence review is author-side verification, not G acceptance.",
+  "P40": {
+    "bucket": "All persistedphysical content discrepancy cases handled by owner-source recomputation and whole-model equality. Native tests cover counterfeit normalization, swapped arrays/rows/profiles/workerDTO/bool/fields/dtypes and writer/read limits.",
+    "different_class": "Semantic VariableRef/query/UnitRef/causal/custody mapping remains missing external/owner evidence; no name-derived promotion.",
+    "native_context": "R3 RAW filename-based lint/format green did not survive canonical stdin context; old preflight failed before source application. Generic canonical logical paths used on all3Pythonfiles, ASTnormalized exact and fresh57 replay, independently reviewed; no field-specific gating exemption."
+  },
+  "P41": "No inherited-red claim; native R3 RAW-path check did not establish canonical-context formatting. Its failed preflight was retained and repaired generically before source application.",
+  "capability_state_or_finding_state": "Physical producer\u2192CAS\u2192fresh Foundry reader is witnessed; broader HTE remains bridge_missing/consumer_missing/verification_missing at composed Runtime/Anchor/IR/Search and generated/installed surfaces.",
+  "proposal_tasks": [
+    {
+      "task": "AD04 physical source companion / R1",
+      "outcome": "limited",
+      "formal_closure": false,
+      "boundary": "Exact source/payload/profile/array provenance only.",
+      "next_check": "Select this genuine owner ref before output, persist through Anchor/HTE result/evidence/Runtime GET and Search consumer, then composed profile/input freeze and whole producer-to-consumer replay."
+    }
+  ],
+  "limitations_and_next_owner": [
+    "Semantic VariableRef/query/contrast/unit/population/causal identity, legal/issuer/permission/custody/currentness and publication authority remain not_established.",
+    "Runtime/Anchor/HTE/Search companions are separate pending candidate source; no constructor-only status implies admission.",
+    "Public surface inventory regeneration, schema/client companions where applicable, installed wheel/rebuilt-sdist consumers, full native gates and final per-ID/occurrence verification remain UNRUN.",
+    "No production data or manifests were rewritten; real local serving/currentness/protected positive claims require their own authentic input receipts.",
+    "Full deciding outputs remain locally available as ignored RAW path@sha; a recipient lacking them must record not_established and rerun the exact pinned request.",
+    "G retains code acceptance, integration publication and formal closure adjudication."
+  ],
+  "receipt_commit": "Intentionally unspecified; no future receipt SHA is predicted."
+}

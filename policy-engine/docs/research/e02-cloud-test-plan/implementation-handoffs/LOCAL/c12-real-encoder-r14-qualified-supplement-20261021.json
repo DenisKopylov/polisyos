@@ -1,0 +1,277 @@
+{
+  "schema": "policyos.e02.implementation_handoff.v1",
+  "unit": "LOCAL",
+  "slice": "c12-r14-real-encoder-qualified-supplement-20261021",
+  "status": "limited_author_proposal_at_pinned_execution_source",
+  "G_acceptance": false,
+  "closure_ids": [],
+  "bundle_ids": [
+    "I4",
+    "C12"
+  ],
+  "slice_base_sha": "567c38cc98f74a5cea7c814dc5099d250d38f072",
+  "implementation_commits": [],
+  "candidate_sha": "567c38cc98f74a5cea7c814dc5099d250d38f072",
+  "candidate_tree_sha": "ad35ca6dab45d8015b21a53b44fdf1fde080a54c",
+  "candidate_parents": [
+    "edf9da9dac3c663f6c5b5cd6418dce281390221a"
+  ],
+  "branch": "codex/e02-unified-local-20261009",
+  "pull_request": null,
+  "changed_paths": [],
+  "footprint": {
+    "kind": "evidence-only supplemental handoff; no new implementation bytes",
+    "source_code_test_config_companions": {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/root-c12-emb03-r14-current-567c38cc-20261021-r1-actual/source-before.json",
+      "sha256": "a277fc7c65b1208587fa7d19376d86c80683700e5f6c15f18317df4e34dae98f"
+    },
+    "source_after": {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/root-c12-emb03-r14-current-567c38cc-20261021-r1-actual/source-after.json",
+      "sha256": "a277fc7c65b1208587fa7d19376d86c80683700e5f6c15f18317df4e34dae98f"
+    },
+    "full_source_before_after_equal": true,
+    "selected_test": "tests/unit/remediation/test_emb_03.py",
+    "selected_test_sha256": "144ae0231de46912b1ff717e04598263a5e5115b4be70eefcf9a35a8feb2ab8a"
+  },
+  "source_identity_rule": "The product execution and every source-bound result here remain at 567c38. Later B61/runtime/authz/materializer changes are not replayed, accepted or requalified as current source by this receipt.",
+  "profile_and_inputs": {
+    "request": {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/root-c12-emb03-r14-current-567c38cc-20261021-r1-launch/request.json",
+      "sha256": "5af5d7b53c378042254889a550a215a6badaf9ba4c3b2db2ac76c6806607c105"
+    },
+    "freeze": {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/root-c12-emb03-r14-current-567c38cc-20261021-r1-launch/source-profile-input-freeze.json",
+      "sha256": "5f52dbbf98e40a6a3602167199db49ccea99de6ba030bcba80946b4247e87ec4"
+    },
+    "backend": "Existing offline SentenceTransformers 2.7.0, cached intfloat/multilingual-e5-large, native HNSW; no model/source copies, package install or download.",
+    "model": {
+      "asset_manifest_is_authority_for_member_names_and_hashes": true,
+      "device": "cpu",
+      "dimension": 1024,
+      "id": "intfloat/multilingual-e5-large",
+      "named_asset_input_paths": [
+        "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/c12-real-encoder-profile/hf-cache/models--intfloat--multilingual-e5-large/snapshots/3d7cfbdacd47fdda877c5cd8a79fbcc4f2a574f3/1_Pooling/config.json",
+        "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/c12-real-encoder-profile/hf-cache/models--intfloat--multilingual-e5-large/snapshots/3d7cfbdacd47fdda877c5cd8a79fbcc4f2a574f3/config.json",
+        "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/c12-real-encoder-profile/hf-cache/models--intfloat--multilingual-e5-large/snapshots/3d7cfbdacd47fdda877c5cd8a79fbcc4f2a574f3/model.safetensors",
+        "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/c12-real-encoder-profile/hf-cache/models--intfloat--multilingual-e5-large/snapshots/3d7cfbdacd47fdda877c5cd8a79fbcc4f2a574f3/modules.json",
+        "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/c12-real-encoder-profile/hf-cache/models--intfloat--multilingual-e5-large/snapshots/3d7cfbdacd47fdda877c5cd8a79fbcc4f2a574f3/sentence_bert_config.json",
+        "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/c12-real-encoder-profile/hf-cache/models--intfloat--multilingual-e5-large/snapshots/3d7cfbdacd47fdda877c5cd8a79fbcc4f2a574f3/sentencepiece.bpe.model",
+        "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/c12-real-encoder-profile/hf-cache/models--intfloat--multilingual-e5-large/snapshots/3d7cfbdacd47fdda877c5cd8a79fbcc4f2a574f3/special_tokens_map.json",
+        "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/c12-real-encoder-profile/hf-cache/models--intfloat--multilingual-e5-large/snapshots/3d7cfbdacd47fdda877c5cd8a79fbcc4f2a574f3/tokenizer.json",
+        "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/c12-real-encoder-profile/hf-cache/models--intfloat--multilingual-e5-large/snapshots/3d7cfbdacd47fdda877c5cd8a79fbcc4f2a574f3/tokenizer_config.json"
+      ],
+      "revision": "3d7cfbdacd47fdda877c5cd8a79fbcc4f2a574f3",
+      "snapshot_root": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/c12-real-encoder-profile/hf-cache/models--intfloat--multilingual-e5-large/snapshots/3d7cfbdacd47fdda877c5cd8a79fbcc4f2a574f3"
+    },
+    "input_identity": "All selected input identities and roles are in the pinned request; original launch preflight and saved-capture recomputation recheck them. No production census.",
+    "limits": {
+      "aggregate_rss_cap_bytes": 5905580032,
+      "disk_floor_bytes": 4294967296,
+      "numeric_threads": 1,
+      "rss_cap_bytes": 5368709120,
+      "sample_seconds": 0.5,
+      "wall_seconds": 1800
+    },
+    "nonselected_backends": "Linux/other backend rows are separate UNRUN checks, not suite SKIPs."
+  },
+  "checks": [
+    {
+      "command": [
+        "/usr/bin/sandbox-exec",
+        "-f",
+        "/Users/deniskopylov/.codex/worktrees/e02-unified-local-20261009/polisyos/policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/root-c12-emb03-r14-current-567c38cc-20261021-r1-actual/sandbox.sb",
+        "/Users/deniskopylov/.codex/worktrees/e02-unified-local-20261009/polisyos/policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/c12-real-encoder-profile/venv/bin/python",
+        "-B",
+        "/Users/deniskopylov/.codex/worktrees/e02-unified-local-20261009/polisyos/policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/r1729-c12-real-cached-model-locked-profile-root-20261014/pytest_bootstrap.py",
+        "-p",
+        "e02_i4_case_report_capture_r1",
+        "-p",
+        "e02_wave_capture_r11_candidate",
+        "-vv",
+        "--tb=long",
+        "-o",
+        "faulthandler_timeout=10",
+        "--basetemp",
+        "/Users/deniskopylov/.codex/visualizations/2026/10/09/01a11f94-9b02-7943-a9a2-6c78929b5199/e02-test-state/root-c12-emb03-r14-current-567c38cc-20261021-r1/pytest-temp",
+        "-o",
+        "cache_dir=/Users/deniskopylov/.codex/visualizations/2026/10/09/01a11f94-9b02-7943-a9a2-6c78929b5199/e02-test-state/root-c12-emb03-r14-current-567c38cc-20261021-r1/cache",
+        "-o",
+        "log_file=/Users/deniskopylov/.codex/visualizations/2026/10/09/01a11f94-9b02-7943-a9a2-6c78929b5199/e02-test-state/root-c12-emb03-r14-current-567c38cc-20261021-r1/pytest.log",
+        "-o",
+        "tmp_path_retention_policy=all",
+        "--benchmark-storage=file:///Users/deniskopylov/.codex/visualizations/2026/10/09/01a11f94-9b02-7943-a9a2-6c78929b5199/e02-test-state/root-c12-emb03-r14-current-567c38cc-20261021-r1/bench",
+        "--junitxml",
+        "/Users/deniskopylov/.codex/worktrees/e02-unified-local-20261009/polisyos/policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/root-c12-emb03-r14-current-567c38cc-20261021-r1-actual/pytest.xml",
+        "tests/unit/remediation/test_emb_03.py"
+      ],
+      "cwd": "/Users/deniskopylov/.codex/worktrees/e02-unified-local-20261009/polisyos/policy-engine",
+      "target_sha": "567c38cc98f74a5cea7c814dc5099d250d38f072",
+      "environment": "Pinned request, native pytest config/default plugin selection and existing offline encoder profile",
+      "outcome": "PASS_PRODUCT_EXECUTION",
+      "output": {
+        "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/root-c12-emb03-r14-current-567c38cc-20261021-r1-actual/result.json",
+        "sha256": "eae15cce35899826b79d66ea2b15df679f3971baf9388cc3e92def682ea397c4"
+      },
+      "counts": {
+        "cases": 28,
+        "errors": 0,
+        "failed": 0,
+        "passed": 28,
+        "skipped": 0
+      },
+      "case_report_count": 84,
+      "collection_and_calls_equal": true,
+      "junit_and_phase_reports_equal": true,
+      "source_unchanged": true,
+      "process_group_reaped": true,
+      "wall_seconds": 389.751665791031,
+      "resource_monitor": {
+        "aggregate_cap_observed": true,
+        "child_cap_observed": true,
+        "child_process_group_rss_cap_bytes": 5368709120,
+        "controller_pid": 61211,
+        "controller_plus_child_aggregate_rss_cap_bytes": 5905580032,
+        "detailed_process_rows_owner": "existing A94 run_command; receives the controller+child process union from the wrapped sample callback",
+        "detailed_process_rows_path": "process-tree.jsonl",
+        "maximum_sampled_child_process_group_rss_bytes": 3994370048,
+        "maximum_sampled_controller_plus_child_aggregate_rss_bytes": 4013178880,
+        "maximum_sampled_controller_rss_bytes": 83935232,
+        "no_extra_monitor_process_or_thread": true,
+        "sample_count": 712,
+        "sample_processes_are_recorded": true,
+        "samples_path": "aggregate-resource-samples.jsonl",
+        "sampling_method": "A94 child descendant/process-group sample plus a same-interval ps RSS sample of the owning controller PID; PID rows unioned without duplication",
+        "schema": "policyos.e02.controller_plus_child_rss_monitor.v1"
+      },
+      "minimum_sampled_disk_free_bytes": 4434333696,
+      "original_qualification": "Immutable original result remains complete_but_unqualified with sole interpreter target alias error."
+    },
+    {
+      "command": [
+        "python3",
+        "-B",
+        "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/root-c12-r14-saved-capture-requalification-20261021-r1/requalify.py"
+      ],
+      "target_sha": "567c38cc98f74a5cea7c814dc5099d250d38f072",
+      "environment": "Saved exact R14 capture; no product or model rerun",
+      "outcome": "PASS_SUPPLEMENTAL_ORIGIN_REQUALIFICATION",
+      "output": {
+        "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/root-c12-r14-saved-capture-requalification-20261021-r1/result.json",
+        "sha256": "35fe703557d8f599c4a52a4de96003fa77de882b92cdfa12fc5df22c3b7c84f2"
+      },
+      "original_guard_exactly_reproduced": true,
+      "qualified_module_count": 29,
+      "captured_module_count": 29,
+      "errors": [],
+      "full_repaired_output": {
+        "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/root-c12-r14-saved-capture-requalification-20261021-r1/repaired-full-origin-qualification.json",
+        "sha256": "cb1ed0d1ffd164077d6ebf3f2ad06ebaaeaffb5f61a1ddecf352e62f50e28f54"
+      },
+      "original_output": {
+        "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/root-c12-r14-saved-capture-requalification-20261021-r1/original-qualification-recomputed.json",
+        "sha256": "be2845a9ee6c5ae10267e52fd2ad6cf590cf373d4c1af7968f0631627f97da91"
+      },
+      "product_or_model_rerun": false
+    },
+    {
+      "command": "Independent complete old/new guard recomputation and separate 10 alias plus 28 retained origin controls; exact commands/full outputs in pinned review packets",
+      "target_sha": "567c38cc98f74a5cea7c814dc5099d250d38f072",
+      "outcome": "PASS_INDEPENDENT_SUPPLEMENTAL_REVIEW",
+      "output": {
+        "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/independent-c12-r14-saved-capture-requalification-review-20261021-r1/independent-review.json",
+        "sha256": "783826ac7ebc12b33545df8c680ff40a5ff350447faa801e5030436316864814"
+      },
+      "control_review": {
+        "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/independent-c12-r12-control-replay-20261021-r2/independent-review.json",
+        "sha256": "6f16c1aa288f17a17a4afd60c4576431bf0591240dfc12b2de8e98b4a162c260"
+      }
+    }
+  ],
+  "property": {
+    "statement": "The controlled selected real encoder produces a persisted Legal generation; fresh immutable intent and material checks admit genuine vector search and refuse drift before a query vector reaches the reader. The saved runtime origins are separately reconciled against the selected interpreter/profile/source bytes.",
+    "runtime_path": [
+      "Actual LegalGraph/LegalQueryEncoderProvider producer with cached native encoder; selected generation embeds nine local candidate facts including distractors.",
+      "Persisted current generation/member receipts and encoder/runtime-material bindings.",
+      "Fresh GET /api/v1/control/lex/search-profile creates selected immutable request intent.",
+      "POST /api/v1/control/lex/search returns vector result fact-1 with trust_tier search_candidate; exactly one native KNN call on the selected path.",
+      "Fresh Graph entities/facts/provisions readers each execute their real vector query."
+    ],
+    "surface": "Controlled local Runtime HTTP and fresh graph readers; security middleware is disabled by this bounded test fixture, so this is not T1/T2 protected authority or a live-production witness.",
+    "proxy_divergence": "Equal dimension, a callable label, current generation selector or unchanged asset filename can coexist with changed runtime model bytes/callable/projected members. Tests mutate actual model parameters between producer chunks, before encode and during encode, and swap callables while retaining labels/assets. Typed refusal/fallback occurs before reuse/query, and no unpublished generation is promoted.",
+    "negative_controls": "Full exact nodeid outcomes and phase reports are retained in cases.jsonl/collection.json, not duplicated as a derived declaration list. Includes malformed/missing/mixed intent, member/projection/encoder drift, callable swaps and real parameter mutation."
+  },
+  "predicate_basis": "independently_reconciled",
+  "capability_state_or_finding_state": "Limited candidate-serving witness and supplemental profile verification at exact execution source; original whole-property/legal authority criteria remain unadjudicated.",
+  "P40": {
+    "classification": "SAME_CLASS_ONE_LEVEL_DEEPER",
+    "property": "Declared lexical venv symlink target and resolved selected executable are two distinct identities.",
+    "repair": "Generic strict alias-chain resolution plus independent literal readlink equality, preserving executable bytes/pyvenv-home/owner-module/RECORD checks. No module or path whitelist.",
+    "bounded_residual": "Current loader/source reconciliation does not prove historical executed-code custody after post-import replacement of loader attributes. The demonstrated R11 falsifier remains; smallest missing capability is import-time execution provenance instrumentation. No further metadata-only patch is claimed to close it."
+  },
+  "P41": "No inherited-red claim. Original unqualified R14 bytes and older R9 failures remain unchanged; the additional independently reviewed guard qualifies only the saved R14 capture at its original source.",
+  "proposal_tasks": [
+    {
+      "task": "I4/C12",
+      "outcome": "limited",
+      "formal_closure": false,
+      "criterion_boundary": "Real selected encoder producer, persisted generation and fresh GET→POST/search consumers are witnessed; source/legal relation, live production custody/currentness, protected auth and historical executed-code custody are not established.",
+      "next_check": "After the complete composed source/input/backend freeze, replay affected consumers and installed/generated surfaces at that exact candidate; G assesses every original linked ID/occurrence separately."
+    }
+  ],
+  "limitations_and_next_owner": [
+    "G retains code acceptance, integration publication and formal finding adjudication; no original ID is closed by this handoff.",
+    "Passing candidate vector search does not establish legal source relation, issuer permissions, currentness, population/causal claims, or T1/T2 protected positive.",
+    "Twenty-nine selected runtime owners and 1768 loaded product/tool origins were reconciled, not all third-party imports or pre-capture startup execution.",
+    "Saved-capture requalification is not a new product execution and does not rewrite the original raw actual qualification result.",
+    "Sampled RSS/disk caps are monitored bounds, not OS quotas or BLAS-thread proof. Exact limits and full samples are retained.",
+    "Deciding RAW bytes remain locally available at path@sha. A receiver without those bytes must record evidence not_established and rerun the exact frozen request; this summary alone is insufficient.",
+    "Full 282-finding/291-occurrence proposal reconciliation, skipped/UNRUN backend accounting, native gates and installed wheel/rebuilt-sdist verification remain in the global queue."
+  ],
+  "evidence": [
+    {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/root-c12-emb03-r14-current-567c38cc-20261021-r1-actual/pytest.stdout.txt",
+      "sha256": "7ca03a445c4fc3b8d40d2115268771a0b0b6683ab64db11dfa7ee5783f78a16c"
+    },
+    {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/root-c12-emb03-r14-current-567c38cc-20261021-r1-actual/pytest.stderr.txt",
+      "sha256": "07fef25f2bdd1f27a9373ec5913862d98a794eafda8c209399bb57c6cb6168e2"
+    },
+    {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/root-c12-emb03-r14-current-567c38cc-20261021-r1-actual/pytest.xml",
+      "sha256": "39b350cf1d6aa479144dfbc1cf81af4751160c4746c092d4383757d4ed9f85d0"
+    },
+    {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/root-c12-emb03-r14-current-567c38cc-20261021-r1-actual/cases.jsonl",
+      "sha256": "c3f8bee0d4d2e242ca7a3a10b3464cacc5134dd794511f2f420d921fe4e28714"
+    },
+    {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/root-c12-emb03-r14-current-567c38cc-20261021-r1-actual/collection.json",
+      "sha256": "8393de1668593a4425fba46eaf4ed06a7cdc56069f06cf3298250c9764139c26"
+    },
+    {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/root-c12-emb03-r14-current-567c38cc-20261021-r1-actual/origins.json",
+      "sha256": "414218c1ee21e02c4968e9565393d60f9883eedf2a2ceffd1f50318f2e188416"
+    },
+    {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/root-c12-emb03-r14-current-567c38cc-20261021-r1-actual/aggregate-resource-samples.jsonl",
+      "sha256": "2962655d5b6f9e4308ca52aca60ca9b0e0c315fe7e7b8d64678c6f81ba4a5a43"
+    },
+    {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/root-c12-emb03-r14-current-567c38cc-20261021-r1-actual/process-tree.jsonl",
+      "sha256": "b51542ce822724a79fb71e00958a5667da60ed8b68cd6e7b926bb71f5d822945"
+    },
+    {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/root-c12-r14-alias-chain-qualification-repair-20261021-r1/manifest.json",
+      "sha256": "bc9b63e6bfdc2bc932069a422f942b446d89962b7b0b051a9f84bf3e9b183d6e"
+    },
+    {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/root-c12-r14-alias-chain-qualification-repair-20261021-r1/r12_guards.py",
+      "sha256": "22d88a06c488de366cbfee6c5eea435e833b91f98a112b5a1be37b29a06409f1"
+    },
+    {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/root-c12-r14-alias-chain-qualification-repair-20261021-r1/alias-controls-result.json",
+      "sha256": "94169a824ece527c6f64ae11e3b54da24b4cd248651348ab05c347ce53632ecb"
+    }
+  ],
+  "receipt_commit": "Intentionally unspecified; this document never predicts its own commit."
+}

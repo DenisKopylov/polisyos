@@ -50755,5 +50755,99 @@
     "source_profile_freeze": false,
     "G_acceptance": false,
     "closure_ids": []
+  },
+  "root-b61-5665-receipt-and-n818-decision-adoption-20261021-r1": {
+    "slice_base": "5665d541353fd6cb2be368f94446551e1dfccb2e",
+    "canonical_writer": "root only; reviewed present patch, retired exact originals through native Trash",
+    "mechanism_and_mandatory_companion_paths": {
+      "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/b61-owner-import-canonical-49-20261021.json": {
+        "operation": "create",
+        "mode": "100644",
+        "preimage_sha256": null,
+        "postimage_path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/root-b61-5665-receipt-and-n818-decision-draft-20261021-r2/postimages/policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/b61-owner-import-canonical-49-20261021.json",
+        "postimage_sha256": "639f79ba952998774770ba76e8db35923234c1ae832985e06ff4699b4ef1dea8",
+        "postimage_bytes": 12935
+      },
+      "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/decisions/g-choice-fabric-seven-exception-identities-20261021.md": {
+        "operation": "create",
+        "mode": "100644",
+        "preimage_sha256": null,
+        "postimage_path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/root-b61-5665-receipt-and-n818-decision-draft-20261021-r1/postimages/policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/decisions/g-choice-fabric-seven-exception-identities-20261021.md",
+        "postimage_sha256": "a95aefaa7fe6052154dc60a5b6157704b2f775de6553098012849206e98efb01",
+        "postimage_bytes": 14686
+      }
+    },
+    "application": {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/root-b61-5665-receipt-and-n818-decision-adoption-20261021-r1/source-application.json",
+      "sha256": "0060f108720dc4fb84fae27d6560cb84490f9233bdb6a2eaa20d1995dd9fcc6f"
+    },
+    "native_trash_receipt": {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/root-b61-5665-receipt-and-n818-decision-adoption-20261021-r1/native-trash-receipt.json",
+      "sha256": "057f81b6e161c37eaec854c352b59148420f1f1711163b9005834b723e193dcf"
+    },
+    "reviewed_inputs": [
+      {
+        "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/root-b61-5665-receipt-and-n818-decision-draft-20261021-r2/manifest.json",
+        "sha256": "eb685301897c909f2e27a7786bb87a00c2b267123258086541650b2b0dffaea3"
+      },
+      {
+        "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/independent-b61-5665-n818-handoff-review-20261021-r2/review.json",
+        "sha256": "7e3bfff7cf61d06c29df14079a3f098bebbd7f8797a6d3ef503d4749fb19d70b"
+      },
+      {
+        "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/root-b61-four-path-source-adoption-20261021-r1/plan.json",
+        "sha256": "c9f90041967e87fc3a355d78c600495cd10b21d41f2c99c3c7b4c59183891721"
+      },
+      {
+        "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/root-b61-four-path-source-adoption-20261021-r1/implementation-readback.json",
+        "sha256": "e462bee6a779f3a75b18c331ca3a2d7f28c67e5c5ec6a200cb2324fdfa284076"
+      },
+      {
+        "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/b61-runtime-import-repair-r1-20261021/canonical-49-adopted-5665d541-20261021/result.json",
+        "sha256": "d9d8cb83dfc36739de89a43c42648d06ed016d5d595d4fab09938bb4879ed778"
+      },
+      {
+        "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/independent-b61-runtime-import-repair-review-20261021-r1/review.json",
+        "sha256": "85141afaa3009bf52837ee0b33b91fce7531d91fbb9142a18934c725ad5f5a70"
+      },
+      {
+        "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/root-candidate-5665-remote-publication-20261021-r1/failure-readback.json",
+        "sha256": "6a8299906698909f2f7b04002c14d1568c10528736bdd6db40635b8ccb6bfdb8"
+      },
+      {
+        "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/fabric-cross-module-native-typing-20261021-r1/n818-seven-class-decision-packet.md",
+        "sha256": "b11f9aa0701c05b3f612ccb302bd84db794c167b919c8bc64c163f91d560c6df"
+      },
+      {
+        "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/n818-seven-symbol-independent-review-r1-20261021/review.json",
+        "sha256": "59133256ff9ca9b8062fd014f865a987c8efd3bc1f718832627ab0a9ed16727c"
+      },
+      {
+        "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/root-b61-5665-receipt-and-n818-decision-draft-20261021-r1/manifest.json",
+        "sha256": "1ba470124d494cc77271d32c54d1f484da2e4e858a8b04d17be7f905226ba69f"
+      }
+    ],
+    "owned_applied_provenance": null,
+    "preserved_other_owned_rows": {},
+    "preserved_other_owned_provenance": null,
+    "preserved_other_owned_tracked_paths": [],
+    "preserved_other_owned_untracked_paths": [],
+    "preserved_other_owned_unchanged_before_after": true,
+    "P40": {
+      "bucket": "B61wordingprovenance clarifiedonce tooriginal13paths; no status/evidence promotion. N818onecohortgovernancechoice fromcompletequantity, no repeatedlocalcasewaivers.",
+      "P41": "Runtime/dashboardnativeTSrednotinherited; ownpushnotdelivered, fulloutputs/hashcensuslinked."
+    },
+    "bounded_proof": "Separateindepreview7e3bfff7verifies exacttwo postimages/evidence/sourceparents/fullfootprints and source5665canonical49actual.",
+    "limitations": [
+      "Docs commit does not execute or establish native green.",
+      "WholeB61, PreparedB all13affectedcontours, fullcomposedHTE/Runtime/Search/native/installed proof remainspending.",
+      "N818narrowproposal remainsunapplied andunissued; no inferred waiver/expiryrenewal.",
+      "Ordinary own-topic push rejectednativepre-pushTSC10diagnostics/6files; remote5ebf230unchanged, no bypass/main/Gpush."
+    ],
+    "runtime": "UNRUN on adopted source",
+    "next_check": "Continue reviewed B61live-generation-rebind source, AD04explicitcontractrepairs/fullsourcecomposition; issueGchoices viaGit andrepairnativeN11/OpenAPI/generated/TSC before normalcandidatepublication.",
+    "source_profile_freeze": false,
+    "G_acceptance": false,
+    "closure_ids": []
   }
 }

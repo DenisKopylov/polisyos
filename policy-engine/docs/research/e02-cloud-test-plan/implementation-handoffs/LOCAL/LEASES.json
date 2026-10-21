@@ -49673,5 +49673,104 @@
     "source_profile_freeze": false,
     "G_acceptance": false,
     "closure_ids": []
+  },
+  "root-auth-owner-and-ds17-scope-test-reviewed-adoption-20261021-r1": {
+    "slice_base": "334e2fec4f474dda0144da5cfbf9d70b6a8c6215",
+    "canonical_writer": "root only; reviewed present patch, retired exact originals through native Trash",
+    "mechanism_and_mandatory_companion_paths": {
+      "policy-engine/src/polisyos/runtime/http/authorization.py": {
+        "operation": "update",
+        "mode": "100644",
+        "preimage_sha256": "c4f76c24af305ad83ac9c5d43cf2dfeb10f10c895655952f06398cdbe7a9862f",
+        "postimage_path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/root-c12-action-authorizer-owner-20261021-r3/postimages/authorization.py",
+        "postimage_sha256": "0827ac1bcdbf4218169968fcee4c67a44d37ea5a3b5bc0dc4ee7f48fe9fc0e17",
+        "postimage_bytes": 45443
+      },
+      "policy-engine/tests/unit/runtime/http/test_runtime_api_authz.py": {
+        "operation": "update",
+        "mode": "100644",
+        "preimage_sha256": "1d373490e0664e6aa675f26c34c8673657813e8f17660bacf7766048266e1176",
+        "postimage_path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/root-c12-action-authorizer-owner-20261021-r3/postimages/test_runtime_api_authz.py",
+        "postimage_sha256": "1c8c962be8690bb555da6e77cdc10b92193f2ad70c255724f505f4a463bbbd93",
+        "postimage_bytes": 146540
+      },
+      "policy-engine/src/polisyos/runtime/http/README.md": {
+        "operation": "update",
+        "mode": "100644",
+        "preimage_sha256": "5d98025bc6ef69c2f948ba2a24df0aaf9096c3af475d910cf2d587f12a6a5164",
+        "postimage_path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/root-c12-action-authorizer-owner-20261021-r3/postimages/README.md",
+        "postimage_sha256": "4599bdbfa5bfca671a6fd37e9454c101c1147e5def24d10b8fec859180527ee4",
+        "postimage_bytes": 28742
+      },
+      "policy-engine/tests/repo_quality/tools/test_layer3_gy_confidence_ledger_contract.py": {
+        "operation": "update",
+        "mode": "100644",
+        "preimage_sha256": "fe5da1e7992f49e5dc059394010a0173baa8ca4044d336187e8102525c408995",
+        "postimage_path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/ds17-owner-projection-scope-drift-test-20261021-r1/postimage.py",
+        "postimage_sha256": "1f7f644f3ee4805865efa6e15eb4efd12dd0d0d08de9fa36b8439c3cc556a846",
+        "postimage_bytes": 91950
+      }
+    },
+    "application": {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/root-auth-owner-and-ds17-scope-test-reviewed-adoption-20261021-r1/source-application.json",
+      "sha256": "1adc727d7b10364bfc58a627f4f993371ad65ffed81d968feb463ed715200975"
+    },
+    "native_trash_receipt": {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/root-auth-owner-and-ds17-scope-test-reviewed-adoption-20261021-r1/native-trash-receipt.json",
+      "sha256": "057f81b6e161c37eaec854c352b59148420f1f1711163b9005834b723e193dcf"
+    },
+    "reviewed_inputs": [
+      {
+        "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/root-c12-action-authorizer-owner-20261021-r3/manifest.json",
+        "sha256": "7a4a0ca3ee296de6707bcc2c56d43dfafdac3ea5420896331dce9b473f09b771"
+      },
+      {
+        "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/independent-auth-dependency-review-20261021-r1/review.json",
+        "sha256": "8958f6e2a9fe213158ea1cbde11e3cbb597827c41c1fa92ddd5f17fab9f0f214"
+      },
+      {
+        "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/independent-ds17-owner-projection-scope-drift-test-review-20261021-r1/review.json",
+        "sha256": "48f511aa05a0f3ebc13a2015e2b10f564004f8b7b3c23968b678261c0c353806"
+      },
+      {
+        "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/root-c12-action-authorizer-owner-20261021-r3/source.patch",
+        "sha256": "b0f5593eeed5de91296449908ac5d731067f1913ff7bb901d193934c51200c05"
+      },
+      {
+        "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/root-c12-action-authorizer-owner-20261021-r3/verification.txt",
+        "sha256": "695582d428e757033e557954008f73428b903e1ff71755bd4a572f27e849cc06"
+      },
+      {
+        "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/ds17-owner-projection-scope-drift-test-20261021-r1/manifest.json",
+        "sha256": "aa446005f480b8c9fc34b5f5d4862ce66b918cde2add747db642641ea5d4c3e8"
+      },
+      {
+        "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/ds17-owner-projection-scope-drift-test-20261021-r1/owner-projection-scope-drift-test.patch",
+        "sha256": "0b8876cf38a2400881dcd76cb38a96461d5be122f52c839e333cfe78fe24e27a"
+      }
+    ],
+    "owned_applied_provenance": null,
+    "preserved_other_owned_rows": {},
+    "preserved_other_owned_provenance": null,
+    "preserved_other_owned_tracked_paths": [],
+    "preserved_other_owned_untracked_paths": [],
+    "preserved_other_owned_unchanged_before_after": true,
+    "P40": {
+      "bucket": "Misplaced shared authorizer owner NEW class for C12 wave; two GET failures are same-class reproductions, all52route consumers widened. DS17 semantic owner-hash drift existing detected class regression control.",
+      "action": "Move entire unchanged evaluator once, retain optional/required checks; no role/permission/status weakening. Real scope recomputation stays strict."
+    },
+    "bounded_proof": "Independent8958f6 fullauthsource/class/caller/native review; independent48f511 DS17test proof; exactpreimages/native rootRuff preflight/ordinarybranchblobreadback.",
+    "limitations": [
+      "Independent sourceGO only; no product imports/pytest afterpatch yet.",
+      "Actual C12 at5a191 was26PASS2FAIL0SKIP onGET /api/v1/control/lex/search-profile; downstream searchPOST not reached.",
+      "R9harness separate missingpytestconfig and builtin/frozen classifier errors remain not qualified; newR10underreview.",
+      "DS17actualworker at334e detectedsemantic_projection_scope_authority_drift andreal_scope_anchor_binding_drift, source/evidenceintakecorrect. OfficialcoldN11writer/check/drift remain untilagreedsourcefreeze; no manualhashrefresh.",
+      "AD04HTE/Runtime/anchor/Search newdrafts remain unadopted, fullnative/global/installed verification UNRUN."
+    ],
+    "runtime": "UNRUN on adopted source",
+    "next_check": "Fresh17whole Runtime/CANHTTP replay, full28real-cached-modelC12 afternewR10harnessreview/freeze; fullAD01/DS17currenttestcohort includesnewdriftcontrol. OfficialN11regeneration+checks/drift/OpenAPI+clienttypeparity afterblockingprovider/caller sourcefreeze.",
+    "source_profile_freeze": false,
+    "G_acceptance": false,
+    "closure_ids": []
   }
 }

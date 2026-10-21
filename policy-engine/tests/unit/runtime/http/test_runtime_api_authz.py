@@ -1689,6 +1689,56 @@ def test_route_requirement_rejects_unknown_permission() -> None:
         )
 
 
+def test_action_authorizer_owner_is_load_bearing_with_marker_retained(
+    runtime_api_env,
+    monkeypatch,
+) -> None:
+    from polisyos.runtime.http.authorization import (
+        ActionPermissionDependency,
+        ResourceBindingSource,
+        ResourceBindingSpec,
+        require_action_permission,
+    )
+
+    client, claims_bearer = _build_permissionless_client(runtime_api_env)
+    app = cast("FastAPI", client.app)
+    dependency = require_action_permission(
+        RuntimePermission.RUNS_LAUNCH,
+        ResourceBindingSpec(
+            source=ResourceBindingSource.TENANT_COLLECTION,
+            resource_kind="runtime.ds20.action_authorizer_removal",
+        ),
+    )
+    marker = dependency.__polisyos_action_permission__
+    assert type(dependency) is ActionPermissionDependency
+    assert callable(ActionPermissionDependency._authorize)
+    handler_calls: list[str] = []
+
+    @app.post(
+        "/api/v1/ds20/action-authorizer-removal",
+        dependencies=[Depends(dependency)],
+    )
+    def _action_authorizer_removal() -> dict[str, bool]:
+        handler_calls.append("called")
+        return {"called": True}
+
+    headers = {
+        "Authorization": f"Bearer {claims_bearer}",
+        "X-Tenant-ID": runtime_api_env["tenant_a"],
+    }
+    response = client.post("/api/v1/ds20/action-authorizer-removal", headers=headers)
+    assert response.status_code == 403
+    assert handler_calls == []
+
+    # Keep the declaration marker but remove the evaluator. The route must stop
+    # before mutation, proving that the marker is not an authorization proxy.
+    monkeypatch.delattr(ActionPermissionDependency, "_authorize")
+    assert dependency.__polisyos_action_permission__ is marker
+    with pytest.raises(AttributeError, match="_authorize"):
+        client.post("/api/v1/ds20/action-authorizer-removal", headers=headers)
+    assert handler_calls == []
+
+
 def test_action_permission_dependency_is_load_bearing(runtime_api_env) -> None:
     client, claims_bearer = _build_permissionless_client(runtime_api_env)
     app = cast("FastAPI", client.app)

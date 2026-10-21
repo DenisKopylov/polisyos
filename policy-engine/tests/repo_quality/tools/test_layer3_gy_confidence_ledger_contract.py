@@ -1311,6 +1311,70 @@ def test_rehashed_projection_authority_fields_turn_red(
     assert expected_code in {issue["code"] for issue in report["issues"]}
 
 
+def test_stale_real_n9_and_n12_owner_projection_hashes_turn_red(
+    monkeypatch: pytest.MonkeyPatch,
+) -> None:
+    bundle = _warm_bundle(monkeypatch)
+    monkeypatch.setattr(checker, "load_owner_bundle", lambda *_args, **_kwargs: bundle)
+    contract = checker.build_live_contract(
+        POLICY_ENGINE_ROOT,
+        catalog_path=CATALOG_PATH,
+        l5_path=L5_PATH,
+    )
+    payload = json.loads(checker.contract_bytes(contract))
+    owner_bundle = payload["owner_bundle_projection"]
+    previous_owner_hash = owner_bundle["projection_sha256"]
+    projections = (
+        "real_ledger_projection",
+        "n9_promotion_projection",
+        "n12_epoch_reference_projection",
+    )
+    previous_scope_bindings = {
+        key: (
+            payload[key]["risk_scope"]["owner_projection_hash"],
+            payload[key]["scope_id"],
+            payload[key]["scope_anchor_ref"],
+        )
+        for key in projections
+    }
+    assert all(binding[0] == previous_owner_hash for binding in previous_scope_bindings.values())
+
+    n13b = owner_bundle["n13b"]
+    n13b["journal_projection_sha256"] = "sha256:" + "7" * 64
+    n13b["projection_sha256"] = adapter._content_sha256(
+        {key: value for key, value in n13b.items() if key != "projection_sha256"}
+    )
+    owner_bundle["projection_sha256"] = adapter._content_sha256(
+        {
+            "n10": owner_bundle["n10"],
+            "n13b": owner_bundle["n13b"],
+            "consumed_inputs": owner_bundle["consumed_inputs"],
+        }
+    )
+    assert owner_bundle["projection_sha256"] != previous_owner_hash
+    for key in projections:
+        assert (
+            payload[key]["risk_scope"]["owner_projection_hash"],
+            payload[key]["scope_id"],
+            payload[key]["scope_anchor_ref"],
+        ) == previous_scope_bindings[key]
+        projection = payload[key]
+        assert projection["projection_hash"] == checker._ledger_content_hash(
+            {field: value for field, value in projection.items() if field != "projection_hash"}
+        )
+
+    checker._set_confidence_contract_identities(payload)
+
+    report = checker.validate_payload(payload)
+
+    issue_codes = {issue["code"] for issue in report["issues"]}
+    assert report["status"] == "fail"
+    assert issue_codes == {
+        "semantic_projection_scope_authority_drift",
+        "real_scope_anchor_binding_drift",
+    }
+
+
 def test_n12_root_binding_is_independent_of_n9_projection(
     monkeypatch: pytest.MonkeyPatch,
 ) -> None:

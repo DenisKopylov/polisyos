@@ -532,58 +532,6 @@ class ActionPermissionDependency:
                 ) from exc
         return verification
 
-
-@dataclass(frozen=True, slots=True)
-class OptionalActionPermissionResult:
-    """Carry a fail-closed decision for one optional protected projection."""
-
-    requirement: RouteAuthorizationRequirement
-    allowed: bool
-    denial_class: Literal["permission_denied", "policy_denied"] | None = None
-
-    def __post_init__(self) -> None:
-        if type(self.requirement) is not RouteAuthorizationRequirement:
-            raise TypeError("requirement must be a RouteAuthorizationRequirement")
-        if not isinstance(self.allowed, bool):
-            raise TypeError("allowed must be a boolean")
-        if self.allowed and self.denial_class is not None:
-            raise ValueError("an allowed optional action cannot carry a denial class")
-        if not self.allowed and self.denial_class not in {"permission_denied", "policy_denied"}:
-            raise ValueError("a denied optional action requires a typed denial class")
-
-
-@dataclass(frozen=True, slots=True)
-class OptionalActionPermissionDependency:
-    """Declare a separate action gate whose denial withholds one response projection."""
-
-    requirement: RouteAuthorizationRequirement
-    __polisyos_optional_action_permission__: RouteAuthorizationRequirement = field(
-        init=False,
-        repr=False,
-    )
-
-    def __post_init__(self) -> None:
-        if type(self.requirement) is not RouteAuthorizationRequirement:
-            raise TypeError("requirement must be a RouteAuthorizationRequirement")
-        object.__setattr__(
-            self,
-            "__polisyos_optional_action_permission__",
-            self.requirement,
-        )
-
-    def __call__(self, request: Request) -> OptionalActionPermissionResult:
-        """Return the exact middleware decision or fail closed if it was skipped."""
-        result = getattr(request.state, _OPTIONAL_ACTION_RESULT_STATE_FIELD, None)
-        if (
-            type(result) is not OptionalActionPermissionResult
-            or result.requirement is not self.requirement
-        ):
-            raise service_unavailable(
-                "Optional action authorization was not evaluated",
-                code="optional_action_preflight_missing",
-            )
-        return result
-
     def _authorize(
         self,
         request: Request,
@@ -728,6 +676,58 @@ class OptionalActionPermissionDependency:
 
         setattr(state, _VERIFICATION_STATE_FIELD, verification)
         return verification
+
+
+@dataclass(frozen=True, slots=True)
+class OptionalActionPermissionResult:
+    """Carry a fail-closed decision for one optional protected projection."""
+
+    requirement: RouteAuthorizationRequirement
+    allowed: bool
+    denial_class: Literal["permission_denied", "policy_denied"] | None = None
+
+    def __post_init__(self) -> None:
+        if type(self.requirement) is not RouteAuthorizationRequirement:
+            raise TypeError("requirement must be a RouteAuthorizationRequirement")
+        if not isinstance(self.allowed, bool):
+            raise TypeError("allowed must be a boolean")
+        if self.allowed and self.denial_class is not None:
+            raise ValueError("an allowed optional action cannot carry a denial class")
+        if not self.allowed and self.denial_class not in {"permission_denied", "policy_denied"}:
+            raise ValueError("a denied optional action requires a typed denial class")
+
+
+@dataclass(frozen=True, slots=True)
+class OptionalActionPermissionDependency:
+    """Declare a separate action gate whose denial withholds one response projection."""
+
+    requirement: RouteAuthorizationRequirement
+    __polisyos_optional_action_permission__: RouteAuthorizationRequirement = field(
+        init=False,
+        repr=False,
+    )
+
+    def __post_init__(self) -> None:
+        if type(self.requirement) is not RouteAuthorizationRequirement:
+            raise TypeError("requirement must be a RouteAuthorizationRequirement")
+        object.__setattr__(
+            self,
+            "__polisyos_optional_action_permission__",
+            self.requirement,
+        )
+
+    def __call__(self, request: Request) -> OptionalActionPermissionResult:
+        """Return the exact middleware decision or fail closed if it was skipped."""
+        result = getattr(request.state, _OPTIONAL_ACTION_RESULT_STATE_FIELD, None)
+        if (
+            type(result) is not OptionalActionPermissionResult
+            or result.requirement is not self.requirement
+        ):
+            raise service_unavailable(
+                "Optional action authorization was not evaluated",
+                code="optional_action_preflight_missing",
+            )
+        return result
 
 
 def require_action_permission(

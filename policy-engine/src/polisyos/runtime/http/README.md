@@ -106,6 +106,15 @@ dependency will consume the same members. The HTTP-local `AuthMeResponse`
 projects the enum into OpenAPI for generated clients. Unknown string literals
 do not become permissions by appearing in a client.
 
+The required `ActionPermissionDependency` owns the executable authorization
+evaluator called by the middleware before binding and again after the exact
+resource is frozen. `OptionalActionPermissionDependency` only returns the typed
+projection decision produced by that middleware; it does not authorize by
+itself. A required permission denial blocks the handler, while an optional
+permission or policy denial withholds only its protected projection. A route
+marker declares the requirement but cannot substitute for the executable
+evaluator.
+
 `GET /api/v1/auth/me` returns only claims installed by verified identity
 middleware. It never synthesizes a fixture identity; the explicit development
 fixture middleware may still install development-only claims before the route

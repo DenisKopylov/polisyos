@@ -1,0 +1,36 @@
+id = "2026-10-21-e02-hte-physical-source-binding"
+title = "Bind HTE materialized arrays to the selected source payload"
+type = "changed"
+component = "foundry"
+owner = "team-polisyos"
+summary = "Add an opt-in, profile-bound physical materialization receipt for selected HTE inputs, with a bounded Core reader that recomputes source normalization and compares the worker DTO before Runtime can capture the ref."
+evidence = [
+  "src/polisyos/foundry/data_plane/bindings.py",
+  "src/polisyos/foundry/data_plane/__init__.py",
+  "src/polisyos/foundry/README.md",
+  "tests/unit/foundry/data_plane/test_hte_observational_input.py",
+]
+compatibility = 'The new physical binding is emitted only when prepare_hte_observational_input receives materialization_binding_version="physical_v1". Default and legacy calls keep their existing return behavior, bytes, and artifact creation behavior. The selected binding, submitted input, and effective input require exact Core manifest profiles. The reader reopens both inputs, replays legacy normalization from the submitted raw bytes, recomputes physical array/slot/row-order bindings, and optionally compares the captured worker DTO.'
+change_class = "python-public-api"
+surface_classification = "public_stable: polisyos.foundry.data_plane additive opt-in HTE physical source materialization binding"
+migration = "No migration is required for existing callers or persisted HTE artifacts. Callers using the new opt-in must persist and pass the returned profile-qualified materialization_binding_ref through their selected attempt context. Profileless refs refuse on this path. The new behavior is additive; no input rewrite is required."
+api = "The supported data_plane facade exports HTEPhysicalArraySlotBinding, HTEPhysicalSourceMaterializationBinding, HTE_PHYSICAL_SOURCE_BINDING_KIND, HTE_PHYSICAL_SOURCE_BINDING_SCHEMA, prepare_hte_observational_input, and load_hte_physical_source_materialization_binding. PreparedHTEObservationalInput.materialization_binding_ref is absent by default and populated only for the explicit physical_v1 opt-in. The reader accepts expected_submitted_ref, expected_effective_ref, CoreJsonReadLimits, and optional expected_data."
+limitations = "The receipt proves only selected physical payload field/index, shape, dtype, values, and row order under the actual producer materializer. It does not identify requested VariableRef, query, contrast, treatment/outcome semantics, external UnitRef, causal identification, population, law, issuer, permission, custody, production currentness, or publication authority; semantic_alignment_status remains not_established. The owner-generated public-surface inventory has not been regenerated/reviewed in this candidate. Runtime/Anchor persistence and IR/Search semantic consumers require their separately reviewed companion changes; this Foundry slice alone is not an end-to-end HTE capability closure."
+generated_client_compatibility = "not_applicable"
+public_surface_inventory_reviewed = false
+migration_docs = []
+runbook_docs = []
+
+[[compatibility_change]]
+id = "e02-hte-physical-source-binding"
+change_class = "python-public-api"
+impact = "compatible"
+surface = "public_stable: polisyos.foundry.data_plane"
+owner = "team-polisyos"
+version_owner = "team-polisyos"
+deprecation_window = "not_applicable"
+release_note = "Foundry adds an explicit physical_v1 opt-in that persists a selected-profile HTE materialization binding and a bounded reader that recomputes the exact selected-source relation. Existing default and legacy calls retain their prior behavior. The binding is physical-only and grants no semantic, causal, legal, institutional, currentness, or publication authority."
+generated_client_compatibility = "not_applicable"
+public_surface_inventory_reviewed = false
+migration_docs = []
+runbook_docs = []

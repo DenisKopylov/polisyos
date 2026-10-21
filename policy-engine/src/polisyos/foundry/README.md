@@ -80,18 +80,31 @@ agent-sim tooling.
 | `data_plane.prepare_hte_observational_input()` | Prepare a bounded, selected-profile HTE input for candidate method execution. |
 | `data_plane.PreparedHTEObservationalInput` | Worker-local prepared data plus source/effective refs and typed input metadata. |
 | `data_plane.HTEInputPreparationRefusal` | Typed refusal from selected-profile HTE input preparation. |
+| `data_plane.HTEPhysicalSourceMaterializationBinding` | Strict physical slot-to-selected-payload binding; carries no semantic variable, query, unit, causal, population, law, currentness, or publication authority. |
+| `data_plane.load_hte_physical_source_materialization_binding()` | Resolve and recompute an opt-in profile-bound physical binding against the consumer's exact submitted and effective input refs. |
 | `data_plane.HTEInputLimits` | Type alias for Core's four-field `CoreJsonReadLimits`; construct limits with `CoreJsonReadLimits(max_bytes=payload_byte_limit, max_depth=depth_limit, max_elements=element_limit, max_manifest_bytes=manifest_byte_limit)` using explicit field names. |
 
-The HTE input exports are available from the supported public-stable
-`polisyos.foundry.data_plane` entrypoint. `HTEInputLimits` is a typing alias,
+The HTE input exports are an additive public-stable API through the existing
+`polisyos.foundry.data_plane` entrypoint; see the [release fragment](../../../docs/release-fragments/unreleased/2026-10-21-e02-hte-physical-source-binding.toml).
+`HTEInputLimits` is a typing alias,
 not a runtime constructor; create the value with `CoreJsonReadLimits` from
 `polisyos.core.artifacts`, naming `max_bytes`, `max_depth`, `max_elements`,
 and `max_manifest_bytes` explicitly so documentation does not rely on
 positional field order. For example: `CoreJsonReadLimits(max_bytes=payload_byte_limit,
 max_depth=depth_limit, max_elements=element_limit,
-max_manifest_bytes=manifest_byte_limit)`. The producer prepares candidate input only and does
-not establish method compatibility, units/context, causal identification,
-external truth, scientific validity, or publishability. The generated
+max_manifest_bytes=manifest_byte_limit)`. The physical binding is emitted only when
+an @2 caller opts in with `materialization_binding_version="physical_v1"`;
+legacy callers retain their output bytes and create no additional artifact. Its
+reader reloads the selected effective input and recomputes the array-slot
+mapping. For legacy input it also re-reads the submitted profile and re-runs
+the exact normalization before accepting the effective payload. Feature names
+and metadata are not used as source identity. The binding
+proves physical slot, payload field/index, shape, dtype, values, and row-order
+materialization only. The producer prepares candidate input only and does not
+establish method compatibility, units/context, causal identification,
+external truth, scientific validity, or publishability. Runtime may pass its
+already-materialized DTO to the reader, which rejects physical array or row
+order differences before capturing the anchor. The generated
 public-surface inventory still reports `unresolved_exports` for this entrypoint;
 the inventory owner’s regeneration and review remain pending. This README does
 not claim that inventory review has occurred.

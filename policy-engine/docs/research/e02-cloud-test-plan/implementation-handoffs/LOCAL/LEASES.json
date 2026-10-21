@@ -50424,5 +50424,157 @@
     "source_profile_freeze": false,
     "G_acceptance": false,
     "closure_ids": []
+  },
+  "root-hte-physical-source-binding-r4-owned-adoption-20261021-r2": {
+    "slice_base": "9743742e164c57503f4c8c68f308bc4f29973661",
+    "canonical_writer": "root only; reviewed present patch, retired exact originals through native Trash",
+    "mechanism_and_mandatory_companion_paths": {
+      "policy-engine/src/polisyos/foundry/data_plane/bindings.py": {
+        "operation": "update",
+        "mode": "100644",
+        "preimage_sha256": "4a7f0389af8f18401a200e886ed210288af61c6b387eb7efd27b44ea47b06edc",
+        "postimage_path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/root-hte-materializer-canonical-context-r4-20261021-r1/postimages/policy-engine/src/polisyos/foundry/data_plane/bindings.py",
+        "postimage_sha256": "e989120d12b8ea31e45a0fd7fa8d31b300e1f395c40ffde04f53b30a4d050f27",
+        "postimage_bytes": 112293,
+        "git_base_preimage_sha256": "4f4a2766b5eb06d7f9241be6e2279a33c7c45b83aedf02434f2e16e7a48f005c"
+      },
+      "policy-engine/src/polisyos/foundry/data_plane/__init__.py": {
+        "operation": "update",
+        "mode": "100644",
+        "preimage_sha256": "a8600aca8bfe1b6e3a2a4281fb84e888965cdcb04d95bdbc68592692718aee39",
+        "postimage_path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/root-hte-materializer-canonical-context-r4-20261021-r1/postimages/policy-engine/src/polisyos/foundry/data_plane/__init__.py",
+        "postimage_sha256": "f227b3537dab6e81f9064d9e7466fc21b083ea99442a8a1b7ae0a556c7fa359a",
+        "postimage_bytes": 1487
+      },
+      "policy-engine/src/polisyos/foundry/README.md": {
+        "operation": "update",
+        "mode": "100644",
+        "preimage_sha256": "a3ff00ae09401db36cd5a97bcd94730ec316a190c99d305dc2a51f000893d9ee",
+        "postimage_path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/hte-materializer-source-binding-20261021-r3-format-review/postimages/policy-engine/src/polisyos/foundry/README.md",
+        "postimage_sha256": "50d090892c030235fdc6d80e867265929bacc5fadc1c4f15e80de486a0f3f517",
+        "postimage_bytes": 21411
+      },
+      "policy-engine/tests/unit/foundry/data_plane/test_hte_observational_input.py": {
+        "operation": "update",
+        "mode": "100644",
+        "preimage_sha256": "5652d3bdca765049fdf9f0886966d1ffc4024006ea8bbbd19d239ab25c305255",
+        "postimage_path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/root-hte-materializer-canonical-context-r4-20261021-r1/postimages/policy-engine/tests/unit/foundry/data_plane/test_hte_observational_input.py",
+        "postimage_sha256": "1cfe00070ce263ff84a604245a970cab337110f018a856e46bae1f8379c7cf73",
+        "postimage_bytes": 62264
+      },
+      "policy-engine/docs/release-fragments/unreleased/2026-10-21-e02-hte-physical-source-binding.toml": {
+        "operation": "create",
+        "mode": "100644",
+        "preimage_sha256": null,
+        "postimage_path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/hte-materializer-source-binding-20261021-r3-format-review/postimages/policy-engine/docs/release-fragments/unreleased/2026-10-21-e02-hte-physical-source-binding.toml",
+        "postimage_sha256": "1682e14afd3ba5e1b5c6b1bd19b1d193dc0fcc372811a33728a52a305b413621",
+        "postimage_bytes": 3818
+      }
+    },
+    "application": {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/root-hte-physical-source-binding-r4-owned-adoption-20261021-r2/source-application.json",
+      "sha256": "163e4b4c67b76e72397a4c7fdaf7b8614fd296d48ff1b7c2a62821c43b1efa4a"
+    },
+    "native_trash_receipt": {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/root-hte-physical-source-binding-r4-owned-adoption-20261021-r2/native-trash-receipt.json",
+      "sha256": "057f81b6e161c37eaec854c352b59148420f1f1711163b9005834b723e193dcf"
+    },
+    "reviewed_inputs": [
+      {
+        "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/hte-materializer-source-binding-20261021-r3-format-review/materializer-source-binding-proposal.json",
+        "sha256": "cbe03f0654655da5ecd23470ea3713b91334addfda95bf1af5f35bc7f2f848d7"
+      },
+      {
+        "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/hte-materializer-source-binding-20261021-r3-format-review/immutable-review-manifest.json",
+        "sha256": "86ca46c5c09d85a91a957e5c1cd80bbfb1257433fae066db661de762d0de459d"
+      },
+      {
+        "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/independent-hte-materializer-r3-delta-review-20261021-r1/independent-review.json",
+        "sha256": "037bc499c653f3a8be75d9ffa004af5ef525886e82d98ee1647a7425cf6b361b"
+      },
+      {
+        "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/independent-hte-materializer-r2-review-20261021-r1/independent-review.json",
+        "sha256": "3b82b4037a9533f56727cf47279468e9fa1f046dc7ab775078cb06279edeb6f1"
+      },
+      {
+        "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/root-owned-materializer-canonical-application-preservation-20261021-r1/preservation.json",
+        "sha256": "60ca736800090dd08235c3c4e4d2c4ac4b3ccb1bab87b86107f9ae3a0168a607"
+      },
+      {
+        "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/hte-materializer-source-binding-20261021-r3-format-review/patches/known-applied-4a7-to-r3-final.patch",
+        "sha256": "b3523370d2d95fc732527d1b397a580915a3e4596b1d7301a459d5bf4a411402"
+      },
+      {
+        "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/hte-materializer-source-binding-20261021-r3-format-review/patches/slice-base-12daa-to-r3-final.patch",
+        "sha256": "676b177f80e18b29cbf27da76e2fc9788127eeee0b1c6cb2e5e82dd871342493"
+      },
+      {
+        "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/hte-materializer-source-binding-20261021-r3-format-review/outputs/pytest-r3-final-full.txt",
+        "sha256": "f6f3a55392bcacdf49e676dc24d7257eaf908c35958aaed28fc61479385a18e0"
+      },
+      {
+        "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/hte-materializer-source-binding-20261021-r3-format-review/outputs/native-static-r3-final.json",
+        "sha256": "4244b74c854b2fb046f84f472d3e470c3ed4f6a38a6e4f729f11d1bcd6a95c4c"
+      },
+      {
+        "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/root-known-basedpyright-auto-baseline-preservation-20261021-r1/recovery-readback.json",
+        "sha256": "3bd852c141f2eaa5a9ceddc5aa495f3a5681786b33b2f7b654098cf3e986114b"
+      },
+      {
+        "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/root-hte-materializer-canonical-context-r4-20261021-r1/source-manifest.json",
+        "sha256": "f3a0aafc52dbd5aa3cba7ad5d59e7322d79498822c430944820b1e21c655e205"
+      },
+      {
+        "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/root-hte-materializer-canonical-context-r4-20261021-r1/runtime-request.json",
+        "sha256": "714539c0da735d235ba4cd2d08f9ddb47da84eaec746499099aef335965ed675"
+      },
+      {
+        "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/root-hte-materializer-canonical-context-r4-20261021-r1/runtime-result.json",
+        "sha256": "b60dfa5376dbcb5c26b7213fb122103dd2234a0de4bae9b0cf8db5c19195d0dc"
+      },
+      {
+        "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/root-hte-materializer-canonical-context-r4-20261021-r1/outputs/pytest.stdout",
+        "sha256": "b90209bb2294fa6ee270a3206a01c62af549984b4878b88fe62e9f5b89406e10"
+      },
+      {
+        "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/root-hte-materializer-canonical-context-r4-20261021-r1/outputs/pytest.stderr",
+        "sha256": "24f86bd0c5d0fec46d369bc0e82cf3558bb70de5c8b41dc820aa32b2a66dc651"
+      },
+      {
+        "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/independent-hte-materializer-r4-native-context-review-20261021-r1/independent-review.json",
+        "sha256": "b1bc68b9f04a326fe2c88f3876741da8cba609a3e5232b4b9c1db40e0c1b881f"
+      },
+      {
+        "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/root-hte-physical-source-binding-r3-owned-adoption-20261021-r1/canonical-context-preflight.json",
+        "sha256": "926576e96dea07157ff336d61b5f7dd6d8437e76b85252eca9cb064f57d16a43"
+      }
+    ],
+    "owned_applied_provenance": {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/root-owned-materializer-canonical-application-preservation-20261021-r1/preservation.json",
+      "sha256": "60ca736800090dd08235c3c4e4d2c4ac4b3ccb1bab87b86107f9ae3a0168a607"
+    },
+    "preserved_other_owned_rows": {},
+    "preserved_other_owned_provenance": null,
+    "preserved_other_owned_tracked_paths": [],
+    "preserved_other_owned_untracked_paths": [],
+    "preserved_other_owned_unchanged_before_after": true,
+    "P40": {
+      "bucket": "All persistedphysical content discrepancy cases handled by owner-source recomputation and whole-model equality. Native tests cover counterfeit normalization, swapped arrays/rows/profiles/workerDTO/bool/fields/dtypes and writer/read limits.",
+      "different_class": "Semantic VariableRef/query/UnitRef/causal/custody mapping remains missing external/owner evidence; no name-derived promotion.",
+      "native_context": "R3 RAW filename-based lint/format green did not survive canonical stdin context; old preflight failed before source application. Generic canonical logical paths used on all3Pythonfiles, ASTnormalized exact and fresh57 replay, independently reviewed; no field-specific gating exemption."
+    },
+    "bounded_proof": "ExactR3semanticsGO plusR4ASTequivalent import/formatdelta independently GO; six nativecanonicalstdin checks and fresh sourceoverlay57actual, then rootcanonicalRuff/ordinarycommit/blobreadback.",
+    "limitations": [
+      "Exact R4 candidate overlay57PASS after canonical-context full-file format/import sorting; group peak674463744bytes/reaped,13.0853s. Current canonical composed Runtime/Search verification still UNRUN.",
+      "Resource peak656277504bytes under authorized1.5GiB; one plugin warning,0SKIP.",
+      "Original physical opt-in preserves legacy/default bytes, but public inventory generation and installed source surfaces UNRUN.",
+      "Runtime/Anchor/IR/Search companion composition and B61importrepair stillpending. No legal/population/production-currentness or protectedpositive claim.",
+      "Independent reviewer sourceGO is author-side quality review; G acceptance/formalclosure remainfalse."
+    ],
+    "runtime": "UNRUN on adopted source",
+    "next_check": "Compose actual owner preoutput capture and output lineage, historical receiver/SearchCAS/GET/UI companions; freeze all source/profile/input/backend, independentreviews and one composed replay, regenerate/installed consumers. PeroriginalID adjudication byG.",
+    "source_profile_freeze": false,
+    "G_acceptance": false,
+    "closure_ids": []
   }
 }

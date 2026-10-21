@@ -9,16 +9,17 @@ synthetic runtime state.
 
 from __future__ import annotations
 
+import hashlib
 import json
 from collections.abc import Mapping
-from dataclasses import dataclass
+from dataclasses import dataclass, replace
 from decimal import ROUND_HALF_EVEN, Decimal, InvalidOperation
 from pathlib import Path
 from typing import Any, Literal, Protocol
 
 import jax.numpy as jnp
 import numpy as np
-from pydantic import BaseModel, ConfigDict, ValidationError
+from pydantic import BaseModel, ConfigDict, Field, ValidationError
 
 from polisyos.common.canonical_profile import require_declared_profile
 from polisyos.common.serialization import to_python_data
@@ -140,6 +141,76 @@ _METHOD_CONTRACT_ALLOW_REGISTRY: dict[str, _MethodContractSpec] = {
 type HTEInputLimits = CoreJsonReadLimits
 
 
+HTE_PHYSICAL_SOURCE_BINDING_KIND = "foundry.hte.physical_source_materialization_binding"
+HTE_PHYSICAL_SOURCE_BINDING_SCHEMA = SchemaInfo(
+    name="polisyos.foundry.HTEPhysicalSourceMaterializationBinding",
+    version="1.0",
+)
+HTE_PHYSICAL_SOURCE_BINDING_MEDIA_TYPE = "application/json"
+_HTE_PHYSICAL_SOURCE_BINDING_DISCRIMINATOR = (
+    "policyos.foundry.hte.physical_source_materialization_binding.v1"
+)
+_HTE_PHYSICAL_SOURCE_BINDING_PRODUCER = (
+    "polisyos.foundry.data_plane.prepare_hte_observational_input"
+)
+
+
+class HTEPhysicalArraySlotBinding(BaseModel):
+    """Bind one materialized HTE array slot to its exact selected JSON field."""
+
+    model_config = ConfigDict(extra="forbid", frozen=True, strict=True)
+
+    physical_slot: Literal[
+        "outcome_vector",
+        "treatment_vector",
+        "covariate_matrix_column",
+        "confounder_matrix_column",
+    ]
+    payload_pointer: str = Field(pattern=r"^/contract_payload/[a-z_]+$")
+    component_index: int | None = Field(default=None, ge=0)
+    array_shape: tuple[int, ...] = Field(min_length=1)
+    array_dtype: str = Field(min_length=1, max_length=32)
+    value_sha256: str = Field(pattern=r"^sha256:[0-9a-f]{64}$")
+    row_order_sha256: str = Field(pattern=r"^sha256:[0-9a-f]{64}$")
+    transform: Literal["identity_numpy_materialization_v1"] = "identity_numpy_materialization_v1"
+
+
+class HTEPhysicalSourceMaterializationBinding(BaseModel):
+    """Describe only the physical materialization of one selected HTE input.
+
+    This artifact does not establish that physical slots identify a requested
+    causal variable, contrast, query, unit, population, law, or current source.
+    Those semantic relations remain ``not_established`` until an independent
+    owner supplies and verifies them.
+    """
+
+    model_config = ConfigDict(extra="forbid", frozen=True, strict=True)
+
+    schema_version: Literal["policyos.foundry.hte.physical_source_materialization_binding.v1"] = (
+        _HTE_PHYSICAL_SOURCE_BINDING_DISCRIMINATOR
+    )
+    binding_scope: Literal["physical_materialization_only"] = "physical_materialization_only"
+    semantic_alignment_status: Literal["not_established"] = "not_established"
+    submitted_ref: ArtifactRef
+    effective_ref: ArtifactRef
+    source_protocol: Literal["method_input_envelope_v1", "legacy_hte_json_v1"]
+    normalization: Literal["canonical_passthrough", "legacy_to_method_input_envelope_v1"]
+    contract_target: ContractCompatibilityTarget
+    effective_payload_sha256: str = Field(pattern=r"^sha256:[0-9a-f]{64}$")
+    observation_count: int = Field(gt=0)
+    row_order_basis: Literal["sample_ids", "positional_row_ordinal"]
+    row_order_pointer: str | None = Field(
+        default=None,
+        pattern=r"^/contract_payload/sample_ids$",
+    )
+    row_order_sha256: str = Field(pattern=r"^sha256:[0-9a-f]{64}$")
+    submitted_sample_ids_state: Literal["absent", "null", "materialized"]
+    effective_sample_ids_state: Literal["absent", "null", "materialized"]
+    submitted_confounders_state: Literal["absent", "null", "materialized"]
+    effective_confounders_state: Literal["absent", "null", "materialized"]
+    arrays: tuple[HTEPhysicalArraySlotBinding, ...] = Field(min_length=2)
+
+
 class _HTEObservationalInputStore(
     CoreJSONArtifactStore,
     CoreJSONArtifactBoundedMemberReader,
@@ -240,6 +311,26 @@ def _bounded_refusal_usage_fields(
         "original_exception_code": error.original_exception_code,
         "original_exception_message": error.original_exception_message,
     }
+
+
+def _source_binding_bounds_refusal(
+    error: CoreJsonReadBoundsRefusalError,
+    *,
+    phase: Literal["binding", "effective", "submitted"],
+) -> HTEInputPreparationRefusal:
+    """Preserve Core's exact resource refusal and transfer receipt."""
+    usage = _bounded_refusal_usage_fields(error)
+    usage.update(
+        {
+            "original_exception_type": type(error).__name__,
+            "original_exception_code": error.code,
+            "original_exception_message": str(error),
+        }
+    )
+    return HTEInputPreparationRefusal(
+        f"source_binding_{phase}_resource_refused",
+        **usage,
+    )
 
 
 def _raise_hte_refusal_with_usage(
@@ -344,11 +435,16 @@ class PreparedHTEObservationalInput:
     observed_payload_bytes: int
     observed_source_bytes: int
     payload_integrity_verified: bool
+    materialization_binding_ref: ArtifactRef | None = None
 
 
 _HTE_SOURCE_PROTOCOLS = ("method_input_envelope_v1", "legacy_hte_json_v1")
 _HTE_CANONICAL_INPUT_KIND = OBSERVATION_METHOD_INPUT_KIND
 _HTE_LEGACY_INPUT_KIND = "ir.observational_data"
+_HTE_PHYSICAL_SOURCE_BINDING_INPUT_SCHEMA = SchemaInfo(
+    name=OBSERVATION_METHOD_INPUT_SCHEMA_NAME,
+    version=OBSERVATION_METHOD_INPUT_SCHEMA_VERSION,
+)
 _HTE_CANDIDATE_LIMITATIONS = (
     "candidate_input_not_external_truth",
     "scientific_validity_not_established",
@@ -398,6 +494,462 @@ def _materialize_hte_observational_data(
     return value
 
 
+def _normalize_legacy_hte_source(
+    payload: Mapping[str, Any],
+    *,
+    max_depth: int,
+) -> tuple[HTEObservationalData, ObservationMethodInputEnvelope, CanonSpec, bytes]:
+    """Apply the existing legacy HTE→method-input normalization exactly."""
+    data = _materialize_hte_observational_data(payload)
+    envelope = ObservationMethodInputEnvelope(
+        contract_target=HTE_OBSERVATIONAL_DATA_TARGET,
+        contract_payload=data.model_dump(mode="json", exclude_none=False),
+    )
+    output_spec = CanonSpec(
+        forbid_floats=False,
+        forbid_nan_inf=True,
+        exclude_none=False,
+        max_depth=max_depth,
+    )
+    try:
+        output_bytes = to_canonical_bytes(
+            envelope.model_dump(mode="json", exclude_none=False),
+            output_spec,
+        )
+    except (TypeError, ValueError) as exc:
+        raise HTEInputPreparationRefusal(
+            "legacy_hte_normalization_refused",
+            failure_stage="normalized_hte_input_serialization",
+        ) from exc
+    return data, envelope, output_spec, output_bytes
+
+
+def _sha256_bytes(value: bytes) -> str:
+    """Return one namespaced SHA-256 digest for immutable bytes."""
+    return f"sha256:{hashlib.sha256(value).hexdigest()}"
+
+
+def _canonical_value_sha256(value: object, *, max_depth: int) -> str:
+    """Hash a canonical JSON value used to recompute a physical array slot."""
+    try:
+        encoded = to_canonical_bytes(
+            value,
+            CanonSpec(
+                forbid_floats=False,
+                forbid_nan_inf=True,
+                exclude_none=False,
+                max_depth=max_depth,
+            ),
+        )
+    except (TypeError, ValueError) as exc:
+        raise HTEInputPreparationRefusal("source_binding_value_serialization_refused") from exc
+    return _sha256_bytes(encoded)
+
+
+def _optional_field_state(payload: Mapping[str, Any], field_name: str) -> str:
+    """Preserve whether an optional source field was absent, null, or materialized."""
+    if field_name not in payload:
+        return "absent"
+    if payload[field_name] is None:
+        return "null"
+    return "materialized"
+
+
+def _json_element_count(value: object, *, stop_after: int) -> int:
+    """Count JSON lexical nodes and object member names up to a selected bound."""
+    count = 0
+    pending = [value]
+    while pending:
+        current = pending.pop()
+        count += 1
+        if isinstance(current, Mapping):
+            count += len(current)
+            pending.extend(current.values())
+        elif isinstance(current, (list, tuple)):
+            pending.extend(current)
+        if count > stop_after:
+            return count
+    return count
+
+
+def _build_hte_physical_source_binding(
+    *,
+    data: HTEObservationalData,
+    submitted_ref: ArtifactRef,
+    effective_ref: ArtifactRef,
+    source_protocol: Literal["method_input_envelope_v1", "legacy_hte_json_v1"],
+    normalization: Literal["canonical_passthrough", "legacy_to_method_input_envelope_v1"],
+    contract_target: ContractCompatibilityTarget,
+    submitted_contract_payload: Mapping[str, Any],
+    effective_contract_payload: Mapping[str, Any],
+    effective_payload_bytes: bytes,
+    max_depth: int,
+) -> HTEPhysicalSourceMaterializationBinding:
+    """Recompute the physical slot map from the selected, typed HTE DTO."""
+    if data.sample_ids is None:
+        row_order_basis: Literal["sample_ids", "positional_row_ordinal"] = "positional_row_ordinal"
+        row_order_pointer = None
+        row_order_value = list(range(data.n_obs))
+    else:
+        row_order_basis = "sample_ids"
+        row_order_pointer = "/contract_payload/sample_ids"
+        row_order_value = data.sample_ids.tolist()
+    row_order_sha256 = _canonical_value_sha256(row_order_value, max_depth=max_depth)
+
+    arrays: list[HTEPhysicalArraySlotBinding] = []
+
+    def add_array_slot(
+        *,
+        physical_slot: Literal[
+            "outcome_vector",
+            "treatment_vector",
+            "covariate_matrix_column",
+            "confounder_matrix_column",
+        ],
+        payload_field: str,
+        array: np.ndarray,
+        component_index: int | None = None,
+    ) -> None:
+        selected = array if component_index is None else array[:, component_index]
+        arrays.append(
+            HTEPhysicalArraySlotBinding(
+                physical_slot=physical_slot,
+                payload_pointer=f"/contract_payload/{payload_field}",
+                component_index=component_index,
+                array_shape=tuple(int(size) for size in array.shape),
+                array_dtype=array.dtype.str,
+                value_sha256=_canonical_value_sha256(
+                    selected.tolist(),
+                    max_depth=max_depth,
+                ),
+                row_order_sha256=row_order_sha256,
+            )
+        )
+
+    add_array_slot(
+        physical_slot="outcome_vector",
+        payload_field="outcome",
+        array=data.outcome,
+    )
+    add_array_slot(
+        physical_slot="treatment_vector",
+        payload_field="treatment",
+        array=data.treatment,
+    )
+    for component_index in range(data.covariates.shape[1]):
+        add_array_slot(
+            physical_slot="covariate_matrix_column",
+            payload_field="covariates",
+            array=data.covariates,
+            component_index=component_index,
+        )
+    if data.confounders is not None:
+        for component_index in range(data.confounders.shape[1]):
+            add_array_slot(
+                physical_slot="confounder_matrix_column",
+                payload_field="confounders",
+                array=data.confounders,
+                component_index=component_index,
+            )
+
+    return HTEPhysicalSourceMaterializationBinding(
+        submitted_ref=submitted_ref,
+        effective_ref=effective_ref,
+        source_protocol=source_protocol,
+        normalization=normalization,
+        contract_target=contract_target,
+        effective_payload_sha256=_sha256_bytes(effective_payload_bytes),
+        observation_count=data.n_obs,
+        row_order_basis=row_order_basis,
+        row_order_pointer=row_order_pointer,
+        row_order_sha256=row_order_sha256,
+        submitted_sample_ids_state=_optional_field_state(submitted_contract_payload, "sample_ids"),
+        effective_sample_ids_state=_optional_field_state(effective_contract_payload, "sample_ids"),
+        submitted_confounders_state=_optional_field_state(
+            submitted_contract_payload, "confounders"
+        ),
+        effective_confounders_state=_optional_field_state(
+            effective_contract_payload, "confounders"
+        ),
+        arrays=tuple(arrays),
+    )
+
+
+def _persist_hte_physical_source_binding(
+    *,
+    store: _HTEObservationalInputStore,
+    binding: HTEPhysicalSourceMaterializationBinding,
+    source_governance: ArtifactGovernanceInfo | None,
+    source_tenant_context: ArtifactTenantContextInfo | None,
+    limits: HTEInputLimits,
+) -> ArtifactRef:
+    """Persist the opt-in physical-only binding with an exact source edge."""
+    spec = CanonSpec(
+        forbid_floats=False,
+        forbid_nan_inf=True,
+        exclude_none=False,
+        max_depth=limits.max_depth,
+    )
+    payload_value = binding.model_dump(mode="json")
+    if _json_element_count(payload_value, stop_after=limits.max_elements) > limits.max_elements:
+        raise HTEInputPreparationRefusal("source_binding_exceeds_element_limit")
+    try:
+        payload_bytes = to_canonical_bytes(payload_value, spec)
+    except (TypeError, ValueError) as exc:
+        raise HTEInputPreparationRefusal("source_binding_serialization_refused") from exc
+    if len(payload_bytes) > limits.max_bytes:
+        raise HTEInputPreparationRefusal("source_binding_exceeds_byte_limit")
+
+    try:
+        binding_ref = store.put_bytes(
+            payload_bytes,
+            PutOptions(
+                kind=HTE_PHYSICAL_SOURCE_BINDING_KIND,
+                media_type=HTE_PHYSICAL_SOURCE_BINDING_MEDIA_TYPE,
+                schema=HTE_PHYSICAL_SOURCE_BINDING_SCHEMA,
+                producer=ProducerInfo(
+                    component=_HTE_PHYSICAL_SOURCE_BINDING_PRODUCER,
+                    version="1.0.0",
+                ),
+                inputs=[
+                    input_ref_from_artifact_ref(
+                        binding.effective_ref,
+                        role="materialized_hte_method_input",
+                    )
+                ],
+                canon=CanonInfo.from_spec(spec),
+                governance=source_governance,
+                tenant_context=source_tenant_context,
+            ),
+            return_selected_profile=True,
+        )
+    except (OSError, TypeError, ValueError) as exc:
+        raise HTEInputPreparationRefusal("source_binding_write_refused") from exc
+    if not binding_ref.manifest_profile_sha256:
+        raise HTEInputPreparationRefusal("source_binding_profile_missing")
+    return binding_ref
+
+
+def load_hte_physical_source_materialization_binding(
+    *,
+    store: _HTEObservationalInputStore,
+    binding_ref: ArtifactRef,
+    expected_submitted_ref: ArtifactRef,
+    expected_effective_ref: ArtifactRef,
+    limits: HTEInputLimits,
+    expected_data: HTEObservationalData | None = None,
+) -> HTEPhysicalSourceMaterializationBinding:
+    """Resolve and recompute a physical binding against the selected HTE input.
+
+    This reader requires the consumer's exact submitted/effective references,
+    resolves the profile-bound binding and input bytes, rematerializes the HTE
+    DTO, and rejects any field, array, row-order, or profile drift. It proves
+    only the physical materialization recorded in the source; it does not
+    establish semantic variable, query, contrast, unit, causal, population, or
+    legal alignment.
+
+    Args:
+        store: Core JSON writer and bounded selected-member reader.
+        binding_ref: Full profile-qualified reference to the binding artifact.
+        expected_submitted_ref: Exact original selected source expected by the
+            caller's already selected input context.
+        expected_effective_ref: Exact HTE method-input reference expected by
+            the caller's already selected input context.
+        limits: Pinned Core limits used to resolve both artifacts.
+        expected_data: Optional worker-local DTO captured by the owned Runtime
+            attempt. Its physical arrays and row order must match this source.
+
+    Returns:
+        HTEPhysicalSourceMaterializationBinding: Recomputed physical binding.
+
+    Raises:
+        HTEInputPreparationRefusal: If any selected identity, profile, schema,
+            input, or recomputed materialization differs.
+    """
+    if not binding_ref.manifest_profile_sha256:
+        raise HTEInputPreparationRefusal("source_binding_profile_required")
+    try:
+        binding_read = read_core_json_artifact_bounded(store, binding_ref, limits=limits)
+        if binding_read.effective_ref != binding_ref:
+            raise HTEInputPreparationRefusal("source_binding_ref_mismatch")
+        if (
+            binding_read.manifest.kind != HTE_PHYSICAL_SOURCE_BINDING_KIND
+            or binding_read.manifest.media_type != HTE_PHYSICAL_SOURCE_BINDING_MEDIA_TYPE
+            or binding_read.manifest.artifact_schema != HTE_PHYSICAL_SOURCE_BINDING_SCHEMA
+        ):
+            raise HTEInputPreparationRefusal("source_binding_schema_mismatch")
+        require_declared_profile(binding_read.profile_read)
+        binding = HTEPhysicalSourceMaterializationBinding.model_validate_json(
+            binding_read.raw_payload_bytes
+        )
+    except HTEInputPreparationRefusal:
+        raise
+    except CoreJsonReadBoundsRefusalError as exc:
+        raise _source_binding_bounds_refusal(
+            exc,
+            phase="binding",
+        ) from exc
+    except (OSError, TypeError, ValueError, ValidationError) as exc:
+        raise HTEInputPreparationRefusal("source_binding_payload_invalid") from exc
+
+    if (
+        binding.submitted_ref != expected_submitted_ref
+        or binding.effective_ref != expected_effective_ref
+    ):
+        raise HTEInputPreparationRefusal("source_binding_input_ref_mismatch")
+    if (
+        not binding.submitted_ref.manifest_profile_sha256
+        or not binding.effective_ref.manifest_profile_sha256
+    ):
+        raise HTEInputPreparationRefusal("source_binding_input_profile_required")
+    expected_binding_lineage = input_ref_from_artifact_ref(
+        binding.effective_ref,
+        role="materialized_hte_method_input",
+    )
+    if expected_binding_lineage not in binding_read.manifest.inputs:
+        raise HTEInputPreparationRefusal("source_binding_artifact_lineage_mismatch")
+    if binding.source_protocol == "method_input_envelope_v1":
+        if (
+            binding.normalization != "canonical_passthrough"
+            or binding.submitted_ref != binding.effective_ref
+        ):
+            raise HTEInputPreparationRefusal("source_binding_protocol_mismatch")
+    elif (
+        binding.normalization != "legacy_to_method_input_envelope_v1"
+        or binding.submitted_ref.kind != _HTE_LEGACY_INPUT_KIND
+        or binding.submitted_ref.media_type != _JSON_MEDIA_TYPE
+    ):
+        raise HTEInputPreparationRefusal("source_binding_protocol_mismatch")
+
+    try:
+        effective_read = read_core_json_artifact_bounded(
+            store,
+            binding.effective_ref,
+            limits=limits,
+        )
+        if effective_read.effective_ref != binding.effective_ref:
+            raise HTEInputPreparationRefusal("source_binding_effective_ref_mismatch")
+        if (
+            effective_read.manifest.kind != OBSERVATION_METHOD_INPUT_KIND
+            or effective_read.manifest.media_type != _JSON_MEDIA_TYPE
+            or effective_read.manifest.artifact_schema != _HTE_PHYSICAL_SOURCE_BINDING_INPUT_SCHEMA
+        ):
+            raise HTEInputPreparationRefusal("source_binding_effective_schema_mismatch")
+        if _sha256_bytes(effective_read.raw_payload_bytes) != binding.effective_payload_sha256:
+            raise HTEInputPreparationRefusal("source_binding_effective_payload_mismatch")
+        effective_value = require_declared_profile(effective_read.profile_read)
+        if not isinstance(effective_value, dict):
+            raise HTEInputPreparationRefusal("source_binding_effective_payload_invalid")
+        envelope = ObservationMethodInputEnvelope.model_validate(effective_value)
+        if (
+            envelope.contract_target.contract_id != HTE_OBSERVATIONAL_DATA_CONTRACT_ID
+            or envelope.contract_target.contract_fqn != HTE_OBSERVATIONAL_DATA_TARGET.contract_fqn
+            or envelope.contract_target != binding.contract_target
+        ):
+            raise HTEInputPreparationRefusal("source_binding_contract_target_mismatch")
+        data = _materialize_hte_observational_data(envelope.contract_payload)
+    except HTEInputPreparationRefusal:
+        raise
+    except CoreJsonReadBoundsRefusalError as exc:
+        raise _source_binding_bounds_refusal(
+            exc,
+            phase="effective",
+        ) from exc
+    except (OSError, TypeError, ValueError, ValidationError) as exc:
+        raise HTEInputPreparationRefusal("source_binding_effective_payload_invalid") from exc
+
+    submitted_contract_payload = envelope.contract_payload
+    if binding.source_protocol == "legacy_hte_json_v1":
+        try:
+            submitted_read = read_core_json_artifact_bounded(
+                store,
+                binding.submitted_ref,
+                limits=limits,
+            )
+            if (
+                submitted_read.effective_ref != binding.submitted_ref
+                or submitted_read.manifest.kind != _HTE_LEGACY_INPUT_KIND
+                or submitted_read.manifest.media_type != _JSON_MEDIA_TYPE
+                or submitted_read.manifest.artifact_schema is not None
+            ):
+                raise HTEInputPreparationRefusal("source_binding_legacy_source_identity_mismatch")
+            submitted_value = require_declared_profile(submitted_read.profile_read)
+            if not isinstance(submitted_value, dict):
+                raise HTEInputPreparationRefusal("source_binding_legacy_source_invalid")
+            if _selected_source_governance(submitted_read) is None:
+                raise HTEInputPreparationRefusal(
+                    "source_binding_legacy_source_governance_unavailable"
+                )
+            _, normalized_envelope, normalized_spec, normalized_bytes = (
+                _normalize_legacy_hte_source(
+                    submitted_value,
+                    max_depth=limits.max_depth,
+                )
+            )
+            if len(normalized_bytes) > limits.max_bytes:
+                raise HTEInputPreparationRefusal(
+                    "source_binding_legacy_normalized_input_exceeds_byte_limit"
+                )
+        except HTEInputPreparationRefusal:
+            raise
+        except CoreJsonReadBoundsRefusalError as exc:
+            raise _source_binding_bounds_refusal(
+                exc,
+                phase="submitted",
+            ) from exc
+        except (OSError, TypeError, ValueError, ValidationError) as exc:
+            raise HTEInputPreparationRefusal("source_binding_legacy_source_invalid") from exc
+
+        expected_legacy_lineage = input_ref_from_artifact_ref(
+            binding.submitted_ref,
+            role="legacy_hte_json_v1_source",
+        )
+        if expected_legacy_lineage not in effective_read.manifest.inputs:
+            raise HTEInputPreparationRefusal("source_binding_legacy_lineage_mismatch")
+        if (
+            normalized_bytes != effective_read.raw_payload_bytes
+            or normalized_envelope.contract_target != envelope.contract_target
+            or effective_read.manifest.canon != CanonInfo.from_spec(normalized_spec)
+            or effective_read.manifest.governance != submitted_read.manifest.governance
+            or effective_read.manifest.tenant_context != submitted_read.manifest.tenant_context
+        ):
+            raise HTEInputPreparationRefusal("source_binding_legacy_normalization_mismatch")
+        submitted_contract_payload = submitted_value
+
+    recomputed = _build_hte_physical_source_binding(
+        data=data,
+        submitted_ref=binding.submitted_ref,
+        effective_ref=binding.effective_ref,
+        source_protocol=binding.source_protocol,
+        normalization=binding.normalization,
+        contract_target=envelope.contract_target,
+        submitted_contract_payload=submitted_contract_payload,
+        effective_contract_payload=envelope.contract_payload,
+        effective_payload_bytes=effective_read.raw_payload_bytes,
+        max_depth=limits.max_depth,
+    )
+    if recomputed != binding:
+        raise HTEInputPreparationRefusal("source_binding_recomputation_mismatch")
+    if expected_data is not None:
+        if not isinstance(expected_data, HTEObservationalData):
+            raise HTEInputPreparationRefusal("source_binding_worker_data_invalid")
+        worker_binding = _build_hte_physical_source_binding(
+            data=expected_data,
+            submitted_ref=binding.submitted_ref,
+            effective_ref=binding.effective_ref,
+            source_protocol=binding.source_protocol,
+            normalization=binding.normalization,
+            contract_target=envelope.contract_target,
+            submitted_contract_payload=submitted_contract_payload,
+            effective_contract_payload=envelope.contract_payload,
+            effective_payload_bytes=effective_read.raw_payload_bytes,
+            max_depth=limits.max_depth,
+        )
+        if worker_binding != recomputed:
+            raise HTEInputPreparationRefusal("source_binding_materialized_data_mismatch")
+    return recomputed
+
+
 def prepare_hte_observational_input(
     *,
     store: _HTEObservationalInputStore,
@@ -405,6 +957,7 @@ def prepare_hte_observational_input(
     protocol: Literal["method_input_envelope_v1", "legacy_hte_json_v1"],
     method_fqn: str,
     limits: HTEInputLimits,
+    materialization_binding_version: Literal["physical_v1"] | None = None,
 ) -> PreparedHTEObservationalInput:
     """Decode one explicitly selected HTE source under pinned resource limits.
 
@@ -421,6 +974,9 @@ def prepare_hte_observational_input(
         method_fqn: Exact method identity already resolved by Runtime.
         limits: Required manifest and payload limits from the persisted
             resource-policy revision.
+        materialization_binding_version: Opt in to the strict, physical-only
+            source materialization artifact. The default preserves legacy
+            producer behavior and emits no additional artifact.
 
     Returns:
         PreparedHTEObservationalInput: Worker-local DTO and profile-bound refs.
@@ -431,6 +987,8 @@ def prepare_hte_observational_input(
     """
     if protocol not in _HTE_SOURCE_PROTOCOLS:
         raise HTEInputPreparationRefusal("unsupported_hte_source_protocol")
+    if materialization_binding_version not in {None, "physical_v1"}:
+        raise HTEInputPreparationRefusal("unsupported_hte_materialization_binding_version")
     if not isinstance(method_fqn, str) or not method_fqn or method_fqn != method_fqn.strip():
         raise HTEInputPreparationRefusal("invalid_selected_method_fqn")
     if not source_ref.manifest_profile_sha256:
@@ -493,7 +1051,7 @@ def prepare_hte_observational_input(
             ):
                 raise HTEInputPreparationRefusal("hte_contract_target_mismatch")
             data = _materialize_hte_observational_data(envelope.contract_payload)
-            return PreparedHTEObservationalInput(
+            prepared = PreparedHTEObservationalInput(
                 data=data,
                 submitted_ref=source_ref,
                 effective_ref=bounded_read.effective_ref,
@@ -511,6 +1069,28 @@ def prepare_hte_observational_input(
                 observed_elements=bounded_read.observed_elements,
                 **_bounded_read_usage_fields(bounded_read),
             )
+            if materialization_binding_version is None:
+                return prepared
+            binding = _build_hte_physical_source_binding(
+                data=data,
+                submitted_ref=source_ref,
+                effective_ref=bounded_read.effective_ref,
+                source_protocol="method_input_envelope_v1",
+                normalization="canonical_passthrough",
+                contract_target=envelope.contract_target,
+                submitted_contract_payload=envelope.contract_payload,
+                effective_contract_payload=envelope.contract_payload,
+                effective_payload_bytes=bounded_read.raw_payload_bytes,
+                max_depth=limits.max_depth,
+            )
+            binding_ref = _persist_hte_physical_source_binding(
+                store=store,
+                binding=binding,
+                source_governance=governance,
+                source_tenant_context=tenant_context,
+                limits=limits,
+            )
+            return replace(prepared, materialization_binding_ref=binding_ref)
 
         if bounded_read.manifest.artifact_schema is not None:
             raise HTEInputPreparationRefusal("legacy_hte_schema_must_be_null")
@@ -518,31 +1098,24 @@ def prepare_hte_observational_input(
             raise HTEInputPreparationRefusal("source_governance_unavailable")
         if not isinstance(value, dict):
             raise HTEInputPreparationRefusal("legacy_hte_body_invalid")
-        data = _materialize_hte_observational_data(value)
-
-        envelope = ObservationMethodInputEnvelope(
-            contract_target=HTE_OBSERVATIONAL_DATA_TARGET,
-            contract_payload=data.model_dump(mode="json", exclude_none=False),
-        )
-        output_spec = CanonSpec(
-            forbid_floats=False,
-            forbid_nan_inf=True,
-            exclude_none=False,
+        data, envelope, output_spec, output_bytes = _normalize_legacy_hte_source(
+            value,
             max_depth=limits.max_depth,
         )
-        try:
-            output_bytes = to_canonical_bytes(
-                envelope.model_dump(mode="json", exclude_none=False),
-                output_spec,
-            )
-        except (TypeError, ValueError) as exc:
-            raise HTEInputPreparationRefusal(
-                "legacy_hte_normalization_refused",
-                failure_stage="normalized_hte_input_serialization",
-            ) from exc
         if len(output_bytes) > limits.max_bytes:
             raise HTEInputPreparationRefusal(
                 "normalized_hte_input_exceeds_byte_limit",
+                failure_stage="normalized_hte_input_bounds_validation",
+            )
+        if materialization_binding_version is not None and (
+            _json_element_count(
+                envelope.model_dump(mode="json", exclude_none=False),
+                stop_after=limits.max_elements,
+            )
+            > limits.max_elements
+        ):
+            raise HTEInputPreparationRefusal(
+                "normalized_hte_input_exceeds_element_limit",
                 failure_stage="normalized_hte_input_bounds_validation",
             )
 
@@ -584,7 +1157,7 @@ def prepare_hte_observational_input(
                 failure_stage="normalized_hte_input_profile_validation",
             )
 
-        return PreparedHTEObservationalInput(
+        prepared = PreparedHTEObservationalInput(
             data=data,
             submitted_ref=source_ref,
             effective_ref=effective_ref,
@@ -605,6 +1178,28 @@ def prepare_hte_observational_input(
             observed_elements=bounded_read.observed_elements,
             **_bounded_read_usage_fields(bounded_read),
         )
+        if materialization_binding_version is None:
+            return prepared
+        binding = _build_hte_physical_source_binding(
+            data=data,
+            submitted_ref=source_ref,
+            effective_ref=effective_ref,
+            source_protocol="legacy_hte_json_v1",
+            normalization="legacy_to_method_input_envelope_v1",
+            contract_target=HTE_OBSERVATIONAL_DATA_TARGET,
+            submitted_contract_payload=value,
+            effective_contract_payload=envelope.contract_payload,
+            effective_payload_bytes=output_bytes,
+            max_depth=limits.max_depth,
+        )
+        binding_ref = _persist_hte_physical_source_binding(
+            store=store,
+            binding=binding,
+            source_governance=governance,
+            source_tenant_context=tenant_context,
+            limits=limits,
+        )
+        return replace(prepared, materialization_binding_ref=binding_ref)
     except HTEInputPreparationRefusal as exc:
         raise _raise_hte_refusal_with_usage(
             exc,

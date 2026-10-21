@@ -3,8 +3,12 @@
 from __future__ import annotations
 
 from .bindings import (
+    HTE_PHYSICAL_SOURCE_BINDING_KIND,
+    HTE_PHYSICAL_SOURCE_BINDING_SCHEMA,
     HTEInputLimits,
     HTEInputPreparationRefusal,
+    HTEPhysicalArraySlotBinding,
+    HTEPhysicalSourceMaterializationBinding,
     InputBindingsBuildResult,
     PreparedHTEObservationalInput,
     UkraineFoundryIntakeResult,
@@ -12,6 +16,7 @@ from .bindings import (
     extract_feedback_diagnostics,
     extract_feedback_state,
     inject_feedback_state,
+    load_hte_physical_source_materialization_binding,
     load_input_bindings,
     load_ukraine_foundry_intake,
     materialize_method_contract,
@@ -20,8 +25,12 @@ from .bindings import (
 )
 
 __all__ = [
+    "HTE_PHYSICAL_SOURCE_BINDING_KIND",
+    "HTE_PHYSICAL_SOURCE_BINDING_SCHEMA",
     "HTEInputLimits",
     "HTEInputPreparationRefusal",
+    "HTEPhysicalArraySlotBinding",
+    "HTEPhysicalSourceMaterializationBinding",
     "InputBindingsBuildResult",
     "PreparedHTEObservationalInput",
     "UkraineFoundryIntakeResult",
@@ -30,6 +39,7 @@ __all__ = [
     "extract_feedback_state",
     "inject_feedback_state",
     "load_input_bindings",
+    "load_hte_physical_source_materialization_binding",
     "load_ukraine_foundry_intake",
     "materialize_method_contract",
     "prepare_hte_observational_input",

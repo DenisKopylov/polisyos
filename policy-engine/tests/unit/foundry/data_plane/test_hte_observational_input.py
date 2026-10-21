@@ -20,16 +20,24 @@ from polisyos.core.artifacts.manifest import (
     ArtifactGovernanceInfo,
     ArtifactRef,
     ArtifactTenantContextInfo,
+    CanonInfo,
     InputRef,
     ProducerInfo,
     SchemaInfo,
 )
 from polisyos.core.artifacts.store import FileSystemCAS, PutOptions
-from polisyos.core.canon import CanonSpec
+from polisyos.core.canon import CanonSpec, to_canonical_bytes
 from polisyos.foundry.data_plane import (
+    HTE_PHYSICAL_SOURCE_BINDING_KIND,
+    HTE_PHYSICAL_SOURCE_BINDING_SCHEMA,
     HTEInputLimits,
     HTEInputPreparationRefusal,
+    HTEPhysicalSourceMaterializationBinding,
+    load_hte_physical_source_materialization_binding,
     prepare_hte_observational_input,
+)
+from polisyos.foundry.data_plane.bindings import (
+    _persist_hte_physical_source_binding,
 )
 from polisyos.foundry.methods.catalog.causal.protocols import HTEObservationalData
 from polisyos.ir.observation.bundles import (
@@ -125,6 +133,7 @@ def _prepare(
     *,
     protocol: str = "method_input_envelope_v1",
     limits: HTEInputLimits | None = None,
+    materialization_binding_version: str | None = None,
 ):
     return prepare_hte_observational_input(
         store=store,  # type: ignore[arg-type]
@@ -132,6 +141,7 @@ def _prepare(
         protocol=protocol,  # type: ignore[arg-type]
         method_fqn=_METHOD_FQN,
         limits=limits or _limits(),
+        materialization_binding_version=materialization_binding_version,  # type: ignore[arg-type]
     )
 
 
@@ -1071,3 +1081,597 @@ def test_registry_removal_breaks_real_producer_positive_with_markers_unchanged(
 
     with pytest.raises(HTEInputPreparationRefusal, match="invalid_hte_observational_data"):
         _prepare(store, source_ref)
+
+
+def test_opt_in_materialization_binding_round_trips_through_fresh_core_reader(
+    tmp_path: Path,
+) -> None:
+    cas_root = tmp_path / "cas"
+    store = FileSystemCAS(cas_root, ownership_enforced=False)
+    source_ref = _put_envelope(store)
+    ids_before = _artifact_id_strings(store)
+
+    prepared = _prepare(
+        store,
+        source_ref,
+        materialization_binding_version="physical_v1",
+    )
+
+    assert prepared.materialization_binding_ref is not None
+    assert prepared.materialization_binding_ref.kind == HTE_PHYSICAL_SOURCE_BINDING_KIND
+    assert prepared.materialization_binding_ref.manifest_profile_sha256 is not None
+    assert len(_artifact_id_strings(store) - ids_before) == 1
+    binding = load_hte_physical_source_materialization_binding(
+        store=FileSystemCAS.open_existing_read_only(cas_root),
+        binding_ref=prepared.materialization_binding_ref,
+        expected_submitted_ref=source_ref,
+        expected_effective_ref=source_ref,
+        limits=_limits(),
+    )
+
+    assert isinstance(binding, HTEPhysicalSourceMaterializationBinding)
+    assert binding.binding_scope == "physical_materialization_only"
+    assert binding.semantic_alignment_status == "not_established"
+    assert binding.submitted_ref == source_ref
+    assert binding.effective_ref == source_ref
+    assert binding.observation_count == 40
+    assert binding.row_order_basis == "sample_ids"
+    assert binding.row_order_pointer == "/contract_payload/sample_ids"
+    assert binding.submitted_sample_ids_state == "materialized"
+    assert binding.effective_sample_ids_state == "materialized"
+    assert binding.submitted_confounders_state == "materialized"
+    assert binding.effective_confounders_state == "materialized"
+    assert [
+        (slot.physical_slot, slot.component_index, slot.payload_pointer) for slot in binding.arrays
+    ] == [
+        ("outcome_vector", None, "/contract_payload/outcome"),
+        ("treatment_vector", None, "/contract_payload/treatment"),
+        ("covariate_matrix_column", 0, "/contract_payload/covariates"),
+        ("covariate_matrix_column", 1, "/contract_payload/covariates"),
+        ("confounder_matrix_column", 0, "/contract_payload/confounders"),
+    ]
+    assert all(slot.transform == "identity_numpy_materialization_v1" for slot in binding.arrays)
+    serialized = binding.model_dump(mode="json")
+    assert "feature_names" not in serialized
+    assert "confounder_names" not in serialized
+    assert "age" not in json.dumps(serialized)
+    assert prepared.materialization_binding_ref.manifest_profile_sha256
+
+
+def test_default_envelope_materialization_emits_no_binding_artifact(
+    tmp_path: Path,
+) -> None:
+    store = FileSystemCAS(tmp_path / "cas", ownership_enforced=False)
+    source_ref = _put_envelope(store)
+    ids_before = _artifact_id_strings(store)
+
+    prepared = _prepare(store, source_ref)
+
+    assert prepared.materialization_binding_ref is None
+    assert prepared.effective_ref == source_ref
+    assert _artifact_id_strings(store) == ids_before
+
+
+def test_binding_writer_enforces_selected_core_element_bound_before_cas_write(
+    tmp_path: Path,
+) -> None:
+    store = FileSystemCAS(tmp_path / "cas", ownership_enforced=False)
+    source_ref = _put_envelope(store)
+    prepared = _prepare(
+        store,
+        source_ref,
+        materialization_binding_version="physical_v1",
+    )
+    assert prepared.materialization_binding_ref is not None
+    binding = load_hte_physical_source_materialization_binding(
+        store=store,
+        binding_ref=prepared.materialization_binding_ref,
+        expected_submitted_ref=source_ref,
+        expected_effective_ref=prepared.effective_ref,
+        limits=_limits(),
+        expected_data=prepared.data,
+    )
+    ids_before = _artifact_id_strings(store)
+
+    with pytest.raises(
+        HTEInputPreparationRefusal,
+        match="source_binding_exceeds_element_limit",
+    ):
+        _persist_hte_physical_source_binding(
+            store=store,
+            binding=binding,
+            source_governance=prepared.source_governance,
+            source_tenant_context=prepared.source_tenant_context,
+            limits=_limits(max_elements=1),
+        )
+
+    assert _artifact_id_strings(store) == ids_before
+
+
+def test_materialization_binding_opt_in_preserves_legacy_source_lineage(
+    tmp_path: Path,
+) -> None:
+    store = FileSystemCAS(tmp_path / "cas", ownership_enforced=False)
+    source_ref = _put_source(
+        store,
+        _valid_payload(),
+        kind="ir.observational_data",
+        schema=None,
+    )
+
+    ordinary = _prepare(
+        store,
+        source_ref,
+        protocol="legacy_hte_json_v1",
+    )
+    assert ordinary.materialization_binding_ref is None
+    ordinary_effective_read = read_core_json_artifact_bounded(
+        store,
+        ordinary.effective_ref,
+        limits=_limits(),
+    )
+    prepared = _prepare(
+        store,
+        source_ref,
+        protocol="legacy_hte_json_v1",
+        materialization_binding_version="physical_v1",
+    )
+
+    assert prepared.materialization_binding_ref is not None
+    assert prepared.effective_ref != source_ref
+    assert prepared.effective_ref == ordinary.effective_ref
+    opt_in_effective_read = read_core_json_artifact_bounded(
+        store,
+        prepared.effective_ref,
+        limits=_limits(),
+    )
+    assert opt_in_effective_read.raw_payload_bytes == ordinary_effective_read.raw_payload_bytes
+    binding = load_hte_physical_source_materialization_binding(
+        store=store,
+        binding_ref=prepared.materialization_binding_ref,
+        expected_submitted_ref=source_ref,
+        expected_effective_ref=prepared.effective_ref,
+        limits=_limits(),
+    )
+    assert binding.source_protocol == "legacy_hte_json_v1"
+    assert binding.normalization == "legacy_to_method_input_envelope_v1"
+    assert binding.submitted_ref == source_ref
+    assert binding.effective_ref == prepared.effective_ref
+
+
+@pytest.mark.parametrize(
+    ("field_name", "submitted_state_field"),
+    [
+        ("sample_ids", "submitted_sample_ids_state"),
+        ("confounders", "submitted_confounders_state"),
+    ],
+)
+def test_legacy_binding_preserves_absent_vs_null_source_fields(
+    tmp_path: Path,
+    field_name: str,
+    submitted_state_field: str,
+) -> None:
+    store = FileSystemCAS(tmp_path / "cas", ownership_enforced=False)
+    absent_payload = _valid_payload()
+    absent_payload.pop(field_name)
+    null_payload = _valid_payload()
+    null_payload[field_name] = None
+    absent_ref = _put_source(
+        store,
+        absent_payload,
+        kind="ir.observational_data",
+        schema=None,
+    )
+    null_ref = _put_source(
+        store,
+        null_payload,
+        kind="ir.observational_data",
+        schema=None,
+    )
+
+    absent_prepared = _prepare(
+        store,
+        absent_ref,
+        protocol="legacy_hte_json_v1",
+        materialization_binding_version="physical_v1",
+    )
+    null_prepared = _prepare(
+        store,
+        null_ref,
+        protocol="legacy_hte_json_v1",
+        materialization_binding_version="physical_v1",
+    )
+    assert absent_prepared.materialization_binding_ref is not None
+    assert null_prepared.materialization_binding_ref is not None
+
+    absent_binding = load_hte_physical_source_materialization_binding(
+        store=store,
+        binding_ref=absent_prepared.materialization_binding_ref,
+        expected_submitted_ref=absent_ref,
+        expected_effective_ref=absent_prepared.effective_ref,
+        limits=_limits(),
+    )
+    null_binding = load_hte_physical_source_materialization_binding(
+        store=store,
+        binding_ref=null_prepared.materialization_binding_ref,
+        expected_submitted_ref=null_ref,
+        expected_effective_ref=null_prepared.effective_ref,
+        limits=_limits(),
+    )
+    effective_state_field = submitted_state_field.replace("submitted_", "effective_")
+    assert getattr(absent_binding, submitted_state_field) == "absent"
+    assert getattr(null_binding, submitted_state_field) == "null"
+    assert getattr(absent_binding, effective_state_field) == "null"
+    assert getattr(null_binding, effective_state_field) == "null"
+
+
+def test_legacy_binding_rejects_counterfeit_normalized_effective_input(
+    tmp_path: Path,
+) -> None:
+    from polisyos.foundry.data_plane import bindings as foundry_bindings
+
+    store = FileSystemCAS(tmp_path / "cas", ownership_enforced=False)
+    submitted_payload = _valid_payload()
+    source_ref = _put_source(
+        store,
+        submitted_payload,
+        kind="ir.observational_data",
+        schema=None,
+    )
+    prepared = _prepare(
+        store,
+        source_ref,
+        protocol="legacy_hte_json_v1",
+        materialization_binding_version="physical_v1",
+    )
+    assert prepared.materialization_binding_ref is not None
+
+    selected_effective_read = read_core_json_artifact_bounded(
+        store,
+        prepared.effective_ref,
+        limits=_limits(),
+    )
+    counterfeit_envelope = json.loads(
+        json.dumps(require_declared_profile(selected_effective_read.profile_read))
+    )
+    counterfeit_envelope["contract_payload"]["outcome"][0] += 100.0
+    canon_spec = CanonSpec(
+        forbid_floats=False,
+        forbid_nan_inf=True,
+        exclude_none=False,
+        max_depth=_limits().max_depth,
+    )
+    counterfeit_effective_ref = store.put_bytes(
+        to_canonical_bytes(counterfeit_envelope, canon_spec),
+        PutOptions(
+            kind=OBSERVATION_METHOD_INPUT_KIND,
+            media_type="application/json",
+            schema=_ENVELOPE_SCHEMA,
+            producer=ProducerInfo(
+                component=("polisyos.foundry.data_plane.prepare_hte_observational_input"),
+                version="1.0.0",
+            ),
+            inputs=[
+                InputRef(
+                    artifact_id=source_ref.artifact_id,
+                    role="legacy_hte_json_v1_source",
+                    manifest_profile_sha256=source_ref.manifest_profile_sha256,
+                )
+            ],
+            canon=CanonInfo.from_spec(canon_spec),
+            governance=_RESTRICTED,
+            tenant_context=ArtifactTenantContextInfo(
+                tenant_id="tenant-test",
+                cell_id="cell-test",
+            ),
+        ),
+        return_selected_profile=True,
+    )
+    assert counterfeit_effective_ref.manifest_profile_sha256 is not None
+
+    counterfeit_data = HTEObservationalData.model_validate(counterfeit_envelope["contract_payload"])
+    counterfeit_binding = foundry_bindings._build_hte_physical_source_binding(
+        data=counterfeit_data,
+        submitted_ref=source_ref,
+        effective_ref=counterfeit_effective_ref,
+        source_protocol="legacy_hte_json_v1",
+        normalization="legacy_to_method_input_envelope_v1",
+        contract_target=HTE_OBSERVATIONAL_DATA_TARGET,
+        submitted_contract_payload=submitted_payload,
+        effective_contract_payload=counterfeit_envelope["contract_payload"],
+        effective_payload_bytes=to_canonical_bytes(
+            counterfeit_envelope,
+            canon_spec,
+        ),
+        max_depth=_limits().max_depth,
+    )
+    counterfeit_binding_ref = foundry_bindings._persist_hte_physical_source_binding(
+        store=store,
+        binding=counterfeit_binding,
+        source_governance=_RESTRICTED,
+        source_tenant_context=ArtifactTenantContextInfo(
+            tenant_id="tenant-test",
+            cell_id="cell-test",
+        ),
+        limits=_limits(),
+    )
+
+    with pytest.raises(
+        HTEInputPreparationRefusal,
+        match="source_binding_legacy_normalization_mismatch",
+    ):
+        load_hte_physical_source_materialization_binding(
+            store=FileSystemCAS.open_existing_read_only(tmp_path / "cas"),
+            binding_ref=counterfeit_binding_ref,
+            expected_submitted_ref=source_ref,
+            expected_effective_ref=counterfeit_effective_ref,
+            limits=_limits(),
+        )
+
+
+def test_binding_rejects_forged_field_map_and_bool_as_integer(
+    tmp_path: Path,
+) -> None:
+    from pydantic import ValidationError
+
+    store = FileSystemCAS(tmp_path / "cas", ownership_enforced=False)
+    source_ref = _put_envelope(store)
+    prepared = _prepare(
+        store,
+        source_ref,
+        materialization_binding_version="physical_v1",
+    )
+    assert prepared.materialization_binding_ref is not None
+    binding = load_hte_physical_source_materialization_binding(
+        store=store,
+        binding_ref=prepared.materialization_binding_ref,
+        expected_submitted_ref=source_ref,
+        expected_effective_ref=source_ref,
+        limits=_limits(),
+    )
+    forged_slots = list(binding.arrays)
+    forged_slots[0] = forged_slots[0].model_copy(
+        update={"payload_pointer": "/contract_payload/treatment"}
+    )
+    forged = binding.model_copy(update={"arrays": tuple(forged_slots)})
+    spec = CanonSpec(forbid_floats=False, forbid_nan_inf=True, exclude_none=False)
+    forged_ref = store.put_bytes(
+        to_canonical_bytes(forged.model_dump(mode="json"), spec),
+        PutOptions(
+            kind=HTE_PHYSICAL_SOURCE_BINDING_KIND,
+            media_type="application/json",
+            schema=HTE_PHYSICAL_SOURCE_BINDING_SCHEMA,
+            producer=ProducerInfo(
+                component="tests.forged_hte_source_binding",
+                version="1.0",
+            ),
+            inputs=[
+                InputRef(
+                    artifact_id=source_ref.artifact_id,
+                    role="materialized_hte_method_input",
+                    manifest_profile_sha256=source_ref.manifest_profile_sha256,
+                )
+            ],
+            canon=CanonInfo.from_spec(spec),
+            governance=_RESTRICTED,
+            tenant_context=ArtifactTenantContextInfo(
+                tenant_id="tenant-test",
+                cell_id="cell-test",
+            ),
+        ),
+        return_selected_profile=True,
+    )
+
+    with pytest.raises(
+        HTEInputPreparationRefusal,
+        match="source_binding_recomputation_mismatch",
+    ):
+        load_hte_physical_source_materialization_binding(
+            store=store,
+            binding_ref=forged_ref,
+            expected_submitted_ref=source_ref,
+            expected_effective_ref=source_ref,
+            limits=_limits(),
+        )
+
+    invalid_payload = binding.model_dump(mode="json")
+    invalid_payload["observation_count"] = True
+    with pytest.raises(ValidationError):
+        HTEPhysicalSourceMaterializationBinding.model_validate_json(json.dumps(invalid_payload))
+
+
+@pytest.mark.parametrize(
+    ("field_name", "expected_reason"),
+    [
+        ("array_dtype", "source_binding_recomputation_mismatch"),
+        ("row_order_sha256", "source_binding_recomputation_mismatch"),
+        ("effective_payload_sha256", "source_binding_effective_payload_mismatch"),
+    ],
+    ids=["array-dtype", "row-order", "effective-payload"],
+)
+def test_fresh_reader_recomputes_persisted_physical_binding_content(
+    tmp_path: Path,
+    field_name: str,
+    expected_reason: str,
+) -> None:
+    store = FileSystemCAS(tmp_path / "cas", ownership_enforced=False)
+    source_ref = _put_envelope(store)
+    prepared = _prepare(
+        store,
+        source_ref,
+        materialization_binding_version="physical_v1",
+    )
+    assert prepared.materialization_binding_ref is not None
+    binding = load_hte_physical_source_materialization_binding(
+        store=FileSystemCAS.open_existing_read_only(tmp_path / "cas"),
+        binding_ref=prepared.materialization_binding_ref,
+        expected_submitted_ref=source_ref,
+        expected_effective_ref=prepared.effective_ref,
+        limits=_limits(),
+    )
+    payload = binding.model_dump(mode="json")
+    if field_name == "array_dtype":
+        payload["arrays"][0][field_name] = "<f4"
+    else:
+        payload[field_name] = "sha256:" + "0" * 64
+    tampered_binding = HTEPhysicalSourceMaterializationBinding.model_validate_json(
+        json.dumps(payload)
+    )
+    canon_spec = CanonSpec(
+        forbid_floats=False,
+        forbid_nan_inf=True,
+        exclude_none=False,
+        max_depth=_limits().max_depth,
+    )
+    tampered_ref = store.put_bytes(
+        to_canonical_bytes(tampered_binding.model_dump(mode="json"), canon_spec),
+        PutOptions(
+            kind=HTE_PHYSICAL_SOURCE_BINDING_KIND,
+            media_type="application/json",
+            schema=HTE_PHYSICAL_SOURCE_BINDING_SCHEMA,
+            producer=ProducerInfo(
+                component="tests.unit.foundry.physical_binding_content_tamper",
+                version="1.0",
+            ),
+            inputs=[
+                InputRef(
+                    artifact_id=prepared.effective_ref.artifact_id,
+                    role="materialized_hte_method_input",
+                    manifest_profile_sha256=(prepared.effective_ref.manifest_profile_sha256),
+                )
+            ],
+            canon=CanonInfo.from_spec(canon_spec),
+            governance=prepared.source_governance,
+            tenant_context=prepared.source_tenant_context,
+        ),
+        return_selected_profile=True,
+    )
+    assert tampered_ref.manifest_profile_sha256 is not None
+
+    with pytest.raises(HTEInputPreparationRefusal, match=expected_reason):
+        load_hte_physical_source_materialization_binding(
+            store=FileSystemCAS.open_existing_read_only(tmp_path / "cas"),
+            binding_ref=tampered_ref,
+            expected_submitted_ref=source_ref,
+            expected_effective_ref=prepared.effective_ref,
+            limits=_limits(),
+        )
+
+
+def test_binding_rejects_worker_dto_that_differs_from_selected_source(
+    tmp_path: Path,
+) -> None:
+    store = FileSystemCAS(tmp_path / "cas", ownership_enforced=False)
+    source_a_payload = _valid_payload()
+    source_b_payload = _valid_payload()
+    for row in source_b_payload["covariates"]:
+        row[0], row[1] = row[1], row[0]
+    source_a = _put_envelope(store, _envelope_payload(source_a_payload))
+    source_b = _put_envelope(store, _envelope_payload(source_b_payload))
+    prepared_a = _prepare(store, source_a, materialization_binding_version="physical_v1")
+    prepared_b = _prepare(store, source_b, materialization_binding_version="physical_v1")
+    assert prepared_a.materialization_binding_ref is not None
+    with pytest.raises(
+        HTEInputPreparationRefusal,
+        match="source_binding_materialized_data_mismatch",
+    ):
+        load_hte_physical_source_materialization_binding(
+            store=store,
+            binding_ref=prepared_a.materialization_binding_ref,
+            expected_submitted_ref=source_a,
+            expected_effective_ref=source_a,
+            limits=_limits(),
+            expected_data=prepared_b.data,
+        )
+
+
+@pytest.mark.parametrize("mutation", ["same_names_swapped_columns", "reordered_rows"])
+def test_same_labels_do_not_bind_swapped_arrays_or_row_order(
+    tmp_path: Path,
+    mutation: str,
+) -> None:
+    store = FileSystemCAS(tmp_path / "cas", ownership_enforced=False)
+    source_a_payload = _valid_payload()
+    source_b_payload = _valid_payload()
+    if mutation == "same_names_swapped_columns":
+        for row in source_b_payload["covariates"]:
+            row[0], row[1] = row[1], row[0]
+    else:
+        for field_name in (
+            "outcome",
+            "treatment",
+            "covariates",
+            "confounders",
+            "sample_ids",
+        ):
+            source_b_payload[field_name].reverse()
+    source_a = _put_envelope(store, _envelope_payload(source_a_payload))
+    source_b = _put_envelope(store, _envelope_payload(source_b_payload))
+    prepared_a = _prepare(store, source_a, materialization_binding_version="physical_v1")
+    prepared_b = _prepare(store, source_b, materialization_binding_version="physical_v1")
+    assert prepared_a.materialization_binding_ref is not None
+    assert prepared_b.materialization_binding_ref is not None
+    binding_a = load_hte_physical_source_materialization_binding(
+        store=store,
+        binding_ref=prepared_a.materialization_binding_ref,
+        expected_submitted_ref=source_a,
+        expected_effective_ref=source_a,
+        limits=_limits(),
+    )
+    binding_b = load_hte_physical_source_materialization_binding(
+        store=store,
+        binding_ref=prepared_b.materialization_binding_ref,
+        expected_submitted_ref=source_b,
+        expected_effective_ref=source_b,
+        limits=_limits(),
+    )
+    assert source_a_payload["feature_names"] == source_b_payload["feature_names"]
+    assert binding_a.semantic_alignment_status == "not_established"
+    assert binding_b.semantic_alignment_status == "not_established"
+    if mutation == "reordered_rows":
+        assert binding_a.row_order_sha256 != binding_b.row_order_sha256
+    else:
+        assert binding_a.row_order_sha256 == binding_b.row_order_sha256
+    assert tuple(slot.value_sha256 for slot in binding_a.arrays) != tuple(
+        slot.value_sha256 for slot in binding_b.arrays
+    )
+    with pytest.raises(HTEInputPreparationRefusal, match="source_binding_input_ref_mismatch"):
+        load_hte_physical_source_materialization_binding(
+            store=store,
+            binding_ref=prepared_a.materialization_binding_ref,
+            expected_submitted_ref=source_b,
+            expected_effective_ref=source_b,
+            limits=_limits(),
+        )
+
+
+def test_binding_refuses_an_equal_payload_under_a_foreign_selected_profile(
+    tmp_path: Path,
+) -> None:
+    store = FileSystemCAS(tmp_path / "cas", ownership_enforced=False)
+    payload = _envelope_payload(_valid_payload())
+    selected = _put_envelope(store, payload)
+    alternate_profile = _put_source(
+        store,
+        payload,
+        kind=OBSERVATION_METHOD_INPUT_KIND,
+        schema=_ENVELOPE_SCHEMA,
+        governance=ArtifactGovernanceInfo(classification="confidential"),
+    )
+    assert selected.artifact_id == alternate_profile.artifact_id
+    assert selected.manifest_profile_sha256 != alternate_profile.manifest_profile_sha256
+    prepared = _prepare(
+        store,
+        selected,
+        materialization_binding_version="physical_v1",
+    )
+    assert prepared.materialization_binding_ref is not None
+
+    with pytest.raises(HTEInputPreparationRefusal, match="source_binding_input_ref_mismatch"):
+        load_hte_physical_source_materialization_binding(
+            store=store,
+            binding_ref=prepared.materialization_binding_ref,
+            expected_submitted_ref=alternate_profile,
+            expected_effective_ref=alternate_profile,
+            limits=_limits(),
+        )

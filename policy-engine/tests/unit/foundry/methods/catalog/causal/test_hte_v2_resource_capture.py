@@ -6,6 +6,7 @@ import base64
 import hashlib
 import json
 from types import SimpleNamespace
+from typing import Any
 
 import numpy as np
 import pytest
@@ -25,8 +26,11 @@ from polisyos.foundry.methods.catalog.causal.hte_v2 import (
     CausalForestEstimatorV2,
     DoubleMachineLearningV2,
     ForestDRLearnerEstimatorV2,
+    HTEProducerResourceReceiptV1,
+    HTEWriterReadyPointV1,
     HTEWriterReadyRefusalV1,
     MetaLearnerEstimatorV2,
+    _attach_resource_receipt,
     _capture_estimator_observation,
     _capture_facts,
     _capture_joblib_observation,
@@ -797,3 +801,159 @@ def test_all_successor_classes_have_one_explicit_method_profile_pair() -> None:
     }
     assert len(pairs) == len(classes)
     assert all(_method_identity(method_class)[1] == "2.0.0" for method_class in classes)
+
+
+def _writer_ready_point_json(*, feature_names: list[str] | None) -> dict[str, Any]:
+    """Build a no-fit writer value with the same JSON boundary as MethodResult."""
+    method = DoubleMachineLearningV2
+    source_data = HTEObservationalData(
+        outcome=np.linspace(0.0, 1.0, 40),
+        treatment=np.tile(np.asarray([0, 1]), 20),
+        covariates=np.arange(80, dtype=float).reshape(40, 2),
+        feature_names=feature_names,
+    )
+    resolved_params = {item.name: item.default for item in method.signature.parameters}
+    params_with_seed = {**resolved_params, "__seed__": 19}
+    method_fqn, method_abi, method_profile_id = _method_identity(method)
+    capture = _capture_facts(
+        build_hte_data(source_data),
+        source_data,
+        params_with_seed,
+        method_fqn=method_fqn,
+        method_abi=method_abi,
+        method_profile_id=method_profile_id,
+        runtime_context=None,
+    )
+    _, receipt = _run_with_joblib_profile(
+        lambda: None,
+        method_profile_id=method_profile_id,
+    )
+    point = HTEWriterReadyPointV1(
+        method_fqn=method_fqn,
+        method_abi=method_abi,
+        method_profile_id=method_profile_id,
+        resource_receipt=receipt,
+        limitations=("native_interval_not_requested",),
+        kind="point_estimate",
+        capture=capture,
+        point_estimate=0.25,
+        inference_status="not_requested",
+        inference_reason="inference_not_requested",
+        cate_values=tuple(0.25 for _ in range(capture.n_selected_rows)),
+        native_diagnostic=None,
+    )
+    return point.model_dump(mode="json")
+
+
+def test_writer_ready_json_boundary_round_trips_json_tuples_without_weakening_python() -> None:
+    """Only the explicit JSON boundary maps arrays back to strict tuple fields."""
+    from pydantic import ValidationError
+
+    from polisyos.foundry.methods.catalog.causal.hte_v2 import (
+        validate_hte_writer_ready,
+        validate_hte_writer_ready_json,
+    )
+
+    payload = _writer_ready_point_json(feature_names=["earnings", "schooling"])
+    with pytest.raises(ValidationError):
+        validate_hte_writer_ready(payload)
+
+    parsed = validate_hte_writer_ready_json(payload)
+    assert isinstance(parsed, HTEWriterReadyPointV1)
+    assert validate_hte_writer_ready(parsed) == parsed
+    assert parsed.limitations == ("native_interval_not_requested",)
+    assert parsed.capture.source_feature_names == ("earnings", "schooling")
+    assert len(parsed.cate_values) == parsed.capture.n_selected_rows == 40
+
+    receipt = HTEProducerResourceReceiptV1.model_validate(payload["resource_receipt"], strict=True)
+    attached = _attach_resource_receipt(
+        {"hte_outcome_write_ready": payload},
+        receipt,
+    )
+    attached_value = validate_hte_writer_ready_json(attached["hte_outcome_write_ready"])
+    assert isinstance(attached_value, HTEWriterReadyPointV1)
+    assert attached_value.capture.source_feature_names == ("earnings", "schooling")
+
+
+def test_writer_ready_json_boundary_preserves_absent_feature_names_and_refusal() -> None:
+    """JSON input preserves absent optional names and validates the refusal branch."""
+    from polisyos.foundry.methods.catalog.causal.hte_v2 import (
+        validate_hte_writer_ready_json,
+    )
+
+    point_payload = _writer_ready_point_json(feature_names=None)
+    point = validate_hte_writer_ready_json(point_payload)
+    assert isinstance(point, HTEWriterReadyPointV1)
+    assert point.capture.source_feature_names is None
+
+    method = DoubleMachineLearningV2
+    method_fqn, method_abi, method_profile_id = _method_identity(method)
+    refusal = HTEWriterReadyRefusalV1(
+        kind="refusal",
+        method_fqn=method_fqn,
+        method_abi=method_abi,
+        method_profile_id=method_profile_id,
+        resource_receipt=_not_started_resource_receipt(method_profile_id),
+        capture=None,
+        limitations=("input_not_available",),
+        refusal_stage="prepare",
+        refusal_reason="required_input_unavailable",
+        diagnostic_code="hte_input_invalid",
+    )
+    refusal_json = refusal.model_dump(mode="json")
+    parsed_refusal = validate_hte_writer_ready_json(refusal_json)
+    assert isinstance(parsed_refusal, HTEWriterReadyRefusalV1)
+    assert parsed_refusal.limitations == ("input_not_available",)
+
+
+def test_writer_ready_json_boundary_rejects_malformed_values_without_coercion() -> None:
+    """Malformed JSON members, unknown fields, and non-string keys stay rejected."""
+    from copy import deepcopy
+
+    from pydantic import ValidationError
+
+    from polisyos.foundry.methods.catalog.causal.hte_v2 import (
+        validate_hte_writer_ready_json,
+    )
+
+    payload = _writer_ready_point_json(feature_names=["earnings", "schooling"])
+
+    malformed_member = deepcopy(payload)
+    malformed_member["cate_values"][0] = "not-a-number"  # type: ignore[index]
+    with pytest.raises(ValidationError):
+        validate_hte_writer_ready_json(malformed_member)
+
+    boolean_number = deepcopy(payload)
+    boolean_number["cate_values"][0] = True  # type: ignore[index]
+    with pytest.raises(ValidationError):
+        validate_hte_writer_ready_json(boolean_number)
+
+    unknown_field = deepcopy(payload)
+    unknown_field["unexpected"] = "not-in-schema"
+    with pytest.raises(ValidationError):
+        validate_hte_writer_ready_json(unknown_field)
+
+    wrong_schema = deepcopy(payload)
+    wrong_schema["kind"] = "unsupported_variant"
+    with pytest.raises(ValidationError):
+        validate_hte_writer_ready_json(wrong_schema)
+
+    non_string_key = deepcopy(payload)
+    non_string_key["capture"]["resolved_params"][1] = "must-not-be-stringified"  # type: ignore[index]
+    with pytest.raises((TypeError, ValueError), match="JSON object keys must be strings"):
+        validate_hte_writer_ready_json(non_string_key)
+
+    non_json_object = deepcopy(payload)
+    non_json_object["capture"]["resolved_params"]["python_only"] = object()  # type: ignore[index]
+    with pytest.raises(TypeError, match="non-JSON value"):
+        validate_hte_writer_ready_json(non_json_object)
+
+    python_tuple = deepcopy(payload)
+    python_tuple["limitations"] = ("not-json-array",)
+    with pytest.raises(TypeError, match="non-JSON value"):
+        validate_hte_writer_ready_json(python_tuple)
+
+    non_finite_number = deepcopy(payload)
+    non_finite_number["point_estimate"] = float("nan")
+    with pytest.raises((TypeError, ValueError)):
+        validate_hte_writer_ready_json(non_finite_number)

@@ -1067,6 +1067,41 @@ def validate_hte_writer_ready(payload: Any) -> HTEWriterReadyV1:
     return _WRITER_READY_ADAPTER.validate_python(payload)
 
 
+def validate_hte_writer_ready_json(payload: Mapping[str, Any]) -> HTEWriterReadyV1:
+    """Strictly validate an HTE value crossing a JSON serialization boundary.
+
+    JSON arrays are accepted for tuple fields because the payload is parsed as
+    JSON, while the Python validator remains strict for already-typed values.
+    Non-JSON Python objects and non-string object keys are rejected before
+    serialization so the encoder cannot silently coerce malformed members.
+    """
+    if type(payload) is not dict:
+        raise TypeError("writer-ready JSON payload must be a JSON object")
+    _require_writer_ready_json_value(payload)
+    return _WRITER_READY_ADAPTER.validate_json(_canonical_json_bytes(payload), strict=True)
+
+
+def _require_writer_ready_json_value(value: Any) -> None:
+    """Require a lossless JSON-native tree before canonical serialization."""
+    if value is None or type(value) in {str, bool, int}:
+        return
+    if type(value) is float:
+        if not math.isfinite(value):
+            raise ValueError("writer-ready JSON numbers must be finite")
+        return
+    if type(value) is list:
+        for item in value:
+            _require_writer_ready_json_value(item)
+        return
+    if type(value) is dict:
+        for key, item in value.items():
+            if type(key) is not str:
+                raise ValueError("JSON object keys must be strings")
+            _require_writer_ready_json_value(item)
+        return
+    raise TypeError(f"writer-ready payload contains a non-JSON value: {type(value).__name__}")
+
+
 def _canonical_json_bytes(payload: Any) -> bytes:
     return json.dumps(
         payload,
@@ -2311,7 +2346,7 @@ def _attach_resource_receipt(
                 limitations=updated.get("limitations", ()),
             )
             return {"hte_outcome_write_ready": refusal["hte_outcome_write_ready"]}
-    validated = validate_hte_writer_ready(updated)
+    validated = validate_hte_writer_ready_json(updated)
     return {**result, "hte_outcome_write_ready": validated.model_dump(mode="json")}
 
 
@@ -2919,4 +2954,5 @@ __all__ = [
     "OwnedHTEInputCaptureV1",
     "build_owned_hte_input_capture",
     "validate_hte_writer_ready",
+    "validate_hte_writer_ready_json",
 ]

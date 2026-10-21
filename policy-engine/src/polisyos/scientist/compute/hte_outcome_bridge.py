@@ -647,7 +647,7 @@ def persist_runtime_hte_outcome(
     )
     from polisyos.foundry.methods.catalog.causal.hte_v2 import (
         HTEWriterReadyRefusalV1,
-        validate_hte_writer_ready,
+        validate_hte_writer_ready_json,
     )
     from polisyos.ir.analytics.causal import CausalMethod
     from polisyos.ir.analytics.hte import (
@@ -816,8 +816,8 @@ def persist_runtime_hte_outcome(
     evidence_refs = ((method_result_ref_core, "method_result"), *source_refs)
     _assert_manifest_inputs(evidence_manifest, evidence_refs, CoreArtifactRef)
 
-    writer = validate_hte_writer_ready(writer_ready)
-    stored_writer = validate_hte_writer_ready(result_payload.get("hte_outcome_write_ready"))
+    writer = validate_hte_writer_ready_json(writer_ready)
+    stored_writer = validate_hte_writer_ready_json(result_payload.get("hte_outcome_write_ready"))
     if _canonical_json(writer.model_dump(mode="json")) != _canonical_json(
         stored_writer.model_dump(mode="json")
     ):

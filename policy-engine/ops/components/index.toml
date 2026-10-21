@@ -231,6 +231,7 @@ bundle = "ops/components/ddm"
 source_readme = "src/polisyos/ddm/README.md"
 slo_status = "exception"
 slo_file = "ops/components/ddm/slo.yaml"
+legacy_slo_files = ["ops/observability/slo/schema_drift.yaml"]
 runbooks = ["docs/runbooks/benchmark-regression-triage.md", "docs/runbooks/replay-or-restore.md"]
 alerts = []
 dashboards = ["ops/observability/grafana/dashboards/slo-overview.json"]

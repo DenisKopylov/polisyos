@@ -1,5 +1,6 @@
 from __future__ import annotations
 
+import copy
 import datetime as dt
 import json
 import re
@@ -451,6 +452,69 @@ PRODUCT_ROOT_FOR_TESTS = next(
 )
 
 
+def _replace_complete_toml_field_value(
+    path: Path,
+    *,
+    text: str,
+    field: str,
+    replacement: str,
+    expected_payload: dict[str, Any],
+) -> None:
+    replacement_payload = tomllib.loads(replacement)
+    if set(replacement_payload) != {field}:
+        raise AssertionError(f"replacement must contain exactly the field {field}")
+
+    key = re.escape(field)
+    assignment_pattern = re.compile(rf"(?m)^([ \t]*)(?:{key}|\"{key}\"|'{key}')[ \t]*=")
+    assignment_starts = list(assignment_pattern.finditer(text))
+    if not assignment_starts:
+        raise AssertionError(f"field assignment not found in TOML document: {field}")
+
+    line_ends: list[int] = []
+    offset = 0
+    for line in text.splitlines(keepends=True):
+        offset += len(line)
+        line_ends.append(offset)
+    if not line_ends or line_ends[-1] != len(text):
+        line_ends.append(len(text))
+    newline_match = re.search(r"\r\n|\r|\n", text)
+    newline = newline_match.group(0) if newline_match is not None else "\n"
+
+    for assignment in assignment_starts:
+        start = assignment.start()
+        value_end = None
+        for line_end in line_ends:
+            if line_end <= start:
+                continue
+            try:
+                tomllib.loads(text[:line_end])
+            except tomllib.TOMLDecodeError:
+                continue
+            value_end = line_end
+            break
+        if value_end is None:
+            continue
+
+        original_segment = text[start:value_end]
+        suffix = text[value_end:]
+        indentation = assignment.group(1)
+        updated_assignment = indentation + replacement.rstrip("\r\n")
+        if original_segment.endswith(("\n", "\r")) or suffix:
+            updated_assignment += newline
+        candidate_text = text[:start] + updated_assignment + suffix
+        try:
+            candidate_payload = tomllib.loads(candidate_text)
+        except tomllib.TOMLDecodeError:
+            continue
+        if candidate_payload == expected_payload:
+            path.write_text(candidate_text, encoding="utf-8")
+            return
+
+    raise AssertionError(
+        f"no complete assignment replacement matched the expected TOML document: {field}"
+    )
+
+
 def _replace_array_table_value(
     path: Path,
     *,
@@ -461,24 +525,35 @@ def _replace_array_table_value(
     replacement: str,
 ) -> None:
     text = path.read_text(encoding="utf-8")
-    matches = list(re.finditer(rf"(?m)^\[\[{re.escape(table)}\]\]\s*$", text))
-    for index in reversed(range(len(matches))):
-        match = matches[index]
-        end = matches[index + 1].start() if index + 1 < len(matches) else len(text)
-        block = text[match.start() : end]
-        row = tomllib.loads(block)[table][0]
-        if row.get(identity) == value:
-            updated, count = re.subn(
-                rf"(?m)^{re.escape(field)}\s*=.*$",
-                replacement,
-                block,
-                count=1,
-            )
-            if count != 1:
-                raise AssertionError(f"field not found in {table} row: {field}")
-            path.write_text(text[: match.start()] + updated + text[end:], encoding="utf-8")
-            return
-    raise AssertionError(f"array row not found: {table}.{identity}={value}")
+    payload = tomllib.loads(text)
+    rows = payload.get(table)
+    if not isinstance(rows, list):
+        raise AssertionError(f"array table not found in TOML document: {table}")
+    matching_rows = [
+        (index, row)
+        for index, row in enumerate(rows)
+        if isinstance(row, dict) and row.get(identity) == value
+    ]
+    if len(matching_rows) != 1:
+        raise AssertionError(
+            f"expected one array row for {table}.{identity}={value}; found {len(matching_rows)}"
+        )
+    row_index, row = matching_rows[0]
+    if field not in row:
+        raise AssertionError(f"field not found in {table} row: {field}")
+
+    replacement_payload = tomllib.loads(replacement)
+    if set(replacement_payload) != {field}:
+        raise AssertionError(f"replacement must contain exactly {table}.{field}")
+    expected_payload = copy.deepcopy(payload)
+    expected_payload[table][row_index][field] = replacement_payload[field]
+    _replace_complete_toml_field_value(
+        path,
+        text=text,
+        field=field,
+        replacement=replacement,
+        expected_payload=expected_payload,
+    )
 
 
 def _drop_array_row(path: Path, table: str, identity: str, value: str) -> None:
@@ -816,21 +891,92 @@ def _replace_table_field_value(path: Path, *, table: str, field: str, value: Any
     if not isinstance(table_value, dict) or field not in table_value:
         raise AssertionError(f"field not found in TOML table: {table}.{field}")
 
-    header = re.search(rf"(?m)^\[{re.escape(table)}\]\s*$", text)
-    if header is None:
-        raise AssertionError(f"TOML table not found: {table}")
-    next_header = re.search(r"(?m)^\[", text[header.end() :])
-    section_end = header.end() + next_header.start() if next_header is not None else len(text)
-    section = text[header.end() : section_end]
-    updated, count = re.subn(
-        rf"(?m)^{re.escape(field)}\s*=.*$",
-        lambda _: f"{field} = {json.dumps(value, ensure_ascii=False)}",
-        section,
-        count=1,
+    replacement = f"{field} = {json.dumps(value, ensure_ascii=False)}"
+    replacement_payload = tomllib.loads(replacement)
+    expected_payload = copy.deepcopy(payload)
+    expected_payload[table][field] = replacement_payload[field]
+    _replace_complete_toml_field_value(
+        path,
+        text=text,
+        field=field,
+        replacement=replacement,
+        expected_payload=expected_payload,
     )
-    if count != 1:
-        raise AssertionError(f"field assignment not found in TOML table: {table}.{field}")
-    path.write_text(text[: header.end()] + updated + text[section_end:], encoding="utf-8")
+
+
+def test_replace_array_table_value_uses_complete_assignment_inside_decoy_content(
+    tmp_path: Path,
+) -> None:
+    path = tmp_path / "contract.toml"
+    path.write_text(
+        "[[package]]\n"
+        'module = "polisyos.target"\n'
+        'notes = """\n'
+        'supported_entrypoints = ["decoy"]\n'
+        "[[package]]\n"
+        "[not.a.table]\n"
+        '"""\n'
+        "supported_entrypoints = [\n"
+        '  "polisyos.target.api",\n'
+        '  "polisyos.target.cli",\n'
+        "]\n"
+        'other = "preserve-target"\n'
+        "\n"
+        "[[package]]\n"
+        'module = "polisyos.sibling"\n'
+        'supported_entrypoints = ["polisyos.sibling.api"]\n'
+        'other = "preserve-sibling"\n',
+        encoding="utf-8",
+    )
+    original = tomllib.loads(path.read_text(encoding="utf-8"))
+    original_notes = original["package"][0]["notes"]
+
+    _replace_array_table_value(
+        path,
+        table="package",
+        identity="module",
+        value="polisyos.target",
+        field="supported_entrypoints",
+        replacement='supported_entrypoints = ["polisyos.target.revised"]',
+    )
+
+    updated = tomllib.loads(path.read_text(encoding="utf-8"))
+    assert updated["package"][0]["supported_entrypoints"] == ["polisyos.target.revised"]
+    assert updated["package"][0]["notes"] == original_notes
+    assert updated["package"][0]["other"] == "preserve-target"
+    assert updated["package"][1] == original["package"][1]
+
+
+def test_replace_table_field_value_ignores_multiline_toml_decoys(tmp_path: Path) -> None:
+    path = tmp_path / "contract.toml"
+    path.write_text(
+        "[public_surface]\n"
+        'notes = """\n'
+        'facade_mode = "decoy"\n'
+        "[not.a.table]\n"
+        "[[package]]\n"
+        '"""\n'
+        'facade_mode = "source"\n'
+        'other = "preserve"\n'
+        "\n"
+        "[other]\n"
+        'facade_mode = "sibling"\n',
+        encoding="utf-8",
+    )
+    original = tomllib.loads(path.read_text(encoding="utf-8"))
+
+    _replace_table_field_value(
+        path,
+        table="public_surface",
+        field="facade_mode",
+        value="revised",
+    )
+
+    updated = tomllib.loads(path.read_text(encoding="utf-8"))
+    assert updated["public_surface"]["facade_mode"] == "revised"
+    assert updated["public_surface"]["notes"] == original["public_surface"]["notes"]
+    assert updated["public_surface"]["other"] == "preserve"
+    assert updated["other"] == original["other"]
 
 
 def _malformed_toml_value(value: Any, mutation: str) -> Any:
@@ -1262,8 +1408,8 @@ def test_legacy_operability_route_join_catches_removed_route_and_preserves_phase
     }
     assert runbook_coverage["slo_files"] == {
         "occurrence_count": 13,
-        "routed_occurrence_count": 12,
-        "unrouted_occurrence_count": 1,
+        "routed_occurrence_count": 13,
+        "unrouted_occurrence_count": 0,
     }
     assert component_observability["slo_files"] == {
         "occurrence_count": 4,
@@ -1291,11 +1437,17 @@ def test_legacy_operability_route_join_catches_removed_route_and_preserves_phase
     assert len(runbook_occurrences) == 16
     assert all(item["routed"] and item["active_routes"] for item in runbook_occurrences)
     assert len(legacy_slo_occurrences) == 13
-    assert sum(item["routed"] for item in legacy_slo_occurrences) == 12
+    assert sum(item["routed"] for item in legacy_slo_occurrences) == 13
     assert len(component_slo_occurrences) == 4
     assert all(item["routed"] and item["active_routes"] for item in component_slo_occurrences)
-    assert [item["path"] for item in route_join["missing_occurrences"]] == [
-        "ops/observability/slo/schema_drift.yaml"
+    assert route_join["missing_occurrences"] == []
+    schema_drift_route = next(
+        item
+        for item in route_join["occurrences"]
+        if item["path"] == "ops/observability/slo/schema_drift.yaml"
+    )
+    assert schema_drift_route["active_routes"] == [
+        {"component": "ddm", "owner": "team-architecture"}
     ]
     retained_route = next(
         item
@@ -1312,19 +1464,21 @@ def test_legacy_operability_route_join_catches_removed_route_and_preserves_phase
     phase6_3_read_toml = phase6_3._read_toml
     remaining_data_forge_runbook_counts: list[int] = []
 
-    def remove_only_retained_artifact_route(data: dict[str, Any]) -> dict[str, Any]:
+    def remove_tested_operability_routes(data: dict[str, Any]) -> dict[str, Any]:
         data_forge = next(item for item in data["component"] if item["id"] == "data_forge")
         data_forge["runbooks"].remove("docs/runbooks/retained-artifact-recovery.md")
+        ddm = next(item for item in data["component"] if item["id"] == "ddm")
+        ddm["legacy_slo_files"].remove("ops/observability/slo/schema_drift.yaml")
         remaining_data_forge_runbook_counts.append(len(data_forge["runbooks"]))
         return data
 
     def read_phase1_3_with_removed_route(path: Path) -> dict[str, Any]:
         data = phase1_3_read_toml(path)
-        return remove_only_retained_artifact_route(data) if path == index_path else data
+        return remove_tested_operability_routes(data) if path == index_path else data
 
     def read_phase6_3_with_removed_route(path: Path) -> dict[str, Any]:
         data = phase6_3_read_toml(path)
-        return remove_only_retained_artifact_route(data) if path == index_path else data
+        return remove_tested_operability_routes(data) if path == index_path else data
 
     monkeypatch.setattr(phase1_3, "_read_toml", read_phase1_3_with_removed_route)
     monkeypatch.setattr(phase6_3, "_read_toml", read_phase6_3_with_removed_route)
@@ -1423,8 +1577,7 @@ def test_legacy_operability_route_join_reads_index_named_by_contract(
     route_join = report["summary"]["legacy_operability_routes"]
     assert requested_indexes == ["ops/components/alternate-component-index.toml"]
     assert [item["path"] for item in route_join["missing_occurrences"]] == [
-        "docs/runbooks/retained-artifact-recovery.md",
-        "ops/observability/slo/schema_drift.yaml",
+        "docs/runbooks/retained-artifact-recovery.md"
     ]
     retained_route = next(
         item

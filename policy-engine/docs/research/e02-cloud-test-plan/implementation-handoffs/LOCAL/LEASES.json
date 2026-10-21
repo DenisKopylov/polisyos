@@ -47757,5 +47757,71 @@
     "source_profile_freeze": false,
     "G_acceptance": false,
     "closure_ids": []
+  },
+  "root-core-r9-actual-receipt-adoption-20261021-r1": {
+    "slice_base": "4dfa01836958dee358805338b70db85bc4ff7f5d",
+    "canonical_writer": "root only; reviewed present patch, retired exact originals through native Trash",
+    "mechanism_and_mandatory_companion_paths": {
+      "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/core-r9-bounded-read-and-hte-intake-current-runtime-20261021.json": {
+        "operation": "create",
+        "mode": "100644",
+        "preimage_sha256": null,
+        "postimage_path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/independent-core-r9-two-whole-actual-review-20261021-r1/tracked-receipt-postimage.proposal.json",
+        "postimage_sha256": "378d16d81561d1747e0fec45635115bf6e288fb8c32f6a942245b85b6bdd4889",
+        "postimage_bytes": 16970
+      }
+    },
+    "application": {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/root-core-r9-actual-receipt-adoption-20261021-r1/source-application.json",
+      "sha256": "0b3c338409aaaffb0e2e613a7ff6645692bf3f3af244d740feb30b9b91fbc4fa"
+    },
+    "native_trash_receipt": {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/root-core-r9-actual-receipt-adoption-20261021-r1/native-trash-receipt.json",
+      "sha256": "057f81b6e161c37eaec854c352b59148420f1f1711163b9005834b723e193dcf"
+    },
+    "reviewed_inputs": [
+      {
+        "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/independent-core-r9-two-whole-actual-review-20261021-r1/tracked-receipt-postimage.proposal.json",
+        "sha256": "378d16d81561d1747e0fec45635115bf6e288fb8c32f6a942245b85b6bdd4889"
+      },
+      {
+        "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/independent-core-r9-two-whole-actual-review-20261021-r1/review.json",
+        "sha256": "5374cdc47f0dcd54e12223d8b30e68313df9b531cc4af4b5eee3d7c0877727c1"
+      },
+      {
+        "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/independent-core-r9-two-whole-actual-review-addendum-20261021-r1/addendum.json",
+        "sha256": "e83b537f1bcba3b6cd6a6901df079038b829f68a7a2b5aab87a3b4e2dadc7e82"
+      },
+      {
+        "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/root-core-r9-two-whole-3a812b02fde8-20261021-r1/request.json",
+        "sha256": "4bfe03a86ed50ad7a57ee3927edf87197c0934a255ce07be22be828011219573"
+      },
+      {
+        "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/root-core-r9-two-whole-3a812b02fde8-20261021-r1/actual/result.json",
+        "sha256": "240e9a4296bf3b5c6676336a85ac7d7dcba1786007bf0fc8c6c27e58df59a637"
+      }
+    ],
+    "owned_applied_provenance": null,
+    "preserved_other_owned_rows": {},
+    "preserved_other_owned_provenance": null,
+    "preserved_other_owned_tracked_paths": [],
+    "preserved_other_owned_untracked_paths": [],
+    "preserved_other_owned_unchanged_before_after": true,
+    "P40": {
+      "bucket": "actual execution evidence vs unused request metadata",
+      "action": "Preserveboth declaredlocatorlimitation and genuineexecutedpath+source evidence; no fieldrewrite/noautomaticclosure."
+    },
+    "bounded_proof": "Read actual result240e9a andindependentreview5374cdc/addendume83b537; full14decidingoutputpath@hashreferences retained; sourceimplementation3a812separatecommit.",
+    "limitations": [
+      "Exact3a812Core+HTEcohort only; later4dfaAD01actual137=127P10F separately underrepair.",
+      "Unused sandbox_target.absolute_path in issued request points to an old location; actual sandbox reconstructs from pinned template and correct fresh output/state; full limitation inreceipt.",
+      "Independent summary-count typo corrected by immutableaddendum:157Git+73RAW+1journalprefix=231.",
+      "No new HTE native inference/profile/backendqualification, nativeSOTA/fullE02acceptance or closure."
+    ],
+    "runtime": "UNRUN on adopted source",
+    "next_check": "New AD05CAN deltas require affectedconsumerreplay; fullE02source/input/backendfreeze+native/generated/installedverification+291individualproposals remain.",
+    "source_profile_freeze": false,
+    "G_acceptance": false,
+    "closure_ids": []
   }
 }

@@ -140,7 +140,9 @@
       "Remove only N818 from broad Fabric source fragment and regenerate; keep other ignores unchanged.",
       "Separate native strict scan from default effective config; require raw diagnostics and canary.",
       "Correct reviewer chronology: divergent G branch is not a later candidate.",
-      "G architecture selection is distinct from human code approval and finding closure."
+      "G architecture selection is distinct from human code approval and finding closure.",
+      "Delta review bounded GO: no existing exact-membership checker is claimed from raw census alone; the broad-except baseline checker is not an N818 verifier.",
+      "WorldKuzuNotAvailable world-facade export remains conditional on DuckDB availability."
     ]
   },
   "implementation_evidence": "UNRUN; see decision section 6",

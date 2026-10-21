@@ -1,0 +1,228 @@
+{
+  "format": "editorial-research-receipt-v7",
+  "date": "2026-10-21",
+  "input_head": "b034eca5b90c119609319b93979799f4dc700701",
+  "read_only_code_snapshot": "635413bcd1bd1d7e7b829d9123765e28e6bf23d6",
+  "scope": "Corner-case and compute/memory lifecycle design research, seven independent final attacks and bounded delta reviews. Documentation only; no runtime acceptance.",
+  "architecture_boundary": "Native owners and existing S0/CTM/PV/identity. Actual system-design-decisions and prior optional C03 proposal unchanged. No new SDD adoption.",
+  "denominator": {
+    "families": 26,
+    "grounds": 103,
+    "source_cards": 197,
+    "new_grounds": 0,
+    "new_source_cards": 0,
+    "external_incident_rows": 7,
+    "constructed_compound_traces": 8,
+    "initial_review_markdown_files": 7,
+    "initial_numbered_review_observations": 25,
+    "root_disposition_rows": 15,
+    "existing_protocol_probes": 20,
+    "research_agents": 6,
+    "independent_redteam_agents": 7
+  },
+  "denominator_scope": "Complete families/grounds/sources arrays; all I01–I07/X01–X08 in lifecycle/08; E01–E15 in lifecycle/10; all numbered initial finding headings of seven red-*.md notes (including overlaps, not unique runtime defects). Existing T01–T20 unchanged.",
+  "researchers": [
+    "ef7_incidents_recovery",
+    "ef7_incidents_amplification",
+    "ef7_memory",
+    "ef7_metadata",
+    "ef7_resource_control",
+    "ef7_semantic_efficiency"
+  ],
+  "independent_reviewers": [
+    "ef7_red_memory",
+    "ef7_red_consistency",
+    "ef7_red_rights",
+    "ef7_red_semantics",
+    "ef7_red_recovery",
+    "ef7_red_growth",
+    "ef7_red_skeptic"
+  ],
+  "delegation": "One level of direct agents, no children. Root sole tracked writer; assigned ignored notes only. Seven initial reviews plus one bounded delta check each.",
+  "root_review": "Root read six research notes and all seven original/delta reviews, verified selected primary-source sections and narrow static source seams, and applied owner-level corrections with explicit rejected overreach. This is neither a systematic literature census nor a complete code callgraph.",
+  "implementation_documents": [
+    "lifecycle/05-implementation-protocols.md",
+    "lifecycle/06-delivery-and-review.md",
+    "lifecycle/08-incidents-and-edge-cases.md",
+    "lifecycle/09-resource-execution-design.md",
+    "lifecycle/10-adversarial-review-and-delivery.md"
+  ],
+  "final_review_disposition": "Original reviewed traces addressed as design requirements or explicit residuals; seven delta reviewers found no surviving contradiction in inspected changes. No completeness certificate or runtime GO.",
+  "local_complete_research_notes": [
+    {
+      "agent": "ef7_incidents_recovery",
+      "path": "policy-engine/_build/external-foundations-edge-review-20261021/incidents-recovery.md",
+      "sha256": "8f31984500dfc2612f157e077c80b58d23b1e9be9233ce01f2f38ddcd4e3bee9"
+    },
+    {
+      "agent": "ef7_incidents_amplification",
+      "path": "policy-engine/_build/external-foundations-edge-review-20261021/incidents-amplification.md",
+      "sha256": "16767f96aa55924ed5e5389df92d87a529e32e25e757094c0031e7589b149e49"
+    },
+    {
+      "agent": "ef7_memory",
+      "path": "policy-engine/_build/external-foundations-edge-review-20261021/memory.md",
+      "sha256": "0f64c388385f9358f717414e913acd6f72f9008024d7b8dd267d47cbba80d76c"
+    },
+    {
+      "agent": "ef7_metadata",
+      "path": "policy-engine/_build/external-foundations-edge-review-20261021/metadata.md",
+      "sha256": "3992c78912dbcd1d19049c23bfee44743f003bf0205853b239dba5f786ed1773"
+    },
+    {
+      "agent": "ef7_resource_control",
+      "path": "policy-engine/_build/external-foundations-edge-review-20261021/resource-control.md",
+      "sha256": "c058d2abc4ae640bfcb6e33736755b8cd7b1e0a5a1c7150f8229e906c9592b3b"
+    },
+    {
+      "agent": "ef7_semantic_efficiency",
+      "path": "policy-engine/_build/external-foundations-edge-review-20261021/semantic-efficiency.md",
+      "sha256": "fea95f760dfb25dbd993eb73a59d389f0c46fc30c6f8fc68e7725e1ca1b79f9f"
+    }
+  ],
+  "local_complete_initial_and_delta_reviews": [
+    {
+      "agent": "ef7_red_memory",
+      "path": "policy-engine/_build/external-foundations-edge-review-20261021/red-memory.md",
+      "sha256": "87d144e68d2fc6705861164ffd19b4300c7746158b4f5dea1cee1e8b6f9db47e"
+    },
+    {
+      "agent": "ef7_red_consistency",
+      "path": "policy-engine/_build/external-foundations-edge-review-20261021/red-consistency.md",
+      "sha256": "7bd0979b2752010ac07a9435321898f847293b2fbf734a961ebf2bb0ff8112ef"
+    },
+    {
+      "agent": "ef7_red_rights",
+      "path": "policy-engine/_build/external-foundations-edge-review-20261021/red-rights.md",
+      "sha256": "f9e95995d7d9c03d2223ebdf677928cd9990e95dc6696be174324073643d749d"
+    },
+    {
+      "agent": "ef7_red_semantics",
+      "path": "policy-engine/_build/external-foundations-edge-review-20261021/red-semantics.md",
+      "sha256": "74a1223d8db1090d23303c5e255ddcf52af1165f4433dc73ce15d81f35d05d5c"
+    },
+    {
+      "agent": "ef7_red_recovery",
+      "path": "policy-engine/_build/external-foundations-edge-review-20261021/red-recovery.md",
+      "sha256": "731275ed9dfb86142c0e83409dc1535dbb92cb115a706b42019023deee56dd3d"
+    },
+    {
+      "agent": "ef7_red_growth",
+      "path": "policy-engine/_build/external-foundations-edge-review-20261021/red-growth.md",
+      "sha256": "f4642b593e7e0700632e46a29d80d6fbb3cec9b2230fbf1e8e580ca8aa1e5651"
+    },
+    {
+      "agent": "ef7_red_skeptic",
+      "path": "policy-engine/_build/external-foundations-edge-review-20261021/red-skeptic.md",
+      "sha256": "372214836e13be0f563a2b5409cdc173435460adc494d3315d622c37bb39979a"
+    }
+  ],
+  "root_final_review": {
+    "agent": "root",
+    "path": "policy-engine/_build/external-foundations-edge-review-20261021/root-final-review.md",
+    "sha256": "f88e8b5e1ecf7605172ab04008571abf2227f229588f73594a5a04ed32005b0d"
+  },
+  "checks": {
+    "status": "PASS",
+    "scope": "Documentation-only stdlib + read-only Git. No product execution. Receipt self-hash excluded.",
+    "complete_arrays_preserved": true,
+    "authoritative_sdd_unchanged": true,
+    "prior_C03_preserved": true,
+    "checked_changed_markdown_local_links": 81,
+    "checked_pinned_map_source_paths": 66,
+    "complete_output": {
+      "path": "policy-engine/_build/external-foundations-edge-review-20261021/documentation-check.json",
+      "sha256": "a5bde711c0ffb606b7683ece362c2467f6436d9b4a2f6bd60fe96f4ab2f7a9cb"
+    },
+    "checker": {
+      "path": "policy-engine/_build/external-foundations-edge-review-20261021/check-documents.py",
+      "sha256": "d7015ce27607ac016dc33ad7953401d6a81e5fdcc4827175bf367ec11ac57ec5"
+    }
+  },
+  "remaining_limits": [
+    "Every behavioral/removal/resource probe is UNRUN. No OOM safety, throughput, RPO/RTO or current-runtime defect is established.",
+    "Actual source/backend/caller/writer/readers and physical resource enforcement must be selected on the current implementation branch before change.",
+    "External continuity, rights applicability/issuer/law, empirical warrants and provider behavior remain genuine external inputs.",
+    "Nonparticipating sources bound currentness; unavailable anti-rollback evidence leaves restore quarantined; total decisive-store outage may leave even a reason-specific surface unavailable.",
+    "Unknown effect cannot be erased by compaction; already disclosed bytes cannot be recalled; unenumerated copies cannot support all-copy purge.",
+    "Candidate exploration with declared unknown recall remains useful; inferential claims require their own warrants.",
+    "Primary URLs are research references, not pinned deployment inputs. Full ignored notes are locally retained, not copies of web source content in Git."
+  ],
+  "product_tests_builds_imports_installs_executed": false,
+  "dataset_downloads_or_scans_executed": false,
+  "cleanup_executed": false,
+  "G_code_acceptance": false,
+  "closure_ids": [],
+  "pattern_pass": [
+    "P01",
+    "P02",
+    "P04",
+    "P05",
+    "P07",
+    "P08",
+    "P09",
+    "P10",
+    "P13",
+    "P14",
+    "P15",
+    "P25",
+    "P27",
+    "P29",
+    "P31",
+    "P32",
+    "P35",
+    "P37",
+    "P38",
+    "P40"
+  ],
+  "historical_receipt": "research-receipt-r6.json",
+  "files": [
+    {
+      "path": "policy-engine/docs/research/universal-policy-design/external-foundations/11-foundation-lifecycle.md",
+      "bytes": 13431,
+      "sha256": "7124d96bbde111e91e9f29c2ce5add03e4a7790514f430ff978b2b6b426daf99"
+    },
+    {
+      "path": "policy-engine/docs/research/universal-policy-design/external-foundations/README.md",
+      "bytes": 13765,
+      "sha256": "d3a1f552713aa4da3461444df7ea40c50681fc479f129ce125c89bef91ef6007"
+    },
+    {
+      "path": "policy-engine/docs/research/universal-policy-design/external-foundations/lifecycle/03-extension-and-growth.md",
+      "bytes": 21855,
+      "sha256": "d16b866da83fb3353c7a5195471d838c8c6b647d6ef089a442055484bde45d70"
+    },
+    {
+      "path": "policy-engine/docs/research/universal-policy-design/external-foundations/lifecycle/05-implementation-protocols.md",
+      "bytes": 59814,
+      "sha256": "1d27d634033e0eaafe449b5996ad119291bce3b64df0d6748e92333ce196c40b"
+    },
+    {
+      "path": "policy-engine/docs/research/universal-policy-design/external-foundations/lifecycle/06-delivery-and-review.md",
+      "bytes": 32278,
+      "sha256": "3e7c8551ea8d8932f4f3250adb73867982145a6bc02db12dccf4d4d5a8e694c1"
+    },
+    {
+      "path": "policy-engine/docs/research/universal-policy-design/external-foundations/lifecycle/08-incidents-and-edge-cases.md",
+      "bytes": 13761,
+      "sha256": "1ddb9fc178523709ed4113d09dcae699c5cd6a560942f026c35cfc5193ade796"
+    },
+    {
+      "path": "policy-engine/docs/research/universal-policy-design/external-foundations/lifecycle/09-resource-execution-design.md",
+      "bytes": 39074,
+      "sha256": "ee84f4dcd087a1dbe7fbe1ca1c1933295ca2244772f77571332a461fb6614b75"
+    },
+    {
+      "path": "policy-engine/docs/research/universal-policy-design/external-foundations/lifecycle/10-adversarial-review-and-delivery.md",
+      "bytes": 19189,
+      "sha256": "46a7c4ac077bcc92debb3f7de165b604022e500064e35e49b1685e73ab450d35"
+    }
+  ],
+  "resource_scope": {
+    "heavy_processes": false,
+    "free_gib_at_document_check": 5.894,
+    "cleanup": false,
+    "allowed_operations": "Bounded text/Git reads and edits, web research, stdlib documentary checks; normal docs publication hooks.",
+    "new_document_bytes": 72024
+  }
+}

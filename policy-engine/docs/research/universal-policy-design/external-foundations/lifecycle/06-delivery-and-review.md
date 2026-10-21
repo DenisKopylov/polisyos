@@ -2,6 +2,8 @@
 
 2026-10-21. Вход — lifecycle proposal на G `bfcdbda0dd1181b8b854180efbd5cffe6a8a6a2b`; static code frame — `635413bcd1bd1d7e7b829d9123765e28e6bf23d6`. [Протоколы для реализации](05-implementation-protocols.md), [первичные прецеденты](07-primary-design-references.md), [неприменённое предложение SDD](../sdd-proposals/lifecycle-c03-20261021.md). Все runtime probes ниже **UNRUN**. Это план реализации и review проекта, не acceptance E02 или formal closure.
 
+Продолжение на G `b034eca5b90c119609319b93979799f4dc700701`: [реальные инциденты и составные атаки](08-incidents-and-edge-cases.md), [resource/compute/memory протокол](09-resource-execution-design.md), [15 dispositions независимого red-team и implementation mapping](10-adversarial-review-and-delivery.md). Исходные R/W/T IDs сохраняются; новые сценарии уточняют их, а не увеличивают число выполненных проверок.
+
 ## 1. Результат критики
 
 Базовая организация верна: разные основания сохраняют native смысл и authority; CAS, DataForge/Fabric, Scientist, Claim Ledger и security остаются владельцами. Слабость находилась в описании переходов: правильное слово «проверить» ещё не определяло, кто и в какой момент делает свойство устойчивым после crash, обновления и восстановления.
@@ -120,6 +122,8 @@ Deliverable: T18–T20, second-source end-to-end, installed/API companions по 
 | T18 | Независимые cuts, late backdated event, event storm, lagging reverse index | Нет выдуманного global snapshot; history append order, coarse invalidation и bounded pending |
 | T19 | Unknown optional/required facet; прежний schema, новое meaning; source меняется во время index build | Optional inert preserved, required unsupported, no semantic fallback или hidden mixed generation |
 | T20 | 429 по shared credential, рост global method state; новый/restore root между последним GC scan и unlink; expired writer lease | Quota/pools и overload явно; root/delete сериализованы либо delete запрещён; stale writer не публикует root после fencing. Это отдельные случаи одного resource/retirement probe, не один aggregate PASS |
+
+E01–E15 из [финальной критики](10-adversarial-review-and-delivery.md) дают конкретные variants T: simultaneous terminal fan-in, transitive child waits, cancel-before-commit, external-cut→local-journal gap, skewed joint read, pre-byte revoke, restore-switch race/whole-closure rollback, live reader pins, parser fetch, unknown visible effect, learned selection dependency, incremental supported-event path и generation withdrawal. Это distinct executions внутри existing protocol probes; не заменять их одним aggregate PASS. Отдельно проверять полезную candidate работу при unknown recall и отказ более сильному consumer. Все эти исполнения пока UNRUN.
 
 ### Surface и observability как часть того же результата
 

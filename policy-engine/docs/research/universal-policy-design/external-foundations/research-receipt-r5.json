@@ -1,0 +1,228 @@
+{
+  "format": "editorial-research-receipt-v5",
+  "date": "2026-10-21",
+  "input_head": "33c8e8d7b2a425cb637ee64b734b42269071d7d7",
+  "read_only_code_snapshot": "635413bcd1bd1d7e7b829d9123765e28e6bf23d6",
+  "scope": "Substantive external-foundations atlas and full-lifecycle design proposal; targeted static code reads and primary-source research. No product changes, runtime verification, code acceptance or finding closure.",
+  "architecture_boundary": "Existing ratified SDD/CTM/identity boundaries are inputs; no system-design-decisions changes in this wave. Shared semantic obligations do not create a universal persisted envelope, new status lattice or sovereign GroundService.",
+  "denominator": {
+    "families": 26,
+    "grounds": 103,
+    "source_cards": 197,
+    "new_grounds": 5,
+    "new_source_cards": 7
+  },
+  "denominator_files": [
+    "policy-engine/docs/research/universal-policy-design/external-foundations/families.json",
+    "policy-engine/docs/research/universal-policy-design/external-foundations/grounds.json",
+    "policy-engine/docs/research/universal-policy-design/external-foundations/sources.json"
+  ],
+  "new_ground_ids": [
+    "G5-STW-01",
+    "G5-STW-02",
+    "G5-STW-03",
+    "G5-STW-04",
+    "G5-STW-05"
+  ],
+  "new_source_ids": [
+    "S5-STW-01",
+    "S5-STW-02",
+    "S5-STW-03",
+    "S5-STW-04",
+    "S5-STW-05",
+    "S5-STW-06",
+    "S5-STW-07"
+  ],
+  "new_source_access": {
+    "primary_text_or_selected_sections": 6,
+    "abstract_or_metadata": 1
+  },
+  "existing_source_ids_reused": [
+    "S-EVID-06",
+    "S-DATA-01",
+    "S-OBS-01",
+    "S-OBS-02"
+  ],
+  "researchers": [
+    "ef5_acquisition",
+    "ef5_storage",
+    "ef5_custody",
+    "ef5_semantics",
+    "ef5_growth",
+    "ef5_rights",
+    "ef5_operations",
+    "ef5_stewardship"
+  ],
+  "independent_reviewers": [
+    "ef5_lifecycle_redteam",
+    "ef5_flow_redteam"
+  ],
+  "delegation": "One level. Root sole tracked writer; researchers/reviewers restricted to assigned ignored notes. No children, product execution, installations, environments or production payload access.",
+  "root_review": "Read all eight research notes, five new grounds and seven source cards, and both independent reviews. Independently read decisive pinned CAS/catalog/claim/access/audit/control-store/academic/cursor paths and primary COPE, Crossref, DataCite, NISO abstract, ILO, PREMIS, LOC, FORCE11, W3C PROF/DCAT/PROV and RFC passages. Not a whole-repository census or full literature review.",
+  "review_corrections": [
+    "Capture terminality, coherent snapshot and selected-scope coverage are separate; mutable-offset counterexample retained.",
+    "Publication fence includes known source-generation writer and commit linearization, not a final check followed by an unfenced write. No external-world freeze or unseen-event knowledge is promised.",
+    "Both used basis and source change reach public conclusion via the canonical claim owner; verifier appointments require exact predicate/purpose and non-producer provenance.",
+    "Same-tenant reuse resolves applicable case/purpose/recipient/field grant and permit generation across source, cache, index, derivative and projection.",
+    "Retention is conditional; all controlled copies including audit/WORM/provider derivatives require outcome accounting. Historical heads survive only in permitted form; full replay cannot be promised after material loss.",
+    "Logical request identity is distinct from receipt hash; opaque cursor hashes are not assumed harmless diagnostics.",
+    "Static CAS/member verification is not multi-object release atomicity or cheap random access. Job/progress/event/outbox SQL transaction already exists in pinned source; older prose describing another source is not carried forward.",
+    "Batch cursor promotion is intentionally fail-closed/no-op in inspected code; README does not override source. Generic refresh/outbox composition absence is not claimed repository-wide.",
+    "Free growth separates configuration, adapters and semantic engines. New authority or unknown facet cannot be installed by data; algorithm memory is distinct from ingest streaming.",
+    "ILO matrix-aging statement scoped to one-to-many estimates; DCAT truth/authority limitation explicitly PolicyOS inference. COPE partial-retraction caution retained while actual Crossref event types remain ingestible.",
+    "Fixity with a new baseline can support future comparisons, not reconstruct missing historical provenance. Source path abbreviations expanded and an incorrect run_lifecycle path corrected."
+  ],
+  "independent_review_result": "No confirmed design blocker or new finding class in the bounded final package. F1/F2/LDR-01/LDR-02 closed at proposal level; all-copy erasure and composed runtime verification remain implementation limitations, not PASS.",
+  "checks": {
+    "status": "PASS",
+    "scope": "Documentation-only stdlib/read-only Git checks; no product execution",
+    "all_prior_records_and_bytes_preserved": true,
+    "json_unique_ids_and_references": "PASS",
+    "scope_and_diff_check": "PASS",
+    "checked_map_source_paths": 66,
+    "checked_changed_markdown_local_links": 46,
+    "complete_output": {
+      "path": "policy-engine/_build/external-foundations-lifecycle-20261021/documentation-check.json",
+      "sha256": "f9dd17bca0b44359364036035f95dc2aa9ad6ba27dddfb48ec0e8ebc32ef30ec"
+    },
+    "checker": {
+      "path": "policy-engine/_build/external-foundations-lifecycle-20261021/check-documents.py",
+      "sha256": "d77bbad279572fb5e221fab9850e281abde1dacb406e9d0c509dfbe79b3e9336"
+    }
+  },
+  "preassembly_check": {
+    "path": "policy-engine/_build/external-foundations-lifecycle-20261021/documentation-check-pre-receipt.json",
+    "sha256": "f74009e61c459fbf932888a0ca748994e034d720d7c74c11f538c0311650d71d",
+    "result": "Expected missing-link failure before research-receipt-r5.json was authored; other documentary checks passed. Retained separately."
+  },
+  "local_complete_research_notes": [
+    {
+      "path": "policy-engine/_build/external-foundations-lifecycle-20261021/acquisition.md",
+      "sha256": "2682281b2b0ee128dae2cb4530033a549d870b4b5ef3a854db9ba051238f47b5"
+    },
+    {
+      "path": "policy-engine/_build/external-foundations-lifecycle-20261021/storage.md",
+      "sha256": "a51c4c379de1993a3374260d29031dd03dd77d22ca2644f2b727a81e4eb80019"
+    },
+    {
+      "path": "policy-engine/_build/external-foundations-lifecycle-20261021/custody.md",
+      "sha256": "578628ee50051138a1de801ec4801acd25bb34c8f64f11e35e68ebc027e1c866"
+    },
+    {
+      "path": "policy-engine/_build/external-foundations-lifecycle-20261021/semantics.md",
+      "sha256": "8c03c826e598e4baf17cd89a7945bcb38383c286de0847bc1d257effd609213f"
+    },
+    {
+      "path": "policy-engine/_build/external-foundations-lifecycle-20261021/growth.md",
+      "sha256": "00eb33e06d818745d4e57e74ecaaab172f14564e26bf952d2e88366790e64629"
+    },
+    {
+      "path": "policy-engine/_build/external-foundations-lifecycle-20261021/rights.md",
+      "sha256": "3fd96e6fa7de1e57c31233bea10def3d43b2825577afc4ecda3f4d07fb056845"
+    },
+    {
+      "path": "policy-engine/_build/external-foundations-lifecycle-20261021/operations.md",
+      "sha256": "29c51afcd02521cebc1dcde3e57a8f933059a1d5da6fa75b4ef98658f4842b96"
+    },
+    {
+      "path": "policy-engine/_build/external-foundations-lifecycle-20261021/stewardship.md",
+      "sha256": "a53835d4210a0b1bdd7210b44aac4404ef65224d585227fd5992250e691b9a85"
+    }
+  ],
+  "local_complete_reviews": [
+    {
+      "path": "policy-engine/_build/external-foundations-lifecycle-20261021/lifecycle-redteam.md",
+      "sha256": "018cc734339c9bad5996ebe0d0a5ea798e53ebc622f227c6e937d7f75a14618d"
+    },
+    {
+      "path": "policy-engine/_build/external-foundations-lifecycle-20261021/flow-redteam.md",
+      "sha256": "892f795619c9c68cb600fb9e5ddd8d3b1349ec5d3b87ab49929c0dd9363b3e4c"
+    }
+  ],
+  "files": [
+    {
+      "path": "policy-engine/docs/research/universal-policy-design/external-foundations/README.md",
+      "sha256": "183e93a3cad55816fe73627be4ba059fe519f5196994c4931805f95ac1765729"
+    },
+    {
+      "path": "policy-engine/docs/research/universal-policy-design/external-foundations/08-substantive-foundations.md",
+      "sha256": "b7fc29bb258f08eb29f064f2598cb04208451eec6e6a7ea2825acb5411f28fc9"
+    },
+    {
+      "path": "policy-engine/docs/research/universal-policy-design/external-foundations/11-foundation-lifecycle.md",
+      "sha256": "e6932ec44bfac3890b38a5b4b422243843ff70c792372cf78f8b7d94921af349"
+    },
+    {
+      "path": "policy-engine/docs/research/universal-policy-design/external-foundations/lifecycle/01-reuse-map.md",
+      "sha256": "d898f1000852634e435a60e2c1e4a35b1b5a429ce9b7395e86a1a64968ee0362"
+    },
+    {
+      "path": "policy-engine/docs/research/universal-policy-design/external-foundations/lifecycle/02-flow-and-consistency.md",
+      "sha256": "c2af993b133507a18e5da64cb6b5a2415b2d64ae0672e5d1a705190128a31410"
+    },
+    {
+      "path": "policy-engine/docs/research/universal-policy-design/external-foundations/lifecycle/03-extension-and-growth.md",
+      "sha256": "01265670ea093d981b544853cbbb1c528ffad4a76bc69d3a0354f8f675fc1cac"
+    },
+    {
+      "path": "policy-engine/docs/research/universal-policy-design/external-foundations/lifecycle/04-stewardship-and-probes.md",
+      "sha256": "3ef2628c6a2aca0bbbf8d2a1da74414ebdd127f1ede2f5ef9c64bd06ed2199a4"
+    },
+    {
+      "path": "policy-engine/docs/research/universal-policy-design/external-foundations/grounds.json",
+      "sha256": "c34a2fb2feb3ee888a59733d865cc6bd61e266a166680de3d837d90c9ee42e18"
+    },
+    {
+      "path": "policy-engine/docs/research/universal-policy-design/external-foundations/sources.json",
+      "sha256": "c41958ce4d59f1f5159eb14932af47c60e1c971094cdcbac6e157ed8f5dfee54"
+    }
+  ],
+  "remaining_limits": [
+    "Observed mechanisms and gaps refer only to named paths at pinned code snapshot. Runtime branch may advance; implementation needs delta review and affected-consumer census.",
+    "The atlas records are editorial knowledge, not admitted task evidence, institution competence, rights or legal advice. Real task inputs/permissions/notices require acquisition and validation.",
+    "No external payload snapshots or content digests retained; URLs/source cards do not prove immutable evidence custody. NISO access is abstract/metadata only.",
+    "Future behavioral/removal/resource probes are not run. Neither full capture, recurring refresh, all-copy deletion nor source-to-public custody is claimed implemented by these documents.",
+    "Corpus and family counts enumerate local arrays, not knowledge coverage or independent evidence.",
+    "Ignored intermediate reports may contain superseded proposal language; final tracked synthesis and corrections above govern this research delivery."
+  ],
+  "resource_scope": {
+    "initial_free_gib": 6.73,
+    "preassembly_free_gib": 4.437,
+    "disk_scan_or_cleanup": false,
+    "note": "Only light filesystem capacity check, small text files and targeted reads; coding task retains compute priority.",
+    "final_document_check_free_gib": 4.429
+  },
+  "product_tests_builds_imports_installs_executed": false,
+  "dataset_downloads_or_scans_executed": false,
+  "G_code_acceptance": false,
+  "closure_ids": [],
+  "pattern_pass": [
+    "P01",
+    "P02",
+    "P04",
+    "P05",
+    "P07",
+    "P08",
+    "P09",
+    "P10",
+    "P12",
+    "P14",
+    "P15",
+    "P25",
+    "P27",
+    "P29",
+    "P31",
+    "P32",
+    "P35",
+    "P36",
+    "P37",
+    "P38",
+    "P40"
+  ],
+  "historical_receipts": [
+    "research-receipt.json",
+    "research-receipt-r2.json",
+    "research-receipt-r3.json",
+    "research-receipt-r4.json"
+  ]
+}

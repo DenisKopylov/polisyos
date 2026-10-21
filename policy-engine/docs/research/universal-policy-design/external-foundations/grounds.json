@@ -4048,6 +4048,282 @@
         "EF-07",
         "EF-18"
       ]
+    },
+    {
+      "id": "G5-STW-01",
+      "title": "Scholarly updates are typed events with different scopes and consequences",
+      "kind": "editorial",
+      "statement": "Crossref Crossmark defines distinct update types including correction, expression of concern, partial retraction, removal, retraction, and withdrawal; minor spelling/formatting changes may not get a separate notice. COPE distinguishes correction from retraction, discourages ambiguous partial retractions, and notes duplicate-study counting can inflate synthesis results and syntheses relying on retracted works may need reassessment. PolicyOS inference: preserve the exact publisher event, notice/object relation, source and receipt times, reason/scope, and claim dependencies; reassess only affected uses, preserve prior heads, and keep unclear scope or feed completeness not_established. A source event is typed evidence, not a blanket truth verdict.",
+      "source_refs": [
+        {
+          "source_id": "S-EVID-06",
+          "url": "https://www.crossref.org/documentation/crossmark/participating-in-crossmark/",
+          "locator": "Crossmark update policy, DOI records and update type list",
+          "access": "Official current documentation; selected sections read 2026-10-21; existing source card reused."
+        },
+        {
+          "source_id": "S5-STW-01",
+          "url": "https://members.publicationethics.org/sites/default/files/retraction-guidelines-cope.pdf",
+          "locator": "COPE Retraction Guidelines v2, pp. 1–5: criteria, notices, correction/retraction, duplication and downstream review",
+          "access": "Official 10-page PDF opened; relevant sections read."
+        },
+        {
+          "source_id": "S5-STW-02",
+          "url": "https://www.niso.org/publications/rp-45-2024-crec",
+          "locator": "NISO RP-45-2024 abstract and publication metadata",
+          "access": "Public abstract/metadata only; detailed practice not accessed."
+        }
+      ],
+      "scope": "Versioned scholarly works and notices plus studies/syntheses that depend on them; event-feed coverage and notice scope vary by publisher/channel.",
+      "required_inputs": [
+        "Original work/version, notice identifier, publisher and typed relation.",
+        "Source-stated event time, PolicyOS observation time, retrieval cutoff, source channel and completeness limit.",
+        "Notice reason/scope, report/result/cohort lineage and exact dependent claims.",
+        "Current claim rule, independent support and responsible claim/custody owner."
+      ],
+      "alternatives": [
+        "Resolve publisher notice and original; use Crossref/Crossmark for discovery, not completeness proof.",
+        "Map ambiguous scope with an evidence owner; limit use while affected scope is unresolved.",
+        "Recompute synthesis denominators where shared/duplicate evidence was counted.",
+        "If event-channel completeness is unestablished, report currentness not_established at the stated cutoff."
+      ],
+      "non_substitution": "Correction, expression of concern, partial retraction, removal, retraction and withdrawal are not interchangeable. A source update does not mechanically prove every claim false or unaffected claims reliable. No Crossmark relation does not prove no update.",
+      "counterexample": "PolicyOS-created: a partial retraction invalidates one of two reported estimates. An article-wide boolean can wrongly drop both estimates or miss the affected estimate if partial status is represented elsewhere.",
+      "task_uses": [
+        "Reassess evidence/synthesis when a linked scholarly event arrives.",
+        "Preserve historical signed head, event time, observation cutoff and scoped reaction.",
+        "Expose unresolved scope/feed coverage rather than imply currentness."
+      ],
+      "acquisition_next": "At a declared cutoff resolve original and notice IDs, query publisher and Crossref/Crossmark, retrieve notice and original, capture event type/date/reason/scope, map work to studies/results/claims, and have the custody owner apply its rule. Retain material only under separately applicable authority.",
+      "research_stream": "STW",
+      "standing": "editorial research ground; not task-admitted evidence or authority",
+      "application_basis": "COPE, Crossref and NISO facts are bounded to their documents. Claim-level impact, dependency mapping and PolicyOS reaction are inference.",
+      "currentness_limit": "COPE v2 is November 2019; NISO detailed text not accessed; Crossref metadata is member-deposited. No named paper, complete feed, live event or task-specific impact was verified.",
+      "editorial_family_ids": [
+        "EF-21",
+        "EF-22",
+        "EF-23"
+      ]
+    },
+    {
+      "id": "G5-STW-02",
+      "title": "Dataset, measure, instrument, and classification correspondence is versioned and directional",
+      "kind": "editorial",
+      "statement": "DataCite recommends version properties for minor changes and new DOI/related identifiers for major versions, while leaving the major/minor decision to each steward. The ILO ISCO-08 guide shows an old occupational code splitting across newer categories and the same number reused with a different meaning; correspondences can be one-to-one, one-to-many, many-to-one or many-to-many. Some conversion needs dual coding or a matrix built from dual-coded data, and, for one-to-many conversions, estimate reliability generally declines with temporal distance as category distributions change. Existing DDI Lifecycle 3.3 models questions, instruments, variables and classifications but does not certify equivalence. PolicyOS inference: bind source/target versions, code level, direction, valid time, cardinality, coverage, method and evidence; treat instrument invariance separately from classification mapping.",
+      "source_refs": [
+        {
+          "source_id": "S5-STW-03",
+          "url": "https://support.datacite.org/docs/versioning",
+          "locator": "Minor/major versions, steward discretion, Version property and typed related-identifier pairs",
+          "access": "Official dynamic documentation page read 2026-10-21."
+        },
+        {
+          "source_id": "S5-STW-04",
+          "url": "https://www.ilo.org/sites/default/files/wcmsp5/groups/public/@dgreports/@stat/documents/publication/wcms_896661.pdf",
+          "locator": "ISCO-08 Companion Guide v1.0, Table 4.6 and module 6 correspondence/conversion, pp. 53, 91–96",
+          "access": "Official 111-page PDF; selected mapping sections and code-reuse example read."
+        },
+        {
+          "source_id": "S-DATA-01",
+          "url": "https://ddialliance.org/ddi-lifecycle",
+          "locator": "DDI Lifecycle 3.3 question, questionnaire, variable, classification model",
+          "access": "Existing source card reused; selected documentation previously checked."
+        }
+      ],
+      "scope": "Comparisons across dataset, classification, measure and instrument versions, including longitudinal and cross-jurisdiction uses.",
+      "required_inputs": [
+        "Exact resource/scheme/instrument identity and release/version, code level, definitions and valid time.",
+        "Source/target direction, cardinality, coverage/unmatched cases and whether correspondence is exact, conceptual, estimated or asserted.",
+        "Instrument edition, item identity, wording/language, mode, response domain, population, variable and collection period.",
+        "Dual-coded overlap/matrix provenance or instrument link/invariance evidence for comparison."
+      ],
+      "alternatives": [
+        "Retain original-version values and parallel series.",
+        "Dual-code representative overlap for individual comparison.",
+        "Use a documented conversion matrix with sample, drift and stratification assumptions for an estimate.",
+        "Aggregate to a common parent only if it preserves the decision; otherwise mark a break or limit the claim."
+      ],
+      "non_substitution": "A reused code, matching title, version relation or metadata schema does not prove semantic equivalence, measurement invariance, equal coverage or valid conversion. Do not silently invert a directional map.",
+      "counterexample": "In the ILO guide ISCO-88 unit 4222 splits in ISCO-08, while code 4222 is reused for Contact Centre Information Clerks. Joining on code alone merges unlike categories.",
+      "task_uses": [
+        "Pin variable meaning to scheme, instrument and dataset release.",
+        "Choose a justified comparability method and carry its estimation/coverage limit.",
+        "Keep measurement invariance distinct from classification correspondence and geography crosswalks."
+      ],
+      "acquisition_next": "Obtain official scheme releases and directional correspondences, the dataset release and administered instrument version, plus overlap/dual-coded records and target-population details before estimating a transformation. Otherwise retain separate series or use a defensible common parent.",
+      "research_stream": "STW",
+      "standing": "editorial research ground; not task-admitted evidence or authority",
+      "application_basis": "DataCite, ILO and DDI sources establish version relations, a classification example and metadata structure. Required fields, transformation choices and PolicyOS admission are inference.",
+      "currentness_limit": "DataCite guide is dynamic and steward-defined; ILO v1.0 is occupation-specific with selected sections read; DDI does not validate measurement. No live dataset/crosswalk or task comparability was verified.",
+      "editorial_family_ids": [
+        "EF-01",
+        "EF-03",
+        "EF-04",
+        "EF-05",
+        "EF-23"
+      ]
+    },
+    {
+      "id": "G5-STW-03",
+      "title": "Fixity proves continuity from a recorded baseline, not correct content",
+      "kind": "editorial",
+      "statement": "PREMIS v3 separates fixity from integrity/authenticity: a digest check may show an object unchanged since an earlier point but does not establish its integrity or authenticity; format identification and validation are separate events. DCAT v3 provides distribution checksum metadata; PROV-O provides provenance relations. PolicyOS inference: neither establishes content truth or authority merely by being recorded; record object/version, algorithm/digest, event time, agent, result and baseline provenance; separately assess byte continuity, format validity, authenticity and substantive claim support.",
+      "source_refs": [
+        {
+          "source_id": "S5-STW-05",
+          "url": "https://www.loc.gov/standards/premis/v3/premis-3-0-final.pdf",
+          "locator": "PREMIS v3 special topic: fixity, integrity, authenticity, environment and migration",
+          "access": "Official 283-page PDF; selected passages read."
+        },
+        {
+          "source_id": "S-OBS-02",
+          "url": "https://www.w3.org/TR/vocab-dcat-3/",
+          "locator": "DCAT v3 distribution checksum/version properties",
+          "access": "Existing W3C Recommendation source card reused."
+        },
+        {
+          "source_id": "S-OBS-01",
+          "url": "https://www.w3.org/TR/prov-o/",
+          "locator": "PROV-O entity/activity/agent relations",
+          "access": "Existing W3C Recommendation source card reused."
+        }
+      ],
+      "scope": "Custody and validation of digital source distributions, derived artifacts and preservation copies.",
+      "required_inputs": [
+        "Exact object/distribution/version, digest algorithm/value and timestamp.",
+        "Receipt, fixity and validation events with producing/verifying agent and result.",
+        "Trusted provenance for initial digest baseline and transformation lineage.",
+        "Separate source-authenticity and content/claim-validation evidence appropriate to use."
+      ],
+      "alternatives": [
+        "Capture digest at authorized receipt; preserve baseline/event independently; recompute at custody transitions.",
+        "Use separate format/content validators and source-authenticity checks.",
+        "If baseline or trusted receipt evidence is absent, report past continuity/authenticity not_established. A new baseline may support future comparisons, not restore the missing history."
+      ],
+      "non_substitution": "A matching digest does not prove content truth, completeness, authenticity, measurement correctness or authority. Re-hashing altered bytes identifies those bytes; it does not repair the chain.",
+      "counterexample": "A false file is received and correctly hashed. All later hashes match. Fixity passes even though baseline content is false or origin is unverified.",
+      "task_uses": [
+        "Detect post-baseline mutation and distinguish new from modified objects.",
+        "Separate byte continuity from source status, authenticity and truth.",
+        "Expose missing baseline/event provenance as limitation."
+      ],
+      "acquisition_next": "Collect declared source/version, actual bytes, digest method, transfer/ingest event, source identity and preservation events. Recompute equality over bytes and reconcile baseline origin; separately validate task-relevant content.",
+      "research_stream": "STW",
+      "standing": "editorial research ground; not task-admitted evidence or authority",
+      "application_basis": "PREMIS explicitly separates fixity and integrity/authenticity; DCAT and PROV-O source cards are reused. The four-property decomposition is PolicyOS inference.",
+      "currentness_limit": "PREMIS v3.0 June 2015, revised November 2015; selected passages read. No object, digest, source event or conformant implementation was verified.",
+      "editorial_family_ids": [
+        "EF-22",
+        "EF-23",
+        "EF-26"
+      ]
+    },
+    {
+      "id": "G5-STW-04",
+      "title": "Preserved bytes can become unusable when formats or execution environments disappear",
+      "kind": "editorial",
+      "statement": "The Library of Congress identifies external format dependencies as a preservation factor and says scientific sensor data may be useless without specialized analysis/visualization software that is difficult to sustain even with source code. PREMIS records environment dependencies and migration, whose results can lose content, format or functionality. PolicyOS inference: distinguish bytes held, format identified/validated, renderability and use for the declared task; preserve source, dependencies, migration and property-level validation separately.",
+      "source_refs": [
+        {
+          "source_id": "S5-STW-06",
+          "url": "https://www.loc.gov/preservation/digital/formats/sustain/sustain.shtml",
+          "locator": "Sustainability Factors overview and External dependencies",
+          "access": "Official live page; relevant sections read 2026-10-21."
+        },
+        {
+          "source_id": "S5-STW-05",
+          "url": "https://www.loc.gov/standards/premis/v3/premis-3-0-final.pdf",
+          "locator": "PREMIS v3 environment dependencies and migration definition/loss",
+          "access": "Official PDF; selected relevant passages read."
+        }
+      ],
+      "scope": "Digital datasets, instruments, documents and software outputs dependent on formats, parsers, renderers or execution environments.",
+      "required_inputs": [
+        "Source distribution, format/profile and fixity baseline.",
+        "Hardware/software/runtime/documentation dependencies for render or analysis.",
+        "Source-to-derivative migration lineage, tool/version and significant-property validation.",
+        "Declared task property: static reading, structured extraction or reproducible analysis."
+      ],
+      "alternatives": [
+        "Where retention and processing authority permit, preserve original plus tested migration and logs; otherwise retain only the permitted record or use authorized remote computation.",
+        "Emulate legacy environment when semantics depend on it.",
+        "Use hybrid representations when visual and data-structure properties differ.",
+        "Report bytes-held/task-use-unavailable when no valid representation/environment exists."
+      ],
+      "non_substitution": "Retained bytes do not prove readability or analyzability; rendered derivative does not prove source preservation or migration fidelity. Technical use is distinct from legal permission, which this ground does not adjudicate.",
+      "counterexample": "A sensor dataset and checksum survive, but its analysis software and calibration profile do not. Bytes remain fixed while the intended measurement cannot be reproduced.",
+      "task_uses": [
+        "Separate dead endpoint from lost stored content.",
+        "Identify whether format, renderer, schema or analysis dependencies prevent the task.",
+        "Where permitted, retain originals and link migrated/normalized derivatives; otherwise record the lost replay capability without prohibited bytes."
+      ],
+      "acquisition_next": "Resolve source distribution and format profile, obtain dependency documentation, capture source/migration lineage, and probe the task-specific render/parse/use property.",
+      "research_stream": "STW",
+      "standing": "editorial research ground; not task-admitted evidence or authority",
+      "application_basis": "LOC and PREMIS document format/environment dependencies and migration risks. State decomposition and task consequences are PolicyOS inference.",
+      "currentness_limit": "LOC page is live without fixed edition ID; PREMIS v3.0 passages selected. No format, environment, migration or access permission was tested.",
+      "editorial_family_ids": [
+        "EF-19",
+        "EF-22",
+        "EF-23"
+      ]
+    },
+    {
+      "id": "G5-STW-05",
+      "title": "Software citation identifies a version; reproducibility needs its dependency context",
+      "kind": "editorial",
+      "statement": "FORCE11 Software Citation Principles recommend version identity and a persistent landing page, and explain a repository URL plus commit does not guarantee persistence/resolvability. Citation identifies software; provenance and reproducibility need more. PREMIS and LOC show execution may depend on environments. PolicyOS inference: bind data releases, software artifact/version, material dependencies, runtime, configuration/parameters/seeds, workflow and output lineage to a reproducibility claim; perform a real property check before claiming rerun evidence.",
+      "source_refs": [
+        {
+          "source_id": "S5-STW-07",
+          "url": "https://force11.org/info/software-citation-principles-published-2016/",
+          "locator": "Software Citation Principles, §§1 and 6.6–6.10: version, persistent landing page, identifiers, access and reproducibility scope",
+          "access": "Full article page accessed; relevant sections read 2026-10-21."
+        },
+        {
+          "source_id": "S5-STW-05",
+          "url": "https://www.loc.gov/standards/premis/v3/premis-3-0-final.pdf",
+          "locator": "PREMIS environment dependencies",
+          "access": "Official PDF; selected section read."
+        },
+        {
+          "source_id": "S5-STW-06",
+          "url": "https://www.loc.gov/preservation/digital/formats/sustain/sustain.shtml",
+          "locator": "Sustainability Factors, external dependencies",
+          "access": "Official live page; selected section read 2026-10-21."
+        }
+      ],
+      "scope": "Research results whose interpretation/reproduction depends on software, code, packages, data releases, runtimes or external services.",
+      "required_inputs": [
+        "Version-specific software identity and persistent landing/archive when available.",
+        "Exact data releases, material dependency and lock/environment manifest.",
+        "Workflow code/configuration, parameters, seeds and output identity.",
+        "Declared reproducibility property and check method, including unpinned services/inaccessible dependencies."
+      ],
+      "alternatives": [
+        "Where retention/use authority permit, archive a versioned release and retain an environment/reconstruction manifest.",
+        "Retain inputs, configs, outputs and lineage if full rerun is infeasible.",
+        "If a service cannot be pinned, preserve output and limit exact rerun claims.",
+        "Do not perform a costly rerun that cannot affect the decision; state it was not performed."
+      ],
+      "non_substitution": "A citation does not prove availability, correctness, review, dependency completeness or reproducibility. A version string alone does not ensure persistent bits.",
+      "counterexample": "A paper cites a mutable repository and commit, but a dependency or remote API changes; rerun produces different results despite the citation.",
+      "task_uses": [
+        "Trace results to data, software and environment.",
+        "Separate identity evidence from successful rerun/validation.",
+        "State which missing dependency blocks the declared property."
+      ],
+      "acquisition_next": "Resolve version-specific software record/archive, obtain workflow and lock/environment/configuration references, bind to exact data and outputs, then rerun or test the smallest property that can falsify the result.",
+      "research_stream": "STW",
+      "standing": "editorial research ground; not task-admitted evidence or authority",
+      "application_basis": "FORCE11 sets citation scope; PREMIS/LOC establish environment dependence. Bundle fields and verification are PolicyOS inference, not a source-issued universal checklist.",
+      "currentness_limit": "FORCE11 paper is 2016 and not a package-lock/container standard; no software, dependency set, archived artifact or rerun was checked.",
+      "editorial_family_ids": [
+        "EF-01",
+        "EF-21",
+        "EF-22",
+        "EF-23"
+      ]
     }
   ]
 }

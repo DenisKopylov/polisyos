@@ -49944,5 +49944,96 @@
     "source_profile_freeze": false,
     "G_acceptance": false,
     "closure_ids": []
+  },
+  "root-auth-optional-run-owner-restoration-adoption-20261021-r1": {
+    "slice_base": "28993990bb49e8fb13d1f8a186569db0d82e400b",
+    "canonical_writer": "root only; reviewed present patch, retired exact originals through native Trash",
+    "mechanism_and_mandatory_companion_paths": {
+      "policy-engine/src/polisyos/runtime/http/README.md": {
+        "operation": "update",
+        "mode": "100644",
+        "preimage_sha256": "4599bdbfa5bfca671a6fd37e9454c101c1147e5def24d10b8fec859180527ee4",
+        "postimage_path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/root-c12-optional-run-state-restoration-20261021-r7-final-static-freeze/postimages/policy-engine/src/polisyos/runtime/http/README.md",
+        "postimage_sha256": "2ce455494ce4e6ffe3335331582326711db32144dc6dee35b7ac8c656ea1efbb",
+        "postimage_bytes": 29106
+      },
+      "policy-engine/src/polisyos/runtime/http/authz_middleware.py": {
+        "operation": "update",
+        "mode": "100644",
+        "preimage_sha256": "c695db3c8e2b698ab1a01d628e364655f5780f483a4abdbfa2d7cbd26133c4d3",
+        "postimage_path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/root-c12-optional-run-state-restoration-20261021-r7-final-static-freeze/postimages/policy-engine/src/polisyos/runtime/http/authz_middleware.py",
+        "postimage_sha256": "7cb44ad4e4e26fb61e177e14f78085cf34feadd9040d86d09d838b96bdca6320",
+        "postimage_bytes": 84823
+      },
+      "policy-engine/tests/unit/runtime/http/test_authorization.py": {
+        "operation": "update",
+        "mode": "100644",
+        "preimage_sha256": "db12de6f406b149c319b2588c4f35791e3d78455323f9bc4afa80c423edddf9e",
+        "postimage_path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/root-c12-optional-run-state-restoration-20261021-r7-final-static-freeze/postimages/policy-engine/tests/unit/runtime/http/test_authorization.py",
+        "postimage_sha256": "d1e70a5d55db34f0f2fa6188531a8465f785496d16b89ad38ba8b4b4cb949acb",
+        "postimage_bytes": 9019
+      },
+      "policy-engine/tests/unit/runtime/http/test_runtime_api_authz.py": {
+        "operation": "update",
+        "mode": "100644",
+        "preimage_sha256": "1c8c962be8690bb555da6e77cdc10b92193f2ad70c255724f505f4a463bbbd93",
+        "postimage_path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/root-c12-optional-run-state-restoration-20261021-r7-final-static-freeze/postimages/policy-engine/tests/unit/runtime/http/test_runtime_api_authz.py",
+        "postimage_sha256": "b451fcf92495846d6d0e99dc25b8e61093a78c723c1a4bad1f7439618a9d8ac9",
+        "postimage_bytes": 147264
+      }
+    },
+    "application": {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/root-auth-optional-run-owner-restoration-adoption-20261021-r1/source-application.json",
+      "sha256": "d90f25b5b28d80caa66829b49018da689e24bee1f8d1ee32edcb42575676abdd"
+    },
+    "native_trash_receipt": {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/root-auth-optional-run-owner-restoration-adoption-20261021-r1/native-trash-receipt.json",
+      "sha256": "057f81b6e161c37eaec854c352b59148420f1f1711163b9005834b723e193dcf"
+    },
+    "reviewed_inputs": [
+      {
+        "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/root-c12-optional-run-state-restoration-20261021-r7-final-static-freeze/manifest.json",
+        "sha256": "75a3a844e9ffec92de952eeca3b7803eca0d41bed56d0634c21131625b09054c"
+      },
+      {
+        "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/root-c12-optional-run-state-restoration-20261021-r7-final-static-freeze/candidate.patch",
+        "sha256": "77ef23feabb304c5052fbf5775138338553b343008e238dac73e16fa2f359025"
+      },
+      {
+        "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/root-c12-optional-run-state-restoration-20261021-r7-final-static-freeze/format-equivalence.json",
+        "sha256": "e48279decc08cb1afd0ff8a6b1a2b8bcb3b5caaf4c5f7e4c970253ece4f58cb0"
+      },
+      {
+        "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/root-c12-optional-run-state-restoration-independent-review-20261021-r1/review.json",
+        "sha256": "17a1b1299b339278d6154be5a08837841b05e5bfe34786c17a95f8260ec09731"
+      },
+      {
+        "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/root-runtime17-whole-composed-635413bcd1bd-20261021-r1/actual/result.json",
+        "sha256": "af2e43f37e28419c6ff98477a86bfb00e10dce487c3368ff345f98cb110ce8f3"
+      }
+    ],
+    "owned_applied_provenance": null,
+    "preserved_other_owned_rows": {},
+    "preserved_other_owned_provenance": null,
+    "preserved_other_owned_tracked_paths": [],
+    "preserved_other_owned_untracked_paths": [],
+    "preserved_other_owned_unchanged_before_after": true,
+    "P40": {
+      "bucket": "same state-restoration class widened to both generic sites; canonical owner audit is necessary companion",
+      "action": "Typed existing owner reuse; only canonical run_tenant_mismatch/run_tenant_unscoped errors promoted, all unresolved/race/other failures preserve original binding refusal."
+    },
+    "bounded_proof": "Independent17a1b1 full4postimage sourceGO, exact preimages unchanged by C05 test commit, semantic-to-fullformat equivalence and native canonical Ruff/format plus exact branch readback.",
+    "limitations": [
+      "Runtime UNRUN on adopted source; prior Runtime17 actual625=512P113F0E/S remains exact635413 historical evidence.",
+      "Independent source review and native Ruff/format do not prove protected runtime positive or external issuer/custody/currentness.",
+      "Unscoped owner branch lacks dedicated runtime witness and remains required next check.",
+      "Whole AUTH routes and cross-tenant deny/audit/state-removal tests must replay after composed source freeze.",
+      "Full-file formatting is mandatory native tooling companion with AST/string/docstring equivalence, not P41 inherited."
+    ],
+    "runtime": "UNRUN on adopted source",
+    "next_check": "Execute complete test_authorization.py and test_runtime_api_authz.py with same-candidate runtime modules; verify both data/authorization audits, no cross-tenant content/handler execution, unscoped/missing/None/restoration/removal controls; retain other113 actual failures until independently repaired.",
+    "source_profile_freeze": false,
+    "G_acceptance": false,
+    "closure_ids": []
   }
 }

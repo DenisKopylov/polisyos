@@ -111,9 +111,13 @@ evaluator called by the middleware before binding and again after the exact
 resource is frozen. `OptionalActionPermissionDependency` only returns the typed
 projection decision produced by that middleware; it does not authorize by
 itself. A required permission denial blocks the handler, while an optional
-permission or policy denial withholds only its protected projection. A route
-marker declares the requirement but cannot substitute for the executable
-evaluator.
+permission or policy denial withholds only its protected projection. On the run
+details route, a denied optional method-selection binding also reuses the canonical
+run-owner guard when that guard confirms a cross-tenant or unscoped run, preserving
+the typed owner refusal and caller-scoped data-access audit. If the run is unresolved
+or the owner recheck cannot confirm the refusal, the original binding refusal remains
+fail-closed. A route marker declares the requirement but cannot substitute for the
+executable evaluator.
 
 `GET /api/v1/auth/me` returns only claims installed by verified identity
 middleware. It never synthesizes a fixture identity; the explicit development

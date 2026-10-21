@@ -46,6 +46,24 @@ class _CaptureAudit:
         self.entries.append(entry)
 
 
+def test_authorization_state_restoration_handles_absent_and_present_none() -> None:
+    from starlette.datastructures import State
+
+    from polisyos.runtime.http.authz_middleware import (
+        _MISSING_AUTHORIZATION_STATE,
+        _restore_authorization_state_value,
+    )
+
+    state = State({"present_none": None, "present_value": "before"})
+    _restore_authorization_state_value(state, "temporary", _MISSING_AUTHORIZATION_STATE)
+    _restore_authorization_state_value(state, "present_none", None)
+    _restore_authorization_state_value(state, "present_value", "before")
+
+    assert not hasattr(state, "temporary")
+    assert state.present_none is None
+    assert state.present_value == "before"
+
+
 def test_disallowed_production_approval_is_denied_and_audited_with_principal_identity(
     runtime_api_env,
 ) -> None:
@@ -175,7 +193,7 @@ def test_cross_tenant_run_denial_is_persisted_under_request_principal(
             },
         )
 
-    assert response.status_code == 403, response.json()
+    assert response.status_code == 403, response.text
     assert response.json()["code"] == "run_tenant_mismatch"
     assert tenant_b not in response.text
     assert projection_calls == []
@@ -183,8 +201,20 @@ def test_cross_tenant_run_denial_is_persisted_under_request_principal(
     scan = RuntimeDataAccessAuditTrail(path=audit_path).scan_read_only()
     assert scan.audit_read_error_count == 0
     events = [entry for entry in scan.entries if entry.get("request_id") == request_id]
-    assert len(events) == 1
-    event = events[0]
+    authorization_events = [
+        entry for entry in events if entry.get("event_type") == "runtime.authorization.decision"
+    ]
+    data_access_events = [
+        entry for entry in events if entry.get("event_type") != "runtime.authorization.decision"
+    ]
+    assert len(authorization_events) == 1
+    assert authorization_events[0]["outcome"] == "deny"
+    assert authorization_events[0]["permission"] == RuntimePermission.RUNS_REVIEW.value
+    assert authorization_events[0]["denial_reason"] == ("authorization_binding_run_tenant_mismatch")
+    assert authorization_events[0]["subject"] == claims.sub
+    assert authorization_events[0]["tenant_id"] == tenant_a
+    assert len(data_access_events) == 1
+    event = data_access_events[0]
     assert event["timestamp"] > 0
     assert event["request_id"] == request_id
     assert event["tenant_id"] == tenant_a

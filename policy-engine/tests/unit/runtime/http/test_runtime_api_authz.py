@@ -3864,17 +3864,30 @@ def test_runtime_api_denies_cross_tenant_run_access(runtime_api_env) -> None:
             "X-Request-ID": request_id,
         },
     )
-    assert response.status_code == 403
+    assert response.status_code == 403, response.text
     assert response.headers.get("content-type", "").startswith("application/problem+json")
     payload = response.json()
     assert payload["code"] == "run_tenant_mismatch"
+    assert "run" not in payload
+    assert "method_execution_selection" not in payload
 
     audit_path = runtime_api_env["cas_root"] / "runtime" / "audit" / "access.jsonl"
     scan = RuntimeDataAccessAuditTrail(path=audit_path).scan_read_only()
     assert scan.audit_read_error_count == 0
     events = [entry for entry in scan.entries if entry.get("request_id") == request_id]
-    assert len(events) == 1
-    event = events[0]
+    authorization_events = [
+        entry for entry in events if entry.get("event_type") == "runtime.authorization.decision"
+    ]
+    data_access_events = [
+        entry for entry in events if entry.get("event_type") != "runtime.authorization.decision"
+    ]
+    assert len(authorization_events) == 1
+    assert authorization_events[0]["outcome"] == "deny"
+    assert authorization_events[0]["denial_reason"] == ("authorization_binding_run_tenant_mismatch")
+    assert authorization_events[0]["tenant_id"] == runtime_api_env["tenant_b"]
+    assert authorization_events[0]["subject"] == "user-1"
+    assert len(data_access_events) == 1
+    event = data_access_events[0]
     assert event["tenant_id"] == runtime_api_env["tenant_b"]
     assert event["actor"] == "user-1"
     assert event["method"] == "GET"

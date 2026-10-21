@@ -42,6 +42,7 @@ from polisyos.runtime.http.authorization import (
     MatchedAuthorizationRoute,
     OptionalActionPermissionDependency,
     OptionalActionPermissionResult,
+    ResourceBindingSource,
     RouteAuthorizationRequirement,
     get_route_action_permission_dependency,
     get_route_optional_action_permission_dependency,
@@ -66,6 +67,56 @@ from polisyos.runtime.http.security import (
 
 logger = get_logger("polisyos.security.authz")
 _MISSING_AUTHORIZATION_STATE = object()
+
+
+def _restore_authorization_state_value(state: object, name: str, value: object) -> None:
+    """Restore an authorization snapshot without losing present ``None`` values."""
+    if value is _MISSING_AUTHORIZATION_STATE:
+        # Starlette State delegates deletion to a dict and raises KeyError when absent.
+        with suppress(AttributeError, KeyError):
+            delattr(state, name)
+        return
+    setattr(state, name, value)
+
+
+def _recheck_optional_run_owner(
+    request: Request,
+    matched_request: Request,
+    requirement: RouteAuthorizationRequirement,
+) -> RuntimeHTTPError | None:
+    """Reuse the canonical run-owner guard after an optional run binding refusal."""
+    binding = requirement.resource_binding
+    if (
+        binding.source is not ResourceBindingSource.OWNED_EXISTING_PATH
+        or binding.resource_kind != "runtime.run.method_execution_selection"
+        or binding.path_parameter != "run_id"
+    ):
+        return None
+    run_id = matched_request.path_params.get("run_id")
+    if not isinstance(run_id, str) or not run_id:
+        return None
+
+    from polisyos.runtime.http.dependencies import (
+        enforce_run_tenant_access,
+        get_runtime_api_context,
+    )
+
+    try:
+        context = get_runtime_api_context(request)
+        run = context.run_index.get_run(run_id)
+        enforce_run_tenant_access(request, ctx=context, run=run)
+    except RuntimeHTTPError as exc:
+        if exc.code in {"run_tenant_mismatch", "run_tenant_unscoped"}:
+            return exc
+        # Missing caller scope or another runtime failure cannot confirm ownership.
+        return None
+    except KeyError:
+        # A removed/unresolved run keeps the original binding refusal.
+        return None
+    except Exception:
+        # A recheck failure must never turn the original refusal into admission.
+        logger.exception("Optional run-owner recheck failed; preserving binding refusal")
+    return None
 
 
 @dataclass(frozen=True, slots=True)
@@ -1468,7 +1519,11 @@ class AuthzMiddleware:
         requirement = dependency.requirement
         action_dependency = ActionPermissionDependency(requirement)
         verification_field = "action_permission_verification"
-        previous_verification = getattr(request.state, verification_field, None)
+        previous_verification = getattr(
+            request.state,
+            verification_field,
+            _MISSING_AUTHORIZATION_STATE,
+        )
         try:
             verification = action_dependency._authorize(matched_request)
         except RuntimeHTTPError as exc:
@@ -1528,16 +1583,29 @@ class AuthzMiddleware:
             )
             if audit_failure is not None:
                 return None, audit_failure
+            owner_error = await to_thread.run_sync(
+                partial(
+                    _recheck_optional_run_owner,
+                    request,
+                    matched_request,
+                    requirement,
+                )
+            )
+            if owner_error is not None:
+                return None, _AuthorizationFailure(
+                    response=_response_for_runtime_error(request, owner_error),
+                    reason=owner_error.code or owner_error.error,
+                )
             return None, _AuthorizationFailure(
                 response=_response_for_runtime_error(request, exc),
                 reason=exc.code or exc.error,
             )
         finally:
-            if previous_verification is None:
-                with suppress(AttributeError):
-                    delattr(request.state, verification_field)
-            else:
-                setattr(request.state, verification_field, previous_verification)
+            _restore_authorization_state_value(
+                request.state,
+                verification_field,
+                previous_verification,
+            )
 
         scope = getattr(request.state, "authz_effective_scope", None)
         if not isinstance(scope, AccessScope):
@@ -1701,11 +1769,7 @@ class AuthzMiddleware:
             )
         finally:
             for name, value in previous_values.items():
-                if value is _MISSING_AUTHORIZATION_STATE:
-                    with suppress(AttributeError):
-                        delattr(state, name)
-                else:
-                    setattr(state, name, value)
+                _restore_authorization_state_value(state, name, value)
         return None
 
     async def _evaluate_opa(

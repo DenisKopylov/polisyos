@@ -1,0 +1,398 @@
+{
+  "schema": "policyos.e02.author_source_bound_execution_handoff.v1",
+  "slice": "I4-C12-real-cached-encoder-full28-current-runtime-r9-20261021",
+  "authority": {
+    "G_acceptance": false,
+    "closure_ids": [],
+    "formal_closures": [],
+    "author_outcome": "held: complete28terminaltests,2productfailuresand2distinctharnessqualificationclasses; not a qualified capability positive"
+  },
+  "source": {
+    "candidate": "5a19132e01fca6ca1ff86923be5c68542a1d4f21",
+    "tree": "de21fd8012b70d50e373b07ecc6c4cbfdb31c795",
+    "parents": [
+      "5d31a170d25fa567af96f9ecaf4185c376e6f8ce"
+    ],
+    "branch": "codex/e02-unified-local-20261009",
+    "source_before_after_equal": true,
+    "selected_source_pins_unchanged": true,
+    "source_manifests": [
+      {
+        "count_basis": "AST over every module-level test_* function and Test* class method; literal parametrize rows multiplied per declaration; no historical expected count",
+        "declarations": [
+          {
+            "decorator_count": 0,
+            "nodeid_base": "tests/unit/remediation/test_emb_03.py::test_unchanged_append_reuses_only_unchanged_current_member",
+            "qualified_test_name": "test_unchanged_append_reuses_only_unchanged_current_member",
+            "source_line": 359,
+            "static_parametrized_case_count": 1
+          },
+          {
+            "decorator_count": 0,
+            "nodeid_base": "tests/unit/remediation/test_emb_03.py::test_changed_projected_text_same_id_is_reembedded",
+            "qualified_test_name": "test_changed_projected_text_same_id_is_reembedded",
+            "source_line": 388,
+            "static_parametrized_case_count": 1
+          },
+          {
+            "decorator_count": 0,
+            "nodeid_base": "tests/unit/remediation/test_emb_03.py::test_withdrawal_removes_id_from_current_generation",
+            "qualified_test_name": "test_withdrawal_removes_id_from_current_generation",
+            "source_line": 416,
+            "static_parametrized_case_count": 1
+          },
+          {
+            "decorator_count": 0,
+            "nodeid_base": "tests/unit/remediation/test_emb_03.py::test_encoder_revision_and_dimension_change_never_reuses_old_vectors",
+            "qualified_test_name": "test_encoder_revision_and_dimension_change_never_reuses_old_vectors",
+            "source_line": 443,
+            "static_parametrized_case_count": 1
+          },
+          {
+            "decorator_count": 0,
+            "nodeid_base": "tests/unit/remediation/test_emb_03.py::test_same_dimension_encoder_revision_never_reuses_old_vectors",
+            "qualified_test_name": "test_same_dimension_encoder_revision_never_reuses_old_vectors",
+            "source_line": 469,
+            "static_parametrized_case_count": 1
+          },
+          {
+            "decorator_count": 0,
+            "nodeid_base": "tests/unit/remediation/test_emb_03.py::test_projection_rule_change_invalidates_reuse",
+            "qualified_test_name": "test_projection_rule_change_invalidates_reuse",
+            "source_line": 527,
+            "static_parametrized_case_count": 1
+          },
+          {
+            "decorator_count": 0,
+            "nodeid_base": "tests/unit/remediation/test_emb_03.py::test_missing_or_corrupt_generation_selector_fails_closed_to_rebuild",
+            "qualified_test_name": "test_missing_or_corrupt_generation_selector_fails_closed_to_rebuild",
+            "source_line": 557,
+            "static_parametrized_case_count": 1
+          },
+          {
+            "decorator_count": 0,
+            "nodeid_base": "tests/unit/remediation/test_emb_03.py::test_legacy_backend_argument_is_rejected_explicitly",
+            "qualified_test_name": "test_legacy_backend_argument_is_rejected_explicitly",
+            "source_line": 585,
+            "static_parametrized_case_count": 1
+          },
+          {
+            "decorator_count": 0,
+            "nodeid_base": "tests/unit/remediation/test_emb_03.py::test_legacy_wrapper_preserves_canonical_result_and_forwards_profile",
+            "qualified_test_name": "test_legacy_wrapper_preserves_canonical_result_and_forwards_profile",
+            "source_line": 599,
+            "static_parametrized_case_count": 1
+          },
+          {
+            "decorator_count": 1,
+            "nodeid_base": "tests/unit/remediation/test_emb_03.py::test_canonical_legal_embedding_projections",
+            "qualified_test_name": "test_canonical_legal_embedding_projections",
+            "source_line": 664,
+            "static_parametrized_case_count": 3
+          },
+          {
+            "decorator_count": 1,
+            "nodeid_base": "tests/unit/remediation/test_emb_03.py::test_canonical_legal_embedding_projection_rejects_incomplete_rows",
+            "qualified_test_name": "test_canonical_legal_embedding_projection_rejects_incomplete_rows",
+            "source_line": 678,
+            "static_parametrized_case_count": 3
+          },
+          {
+            "decorator_count": 0,
+            "nodeid_base": "tests/unit/remediation/test_emb_03.py::test_missing_and_mixed_intent_refuse_all_vector_tables_before_encode",
+            "qualified_test_name": "test_missing_and_mixed_intent_refuse_all_vector_tables_before_encode",
+            "source_line": 685,
+            "static_parametrized_case_count": 1
+          },
+          {
+            "decorator_count": 0,
+            "nodeid_base": "tests/unit/remediation/test_emb_03.py::test_fresh_intent_still_requires_runtime_material_before_vector_search",
+            "qualified_test_name": "test_fresh_intent_still_requires_runtime_material_before_vector_search",
+            "source_line": 782,
+            "static_parametrized_case_count": 1
+          },
+          {
+            "decorator_count": 0,
+            "nodeid_base": "tests/unit/remediation/test_emb_03.py::test_producer_selected_intent_reaches_fresh_served_reader_with_typed_fallback",
+            "qualified_test_name": "test_producer_selected_intent_reaches_fresh_served_reader_with_typed_fallback",
+            "source_line": 861,
+            "static_parametrized_case_count": 1
+          },
+          {
+            "decorator_count": 0,
+            "nodeid_base": "tests/unit/remediation/test_emb_03.py::test_producer_generation_reaches_native_http_with_typed_runtime_material_refusal",
+            "qualified_test_name": "test_producer_generation_reaches_native_http_with_typed_runtime_material_refusal",
+            "source_line": 912,
+            "static_parametrized_case_count": 1
+          },
+          {
+            "decorator_count": 0,
+            "nodeid_base": "tests/unit/remediation/test_emb_03.py::test_current_generation_refuses_changed_projected_members_before_encode",
+            "qualified_test_name": "test_current_generation_refuses_changed_projected_members_before_encode",
+            "source_line": 1068,
+            "static_parametrized_case_count": 1
+          },
+          {
+            "decorator_count": 0,
+            "nodeid_base": "tests/unit/remediation/test_emb_03.py::test_query_encoder_assets_must_match_before_encoding",
+            "qualified_test_name": "test_query_encoder_assets_must_match_before_encoding",
+            "source_line": 1095,
+            "static_parametrized_case_count": 1
+          },
+          {
+            "decorator_count": 0,
+            "nodeid_base": "tests/unit/remediation/test_emb_03.py::test_runtime_and_graph_refuse_same_asset_query_callable_swap",
+            "qualified_test_name": "test_runtime_and_graph_refuse_same_asset_query_callable_swap",
+            "source_line": 1118,
+            "static_parametrized_case_count": 1
+          },
+          {
+            "decorator_count": 0,
+            "nodeid_base": "tests/unit/remediation/test_emb_03.py::test_owned_generation_and_members_do_not_verify_legal_source_relation",
+            "qualified_test_name": "test_owned_generation_and_members_do_not_verify_legal_source_relation",
+            "source_line": 1196,
+            "static_parametrized_case_count": 1
+          },
+          {
+            "decorator_count": 0,
+            "nodeid_base": "tests/unit/remediation/test_emb_03.py::test_owned_runtime_resolution_waits_for_fresh_intent_and_members",
+            "qualified_test_name": "test_owned_runtime_resolution_waits_for_fresh_intent_and_members",
+            "source_line": 1250,
+            "static_parametrized_case_count": 1
+          },
+          {
+            "decorator_count": 0,
+            "nodeid_base": "tests/unit/remediation/test_emb_03.py::test_python_runtime_profile_distinguishes_venv_launch_aliases",
+            "qualified_test_name": "test_python_runtime_profile_distinguishes_venv_launch_aliases",
+            "source_line": 1373,
+            "static_parametrized_case_count": 1
+          },
+          {
+            "decorator_count": 0,
+            "nodeid_base": "tests/unit/remediation/test_emb_03.py::test_runtime_profile_bootstrap_stabilizes_modules_and_refuses_later_drift",
+            "qualified_test_name": "test_runtime_profile_bootstrap_stabilizes_modules_and_refuses_later_drift",
+            "source_line": 1431,
+            "static_parametrized_case_count": 1
+          },
+          {
+            "decorator_count": 0,
+            "nodeid_base": "tests/unit/remediation/test_emb_03.py::test_model_file_inventory_confines_snapshot_and_blob_paths",
+            "qualified_test_name": "test_model_file_inventory_confines_snapshot_and_blob_paths",
+            "source_line": 1552,
+            "static_parametrized_case_count": 1
+          },
+          {
+            "decorator_count": 0,
+            "nodeid_base": "tests/unit/remediation/test_emb_03.py::test_local_owned_runtime_material_producer_get_post_and_callable_falsifier",
+            "qualified_test_name": "test_local_owned_runtime_material_producer_get_post_and_callable_falsifier",
+            "source_line": 1650,
+            "static_parametrized_case_count": 1
+          }
+        ],
+        "declared_test_function_count": 24,
+        "derived_case_count": 28,
+        "schema": "policyos.e02.source_test_ast_manifest.v1",
+        "selector": "tests/unit/remediation/test_emb_03.py",
+        "source_sha256": "144ae0231de46912b1ff717e04598263a5e5115b4be70eefcf9a35a8feb2ab8a"
+      }
+    ],
+    "full_source_pin_map": {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/root-c12-emb03-r9-full28-sourcebound-20261021-r1-actual/source-before.json",
+      "sha256": "5ca141a55bbec31e3af42d427c836a6780ce3c872994fd5254c72d0866f9ef74"
+    },
+    "receipt_commit": "intentionally unspecified: this document records an earlier run and never predicts its own receipt commit"
+  },
+  "selected_profile": {
+    "request": {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/root-c12-emb03-r9-full28-sourcebound-20261021-r1/request.json",
+      "sha256": "b5e7f12866cfae4318540223700f118c506dce3500d20774dfb0ba4677c38604"
+    },
+    "launch_preflight": {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/root-c12-r9-current-full28-launch-20261021-r1/preflight.json",
+      "sha256": "fef835dbe55d08ea576ebc0950c30a0e8709803c9e5a9473ea6ae36fad9d6a8c"
+    },
+    "launch_addendum": {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/root-c12-r9-current-full28-launch-20261021-r1/launch-addendum.json",
+      "sha256": "edbb8abc298bae1c70e7cdbc3a1d401714c737d6c19d6fdc532184d5adcb98fd"
+    },
+    "backend": "Existing offline SentenceTransformers2.7.0 profile and cached multilingual-e5-large; no dependency installation, download or model/source copying.",
+    "input_denominator": "173 unique pinned launch inputs, including actual cached model bytes; full local check in preflight and request.",
+    "profile_qualification": "FAILED; do not retroactively qualify this run after harness repair.",
+    "outside_selected_profile": "Linux worker/backend rows and production currentness are separate UNRUN/held checks, not selected-suite SKIPs."
+  },
+  "actual_execution": {
+    "deciding_result": {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/root-c12-emb03-r9-full28-sourcebound-20261021-r1-actual/result.json",
+      "sha256": "1354237cb0e36c54820a08168319c2db1cd8e061125d47dd5cbf7898d9432e58"
+    },
+    "outer_result": {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/root-c12-r9-current-full28-launch-20261021-r1/outer-result.json",
+      "sha256": "8b63396df5dcce8de611d9c0d528d1f3860411abb11197b29ee0863514a41716"
+    },
+    "junit": {
+      "cases": 28,
+      "errors": 0,
+      "failed": 2,
+      "passed": 26,
+      "skipped": 0
+    },
+    "phase_report_count": 84,
+    "terminal_accounting_complete": true,
+    "current_collection_count": 28,
+    "full_run_qualified": false,
+    "qualified_success": false,
+    "complete_execution_field": false,
+    "interpretation": "All28terminaloutcomes/84phases reconcile; complete_execution=false also includes qualification, so it does not mean0calls or an early termination.",
+    "failed_cases": [
+      "tests/unit/remediation/test_emb_03.py::test_local_owned_runtime_material_producer_get_post_and_callable_falsifier",
+      "tests/unit/remediation/test_emb_03.py::test_producer_generation_reaches_native_http_with_typed_runtime_material_refusal"
+    ],
+    "command": {
+      "aborted_reason": null,
+      "argv": [
+        "/usr/bin/sandbox-exec",
+        "-f",
+        "/Users/deniskopylov/.codex/worktrees/e02-unified-local-20261009/polisyos/policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/root-c12-emb03-r9-full28-sourcebound-20261021-r1-actual/sandbox.sb",
+        "/Users/deniskopylov/.codex/worktrees/e02-unified-local-20261009/polisyos/policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/c12-real-encoder-profile/venv/bin/python",
+        "-B",
+        "/Users/deniskopylov/.codex/worktrees/e02-unified-local-20261009/polisyos/policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/r1729-c12-real-cached-model-locked-profile-root-20261014/pytest_bootstrap.py",
+        "-p",
+        "e02_i4_case_report_capture_r1",
+        "-p",
+        "e02_wave_capture_r10_candidate",
+        "-vv",
+        "--tb=long",
+        "-o",
+        "faulthandler_timeout=10",
+        "--basetemp",
+        "/Users/deniskopylov/.codex/visualizations/2026/10/09/01a11f94-9b02-7943-a9a2-6c78929b5199/e02-test-state/root-c12-emb03-r9-real-e5-20261021-r1/pytest-temp",
+        "-o",
+        "cache_dir=/Users/deniskopylov/.codex/visualizations/2026/10/09/01a11f94-9b02-7943-a9a2-6c78929b5199/e02-test-state/root-c12-emb03-r9-real-e5-20261021-r1/cache",
+        "-o",
+        "log_file=/Users/deniskopylov/.codex/visualizations/2026/10/09/01a11f94-9b02-7943-a9a2-6c78929b5199/e02-test-state/root-c12-emb03-r9-real-e5-20261021-r1/pytest.log",
+        "-o",
+        "tmp_path_retention_policy=all",
+        "--benchmark-storage=file:///Users/deniskopylov/.codex/visualizations/2026/10/09/01a11f94-9b02-7943-a9a2-6c78929b5199/e02-test-state/root-c12-emb03-r9-real-e5-20261021-r1/bench",
+        "--junitxml",
+        "/Users/deniskopylov/.codex/worktrees/e02-unified-local-20261009/polisyos/policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/root-c12-emb03-r9-full28-sourcebound-20261021-r1-actual/pytest.xml",
+        "tests/unit/remediation/test_emb_03.py"
+      ],
+      "complete": true,
+      "cwd": "/Users/deniskopylov/.codex/worktrees/e02-unified-local-20261009/polisyos/policy-engine",
+      "disk_free_before_bytes": 9848061952,
+      "finished_at": "2026-10-21T11:28:48.688822+00:00",
+      "id": "pytest",
+      "max_sampled_process_tree_rss_bytes": 3947233280,
+      "minimum_sampled_disk_free_bytes": 9807564800,
+      "pid": 42480,
+      "process_group_gone": true,
+      "return_code": 1,
+      "sample_count": 451,
+      "started_at": "2026-10-21T11:24:43.648648+00:00",
+      "status": "command_failed",
+      "stderr_path": "pytest.stderr.txt",
+      "stdout_path": "pytest.stdout.txt",
+      "termination_signal": null,
+      "wall_seconds": 245.0396596249193,
+      "wall_total_before_seconds": 2.8042122721672058e-05
+    },
+    "resource_monitor": {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/root-c12-emb03-r9-full28-sourcebound-20261021-r1-actual/result.json",
+      "field": "resource_monitor",
+      "sha256": "1354237cb0e36c54820a08168319c2db1cd8e061125d47dd5cbf7898d9432e58"
+    },
+    "resource_limit_scope": "Sampled child/group and sampled controller-plus-child RSS bounds; not an OS allocation quota or proof of physical BLAS thread limits.",
+    "OOM": "not observed; command exited1 with assertion/AttributeError failures, no budget termination signal."
+  },
+  "chain": {
+    "producer": "Actual Catalog/Legal generation/member/encoder APIs with the existing real cached encoder; passing module cases retain their exact nodeid evidence.",
+    "artifact": "Current generation selection, model-file inventory, immutable query intent and material member receipts are exercised by the actual module.",
+    "bridge_and_consumer_boundary": "Both failing tests stop during GET /api/v1/control/lex/search-profile at the required ActionPermissionDependency; these tests do not reach their subsequent search POST/consumer.",
+    "surface": "Current native Runtime HTTP GET fails; no complete C12 serving claim.",
+    "limitations": [
+      "Passing producer tests do not establish full serving-chain completion.",
+      "Profile interpreter/import-origin and pytest configuration qualification are independently red.",
+      "Controlled source-bound serving instance does not establish live production custody/currentness."
+    ]
+  },
+  "P40_buckets": [
+    {
+      "class": "new actual auth evaluator-owner placement defect",
+      "observed": "Both GET failures raise ActionPermissionDependency._authorize missing; optional class accidentally owns the unchanged evaluator.",
+      "quantity": "Independent fullHTTP128PYcensus:50factorydeclarations49required1optional,52requireddecorators15GET37POST plusoneoptionalGET; fixsharedowneronce.",
+      "repair": "Separately reviewed unchanged-body ownership move; this receipt is pre-fix evidence."
+    },
+    {
+      "class": "harness origin-category proxy mismatch",
+      "observed_errors": [
+        "marshal:resolved_origin:missing_path",
+        "site:spec_origin:unresolvable",
+        "site:captured_origin_fields_disagree",
+        "_hashlib:resolved_origin:missing_path"
+      ],
+      "quantity": "builtin/frozen/file categories generic; no per-module whitelist. Loaded1768repo origins match captured source, but that does not make failed fullprofilequalified.",
+      "repair": "New immutable R10 harness models actual origin kinds and interpreter/byte ownership, with corrupt-origin controls; future run required."
+    },
+    {
+      "class": "missing expected pytest configuration binding",
+      "observed": "R9 request omitted pytest_selection_binding.config while actual capture identifies source-pinned pytest.ini/default addopts.",
+      "repair": "Source-pin actual configuration in new request and retain generic drift rejection, then new actual run."
+    }
+  ],
+  "evidence": [
+    {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/root-c12-emb03-r9-full28-sourcebound-20261021-r1-actual/pytest.stdout.txt",
+      "sha256": "8b3b3c4a207d5e5227c251f7f255f82de53259fb9f1488ce444cbc31daaa38b6"
+    },
+    {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/root-c12-emb03-r9-full28-sourcebound-20261021-r1-actual/pytest.stderr.txt",
+      "sha256": "09daf8722737dd1782565c6abee68a50039c855b9de2a1394486453851382899"
+    },
+    {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/root-c12-emb03-r9-full28-sourcebound-20261021-r1-actual/pytest.xml",
+      "sha256": "701edfcf97cf46fa97358e2cbde34051a2684ca396559d55bea0a167ed8e2a50"
+    },
+    {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/root-c12-emb03-r9-full28-sourcebound-20261021-r1-actual/cases.jsonl",
+      "sha256": "a3f302a626b653aeeb265a34e2bb54d6461600af5c5987482c459967c6510cdd"
+    },
+    {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/root-c12-emb03-r9-full28-sourcebound-20261021-r1-actual/collection.json",
+      "sha256": "d99067011db3f00bfecdbdbe6f34200bdd123defbbbed8f9c9959b4f71f16013"
+    },
+    {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/root-c12-emb03-r9-full28-sourcebound-20261021-r1-actual/origins.json",
+      "sha256": "1171bab1d1f9bc6f313c26e46a2111c9e9316ad1e0d15b208de24f1a9eef7638"
+    },
+    {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/root-c12-emb03-r9-full28-sourcebound-20261021-r1-actual/aggregate-resource-samples.jsonl",
+      "sha256": "94aa7006f1de93e7e3bb6a28d1671d3d33fb7b8996299d9370312ec89113105a"
+    },
+    {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/root-c12-emb03-r9-full28-sourcebound-20261021-r1-actual/process-tree.jsonl",
+      "sha256": "1d93b34cff7c81a7635077084802bf4cca11e62daaf24fab0802ea50237ecd1d"
+    }
+  ],
+  "independent_review": {
+    "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/independent-c12-r9-full28-actual-review-20261021-r1/review.json",
+    "sha256": "5ba6f226590a5362dde63fa1f5747cbbdb6a57919dfdc1e7f787dc890eb7b040"
+  },
+  "removal_controls": "Existing fullmodule includes callable-swap/profile/member/encoder-reuse and malformed selectors; exact individual outcomes remain in cases.jsonl, no closure inferred from totalPASS. New auth evaluator-removal API control is a separately reviewed source companion, UNRUN in this pre-fix run.",
+  "proposal_tasks": [
+    {
+      "task": "I4/C12",
+      "outcome": "held",
+      "capability_labels": [
+        "verification_missing"
+      ],
+      "criterion_boundary": "Native realencoder producer cases partly pass, current GET fails and fullprofilequalificationfails.",
+      "next_check": "After independently reviewed auth/R10 changes, freeze exact current source/profile/input set and rerun whole test_emb_03.py, reconcile fullphases/origins/config/resources and fresh GET→POST consumer/removal controls."
+    }
+  ],
+  "P41": "No inherited-red attribution. Run source5a191 includes own work; later334e/auth repair is separate source and may not absorb this result as current green.",
+  "remaining_verification": [
+    "Full28current-source/profile rerun after auth and R10 repairs.",
+    "Complete AD04/AD05/AD06 composed producer/consumer and frozen generated/installed/native receipts.",
+    "Full282ID/291occurrence per-originalcriterion proposal report; no automatic formal closures."
+  ]
+}

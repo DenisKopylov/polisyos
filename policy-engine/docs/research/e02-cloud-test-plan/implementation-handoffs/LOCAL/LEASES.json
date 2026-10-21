@@ -49772,5 +49772,66 @@
     "source_profile_freeze": false,
     "G_acceptance": false,
     "closure_ids": []
+  },
+  "root-c12-r9-failed-actual-receipt-adoption-20261021-r1": {
+    "slice_base": "10c3c3fc23ccb8e58f44e81bee739688039220ca",
+    "canonical_writer": "root only; reviewed present patch, retired exact originals through native Trash",
+    "mechanism_and_mandatory_companion_paths": {
+      "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/c12-real-encoder-whole28-actual-20261021.json": {
+        "operation": "create",
+        "mode": "100644",
+        "preimage_sha256": null,
+        "postimage_path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/root-c12-r9-complete-failed-actual-receipt-20261021-r1/c12-real-encoder-whole28-actual-20261021.json",
+        "postimage_sha256": "1fc3f2e6d00e5337785f65b8d2515b91a436fe45fefb768c35fa2b67febc2350",
+        "postimage_bytes": 23161
+      }
+    },
+    "application": {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/root-c12-r9-failed-actual-receipt-adoption-20261021-r1/source-application.json",
+      "sha256": "94510dbb4dda6b0855ae4f3c4e32ac78732f8ed299bbd4aacfdfcfd7bc8a5210"
+    },
+    "native_trash_receipt": {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/root-c12-r9-failed-actual-receipt-adoption-20261021-r1/native-trash-receipt.json",
+      "sha256": "057f81b6e161c37eaec854c352b59148420f1f1711163b9005834b723e193dcf"
+    },
+    "reviewed_inputs": [
+      {
+        "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/root-c12-r9-complete-failed-actual-receipt-20261021-r1/c12-real-encoder-whole28-actual-20261021.json",
+        "sha256": "1fc3f2e6d00e5337785f65b8d2515b91a436fe45fefb768c35fa2b67febc2350"
+      },
+      {
+        "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/root-c12-emb03-r9-full28-sourcebound-20261021-r1-actual/result.json",
+        "sha256": "1354237cb0e36c54820a08168319c2db1cd8e061125d47dd5cbf7898d9432e58"
+      },
+      {
+        "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/independent-c12-r9-full28-actual-review-20261021-r1/review.json",
+        "sha256": "5ba6f226590a5362dde63fa1f5747cbbdb6a57919dfdc1e7f787dc890eb7b040"
+      },
+      {
+        "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/root-c12-r9-current-full28-launch-20261021-r1/outer-result.json",
+        "sha256": "8b63396df5dcce8de611d9c0d528d1f3860411abb11197b29ee0863514a41716"
+      }
+    ],
+    "owned_applied_provenance": null,
+    "preserved_other_owned_rows": {},
+    "preserved_other_owned_provenance": null,
+    "preserved_other_owned_tracked_paths": [],
+    "preserved_other_owned_untracked_paths": [],
+    "preserved_other_owned_unchanged_before_after": true,
+    "P40": {
+      "statement": "Retain complete actual28test/84phase26PASS2FAIL0SKIP at exact5a191; classify authentic GET auth failures separately from origin-kind andpytest-config harness qualification errors. Fulloutput/source/input/pins/resource/reap references retained; no retroactive qualified-positive orclosure.",
+      "P40": "Authsharedownernewclass fixedseparatesourcecommit; twoharnessproxyclasses remainseparateactualfuturequalificationwork."
+    },
+    "bounded_proof": "Independent5ba6f226 completeactualreview plusrootcross-read actualresult/phase/reap/sourceflags and fulloutputhashrefs.",
+    "limitations": [
+      "This is a pre-fix actual execution receipt, not source implementation or current10c3 runtime proof.",
+      "No FutureownreceiptSHA, formalGclosure or globalcompleteclaim.",
+      "ActualPOSTconsumer behind failedGET wasUNRUN; productioncurrentness/Linuxseparate."
+    ],
+    "runtime": "UNRUN on adopted source",
+    "next_check": "AfternewR10harnessreview/fullinput/sourcefreezerebind, whole28actual C12repeat; current17Runtime/CANHTTP source replay nowauthfixadopted.",
+    "source_profile_freeze": false,
+    "G_acceptance": false,
+    "closure_ids": []
   }
 }

@@ -1,8 +1,8 @@
 # Waves, readiness and the critical path
 
-## Two different completions
+## Staged completion and selected inputs
 
-`depends_on` in tasks.json describes prerequisites for an owner delivery: a reviewed native interface/producer and the exact local proof promised by that task. `acceptance_dependencies` names later composition witnesses. An owner delivery can be available while the overall capability is still incomplete. The final composition must exercise the real emitted artifact; a fixture-backed interface is never promoted to capability acceptance.
+`depends_on` in tasks.json consumes the declared `dependency_stage`; ordinary edges require reviewed internal owner readiness. [The stage contract](05-stage-and-release-contracts.md) separates local proof, activated composition witnesses, execution permission and original closure. A generic task positive requiring a genuine external fact is not silently part of its source-freeze predicate. `acceptance_dependencies` names later composition witnesses. An owner delivery can be available while the overall capability is still incomplete. The final composition must exercise the real emitted artifact; a fixture-backed interface is never promoted to capability acceptance.
 
 This distinction breaks a common false cycle: the cursor owner can implement receipt-before-frontier against the agreed producer interface, capture can then deliver actual receipts, and the composed check proves both. Neither waits for the other's entire end-to-end capability to be accepted. Root records `owner_delivery` and `composed_acceptance` separately in the journal, using existing native acceptance states rather than new product enums.
 
@@ -42,7 +42,7 @@ All original open obligations still require completion/owner closure before the 
 
 ## Wave 5 — one final expensive wave
 
-FINAL-FREEZE binds composed source, input and selected backend matrix after all mandatory internal work and original-obligation dispositions. Independent reviews complete on that snapshot; blocking repairs are batched and re-reviewed by delta. Then run the selected GY V1–V7, Atlas/browser/MACHINE/a11y, R9 lifecycle and operational replay as one coordinated wave. LIF-09 supplies its lifecycle portion, not a second duplicate full replay. Complete outputs and limitations survive.
+FINAL-FREEZE binds internal owner-ready source, inputs and selected backend matrix with complete truthful current original dispositions, including unresolved external facts. It gives no closure credit. Independent reviews complete on that snapshot; blocking repairs are batched and re-reviewed by delta. After blocking repairs and delta review, record the final replay tree/input/backend/upstream identities. Then run the selected GY V1–V7, Atlas/browser/MACHINE/a11y, R9 lifecycle and operational replay as one coordinated wave. LIF-09 supplies its lifecycle portion, not a second duplicate full replay. Complete outputs and limitations survive.
 
 FINAL-USE is a release proposal, not automatic deployment. Every original nonclosed obligation must be accepted/closed by its competent owner; missing external inputs that prevent such closure keep the affected release gate closed unless the human explicitly changes the programme scope. No author may relabel an unresolved internal item as optional or external.
 
@@ -50,6 +50,6 @@ FINAL-USE is a release proposal, not automatic deployment. Every original nonclo
 
 The machine graph is in [dependency-levels.json](dependency-levels.json). Its level widths are logical prerequisite counts, not runnable writers; exact write/resource conflicts reduce them. No duration estimate or speedup factor is inferred from them.
 
-At 100 direct-agent capacity, an illustrative ceiling is 4 workstream coordinators, 48 independent writers, 20 read-only source/oracle specialists, 20 independent reviewers and 8 resource/verifying stewards. Sum=100; root is additional. At24/48capacity use the envelopes in the parallel-execution document. Coordinators never spawn children. Seats move to review when reviewed-output throughput becomes the bottleneck; no task is invented to occupy a seat.
+At 100 total subagent capacity, an illustrative ceiling is 4 workstream coordinators, 48 independent writers, 20 read-only source/oracle specialists, 20 independent reviewers and 8 resource/verifying stewards. Sum=100 across direct and nested workers; root is additional. At24/48capacity use the envelopes in the parallel-execution document. A coordinator may create only root-granted leaves when the runtime permits it; leaves never create children. Starting and cancellation-pending workers retain their seats until terminal state is confirmed. Seats move to review when reviewed-output throughput becomes the bottleneck; no task is invented to occupy a seat.
 
 Root prioritizes the measured critical chain, usually accepted-source rebind → native invariant → actual bridge/consumer → independent review → composed evidence. Off-path tasks remain ready when an external issuer, shared browser or native high-RSS run waits. Schedule estimates become meaningful only after representative task/review/resource measurements; until then use dependencies, not fictional calendar dates.

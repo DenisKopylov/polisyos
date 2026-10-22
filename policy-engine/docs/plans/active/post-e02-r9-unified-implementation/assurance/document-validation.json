@@ -46,34 +46,33 @@
       "sources": 197
     },
     "graph": {
-      "tasks": 106,
+      "tasks": 109,
       "by_stream": {
         "CAP": 6,
         "LIF": 9,
         "GYD": 33,
-        "UI": 19,
+        "UI": 20,
         "CNT": 9,
         "OPS": 12,
         "P0": 2,
-        "DEB": 12,
+        "DEB": 14,
         "FINAL": 4
       },
-      "hard_edges": 311,
+      "hard_edges": 321,
       "levels": 14,
-      "max_logical_width": 55,
+      "max_logical_width": 57,
       "cyclic": false,
       "debt_nonclosed_bidirectional_routes": 86,
       "GY_nonexecuted_routes": 22,
       "R9_trace_rows": 115
     },
     "links": {
-      "local_file_links": 98,
+      "local_file_links": 124,
       "broken": []
     },
-    "json_files": 8,
+    "json_files": 11,
     "standing": "Document-only checks. No product tests/imports/builds/installations/production reads.",
-    "frontend_estate": {
-      "source": "policy-engine/architecture/atlas_surfaces/frontend-disposition-register.json",
+    "Atlas_estate": {
       "entries": 261,
       "disposition": {
         "rebind_pending": 179,
@@ -87,70 +86,202 @@
         "strangled": 60,
         "not_applicable": 63
       },
-      "dimensions_overlap": true
-    }
+      "auxiliary_rows": 85,
+      "by_array": {
+        "subunits": 2,
+        "supplemental_findings": 60,
+        "seeded_negative_lifecycle": 23
+      },
+      "exact_id_index_source_state_match": true
+    },
+    "Atlas_reference_arrays": {
+      "ds2_unbound": 60,
+      "full_ID_match": true,
+      "DS2_ledger": "policy-engine/architecture/atlas_surfaces/atlas-v15-adoption-ledger.json",
+      "adoption_verdicts": {
+        "admit_after_refactor": 24,
+        "defer": 26,
+        "reject": 10
+      },
+      "reference_censuses": 10,
+      "all_census_unit_ids_resolve": true,
+      "standing": "Closed DS2 adjudication/revisit only; these references add no automatic implementation tasks."
+    },
+    "stages_conflicts": {
+      "stage_refs_resolve": true,
+      "task_dependency_stages": {
+        "owner_readiness": 105,
+        "final_reviewed_replay_identity": 2,
+        "frozen_review_candidate": 1,
+        "composed_verification_and_original_dispositions": 1
+      },
+      "conflict_groups": 22,
+      "classifications": {
+        "confirmed_write_overlap": 2,
+        "mixed_reference_roles": 13,
+        "generated_family": 1,
+        "semantic_owner": 6
+      },
+      "conditional_supplier_refs_resolve": true,
+      "actual_runnable_concurrency": "not_established",
+      "product_verification": "UNRUN"
+    },
+    "source_bindings": [
+      {
+        "path": "policy-engine/architecture/atlas_surfaces/frontend-disposition-register.json",
+        "sha256": "6998e9d58ace363a12e0b3740b8abd5575b422f9d5d491ad0f5c8146d8112189"
+      },
+      {
+        "path": "policy-engine/architecture/atlas_surfaces/atlas-v15-adoption-ledger.json",
+        "sha256": "8e253a971d87119c7685efdf64895a364ffb253d19694dbc743dd697b4057545"
+      }
+    ]
   },
   "errors": [],
-  "format": "documentary-validation-receipt-v1",
+  "format": "documentary-validation-receipt-v2",
   "date": "2026-10-22",
   "outcome": "PASS",
+  "reviewed_plan_commit": "413c120e73c0323294997e767abbd1a1a7a5a226",
+  "prior_receipt": "assurance/document-validation.json@413c120e73c0323294997e767abbd1a1a7a5a226",
   "source_G": "d40bca270ef5c456e8233196e4d8d65e099777a7",
   "implementation_E02": "not_accepted_by_this_document",
   "accepted_E02_source": null,
   "G_acceptance": false,
   "closure_ids": [],
-  "research_agents": 18,
-  "delegation": "direct only; root sole tracked writer",
+  "research_agents": 10,
+  "review_outputs": 19,
+  "delegation": "Current session: direct only, root sole tracked writer. Future plan: optional runtime-permitted root-to-lead-to-leaf with100 non-root global seats.",
+  "review_scope": "Complete documentary source sets and owner/criterion crosswalks;10 independent dimensions,5 delta reviews,4 narrow final follow-ups. No source/run claim upgraded.",
+  "product_checks": "UNRUN by explicit user instruction: no product tests/builds/imports/installations/provisioning/production scans.",
+  "hook_scope": "Docs-only publication omits unconditional dashboard contrast/reduced-motion on commit and typecheck on push to preserve explicit user no-heavy-process constraint. Hook configuration unchanged; these omissions are UNRUN, never PASS.",
   "PDF": {
     "pages": 10,
-    "visual_inspection": "All10page contact sheet and page10 inspected; no clipping/overlap/glyph failure observed.",
-    "bytes": 110887
-  },
-  "review_scope": "Complete original-document sets; independent inventory/authority/architecture/schedule reviews; root35paraphrase and finalsemantic corrections. Source claims are static/documentary, not fresh runtime evidence.",
-  "product_checks": "UNRUN by explicit user instruction: no tests/builds/imports/installations/provisioning/production scans.",
-  "hook_scope": "Documentation-only commit: omit unconditional dashboard contrast/reduced-motion and push typecheck to preserve user no-heavy-process constraint. Hook files unchanged; these are not PASS receipts.",
-  "correction_input": {
-    "path": "policy-engine/_build/post-e02-r9-program-20261022/corrected-rows.json",
-    "sha256": "9146c3fb6b176ad9309d8ed8a13b3d8c6f0ec7cb00bed18e8cf67b392f597f5e",
-    "rows_applied": 35
+    "bytes": 112143,
+    "visual_inspection": "All10page contact sheet and enlarged pages2,7,10 inspected; no clipping/overlap/glyph failure. Final spacing-only revision preserves page count and geometry; final render checked before publication."
   },
   "validator": {
-    "path": "policy-engine/_build/post-e02-r9-program-20261022/validate_docs.py",
-    "sha256": "9e1cf963b86e7378d0a24094e4d809470d66a63797f3307996eebde21ef32adf",
-    "method": "Independent standard-library full text/JSON walks; no product module imports. All98local file links resolve. Existing source anchors/qualified evidence are not runtime executions."
+    "path": "policy-engine/_build/post-e02-r9-redteam-20261022/validate_docs.py",
+    "sha256": "7c7c5fd2330cb596207d19cb5756957f737360c3d0297ba4468ca55c4551860e",
+    "method": "Standard-library complete text/JSON walks only; no product imports. Exact source statuses, complete auxiliary IDs/indices/statuses, separate DS2 reference domain, graph, stage-fragment and conditional-supplier identity, all local Markdown file links. Does not execute future acceptance predicates."
   },
   "artifact_bindings": [
     {
       "path": "tasks.json",
-      "sha256": "47576936534e9dd2b237610435065e3d8b165bd25998bb119fcfcd119a0bf50b"
+      "sha256": "dd48cbba4496f772de38db8ea14956a6521026a158225344c146c448e7e50955"
     },
     {
-      "path": "executive/summary.md",
-      "sha256": "5e25019211093e56c19007760959b1564c5ba9c297e5738ff8dbab1e09cd32fd"
+      "path": "execution/dependency-levels.json",
+      "sha256": "b851a0f9ddcc6f86aed7c494ce51415938e722c44ae32117a81a53c4fc68dff2"
     },
     {
-      "path": "executive/summary.pdf",
-      "sha256": "4bc9957a92094fb71816e7a17b99f2b9510c8408aa9a37c074bc42adc3522955"
+      "path": "execution/stage-requirements.json",
+      "sha256": "51b6dc44cfcef483f6dbf6dbab641e39ca40b83a951e4c5e48f37032db1627d0"
+    },
+    {
+      "path": "execution/conflict-groups.json",
+      "sha256": "b84ef0a75c816cc9e6f6e61e440fa19121202538c814a96dbc1eb1481b4ddf19"
+    },
+    {
+      "path": "inventory/atlas-auxiliary-obligations.json",
+      "sha256": "9299f61a84e527d0509b23f58c6ac45abfa590f3f21d674429a2eba3449ac294"
     },
     {
       "path": "inventory/debt-inventory.json",
-      "sha256": "ee1eb44faf3784a606766d5b37f243f1e95327801eadc8ef27448d5c51c63137"
+      "sha256": "7d813aa879c7a0e91f66097bcbc28aa893a5f201561e5d4e0868396a49c4ae34"
     },
     {
-      "path": "assurance/reviews/red-architecture.txt",
-      "sha256": "bd3f4656d7dcb06ad158231fdd39ea5595df6592e39f65fe53384644cb8db121"
+      "path": "assurance/redteam-r11-disposition.md",
+      "sha256": "549171b66ba5f9fab85b1fef2e527fe3c37c91210ffb2250c8199b828eee9759"
     },
     {
-      "path": "assurance/reviews/red-authority.txt",
-      "sha256": "a5476fbf1c34a7633a83f4c8721751decbe1358420728ed352feced9bd10489f"
+      "path": "executive/summary.md",
+      "sha256": "5e6ba85ab751530770407af5140bd41ed369ddbe33de4dca951d50753e908e2d"
     },
     {
-      "path": "assurance/reviews/red-inventory.txt",
-      "sha256": "6948b6e992442e60be62c6480d6d2bc43e246fa12d9c93bfa0f7411b93dbf9d0"
+      "path": "executive/summary.pdf",
+      "sha256": "3ee78f56a36e38e828e46ad2491c0cf0750d17c141a018b3d4101ae08800c54f"
     },
     {
-      "path": "assurance/reviews/red-schedule.txt",
-      "sha256": "892593524c9625fefaaf6113d0a1faacaf17fdcadc3c23c06ac83d2d2caccfae"
+      "path": "assurance/reviews/r11-assurance.txt",
+      "sha256": "7fab3bcc8cd3cd5c8a60520188a61f09a74b60504817c9cec2ed60c09697d4a2"
+    },
+    {
+      "path": "assurance/reviews/r11-atlas.txt",
+      "sha256": "f9a9c9a20731557820b88c3a68e7bd895851cb65647c0062b33dbe469ce02512"
+    },
+    {
+      "path": "assurance/reviews/r11-dag.txt",
+      "sha256": "83caea632a55593192d265d3d234192a4f4a01913fccf2ddb97dbe88d23a2744"
+    },
+    {
+      "path": "assurance/reviews/r11-debt.txt",
+      "sha256": "aa24e0a892a22f2969bda795f0a7eb8ad38d9fbbd0d902c92d7880117cd1399d"
+    },
+    {
+      "path": "assurance/reviews/r11-delegation.txt",
+      "sha256": "d657a18dbc79bc5e5e797e641401c5fae43acea84a05b5f41bbe2849cf0889c7"
+    },
+    {
+      "path": "assurance/reviews/r11-delta-atlas-final.txt",
+      "sha256": "f1975ec7fe0782c9f4195a42d4fd2828567f30fc735d33363f079d4fa846ab5b"
+    },
+    {
+      "path": "assurance/reviews/r11-delta-atlas.txt",
+      "sha256": "938b851ff65c87107d739d0a2afcca4063e86d44cb616784fb1ee566a1aa84ed"
+    },
+    {
+      "path": "assurance/reviews/r11-delta-dag-final.txt",
+      "sha256": "39fb5fff06b96a5f4324d6f2e5d07726a9246630a35d00d703ade6c237f8777b"
+    },
+    {
+      "path": "assurance/reviews/r11-delta-dag.txt",
+      "sha256": "f418888751ee5295217fdf268619d06bbc9d828865dd41474f91fd99e4be8f11"
+    },
+    {
+      "path": "assurance/reviews/r11-delta-debt.txt",
+      "sha256": "7cca863e897a85add01f68f791ea558231109ad9112b7588f633af01b2510617"
+    },
+    {
+      "path": "assurance/reviews/r11-delta-gy-final.txt",
+      "sha256": "845abec93e8ea555be58c6f7443c472e9ad6b3f9b1507b97d9e05f83eada67b5"
+    },
+    {
+      "path": "assurance/reviews/r11-delta-gy.txt",
+      "sha256": "f78a6e89b20cb402cd76469c69bfd6d3a641c19cc2a1ac896e5c4ca8a89344dc"
+    },
+    {
+      "path": "assurance/reviews/r11-delta-r9-final.txt",
+      "sha256": "b84ed64e4c1f7138169252312b639a3742d13fa605ce4cd734886b0216d261a2"
+    },
+    {
+      "path": "assurance/reviews/r11-delta-r9.txt",
+      "sha256": "eccc09b2b87944c330fc0df2b1de55a2b3c121bc897c110d26312748227d44c3"
+    },
+    {
+      "path": "assurance/reviews/r11-executability.txt",
+      "sha256": "9b909ede775eb919cb6f8e767c359193d923111e00b617ef56b1455354ada5f0"
+    },
+    {
+      "path": "assurance/reviews/r11-gy.txt",
+      "sha256": "ce57013d99d6add88595b588f813bdf171e513bc2c8ca47a359fdb4fa32394d3"
+    },
+    {
+      "path": "assurance/reviews/r11-ops.txt",
+      "sha256": "1c82628f4fad8b26cd4dab81eba5125a4cc2d1092bab9e36ddb01999d539eb9e"
+    },
+    {
+      "path": "assurance/reviews/r11-ownership.txt",
+      "sha256": "7331cc2505c8d34c505b3a0a6f85dfc69244f9b9367f53c1b839651a3abcd204"
+    },
+    {
+      "path": "assurance/reviews/r11-r9.txt",
+      "sha256": "509168339ab14aa28f878f435572a5ad15e72d6cdb0b986e3fbd93d3e868cbb3"
     }
-  ]
+  ],
+  "review_transcription": {
+    "report": "assurance/reviews/r11-debt.txt",
+    "normalization": "Trailing spaces and final blank line only; complete substantive output preserved.",
+    "original_path": "policy-engine/_build/post-e02-r9-redteam-20261022/debt.md",
+    "original_sha256": "433aa6258b3fcadd8e569e1d45c28d73dd2b164745af92e04bbd962600a3336c"
+  }
 }

@@ -1,0 +1,80 @@
+{
+  "kind": "planning_stage_requirements_not_product_schema",
+  "implementation_gate": "actual_E02_G_acceptance",
+  "default": {
+    "owner_readiness": "Reviewed native internal output + claim-scoped local positive/adversarial/removal proof, versioned interface and complete companions; a fixture never establishes real external authority. Original authentic/composed criteria not locally provable remain named open.",
+    "composition": "Actual persisted producer outputs and fresh consumers on the final bound source/input/backend; resolve acceptance_dependencies and all selected conditional requirements.",
+    "original_disposition": "Competent owner applies the complete original criterion; no automatic credit from task readiness."
+  },
+  "verification_preparation": {
+    "owner_readiness": "Oracle/recipe/input/resource/consumer census and narrowly necessary local preparation are ready. Original full V1–V7 outcome remains UNRUN until FINAL-REPLAY.",
+    "composition": "Original complete wave executed after FINAL-REVIEW on final replay identity.",
+    "original_disposition": "Exact original Done when and full deciding output govern closure."
+  },
+  "overrides": {
+    "GYD-01": {
+      "owner_readiness": "Native N9/admission mechanism and all internal suppliers implemented/reviewed with scoped real-path local proofs. Preserve distinct PR1a/PR1b signals and original authentic near-miss debt.",
+      "composition": "Actual qualified inputs and true production-lane refused attempted field-pilot request receipt where the original criterion requires it; never run a harmful pilot or label fixtures authentic.",
+      "original_disposition": "GY-O0-NC-01 and each associated original remain unresolved until their own real evidence/competent ruling. A blocked request, not external execution of policy, is the near-miss criterion."
+    },
+    "DEB-09": {
+      "owner_readiness": "All internal intake/resolver/refusal/consumer paths implemented and reviewed. Inventory exact unavailable acts and lawful supplier channels; no appointments fabricated.",
+      "composition": "Resolve authentic selected acts and their scope/time/competence through independent trust and actual consumer; missing inputs remain typed-empty.",
+      "original_disposition": "Named authority-slot obligations remain open if required acts absent; a correct refusal is not appointment or closure."
+    },
+    "CNT-09": {
+      "owner_readiness": "Selected-facet mapping, actual internal producer/bridge/consumer/surface mechanics and controlled proofs ready. If no sponsor case, retain explicit pending commissioning and genuine-input predicates.",
+      "composition": "Commissioned case consumes all selected real source artifacts or produces a source-qualified costed refusal; controlled rehearsal cannot be called authentic.",
+      "original_disposition": "One refusal does not close other original rows or admit public first use."
+    },
+    "UI-16": {
+      "owner_readiness": "Honest blocked/not-established performance posture verified at every claimed surface.",
+      "composition": "A positive performance claim additionally requires source-bound substantive promoted-design evidence.",
+      "original_disposition": "Absent evidence remains an unresolved original performance obligation; internal refusal mechanism may be ready."
+    },
+    "UI-02": {
+      "owner_readiness": "Publication mechanism, typed-empty/refusal branches, actual issuer/verifier/consumer wiring and isolated verification ready; no external publication implied.",
+      "composition": "Actual data-only/governed case and lawful signer where original criterion requires them. Real publication is behind FINAL-USE and separately authorized action; authenticated test records stay non-public verification.",
+      "original_disposition": "Original publication/custody criteria must be reconciled with their owning scope; scope-only DS8 rows are separately adjudicated at P0, not closed by this build."
+    },
+    "OPS-09": {
+      "owner_readiness": "Build selected-tier internal owner mechanism, or bind the original conditional criterion to an explicitly unselected tier, no-parity claim and activation trigger. Unselected is not PASS or closure of a mandatory requirement.",
+      "composition": "When selected, exact provider/site/mount/trust/runtime evidence is mandatory; otherwise explicit source-qualified non-claim.",
+      "original_disposition": "Competent owner resolves applicability by the original criterion; no scope reduction by executor preference."
+    },
+    "OPS-10": {
+      "owner_readiness": "Build selected-tier internal owner mechanism, or bind the original conditional criterion to an explicitly unselected tier, no-parity claim and activation trigger. Unselected is not PASS or closure of a mandatory requirement.",
+      "composition": "When selected, exact provider/site/mount/trust/runtime evidence is mandatory; otherwise explicit source-qualified non-claim.",
+      "original_disposition": "Competent owner resolves applicability by the original criterion; no scope reduction by executor preference."
+    },
+    "OPS-12": {
+      "owner_readiness": "Build selected-tier internal owner mechanism, or bind the original conditional criterion to an explicitly unselected tier, no-parity claim and activation trigger. Unselected is not PASS or closure of a mandatory requirement.",
+      "composition": "When selected, exact provider/site/mount/trust/runtime evidence is mandatory; otherwise explicit source-qualified non-claim.",
+      "original_disposition": "Competent owner resolves applicability by the original criterion; no scope reduction by executor preference."
+    }
+  },
+  "conditional_binding_rule": {
+    "selection_owner": "CNT-01 case facets; OPS-01 deployment profile; root reconciles original obligations at P0 and after selection changes",
+    "required_fields": [
+      "selection_ref",
+      "original_criterion_ref",
+      "activation_reason",
+      "supplier_task_id",
+      "produced_artifact_or_typed_absence",
+      "native_verifier_use_owner",
+      "consumer_task_id",
+      "surface_owner",
+      "required_stage",
+      "exact_input_ref_at_execution"
+    ],
+    "activation": "Unselected by original conditional scope requires explicit non-claim and reentry trigger, not PASS. Unavailable selected inputs activate a limitation/refusal branch, never disappear. Mandatory original work cannot be made conditional by the executor.",
+    "cycle_rule": "Separate stage nodes before cycle analysis. Consumer preparation may use a frozen interface; composition requires actual emitted output. A true cycle is resolved by owner handoff/contract staging or an explicit decision, not removing evidence edges."
+  },
+  "replay_identity": {
+    "review_candidate": "FINAL-FREEZE exact tree",
+    "final_replay_candidate": "After blocking repairs and independent delta review, root freezes the final tree/input/backend/upstream refs in the existing journal. No mutable branch alias as evidence.",
+    "after_change": "Stop affected acceptance; rebind actual affected source/input/consumer closure and repeat necessary proof. Do not repeat unchanged global work just because a task ID changed."
+  },
+  "release": "FINAL-USE.required_original_dispositions is mandatory in addition to FINAL-REPLAY. A truthful incomplete replay can finish as a diagnostic run but cannot count as accepted programme closeout. Plan logistics only, no new product gate service.",
+  "product_verification": "UNRUN"
+}

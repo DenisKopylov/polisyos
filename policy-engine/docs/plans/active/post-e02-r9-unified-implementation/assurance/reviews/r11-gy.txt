@@ -1,0 +1,154 @@
+# GY red-team review of unified future plan
+
+**Pinned review target:** branch `codex/e02-integration`, HEAD `413c120e73c0323294997e767abbd1a1a7a5a226`. The shared worktree had in-progress edits to unified-plan files from the root reviewer; I pinned the comparison to the requested commit with `git show HEAD:<path>`. Canonical GY source and the failure-pattern register were read at that target. This report is the only file written, under ignored `policy-engine/_build/`. No tests, builds, imports, installs, production-data access, or Git mutations were performed.
+
+## Full standing-row enumeration
+
+I re-enumerated the complete §8.5 table at `GY-engine-subordination.md@413c120:L1738-L1814` (one Markdown source file; 77 table rows) with a standard-library parser. The 77 distinct source IDs match the 77 entries in `inventory/gy-inventory.json` (one JSON file). Status sets:
+
+- **executed (55):** GY-A1, GY-A2, GY-B2, GY-N0, GY-N1, GY-N2, GY-N3, GY-N4, GY-N5, GY-N6, GY-N7, GY-N8, GY-N9, GY-N10a, GY-N10, GY-N11, GY-N12, GY-N13a, GY-N13b, GY-PA1, GY-PA2, GY-PA3, GY-DI1, GY-DI2, GY-DI3, GY-DI4, GY-O0, GY-M1, GY-B, GY-H, GY-D2, GY-D3, GY-E, GY-C1, GY-C2, GY-I, GY-F1, GY-F2, GY-F3, GY-G, GY-M2, GY-S0, GY-S1, GY-N-V, GY-S2, GY-AQ1, GY-AS1, GY-VC1, GY-CB1, GY-ML1, GY-CR1, GY-CR2, GY-CR3, GY-CR4, GY-CR5.
+- **not_started (15):** GY-O1, GY-O2, GY-O3, GY-V1, GY-V2, GY-V3, GY-V4, GY-V5, GY-V6, GY-V7, GY-AS2, GY-AS3, GY-CB2, GY-ML2, GY-FA1.
+- **blocked (5):** GY-D1, GY-C3, GY-K, GY-S3, GY-PR1.
+- **not_executed (2):** GY-J, GY-L.
+
+The 22 non-executed rows route to these stable task IDs: GY-PR1→GYD-01; GY-D1→GYD-02; GY-C3→GYD-03; GY-K→GYD-04; GY-S3→GYD-05; GY-J→GYD-06; GY-L→GYD-07; GY-AS2→GYD-08; GY-O1→GYD-09; GY-O2→GYD-10; GY-AS3→GYD-11; GY-O3→GYD-12; GY-CB2→GYD-13; GY-ML2→GYD-14; GY-FA1→GYD-15; GY-V1→GYD-16; GY-V2→GYD-17; GY-V3→GYD-18; GY-V4→GYD-19; GY-V5→GYD-20; GY-V6→GYD-21; GY-V7→GYD-22.
+
+The 14 executed-but-not-measured full-conjunction riders route as follows: GY-B/GY-H→GYD-23; GY-D2/GY-E→GYD-24; GY-D3→GYD-25; GY-C2→GYD-26; GY-I→GYD-27; GY-F2→GYD-28; GY-F3→GYD-29; GY-G→GYD-30; GY-N-V→GYD-31; GY-S0/GY-S1→GYD-32; GY-S2→GYD-33. This is the source set enumerated in `inventory/gy.md@413c120:L29`; its later repair notes exclude the older M1/C1/F1/M2 measurement histories (L58). Source statuses remain unchanged.
+
+**Coverage GO:** the source-ID mapping is exact for those open and unmeasured sets, with all 33 GYD IDs used once as the stable work-package vocabulary; the inventory, workstream and task references agree. GYD-02/03/04/05/06/07 retain current D1/C3/K/S3/J/L blockers rather than reopening repaired seams. GYD-08 and GYD-11 keep AS2 and AS3 distinct; GYD-09 consumes AS2, while GYD-12 consumes GYD-09 plus GYD-11 and does not depend on O2. The plan explicitly separates formal phase standing from engineering readiness and stages V1–V7 preparation before freeze from execution after review; the `completion_rule` records the post-review receipt as the closure event (tasks.json L2739, L2874; workstreams/03-gy.md L15; execution/03-waves.md L45). GYD-13/14 preserve the production-caller, persisted-receipt, exact-readback, removal, and withheld-human/legal-authority boundaries. GYD-25 retains the governed D3 benchmark/negative-control/ceiling route; GYD-26 names the current live judge-output removal witness; GYD-27 retains real role events, no-client refusal, Ring-2 construction rejection and VOI normalization; GYD-31 carries the set-width/status/sample-only/timeout semantics; and GYD-33’s L2/L3 consumer criterion preserves CI/transport/contested-edge and effective-date behavior. I found no reason to change any already-closed source status.
+
+## Findings
+
+### GY-R11-1 — Medium — same class, one level deeper (P02: false prerequisite / orchestration inversion)
+
+**Evidence.** GY-O3’s source says a confirmed O1 effect or O2→O1-promoted hypothesis plus AS3 writes the append-only Fabric branch/event and versioned WMR; a later cycle reads it, and the self-confirmation quarantine survives reprocessing (`GY-engine-subordination.md@413c120:L5475-L5491`). The workstream explicitly says “O3 depends on O1 and AS3, not O2” (`workstreams/03-gy.md:L7`). GYD-12 additionally lists “DS21 surface” as a required other mechanism (`tasks.json@413c120:L2414-L2415)); UI-08 is the DS21 readout and itself depends on GYD-12 (`tasks.json@413c120:L4518-L4522`).
+
+**Divergent scenario.** If the required-mechanism list is honored as an actual prerequisite, O3 waits for the DS21 surface while the DS21 task waits for O3. If it is treated as informational, the same field falsely implies the readout is an O3 producer dependency.
+
+**Minimal fix.** Remove DS21 from GYD-12 prerequisites; keep it as the downstream readout/consumer after O1/O3. Preserve GYD-09 + GYD-11 as the O3 task dependencies.
+
+**Affected task IDs:** GYD-12, UI-08.
+
+### GY-R11-2 — Medium — same class, one level deeper (P04: milestone/closure collapse)
+
+**Evidence.** The canonical GY-PR1 row states that PR1a’s data-only receipt and PR1b’s institution-bound protected pilot are distinct milestones; the authentic O0 near-miss is separate (`GY-engine-subordination.md@413c120:L1799`; `workstreams/03-gy.md:L5`). GYD-01’s deliverable describes both, but its single positive conjunction requires an authentic N4 input and `EvalSafety=blocked + near_miss=true` together (`tasks.json@413c120:L1690-L1691`).
+
+**Divergent scenario.** PR1a can produce its complete, valid data-only N4 receipt while no authentic field-pilot near-miss has occurred. The task has no explicit independent milestone outcome, so the positive condition cannot distinguish “PR1a complete, PR1b open” from “both complete”; an implementation may either withhold PR1a closure unnecessarily or read one overall GYD-01 state as closure of both obligations.
+
+**Minimal fix.** Add separately recorded PR1a and PR1b acceptance/owner-disposition results. Keep the source row blocked until its full criterion is met; attach the authentic near-miss only to PR1b and never promote a fixture to field evidence.
+
+**Affected task IDs:** GYD-01.
+
+### GY-R11-3 — High — same class, one level deeper (P37/P38: declared cutoff basis instead of independently tested property)
+
+**Evidence.** GY-FA1 makes writer independence decisive and requires “falsifying the declared cutoff basis while keeping the declaration” to fail (`GY-engine-subordination.md@413c120:L1814`). GYD-15’s named criteria require a typed contract, producer, receipt, reader, and negatives for missing/self-authored/wrong-scope/unverifiable receipts, but its positive/removal conditions do not name the cutoff-basis falsifier (`tasks.json@413c120:L2626-L2629`). The generic acceptance step “independent oracle where needed” does not freeze this particular predicate.
+
+**Divergent scenario.** A writer changes the actual admitted subtree while retaining its declared path list and a valid signature over that declaration. Generic missing/self-authored/wrong-scope tests may still pass, although the gate is green on a false cutoff basis.
+
+**Minimal fix.** Make the cutoff falsification probe mandatory for the cutoff capability: mutate the actual source set while preserving the declaration, reconcile against an independent source, and require refusal. Classify/freeze the basis predicate at admission under P37; never grant authority from same-writer walks.
+
+**Affected task IDs:** GYD-15.
+
+### GY-R11-4 — Medium — same class, one level deeper (P29/P10: incomplete terminal evidence packet)
+
+**Evidence.** GY-V2 explicitly requires a production-triggered run to capture the `WorkspaceContract`, artifact graph, `SearchLedger`, `FrontierSnapshot`, and typed `SearchExitContract`, all with `gy_evidence_canon` hashes (`GY-engine-subordination.md@413c120:L5531-L5538`). GYD-17’s final execution list names graph, ledger, exit contract, and measurement proof or honest ceiling, but omits `WorkspaceContract`, `FrontierSnapshot`, and the canonical hashes (`tasks.json@413c120:L2758-L2762`).
+
+**Divergent scenario.** A real triggered run supplies the listed graph/ledger/exit proof and reaches a valid terminal, while the frontier snapshot is absent or none of the packet is canonically hashed; the task’s explicit final list can still be read as satisfied.
+
+**Minimal fix.** Name the full source packet and per-artifact `gy_evidence_canon` hashes in GYD-17’s final execution criterion; require the production proof to read them back.
+
+**Affected task IDs:** GYD-17.
+
+### GY-R11-5 — Medium — same class, one level deeper (P34/P37: unproved “applicable” exclusion)
+
+**Evidence.** GY-V4 lists probes (a)–(v) and closes only when “all listed probes fail closed with recorded evidence” (`GY-engine-subordination.md@413c120:L5559-L5590`). GYD-19 instead requires execution of “every applicable listed negative” and only says exclusions require P34 isolation (`tasks.json@413c120:L2891-L2898`), without requiring a frozen a–v disposition table.
+
+**Divergent scenario.** A probe for a nested connector secret, stale certificate, or unsupported-equilibrium objective is omitted as “not applicable”; no owner/source-qualified rationale is recorded, and the battery still passes despite the source’s all-probes criterion.
+
+**Minimal fix.** Require an indexed a–v report with a recorded execution result for each probe. Any true exclusion needs a completed P34 isolation and a source-bound reason; a declared exclusion cannot itself count as a passing negative.
+
+**Affected task IDs:** GYD-19.
+
+### GY-R11-6 — Medium — same class, one level deeper (P36: source ID carried without its closure predicate)
+
+**Evidence.** The residual GY-DEF22 property is specifically an appointed Foundry catalog/discovery owner accepting six bounded claims; the two-host digest-mismatch provenance separately remains unattributed under P41 (`inventory/debt-inventory.json@413c120:L5702-L5722`). GYD-15 cites GY-DEF22 but its acceptance is limited to the four FA1 runtime-authority capabilities (`tasks.json@413c120:L2609-L2629`). DEB-09 also cites GY-DEF22 but gives generic institutional intake/refusal criteria rather than the six-claim acceptance (`tasks.json@413c120:L8312-L8343`). The workstream says GY-DEF22 owner acceptance and P41 attribution are separate (`workstreams/03-gy.md:L21`).
+
+**Divergent scenario.** FA1 receipts and DEB-09’s general appointment intake are complete, but nobody accepts each of the six bounded Foundry claims. Both tasks can report green by their listed criteria while the GY-DEF22 row remains open. Conversely, treating the source ID as evidence of closure would collapse the distinct P41 attribution question into acceptance.
+
+**Minimal fix.** Assign the six-claim, content-bound Foundry owner acceptance to one task with an exact readback criterion. Keep the P41 slice-base replay/disjointness as a separate disposition; do not imply either closes the other.
+
+**Affected task IDs:** GYD-15, DEB-09.
+
+### GY-R11-7 — Medium — same class, one level deeper (P10: B/H residual compressed below the source criterion)
+
+**Evidence.** GY-B requires the two named Slice-0 fixtures, registry discovery, deterministic BIND→ESTIMATE→VERIFY, and a negative that rejects inactive operations, agent/full-playbook execution, and a groundable fixture emitting `grounded_admissible` or `DesignCandidate`; it also specifies manifest-sourced fixture expectations and the minimal Slice-0 budget subset (`GY-engine-subordination.md@413c120:L1983-L1998`). GY-H adds the Estimate-port-only partial result, honest tourism terminal, poor-recall repair, and simultaneous-trigger precedence (`GY-engine-subordination.md@413c120:L2032-L2043`). GYD-23 names both fixtures, operation/replay levels, poor-recall and precedence; its adversarial only names inactive op, forced grounding, and poor-recall abstention (`tasks.json@413c120:L3147-L3165`).
+
+**Divergent scenario.** The two fixtures yield the expected terminals, but an agent or full playbook ran, inline expectations replaced the manifest, or a `DesignCandidate` was emitted with a non-`grounded_admissible` status; GYD-23’s listed probes need not turn red. BudgetVector could also contain unapproved Slice-0 fields.
+
+**Minimal fix.** Carry B’s exact operation allowlist/planner, no-agent/no-playbook and no-candidate assertions, manifest-bound expectations, and minimal-budget subset into the GYD-23 acceptance matrix; retain H’s terminal and simultaneous-trigger tests.
+
+**Affected task IDs:** GYD-23.
+
+### GY-R11-8 — Medium — same class, one level deeper (P10: D2/E set predicate reduced to examples)
+
+**Evidence.** GY-D2 requires per-connector applicability for rest.json/unpd/ukons and admission of the complete 16-facet source contract before fetch (`GY-engine-subordination.md@413c120:L2059-L2064`). GY-E requires the ACQUIRE operation and a costed rung-7 `acquisition_required` plan with a named missing distribution or a real fetch (`GY-engine-subordination.md@413c120:L2082-L2087`). GYD-24 asks for fail-closed applicability and a real RequiredDataSpec→DataNeedSpec→fetch/costed exit, but states “missing facet” and “unknown facet” singularly and does not require the full facet/connector inventory or rung-7 named-distribution fields (`tasks.json@413c120:L3200-L3230`).
+
+**Divergent scenario.** One missing-facet probe and one connector refusal pass while another required facet or connector bypasses VERIFY; alternatively, the system emits an `acquisition_required` record with a cost but no named missing distribution/rung. The task wording permits those partial measurements.
+
+**Minimal fix.** Bind the acceptance set to all 16 original facets and the three source-named connectors; assert each connector’s applicability result before fetch and assert the exact costed rung-7 missing-distribution fields on the exit path.
+
+**Affected task IDs:** GYD-24.
+
+### GY-R11-9 — High — same class, one level deeper (P05/P01: CAS integrity without artifact authority binding)
+
+**Evidence.** GY-F2 requires DAG/loop CAS outputs to carry `manifest.authority`, alongside canonical-byte digest, dedup, tamper, GC survival from report-index/lineage/workspace references, and dereferenceability (`GY-engine-subordination.md@413c120:L2131-L2141`). GYD-28 names the scan, digest, dedup, tamper, GC and dereference evidence, but not the authority field on DAG/loop outputs; its negative only says an absent manifest is caught (`tasks.json@413c120:L3450-L3457`).
+
+**Divergent scenario.** A blob has a valid digest and manifest but omits or misstates its authority boundary; scan, tamper, dedup and GC probes pass. A valid manifest-shaped object is not the source requirement’s authority binding.
+
+**Minimal fix.** Add the GY-F2 output invariant: every DAG/loop CAS output carries an admitted `manifest.authority`; test missing, wrong-boundary and stale authority values on the actual consumers while keeping a valid digest/manifest.
+
+**Affected task IDs:** GYD-28.
+
+### GY-R11-10 — Medium — same class, one level deeper (P37/P38: denominator reconciliation without row truth)
+
+**Evidence.** GY-F3 requires each of the 406 candidate-positive rows to record producer/source, field path, status text, candidate-positive rule, firewall, exclusion reason, resulting boundary, and false-exclusion review; false exclusions must be zero or named repair tickets (`GY-engine-subordination.md@413c120:L2142-L2154`). GYD-29 requires the full denominator and says “each row reconciles,” but does not require these deciding fields or the zero-or-ticket disposition (`tasks.json@413c120:L3493-L3513`).
+
+**Divergent scenario.** All 406 IDs are present and reconcile to an aggregate, but one candidate-positive field lacks a source/firewall or was excluded without review; the aggregate can still pass while a diagnostic positive is laundered.
+
+**Minimal fix.** Make the original per-row field tuple and false-exclusion disposition part of each inventory record, then reconcile it to the aggregate. Bind the candidate set and label each deciding predicate’s provenance under P37.
+
+**Affected task IDs:** GYD-29.
+
+### GY-R11-11 — Medium — same class, one level deeper (P07: replay result without replay identity)
+
+**Evidence.** GY-V5 requires deterministic replay to bind input/parameter hashes, seed and container digest, and separately proves `output_hash` time-invariance by re-running (`GY-engine-subordination.md@413c120:L5591-L5597`). GYD-20 names byte-identical deterministic replay, reconstructable agent trace, promoted-artifact revalidation and time-invariant hashes, but omits those replay identity inputs and the named `output_hash` comparison (`tasks.json@413c120:L2957-L2964`).
+
+**Divergent scenario.** A deterministic output repeats on one ambient environment, but the run has no frozen input/parameter identity, seed or container digest; its hash has not been compared across time. The receipt demonstrates one repeat, not the source-defined replay contract.
+
+**Minimal fix.** Require those four identities in the deterministic replay receipt and explicitly re-run/compare `output_hash`; retain agentic trace and promoted-artifact revalidation as separate replay levels.
+
+**Affected task IDs:** GYD-20.
+
+### GY-R11-12 — Medium — same class, one level deeper (P10: real-substrate task can accept a non-real L4 world)
+
+**Evidence.** GY-S1 requires materializing the real Ukraine L4 corpus and its firm-fundamentals/distress/budget panels into GlobalState, with L1 coverage and L5 trust/identification/schema-regime gates; Done requires a populated, queryable, content-addressed real world whose ValueOuterSet width tracks identification mode and trust (`GY-engine-subordination.md@413c120:L2358-L2374`). GYD-32’s title says “real substrate,” but the deliverable says “L1/L4/L5 lift” and its positive asks for same-slice hash, a permitted new source, and a real WMR without naming the required populated L4 corpus or its schema/period/hash bindings (`tasks.json@413c120:L3676-L3696`).
+
+**Divergent scenario.** A WMR built over a sparse or synthetic L4 fixture has a stable content hash and accepts a new source with no code change; unknown trust/schema probes refuse. The task can appear green without proving the source-required real, populated world or the schema-regime/proxy-width conjunction.
+
+**Minimal fix.** State the L4 corpus and required bound fields in GYD-32’s positive receipt, then require trust, identification mode, schema regime, and calibration scope mismatch to change the bound set or fail closed. Do not make synthetic free-grow controls stand in for the real-substrate positive.
+
+**Affected task IDs:** GYD-32.
+
+### GY-R11-13 — Medium — same class, one level deeper (P36: Ukraine method-family debt routed by ID, not by criterion)
+
+**Evidence.** The debt row’s remaining property is that Foundry transports 13 verified Ukraine method contracts while the workflow exercises only one method family (`inventory/debt-inventory.json@413c120:L1444-L1474`). It routes to GYD-30 and GYD-33. GYD-30’s criterion is two-chapter composition/feedback refusal/emergent cap (`tasks.json@413c120:L3549-L3573`); GYD-33’s criterion is L2/L3 knowledge binding into N4/N8/N1/N2 (`tasks.json@413c120:L3736-L3758`). Neither criterion says to measure or close the 13-contract/one-method-family consumer gap, despite workstreams/03-gy.md L11 saying it must be preserved as an engineering/readback obligation.
+
+**Divergent scenario.** Composition and L2/L3 binding both pass using the already exercised method family, while the other verified Ukraine contracts still have no workflow consumer; the debt reference alone can be mistaken for coverage.
+
+**Minimal fix.** Assign the method-family consumer residual to one task and name the debt row’s exact acceptance/readback predicate there; keep GYD-30/33’s GY-G and GY-S2 criteria distinct.
+
+**Affected task IDs:** GYD-30, GYD-33.
+
+## Scope boundary
+
+The findings above are plan-acceptance gaps, not a request to reopen closed GY mechanisms or alter §8.5 statuses. In particular, GYD-26 matches the current C2 live-output-removal residual; GYD-05 matches the current S3 source/ruling residual; GYD-02/03/04/06/07 match the current D1/C3/K/J/L owner routes. These remain GO at their stated residual scope. Pattern references are to the pinned register: P35/P36 for census/source warrant, P37/P38 for gate predicates and proxies, P04 for status/milestone semantics, P02 for bridge sequencing, P05/P01 for authority-bound capability, and P07/P10/P29/P34 for replay, semantic closure, proof packets and exclusions.

@@ -1,0 +1,74 @@
+# Post-E02-R9 debt crosswalk red-team
+
+**Head:** `413c120e73c0323294997e767abbd1a1a7a5a226` on `codex/e02-integration`. Read-only audit; no code execution, tests, imports, installs, production reads, or tracked writes.
+
+## Coverage and disposition
+
+I enumerated every `.rows[]` record in `inventory/debt-inventory.json` (one JSON file, 8,558 lines), which is bound to the complete `DEBT-REGISTER.md` source denominator (one Markdown file, 1,490 lines). The inventory has 277 unique debt IDs: 191 closed, 44 open, 32 blocked, 4 folded, and 6 foreign. The full non-closed set is 86; 76 are open/blocked and 10 are transferred/folded/foreign. The plan has 106 tasks (`tasks.json`, one JSON file, 8,842 lines). All 86 non-closed rows have at least one `program_tasks` entry; the 46 distinct referenced task IDs all resolve. This proves routing presence, not semantic coverage.
+
+No source status inflation was found: the inventory preserves the effective status map and candidate register delta records no status credit. Folded rows remain folded and route to their named successors; foreign rows remain foreign and have separate owner/handoff tasks. Product execution and E02 acceptance remain explicitly UNRUN/provisional.
+
+The findings below are the unresolved semantic failures in the persisted crosswalk. P0-REBIND is a prerequisite for dispatch, so these are corrections the rebind checkpoint must record before affected tasks are released.
+
+## Findings
+
+### RT-01 — DS8 scope debts are bound to publication-build tasks
+
+`ds8-public-case-publication` (DEBT-REGISTER.md:L480) and `ds8-signed-public-decision-surface` (L600) have latest source notes saying their original signal is owner/scope acquisition and the later publication language conflicts with it; both require architect scope/signal reconciliation. The first note explicitly says building against it misreads the row. Yet UI-01 and UI-02 list both as original debt refs (tasks.json:L3801, L3905; refs at L3893/L3898 and L4007/L4012), and UI-02's deliverable is the full publication capability. The separate Atlas workstream summary still says DS12's signed-public-decision row “remains bridge_missing” (workstreams/04-atlas.md:L35), repeating the superseded capability framing.
+
+**Divergent case:** UI-02 can ship a signed public record while the original scope-acquisition closure signal remains unresolved; the linked debt rows would then look addressed by the wrong property.
+**Smallest fix:** in P0-REBIND, add these IDs to its explicit decision-only reconciliation refs and remove them from UI-01/UI-02 closure refs. If that decision creates a distinct publication obligation, add a successor ID with its own closure signal. Refresh the workstream summary. Do not change the source statuses until the owner records the ruling.
+**Pattern lens:** P36/P38 — the crosswalk and stale summary substitute a nearby capability for the source criterion.
+
+### RT-02 — Numeric VOI granularity has no commissioned owner
+
+The latest note on `ds15-numeric-voi-metric-residual-granularity` (DEBT-REGISTER.md:L616) separates it from acquisition work and says it needs its own commissioning; all 15 acquisition rows still refuse because the metric is unsupported. The crosswalk attaches it to CAP-03, UI-17, and DEB-07 (tasks.json:L200/L319, L5200/L5317, L8142/L8227). Those deliverables cover purpose-aware evidence use, the DS15 route/refusal surface, and INT-R2 ceiling/estimand vocabulary. None assigns an owner to define the VOI metric or produce the missing owner decision/ranking, expected-value, and expected-cost basis.
+
+**Divergent case:** CAP-03 can complete its admission/reuse chain, UI-17 can render the refusal, and DEB-07 can finish ceiling vocabulary while every row still returns `metric_residual_granularity_not_supported`.
+**Smallest fix:** add a separately commissioned metric-design task with owner, admissible inputs, authority purpose, and a negative rule for insufficient inputs; until then mark that residual `absent/unallocated`. Keep CAP-03/UI-17 as dependencies or context only, not as owners of this closure.
+**Pattern lens:** P01/P27 — the task refs route beside the missing semantic owner.
+
+### RT-03 — DS11 scope adjudication has no task for its authority-band chain
+
+`DS11-SCOPE-ADJUDICATION-RECORD` (DEBT-REGISTER.md:L465) says the candidate artifact has `authority_effect=none` and `closure_effect=none`; its remaining property is a purpose-scoped ruling producer, persistence bridge, claim-lifecycle consumer, and governed surface. Its current program tasks are only UI-15 and DEB-09 (inventory/debt-inventory.json:L2120). UI-15 owns Trust Center/docs surface content (tasks.json:L5029/L5107); DEB-09 owns institution-supplied signer, holder, and mandate facts (L8312/L8366). Neither task owns the internal scope-ruling producer or its persisted lifecycle bridge. LIF-02 is present, but the debt crosswalk binds it to the separate supersession-lifecycle row, not this scope-ruling chain.
+
+**Divergent case:** an external signer appointment or a Trust Center page can land while the candidate scope artifact still has no resolver, admitted authority, persistence, or lifecycle consumer.
+**Smallest fix:** add/assign an internal owner task for the scope ruling producer → persisted evidence → claim-lifecycle consumer, and make the appropriate governed-surface task depend on that result. Keep DEB-09 for actual external acts; do not treat it as the missing authority mechanism.
+**Pattern lens:** P01/P02/P05 — the authority-band producer and bridge are absent from the named work.
+
+### RT-04 — DS5’s only unallocated successor property is not routed to its owner
+
+The latest DS5 note (DEBT-REGISTER.md:L482) narrows the remaining unallocated property to DS15’s generated promotion-union/private-issuer behavior; the other successor scopes have been assigned. The inventory maps the row to UI-17 and DEB-09 (inventory/debt-inventory.json:L2677). UI-17 is the DS15 acquisition route; DEB-09 is institutional inputs/authority slots. Neither task’s deliverable names the generated promotion union or private issuer contract, producer, consumer, or negative proof. The plan search found the residual only in the inventory/Atlas recap, not in a work task.
+
+**Divergent case:** the acquisition route and all external slots can be complete while the DS15 generated promotion union/private issuer remains unowned.
+**Smallest fix:** after P0 source rebind, assign this exact residual to one canonical promotion-contract owner with the generated artifact and consumer proof. Keep UI-17/DEB-09 as dependencies where relevant, not closure substitutes.
+
+**Pattern lens:** P01/P27 — the only remaining generated contract has no owner task.
+
+### RT-05 — Trust Center / Docs IA transfer is both asserted and still blocked
+
+The source row `DS11-FULL-TRUST-CENTER-AND-DOCS-IA` (DEBT-REGISTER.md:L469) explicitly leaves an architect routing question: whether the successor surface belongs to Atlas or the separate marketing plan. UI-15 is titled “Route Trust Center and Docs IA unique content to DS11” and specifies DS11 delivery (tasks.json:L5029), while its own prerequisite says “owner/scope remains architect-blocked.” It still lists the source row as an original debt ref (L5107). This is a persisted same-task contradiction: the task assumes the transfer it says is unresolved.
+
+**Divergent case:** a UI-15 completion would establish that the work was built under DS11 without establishing that DS11 is the competent successor owner.
+**Smallest fix:** keep the row blocked and mark UI-15 as a conditional candidate route. P0-REBIND should record the architect’s Atlas-versus-marketing ruling before it becomes a dispatchable task; then bind it to the chosen owner and source acceptance.
+**Pattern lens:** P36/P05 — a candidate successor is adjacent to, but does not establish, the owner decision.
+
+### RT-06 — Runner executable integrity is mapped to disclosure-only work
+
+`transitive-runner-closure-unbound` (DEBT-REGISTER.md:L602) concerns whether local source modification can invalidate the runner’s executable-integrity claim. It routes only to DEB-01 (inventory/debt-inventory.json:L5817; tasks.json:L7753/L7823). DEB-01’s deliverable is to disclose roots, file types, predicates, and inputs for measurement instruments and migrate those disclosures. Its positive/adversarial/removal conditions do not test whether changing runner code while retaining the receipt is detected.
+
+**Divergent case:** DEB-01 can account for every source root and still leave a modified local runner accepted under the old receipt.
+**Smallest fix:** add a DevX runner-integrity task (or extend DEB-01’s deliverable explicitly) whose falsifier modifies a covered executable and proves the consumer refuses the stale integrity receipt. Assign the canonical runner owner and the consumer that enforces it.
+**Pattern lens:** P29/P38 — input disclosure does not exercise executable integrity.
+
+### RT-07 — Capability labels lag the latest residual and can overstate missing engineering
+
+The inventory’s `capability_gap_labels` still reports producer/artifact/bridge gaps for `ds15-deterministic-admission-bundle-producer` (inventory L6209), while the latest source tail says its producer, persisted bundle, and invocation bridge are built and only appointments/valid scoped inputs remain (DEBT-REGISTER.md:L614). The same stale-label shape appears for `DS11-CLAIM-LIFECYCLE-ORCHESTRATION` (inventory L2041 vs source L463), `ds18-positive-transition-verification-producer-missing` (inventory L2439 vs source L475), `GY-DEF23` (inventory L5873 vs source L604), and `GY-PA1` (inventory L5470 vs source L592). These are not row-status changes, but the typed gap field is unqualified and is machine-adjacent to routing.
+
+**Divergent case:** a scheduler or reviewer reading the typed gap label can commission a producer/bridge already delivered, or treat an external appointment as missing engineering.
+**Smallest fix:** define whether these labels are historical source labels or current residual labels. If historical, rename/tag them and expose a separately derived current-residual label from `remaining_property`; otherwise refresh them without changing source statuses. Preserve the exact residuals already stated.
+**Pattern lens:** P35/P36 — the label's provenance and current predicate are not bound clearly enough to support routing.
+
+## Closeout note
+
+The 86-row routing census is structurally complete, but completion ownership is not: RT-01 through RT-06 leave specific current predicates unowned or linked to work that cannot satisfy them. RT-07 is a crosswalk typing defect. Keep all original statuses unchanged; require explicit P0-REBIND dispositions for these IDs before dispatch or any closure credit.

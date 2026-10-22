@@ -1,4 +1,5 @@
 {
+  "source_extracted_gap_label_semantics": "Historical full-row text extraction only; not current missing-work authority. Current dispatch uses remaining_property + accepted-source P0 reconciliation.",
   "schema_version": "policyos-debt-inventory.v1",
   "scope": {
     "purpose": "Source-only debt routing inventory for the post-E02 R9 + GY + Atlas integrated plan.",
@@ -752,7 +753,7 @@
       "owner_display": "team-architecture; producer lane runtime/quality",
       "folded_into_literal": null,
       "folded_into": null,
-      "capability_gap_labels": [
+      "source_extracted_capability_gap_labels": [
         "producer_missing",
         "artifact_missing"
       ],
@@ -779,7 +780,7 @@
       "owner_display": "team-runtime; producer lane runtime/quality (DS9 authority owner)",
       "folded_into_literal": null,
       "folded_into": null,
-      "capability_gap_labels": [
+      "source_extracted_capability_gap_labels": [
         "artifact_missing",
         "bridge_missing"
       ],
@@ -806,7 +807,7 @@
       "owner_display": "foundry/methods; producer bridge lane runtime/quality",
       "folded_into_literal": null,
       "folded_into": null,
-      "capability_gap_labels": [
+      "source_extracted_capability_gap_labels": [
         "producer_missing",
         "bridge_missing",
         "semantic_test_missing"
@@ -834,7 +835,7 @@
       "owner_display": "team-design",
       "folded_into_literal": null,
       "folded_into": null,
-      "capability_gap_labels": [],
+      "source_extracted_capability_gap_labels": [],
       "source_key": "DEBT-REGISTER.md#ds10-public-decision-rendering",
       "next_route": "Atlas",
       "route_key": "Atlas DS10 -> DS12",
@@ -871,7 +872,7 @@
       "owner_display": "team-fabric",
       "folded_into_literal": null,
       "folded_into": null,
-      "capability_gap_labels": [],
+      "source_extracted_capability_gap_labels": [],
       "source_key": "DEBT-REGISTER.md#ds10-connector-acquisition-content",
       "record_disposition": "closed",
       "remaining_property": null,
@@ -895,7 +896,7 @@
       "owner_display": "runtime/quality data-state substrate owner",
       "folded_into_literal": null,
       "folded_into": null,
-      "capability_gap_labels": [],
+      "source_extracted_capability_gap_labels": [],
       "source_key": "DEBT-REGISTER.md#ds10-world-agent-capability-discovery-boundary",
       "record_disposition": "closed",
       "remaining_property": null,
@@ -919,7 +920,7 @@
       "owner_display": "team-architecture owner-allocation lane",
       "folded_into_literal": null,
       "folded_into": null,
-      "capability_gap_labels": [
+      "source_extracted_capability_gap_labels": [
         "producer_missing"
       ],
       "source_key": "DEBT-REGISTER.md#ds10-global-case-index-producer-allocation",
@@ -958,7 +959,7 @@
       "owner_display": "team-lex",
       "folded_into_literal": null,
       "folded_into": null,
-      "capability_gap_labels": [],
+      "source_extracted_capability_gap_labels": [],
       "source_key": "DEBT-REGISTER.md#ds10-lex-pipeline-mutation-boundary",
       "record_disposition": "closed",
       "remaining_property": null,
@@ -982,7 +983,7 @@
       "owner_display": "team-architecture Layer-3 owners",
       "folded_into_literal": null,
       "folded_into": null,
-      "capability_gap_labels": [],
+      "source_extracted_capability_gap_labels": [],
       "source_key": "DEBT-REGISTER.md#ds10-layer3-owner-ledger-rejection-richness",
       "record_disposition": "closed",
       "remaining_property": null,
@@ -1006,7 +1007,7 @@
       "owner_display": "Scientist Decision Validity / GY-N12 Cluster 4 Task 4.4",
       "folded_into_literal": null,
       "folded_into": null,
-      "capability_gap_labels": [],
+      "source_extracted_capability_gap_labels": [],
       "source_key": "DEBT-REGISTER.md#decision-validity-fixed-temp-concurrency",
       "record_disposition": "closed",
       "remaining_property": null,
@@ -1030,7 +1031,7 @@
       "owner_display": "team-architecture (GY plan owner)",
       "folded_into_literal": null,
       "folded_into": null,
-      "capability_gap_labels": [],
+      "source_extracted_capability_gap_labels": [],
       "source_key": "DEBT-REGISTER.md#gy-census-decisive-property-unmeasured",
       "record_disposition": "closed",
       "remaining_property": null,
@@ -1054,7 +1055,7 @@
       "owner_display": "team-architecture; the five repairs belong to runtime/quality, foundry and scholar inside their own tasks",
       "folded_into_literal": null,
       "folded_into": null,
-      "capability_gap_labels": [
+      "source_extracted_capability_gap_labels": [
         "bridge_missing",
         "implemented_but_not_orchestrated"
       ],
@@ -1081,7 +1082,7 @@
       "owner_display": "team-architecture — the prohibition is the architect's; the compiler is DS11's",
       "folded_into_literal": null,
       "folded_into": null,
-      "capability_gap_labels": [],
+      "source_extracted_capability_gap_labels": [],
       "source_key": "DEBT-REGISTER.md#prohibited-register-input-makes-two-gates-unrunnable",
       "record_disposition": "closed",
       "remaining_property": null,
@@ -1105,7 +1106,7 @@
       "owner_display": "team-architecture for the transition ruling; runtime/quality for the writer",
       "folded_into_literal": null,
       "folded_into": null,
-      "capability_gap_labels": [],
+      "source_extracted_capability_gap_labels": [],
       "source_key": "DEBT-REGISTER.md#merged-lanes-need-a-reissue-path-neither-lane-declared",
       "next_route": "GY",
       "route_key": "GY-N12 epoch reissue",
@@ -1142,7 +1143,7 @@
       "owner_display": "absent/unallocated — team-architecture to allocate; runtime/quality is the plausible producer lane but is not established as the owner of a new evidence-admission semantic",
       "folded_into_literal": null,
       "folded_into": null,
-      "capability_gap_labels": [
+      "source_extracted_capability_gap_labels": [
         "absent/unallocated"
       ],
       "source_key": "DEBT-REGISTER.md#gy-j-positive-evidence-admission-producer-has-no-owner",
@@ -1174,7 +1175,7 @@
       "owner_display": "team-architecture — the rule; the adjudicator appointment is absent/unallocated; execution per consumer row",
       "folded_into_literal": null,
       "folded_into": null,
-      "capability_gap_labels": [
+      "source_extracted_capability_gap_labels": [
         "absent/unallocated"
       ],
       "source_key": "DEBT-REGISTER.md#correspondence-acceptance-standing-rule",
@@ -1200,7 +1201,7 @@
       "owner_display": "team-architecture for the allocation and the stratification; runtime/quality for the ledger and the manifest",
       "folded_into_literal": null,
       "folded_into": null,
-      "capability_gap_labels": [],
+      "source_extracted_capability_gap_labels": [],
       "source_key": "DEBT-REGISTER.md#delta-ground-composition-and-stratum-budget",
       "record_disposition": "closed",
       "remaining_property": null,
@@ -1224,7 +1225,7 @@
       "owner_display": "runtime/quality for CG2, GY-S3 / foundry for the legal route — both existing owners, no appointment involved",
       "folded_into_literal": null,
       "folded_into": null,
-      "capability_gap_labels": [],
+      "source_extracted_capability_gap_labels": [],
       "source_key": "DEBT-REGISTER.md#adversarial-refusal-sensitivity-is-publishable-today",
       "record_disposition": "closed",
       "remaining_property": null,
@@ -1248,7 +1249,7 @@
       "owner_display": "routing only — team-architecture to allocate; four of five destinations are absent/unallocated",
       "folded_into_literal": null,
       "folded_into": null,
-      "capability_gap_labels": [
+      "source_extracted_capability_gap_labels": [
         "absent/unallocated"
       ],
       "source_key": "DEBT-REGISTER.md#corr-wave-unowned-destinations",
@@ -1287,7 +1288,7 @@
       "owner_display": "GY-S3 / Lex intervention-mapping owner for the source and semantic verifier; team-architecture for the acceptance rule",
       "folded_into_literal": null,
       "folded_into": null,
-      "capability_gap_labels": [],
+      "source_extracted_capability_gap_labels": [],
       "source_key": "DEBT-REGISTER.md#s3-law-to-lever-correspondence-is-unverified",
       "next_route": "GY",
       "route_key": "GY-S3 / Lex correspondence",
@@ -1319,7 +1320,7 @@
       "owner_display": "team-architecture to route; owners named per item above",
       "folded_into_literal": null,
       "folded_into": null,
-      "capability_gap_labels": [],
+      "source_extracted_capability_gap_labels": [],
       "source_key": "DEBT-REGISTER.md#phase5-declared-verification-limits-and-unhoused-findings",
       "record_disposition": "closed",
       "remaining_property": null,
@@ -1343,7 +1344,7 @@
       "owner_display": "team-architecture",
       "folded_into_literal": null,
       "folded_into": null,
-      "capability_gap_labels": [],
+      "source_extracted_capability_gap_labels": [],
       "source_key": "DEBT-REGISTER.md#gy-m1-phase0-hard-gate-is-unmet-while-gy-artifacts-are-committed",
       "record_disposition": "closed",
       "remaining_property": null,
@@ -1367,7 +1368,7 @@
       "owner_display": "team-architecture (GY plan owner) — architect adjudication, no lane",
       "folded_into_literal": null,
       "folded_into": null,
-      "capability_gap_labels": [],
+      "source_extracted_capability_gap_labels": [],
       "source_key": "DEBT-REGISTER.md#gy-done-when-clauses-that-cannot-be-evaluated-as-written",
       "record_disposition": "closed",
       "remaining_property": null,
@@ -1391,7 +1392,7 @@
       "owner_display": "absent/unallocated — architect must allocate each field owner",
       "folded_into_literal": null,
       "folded_into": null,
-      "capability_gap_labels": [
+      "source_extracted_capability_gap_labels": [
         "absent/unallocated"
       ],
       "source_key": "DEBT-REGISTER.md#int-r2-ceiling-vocabulary-owners",
@@ -1430,7 +1431,7 @@
       "owner_display": "runtime/GY; approval team-architecture",
       "folded_into_literal": null,
       "folded_into": null,
-      "capability_gap_labels": [],
+      "source_extracted_capability_gap_labels": [],
       "source_key": "DEBT-REGISTER.md#deep-import-baseline-stale",
       "record_disposition": "closed",
       "remaining_property": null,
@@ -1454,7 +1455,7 @@
       "owner_display": "team-foundry (contract producers), team-scientist (workflow consumers)",
       "folded_into_literal": null,
       "folded_into": null,
-      "capability_gap_labels": [
+      "source_extracted_capability_gap_labels": [
         "consumer_missing"
       ],
       "source_key": "DEBT-REGISTER.md#foundry-ukraine-method-contract-consumer-residual",
@@ -1487,7 +1488,7 @@
       "owner_display": "existing DataForge legal-corpus and Fabric observability owners",
       "folded_into_literal": null,
       "folded_into": null,
-      "capability_gap_labels": [],
+      "source_extracted_capability_gap_labels": [],
       "source_key": "DEBT-REGISTER.md#data-forge-relocation-ruff-inheritance",
       "record_disposition": "closed",
       "remaining_property": null,
@@ -1511,7 +1512,7 @@
       "owner_display": "team-security; approval team-architecture",
       "folded_into_literal": null,
       "folded_into": null,
-      "capability_gap_labels": [],
+      "source_extracted_capability_gap_labels": [],
       "source_key": "DEBT-REGISTER.md#core-security-canonical-interface-contract-drift",
       "record_disposition": "closed",
       "remaining_property": null,
@@ -1535,7 +1536,7 @@
       "owner_display": "team-observability; approval team-architecture",
       "folded_into_literal": null,
       "folded_into": null,
-      "capability_gap_labels": [],
+      "source_extracted_capability_gap_labels": [],
       "source_key": "DEBT-REGISTER.md#core-trace-canonical-interface-contract-drift",
       "record_disposition": "closed",
       "remaining_property": null,
@@ -1559,7 +1560,7 @@
       "owner_display": "team-core; approval team-architecture",
       "folded_into_literal": null,
       "folded_into": null,
-      "capability_gap_labels": [],
+      "source_extracted_capability_gap_labels": [],
       "source_key": "DEBT-REGISTER.md#common-config-canonical-interface-contract-drift",
       "record_disposition": "closed",
       "remaining_property": null,
@@ -1583,7 +1584,7 @@
       "owner_display": "runtime/GY",
       "folded_into_literal": null,
       "folded_into": null,
-      "capability_gap_labels": [],
+      "source_extracted_capability_gap_labels": [],
       "source_key": "DEBT-REGISTER.md#control-plane-fixture-drift",
       "record_disposition": "closed",
       "remaining_property": null,
@@ -1607,7 +1608,7 @@
       "owner_display": "runtime/GY (team-runtime)",
       "folded_into_literal": null,
       "folded_into": null,
-      "capability_gap_labels": [],
+      "source_extracted_capability_gap_labels": [],
       "source_key": "DEBT-REGISTER.md#case-record-not-run-bound",
       "record_disposition": "closed",
       "remaining_property": null,
@@ -1631,7 +1632,7 @@
       "owner_display": "DS9",
       "folded_into_literal": null,
       "folded_into": null,
-      "capability_gap_labels": [],
+      "source_extracted_capability_gap_labels": [],
       "source_key": "DEBT-REGISTER.md#ds8-approval-authority",
       "record_disposition": "closed",
       "remaining_property": null,
@@ -1655,7 +1656,7 @@
       "owner_display": "DS9",
       "folded_into_literal": null,
       "folded_into": null,
-      "capability_gap_labels": [],
+      "source_extracted_capability_gap_labels": [],
       "source_key": "DEBT-REGISTER.md#DS20-B-scorecard-provenance-intake-effect",
       "record_disposition": "closed",
       "remaining_property": null,
@@ -1679,7 +1680,7 @@
       "owner_display": "DS8 (repair) / DS6 (verification)",
       "folded_into_literal": null,
       "folded_into": null,
-      "capability_gap_labels": [],
+      "source_extracted_capability_gap_labels": [],
       "source_key": "DEBT-REGISTER.md#adjacent-print-export",
       "record_disposition": "closed",
       "remaining_property": null,
@@ -1703,7 +1704,7 @@
       "owner_display": "re-owned 2026-08-21; needs a named consumer surface",
       "folded_into_literal": null,
       "folded_into": null,
-      "capability_gap_labels": [],
+      "source_extracted_capability_gap_labels": [],
       "source_key": "DEBT-REGISTER.md#run-lifecycle-terminal-fact",
       "record_disposition": "closed",
       "remaining_property": null,
@@ -1727,7 +1728,7 @@
       "owner_display": "Group A executor",
       "folded_into_literal": null,
       "folded_into": null,
-      "capability_gap_labels": [
+      "source_extracted_capability_gap_labels": [
         "producer_missing"
       ],
       "source_key": "DEBT-REGISTER.md#ds4-waist-decision-grade",
@@ -1753,7 +1754,7 @@
       "owner_display": "DS6",
       "folded_into_literal": null,
       "folded_into": null,
-      "capability_gap_labels": [
+      "source_extracted_capability_gap_labels": [
         "consumer_missing",
         "implemented_but_not_orchestrated",
         "surface_missing"
@@ -1781,7 +1782,7 @@
       "owner_display": "whoever next extends the register checker",
       "folded_into_literal": null,
       "folded_into": null,
-      "capability_gap_labels": [],
+      "source_extracted_capability_gap_labels": [],
       "source_key": "DEBT-REGISTER.md#register-tests-source-live-state-as-preimage",
       "record_disposition": "closed",
       "remaining_property": null,
@@ -1805,7 +1806,7 @@
       "owner_display": "runtime/quality",
       "folded_into_literal": null,
       "folded_into": null,
-      "capability_gap_labels": [],
+      "source_extracted_capability_gap_labels": [],
       "source_key": "DEBT-REGISTER.md#debt-ledger-frontend-denominators-conflated",
       "record_disposition": "closed",
       "remaining_property": null,
@@ -1829,7 +1830,7 @@
       "owner_display": "runtime/quality",
       "folded_into_literal": null,
       "folded_into": null,
-      "capability_gap_labels": [],
+      "source_extracted_capability_gap_labels": [],
       "source_key": "DEBT-REGISTER.md#debt-ledger-informational-relations-block-strict-mode",
       "record_disposition": "closed",
       "remaining_property": null,
@@ -1853,7 +1854,7 @@
       "owner_display": "needs re-owning — DS7 is closed",
       "folded_into_literal": null,
       "folded_into": null,
-      "capability_gap_labels": [
+      "source_extracted_capability_gap_labels": [
         "artifact_missing"
       ],
       "source_key": "DEBT-REGISTER.md#producer-availability-denominator",
@@ -1879,7 +1880,7 @@
       "owner_display": "unassigned — needs an owner determination; each is a governed-projection source, so the owner follows from which lane owns that source",
       "folded_into_literal": null,
       "folded_into": null,
-      "capability_gap_labels": [
+      "source_extracted_capability_gap_labels": [
         "artifact_missing"
       ],
       "source_key": "DEBT-REGISTER.md#three-unavailable-governed-producers",
@@ -1905,7 +1906,7 @@
       "owner_display": "runtime/GY (env owner)",
       "folded_into_literal": null,
       "folded_into": null,
-      "capability_gap_labels": [],
+      "source_extracted_capability_gap_labels": [],
       "source_key": "DEBT-REGISTER.md#canonical-venv-editable-target-deleted",
       "record_disposition": "closed",
       "remaining_property": null,
@@ -1929,7 +1930,7 @@
       "owner_display": "runtime/quality",
       "folded_into_literal": null,
       "folded_into": null,
-      "capability_gap_labels": [],
+      "source_extracted_capability_gap_labels": [],
       "source_key": "DEBT-REGISTER.md#def9-witness-cannot-reach-its-discriminator",
       "record_disposition": "closed",
       "remaining_property": null,
@@ -1953,7 +1954,7 @@
       "owner_display": "runtime/quality",
       "folded_into_literal": null,
       "folded_into": null,
-      "capability_gap_labels": [],
+      "source_extracted_capability_gap_labels": [],
       "source_key": "DEBT-REGISTER.md#plugin-posture-witness-binds-cap-and-checkout",
       "record_disposition": "closed",
       "remaining_property": null,
@@ -1977,7 +1978,7 @@
       "owner_display": "runtime/quality",
       "folded_into_literal": null,
       "folded_into": null,
-      "capability_gap_labels": [],
+      "source_extracted_capability_gap_labels": [],
       "source_key": "DEBT-REGISTER.md#confidence-ledger-check-red-at-base",
       "record_disposition": "closed",
       "remaining_property": null,
@@ -2001,7 +2002,7 @@
       "owner_display": "team-architecture; producer lane runtime/quality",
       "folded_into_literal": null,
       "folded_into": null,
-      "capability_gap_labels": [
+      "source_extracted_capability_gap_labels": [
         "artifact_missing"
       ],
       "source_key": "DEBT-REGISTER.md#ds10-adapter-registry-data-only-free-growth",
@@ -2027,7 +2028,7 @@
       "owner_display": "team-fabric (produce the write API); team-runtime (consume it)",
       "folded_into_literal": null,
       "folded_into": null,
-      "capability_gap_labels": [],
+      "source_extracted_capability_gap_labels": [],
       "source_key": "DEBT-REGISTER.md#fabric-world-store-write-authority",
       "record_disposition": "closed",
       "remaining_property": null,
@@ -2051,7 +2052,7 @@
       "owner_display": "team-scientist; runtime orchestration consumer",
       "folded_into_literal": null,
       "folded_into": null,
-      "capability_gap_labels": [
+      "source_extracted_capability_gap_labels": [
         "bridge_missing",
         "implemented_but_not_orchestrated"
       ],
@@ -2091,7 +2092,7 @@
       "owner_display": "team-design; successor consumer, not the owner",
       "folded_into_literal": null,
       "folded_into": null,
-      "capability_gap_labels": [
+      "source_extracted_capability_gap_labels": [
         "surface_missing"
       ],
       "source_key": "DEBT-REGISTER.md#DS11-PUBLIC-SIGNATURE-POPULATION",
@@ -2130,22 +2131,22 @@
       "owner_display": "team-architecture",
       "folded_into_literal": null,
       "folded_into": null,
-      "capability_gap_labels": [
+      "source_extracted_capability_gap_labels": [
         "absent/unallocated"
       ],
       "source_key": "DEBT-REGISTER.md#DS11-SCOPE-ADJUDICATION-RECORD",
       "next_route": "Atlas",
       "route_key": "Atlas DS11 scope projection / architecture",
       "remaining_property": "A candidate artifact exists and explicitly has authority_effect=none and closure_effect=none, with resolver/consumer unappointed. The remaining authority-band chain is a purpose-scoped ruling producer, persistence bridge, claim-lifecycle consumer and governed surface; the candidate artifact does not close it.",
-      "route_basis": "source ID/owner/property mapped to the named workstream; routing does not change status",
+      "route_basis": "R11 full-row semantic reconciliation: route owns the current predicate; source status unchanged.",
       "owner_attention": null,
       "record_disposition": "open",
       "status_as_reported": "open",
       "owner_as_displayed": "`team-architecture`",
       "route_target": "Atlas DS11 scope projection / architecture",
       "program_tasks": [
-        "UI-15",
-        "DEB-09"
+        "DEB-14",
+        "UI-19"
       ],
       "program_disposition": "explicit_programme_route_original_status_preserved",
       "property_review": {
@@ -2169,7 +2170,7 @@
       "owner_display": "team-design; accessibility evidence lane",
       "folded_into_literal": null,
       "folded_into": null,
-      "capability_gap_labels": [
+      "source_extracted_capability_gap_labels": [
         "artifact_missing",
         "verification_missing"
       ],
@@ -2202,7 +2203,7 @@
       "owner_display": "runtime/GY evidence owner; separate promotion consumer",
       "folded_into_literal": null,
       "folded_into": null,
-      "capability_gap_labels": [],
+      "source_extracted_capability_gap_labels": [],
       "source_key": "DEBT-REGISTER.md#DS11-GROUNDED-PERFORMANCE",
       "next_route": "GY",
       "route_key": "GY evidence / separate promotion consumer",
@@ -2233,7 +2234,7 @@
       "owner_display": "DS6 independent print-evidence lane",
       "folded_into_literal": null,
       "folded_into": null,
-      "capability_gap_labels": [
+      "source_extracted_capability_gap_labels": [
         "verification_missing"
       ],
       "source_key": "DEBT-REGISTER.md#DS11-INHERITED-C13-PRINT-RECEIPT",
@@ -2271,20 +2272,21 @@
       "owner_display": "team-design; successor allocation",
       "folded_into_literal": null,
       "folded_into": null,
-      "capability_gap_labels": [
+      "source_extracted_capability_gap_labels": [
         "surface_out_of_scope"
       ],
       "source_key": "DEBT-REGISTER.md#DS11-FULL-TRUST-CENTER-AND-DOCS-IA",
       "next_route": "Atlas",
       "route_key": "Atlas DS11 successor surface",
       "remaining_property": "The retained trust-center and documentation inventory has no successor allocation and is outside DS11 authority.",
-      "route_basis": "source ID/owner/property mapped to the named workstream; routing does not change status",
+      "route_basis": "R11 full-row semantic reconciliation: route owns the current predicate; source status unchanged.",
       "owner_attention": "Successor allocation is still required.",
       "record_disposition": "blocked",
       "status_as_reported": "blocked",
       "owner_as_displayed": "`team-design`; successor allocation",
       "route_target": "Atlas DS11 successor surface",
       "program_tasks": [
+        "P0-REBIND",
         "UI-15"
       ],
       "program_disposition": "explicit_programme_route_original_status_preserved"
@@ -2303,7 +2305,7 @@
       "owner_display": "team-architecture (register owner)",
       "folded_into_literal": null,
       "folded_into": null,
-      "capability_gap_labels": [],
+      "source_extracted_capability_gap_labels": [],
       "source_key": "DEBT-REGISTER.md#debt-closure-signals-name-unwritten-tests",
       "record_disposition": "closed",
       "remaining_property": null,
@@ -2327,7 +2329,7 @@
       "owner_display": "absent/unallocated",
       "folded_into_literal": null,
       "folded_into": null,
-      "capability_gap_labels": [
+      "source_extracted_capability_gap_labels": [
         "absent/unallocated"
       ],
       "source_key": "DEBT-REGISTER.md#ds18-epoch-predicate-policy-signer-unappointed",
@@ -2359,7 +2361,7 @@
       "owner_display": "absent/unallocated",
       "folded_into_literal": null,
       "folded_into": null,
-      "capability_gap_labels": [
+      "source_extracted_capability_gap_labels": [
         "absent/unallocated"
       ],
       "source_key": "DEBT-REGISTER.md#ds18-epoch-transition-signer-unappointed",
@@ -2391,7 +2393,7 @@
       "owner_display": "absent/unallocated",
       "folded_into_literal": null,
       "folded_into": null,
-      "capability_gap_labels": [
+      "source_extracted_capability_gap_labels": [
         "absent/unallocated"
       ],
       "source_key": "DEBT-REGISTER.md#ds18-epoch-history-independent-holder-unappointed",
@@ -2423,7 +2425,7 @@
       "owner_display": "EpochValidityTransitionProducer.produce_and_persist (candidate)",
       "folded_into_literal": null,
       "folded_into": null,
-      "capability_gap_labels": [
+      "source_extracted_capability_gap_labels": [
         "implemented_but_not_orchestrated"
       ],
       "source_key": "DEBT-REGISTER.md#ds18-positive-transition-production-unorchestrated",
@@ -2449,7 +2451,7 @@
       "owner_display": "EpochTransitionVerifier / DecisionValidityService (candidates)",
       "folded_into_literal": null,
       "folded_into": null,
-      "capability_gap_labels": [
+      "source_extracted_capability_gap_labels": [
         "producer_missing"
       ],
       "source_key": "DEBT-REGISTER.md#ds18-positive-transition-verification-producer-missing",
@@ -2488,7 +2490,7 @@
       "owner_display": "polisyos.runtime.quality.derived_observations (candidate)",
       "folded_into_literal": null,
       "folded_into": null,
-      "capability_gap_labels": [
+      "source_extracted_capability_gap_labels": [
         "producer_missing",
         "bridge_missing"
       ],
@@ -2515,7 +2517,7 @@
       "owner_display": "team-architecture",
       "folded_into_literal": null,
       "folded_into": null,
-      "capability_gap_labels": [],
+      "source_extracted_capability_gap_labels": [],
       "source_key": "DEBT-REGISTER.md#ds18-landing-red-not-armed",
       "record_disposition": "closed",
       "remaining_property": null,
@@ -2539,7 +2541,7 @@
       "owner_display": "absent/unallocated",
       "folded_into_literal": null,
       "folded_into": null,
-      "capability_gap_labels": [
+      "source_extracted_capability_gap_labels": [
         "absent/unallocated",
         "producer_missing",
         "artifact_missing"
@@ -2573,7 +2575,7 @@
       "owner_display": "absent/unallocated",
       "folded_into_literal": null,
       "folded_into": null,
-      "capability_gap_labels": [
+      "source_extracted_capability_gap_labels": [
         "absent/unallocated",
         "bridge_missing"
       ],
@@ -2612,22 +2614,21 @@
       "owner_display": "DS12 is a candidate, not an owner",
       "folded_into_literal": null,
       "folded_into": null,
-      "capability_gap_labels": [
+      "source_extracted_capability_gap_labels": [
         "bridge_missing"
       ],
       "source_key": "DEBT-REGISTER.md#ds8-public-case-publication",
       "next_route": "Atlas",
       "route_key": "Atlas DS8 / DS12 public case",
       "remaining_property": "DS12's scope act names/owns the row, but the row's original closure signal was acquisition of scope while later prose added publication requirements. The current block is architect-owned scope/signal reconciliation; do not dispatch a publication build against the unreconciled signal or report the scope act as closure.",
-      "route_basis": "source ID/owner/property mapped to the named workstream; routing does not change status",
+      "route_basis": "R11 full-row semantic reconciliation: route owns the current predicate; source status unchanged.",
       "owner_attention": "Owner cell is blank or records an unallocated, candidate, unwired, or producer-missing owner state.",
       "record_disposition": "blocked",
       "status_as_reported": "blocked",
       "owner_as_displayed": "DS12 is a **candidate, not an owner**",
       "route_target": "Atlas DS8 / DS12 public case",
       "program_tasks": [
-        "UI-01",
-        "UI-02"
+        "P0-REBIND"
       ],
       "program_disposition": "explicit_programme_route_original_status_preserved",
       "property_review": {
@@ -2651,7 +2652,7 @@
       "owner_display": "DS10 / DS14 are candidates, not owners",
       "folded_into_literal": null,
       "folded_into": null,
-      "capability_gap_labels": [],
+      "source_extracted_capability_gap_labels": [],
       "source_key": "DEBT-REGISTER.md#ds8-lex-clerk-authority-repair",
       "next_route": "Atlas",
       "route_key": "Atlas DS8 successor allocation",
@@ -2687,20 +2688,20 @@
       "owner_display": "those four slices are candidates, not owners",
       "folded_into_literal": null,
       "folded_into": null,
-      "capability_gap_labels": [],
+      "source_extracted_capability_gap_labels": [],
       "source_key": "DEBT-REGISTER.md#ds5-waist-successors-routed-to-unscoped-slices",
       "next_route": "Atlas",
       "route_key": "Atlas DS5 successor plans",
       "remaining_property": "The successor scopes exist: three groups are assigned to DS12 and one to DS14. The only remaining unallocated property is DS15's generated promotion-union/private-issuer property. Preserve that narrow residual rather than treating four successor groups as unscoped.",
-      "route_basis": "source ID/owner/property mapped to the named workstream; routing does not change status",
+      "route_basis": "R11 full-row semantic reconciliation: route owns the current predicate; source status unchanged.",
       "owner_attention": "Owner cell is blank or records an unallocated, candidate, unwired, or producer-missing owner state.",
       "record_disposition": "blocked",
       "status_as_reported": "blocked",
       "owner_as_displayed": "those four slices are **candidates, not owners**",
       "route_target": "Atlas DS5 successor plans",
       "program_tasks": [
-        "UI-17",
-        "DEB-09"
+        "P0-REBIND",
+        "UI-20"
       ],
       "program_disposition": "explicit_programme_route_original_status_preserved",
       "property_review": {
@@ -2724,7 +2725,7 @@
       "owner_display": "team-architecture — unallocated, engineering",
       "folded_into_literal": null,
       "folded_into": null,
-      "capability_gap_labels": [],
+      "source_extracted_capability_gap_labels": [],
       "source_key": "DEBT-REGISTER.md#trust-claim-posture-receipt-stale-on-any-src-change",
       "record_disposition": "closed",
       "remaining_property": null,
@@ -2748,7 +2749,7 @@
       "owner_display": "team-scientist; Claim Ledger owner — unallocated, engineering plus one appointment for the verified owner-event authority",
       "folded_into_literal": null,
       "folded_into": null,
-      "capability_gap_labels": [
+      "source_extracted_capability_gap_labels": [
         "artifact_missing",
         "verification_missing"
       ],
@@ -2775,7 +2776,7 @@
       "owner_display": "team-runtime; producer lane runtime/quality — unallocated, engineering, no appointment involved",
       "folded_into_literal": null,
       "folded_into": null,
-      "capability_gap_labels": [],
+      "source_extracted_capability_gap_labels": [],
       "source_key": "DEBT-REGISTER.md#first-promotion-candidate-with-complete-evidence",
       "next_route": "GY",
       "route_key": "GY-PR1 first promotion",
@@ -2811,7 +2812,7 @@
       "owner_display": "team-runtime with PDC; existing human-decision and normative owners retained",
       "folded_into_literal": null,
       "folded_into": null,
-      "capability_gap_labels": [
+      "source_extracted_capability_gap_labels": [
         "verification_missing"
       ],
       "source_key": "DEBT-REGISTER.md#promotion-s6-s7-s8-injected-posture-admission-mapping",
@@ -2849,7 +2850,7 @@
       "owner_display": "team-runtime; producer lane runtime/quality — unallocated",
       "folded_into_literal": null,
       "folded_into": null,
-      "capability_gap_labels": [
+      "source_extracted_capability_gap_labels": [
         "absent/unallocated"
       ],
       "source_key": "DEBT-REGISTER.md#eval-safety-promotion-authority-producer-missing",
@@ -2887,7 +2888,7 @@
       "owner_display": "team-runtime; DS9 human-decision lane — unallocated, engineering",
       "folded_into_literal": null,
       "folded_into": null,
-      "capability_gap_labels": [],
+      "source_extracted_capability_gap_labels": [],
       "source_key": "DEBT-REGISTER.md#ds9-human-decision-crash-test-fixture-blocked",
       "record_disposition": "closed",
       "remaining_property": null,
@@ -2911,7 +2912,7 @@
       "owner_display": "team-runtime; producer lane runtime/quality — unallocated, engineering, no appointment involved",
       "folded_into_literal": null,
       "folded_into": null,
-      "capability_gap_labels": [
+      "source_extracted_capability_gap_labels": [
         "producer_missing"
       ],
       "source_key": "DEBT-REGISTER.md#global-case-index-producer-missing",
@@ -2937,7 +2938,7 @@
       "owner_display": "team-design; public-surface corridor — unallocated",
       "folded_into_literal": null,
       "folded_into": null,
-      "capability_gap_labels": [],
+      "source_extracted_capability_gap_labels": [],
       "source_key": "DEBT-REGISTER.md#public-decision-verified-badge-is-client-computed",
       "record_disposition": "closed",
       "remaining_property": null,
@@ -2961,7 +2962,7 @@
       "owner_display": "team-design with the public-surface corridor owner",
       "folded_into_literal": null,
       "folded_into": null,
-      "capability_gap_labels": [],
+      "source_extracted_capability_gap_labels": [],
       "source_key": "DEBT-REGISTER.md#atlas-public-verification-record-bridge",
       "record_disposition": "closed",
       "remaining_property": null,
@@ -2985,7 +2986,7 @@
       "owner_display": "team-devx with runtime/architecture",
       "folded_into_literal": null,
       "folded_into": null,
-      "capability_gap_labels": [],
+      "source_extracted_capability_gap_labels": [],
       "source_key": "DEBT-REGISTER.md#isolated-freshness-probe-cannot-build-its-own-interpreter",
       "record_disposition": "closed",
       "remaining_property": null,
@@ -3009,7 +3010,7 @@
       "owner_display": "runtime/architecture with team-devx",
       "folded_into_literal": null,
       "folded_into": null,
-      "capability_gap_labels": [],
+      "source_extracted_capability_gap_labels": [],
       "source_key": "DEBT-REGISTER.md#acquisition-admission-bundle-deep-imports-core-artifacts",
       "record_disposition": "closed",
       "remaining_property": null,
@@ -3033,7 +3034,7 @@
       "owner_display": "team-scientist; DS11",
       "folded_into_literal": null,
       "folded_into": null,
-      "capability_gap_labels": [],
+      "source_extracted_capability_gap_labels": [],
       "source_key": "DEBT-REGISTER.md#trust-posture-custody-appointment-requires-open-row",
       "record_disposition": "closed",
       "remaining_property": null,
@@ -3057,7 +3058,7 @@
       "owner_display": "team-runtime; DS11",
       "folded_into_literal": null,
       "folded_into": null,
-      "capability_gap_labels": [],
+      "source_extracted_capability_gap_labels": [],
       "source_key": "DEBT-REGISTER.md#ds11-trust-posture-guardrail-unwired-and-red",
       "record_disposition": "closed",
       "remaining_property": null,
@@ -3081,7 +3082,7 @@
       "owner_display": "team-architecture",
       "folded_into_literal": null,
       "folded_into": null,
-      "capability_gap_labels": [],
+      "source_extracted_capability_gap_labels": [],
       "source_key": "DEBT-REGISTER.md#explicit-nonclosure-check-blind-to-table-shaped-lists",
       "record_disposition": "closed",
       "remaining_property": null,
@@ -3105,7 +3106,7 @@
       "owner_display": "team-runtime + team-scientist — a cross-owner seam, unallocated",
       "folded_into_literal": null,
       "folded_into": null,
-      "capability_gap_labels": [],
+      "source_extracted_capability_gap_labels": [],
       "source_key": "DEBT-REGISTER.md#epoch-dependency-denominator-defined-twice-incompatibly",
       "record_disposition": "closed",
       "remaining_property": null,
@@ -3129,7 +3130,7 @@
       "owner_display": "architect",
       "folded_into_literal": null,
       "folded_into": null,
-      "capability_gap_labels": [
+      "source_extracted_capability_gap_labels": [
         "producer_missing"
       ],
       "source_key": "DEBT-REGISTER.md#task-e-admission-bundle-producer-never-merged",
@@ -3155,7 +3156,7 @@
       "owner_display": "team-architecture",
       "folded_into_literal": null,
       "folded_into": null,
-      "capability_gap_labels": [],
+      "source_extracted_capability_gap_labels": [],
       "source_key": "DEBT-REGISTER.md#register-status-parsed-from-prose-not-from-the-status-cell",
       "record_disposition": "closed",
       "remaining_property": null,
@@ -3179,7 +3180,7 @@
       "owner_display": "team-runtime; task A/K promotion corridor — unallocated",
       "folded_into_literal": null,
       "folded_into": null,
-      "capability_gap_labels": [
+      "source_extracted_capability_gap_labels": [
         "contract_only"
       ],
       "source_key": "DEBT-REGISTER.md#main-red-in-promotion-and-generation-corridor",
@@ -3205,7 +3206,7 @@
       "owner_display": "team-architecture; DS10 and DS17 document owners",
       "folded_into_literal": null,
       "folded_into": null,
-      "capability_gap_labels": [],
+      "source_extracted_capability_gap_labels": [],
       "source_key": "DEBT-REGISTER.md#nonclosure-tables-name-no-debt-ids",
       "record_disposition": "closed",
       "remaining_property": null,
@@ -3229,7 +3230,7 @@
       "owner_display": "team-runtime; promotion/generation corridor",
       "folded_into_literal": null,
       "folded_into": null,
-      "capability_gap_labels": [],
+      "source_extracted_capability_gap_labels": [],
       "source_key": "DEBT-REGISTER.md#corridor-tests-depend-on-undeclared-ambient-prerequisites",
       "record_disposition": "closed",
       "remaining_property": null,
@@ -3253,7 +3254,7 @@
       "owner_display": "team-architecture",
       "folded_into_literal": null,
       "folded_into": null,
-      "capability_gap_labels": [],
+      "source_extracted_capability_gap_labels": [],
       "source_key": "DEBT-REGISTER.md#docs-lifecycle-flags-quoted-paths-in-journal-evidence",
       "record_disposition": "closed",
       "remaining_property": null,
@@ -3277,7 +3278,7 @@
       "owner_display": "team-architecture",
       "folded_into_literal": null,
       "folded_into": null,
-      "capability_gap_labels": [],
+      "source_extracted_capability_gap_labels": [],
       "source_key": "DEBT-REGISTER.md#shared-git-hook-hardcodes-one-worktree-path",
       "record_disposition": "closed",
       "remaining_property": null,
@@ -3301,7 +3302,7 @@
       "owner_display": "team-architecture with the runtime-dashboard package owner",
       "folded_into_literal": null,
       "folded_into": null,
-      "capability_gap_labels": [],
+      "source_extracted_capability_gap_labels": [],
       "source_key": "DEBT-REGISTER.md#shared-hook-binds-its-config-at-install-time-and-validates-nothing",
       "record_disposition": "closed",
       "remaining_property": null,
@@ -3325,7 +3326,7 @@
       "owner_display": "unallocated",
       "folded_into_literal": null,
       "folded_into": null,
-      "capability_gap_labels": [],
+      "source_extracted_capability_gap_labels": [],
       "source_key": "DEBT-REGISTER.md#openapi-example-receipt-stale-on-any-consulted-path",
       "record_disposition": "closed",
       "remaining_property": null,
@@ -3349,7 +3350,7 @@
       "owner_display": "unallocated",
       "folded_into_literal": null,
       "folded_into": null,
-      "capability_gap_labels": [],
+      "source_extracted_capability_gap_labels": [],
       "source_key": "DEBT-REGISTER.md#owner-validator-120s-child-timeout-is-load-variable",
       "record_disposition": "closed",
       "remaining_property": null,
@@ -3373,7 +3374,7 @@
       "owner_display": "unallocated; producer is the architecture/atlas_surfaces census",
       "folded_into_literal": null,
       "folded_into": null,
-      "capability_gap_labels": [],
+      "source_extracted_capability_gap_labels": [],
       "source_key": "DEBT-REGISTER.md#ds4-waist-anchor-declares-absence-of-a-present-symbol",
       "record_disposition": "closed",
       "remaining_property": null,
@@ -3397,7 +3398,7 @@
       "owner_display": "unallocated",
       "folded_into_literal": null,
       "folded_into": null,
-      "capability_gap_labels": [],
+      "source_extracted_capability_gap_labels": [],
       "source_key": "DEBT-REGISTER.md#status-retirement-inventory-red-beyond-acting-and-outside-the-lane-guardrail",
       "record_disposition": "closed",
       "remaining_property": null,
@@ -3421,7 +3422,7 @@
       "owner_display": "unallocated; producer is the academic extraction pipeline",
       "folded_into_literal": null,
       "folded_into": null,
-      "capability_gap_labels": [],
+      "source_extracted_capability_gap_labels": [],
       "source_key": "DEBT-REGISTER.md#extraction-strength-mixes-confidence-and-design",
       "record_disposition": "closed",
       "remaining_property": null,
@@ -3445,7 +3446,7 @@
       "owner_display": "unallocated",
       "folded_into_literal": null,
       "folded_into": null,
-      "capability_gap_labels": [],
+      "source_extracted_capability_gap_labels": [],
       "source_key": "DEBT-REGISTER.md#snapshot-records-no-schema-generation",
       "record_disposition": "closed",
       "remaining_property": null,
@@ -3469,7 +3470,7 @@
       "owner_display": "unallocated; owner is the Foundry catalog/discovery boundary",
       "folded_into_literal": null,
       "folded_into": null,
-      "capability_gap_labels": [
+      "source_extracted_capability_gap_labels": [
         "absent/unallocated"
       ],
       "source_key": "DEBT-REGISTER.md#foundry-runtime-authority-capabilities-absent",
@@ -3495,7 +3496,7 @@
       "owner_display": "unallocated; owner is data_forge/domains/academic",
       "folded_into_literal": null,
       "folded_into": null,
-      "capability_gap_labels": [],
+      "source_extracted_capability_gap_labels": [],
       "source_key": "DEBT-REGISTER.md#academic-graph-manufactures-design-from-a-placeholder",
       "record_disposition": "closed",
       "remaining_property": null,
@@ -3519,7 +3520,7 @@
       "owner_display": "unallocated; owner is data_forge/domains/academic",
       "folded_into_literal": null,
       "folded_into": null,
-      "capability_gap_labels": [],
+      "source_extracted_capability_gap_labels": [],
       "source_key": "DEBT-REGISTER.md#span-grounded-writer-ignores-the-publication-gate",
       "record_disposition": "closed",
       "remaining_property": null,
@@ -3543,7 +3544,7 @@
       "owner_display": "unallocated",
       "folded_into_literal": null,
       "folded_into": null,
-      "capability_gap_labels": [],
+      "source_extracted_capability_gap_labels": [],
       "source_key": "DEBT-REGISTER.md#adjudication-and-champion-chain-is-forgeable",
       "record_disposition": "closed",
       "remaining_property": null,
@@ -3567,7 +3568,7 @@
       "owner_display": "unallocated; owner is data_forge/domains/academic",
       "folded_into_literal": null,
       "folded_into": null,
-      "capability_gap_labels": [],
+      "source_extracted_capability_gap_labels": [],
       "source_key": "DEBT-REGISTER.md#academic-unknown-evidence-contributes-nonzero-weight",
       "record_disposition": "closed",
       "remaining_property": null,
@@ -3591,7 +3592,7 @@
       "owner_display": "unallocated; owner is ir/analytics with data_forge and scientist consumers",
       "folded_into_literal": null,
       "folded_into": null,
-      "capability_gap_labels": [],
+      "source_extracted_capability_gap_labels": [],
       "source_key": "DEBT-REGISTER.md#parameter-contract-cannot-distinguish-unsupplied-from-unknown",
       "record_disposition": "closed",
       "remaining_property": null,
@@ -3615,7 +3616,7 @@
       "owner_display": "unallocated",
       "folded_into_literal": null,
       "folded_into": null,
-      "capability_gap_labels": [],
+      "source_extracted_capability_gap_labels": [],
       "source_key": "DEBT-REGISTER.md#historical-confidence-carries-a-withdrawn-contribution",
       "record_disposition": "closed",
       "remaining_property": null,
@@ -3639,7 +3640,7 @@
       "owner_display": "unallocated; owner is data_forge/domains/academic with ir/analytics consumers",
       "folded_into_literal": null,
       "folded_into": null,
-      "capability_gap_labels": [],
+      "source_extracted_capability_gap_labels": [],
       "source_key": "DEBT-REGISTER.md#parameter-evidence-strength-has-no-value-provenance",
       "record_disposition": "closed",
       "remaining_property": null,
@@ -3663,7 +3664,7 @@
       "owner_display": "unallocated; owner is data_forge/domains/academic",
       "folded_into_literal": null,
       "folded_into": null,
-      "capability_gap_labels": [],
+      "source_extracted_capability_gap_labels": [],
       "source_key": "DEBT-REGISTER.md#academic-selective-extraction-prompt-never-rendered",
       "record_disposition": "closed",
       "remaining_property": null,
@@ -3687,7 +3688,7 @@
       "owner_display": "unallocated; owner is ir/analytics",
       "folded_into_literal": null,
       "folded_into": "evidence-class-normalizer-zeroes-two-canonical-classes",
-      "capability_gap_labels": [],
+      "source_extracted_capability_gap_labels": [],
       "source_key": "DEBT-REGISTER.md#literature-infers-evidence-class-from-a-sentence",
       "next_route": "other",
       "route_key": "Evidence-class normalization successor",
@@ -3717,7 +3718,7 @@
       "owner_display": "unallocated; owner is data_forge/domains/academic",
       "folded_into_literal": null,
       "folded_into": "evidence-class-normalizer-zeroes-two-canonical-classes",
-      "capability_gap_labels": [],
+      "source_extracted_capability_gap_labels": [],
       "source_key": "DEBT-REGISTER.md#extraction-ask-offers-six-of-ten-evidence-classes",
       "next_route": "other",
       "route_key": "Evidence-class normalization successor",
@@ -3747,7 +3748,7 @@
       "owner_display": "unallocated; owner is data_forge/domains/academic",
       "folded_into_literal": null,
       "folded_into": null,
-      "capability_gap_labels": [],
+      "source_extracted_capability_gap_labels": [],
       "source_key": "DEBT-REGISTER.md#evidence-class-normalizer-zeroes-two-canonical-classes",
       "record_disposition": "closed",
       "remaining_property": null,
@@ -3771,7 +3772,7 @@
       "owner_display": "unallocated; owner is data_forge/domains/academic",
       "folded_into_literal": null,
       "folded_into": null,
-      "capability_gap_labels": [],
+      "source_extracted_capability_gap_labels": [],
       "source_key": "DEBT-REGISTER.md#design-normalization-matches-a-substring-before-identity",
       "record_disposition": "closed",
       "remaining_property": null,
@@ -3795,7 +3796,7 @@
       "owner_display": "unallocated; owner is data_forge/domains/academic",
       "folded_into_literal": null,
       "folded_into": null,
-      "capability_gap_labels": [],
+      "source_extracted_capability_gap_labels": [],
       "source_key": "DEBT-REGISTER.md#evidence-row-design-hint-differs-from-adjudication",
       "record_disposition": "closed",
       "remaining_property": null,
@@ -3819,7 +3820,7 @@
       "owner_display": "team-polisyos (the owner declared in generated_artifacts.toml)",
       "folded_into_literal": null,
       "folded_into": null,
-      "capability_gap_labels": [],
+      "source_extracted_capability_gap_labels": [],
       "source_key": "DEBT-REGISTER.md#gen-schema-check-red-on-main",
       "record_disposition": "closed",
       "remaining_property": null,
@@ -3843,7 +3844,7 @@
       "owner_display": "team-polisyos to triage; each item's owner is the lane that owns its subject",
       "folded_into_literal": null,
       "folded_into": null,
-      "capability_gap_labels": [],
+      "source_extracted_capability_gap_labels": [],
       "source_key": "DEBT-REGISTER.md#ci-red-inventory-on-20082e545",
       "record_disposition": "closed",
       "remaining_property": null,
@@ -3867,7 +3868,7 @@
       "owner_display": "team-polisyos with team-devx",
       "folded_into_literal": null,
       "folded_into": null,
-      "capability_gap_labels": [],
+      "source_extracted_capability_gap_labels": [],
       "source_key": "DEBT-REGISTER.md#schema-manifest-compares-the-generating-interpreter-version",
       "record_disposition": "closed",
       "remaining_property": null,
@@ -3891,7 +3892,7 @@
       "owner_display": "team-polisyos (the generated_artifacts.toml owner) with runtime/quality",
       "folded_into_literal": null,
       "folded_into": null,
-      "capability_gap_labels": [],
+      "source_extracted_capability_gap_labels": [],
       "source_key": "DEBT-REGISTER.md#gen-schema-disagrees-between-worktrees-on-identical-trees",
       "record_disposition": "closed",
       "remaining_property": null,
@@ -3915,7 +3916,7 @@
       "owner_display": "architect (the only party that pushes) with team-polisyos",
       "folded_into_literal": null,
       "folded_into": null,
-      "capability_gap_labels": [],
+      "source_extracted_capability_gap_labels": [],
       "source_key": "DEBT-REGISTER.md#main-has-not-reached-ci-for-365-commits",
       "record_disposition": "closed",
       "remaining_property": null,
@@ -3939,7 +3940,7 @@
       "owner_display": "team-devx / CI",
       "folded_into_literal": null,
       "folded_into": null,
-      "capability_gap_labels": [],
+      "source_extracted_capability_gap_labels": [],
       "source_key": "DEBT-REGISTER.md#ci-bootstrap-requires-click-before-sync",
       "record_disposition": "closed",
       "remaining_property": null,
@@ -3963,7 +3964,7 @@
       "owner_display": "team-devx / CI",
       "folded_into_literal": null,
       "folded_into": null,
-      "capability_gap_labels": [],
+      "source_extracted_capability_gap_labels": [],
       "source_key": "DEBT-REGISTER.md#workflow-governance-release-glob-shellcheck",
       "record_disposition": "closed",
       "remaining_property": null,
@@ -3987,7 +3988,7 @@
       "owner_display": "team-lex and team-scholar for the unowned pair (due 2026-10-15); team-ops with team-release for the gate/taxonomy reconciliation; team-architecture and team-core-runtime for calibration and common (due 2026-12-01)",
       "folded_into_literal": null,
       "folded_into": null,
-      "capability_gap_labels": [
+      "source_extracted_capability_gap_labels": [
         "absent/unallocated"
       ],
       "source_key": "DEBT-REGISTER.md#structure-remediation-exceptions-all-thirteen-expired",
@@ -4013,7 +4014,7 @@
       "owner_display": "team-architecture",
       "folded_into_literal": null,
       "folded_into": null,
-      "capability_gap_labels": [],
+      "source_extracted_capability_gap_labels": [],
       "source_key": "DEBT-REGISTER.md#structure-gate-cli-defaults-to-report-only",
       "record_disposition": "closed",
       "remaining_property": null,
@@ -4037,7 +4038,7 @@
       "owner_display": "team-polisyos with team-devx",
       "folded_into_literal": null,
       "folded_into": null,
-      "capability_gap_labels": [],
+      "source_extracted_capability_gap_labels": [],
       "source_key": "DEBT-REGISTER.md#abi-detector-watches-prefixes-not-the-import-closure",
       "record_disposition": "closed",
       "remaining_property": null,
@@ -4061,7 +4062,7 @@
       "owner_display": "team-devx with team-polisyos",
       "folded_into_literal": null,
       "folded_into": null,
-      "capability_gap_labels": [],
+      "source_extracted_capability_gap_labels": [],
       "source_key": "DEBT-REGISTER.md#abi-detector-fails-open-when-its-scan-command-fails",
       "record_disposition": "closed",
       "remaining_property": null,
@@ -4085,7 +4086,7 @@
       "owner_display": "team-devx with team-fabric",
       "folded_into_literal": null,
       "folded_into": null,
-      "capability_gap_labels": [],
+      "source_extracted_capability_gap_labels": [],
       "source_key": "DEBT-REGISTER.md#ripgrep-is-assumed-by-ci-and-provisioned-nowhere",
       "record_disposition": "closed",
       "remaining_property": null,
@@ -4109,7 +4110,7 @@
       "owner_display": "team-scientist with team-devx",
       "folded_into_literal": null,
       "folded_into": null,
-      "capability_gap_labels": [],
+      "source_extracted_capability_gap_labels": [],
       "source_key": "DEBT-REGISTER.md#workflow-test-targets-45-of-118-missing",
       "record_disposition": "closed",
       "remaining_property": null,
@@ -4133,7 +4134,7 @@
       "owner_display": "team-devx with team-core-runtime",
       "folded_into_literal": null,
       "folded_into": null,
-      "capability_gap_labels": [],
+      "source_extracted_capability_gap_labels": [],
       "source_key": "DEBT-REGISTER.md#ci-jobs-pin-python-3-11-against-declared-3-14",
       "record_disposition": "closed",
       "remaining_property": null,
@@ -4157,7 +4158,7 @@
       "owner_display": "team-devx",
       "folded_into_literal": null,
       "folded_into": null,
-      "capability_gap_labels": [],
+      "source_extracted_capability_gap_labels": [],
       "source_key": "DEBT-REGISTER.md#typing-ratchets-invokes-a-package-module-as-a-file",
       "record_disposition": "closed",
       "remaining_property": null,
@@ -4181,7 +4182,7 @@
       "owner_display": "team-devx",
       "folded_into_literal": null,
       "folded_into": null,
-      "capability_gap_labels": [],
+      "source_extracted_capability_gap_labels": [],
       "source_key": "DEBT-REGISTER.md#pillow-is-built-from-source-on-every-ci-run",
       "record_disposition": "closed",
       "remaining_property": null,
@@ -4205,7 +4206,7 @@
       "owner_display": "team-devx with the vector-search owner",
       "folded_into_literal": null,
       "folded_into": null,
-      "capability_gap_labels": [],
+      "source_extracted_capability_gap_labels": [],
       "source_key": "DEBT-REGISTER.md#hnswlib-has-no-wheel-for-the-declared-interpreter",
       "record_disposition": "closed",
       "remaining_property": null,
@@ -4229,7 +4230,7 @@
       "owner_display": "team-devx with the Fabric ingestion owner",
       "folded_into_literal": null,
       "folded_into": null,
-      "capability_gap_labels": [],
+      "source_extracted_capability_gap_labels": [],
       "source_key": "DEBT-REGISTER.md#odfpy-core-dependency-is-sourced-from-a-non-canonical-index",
       "record_disposition": "closed",
       "remaining_property": null,
@@ -4253,7 +4254,7 @@
       "owner_display": "team-design with the atlas-ui token owner",
       "folded_into_literal": null,
       "folded_into": null,
-      "capability_gap_labels": [],
+      "source_extracted_capability_gap_labels": [],
       "source_key": "DEBT-REGISTER.md#atlas-ui-token-print-projection-mismatch",
       "record_disposition": "closed",
       "remaining_property": null,
@@ -4277,7 +4278,7 @@
       "owner_display": "team-devx with team-design",
       "folded_into_literal": null,
       "folded_into": null,
-      "capability_gap_labels": [],
+      "source_extracted_capability_gap_labels": [],
       "source_key": "DEBT-REGISTER.md#evidence-tests-launch-python-that-the-station-does-not-provision",
       "record_disposition": "closed",
       "remaining_property": null,
@@ -4301,7 +4302,7 @@
       "owner_display": "team-architecture with the runtime-dashboard package owner",
       "folded_into_literal": null,
       "folded_into": null,
-      "capability_gap_labels": [],
+      "source_extracted_capability_gap_labels": [],
       "source_key": "DEBT-REGISTER.md#lefthook-declared-check-path-only-resolves-in-the-real-checkout",
       "record_disposition": "closed",
       "remaining_property": null,
@@ -4325,7 +4326,7 @@
       "owner_display": "team-design with team-devx for the watcher chain",
       "folded_into_literal": null,
       "folded_into": null,
-      "capability_gap_labels": [],
+      "source_extracted_capability_gap_labels": [],
       "source_key": "DEBT-REGISTER.md#dashboard-unit-suite-has-fifty-failures-nothing-was-running",
       "record_disposition": "closed",
       "remaining_property": null,
@@ -4349,7 +4350,7 @@
       "owner_display": "team-design with team-devx",
       "folded_into_literal": null,
       "folded_into": null,
-      "capability_gap_labels": [],
+      "source_extracted_capability_gap_labels": [],
       "source_key": "DEBT-REGISTER.md#pre-push-hook-runs-the-suite-in-a-configuration-ci-never-uses",
       "record_disposition": "closed",
       "remaining_property": null,
@@ -4373,7 +4374,7 @@
       "owner_display": "team-devx with runtime/quality",
       "folded_into_literal": null,
       "folded_into": null,
-      "capability_gap_labels": [],
+      "source_extracted_capability_gap_labels": [],
       "source_key": "DEBT-REGISTER.md#basedpyright-runner-rewrites-a-frozen-baseline-as-a-side-effect",
       "record_disposition": "closed",
       "remaining_property": null,
@@ -4397,7 +4398,7 @@
       "owner_display": "team-architecture / devx",
       "folded_into_literal": null,
       "folded_into": null,
-      "capability_gap_labels": [],
+      "source_extracted_capability_gap_labels": [],
       "source_key": "DEBT-REGISTER.md#generated-freshness-probe-rebinds-caller-venv",
       "record_disposition": "closed",
       "remaining_property": null,
@@ -4421,7 +4422,7 @@
       "owner_display": "team-architecture",
       "folded_into_literal": null,
       "folded_into": null,
-      "capability_gap_labels": [],
+      "source_extracted_capability_gap_labels": [],
       "source_key": "DEBT-REGISTER.md#generated-artifact-s3-check-target-missing",
       "record_disposition": "closed",
       "remaining_property": null,
@@ -4445,7 +4446,7 @@
       "owner_display": "runtime/quality",
       "folded_into_literal": null,
       "folded_into": null,
-      "capability_gap_labels": [],
+      "source_extracted_capability_gap_labels": [],
       "source_key": "DEBT-REGISTER.md#last-mile-inventory-treats-evidence-paths-as-live-references",
       "record_disposition": "closed",
       "remaining_property": null,
@@ -4469,7 +4470,7 @@
       "owner_display": "runtime/quality",
       "folded_into_literal": null,
       "folded_into": null,
-      "capability_gap_labels": [],
+      "source_extracted_capability_gap_labels": [],
       "source_key": "DEBT-REGISTER.md#last-mile-inventory-baseline-drift-at-ci-candidate",
       "record_disposition": "closed",
       "remaining_property": null,
@@ -4493,7 +4494,7 @@
       "owner_display": "team-devx with runtime/quality",
       "folded_into_literal": null,
       "folded_into": null,
-      "capability_gap_labels": [],
+      "source_extracted_capability_gap_labels": [],
       "source_key": "DEBT-REGISTER.md#last-mile-unreadable-input-becomes-an-empty-file",
       "record_disposition": "closed",
       "remaining_property": null,
@@ -4517,7 +4518,7 @@
       "owner_display": "team-architecture",
       "folded_into_literal": null,
       "folded_into": null,
-      "capability_gap_labels": [],
+      "source_extracted_capability_gap_labels": [],
       "source_key": "DEBT-REGISTER.md#docs-lifecycle-live-references-and-ledger-metadata",
       "record_disposition": "closed",
       "remaining_property": null,
@@ -4541,7 +4542,7 @@
       "owner_display": "fabric for AQ1, runtime/quality for CR1 and CB1, lex / scholar for ML1 — mechanism owners; the caller owner is absent/unallocated for all four",
       "folded_into_literal": null,
       "folded_into": null,
-      "capability_gap_labels": [
+      "source_extracted_capability_gap_labels": [
         "absent/unallocated",
         "implemented_but_not_orchestrated"
       ],
@@ -4583,7 +4584,7 @@
       "owner_display": "team-architecture owns the gate stage; runtime owns the openapi snapshot; atlas owns the posture register",
       "folded_into_literal": null,
       "folded_into": null,
-      "capability_gap_labels": [],
+      "source_extracted_capability_gap_labels": [],
       "source_key": "DEBT-REGISTER.md#architecture-freshness-gate-hides-generated-artifact-drift",
       "record_disposition": "closed",
       "remaining_property": null,
@@ -4607,7 +4608,7 @@
       "owner_display": "team-design for coverage adequacy; team-devx for the measurement station",
       "folded_into_literal": null,
       "folded_into": null,
-      "capability_gap_labels": [],
+      "source_extracted_capability_gap_labels": [],
       "source_key": "DEBT-REGISTER.md#dashboard-coverage-adequacy-below-the-unchanged-floor",
       "record_disposition": "closed",
       "remaining_property": null,
@@ -4631,7 +4632,7 @@
       "owner_display": "team-architecture",
       "folded_into_literal": null,
       "folded_into": null,
-      "capability_gap_labels": [],
+      "source_extracted_capability_gap_labels": [],
       "source_key": "DEBT-REGISTER.md#stale-worktree-registrations-collide-with-new-lane-names",
       "record_disposition": "closed",
       "remaining_property": null,
@@ -4655,7 +4656,7 @@
       "owner_display": "absent/unallocated — the institutional half; runtime for the deployment composition",
       "folded_into_literal": null,
       "folded_into": null,
-      "capability_gap_labels": [
+      "source_extracted_capability_gap_labels": [
         "absent/unallocated"
       ],
       "source_key": "DEBT-REGISTER.md#ds15-mandate-intake-has-no-registered-task",
@@ -4694,7 +4695,7 @@
       "owner_display": "runtime/quality owns the checker; team-runtime owns the HTTP registration model",
       "folded_into_literal": null,
       "folded_into": null,
-      "capability_gap_labels": [],
+      "source_extracted_capability_gap_labels": [],
       "source_key": "DEBT-REGISTER.md#invocation-checker-cannot-resolve-http-and-callback-receivers",
       "record_disposition": "closed",
       "remaining_property": null,
@@ -4718,7 +4719,7 @@
       "owner_display": "existing education cycle-substrate / GY-S0 capture owner",
       "folded_into_literal": null,
       "folded_into": null,
-      "capability_gap_labels": [],
+      "source_extracted_capability_gap_labels": [],
       "source_key": "DEBT-REGISTER.md#education-importer-provenance-neither-inherited-nor-excluded",
       "next_route": "GY",
       "route_key": "GY-S0 evidence attribution",
@@ -4748,7 +4749,7 @@
       "owner_display": "team-lex, Lex knowledge-store owner",
       "folded_into_literal": null,
       "folded_into": null,
-      "capability_gap_labels": [],
+      "source_extracted_capability_gap_labels": [],
       "source_key": "DEBT-REGISTER.md#s3-r12-legal-knowledge-store-selects-an-unavailable-version",
       "next_route": "GY",
       "route_key": "GY-S3 / Lex knowledge store",
@@ -4780,7 +4781,7 @@
       "owner_display": "team-foundry, selection/requirements owner",
       "folded_into_literal": null,
       "folded_into": null,
-      "capability_gap_labels": [],
+      "source_extracted_capability_gap_labels": [],
       "source_key": "DEBT-REGISTER.md#foundry-requirements-flat-manifest-consumer-unmeasured",
       "next_route": "other",
       "route_key": "Foundry requirements selection owner",
@@ -4810,7 +4811,7 @@
       "owner_display": "team-data-forge, source-contract artifact integrity",
       "folded_into_literal": null,
       "folded_into": null,
-      "capability_gap_labels": [],
+      "source_extracted_capability_gap_labels": [],
       "source_key": "DEBT-REGISTER.md#udf-retained-source-schema-is-malformed-and-stays-ambiguous",
       "next_route": "other",
       "route_key": "DataForge UDF source integrity",
@@ -4840,7 +4841,7 @@
       "owner_display": "team-foundry, methods/catalog/causal",
       "folded_into_literal": null,
       "folded_into": null,
-      "capability_gap_labels": [
+      "source_extracted_capability_gap_labels": [
         "bridge_missing"
       ],
       "source_key": "DEBT-REGISTER.md#estimand-binding-strength-terms-unregistered",
@@ -4879,7 +4880,7 @@
       "owner_display": "team-architecture for the rule; runtime/quality, team-devx and team-design for the three instruments",
       "folded_into_literal": null,
       "folded_into": null,
-      "capability_gap_labels": [],
+      "source_extracted_capability_gap_labels": [],
       "source_key": "DEBT-REGISTER.md#instruments-report-absence-without-declaring-what-they-read",
       "next_route": "devx",
       "route_key": "DevX measurement input disclosure",
@@ -4909,7 +4910,7 @@
       "owner_display": "team-architecture",
       "folded_into_literal": null,
       "folded_into": null,
-      "capability_gap_labels": [],
+      "source_extracted_capability_gap_labels": [],
       "source_key": "DEBT-REGISTER.md#register-cells-may-contain-pipes-and-shift-every-column",
       "record_disposition": "closed",
       "remaining_property": null,
@@ -4933,7 +4934,7 @@
       "owner_display": "team-devx with each enumerated instrument owner",
       "folded_into_literal": null,
       "folded_into": null,
-      "capability_gap_labels": [],
+      "source_extracted_capability_gap_labels": [],
       "source_key": "DEBT-REGISTER.md#absence-instruments-await-input-disclosure-migration",
       "next_route": "devx",
       "route_key": "DevX disclosure migration",
@@ -4963,7 +4964,7 @@
       "owner_display": "team-architecture with team-devx",
       "folded_into_literal": null,
       "folded_into": null,
-      "capability_gap_labels": [],
+      "source_extracted_capability_gap_labels": [],
       "source_key": "DEBT-REGISTER.md#absence-instrument-census-covers-six-percent-of-executable-source",
       "next_route": "devx",
       "route_key": "DevX measurement denominator",
@@ -4993,7 +4994,7 @@
       "owner_display": "team-architecture",
       "folded_into_literal": null,
       "folded_into": null,
-      "capability_gap_labels": [],
+      "source_extracted_capability_gap_labels": [],
       "source_key": "DEBT-REGISTER.md#plan-frontmatter-colon-hides-the-largest-slice-plan",
       "record_disposition": "closed",
       "remaining_property": null,
@@ -5017,7 +5018,7 @@
       "owner_display": "team-devx",
       "folded_into_literal": null,
       "folded_into": null,
-      "capability_gap_labels": [],
+      "source_extracted_capability_gap_labels": [],
       "source_key": "DEBT-REGISTER.md#pyproject-size-gate-is-satisfied-by-relocation",
       "next_route": "devx",
       "route_key": "DevX size-gate semantics",
@@ -5047,7 +5048,7 @@
       "owner_display": "team-foundry (calibration model owner)",
       "folded_into_literal": null,
       "folded_into": null,
-      "capability_gap_labels": [],
+      "source_extracted_capability_gap_labels": [],
       "source_key": "DEBT-REGISTER.md#calibration-schema-version-regex-rejects-its-own-default",
       "next_route": "other",
       "route_key": "Foundry calibration schema",
@@ -5077,7 +5078,7 @@
       "owner_display": "team-devx with the runtime OpenAPI exporter owner",
       "folded_into_literal": null,
       "folded_into": null,
-      "capability_gap_labels": [],
+      "source_extracted_capability_gap_labels": [],
       "source_key": "DEBT-REGISTER.md#openapi-snapshot-pins-environment-derived-digests",
       "next_route": "devx",
       "route_key": "DevX OpenAPI export",
@@ -5107,7 +5108,7 @@
       "owner_display": "team-scientist with the epoch reducer owner",
       "folded_into_literal": null,
       "folded_into": null,
-      "capability_gap_labels": [],
+      "source_extracted_capability_gap_labels": [],
       "source_key": "DEBT-REGISTER.md#governed-public-record-refuses-later-epoch-heads",
       "next_route": "GY",
       "route_key": "GY epoch reducer / public record replay",
@@ -5138,7 +5139,7 @@
       "owner_display": "team-runtime",
       "folded_into_literal": null,
       "folded_into": null,
-      "capability_gap_labels": [],
+      "source_extracted_capability_gap_labels": [],
       "source_key": "DEBT-REGISTER.md#epoch-origin-admission-collapses-distinct-failures-into-one-refusal",
       "next_route": "GY",
       "route_key": "GY epoch-origin admission",
@@ -5169,7 +5170,7 @@
       "owner_display": "team-architecture with team-runtime",
       "folded_into_literal": null,
       "folded_into": null,
-      "capability_gap_labels": [],
+      "source_extracted_capability_gap_labels": [],
       "source_key": "DEBT-REGISTER.md#cross-module-private-names-reached-from-src",
       "next_route": "E02-absorbed-conditional",
       "route_key": "E02 candidate reader boundary; architecture owner",
@@ -5206,7 +5207,7 @@
       "owner_display": "team-runtime test maintenance",
       "folded_into_literal": null,
       "folded_into": null,
-      "capability_gap_labels": [],
+      "source_extracted_capability_gap_labels": [],
       "source_key": "DEBT-REGISTER.md#governed-projection-test-replaces-a-production-module-in-sys-modules",
       "next_route": "devx",
       "route_key": "DevX / runtime test isolation",
@@ -5236,7 +5237,7 @@
       "owner_display": "team-runtime test maintenance",
       "folded_into_literal": null,
       "folded_into": null,
-      "capability_gap_labels": [],
+      "source_extracted_capability_gap_labels": [],
       "source_key": "DEBT-REGISTER.md#n13a-fail-closed-tests-take-catalog-absence-from-the-repository-layout",
       "next_route": "GY",
       "route_key": "GY-N13a negative-path verification",
@@ -5266,7 +5267,7 @@
       "owner_display": "team-runtime with the Foundry dependency-diagnostic owner",
       "folded_into_literal": null,
       "folded_into": null,
-      "capability_gap_labels": [],
+      "source_extracted_capability_gap_labels": [],
       "source_key": "DEBT-REGISTER.md#value-gate-tests-red-on-unresolved-dependency-discriminant-bytes",
       "next_route": "GY",
       "route_key": "GY-PR1 / Foundry diagnostic owner",
@@ -5296,7 +5297,7 @@
       "owner_display": "team-architecture",
       "folded_into_literal": null,
       "folded_into": null,
-      "capability_gap_labels": [],
+      "source_extracted_capability_gap_labels": [],
       "source_key": "DEBT-REGISTER.md#singleton-literal-census-predicate-unstated",
       "next_route": "devx",
       "route_key": "DevX / architecture census instrument",
@@ -5326,7 +5327,7 @@
       "owner_display": "team-architecture (owner of the public-surface-inventory-review promotion check) with team-runtime",
       "folded_into_literal": null,
       "folded_into": null,
-      "capability_gap_labels": [],
+      "source_extracted_capability_gap_labels": [],
       "source_key": "DEBT-REGISTER.md#release-fragments-declare-python-public-api-breaks-without-inventory-review",
       "next_route": "devx",
       "route_key": "DevX release gate / architecture review",
@@ -5356,7 +5357,7 @@
       "owner_display": "team-runtime, as owner of the canonical acquisition cost schedule in runtime/quality/acquisition_planner.py — named 2026-09-17",
       "folded_into_literal": null,
       "folded_into": null,
-      "capability_gap_labels": [],
+      "source_extracted_capability_gap_labels": [],
       "source_key": "DEBT-REGISTER.md#wdi-acquisition-cost-basis-not-admitted",
       "next_route": "Atlas",
       "route_key": "Atlas DS15 acquisition costs",
@@ -5388,7 +5389,7 @@
       "owner_display": "team-runtime; DS11",
       "folded_into_literal": null,
       "folded_into": null,
-      "capability_gap_labels": [],
+      "source_extracted_capability_gap_labels": [],
       "source_key": "DEBT-REGISTER.md#trust-posture-literal-census-pins-a-total-that-source-growth-moves",
       "next_route": "Atlas",
       "route_key": "Atlas DS11 trust posture",
@@ -5418,7 +5419,7 @@
       "owner_display": "absent/unallocated — appointments wait for real-user deployment",
       "folded_into_literal": null,
       "folded_into": null,
-      "capability_gap_labels": [
+      "source_extracted_capability_gap_labels": [
         "absent/unallocated"
       ],
       "source_key": "DEBT-REGISTER.md#w5-institutional-authority-slots",
@@ -5456,7 +5457,7 @@
       "owner_display": "DS-INFRA-2",
       "folded_into_literal": null,
       "folded_into": null,
-      "capability_gap_labels": [],
+      "source_extracted_capability_gap_labels": [],
       "source_key": "DEBT-REGISTER.md#ds9-postgres-reservation-proof",
       "record_disposition": "closed",
       "remaining_property": null,
@@ -5480,7 +5481,7 @@
       "owner_display": "runtime/quality",
       "folded_into_literal": null,
       "folded_into": null,
-      "capability_gap_labels": [
+      "source_extracted_capability_gap_labels": [
         "producer_missing"
       ],
       "source_key": "DEBT-REGISTER.md#GY-PA1",
@@ -5519,7 +5520,7 @@
       "owner_display": "team-architecture for the acceptance semantics with runtime/quality for execution; the adjudicator appointment is absent/unallocated",
       "folded_into_literal": null,
       "folded_into": null,
-      "capability_gap_labels": [
+      "source_extracted_capability_gap_labels": [
         "absent/unallocated"
       ],
       "source_key": "DEBT-REGISTER.md#cg2-production-relation-gold-acceptance-unspecified",
@@ -5559,7 +5560,7 @@
       "owner_display": "team-devx",
       "folded_into_literal": null,
       "folded_into": null,
-      "capability_gap_labels": [],
+      "source_extracted_capability_gap_labels": [],
       "source_key": "DEBT-REGISTER.md#pyproject-exceeds-its-declared-line-budget",
       "record_disposition": "closed",
       "remaining_property": null,
@@ -5583,7 +5584,7 @@
       "owner_display": "runtime/quality",
       "folded_into_literal": null,
       "folded_into": null,
-      "capability_gap_labels": [],
+      "source_extracted_capability_gap_labels": [],
       "source_key": "DEBT-REGISTER.md#GY-GAP2",
       "next_route": "GY",
       "route_key": "GY-GAP2 cross-scope composition",
@@ -5614,7 +5615,7 @@
       "owner_display": "GY-N12 lane (primitive) / GY-PA3 (consumer)",
       "folded_into_literal": null,
       "folded_into": null,
-      "capability_gap_labels": [
+      "source_extracted_capability_gap_labels": [
         "absent/unallocated",
         "contract_only"
       ],
@@ -5648,7 +5649,7 @@
       "owner_display": "GY lane",
       "folded_into_literal": null,
       "folded_into": null,
-      "capability_gap_labels": [
+      "source_extracted_capability_gap_labels": [
         "absent/unallocated"
       ],
       "source_key": "DEBT-REGISTER.md#GY-GAP5",
@@ -5681,7 +5682,7 @@
       "owner_display": "GY lane",
       "folded_into_literal": null,
       "folded_into": null,
-      "capability_gap_labels": [],
+      "source_extracted_capability_gap_labels": [],
       "source_key": "DEBT-REGISTER.md#GY-GAP6",
       "next_route": "GY",
       "route_key": "GY-GAP6 acquisition re-entry",
@@ -5712,7 +5713,7 @@
       "owner_display": "Foundry (correctness) / GY-N12 (execution)",
       "folded_into_literal": null,
       "folded_into": null,
-      "capability_gap_labels": [
+      "source_extracted_capability_gap_labels": [
         "producer_missing"
       ],
       "source_key": "DEBT-REGISTER.md#GY-DEF22",
@@ -5752,7 +5753,7 @@
       "owner_display": "absent/unallocated",
       "folded_into_literal": null,
       "folded_into": null,
-      "capability_gap_labels": [
+      "source_extracted_capability_gap_labels": [
         "absent/unallocated",
         "producer_missing",
         "bridge_missing"
@@ -5761,15 +5762,14 @@
       "next_route": "Atlas",
       "route_key": "Atlas DS8 / DS12 signed public surface",
       "remaining_property": "This is a scope/signal question, not an appointment: DS12 later names it, but its original signal is owner-and-scope acquisition. Architect scope reconciliation is owed alongside ds8-public-case-publication; do not dispatch a signature-surface build or close it by appointment.",
-      "route_basis": "source ID/owner/property mapped to the named workstream; routing does not change status",
+      "route_basis": "R11 full-row semantic reconciliation: route owns the current predicate; source status unchanged.",
       "owner_attention": "Owner cell is blank or records an unallocated, candidate, unwired, or producer-missing owner state.",
       "record_disposition": "blocked",
       "status_as_reported": "blocked",
       "owner_as_displayed": "`absent/unallocated`",
       "route_target": "Atlas DS8 / DS12 signed public surface",
       "program_tasks": [
-        "UI-01",
-        "UI-02"
+        "P0-REBIND"
       ],
       "program_disposition": "explicit_programme_route_original_status_preserved",
       "property_review": {
@@ -5793,7 +5793,7 @@
       "owner_display": "absent/unallocated",
       "folded_into_literal": null,
       "folded_into": null,
-      "capability_gap_labels": [
+      "source_extracted_capability_gap_labels": [
         "absent/unallocated",
         "producer_missing"
       ],
@@ -5827,7 +5827,7 @@
       "owner_display": "absent/unallocated",
       "folded_into_literal": null,
       "folded_into": null,
-      "capability_gap_labels": [
+      "source_extracted_capability_gap_labels": [
         "absent/unallocated"
       ],
       "source_key": "DEBT-REGISTER.md#transitive-runner-closure-unbound",
@@ -5859,7 +5859,7 @@
       "owner_display": "GY lane",
       "folded_into_literal": null,
       "folded_into": null,
-      "capability_gap_labels": [],
+      "source_extracted_capability_gap_labels": [],
       "source_key": "DEBT-REGISTER.md#gy-plan-records-no-per-task-status",
       "record_disposition": "closed",
       "remaining_property": null,
@@ -5883,7 +5883,7 @@
       "owner_display": "Scientist Decision Validity",
       "folded_into_literal": null,
       "folded_into": null,
-      "capability_gap_labels": [
+      "source_extracted_capability_gap_labels": [
         "producer_missing",
         "bridge_missing",
         "implemented_but_not_orchestrated"
@@ -5923,7 +5923,7 @@
       "owner_display": "Scientist governance",
       "folded_into_literal": null,
       "folded_into": null,
-      "capability_gap_labels": [],
+      "source_extracted_capability_gap_labels": [],
       "source_key": "DEBT-REGISTER.md#GY-GAP8",
       "record_disposition": "closed",
       "remaining_property": null,
@@ -5947,7 +5947,7 @@
       "owner_display": "PolicyOS justification custodian — epoch-family predicate-policy admission signer",
       "folded_into_literal": null,
       "folded_into": null,
-      "capability_gap_labels": [
+      "source_extracted_capability_gap_labels": [
         "absent/unallocated"
       ],
       "source_key": "DEBT-REGISTER.md#gy-n12-epoch-predicate-policy-authority-unappointed",
@@ -5985,7 +5985,7 @@
       "owner_display": "PolicyOS justification custodian — Decision-Validity epoch-transition signing and producer-identity owner",
       "folded_into_literal": null,
       "folded_into": null,
-      "capability_gap_labels": [
+      "source_extracted_capability_gap_labels": [
         "absent/unallocated",
         "producer_missing",
         "implemented_but_not_orchestrated"
@@ -6019,7 +6019,7 @@
       "owner_display": "Scientist Decision Validity — decision-packet lineage/currentness owner",
       "folded_into_literal": null,
       "folded_into": null,
-      "capability_gap_labels": [
+      "source_extracted_capability_gap_labels": [
         "absent/unallocated"
       ],
       "source_key": "DEBT-REGISTER.md#gy-n12-epoch-current-decision-lineage-carrier-unallocated",
@@ -6052,7 +6052,7 @@
       "owner_display": "Lex knowledge owner / production-data substrate",
       "folded_into_literal": null,
       "folded_into": null,
-      "capability_gap_labels": [],
+      "source_extracted_capability_gap_labels": [],
       "source_key": "DEBT-REGISTER.md#gy-n12-lex-amendment-valid-effect-carrier",
       "next_route": "GY",
       "route_key": "GY-N12 / Lex effective-time carrier",
@@ -6089,7 +6089,7 @@
       "owner_display": "Atlas timing-budget / repo-quality owner",
       "folded_into_literal": null,
       "folded_into": null,
-      "capability_gap_labels": [],
+      "source_extracted_capability_gap_labels": [],
       "source_key": "DEBT-REGISTER.md#atlas-python-governance-workload-identity-drift",
       "record_disposition": "closed",
       "remaining_property": null,
@@ -6113,7 +6113,7 @@
       "owner_display": "runtime-quality verification-economics owner (GY-DI2 / GY-DI4)",
       "folded_into_literal": null,
       "folded_into": null,
-      "capability_gap_labels": [],
+      "source_extracted_capability_gap_labels": [],
       "source_key": "DEBT-REGISTER.md#gy-n12-epoch-corrupt-field-cpu-ceiling-underderived",
       "record_disposition": "closed",
       "remaining_property": null,
@@ -6137,7 +6137,7 @@
       "owner_display": "producer_missing",
       "folded_into_literal": null,
       "folded_into": null,
-      "capability_gap_labels": [
+      "source_extracted_capability_gap_labels": [
         "producer_missing",
         "verification_missing"
       ],
@@ -6178,7 +6178,7 @@
       "owner_display": "absent/unallocated",
       "folded_into_literal": null,
       "folded_into": null,
-      "capability_gap_labels": [
+      "source_extracted_capability_gap_labels": [
         "absent/unallocated",
         "bridge_missing"
       ],
@@ -6219,7 +6219,7 @@
       "owner_display": "absent/unallocated",
       "folded_into_literal": null,
       "folded_into": null,
-      "capability_gap_labels": [
+      "source_extracted_capability_gap_labels": [
         "absent/unallocated",
         "producer_missing",
         "artifact_missing",
@@ -6262,7 +6262,7 @@
       "owner_display": "GY lane",
       "folded_into_literal": null,
       "folded_into": null,
-      "capability_gap_labels": [],
+      "source_extracted_capability_gap_labels": [],
       "source_key": "DEBT-REGISTER.md#ds15-gy-gap6-evidence-register-closure",
       "next_route": "GY",
       "route_key": "GY-GAP6 admission of DS15 evidence",
@@ -6293,23 +6293,22 @@
       "owner_display": "producer_missing",
       "folded_into_literal": null,
       "folded_into": null,
-      "capability_gap_labels": [
+      "source_extracted_capability_gap_labels": [
         "producer_missing"
       ],
       "source_key": "DEBT-REGISTER.md#ds15-numeric-voi-metric-residual-granularity",
       "next_route": "Atlas",
       "route_key": "Atlas DS15 VOI metric",
       "remaining_property": "All 15 acquisition rows still truthfully refuse metric_residual_granularity_not_supported. This is a metric-design problem separated from the acquisition lane, not an absent acquisition-cost input; it needs its own commissioning and no number is justified by the current inputs.",
-      "route_basis": "source ID/owner/property mapped to the named workstream; routing does not change status",
+      "route_basis": "R11 full-row semantic reconciliation: route owns the current predicate; source status unchanged.",
       "owner_attention": "Owner cell is blank or records an unallocated, candidate, unwired, or producer-missing owner state.",
       "record_disposition": "blocked",
       "status_as_reported": "blocked",
       "owner_as_displayed": "`producer_missing`",
       "route_target": "Atlas DS15 VOI metric",
       "program_tasks": [
-        "UI-17",
-        "CAP-03",
-        "DEB-07"
+        "DEB-13",
+        "UI-17"
       ],
       "program_disposition": "explicit_programme_route_original_status_preserved",
       "property_review": {
@@ -6333,7 +6332,7 @@
       "owner_display": "absent/unallocated pending INT-R2",
       "folded_into_literal": null,
       "folded_into": null,
-      "capability_gap_labels": [
+      "source_extracted_capability_gap_labels": [
         "absent/unallocated"
       ],
       "source_key": "DEBT-REGISTER.md#ds15-int-r2-gap-acquisition-case-union",
@@ -6367,7 +6366,7 @@
       "owner_display": "runtime/quality — GY-PR1",
       "folded_into_literal": null,
       "folded_into": null,
-      "capability_gap_labels": [],
+      "source_extracted_capability_gap_labels": [],
       "source_key": "DEBT-REGISTER.md#gy-promotion-obligations-scope-insufficient",
       "next_route": "GY",
       "route_key": "GY-PR1 obligation evaluator",
@@ -6403,7 +6402,7 @@
       "owner_display": "GY-K entailment witness owner (\"GY-K entailment witness owner is unwired\"); measurement-rooted producer owner (\"Measurement-rooted producer owner is unwired\")",
       "folded_into_literal": null,
       "folded_into": null,
-      "capability_gap_labels": [
+      "source_extracted_capability_gap_labels": [
         "absent/unallocated"
       ],
       "source_key": "DEBT-REGISTER.md#GY-O0-NC-01",
@@ -6441,7 +6440,7 @@
       "owner_display": "team-frontend",
       "folded_into_literal": null,
       "folded_into": null,
-      "capability_gap_labels": [],
+      "source_extracted_capability_gap_labels": [],
       "source_key": "DEBT-REGISTER.md#case-workspace-route-bypasses-feature-barrel",
       "record_disposition": "closed",
       "remaining_property": null,
@@ -6465,7 +6464,7 @@
       "owner_display": "team-data-forge, team-lex, team-fabric, team-core, team-ir; approval team-architecture",
       "folded_into_literal": null,
       "folded_into": null,
-      "capability_gap_labels": [],
+      "source_extracted_capability_gap_labels": [],
       "source_key": "DEBT-REGISTER.md#import-policy-relocate-data-forge-to-lex",
       "record_disposition": "closed",
       "remaining_property": null,
@@ -6489,7 +6488,7 @@
       "owner_display": "team-ir, team-foundry, team-scientist, team-architecture, team-polisyos",
       "folded_into_literal": null,
       "folded_into": null,
-      "capability_gap_labels": [],
+      "source_extracted_capability_gap_labels": [],
       "source_key": "DEBT-REGISTER.md#import-policy-relocate-ir-to-foundry",
       "record_disposition": "closed",
       "remaining_property": null,
@@ -6513,7 +6512,7 @@
       "owner_display": "team-data-forge, team-foundry, team-ir, team-core; approval team-architecture",
       "folded_into_literal": null,
       "folded_into": null,
-      "capability_gap_labels": [
+      "source_extracted_capability_gap_labels": [
         "consumer_missing"
       ],
       "source_key": "DEBT-REGISTER.md#import-policy-relocate-data-forge-to-foundry",
@@ -6539,7 +6538,7 @@
       "owner_display": "team-ir, team-scientist, team-architecture, team-polisyos",
       "folded_into_literal": null,
       "folded_into": null,
-      "capability_gap_labels": [],
+      "source_extracted_capability_gap_labels": [],
       "source_key": "DEBT-REGISTER.md#import-policy-relocate-ir-to-scientist",
       "record_disposition": "closed",
       "remaining_property": null,
@@ -6563,7 +6562,7 @@
       "owner_display": "team-data-forge, team-scientist, team-lex, team-ir, team-core; approval team-architecture",
       "folded_into_literal": null,
       "folded_into": null,
-      "capability_gap_labels": [],
+      "source_extracted_capability_gap_labels": [],
       "source_key": "DEBT-REGISTER.md#import-policy-relocate-data-forge-to-scientist",
       "record_disposition": "closed",
       "remaining_property": null,
@@ -6587,7 +6586,7 @@
       "owner_display": "team-foundry, team-scientist",
       "folded_into_literal": null,
       "folded_into": null,
-      "capability_gap_labels": [],
+      "source_extracted_capability_gap_labels": [],
       "source_key": "DEBT-REGISTER.md#import-policy-relocate-foundry-to-scientist",
       "record_disposition": "closed",
       "remaining_property": null,
@@ -6611,7 +6610,7 @@
       "owner_display": "team-lex, team-scientist",
       "folded_into_literal": null,
       "folded_into": null,
-      "capability_gap_labels": [],
+      "source_extracted_capability_gap_labels": [],
       "source_key": "DEBT-REGISTER.md#import-policy-relocate-lex-to-scientist",
       "record_disposition": "closed",
       "remaining_property": null,
@@ -6635,7 +6634,7 @@
       "owner_display": "team-core, team-scientist",
       "folded_into_literal": null,
       "folded_into": null,
-      "capability_gap_labels": [],
+      "source_extracted_capability_gap_labels": [],
       "source_key": "DEBT-REGISTER.md#import-policy-relocate-core-to-scientist",
       "record_disposition": "closed",
       "remaining_property": null,
@@ -6659,7 +6658,7 @@
       "owner_display": "team-lex, team-foundry",
       "folded_into_literal": null,
       "folded_into": null,
-      "capability_gap_labels": [],
+      "source_extracted_capability_gap_labels": [],
       "source_key": "DEBT-REGISTER.md#import-policy-relocate-lex-to-foundry",
       "record_disposition": "closed",
       "remaining_property": null,
@@ -6683,7 +6682,7 @@
       "owner_display": "team-ir, team-core, team-foundry, team-architecture, team-polisyos",
       "folded_into_literal": null,
       "folded_into": null,
-      "capability_gap_labels": [],
+      "source_extracted_capability_gap_labels": [],
       "source_key": "DEBT-REGISTER.md#import-policy-relocate-ir-to-core",
       "record_disposition": "closed",
       "remaining_property": null,
@@ -6707,7 +6706,7 @@
       "owner_display": "team-foundry, team-lex",
       "folded_into_literal": null,
       "folded_into": null,
-      "capability_gap_labels": [],
+      "source_extracted_capability_gap_labels": [],
       "source_key": "DEBT-REGISTER.md#import-policy-relocate-foundry-to-lex",
       "record_disposition": "closed",
       "remaining_property": null,
@@ -6731,7 +6730,7 @@
       "owner_display": "team-ir, team-foundry, team-architecture, team-polisyos",
       "folded_into_literal": null,
       "folded_into": null,
-      "capability_gap_labels": [],
+      "source_extracted_capability_gap_labels": [],
       "source_key": "DEBT-REGISTER.md#import-policy-relocate-ir-to-jax",
       "record_disposition": "closed",
       "remaining_property": null,
@@ -6755,7 +6754,7 @@
       "owner_display": "decision owner team-architecture; participants team-ir, team-foundry, team-fabric, team-polisyos",
       "folded_into_literal": null,
       "folded_into": null,
-      "capability_gap_labels": [],
+      "source_extracted_capability_gap_labels": [],
       "source_key": "DEBT-REGISTER.md#import-policy-ratify-candidates",
       "record_disposition": "closed",
       "remaining_property": null,
@@ -6779,7 +6778,7 @@
       "owner_display": "decision owner team-architecture; participants team-runtime, team-policyos-runtime",
       "folded_into_literal": null,
       "folded_into": null,
-      "capability_gap_labels": [],
+      "source_extracted_capability_gap_labels": [],
       "source_key": "DEBT-REGISTER.md#import-policy-governance-runtime-pdc-search-iteration",
       "record_disposition": "closed",
       "remaining_property": null,
@@ -6803,7 +6802,7 @@
       "owner_display": "DS10 capability-discovery slice",
       "folded_into_literal": null,
       "folded_into": null,
-      "capability_gap_labels": [],
+      "source_extracted_capability_gap_labels": [],
       "source_key": "DEBT-REGISTER.md#ds10-capability-discovery-stable-facades",
       "record_disposition": "closed",
       "remaining_property": null,
@@ -6827,7 +6826,7 @@
       "owner_display": "team-design; DS6 independent print-evidence lane",
       "folded_into_literal": null,
       "folded_into": null,
-      "capability_gap_labels": [
+      "source_extracted_capability_gap_labels": [
         "artifact_missing",
         "verification_missing"
       ],
@@ -6866,7 +6865,7 @@
       "owner_display": "tools/quality/validation debt-ledger owner",
       "folded_into_literal": null,
       "folded_into": null,
-      "capability_gap_labels": [],
+      "source_extracted_capability_gap_labels": [],
       "source_key": "DEBT-REGISTER.md#ds10-debt-ledger-frontend-denominator-label",
       "record_disposition": "closed",
       "remaining_property": null,
@@ -6890,7 +6889,7 @@
       "owner_display": "GY / fabric lane",
       "folded_into_literal": null,
       "folded_into": null,
-      "capability_gap_labels": [],
+      "source_extracted_capability_gap_labels": [],
       "source_key": "DEBT-REGISTER.md#DS20-B B3 promotion CAS",
       "next_route": "other",
       "route_key": "GY / fabric lane",
@@ -6920,7 +6919,7 @@
       "owner_display": "cloud verification",
       "folded_into_literal": null,
       "folded_into": null,
-      "capability_gap_labels": [],
+      "source_extracted_capability_gap_labels": [],
       "source_key": "DEBT-REGISTER.md#DS20-B B5 PostgreSQL linearizability proofs",
       "next_route": "other",
       "route_key": "cloud verification",
@@ -6951,7 +6950,7 @@
       "owner_display": "ops config",
       "folded_into_literal": null,
       "folded_into": null,
-      "capability_gap_labels": [],
+      "source_extracted_capability_gap_labels": [],
       "source_key": "DEBT-REGISTER.md#DS20-B-scorecard-provenance-producer-trust",
       "next_route": "other",
       "route_key": "ops config",
@@ -6981,7 +6980,7 @@
       "owner_display": "ops / deploy lane",
       "folded_into_literal": null,
       "folded_into": null,
-      "capability_gap_labels": [],
+      "source_extracted_capability_gap_labels": [],
       "source_key": "DEBT-REGISTER.md#DS20-B Helm policy mirror",
       "next_route": "other",
       "route_key": "ops / deploy lane",
@@ -7011,7 +7010,7 @@
       "owner_display": "GY / fabric lane",
       "folded_into_literal": null,
       "folded_into": null,
-      "capability_gap_labels": [],
+      "source_extracted_capability_gap_labels": [],
       "source_key": "DEBT-REGISTER.md#aiohttp Fabric connector cleanup",
       "next_route": "other",
       "route_key": "GY / fabric lane",
@@ -7041,7 +7040,7 @@
       "owner_display": "ops note",
       "folded_into_literal": null,
       "folded_into": null,
-      "capability_gap_labels": [],
+      "source_extracted_capability_gap_labels": [],
       "source_key": "DEBT-REGISTER.md#worktree-tooling-gap",
       "next_route": "other",
       "route_key": "ops note",
@@ -7071,7 +7070,7 @@
       "owner_display": null,
       "folded_into_literal": "`GY-PA1`, as its first cluster",
       "folded_into": "GY-PA1, as its first cluster",
-      "capability_gap_labels": [],
+      "source_extracted_capability_gap_labels": [],
       "source_key": "DEBT-REGISTER.md#GY-GAP7",
       "next_route": "GY",
       "route_key": "GY-PA1 first cluster",
@@ -7101,7 +7100,7 @@
       "owner_display": null,
       "folded_into_literal": "`GY-DEFC-4`, which carried its unmet objective and both unspent allowances",
       "folded_into": "GY-DEFC-4, which carried its unmet objective and both unspent allowances",
-      "capability_gap_labels": [],
+      "source_extracted_capability_gap_labels": [],
       "source_key": "DEBT-REGISTER.md#GY-DEFC-3",
       "next_route": "GY",
       "route_key": "GY-DEFC-4",
@@ -7131,7 +7130,7 @@
       "owner_display": null,
       "folded_into_literal": null,
       "folded_into": null,
-      "capability_gap_labels": [],
+      "source_extracted_capability_gap_labels": [],
       "source_key": "DEBT-REGISTER.md#calibration-report-fixture-blanket-fields",
       "next_route": "other",
       "route_key": "Foundry / runtime test-owner decision",
@@ -7161,7 +7160,7 @@
       "owner_display": null,
       "folded_into_literal": null,
       "folded_into": null,
-      "capability_gap_labels": [],
+      "source_extracted_capability_gap_labels": [],
       "source_key": "DEBT-REGISTER.md#GY-DEF13",
       "record_disposition": "closed",
       "remaining_property": null,
@@ -7185,7 +7184,7 @@
       "owner_display": null,
       "folded_into_literal": null,
       "folded_into": null,
-      "capability_gap_labels": [],
+      "source_extracted_capability_gap_labels": [],
       "source_key": "DEBT-REGISTER.md#GY-DEFC-1",
       "record_disposition": "closed",
       "remaining_property": null,
@@ -7209,7 +7208,7 @@
       "owner_display": null,
       "folded_into_literal": null,
       "folded_into": null,
-      "capability_gap_labels": [],
+      "source_extracted_capability_gap_labels": [],
       "source_key": "DEBT-REGISTER.md#GY-DEFC-2",
       "record_disposition": "closed",
       "remaining_property": null,
@@ -7233,7 +7232,7 @@
       "owner_display": null,
       "folded_into_literal": null,
       "folded_into": null,
-      "capability_gap_labels": [],
+      "source_extracted_capability_gap_labels": [],
       "source_key": "DEBT-REGISTER.md#GY-DEFC-4",
       "record_disposition": "closed",
       "remaining_property": null,
@@ -7257,7 +7256,7 @@
       "owner_display": null,
       "folded_into_literal": null,
       "folded_into": null,
-      "capability_gap_labels": [],
+      "source_extracted_capability_gap_labels": [],
       "source_key": "DEBT-REGISTER.md#GY-DEFC-5",
       "record_disposition": "closed",
       "remaining_property": null,
@@ -7281,7 +7280,7 @@
       "owner_display": null,
       "folded_into_literal": null,
       "folded_into": null,
-      "capability_gap_labels": [],
+      "source_extracted_capability_gap_labels": [],
       "source_key": "DEBT-REGISTER.md#GY-DEFC-6",
       "record_disposition": "closed",
       "remaining_property": null,
@@ -7305,7 +7304,7 @@
       "owner_display": null,
       "folded_into_literal": null,
       "folded_into": null,
-      "capability_gap_labels": [],
+      "source_extracted_capability_gap_labels": [],
       "source_key": "DEBT-REGISTER.md#GY-DEFC-7",
       "record_disposition": "closed",
       "remaining_property": null,
@@ -7329,7 +7328,7 @@
       "owner_display": null,
       "folded_into_literal": null,
       "folded_into": null,
-      "capability_gap_labels": [],
+      "source_extracted_capability_gap_labels": [],
       "source_key": "DEBT-REGISTER.md#GY-DEFC-8",
       "record_disposition": "closed",
       "remaining_property": null,
@@ -7353,7 +7352,7 @@
       "owner_display": null,
       "folded_into_literal": null,
       "folded_into": null,
-      "capability_gap_labels": [],
+      "source_extracted_capability_gap_labels": [],
       "source_key": "DEBT-REGISTER.md#GY-DEFC-9",
       "record_disposition": "closed",
       "remaining_property": null,
@@ -7377,7 +7376,7 @@
       "owner_display": null,
       "folded_into_literal": null,
       "folded_into": null,
-      "capability_gap_labels": [],
+      "source_extracted_capability_gap_labels": [],
       "source_key": "DEBT-REGISTER.md#GY-DEF9",
       "record_disposition": "closed",
       "remaining_property": null,
@@ -7401,7 +7400,7 @@
       "owner_display": null,
       "folded_into_literal": null,
       "folded_into": null,
-      "capability_gap_labels": [],
+      "source_extracted_capability_gap_labels": [],
       "source_key": "DEBT-REGISTER.md#GY-DEF10",
       "record_disposition": "closed",
       "remaining_property": null,
@@ -7425,7 +7424,7 @@
       "owner_display": null,
       "folded_into_literal": null,
       "folded_into": null,
-      "capability_gap_labels": [],
+      "source_extracted_capability_gap_labels": [],
       "source_key": "DEBT-REGISTER.md#GY-DEF15",
       "record_disposition": "closed",
       "remaining_property": null,
@@ -7449,7 +7448,7 @@
       "owner_display": null,
       "folded_into_literal": null,
       "folded_into": null,
-      "capability_gap_labels": [],
+      "source_extracted_capability_gap_labels": [],
       "source_key": "DEBT-REGISTER.md#GY-DEF16",
       "record_disposition": "closed",
       "remaining_property": null,
@@ -7473,7 +7472,7 @@
       "owner_display": null,
       "folded_into_literal": null,
       "folded_into": null,
-      "capability_gap_labels": [],
+      "source_extracted_capability_gap_labels": [],
       "source_key": "DEBT-REGISTER.md#GY-DI4",
       "record_disposition": "closed",
       "remaining_property": null,
@@ -7497,7 +7496,7 @@
       "owner_display": "runtime/quality",
       "folded_into_literal": null,
       "folded_into": null,
-      "capability_gap_labels": [],
+      "source_extracted_capability_gap_labels": [],
       "source_key": "DEBT-REGISTER.md#GY-DEF14",
       "record_disposition": "closed",
       "remaining_property": null,
@@ -7521,7 +7520,7 @@
       "owner_display": "decision owner team-architecture; participants team-fabric, team-runtime, team-polisyos",
       "folded_into_literal": null,
       "folded_into": null,
-      "capability_gap_labels": [],
+      "source_extracted_capability_gap_labels": [],
       "source_key": "DEBT-REGISTER.md#import-policy-governance-fabric-world-surface",
       "record_disposition": "closed",
       "remaining_property": null,
@@ -7545,7 +7544,7 @@
       "owner_display": "runtime/quality — GY-PR1",
       "folded_into_literal": null,
       "folded_into": null,
-      "capability_gap_labels": [
+      "source_extracted_capability_gap_labels": [
         "producer_missing"
       ],
       "source_key": "DEBT-REGISTER.md#gy-n9-caller-asserted-gate-predicates",
@@ -7571,7 +7570,7 @@
       "owner_display": "runtime/quality — GY-PR1",
       "folded_into_literal": null,
       "folded_into": null,
-      "capability_gap_labels": [],
+      "source_extracted_capability_gap_labels": [],
       "source_key": "DEBT-REGISTER.md#gy-n9-coupling-obligation-cannot-fail",
       "record_disposition": "closed",
       "remaining_property": null,
@@ -7595,7 +7594,7 @@
       "owner_display": "decision owner team-architecture; participants team-scientist, team-runtime, team-foundry, team-fabric",
       "folded_into_literal": null,
       "folded_into": null,
-      "capability_gap_labels": [],
+      "source_extracted_capability_gap_labels": [],
       "source_key": "DEBT-REGISTER.md#import-authority-files-diverge",
       "record_disposition": "closed",
       "remaining_property": null,
@@ -7619,7 +7618,7 @@
       "owner_display": "decision owner team-architecture; participants team-core, team-runtime",
       "folded_into_literal": null,
       "folded_into": null,
-      "capability_gap_labels": [],
+      "source_extracted_capability_gap_labels": [],
       "source_key": "DEBT-REGISTER.md#package-boundaries-coverage-gap",
       "record_disposition": "closed",
       "remaining_property": null,
@@ -7643,7 +7642,7 @@
       "owner_display": "decision owner team-architecture; participants team-fabric, team-runtime",
       "folded_into_literal": null,
       "folded_into": null,
-      "capability_gap_labels": [],
+      "source_extracted_capability_gap_labels": [],
       "source_key": "DEBT-REGISTER.md#fabric-world-facade-enforcement-conflict",
       "record_disposition": "closed",
       "remaining_property": null,
@@ -7667,7 +7666,7 @@
       "owner_display": "team-policyos-runtime",
       "folded_into_literal": null,
       "folded_into": null,
-      "capability_gap_labels": [],
+      "source_extracted_capability_gap_labels": [],
       "source_key": "DEBT-REGISTER.md#ds18-continuous-incident-monitors-static-cycle",
       "record_disposition": "closed",
       "remaining_property": null,
@@ -7691,7 +7690,7 @@
       "owner_display": "team-runtime; producer lane runtime/quality — unallocated, engineering, no appointment involved",
       "folded_into_literal": null,
       "folded_into": null,
-      "capability_gap_labels": [
+      "source_extracted_capability_gap_labels": [
         "implemented_but_not_orchestrated"
       ],
       "source_key": "DEBT-REGISTER.md#gy-n9-independence-evidence-writer-unorchestrated",
@@ -7717,7 +7716,7 @@
       "owner_display": "team-runtime; producer lane runtime/quality — unallocated, engineering",
       "folded_into_literal": null,
       "folded_into": null,
-      "capability_gap_labels": [
+      "source_extracted_capability_gap_labels": [
         "bridge_missing",
         "implemented_but_not_orchestrated"
       ],
@@ -7744,7 +7743,7 @@
       "owner_display": "architect decision; execution runtime/quality via GY-PR1",
       "folded_into_literal": null,
       "folded_into": null,
-      "capability_gap_labels": [],
+      "source_extracted_capability_gap_labels": [],
       "source_key": "DEBT-REGISTER.md#gy-n9-effect-class-has-no-referent",
       "record_disposition": "closed",
       "remaining_property": null,
@@ -7768,7 +7767,7 @@
       "owner_display": "decision owner team-architecture; participants team-scientist, team-runtime",
       "folded_into_literal": null,
       "folded_into": null,
-      "capability_gap_labels": [],
+      "source_extracted_capability_gap_labels": [],
       "source_key": "DEBT-REGISTER.md#scientist-runtime-declared-cycle",
       "record_disposition": "closed",
       "remaining_property": null,
@@ -7792,7 +7791,7 @@
       "owner_display": "team-observability; approval team-architecture",
       "folded_into_literal": null,
       "folded_into": null,
-      "capability_gap_labels": [],
+      "source_extracted_capability_gap_labels": [],
       "source_key": "DEBT-REGISTER.md#core-observability-canonical-interface-contract-drift",
       "record_disposition": "closed",
       "remaining_property": null,
@@ -7816,7 +7815,7 @@
       "owner_display": "decision owner team-architecture; participant team-runtime; Corpus package owner unassigned",
       "folded_into_literal": null,
       "folded_into": null,
-      "capability_gap_labels": [],
+      "source_extracted_capability_gap_labels": [],
       "source_key": "DEBT-REGISTER.md#import-policy-governance-runtime-corpus-dependency",
       "record_disposition": "closed",
       "remaining_property": null,
@@ -7840,7 +7839,7 @@
       "owner_display": "team-runtime; DS20 is closed and no successor slice is created — this is an unallocated engineering obligation, not an institutional absence, so nobody needs appointing and §9 item 5 does not apply",
       "folded_into_literal": null,
       "folded_into": null,
-      "capability_gap_labels": [],
+      "source_extracted_capability_gap_labels": [],
       "source_key": "DEBT-REGISTER.md#runtime-authorization-denominator-reconciliation",
       "record_disposition": "closed",
       "remaining_property": null,
@@ -7864,7 +7863,7 @@
       "owner_display": "team-runtime; DS17 surface owner",
       "folded_into_literal": null,
       "folded_into": null,
-      "capability_gap_labels": [],
+      "source_extracted_capability_gap_labels": [],
       "source_key": "DEBT-REGISTER.md#ds17-openapi-example-source-admission",
       "record_disposition": "closed",
       "remaining_property": null,
@@ -7888,7 +7887,7 @@
       "owner_display": "team-core; participants team-ir, team-foundry — unallocated, engineering",
       "folded_into_literal": null,
       "folded_into": null,
-      "capability_gap_labels": [],
+      "source_extracted_capability_gap_labels": [],
       "source_key": "DEBT-REGISTER.md#core-observability-truthfulness-shim-residual",
       "record_disposition": "closed",
       "remaining_property": null,
@@ -7912,7 +7911,7 @@
       "owner_display": "team-design; run-paper/a11y lane",
       "folded_into_literal": null,
       "folded_into": null,
-      "capability_gap_labels": [
+      "source_extracted_capability_gap_labels": [
         "verification_missing"
       ],
       "source_key": "DEBT-REGISTER.md#DS11-CURRENT-PAGE-A11Y",
@@ -7938,7 +7937,7 @@
       "owner_display": "team-runtime; producer lane runtime/quality",
       "folded_into_literal": null,
       "folded_into": null,
-      "capability_gap_labels": [
+      "source_extracted_capability_gap_labels": [
         "producer_missing"
       ],
       "source_key": "DEBT-REGISTER.md#DS11-PUBLISHED-SIGNATURE-WATCHER",
@@ -7964,7 +7963,7 @@
       "owner_display": "team-design",
       "folded_into_literal": null,
       "folded_into": null,
-      "capability_gap_labels": [],
+      "source_extracted_capability_gap_labels": [],
       "source_key": "DEBT-REGISTER.md#DS11-GENERAL-COPY-SEMANTICS",
       "record_disposition": "closed",
       "remaining_property": null,
@@ -7988,7 +7987,7 @@
       "owner_display": "team-runtime; producer lane runtime/quality — unallocated, engineering, no appointment involved",
       "folded_into_literal": null,
       "folded_into": null,
-      "capability_gap_labels": [],
+      "source_extracted_capability_gap_labels": [],
       "source_key": "DEBT-REGISTER.md#gy-n9-effect-obligation-producer-and-evaluator-missing",
       "record_disposition": "closed",
       "remaining_property": null,
@@ -8012,7 +8011,7 @@
       "owner_display": "runtime/quality — GY-PR1",
       "folded_into_literal": null,
       "folded_into": null,
-      "capability_gap_labels": [
+      "source_extracted_capability_gap_labels": [
         "absent/unallocated"
       ],
       "source_key": "DEBT-REGISTER.md#gy-n9-unmet-check-absence-kind-conflated",
@@ -8038,7 +8037,7 @@
       "owner_display": "team-runtime / DS15 acquisition owner — unallocated; this is engineering, not an appointment, so §9 item 5 does not apply and nothing here waits on an institution",
       "folded_into_literal": null,
       "folded_into": null,
-      "capability_gap_labels": [
+      "source_extracted_capability_gap_labels": [
         "producer_missing"
       ],
       "source_key": "DEBT-REGISTER.md#acquisition-route-to-n13b-authority-binding",
@@ -8064,7 +8063,7 @@
       "owner_display": "team-runtime; runtime/quality/grounding_relation.py (GY-CG1) — unallocated, engineering",
       "folded_into_literal": null,
       "folded_into": null,
-      "capability_gap_labels": [],
+      "source_extracted_capability_gap_labels": [],
       "source_key": "DEBT-REGISTER.md#cg1-certificate-identity-order-sensitive",
       "record_disposition": "closed",
       "remaining_property": null,
@@ -8088,7 +8087,7 @@
       "owner_display": "team-runtime; producer lane runtime/quality — unallocated, engineering",
       "folded_into_literal": null,
       "folded_into": null,
-      "capability_gap_labels": [],
+      "source_extracted_capability_gap_labels": [],
       "source_key": "DEBT-REGISTER.md#promotion-comparison-admission-manifest-drift",
       "record_disposition": "closed",
       "remaining_property": null,
@@ -8112,7 +8111,7 @@
       "owner_display": "absent/unallocated; consumers DS20, PAO-R4, DS9",
       "folded_into_literal": null,
       "folded_into": null,
-      "capability_gap_labels": [
+      "source_extracted_capability_gap_labels": [
         "absent/unallocated"
       ],
       "source_key": "DEBT-REGISTER.md#w5-acquisition-authority-bridge",
@@ -8138,7 +8137,7 @@
       "owner_display": "absent/unallocated",
       "folded_into_literal": null,
       "folded_into": null,
-      "capability_gap_labels": [
+      "source_extracted_capability_gap_labels": [
         "absent/unallocated"
       ],
       "source_key": "DEBT-REGISTER.md#w5-lifecycle-and-oracle-residuals",
@@ -8164,7 +8163,7 @@
       "owner_display": "absent/unallocated — architect decision after a live-owner census",
       "folded_into_literal": null,
       "folded_into": null,
-      "capability_gap_labels": [
+      "source_extracted_capability_gap_labels": [
         "absent/unallocated"
       ],
       "source_key": "DEBT-REGISTER.md#w5-vocabulary-owner-placement",
@@ -8190,7 +8189,7 @@
       "owner_display": "absent/unallocated",
       "folded_into_literal": null,
       "folded_into": null,
-      "capability_gap_labels": [
+      "source_extracted_capability_gap_labels": [
         "absent/unallocated"
       ],
       "source_key": "DEBT-REGISTER.md#int-r5-complete-authority-chain-denominator",
@@ -8216,7 +8215,7 @@
       "owner_display": "absent/unallocated; GY-ML1 carries the machinery",
       "folded_into_literal": null,
       "folded_into": null,
-      "capability_gap_labels": [
+      "source_extracted_capability_gap_labels": [
         "absent/unallocated"
       ],
       "source_key": "DEBT-REGISTER.md#int-r6-independent-current-leaf-identity-census",
@@ -8242,7 +8241,7 @@
       "owner_display": "DS6",
       "folded_into_literal": null,
       "folded_into": null,
-      "capability_gap_labels": [],
+      "source_extracted_capability_gap_labels": [],
       "source_key": "DEBT-REGISTER.md#ds6-atlas-evidence-primitive-adoption-projection-stale",
       "record_disposition": "closed",
       "remaining_property": null,
@@ -8266,7 +8265,7 @@
       "owner_display": "DS5",
       "folded_into_literal": null,
       "folded_into": null,
-      "capability_gap_labels": [],
+      "source_extracted_capability_gap_labels": [],
       "source_key": "DEBT-REGISTER.md#ds5-frontend-baseline-manifest-bindings-stale",
       "record_disposition": "closed",
       "remaining_property": null,
@@ -8290,7 +8289,7 @@
       "owner_display": "absent/unallocated",
       "folded_into_literal": null,
       "folded_into": null,
-      "capability_gap_labels": [
+      "source_extracted_capability_gap_labels": [
         "absent/unallocated"
       ],
       "source_key": "DEBT-REGISTER.md#ds8-local-reviewer-note-persistence",
@@ -8316,7 +8315,7 @@
       "owner_display": "absent/unallocated — no owner is stated in any plan",
       "folded_into_literal": null,
       "folded_into": null,
-      "capability_gap_labels": [
+      "source_extracted_capability_gap_labels": [
         "absent/unallocated"
       ],
       "source_key": "DEBT-REGISTER.md#scenario-composer-dark-theme-visual-instability",
@@ -8342,7 +8341,7 @@
       "owner_display": "team-design / task G corridor — unallocated",
       "folded_into_literal": null,
       "folded_into": null,
-      "capability_gap_labels": [],
+      "source_extracted_capability_gap_labels": [],
       "source_key": "DEBT-REGISTER.md#ds18-execution-outcome-python-consumer-missing",
       "record_disposition": "closed",
       "remaining_property": null,

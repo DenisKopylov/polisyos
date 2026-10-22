@@ -1,0 +1,92 @@
+# Atlas obligation coverage red-team
+
+**Baseline:** `HEAD 413c120e73c0323294997e767abbd1a1a7a5a226` (`codex/e02-integration`). This report uses that pinned source. The worktree became dirty during the review from concurrent root-agent edits; contested source text below was read from `HEAD`. No tracked paths were changed by this review.
+
+**Verdict:** the 22 DS identities and most named residuals have an apparent UI/task/debt route, but the route ledger does not yet prove full obligation coverage. The material gaps are the DS19 auxiliary arrays, stale DS19 supplemental status, and task-level acceptance predicates for DS12, DS13, DS14, DS16, and DS21. These are planning and reconciliation findings; this review does not establish that the underlying product capability is absent or rerun any closure evidence.
+
+**Census basis:** the complete `policy-engine/architecture/atlas_surfaces/frontend-disposition-register.json` is a 1,910,268-byte, 35,997-line JSON file. A stdlib walk of the whole file found `entries=261`, `subunits=2`, `supplemental_findings=60` (`46 open_debt`, `14 repaired`), and `seeded_negative_lifecycle=23` (`19 still_required`, `3 partially_reduced`, `1 obsolete_by_deletion`). The entry dispositions sum to 261: 179 `rebind_pending`, 19 `deleted`, 22 `use_as_is`, 25 `retire_disposition`, 16 `wire_disposition`; the overlapping strangle dimension sums to 261 separately: 138 pending, 60 strangled, 63 not applicable. The current `tasks.json` at HEAD has 106 task objects. Exact-key census: none of the 60 supplemental finding IDs appears in that task manifest; one of 23 seeded-negative IDs appears (`DS1-N010`). These are traceability counts, not claims that each unmentioned row lacks an implementation or prior test.
+
+## Findings
+
+### A-R11-1 — Medium — alreadydeclared (P35/P38/P02): DS19 task acceptance covers only `entries[]`
+
+**Evidence:** the full-file census above comes from `policy-engine/architecture/atlas_surfaces/frontend-disposition-register.json` (array starts at lines 1152, 5749, 5794, and 35777 respectively). UI-09 names the 261 entries, binds its owner path to `#entries[]`, and requires a census “maps each entry” (`policy-engine/docs/plans/active/post-e02-r9-unified-implementation/tasks.json:4552-4574`). The workstream likewise describes UI-09 as the full `entries` census (`.../workstreams/04-atlas.md:64`). P0-REBIND says all inventories need routes and that a dropped source obligation must be detected, but its source IDs are the broad `Atlas DS0–DS21` label and its owner path is the manifest/original owners, without naming the four register arrays (`tasks.json:7700-7716`).
+
+**Counterexample:** all 261 entry rows remain mapped, while the 46 `open_debt` supplemental rows disappear from the route crosswalk; UI-09's stated positive still passes. The same omission hides 22 seeded negatives from exact task input binding. The two subunits also need explicit closure classifications: one is already deleted/strangled (`feature-whatif::legacy-local-whatif-subgraph`), while `route-app-layout::ru-ui-catalog` is frozen DS0 continuity, not new locale work. The negative lifecycle field is deletion state, not proof a test is implemented.
+
+**Smallest doc fix:** bind all four top-level arrays in P0/UI-09 with the complete source path and counts, then require every row to resolve to an owner task, accepted closure receipt, `obsolete_by_deletion`, or explicit `out_of_scope`. Add a drop-one-row probe per array (including an open supplemental and a seeded negative) that blocks dispatch. Keep the already-deleted WhatIf and frozen DS0 subunit as explicit terminal dispositions; do not reopen them.
+
+### A-R11-2 — Medium — alreadydeclared (P04/P36/P41): DS19 still calls the closed DS7 terminal-fact row open
+
+**Evidence:** the supplemental record remains `open_debt` with consumer/surface/test gaps at `frontend-disposition-register.json:5971-5980`, repeated in the generated markdown at `policy-engine/docs/reference/frontend/atlas-frontend-disposition-register.md:266`. The row in `policy-engine/docs/plans/active/DEBT-REGISTER.md:449` is struck through and records `CLOSED 2026-08-22` after DS8-A C05 rendered `RunSummary.run_terminality` by direct member access. The derived debt inventory confirms `effective_status=closed`, `record_disposition=closed`, `program_tasks=[]`, and `program_disposition=preserve_historical_closure` (`.../inventory/debt-inventory.json:1693-1714`).
+
+**Counterexample:** a future “route every open supplemental” sweep takes the frontend register's stale `open_debt` status as its admission predicate and rebuilds/retests a DS7 consumer even though the authoritative debt receipt says closed. The current UI-09 does not catch the conflict because it excludes this array.
+
+**Smallest doc fix:** reconcile this supplemental row to repaired/closed and link the existing closure receipt; preserve the historical open state in its rationale. Do not create a new DS7 task.
+
+### A-R11-3 — Medium — alreadydeclared (P04/P36/P41): DS19 still calls the DS16 C23 refusal-binding row open
+
+**Evidence:** `producer-binding-readiness-scientific-depth` is still `open_debt` and `rebind_pending` at `frontend-disposition-register.json:5949-5968`; its closure signal is that each named value resolves to a generated field or registered typed refusal and C23 containment negatives remain green. The current Atlas master reports the authority half closed, all eleven families represented by registered refusals with reason/owner, both panels bound, MACHINE parity, and the C23 witness retired with a strangle proof (`policy-engine/docs/plans/active/POLICYOS_ATLAS_SURFACE_IMPLEMENTATION_MASTER_PLAN.md:2161-2171`).
+
+**Counterexample:** treating the stale status as a producer/artifact/bridge gap schedules a second refusal producer even though the plan reports the row's own closure condition met. That would also blur the real remaining work: DS16 grammar body is deferred because there are no unit-bearing values.
+
+**Smallest doc fix:** reconcile this supplemental record to the source-reported closure and point to its closure receipt; retain the unresolved DS16 grammar as a separate open obligation. This is a source reconciliation, not fresh verification of the old C23 test.
+
+### A-R11-4 — Medium — alreadydeclared (P37/P38/P10/P27): UI-06 uses “DS7 closed” as a proxy for DS16's value-data re-entry condition
+
+**Evidence:** the authoritative DS16 section says the refusal/authority half is closed, its consumers carry zero quantity references, and the grammar body can re-enter only when a surface renders values on real DS7 capstone data (`POLICYOS_ATLAS_SURFACE_IMPLEMENTATION_MASTER_PLAN.md:2161-2185`). The inventory accurately says DS7 is a static composed-v2 seam rather than proof of a live loop (`.../inventory/atlas.md:29`) and DS16 values are still refusals (`:38`). Yet UI-06 says “Extend DS4 after closed DS7” (`tasks.json:4306-4308`), and the workstream repeats that DS16 can follow its closed DS7 prerequisite (`workstreams/04-atlas.md:77`).
+
+**Counterexample:** a closed DS7 status with only the static hero seam satisfies the stated prerequisite while no real capstone value, quantity, or basis exists to bind. UI-06 could be dispatched on the status label alone, contrary to DS16's own property-level re-entry rule.
+
+**Smallest doc fix:** split canonical grammar definition from landing it on a real value surface. Gate consumer/projection work on an accepted witness that DS7 emits named values and quantities from real capstone data; keep the already-closed refusal producer and C23 proof as reuse inputs.
+
+### A-R11-5 — Medium — alreadydeclared (P35/P38/P10): UI-06 does not assert complete coverage of the eight AQ1 ceiling algebras
+
+**Evidence:** the Atlas inventory says DS16 must integrate eight AQ1 ceiling algebras (`inventory/atlas.md:38`). UI-06 names GY-AQ1 as a source and says ceilings flow through producer/API/client/consumer, but its deliverable and acceptance mention no eight-member completeness predicate or per-algebra witness (`tasks.json:4291-4323`; workstream summary at `workstreams/04-atlas.md:58`).
+
+**Counterexample:** a witness for one or a subset of the ceiling forms can satisfy the generic “ceilings flow” statement while the rest are dropped. A task may look green without proving the inventory's complete set was consumed.
+
+**Smallest doc fix:** link GY-AQ1's authoritative enumerated set and require a source-derived complete-set assertion over all eight forms, including mixed unknown/incomparable cases; do not maintain a second hand-written list if the producer contract can provide the set.
+
+### A-R11-6 — High — alreadydeclared (P05/P26/P29/P38): UI-02 can close without DS12's public telemetry and packet-privacy negatives
+
+**Evidence:** DS12 makes the public operational bar explicit: no third-party trackers, security headers, mobile support, i18n/plain-language, and a public telemetry posture in which telemetry is self-hosted/scrubbed/absent (`POLICYOS_ATLAS_SURFACE_IMPLEMENTATION_MASTER_PLAN.md:1815-1828`). The live audit's seeded `DS1-N020` requires no identifier/payload to leave through beacon/fetch/Sentry, including route, query, tags, breadcrumbs, and extras (`policy-engine/docs/reference/frontend/atlas-live-application-audit.md:832`). `DS1-N023` requires classification/redaction before signing and tests encoded/nested/private values (`:835`). UI-02's `source_ids` omit both negatives, and its listed adversaries cover candidate/wrong-view/rights/intent/signature/proof-leak but not telemetry transport or publication redaction (`tasks.json:3905-3942`).
+
+**Counterexample:** a request can fail closed for signature or rights while a configured beacon/Sentry path still emits a signed route/query identifier; or a packet builder can sign an encoded/nested private field while its marker/signature checks pass. Those outcomes leave UI-02's listed positive and adversarial conditions green.
+
+**Smallest doc fix:** add N020/N023 as named UI-02 inputs and assert the actual public route and transports do not egress identifiers/payloads, plus builder-level rejection/redaction for encoded/nested private fields before persisted signing. Add explicit no-third-party telemetry/security-header acceptance or a source-qualified out-of-scope decision. The UI-02 task already owns the public surface; this is an acceptance gap, not an unassigned DS12 owner.
+
+### A-R11-7 — Medium — alreadydeclared (P02/P26/P36): retained DS13 consultation requirements have no row-level route or disposition
+
+**Evidence:** the superseded marketing plan is explicitly retained only as material for DS11–DS13 (`POLICYOS_ATLAS_PRODUCT_MARKETING_CLIENT_SURFACES_MASTER_PLAN.md:1-11`), and Atlas inventory says its remaining unique content legitimately routes to DS11, DS12, and DS13 (`post-e02-r9-unified-implementation/inventory/atlas.md:14`). UI-15 explicitly routes the Trust Center/docs-IA phases; UI-04 instead binds immutable response/revocation/supersession history and generic MACHINE/audit consumers (`tasks.json:4112-4146`). The retained Phase 5.5 material adds challenger privacy/consent and formal-versus-informal outcomes (`...PRODUCT_MARKETING_CLIENT_SURFACES_MASTER_PLAN.md:3427-3459`); Phase 5.7 adds consultation-versus-binding distinction, non-silent removal with reason/audit trail, and accessibility (`:3496-3530`). DS13's current master has generic P26 consultation-response accountability but does not enumerate these controls (`POLICYOS_ATLAS_SURFACE_IMPLEMENTATION_MASTER_PLAN.md:1931-1954`).
+
+**Counterexample:** UI-04's immutable closed-record and visible-supersession tests pass while a consultation comment is silently removed, a challenger is named without consent, or an informal disagreement is presented as an adjudicated result. These old-plan details may be external-institution work, so their absence is not a direction to build moderation or appeals inside PolicyOS.
+
+**Smallest doc fix:** add a row-level disposition for the retained unique criteria: route the privacy/consent, formal-versus-informal, removal-audit, and accessibility controls to a DS13 acceptance if owned, or explicitly `integrate`/`out_of_scope` them under the custody boundary. For Phase 6.6's regulator feed, either bind the schema/signature/verification scope to the existing DS13 feed route or explicitly defer it; generic MACHINE history output alone does not settle that scope.
+
+### A-R11-8 — Medium — alreadydeclared (P02/P36/P37): DS14's PA2 obligation is inconsistent and has no program task binding
+
+**Evidence:** Atlas inventory says DS14 renders both PA2 and PA3 (`inventory/atlas.md:36`), while the authoritative master assigns PA2 as a DS9 pre-action gate and DS14's distinct work is PA3 compression-loss/authority-delta disclosure (`POLICYOS_ATLAS_SURFACE_IMPLEMENTATION_MASTER_PLAN.md:1646-1653, 1988-1994`). The DS9 slice says it renders PA2 but explicitly refuses universal PA2 coverage and leaves outward orchestration with DS14 (`atlas-slices/DS9-human-decision-integrity.md:57-71,1199`). `atlas-inventory.json` states DS9/Atlas still owes PA2 consumer and DS14 owes PA3, but has `program_tasks: []` (`.../inventory/atlas-inventory.json:591-598`). UI-05 names GY-PA3, DS9, and the GY-I+DS9 gate, but no PA2 artifact, wrong-role/TTL, or contestability acceptance (`tasks.json:4204-4218`).
+
+**Counterexample:** DS9's human approval UI can prove the PA2 gate locally while an outward DS14 agent/tool orchestration path invokes a delegated action without checking the same role/TTL packet. Conversely, a proposal-only DS14 surface may correctly have no action gate; the current route does not state which case applies.
+
+**Smallest doc fix:** correct the Atlas inventory's PA2/PA3 ownership wording to match the master and record the bounded consumer decision. If DS14 can dispatch actions, bind the PA2 pre-action artifact and wrong-role/expired-TTL/contestability negatives to UI-05 (or a DS9-owned accepted bridge); if it cannot, mark that external act `out_of_scope` and preserve DS9's bounded internal gate receipt. Populate `program_tasks` with the resulting route.
+
+### A-R11-9 — Medium — alreadydeclared (P04/P10/P38): DS21 acceptance does not preserve all cause classes or same-world provenance
+
+**Evidence:** DS21's governing constraints require all four typed causes (`prediction_error`, `implementation_failure`, `measurement_change`, `behavioral_response`), permit only prediction-error effect updates, keep unresolved/compound causes unresolved, and place deployment updates and acquisitions into one growing world (`POLICYOS_ATLAS_SURFACE_IMPLEMENTATION_MASTER_PLAN.md:2041-2054`). UI-08 positive asserts only “Only `prediction_error` updates effect”; its adversarial cases name protective action, unresolved cause, stale branch, and candidate status but not the other three distinct classes or same-world provenance (`tasks.json:4498-4501`). The workstream repeats the narrower acceptance (`workstreams/04-atlas.md:60`).
+
+**Counterexample:** `measurement_change` or `implementation_failure` is collapsed into a generic changed estimate and the consumer still satisfies the only explicit positive; or deployment and acquisition updates render as separate worlds while the prediction-error check passes.
+
+**Smallest doc fix:** add a four-class acceptance matrix proving only prediction error changes the effect posterior, unresolved/compound remains unresolved, and other cause classes remain distinct. Add a version/provenance assertion that acquisition and deployment updates land on the same growing world branch, with no merge or operational action.
+
+## Coverage that is correctly routed (do not reopen)
+
+- UI-01 reuses the accepted server-issued public verification bridge; its task explicitly names `public-decision-verified-badge-is-client-computed` (`tasks.json:3831-3837`) and the workstream says preserve the closed badge/verifier (`workstreams/04-atlas.md:53`). The old master still calls the browser badge a live defect (`POLICYOS_ATLAS_SURFACE_IMPLEMENTATION_MASTER_PLAN.md:1782-1785`), but the debt register records its server-backed closure (`DEBT-REGISTER.md:490`). Current task routing is not a rebuild request; reconcile the stale master sentence separately.
+- UI-12 explicitly names all four DS20-B5 live PostgreSQL proofs: one-winner step-up replay, one-winner scenario mutation plus 409, corrupted-head denial before OPA, and fresh-app rejection of an unheaded CAS artifact. It requires independent store/app instances and rejects mock/SQLite/single-store substitution (`tasks.json:4781-4805`). It also says the DS9 reservation proof is distinct. This is a sufficient route for the four named PG proofs.
+- UI-11/13/14 route the other DS20 residuals to Fabric/N13b, DS9/ops-config, and ops/deploy; UI-10 explicitly carries N010. UI-17/18/19 carry DS15/17/18 residuals; UI-08 has explicit GYD-09/O1 and GYD-12/O3 prerequisites, with O2 optional. The atlas inventory correctly describes those as residual owners rather than reopening the closed DS slices.
+- DS12 correctly separates buildable public capability from a real promoted-record/signature authority gate. UI-02's `GY-PR1`, exact-view, rights, and pending-intent controls preserve that distinction.
+
+## Verification limits
+
+Read-only source/text inspection only. No tests, builds, imports, dependency installs, production reads, or Git mutations were run. The current worktree was already dirty from the root agent's concurrent edits; this audit used the specified HEAD for contested task content and did not touch those changes. Pattern pass: the findings fall under the existing P02/P04/P05/P10/P26/P29/P35/P36/P37/P38/P41 classes; no new anti-pattern class was needed.

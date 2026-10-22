@@ -1,5 +1,7 @@
 {
-  "meaning": "Logical build/output DAG only; no durations or runnable writer claim. Acceptance dependencies execute in final wave.",
+  "meaning": "Logical stage-qualified prerequisite DAG only; selected conditional witness/execution edges and actual leases still require materialization. No durations or runnable-writer claim.",
+  "tasks": 109,
+  "hard_edges": 321,
   "levels": [
     [
       "P0-ACCEPT"
@@ -20,6 +22,7 @@
       "DEB-10",
       "DEB-11",
       "DEB-12",
+      "DEB-13",
       "GYD-01",
       "GYD-02",
       "GYD-03",
@@ -62,7 +65,8 @@
       "UI-14",
       "UI-15",
       "UI-16",
-      "UI-18"
+      "UI-18",
+      "UI-20"
     ],
     [
       "CAP-02",
@@ -81,6 +85,7 @@
       "CNT-06",
       "CNT-07",
       "DEB-06",
+      "DEB-14",
       "GYD-12",
       "GYD-22",
       "LIF-04",
@@ -135,5 +140,6 @@
     [
       "FINAL-USE"
     ]
-  ]
+  ],
+  "max_logical_width": 57
 }

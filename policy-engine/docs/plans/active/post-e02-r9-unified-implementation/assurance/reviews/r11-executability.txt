@@ -1,0 +1,56 @@
+# Post-E02 R9 executability red-team
+
+**Result:** a new executor can resolve the actual G E02 decision and complete P0 rebind, and most owner work is then actionable without inventing a new SDD or universal DTO. The current task graph still leaves three selected-composition seams to resolve before those claims can be accepted: the second-source producer, CAP-04’s currentness surface, and the producer/consumer links for conditionally selected foundation inputs. Unrelated owner-local work can continue.
+
+This is an executability review, not an E02 or product acceptance. I read the supplied root instructions, plan README, task manifest, workstreams, prompts, execution and architecture notes, plus the plan’s earlier red reviews/dispositions. Review base: `413c120e73c0323294997e767abbd1a1a7a5a226`. I made no tracked edits and ran no project tests, imports, builds, installs, production reads, or Git mutations. I used read-only text/JSON inspection. The requested report is the only write.
+
+## Findings
+
+### E1 — LIF-08 has no named second-source producer contract
+
+**Classification:** new task-coverage gap; the missing-path question is intentionally for P0, but P0 must resolve it before LIF-08 is dispatched.
+
+CAP-02 is explicitly limited to the first bounded single-response route; pagination, range, and other transports are separately activated claims (`workstreams/01-acquisition.md`, CAP-02; `execution/03-waves.md`, Wave 2). LIF-08 requires a materially different source layout/page pattern captured by CAP and an actual second-source receipt (`workstreams/02-lifecycle.md`, LIF-08; `tasks.json`, LIF-08 at line 1444). Its hard dependencies are P0-REBIND, LIF-03, and CAP-03; the second-source producer appears only as free-text `requires_other_mechanisms`. No task owns or explicitly accepts that second-source receipt.
+
+A concrete divergent case: P0 selects a source requiring pagination or a new parser. CAP-02 can pass its single-response WDI acceptance, while LIF-08 has no ready producer task or bound output to consume. The final graph can record owner delivery without proving that distinct source path.
+
+**Smallest ready-for-slice contract:** during P0, name the second source/profile and either bind it to an already-supported CAP producer and pin its emitted receipt as LIF-08’s acceptance input, or add a bounded CAP producer task for the needed behavior and make LIF-08 depend on its receipt. If the selected source needs a new transport, keep LIF-08 at `producer_missing` until that task exists. Do not ask LIF-08’s writer to invent the transport while composing compatibility.
+
+Patterns: P01/P02/P27/P38. This is not a demand for pre-E02 paths or an unratified signature; it is a missing task/output edge if the selected second source falls outside the existing producer.
+
+### E2 — CAP-04 is routed to the acquisition surface, not its claim-currentness consumer
+
+**Classification:** same surface-mapping class as the earlier red-architecture finding, one level deeper (P40 bucket).
+
+CAP-04 emits source-change/retraction events for LIF-02 and promises to distinguish historical publication from current claim status (`workstreams/01-acquisition.md`, CAP-04; `tasks.json`, CAP-04 at line 331). Its `surface_delivery.canonical_task` is UI-17, whose listed paths are acquisition routes, acquisition projection, API client, and dashboard acquisition presentation (CAP-04 at line 400; UI-17 at line 5200). Those paths can show acquisition status; they do not identify the fresh claim/decision projection or publisher status that LIF-02 changes. UI-19 handles epoch/currentness residuals, but the manifest does not connect it to CAP-04’s event or acceptance.
+
+A concrete divergent case: an enrolled source changes and LIF-02 marks the dependent decision stale, but the selected acquisition dashboard remains green or no public/API reader shows the historical-versus-current distinction. The acquisition surface test can pass without proving CAP-04’s stated property.
+
+**Smallest ready-for-slice contract:** P0 must bind CAP-04’s composed read to the actual LIF-02 currentness/publisher consumer and name its API/MACHINE surface owner (possibly an existing UI task). Require that surface in the composition witness. If public currentness is outside the selected profile, state `surface_out_of_scope` with owner, reason, and trigger; public raw source bytes may remain out of scope while a permitted status projection is still covered.
+
+Patterns: P03/P38/P40. The prior generic-surface issue was repaired for acquisition by naming UI-17; close this class at the rule level so each task’s surface is checked against its property, rather than assigning UI-17 to every acquisition-adjacent effect.
+
+### E3 — Selected legal/testimony inputs do not resolve to acceptance edges
+
+**Classification:** same capability-bridge class (P01/P02) expressed as a conditional-input graph gap; close with a generic selected-facet mapping, not isolated fixture wiring.
+
+The manifest says conditional inputs activate only for selected claimed capabilities, but does not define how an activated input becomes a task edge or a composed acceptance witness. For example, CNT-08 lists “CNT-04 legal premises if selected” and “CNT-07 participation/value/testimony premises if selected” as conditional inputs (around line 6496), while its hard dependencies are CNT-05, CNT-06, and LIF-07. CNT-09 then promises a selected packet including law/actual acts and rights-bound testimony, but its hard dependencies are only CNT-03 and CNT-08 (line 6533); it has no explicit acceptance dependencies on CNT-04/CAP-05 or CNT-07. The architecture says CNT-04 supplies authentic legal content to CAP-05, yet CAP-05’s task dependencies also do not name CNT-04 (`architecture/01-integration-boundaries.md`, legal row; `tasks.json`, CAP-05 and CNT-04).
+
+A concrete divergent case: CNT-01 selects an EF-13 legal relation and EF-02 testimony as decision-relevant. CNT-09 can still be scheduled from acquisition, metric, and causal outputs without consuming either selected W4 artifact through a verifier and recommendation consumer. Having CNT-04/CNT-07 complete separately at FINAL-FREEZE does not prove those artifacts changed the selected decision or its status.
+
+**Smallest ready-for-slice contract:** once CNT-01 freezes a case’s required facets, P0 must materialize each selected facet as `source task → persisted artifact/ref → native verifier/use owner → selected consumer/status → surface`, and add the relevant task IDs/refs to CNT-09’s composition witness. For a legal facet this should identify CNT-04’s owner-supplied relation, CAP-05’s exact-content relation check, and the consumer’s applicability result. For testimony it should identify CNT-07’s permitted record and affected-use link. An unselected facet should be explicitly out of scope for that case; an unavailable external fact should produce the defined limited/refusal branch, not silently satisfy a positive packet.
+
+Patterns: P01/P02/P35/P37/P38. The plan already says external facts remain typed and candidate-only; the gap is connecting selected inputs to the executable acceptance graph, not requiring invented authority.
+
+## Already bounded or resolved
+
+- **E02 and paths:** README/charter deliberately require actual G acceptance and P0 rebind before implementation dispatch. Paths and symbols are explicitly research anchors. I did not treat their pre-P0 incompleteness as a finding or ask for unratified signatures.
+- **Prior red findings:** the recorded corrections resolve the old CAP/LIF duplicate writers, CAP-04/LIF-02 ownership direction, source-ID joins, complete-program first-use gate, and acquisition surface naming. No new claim is made that those historical findings remain open.
+- **Real case and sponsor:** CNT-01 says the sponsor must name the case and custodians; CNT-09 permits a costed refusal; the heating example is explicitly optional. This is a genuine one-time commissioning input, not a reason to repeatedly ask the owner for an abstract design choice. Until supplied, no authentic-case positive or first-use claim can be made, while synthetic/refusal-path and independent owner work can proceed.
+- **No C03/DTO dependency:** the architecture explicitly keeps C03 unratified and optional and rejects a universal lifecycle DTO. The proposed repairs require task/output/surface bindings only.
+
+## Pattern pass and closeout signal
+
+Relevant patterns: P01/P02 (complete producer-to-consumer chain), P03/P38 (surface property versus routed surface), P27 (single owner), P35/P37 (selected denominator and gate premises), and P40 (bucket repeat findings before repair). Existing anti-patterns observed were not duplicate implementation ownership; the remaining risk is a prose/manifest gap between the selected producer, conditional artifact, and actual reader. The correct pattern is a P0-frozen, per-slice handoff with exact producer artifact, selected consumer, surface/out-of-scope decision, lease, oracle, and distinguishing negative. Do not invent signatures before P0; do not dispatch a composite slice on free-text `requires_other_mechanisms` alone.
+
+**Acceptance signal for this review:** P0’s rebind record names the second-source producer/output (or leaves LIF-08 `producer_missing`), binds CAP-04 to its currentness consumer/surface, and compiles selected CNT facets into CNT-09’s artifact/consumer witnesses. Each selected claim then has a concrete positive, refusal/negative, and removal probe from persisted input through the fresh consumer.

@@ -1,0 +1,49 @@
+# Practical deployment and resource feasibility red-team
+
+Date: 2026-10-22
+Worktree: `codex/e02-integration` at `413c120e73c0323294997e767abbd1a1a7a5a226`
+Implementation evidence pin named by the plan: `dccea950845cda5b38f026e7770c07819d31f4d9` (label `C`).
+
+## Verdict
+
+The packet is an operational design, not a deployment approval. `operations/01-deployment.md` says deployment, restore, authorization, provider-budget, backend-parity, and capacity probes are UNRUN (§1, lines 5 and 64); OPS tasks likewise remain planned/UNRUN (`tasks.json`). Do not claim any profile operationally accepted until its selected-profile gates have been executed. No production access, builds, tests, installs, or runtime/resource probes were performed for this review.
+
+The plan handles most of the requested red-team cases correctly: it expressly separates worker-seat counts from runtime capacity, calls for host/cgroup limits and shared admission, prohibits production payloads/credentials from cloud workers, treats deployment tiers as selected-profile claims, separates external authority from missing engineering, and assigns currentness duty transfer/cutoff. The remaining concerns are task-ordering and deployment-profile details below.
+
+## Findings
+
+### O-1 — OPS-02 task graph is weaker than the first-use resource gate (P21, P37, P38)
+
+**Property:** A local pilot stays within an enforced memory, disk, and process envelope before the host runs out of capacity.
+
+**Evidence:** The deployment ladder stops the local pilot at operator-approved workload/time/cost limits but sets no numeric cap (`operations/01-deployment.md:14`). OPS-02 does request a resource ticket, but its task dependencies are only `P0-REBIND` and `OPS-01` (`tasks.json:6803-6807`); its acceptance records measurements for the tested workload and checks the commissioned limit (`tasks.json:6786-6789`). The hard-bound mechanism is separately assigned to LIF-06 and OPS-08: LIF-06 requires an accepted OPS process/container profile and actual RAM/disk/CPU enforcement or an explicit estimate-only limitation (`tasks.json:1233-1236`), while OPS-08 requires host/cgroup limits and shared cross-process admission (`tasks.json:7251-7255`) and tests agent parallelism, worker replicas, per-process semaphore multiplication, OOM, and scratch exhaustion (`tasks.json:7268-7271`). OPS-02 has no dependency on LIF-06 or OPS-08. The prose first-use gate does block real practical use until mandatory internal work is accepted (`02-practical-use.md:5-9`), so this is a task-graph/acceptance ambiguity rather than an authorized early launch.
+
+**Divergent case:** The generic resource ticket is approved from a declared run count/time budget, but a single response expands or spills beyond available memory/disk before that count or timeout is reached. The ticket and post-run measurement can be present while OOM/ENOSPC still interrupts the service/control lane.
+
+**Minimal closure:** Define what the OPS-02 resource ticket must bind: selected host/profile, enforceable input/decoded-byte, concurrency, memory, and scratch limits, plus the pre-exhaustion defer/refuse behavior. Make actual pilot execution depend on LIF-06 acceptance for that local workload; require OPS-08 only where the selected pilot uses shared concurrent processes/classes. Synthetic rehearsal may be prepared earlier; keep real pilot execution behind the existing full-programme first-use gate (`02-practical-use.md:5-9`). This reuses the owner-local resource mechanism and does not require a global scheduler.
+
+**State:** Cross-process multidimensional capacity is already correctly labeled `absent/unallocated` in `workstreams/02-lifecycle.md:25`; the task edge is the residual ambiguity, not evidence that a runtime cap exists.
+
+### O-2 — “Supported filesystem CAS volume” has no mount support contract (P01/P38; verification_missing for a selected mount)
+
+**Property:** The API, external worker, and recovery path see durable, mutually consistent CAS publications on the exact filesystem volume selected for a cell.
+
+**Evidence:** Tier 3 deploys an API, a separately supervised worker, PostgreSQL, and a “supported filesystem CAS volume” (`operations/01-deployment.md:15`). The SQLite WAL warning correctly forbids network filesystems for that database (`operations/01-deployment.md:44`), but it does not define which mounted-volume semantics FileSystem CAS supports. OPS-05 requires real cross-store backup/restore and identifies DB, CAS, and rights-history owners (`tasks.json:7005-7027`); its adversarial cases cover partial cuts and missing WAL/object, but do not name the selected filesystem/mount or test its multi-process publication and crash durability. OPS-10's exact-backend concurrency conformance applies to the selected remote backend (`tasks.json:7421-7425, 7439-7442`), not the tier-3 filesystem volume.
+
+**Divergent case:** A deployment passes a local-directory restore check, then places the same CAS path on a network/container volume whose rename, locking, or persistence behavior differs under API/worker concurrency or host failure. The “supported” label alone does not identify which deployment is proven.
+
+**Minimal closure:** Record the actual CAS mount/volume type and relevant options in the selected deployment dossier, and make OPS-05 exercise concurrent publication, crash/restart, and quarantine restore on that exact volume. If a mount is not exercised, keep the claim limited to the tested filesystem profile. Reuse the existing CAS owner; do not add a storage service.
+
+**State:** `verification_missing` for a selected mounted filesystem profile; this review does not establish that any particular filesystem adapter is defective.
+
+## Capacity and boundary checks
+
+- **Shared host / parent-child work:** The schedule correctly says writer seats are not runtime capacity and requires a measured resource ticket with OS/recovery/log reserve (`execution/02-parallel-execution.md:59-65`). The 24/48/100 figures are direct-worker staffing envelopes and explicitly exclude the root dispatcher (`:83-93`); the worker prompt forbids child workers (`:107-109`). OPS-08 adversarially names `agentparallel100` and per-process multiplication (`tasks.json:7270`), and LIF-06 requires transitive child admission or parent release (`tasks.json:1274-1280`). Treat these numbers as staffing only. If coding-agent processes and product workers share one executor host, the selected host profile must account for root plus all active direct-agent processes in the same physical budget, or document their isolation. The documents do not establish that host intersection or the current implementation of those controls; do not infer a capacity guarantee from the seat table.
+- **Tier parity:** No false parity claim found. Tier 5 is conditional on a measured single-cell shortfall and exact adapter/configuration conformance (`operations/01-deployment.md:17-20`). OPS-10 explicitly says to activate only the selected tier and leave unselected tiers unclaimed (`tasks.json:7481`).
+- **Local privacy and egress:** Local means loopback API/embedded worker for a non-sensitive candidate journey, not a blanket no-egress or private-data guarantee (`operations/01-deployment.md:14, 48`; `execution/02-parallel-execution.md:63`). Sensitive/private inputs wait on profile, rights, secret, egress, retention, and restore checks. Protected payloads and credentials are barred from cloud workers; source-query privacy is assigned to CAP when activated (`workstreams/02-lifecycle.md:83`).
+- **External inputs vs engineering:** The plan correctly keeps source grants, legal acts, provider evidence, institutional mandate, and unavailable external facts on the external-authority side, while prohibiting missing internal producers/researchable contracts from being called unavailable inputs (`02-practical-use.md:9, 24-28`). OPS-07 also makes the external secret authority and scoped credential issuer an explicit prerequisite (`tasks.json:7171-7194`); the implementation should bind to the institution's selected authority rather than create a new general secret manager.
+- **Supervision and custody:** OPS-04 calls for a supervision identity and host/service owner (`tasks.json:6919-6923`), and OPS-11 requires a named duty owner/deputy plus authenticated transfer or signed validity cutoff (`operations/01-deployment.md:50, 54`; `tasks.json` OPS-11). Keep these as selected-environment prerequisites. The process-level OPS-04 acceptance does not itself prove an unspecified host supervisor, so record and exercise the selected supervisor during commissioning.
+
+## Pattern pass
+
+Relevant patterns: P21 (capacity feasibility), P37/P38 (gate predicate and property/proxy), P01 (capability not operational until the selected profile is wired and verified). Target pattern: bind actual pilot and restore acceptance to the selected host, resource owner, filesystem mount, and external authorities; keep unsupported environments as explicit limitations. Acceptance signal: measured hard limits refuse/defer before exhaustion, and the selected CAS volume survives the specified concurrent/crash/restore path. No plan text or task row here changes the current UNRUN status.

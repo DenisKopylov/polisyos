@@ -1,0 +1,53 @@
+# Post-E02 R9 unified-plan DAG red-team review
+
+Review scope: `policy-engine/docs/plans/active/post-e02-r9-unified-implementation` at the supplied worktree HEAD. Read-only review; graph facts below were recomputed with Python stdlib over the plan JSON. No product imports, tests, builds, installs, production data, or Git operations were used.
+
+## Finding: one P40 bucket — task completion phase is not fully materialized
+
+**Bucket classification:** Same class one level deeper than the prior dependency-plane repairs, not a new class. The prior repairs correctly separate `depends_on` (build/owner-delivery prerequisites) from `acceptance_dependencies` (later composed acceptance), split GY V-task preparation from replay, and put LIF-09 after review. The residual class is that several task rows still do not encode which predicate satisfies the hard owner-delivery edge and which original empirical/conditional obligation remains for composition or release closure. Do not repair this as one-off edges for each task: materialize the phase predicate once in the existing task schema / execution ledger.
+
+**Hard graph result:** 106 task IDs are unique; all 311 hard `depends_on` references resolve. Recomputed Kahn levels match `dependency-levels.json` exactly: 14 levels with widths `1, 1, 55, 9, 12, 6, 9, 6, 2, 1, 1, 1, 1, 1`. The hard build graph has no cycle. Unioning the documented acceptance/conditional relations produces only the expected SCCs: `CAP-02`/`LIF-03`; `CAP-03`/`CAP-04`/`LIF-02`/`LIF-05`; and `FINAL-FREEZE`/`FINAL-REVIEW`/`GYD-16..22`. These reflect separate delivery and composition/replay planes, rather than evidence of a hard-build deadlock.
+
+### Counterexample A: authentic field near-miss and freeze
+
+`GYD-01` (`tasks.json:1664–1729`) has a hard build dependency only on `P0-REBIND` (`:1703–1705`) and explicitly preserves the authentic field-pilot near-miss as a separate original obligation. Its positive criterion (`:1690–1691`) requires an authentic N4 input producing `EvalSafety=blocked` and `near_miss=true`; it forbids manufacturing a fixture. The source debt `GY-O0-NC-01` remains `blocked` because the authentic receipt is unobserved (`inventory/debt-inventory.json:6393–6427`, especially `:6412`). Its canonical closure predicate is real field-pilot evidence, not a fixture (`layer3-slices/GY-engine-subordination.md:5712–5717`).
+
+`FINAL-FREEZE` hard-depends on every mechanism task (`tasks.json:8595–8700`). If the scheduler interprets GYD-01's “positive” empirical criterion as the predicate required to satisfy its pre-freeze hard edge, the freeze waits for an as-yet-unobserved external event. If, as the phase model appears to intend, the owner can deliver the mechanism with the original obligation explicitly still blocked, then that blocked disposition must be carried through freeze and cannot be converted into closure by final replay. The plan does preserve the correct full-release condition: `FINAL-USE` requires every original nonclosed obligation to be completed/accepted or formally closed by its competent owner, and forbids profile-based deferral without human scope change (`tasks.json:8818–8840`). Thus this is a phase-contract ambiguity, not a demonstrated release bypass or proven irreducible deadlock. The underlying protocol is a gate on an attempted field-pilot request: it must persist the refusal before execution, and explicitly places pilot/deployment execution out of scope (`2026-08-27-gy-o0-attempted-evaluation-safety-gate.md`, identity/custody table; `GY-engine-subordination.md:5712–5717`). It therefore does not require conducting an unsafe pilot or waiting for post-gate policy use. An already-existing historical request could satisfy it only if it yields the required canonical production-lane receipt with verifiable provenance; the current inventory says that receipt is unobserved, so its existence is not established. Human closure remains a distinct route.
+
+**Exact pair / edge:** `GYD-01 -> FINAL-FREEZE` (hard owner-delivery edge) is justified only by owner readiness; `GY-O0-NC-01 -> FINAL-USE` is an original-obligation disposition/acceptance condition. The latter is not the same predicate as the former.
+
+### Counterexample B: selected conditional foundation omitted by static levels
+
+`CNT-08` declares `CNT-04` legal premises and `CNT-07` participation/value/testimony premises as conditional inputs “if selected”; these are not hard edges. `CNT-09` says all foundation families required by the commissioned case are inputs, but not all 26 automatically (`tasks.json:6533–6639`; conditional-input text at `:6637–6639`). Its hard dependencies are only `P0-REBIND`, `CNT-03`, and `CNT-08` (`:6615–6619`). The waves say selected case/profile inputs activate only for selected claims, and that unselected work must be closed with its conditional contract plus an explicit non-claim (`execution/03-waves.md:41`; `tasks.json` top-level `dispatch_semantics`).
+
+A commissioned case selecting a legal premise and testimony source is a concrete schedule: a static run of `dependency-levels.json` can mark `CNT-08`/`CNT-09` ready without `CNT-04`/`CNT-07`, because the dynamic selected-case prerequisites are absent from the hard DAG. It is correct not to serialize every one of the 26 foundation families. It is not correct to let an activated family remain absent from the realized graph or to treat its absence as an optional pass.
+
+**Exact pairs / edges:** `CNT-04 -> CNT-08` and `CNT-07 -> CNT-08` become required only when selected by the commissioned case; `CNT-08 -> CNT-09` is already hard. These are justified conditional prerequisites, not unconditional global edges. Materialize the selected subset and recompute levels before dispatch for that case/profile.
+
+### Other mixed-phase rows that should use the same predicate contract
+
+- `DEB-09` (`tasks.json:8312–8363`) combines owner-delivered intake/refusal behavior with seeking authentic original facts (`:8340–8341`); its hard deps are only P0 and LIF-01 (`:8318–8321`). Readiness can be established by a truthful typed-empty/refusal path, while the original authority facts remain unclosed unless supplied by their issuer. The source itself must not be self-appointed.
+- `OPS-09`, `OPS-10`, and `OPS-12` have selected-tier activation conditions (e.g., `OPS-09` activation at `tasks.json:7396–7405`; `OPS-10` at `:7481`; `OPS-12` near `:7641`). For an unselected tier, require the documented conditional contract, explicit non-claim, and trigger; do not report generic “pass.” When selected, its real provider/runtime evidence must enter the case graph and acceptance set.
+- `CNT-09` has no actual policy/supplier selected in the current plan; missing genuine input should block only the claims depending on it. A costed refusal can be a useful real result, but it does not close the whole original program (`workstreams/05-substantive-foundations.md:80–84`; `operations/02-practical-use.md:24–28`).
+
+## Minimal remedy: one schema/ledger phase predicate, no new service
+
+Retain one `P0-REBIND` and one `FINAL-FREEZE`; do not add another product status service or blanket hard edges. For each task with empirical or conditional original obligations, make the existing plan/dispatch representation explicit about:
+
+1. **owner-readiness predicate** that can satisfy `depends_on` (e.g. wired producer/consumer and a typed blocked/empty result where inputs are absent);
+2. **activated selected inputs** for the current case/profile, expanded into actual prerequisites before dispatch and reflected in recomputed levels;
+3. **composition/replay acceptance predicate** and the original-obligation disposition that remains open after owner delivery; and
+4. **release predicate** read from the complete canonical obligation ledger by `FINAL-USE`, where an unresolved mandatory obligation blocks release unless the competent owner/human has explicitly changed scope.
+
+`FINAL-FREEZE` may consume owner readiness plus a frozen applicable/unselected profile matrix and current truthful dispositions. `FINAL-REPLAY` consumes selected composition witnesses (including GY V1–V7 and LIF-09). `FINAL-USE` checks the complete source-ledger closure set, never a task’s local “done” marker alone. This follows the existing phase intent (`execution/03-waves.md:3–7, 11–13, 41, 45–47`; `assurance/01-assurance.md:11`) while making the event-vs-mechanism distinction machine-checkable.
+
+## Checks that did not produce findings
+
+- **No hard dependency cycle.** V-task preparation/replay is intentionally staged: `GYD-16..22` can complete owner preparation before freeze, while their original V obligations execute only after review/replay acceptance. This is a justified phase split.
+- **P0 is not unnecessary serialization.** Wave 0 requires a complete source/owner/lease reconciliation before mechanism dispatch (`execution/03-waves.md:11–13`). It is a justified global prerequisite, not a claim that all work is serial.
+- **No critical-path or concurrency overclaim found.** The 55-wide level is a logical ready set, not duration-weighted critical-path evidence. The plan bounds actual writers to ready tasks with disjoint leases/resources; the illustrative 100 seats do not establish 100 concurrent writers. Exact path candidates expose only the known CAP conflicts: `CAP-01`/`CAP-03` share `runtime/http/services/acquisition_action_service.py`; `CAP-02`/`CAP-03` share `runtime/quality/acquisition_executor.py` (and CAP-03 already depends on CAP-02). Leases can serialize those conflicts without serializing unrelated tasks.
+- **No blanket future-evidence dependency should be added.** `DEB-08` mentions `GYD-31` only if an actually measured consumer needs it; retaining that conditionality avoids unjustified serialization. Missing selected external facts are supposed to limit the affected claims, and missing original mandatory closure remains a release block.
+
+## P40 disposition
+
+One finding class: **phase predicate / activated-edge materialization**. The shortest falsifier is to select CNT-04 and CNT-07 for a commissioned case while leaving the static DAG untouched, then attempt to declare CNT-09 ready. If it is ready, selected prerequisites were not enforced. For the release half, leave `GY-O0-NC-01` blocked after GYD-01 owner delivery and verify that freeze/replay can proceed as designed but FINAL-USE cannot claim full release. Do not spend separate repair rounds on GYD-01, DEB-09, CNT-09, and OPS rows; they are worked instances of the same bucket. Close the class through the existing task/ledger schema, or declare a bounded residual if that schema cannot express a phase-certified predicate.

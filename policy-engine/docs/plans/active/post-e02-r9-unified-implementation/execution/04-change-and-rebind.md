@@ -22,3 +22,8 @@ On an unexpected dependency, first look for an existing producer/bridge, then ex
 Record current branch/head/tree, committed source and companion paths, unique uncommitted work if any, exact last completed command, complete deciding output, pending effect and limitations. Preserve work before machine transfer. A Git bundle or normal reachable topic is preferred to an inaccessible raw archive; verify receiving object/tree identity and bytes. Never create executable upload workarounds in the repo. A lost tool session is `ERROR/incomplete`, not product FAIL/PASS. Unknown remote effects require reconciliation before retry.
 
 Release leases at committed boundaries; do not occupy a writer while awaiting an external input. Reassignment reads the previous delivery and exact write set first. Superseding a plan row appends a rationale and routes every original obligation to its successor; historical evidence remains linked.
+
+
+Delegation grants do not transfer programme authority. Parent loss or grant expiry fences new dispatch but does not prove descendant termination; retain global seats and conflicting leases until actual processes and unique outputs are reconciled. Root reassigns against read-back branch state, not a parent's summary. See the bounded-delegation protocol in `02-parallel-execution.md`.
+
+Selected case/profile changes materialize `conditional_acceptance_requirements` and `execution_requirements` into the stage graph before dispatch. Recompute only affected dependencies, conflicts and evidence; see [stage/release contract](05-stage-and-release-contracts.md). Free-text dependency descriptions never discharge a selected artifact requirement.

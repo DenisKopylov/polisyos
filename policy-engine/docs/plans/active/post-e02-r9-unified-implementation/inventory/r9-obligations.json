@@ -681,7 +681,8 @@
       "applicability": "Preserve canonical row scope. Always review; execute whenever its supported mechanism/profile is claimed. Unsupported conditional backend has explicit non-claim and owner disposition, not PASS.",
       "execution": "UNRUN",
       "composed_wave": "FINAL-REPLAY; LIF-09 owns lifecycle portion",
-      "discriminator": "Use full original row and its protocol references; retained markers with removed property must not pass. Distinct assertions/authority planes remain separate."
+      "discriminator": "Use full original row and its protocol references; retained markers with removed property must not pass. Distinct assertions/authority planes remain separate.",
+      "predicate_binding": "Expanded R11 acceptance fields of routed native-owner tasks; full original scenario remains controlling; UNRUN."
     },
     {
       "id": "AP06",
@@ -706,12 +707,14 @@
       "source_row_sha256": "988dc88308c5ca007279ca2d507bb777cf0d57fc0afd9696e6cf741b4bcbe120",
       "program_tasks": [
         "LIF-05",
+        "CAP-03",
         "CAP-06"
       ],
       "applicability": "Preserve canonical row scope. Always review; execute whenever its supported mechanism/profile is claimed. Unsupported conditional backend has explicit non-claim and owner disposition, not PASS.",
       "execution": "UNRUN",
       "composed_wave": "FINAL-REPLAY; LIF-09 owns lifecycle portion",
-      "discriminator": "Use full original row and its protocol references; retained markers with removed property must not pass. Distinct assertions/authority planes remain separate."
+      "discriminator": "Use full original row and its protocol references; retained markers with removed property must not pass. Distinct assertions/authority planes remain separate.",
+      "predicate_binding": "Expanded R11 acceptance fields of routed native-owner tasks; full original scenario remains controlling; UNRUN."
     },
     {
       "id": "AP08",
@@ -843,14 +846,18 @@
       "source_line": 71,
       "source_row_sha256": "8e735b5c0e61b5abb05847b0ab059babd33fa424c0ad7939b5bd6f2e2b695baa",
       "program_tasks": [
-        "OPS-03",
+        "OPS-01",
+        "OPS-11",
+        "LIF-08",
+        "CAP-03",
         "LIF-01",
         "DEB-09"
       ],
       "applicability": "Preserve canonical row scope. Always review; execute whenever its supported mechanism/profile is claimed. Unsupported conditional backend has explicit non-claim and owner disposition, not PASS.",
       "execution": "UNRUN",
       "composed_wave": "FINAL-REPLAY; LIF-09 owns lifecycle portion",
-      "discriminator": "Use full original row and its protocol references; retained markers with removed property must not pass. Distinct assertions/authority planes remain separate."
+      "discriminator": "Use full original row and its protocol references; retained markers with removed property must not pass. Distinct assertions/authority planes remain separate.",
+      "predicate_binding": "Expanded R11 acceptance fields of routed native-owner tasks; full original scenario remains controlling; UNRUN."
     },
     {
       "id": "AP17",

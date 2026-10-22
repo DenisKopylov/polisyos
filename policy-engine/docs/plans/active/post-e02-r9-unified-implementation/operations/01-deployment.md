@@ -74,3 +74,11 @@ uv run polisyos-tools architecture guardrails check
 ```
 
 The integration paths above are proposed tests, not files verified to exist. Add measured load/failure/restore harnesses only for the selected profile; if a Kubernetes tier is chosen, render and inspect its chart and test the exact NetworkPolicy/ResourceQuota behavior, still without treating those results as PolicyOS semantic authorization.
+
+## R11 selected-environment refinements
+
+OPS-02 rehearsal requires LIF-06's enforced selected host, input/decoded-byte/concurrency/RSS/scratch envelope and pre-exhaustion defer/refuse. When several process classes or replicas share a physical host it also requires OPS-08 shared accounting. Include coding-agent/root/runtime processes in the physical budget when colocated, or name their actual isolation. A run-count ticket and post-run measurement do not establish a hard bound. Real first practical use remains behind FINAL-USE.
+
+OPS-05 binds the actual filesystem-CAS mount/volume type, options, API/worker topology, visibility and durability scope. Concurrent publish/crash/restart/quarantine-restore runs use that exact volume; local-directory evidence cannot establish a different network/container mount. Untested mounts remain unclaimed.
+
+OPS-01 admits an initial trust provision through an independently authenticated operator/release path external to the new key package. OPS-11 separately proves authorized recovery after current-root compromise, old-root rollback refusal and fresh source-use consumption of the new generation. Signature validity and hash integrity cannot appoint an issuer or prove institutional competence.

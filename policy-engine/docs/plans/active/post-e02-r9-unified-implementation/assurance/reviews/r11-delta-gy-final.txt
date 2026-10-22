@@ -1,0 +1,9 @@
+# GY-R11-7 final delta
+
+**Target:** current working tree based on `codex/e02-integration` at `413c120e73c0323294997e767abbd1a1a7a5a226`; this is a read-only review of the prior residual only. No tests, builds, imports, installs, production-data access, or tracked edits.
+
+### GY-R11-7 — Medium — same class, deeper check — GO
+
+The prior GY-H terminal gap is closed in the canonical task contract. GY-H requires a measurement-rooted `grounded_partial_admissible` result at the Estimate port only (`GY-engine-subordination.md:2037-2043`). GYD-23 now states that exact terminal and boundary (`tasks.json:3278-3280`), and its adversarial condition rejects a missing actual measurement root, a matching terminal at a later port, or any continuation past the Estimate stopping point; status spelling alone is insufficient. The false-green scenario from the prior report is therefore explicitly caught. No further acceptance fix is needed. **Affected task:** GYD-23.
+
+`workstreams/03-gy.md:34` remains a compact summary (“H terminal and poor-recall/precedence remain”) rather than repeating the exact status/port. The preceding sentence at line 25 says the task manifest retains the original conjunctions, and the manifest now contains the deciding predicate; this summary does not waive or weaken it. If the table is meant to be independently actionable, a concise sync would name the measurement-rooted Estimate-port terminal and no-continuation rule, but this is not a remaining GY-R11-7 acceptance blocker. Stage/release controls remain unchanged: task readiness gives no original-closure credit and unresolved mandatory originals keep FINAL-USE blocked (`stage-requirements.json:4-8,78`; `05-stage-and-release-contracts.md:34-38`).

@@ -1,0 +1,22 @@
+# Final delta DAG confirmation
+
+Scope: latest manifest/stage-contract edits only. Read-only review; no product imports, tests, builds, installs, production data, Git operations, or tracked writes.
+
+## Decision: bounded GO — no new phase or hard-build cycle
+
+Recomputed the current hard graph from `tasks.json`: 109 unique tasks, 321 resolved `depends_on` edges, no cycle. All 14 levels exactly match `execution/dependency-levels.json` (widths `1, 1, 57, 9, 13, 6, 9, 6, 2, 1, 1, 1, 1, 1`). The latest acceptance-field split does not change hard dependencies or introduce a build cycle.
+
+`acceptance_dependencies` now contains only known task IDs; no non-ID strings or dangling refs were found. The original non-task acceptance clauses are separately retained in `acceptance_evidence_requirements`. CNT-04 through CNT-07 also carry `acceptance_owner_binding`, requiring root to resolve the verifier/use owner for the selected method/profile and bind its actual provenance/output. Every `completion_contract_ref` fragment resolves against `stage-requirements.json`, including task-specific override references.
+
+The stage distinction remains coherent:
+
+- LIF-01/02/03 prepare owner mechanisms before freeze; exact CAP-02/CAP-04 and LIF-09 witness IDs plus actual emitted receipt/event requirements are composition evidence. LIF-09 remains after FINAL-REVIEW and before FINAL-REPLAY.
+- GYD-16..22 prepare locally before freeze; their review witness and frozen-profile evidence apply to post-review execution/replay, while original V obligations close only on their named execution receipt. Keep those as staged nodes, not one task-ID DAG.
+- UI-06 keeps owner readiness as its only hard predecessor. Its capstone supplier GYD-17 is explicitly `composed_acceptance`; consumer preparation may use a pinned interface, and real-data acceptance waits for the actual witness.
+- OPS-02 remains owner-ready after P0/OPS-01. Local rehearsal has its own LIF-06/OPS-01 permission, shared-host use adds OPS-08, and first real practical use requires FINAL-USE. FINAL-USE follows replay and checks the entire rebound original disposition set; unresolved mandatory originals remain blocked absent explicit human scope change.
+
+The prior P40 phase/activation class is closed at the plan level: selected conditional suppliers are expanded and the selected stage/resource graph is recomputed before dispatch. No case/profile is commissioned yet, so this is correctly a pre-dispatch requirement rather than a presently instantiated selected graph.
+
+## Nonblocking manifest cleanup
+
+GYD-16 through GYD-22 each list `FINAL-REVIEW` twice in `acceptance_dependencies` while retaining the actual frozen source/input/backend profile once in `acceptance_evidence_requirements` (see `tasks.json` near GYD-16 at line 2849 and subsequent GYD V rows). The duplicate is an idempotent repeated witness, not a new edge or cycle; the review witness and profile condition are both present. Deduplicate the repeated ID for clarity if the manifest is edited again. No schedule block results.

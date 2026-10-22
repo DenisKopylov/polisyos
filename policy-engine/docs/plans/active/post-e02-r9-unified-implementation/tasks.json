@@ -4,8 +4,8 @@
   "implementation_gate": "actual_E02_G_acceptance",
   "source_observation": "dccea950845cda5b38f026e7770c07819d31f4d9",
   "product_execution": "UNRUN",
-  "ownership": "root dispatches direct agents only; no children",
-  "dispatch_semantics": "depends_on is build/output prerequisite; acceptance_dependencies are final composition witnesses and must not be recursively treated as dispatch edges; conditional inputs activate only for selected claimed capabilities. Leases may further serialize.",
+  "ownership": "root admits all agents and integrates; runtime-permitted root-to-lead-to-leaf only; max100 non-root agents globally; direct-only fallback",
+  "dispatch_semantics": "depends_on consumes the dependency_stage defined by execution/stage-requirements.json. Owner readiness, selected composition, execution permits and original closure differ. Materialize conditional_acceptance_requirements/execution_requirements for selected cases/profiles before dispatch; never union witness edges into the build DAG. Leases further serialize.",
   "tasks": [
     {
       "id": "CAP-01",
@@ -19,7 +19,8 @@
       ],
       "requires_other_mechanisms": [
         "A0 source denominator and actual caller",
-        "Existing registry/connector ownership; no parallel registry"
+        "Existing registry/connector ownership; no parallel registry",
+        "Source/query-disclosure authorization must resolve the selected provider/source/use contract or accountable custodian evidence through its native verifier; caller sensitivity/permitted markers are candidate inputs. Unknown sensitivity, permission or recipient scope refuses egress or leaves that profile explicitly unclaimed."
       ],
       "owner_paths": [
         "existing: fabric/catalog/discovery.py::SemanticDatasetCatalog",
@@ -27,11 +28,11 @@
         "existing: runtime/quality/acquisition_planner.py::plan_evidence_acquisition/run_acquisition_closed_loop",
         "proposed: actual caller selected by A0 (unresolved at C)"
       ],
-      "deliverable": "Extend the located AcquisitionActionService/production WDI port only for the generic selected-source/second-use gap; preserve existing served route. Produce exact candidate/source/profile resolution and consumer receipt; no duplicate action service.",
-      "positive": "Equivalent preseed and runtime candidate resolve through one owner; receipt is persisted and consumed by acquisition route.",
-      "adversarial": "Ambiguous selector, stale contract, fake ID, injected URL, self-asserted license and no-hit cause no live fetch or admission.",
-      "removal": "Remove source/profile binding but retain status fields; resolver and consumer fail closed.",
-      "surface": "Audit/API shows candidate basis/trace and ambiguity without projecting candidate as evidence.",
+      "deliverable": "Extend the located AcquisitionActionService/production WDI port only for the generic selected-source/second-use gap; preserve existing served route. Produce exact candidate/source/profile resolution and consumer receipt; no duplicate action service. For selected web/LLM discovery, bind the actual outbound query projection to purpose, sensitivity, authorized provider/recipient and retention/log policy before egress. Retrieved instructions remain data; discovery cannot expand tools/rights.",
+      "positive": "Equivalent preseed and runtime candidate resolve through one owner; receipt is persisted and consumed by acquisition route. A permitted minimal query reaches only its admitted recipient and permitted log projection; denied private context never leaves the boundary.",
+      "adversarial": "Ambiguous selector, stale contract, fake ID, injected URL, self-asserted license and no-hit cause no live fetch or admission. Allowed destination with a confidential institution/population/policy query is still denied without query-disclosure authorization; page injection cannot cause tool expansion or context exfiltration. Keep a caller permitted marker intact while removing its owner-authorized disclosure basis or changing the projected query/provider: no protected query is emitted. Unknown sensitivity is not inferred public.",
+      "removal": "Remove source/profile binding but retain status fields; resolver and consumer fail closed. Remove query-projection admission while keeping destination/URL guards; a controlled provider/log sink observes the forbidden payload and the negative must fail.",
+      "surface": "Audit/API shows candidate basis/trace and ambiguity without projecting candidate as evidence. Audit the query decision and opaque binding without leaking the protected query itself.",
       "resource_locks": [
         "source registry and selected caller",
         "discovery index if shared"
@@ -82,7 +83,8 @@
           "policy-engine/apps/runtime-dashboard/src/features/runs/components/acquisitionRouteExport.ts"
         ],
         "audiences": "Authorized REVIEWER/EXPERT and MACHINE/audit; public raw content out_of_scope until separately commissioned",
-        "negative": "Forged receipt, foreign purpose/tenant or stale generation cannot produce green or disclose raw bytes."
+        "negative": "Forged receipt, foreign purpose/tenant or stale generation cannot produce green or disclose raw bytes.",
+        "generated_family_ref": "execution/conflict-groups.json#runtime-api-family"
       },
       "canonical_lease_keys": [
         "write:acquisition-action",
@@ -97,10 +99,12 @@
       "original_debt_refs": [
         {
           "id": "gy-builder-mechanisms-have-no-production-caller",
-          "source_line": 556,
+          "source_line": null,
           "criterion_ref": "inventory/debt-inventory.json#gy-builder-mechanisms-have-no-production-caller"
         }
-      ]
+      ],
+      "dependency_stage": "owner_readiness",
+      "completion_contract_ref": "execution/stage-requirements.json#default"
     },
     {
       "id": "CAP-02",
@@ -124,7 +128,7 @@
         "existing: core/artifacts/manifest.py; core/artifacts/store.py::FileSystemCAS",
         "proposed: extend selected connector/cursor owner after A0"
       ],
-      "deliverable": "Safe transport/representation capture and exact reuse, consuming LIF-03 conditional frontier commit. No second cursor writer. Keep single-response first-route scope; activate pagination/range separately.",
+      "deliverable": "Safe transport/representation capture and exact reuse, consuming LIF-03 conditional frontier commit. No second cursor writer. Keep single-response first-route scope; activate pagination/range separately. Also accept the explicitly selected second-source producer sub-slice required by LIF-08. First-route completion does not cover a new page/range/parser behavior; root allocates that delta before second-source composition.",
       "positive": "Allowed capture persists immutable root/receipt; second run resolves same exact body/profile without fetching; consumer verifies completeness and hash.",
       "adversarial": "Crash/partial/unreadable child, mismatch/oversize, 304 without body, invalid range, changed ETag, stale writer, disallowed redirect/private IP/credential hop and changed pagination scope yield partial/unavailable/deny.",
       "removal": "Remove body binding or head fence but keep markers; probe must fail.",
@@ -183,7 +187,8 @@
           "policy-engine/apps/runtime-dashboard/src/features/runs/components/acquisitionRouteExport.ts"
         ],
         "audiences": "Authorized REVIEWER/EXPERT and MACHINE/audit; public raw content out_of_scope until separately commissioned",
-        "negative": "Forged receipt, foreign purpose/tenant or stale generation cannot produce green or disclose raw bytes."
+        "negative": "Forged receipt, foreign purpose/tenant or stale generation cannot produce green or disclose raw bytes.",
+        "generated_family_ref": "execution/conflict-groups.json#runtime-api-family"
       },
       "canonical_lease_keys": [
         "write:capture-protocol",
@@ -194,7 +199,12 @@
         "owner_delivery: reviewed native result with scoped local proof",
         "composed_acceptance: actual emitted dependencies and fresh consumer on bound source",
         "original_obligation_disposition: canonical owner decision; history preserved"
-      ]
+      ],
+      "acceptance_dependencies": [
+        "CAP-01"
+      ],
+      "dependency_stage": "owner_readiness",
+      "completion_contract_ref": "execution/stage-requirements.json#default"
     },
     {
       "id": "CAP-03",
@@ -207,7 +217,6 @@
         "DEBT:ds15-production-n13b-execution-handshake",
         "DEBT:ds15-fresh-positive-production-route",
         "DEBT:ds15-deterministic-admission-bundle-producer",
-        "DEBT:ds15-numeric-voi-metric-residual-granularity",
         "DEBT:ds15-int-r2-gap-acquisition-case-union"
       ],
       "requires_other_mechanisms": [
@@ -222,10 +231,10 @@
         "existing: data_forge/domains/catalog/knowledge/types.py::CatalogFetchBinding; data_forge/read_api/catalog.py",
         "proposed: admitted-root resolver/receipt bridge (chain owner unresolved)"
       ],
-      "deliverable": "Wire selected acquisition/library consumer to LIF-01 semantic use admission and LIF-05 governed materialization. Reuse native passports; no new permission/semantic owner.",
-      "positive": "Admitted CAP-02 root promotes once; fresh allowed purpose resolves same bytes with a new permission decision and trace.",
-      "adversarial": "Absent/expired/revoked right, wrong purpose/audience/tenant, substituted root, stale passport/profile, missing verifier or permission race deny or stay indeterminate.",
-      "removal": "Remove resolution/content binding/verifier provenance but keep admitted/hash labels; promotion fails and bytes stay hidden.",
+      "deliverable": "Wire selected acquisition/library consumer to LIF-01 semantic use admission and LIF-05 governed materialization. Reuse native passports; no new permission/semantic owner. When AP07 applies, consume LIF-05 shared disclosure admission/outcome, binding exact output, protected-unit overlap, audience and retry identity. No private per-request replacement counter; unknown outcome preserves the shared reservation. If query-only is selected, consume LIF-05 rights/sink policy at acquisition, resume, cache and export boundaries. Enumerate actual raw-byte sinks in the selected profile, including CAS, logs/traces, browser state and provider temporary outputs; do not claim control over the source institution original repository.",
+      "positive": "Admitted CAP-02 root promotes once; fresh allowed purpose resolves same bytes with a new permission decision and trace. For a query-only profile, allowed derived output and receipt remain usable while restricted raw bytes never persist in any inventoried sink; verify actual sink state via controlled forbidden canaries, not markers. Provider no-retention claims require the selected verifiable custody/control contract; otherwise refuse that provider/profile.",
+      "adversarial": "Absent/expired/revoked right, wrong purpose/audience/tenant, substituted root, stale passport/profile, missing verifier or permission race deny or stay indeterminate. A new recipient/fresh draw or alias of an overlapping release cannot reuse an earlier permission or return uncertain allowance. Revoke between initial admission and resume: fresh fetch/cache/export remain blocked even with an old receipt. Restricted raw content in CAS, logs, browser state or provider temporary storage falsifies the claimed query-only profile.",
+      "removal": "Remove resolution/content binding/verifier provenance but keep admitted/hash labels; promotion fails and bytes stay hidden. Remove the query-only sink guard or fresh resume rights check while keeping query-only/grant labels; the raw-canary or revoke-before-resume control must fail.",
       "surface": "Audit/API gives status, basis and as-of; restricted bytes obey audience gate.",
       "resource_locks": [
         "CAS manifest/root",
@@ -282,7 +291,8 @@
           "policy-engine/apps/runtime-dashboard/src/features/runs/components/acquisitionRouteExport.ts"
         ],
         "audiences": "Authorized REVIEWER/EXPERT and MACHINE/audit; public raw content out_of_scope until separately commissioned",
-        "negative": "Forged receipt, foreign purpose/tenant or stale generation cannot produce green or disclose raw bytes."
+        "negative": "Forged receipt, foreign purpose/tenant or stale generation cannot produce green or disclose raw bytes.",
+        "generated_family_ref": "execution/conflict-groups.json#runtime-api-family"
       },
       "canonical_lease_keys": [
         "write:acquisition-action",
@@ -297,35 +307,32 @@
       "original_debt_refs": [
         {
           "id": "wdi-acquisition-cost-basis-not-admitted",
-          "source_line": 583,
+          "source_line": null,
           "criterion_ref": "inventory/debt-inventory.json#wdi-acquisition-cost-basis-not-admitted"
         },
         {
           "id": "ds15-production-n13b-execution-handshake",
-          "source_line": 612,
+          "source_line": null,
           "criterion_ref": "inventory/debt-inventory.json#ds15-production-n13b-execution-handshake"
         },
         {
           "id": "ds15-fresh-positive-production-route",
-          "source_line": 613,
+          "source_line": null,
           "criterion_ref": "inventory/debt-inventory.json#ds15-fresh-positive-production-route"
         },
         {
           "id": "ds15-deterministic-admission-bundle-producer",
-          "source_line": 614,
+          "source_line": null,
           "criterion_ref": "inventory/debt-inventory.json#ds15-deterministic-admission-bundle-producer"
         },
         {
-          "id": "ds15-numeric-voi-metric-residual-granularity",
-          "source_line": 616,
-          "criterion_ref": "inventory/debt-inventory.json#ds15-numeric-voi-metric-residual-granularity"
-        },
-        {
           "id": "ds15-int-r2-gap-acquisition-case-union",
-          "source_line": 617,
+          "source_line": null,
           "criterion_ref": "inventory/debt-inventory.json#ds15-int-r2-gap-acquisition-case-union"
         }
-      ]
+      ],
+      "dependency_stage": "owner_readiness",
+      "completion_contract_ref": "execution/stage-requirements.json#default"
     },
     {
       "id": "CAP-04",
@@ -388,7 +395,7 @@
       ],
       "canonical_write_candidates": [
         "policy-engine/src/polisyos/data_forge/domains/academic/batch/claim_adjudicator.py",
-        "policy-engine/src/polisyos/data_forge/domains/legal/source_relation.py"
+        "Source-specific change/retraction event adapter adjacent to native source owner; exact accepted-source path at P0"
       ],
       "read_only_mechanism_anchors": [
         "policy-engine/src/polisyos/scientist/validation/decision_validity.py",
@@ -408,7 +415,8 @@
           "policy-engine/apps/runtime-dashboard/src/features/runs/components/acquisitionRouteExport.ts"
         ],
         "audiences": "Authorized REVIEWER/EXPERT and MACHINE/audit; public raw content out_of_scope until separately commissioned",
-        "negative": "Forged receipt, foreign purpose/tenant or stale generation cannot produce green or disclose raw bytes."
+        "negative": "Forged receipt, foreign purpose/tenant or stale generation cannot produce green or disclose raw bytes.",
+        "generated_family_ref": "execution/conflict-groups.json#runtime-api-family"
       },
       "canonical_lease_keys": [
         "write:source-event-adapter/{owner}"
@@ -418,7 +426,19 @@
         "owner_delivery: reviewed native result with scoped local proof",
         "composed_acceptance: actual emitted dependencies and fresh consumer on bound source",
         "original_obligation_disposition: canonical owner decision; history preserved"
-      ]
+      ],
+      "currentness_surface_delivery": {
+        "canonical_task": "UI-19",
+        "supplier": "LIF-02",
+        "required_property": "Source change -> durable affected claim/currentness reaction -> fresh claim/decision API/MACHINE and selected audience projection; historical publication remains visible separately from current validity. UI-17 covers acquisition status only.",
+        "acceptance": "Stop fanout, change source, query the current decision and publication status; stale green is forbidden. Removing currentness consumer while retaining acquisition UI must fail."
+      },
+      "acceptance_dependencies": [
+        "UI-19"
+      ],
+      "dependency_stage": "owner_readiness",
+      "completion_contract_ref": "execution/stage-requirements.json#default",
+      "refusal_seam_rule": "Existing data_forge/domains/legal/source_relation.py is a candidate/refusal seam, not an established event producer. Preserve fail-closed behavior; CAP-05 supplies independently verified legal relation evidence; CAP-04 gets a real source-event adapter without minting authority in this refusal module."
     },
     {
       "id": "CAP-05",
@@ -438,7 +458,7 @@
       ],
       "owner_paths": [
         "existing: data_forge/domains/legal/source_relation.py::require_legal_source_relation_verification (refusal path)",
-        "existing: data_forge/domains/legal/normpack/applicability.py",
+        "existing: lex/normpack/applicability.py",
         "existing: ir/loading/citations.py::CitationRef; ir/world/doc.py::DocMeta/DocFragment",
         "proposed: legal capture→verified relation producer (owner unresolved)"
       ],
@@ -494,20 +514,32 @@
       "original_debt_refs": [
         {
           "id": "s3-law-to-lever-correspondence-is-unverified",
-          "source_line": 433,
+          "source_line": null,
           "criterion_ref": "inventory/debt-inventory.json#s3-law-to-lever-correspondence-is-unverified"
         },
         {
           "id": "s3-r12-legal-knowledge-store-selects-an-unavailable-version",
-          "source_line": 563,
+          "source_line": null,
           "criterion_ref": "inventory/debt-inventory.json#s3-r12-legal-knowledge-store-selects-an-unavailable-version"
         },
         {
           "id": "gy-n12-lex-amendment-valid-effect-carrier",
-          "source_line": 609,
+          "source_line": null,
           "criterion_ref": "inventory/debt-inventory.json#gy-n12-lex-amendment-valid-effect-carrier"
         }
-      ]
+      ],
+      "conditional_acceptance_requirements": [
+        {
+          "when": "legal source use is claimed",
+          "suppliers": [
+            "CNT-04"
+          ],
+          "output": "Source-qualified law/version/effect/applicability premises; absence remains explicit",
+          "consumer": "CAP-05 native relation admission and selected CNT-09 consumer"
+        }
+      ],
+      "dependency_stage": "owner_readiness",
+      "completion_contract_ref": "execution/stage-requirements.json#default"
     },
     {
       "id": "CAP-06",
@@ -530,10 +562,10 @@
         "existing: fabric/data_plane/orchestrator.py::PartitionedIngestionPlan/run_partitioned_ingestion; fabric/connectors/base.py::AsyncFetchLease",
         "proposed: remote dispatch/receipt/reconciliation and scoped backend owner (unresolved)"
       ],
-      "deliverable": "Pre-effect permission boundary and remote receipt bound to exact roots, executable/version, purpose, recipient and idempotency key; uncertain outcomes stay pending/indeterminate.",
-      "positive": "Permitted synthetic root/job resolves provider receipt with same input/executable/recipient; output is admitted only after owner validation.",
-      "adversarial": "Missing/revoked permission, wrong tenant, restore after delete, lost response, expired key, cancellation race, lost lease, swapped output, bad recipient and quota denial stay denied/indeterminate.",
-      "removal": "Remove permission or receipt content binding but retain green labels/IDs; no bytes leave and output is not admitted.",
+      "deliverable": "Pre-effect permission boundary and remote receipt bound to exact roots, executable/version, purpose, recipient and idempotency key; uncertain outcomes stay pending/indeterminate. When AP07 applies, consume LIF-05 shared disclosure admission/outcome, binding exact output, protected-unit overlap, audience and retry identity. No private per-request replacement counter; unknown outcome preserves the shared reservation. If query-only is selected, consume LIF-05 rights/sink policy at acquisition, resume, cache and export boundaries. Enumerate actual raw-byte sinks in the selected profile, including CAS, logs/traces, browser state and provider temporary outputs; do not claim control over the source institution original repository.",
+      "positive": "Permitted synthetic root/job resolves provider receipt with same input/executable/recipient; output is admitted only after owner validation. For a query-only profile, allowed derived output and receipt remain usable while restricted raw bytes never persist in any inventoried sink; verify actual sink state via controlled forbidden canaries, not markers. Provider no-retention claims require the selected verifiable custody/control contract; otherwise refuse that provider/profile.",
+      "adversarial": "Missing/revoked permission, wrong tenant, restore after delete, lost response, expired key, cancellation race, lost lease, swapped output, bad recipient and quota denial stay denied/indeterminate. A new recipient/fresh draw or alias of an overlapping release cannot reuse an earlier permission or return uncertain allowance. Revoke between initial admission and resume: fresh fetch/cache/export remain blocked even with an old receipt. Restricted raw content in CAS, logs, browser state or provider temporary storage falsifies the claimed query-only profile.",
+      "removal": "Remove permission or receipt content binding but retain green labels/IDs; no bytes leave and output is not admitted. Remove the query-only sink guard or fresh resume rights check while keeping query-only/grant labels; the raw-canary or revoke-before-resume control must fail.",
       "surface": "Authorized audit/API shows recipient/input/executable and denied/pending/indeterminate/complete; local flag never proves remote completion.",
       "resource_locks": [
         "tenant CAS",
@@ -553,7 +585,8 @@
         "CAP-02",
         "CAP-03",
         "CAP-04",
-        "LIF-04"
+        "LIF-04",
+        "LIF-05"
       ],
       "dispatch_condition": "Actual E02 acceptance; accepted upstream outputs; interface versions pinned; exact non-overlapping write lease and resource ticket.",
       "acceptance_steps": [
@@ -589,7 +622,9 @@
         "owner_delivery: reviewed native result with scoped local proof",
         "composed_acceptance: actual emitted dependencies and fresh consumer on bound source",
         "original_obligation_disposition: canonical owner decision; history preserved"
-      ]
+      ],
+      "dependency_stage": "owner_readiness",
+      "completion_contract_ref": "execution/stage-requirements.json#default"
     },
     {
       "id": "LIF-01",
@@ -602,7 +637,7 @@
         "docs/research/universal-policy-design/external-foundations/lifecycle/06-delivery-and-review.md#W0",
         "docs/research/universal-policy-design/external-foundations/lifecycle/06-delivery-and-review.md#W2",
         "docs/research/universal-policy-design/external-foundations/lifecycle/06-delivery-and-review.md#T09-T10",
-        "docs/research/universal-policy-design/acquisition/05-implementation-and-review.md#AP01-AP02,AP06,AP19",
+        "docs/research/universal-policy-design/external-foundations/acquisition/05-implementation-and-review.md#AP01-AP02,AP06,AP19",
         "DEBT:cg2-production-relation-gold-acceptance-unspecified"
       ],
       "requires_other_mechanisms": [
@@ -688,7 +723,8 @@
         "deciding outputs and independent review"
       ],
       "acceptance_dependencies": [
-        "CAP-02 actual emitted receipt in LIF-09 composition"
+        "CAP-02",
+        "LIF-09"
       ],
       "canonical_write_candidates": [
         "policy-engine/src/polisyos/scientist/validation/claim_support.py",
@@ -709,9 +745,14 @@
       "original_debt_refs": [
         {
           "id": "cg2-production-relation-gold-acceptance-unspecified",
-          "source_line": 593,
+          "source_line": null,
           "criterion_ref": "inventory/debt-inventory.json#cg2-production-relation-gold-acceptance-unspecified"
         }
+      ],
+      "dependency_stage": "owner_readiness",
+      "completion_contract_ref": "execution/stage-requirements.json#default",
+      "acceptance_evidence_requirements": [
+        "CAP-02 actual emitted receipt in LIF-09 composition"
       ]
     },
     {
@@ -815,7 +856,8 @@
         "deciding outputs and independent review"
       ],
       "acceptance_dependencies": [
-        "CAP-04 actual emitted event in LIF-09 composition"
+        "CAP-04",
+        "LIF-09"
       ],
       "canonical_write_candidates": [
         "policy-engine/src/polisyos/scientist/validation/decision_validity.py",
@@ -839,9 +881,14 @@
       "original_debt_refs": [
         {
           "id": "DS11-CLAIM-LIFECYCLE-ORCHESTRATION",
-          "source_line": 463,
+          "source_line": null,
           "criterion_ref": "inventory/debt-inventory.json#DS11-CLAIM-LIFECYCLE-ORCHESTRATION"
         }
+      ],
+      "dependency_stage": "owner_readiness",
+      "completion_contract_ref": "execution/stage-requirements.json#default",
+      "acceptance_evidence_requirements": [
+        "CAP-04 actual emitted event in LIF-09 composition"
       ]
     },
     {
@@ -852,7 +899,7 @@
         "docs/research/universal-policy-design/external-foundations/lifecycle/06-delivery-and-review.md#R01",
         "docs/research/universal-policy-design/external-foundations/lifecycle/06-delivery-and-review.md#W1",
         "docs/research/universal-policy-design/external-foundations/lifecycle/06-delivery-and-review.md#T01-T04",
-        "docs/research/universal-policy-design/acquisition/05-implementation-and-review.md#AP03-AP04",
+        "docs/research/universal-policy-design/external-foundations/acquisition/05-implementation-and-review.md#AP03-AP04",
         "docs/research/universal-policy-design/external-foundations/lifecycle/08-incidents-and-edge-cases.md#X01",
         "docs/research/universal-policy-design/external-foundations/lifecycle/10-adversarial-review-and-delivery.md#E04"
       ],
@@ -943,7 +990,8 @@
         "deciding outputs and independent review"
       ],
       "acceptance_dependencies": [
-        "CAP-02 actual capture/receipt in LIF-09 composition"
+        "CAP-02",
+        "LIF-09"
       ],
       "canonical_write_candidates": [
         "policy-engine/src/polisyos/fabric/data_plane/cursor_store.py",
@@ -961,6 +1009,11 @@
         "owner_delivery: reviewed native result with scoped local proof",
         "composed_acceptance: actual emitted dependencies and fresh consumer on bound source",
         "original_obligation_disposition: canonical owner decision; history preserved"
+      ],
+      "dependency_stage": "owner_readiness",
+      "completion_contract_ref": "execution/stage-requirements.json#default",
+      "acceptance_evidence_requirements": [
+        "CAP-02 actual capture/receipt in LIF-09 composition"
       ]
     },
     {
@@ -971,8 +1024,8 @@
         "docs/research/universal-policy-design/external-foundations/lifecycle/06-delivery-and-review.md#R10,R12",
         "docs/research/universal-policy-design/external-foundations/lifecycle/06-delivery-and-review.md#W5",
         "docs/research/universal-policy-design/external-foundations/lifecycle/06-delivery-and-review.md#T15-T17,T20",
-        "docs/research/universal-policy-design/acquisition/05-implementation-and-review.md#AP08,AP13,AP17",
-        "docs/research/universal-policy-design/acquisition/06-operational-continuity.md#§3",
+        "docs/research/universal-policy-design/external-foundations/acquisition/05-implementation-and-review.md#AP08,AP13,AP17",
+        "docs/research/universal-policy-design/external-foundations/acquisition/06-operational-continuity.md#§3",
         "docs/research/universal-policy-design/external-foundations/lifecycle/08-incidents-and-edge-cases.md#X05,X08",
         "docs/research/universal-policy-design/external-foundations/lifecycle/10-adversarial-review-and-delivery.md#E03,E10,E15",
         "DEBT:gy-builder-mechanisms-have-no-production-caller"
@@ -1089,10 +1142,12 @@
       "original_debt_refs": [
         {
           "id": "gy-builder-mechanisms-have-no-production-caller",
-          "source_line": 556,
+          "source_line": null,
           "criterion_ref": "inventory/debt-inventory.json#gy-builder-mechanisms-have-no-production-caller"
         }
-      ]
+      ],
+      "dependency_stage": "owner_readiness",
+      "completion_contract_ref": "execution/stage-requirements.json#default"
     },
     {
       "id": "LIF-05",
@@ -1102,8 +1157,8 @@
         "docs/research/universal-policy-design/external-foundations/lifecycle/06-delivery-and-review.md#R07-R09",
         "docs/research/universal-policy-design/external-foundations/lifecycle/06-delivery-and-review.md#W4",
         "docs/research/universal-policy-design/external-foundations/lifecycle/06-delivery-and-review.md#T11-T14",
-        "docs/research/universal-policy-design/acquisition/03-storage-and-reuse.md#§2-§6",
-        "docs/research/universal-policy-design/acquisition/05-implementation-and-review.md#AP07,AP09,AP11,AP14",
+        "docs/research/universal-policy-design/external-foundations/acquisition/03-storage-and-reuse.md#§2-§6",
+        "docs/research/universal-policy-design/external-foundations/acquisition/05-implementation-and-review.md#AP07,AP09,AP11,AP14",
         "docs/research/universal-policy-design/external-foundations/lifecycle/08-incidents-and-edge-cases.md#X03,X07",
         "docs/research/universal-policy-design/external-foundations/lifecycle/10-adversarial-review-and-delivery.md#E05-E08,E14"
       ],
@@ -1150,18 +1205,21 @@
           "note": "Extend actual copy owners; do not claim universal deletion."
         }
       ],
-      "deliverable": "Rights-sensitive write enrollment and commit fence; rights decision with authority/provenance/effective time; actual-placement deletion outcomes; restore quarantine and reconciliation of post-backup rights history; separate membership, managed bytes and external-copy scope.",
+      "deliverable": "Rights-sensitive write enrollment and commit fence; rights decision with authority/provenance/effective time; actual-placement deletion outcomes; restore quarantine and reconciliation of post-backup rights history; separate membership, managed bytes and external-copy scope. For AP07 profiles, own the source-use disclosure transition through the existing rights/privacy owner: source/custodian-defined protected unit, aliases/overlap/lineage, recipient cooperation scope and composition law; atomic reserve/commit and indeterminate holds after unknown output. CAP-03/06 call this same owner. This does not invent a universal privacy law, DP guarantee, monetary budget or second scheduler. Selected query-only sink/retention rules and revoke generations are the same owner output consumed by CAP-03/06; all-copy deletion and no-provider-retention claims stay within verified custody scope, never self-attested remote state.",
       "positive": [
         "Applicable grant authorizes the selected purpose/audience and enrolled managed writes commit under current rights generation.",
-        "A restore combines the retained payload with post-backup revoke/retention decisions before becoming readable; authorized sharing remains possible."
+        "A restore combines the retained payload with post-backup revoke/retention decisions before becoming readable; authorized sharing remains possible.",
+        "Admitted overlapping releases share one composition state across runs/aliases/replicas; allowed same-output replay to the same audience follows the actual source rule, while a fresh draw/new recipient is separately admitted."
       ],
       "adversarial": [
-        "License revision without revoke versus applicable scoped revoke; revoke after check/before commit and during stream; shared CAS/WORM/provider/backup placements; active mmap/native reader; restore from before tombstone; retention expiry with missed tombstone; revoke+restore coalesced across public interval."
+        "License revision without revoke versus applicable scoped revoke; revoke after check/before commit and during stream; shared CAS/WORM/provider/backup placements; active mmap/native reader; restore from before tombstone; retention expiry with missed tombstone; revoke+restore coalesced across public interval.",
+        "Two individually permitted concurrent aggregates whose difference discloses a protected unit cannot bypass shared composition; unknown overlap is not disjoint and timeout after possible disclosure cannot refund allowance."
       ],
       "removal": [
         "Remove write enrollment/commit fence but keep retention policy markers; late writer after revoke must fail.",
         "Remove restore quarantine or post-backup decision replay but keep tombstone schema; restore must not expose payload as current.",
-        "Remove actual-placement reconciliation but keep deletion-impact plan; no all-copy deletion claim may pass."
+        "Remove actual-placement reconciliation but keep deletion-impact plan; no all-copy deletion claim may pass.",
+        "Remove shared reserve/commit or uncertain-output hold while keeping per-use grants; overlapping concurrent release/timeout fresh-consumer controls must fail."
       ],
       "surface": "Existing access, retention and artifact APIs plus audit deletion/restore outcomes; report bounded provider/backup/foreign-copy limitations and do not promise zeroization or recall already disclosed bytes.",
       "resource_locks": [
@@ -1199,7 +1257,8 @@
         "deciding outputs and independent review"
       ],
       "acceptance_dependencies": [
-        "CAP-03"
+        "CAP-03",
+        "CAP-06"
       ],
       "canonical_write_candidates": [
         "policy-engine/src/polisyos/core/security/access_scope.py",
@@ -1210,14 +1269,17 @@
       "rollback_precedence": "The rights-aware first sentences control any legacy wording about preserving bytes or restoring a prior head.",
       "canonical_lease_keys": [
         "write:governed-copy",
-        "resource:cas/{tenant}/{cell}/{root}"
+        "resource:cas/{tenant}/{cell}/{root}",
+        "write:semantic-owner/source-disclosure"
       ],
       "lease_rule": "Resolve every key instance and exact path overlap before dispatch. Human-friendly resource_locks are descriptions, never independent mutex identities. Any shared file or semantic owner wins over differing labels.",
       "completion_planes": [
         "owner_delivery: reviewed native result with scoped local proof",
         "composed_acceptance: actual emitted dependencies and fresh consumer on bound source",
         "original_obligation_disposition: canonical owner decision; history preserved"
-      ]
+      ],
+      "dependency_stage": "owner_readiness",
+      "completion_contract_ref": "execution/stage-requirements.json#default"
     },
     {
       "id": "LIF-06",
@@ -1226,7 +1288,7 @@
         "docs/research/universal-policy-design/external-foundations/lifecycle/09-resource-execution-design.md#§2-§8",
         "docs/research/universal-policy-design/external-foundations/lifecycle/06-delivery-and-review.md#R12,T17,T20",
         "docs/research/universal-policy-design/external-foundations/lifecycle/06-delivery-and-review.md#W5-W6",
-        "docs/research/universal-policy-design/acquisition/05-implementation-and-review.md#AP10",
+        "docs/research/universal-policy-design/external-foundations/acquisition/05-implementation-and-review.md#AP10",
         "docs/research/universal-policy-design/external-foundations/lifecycle/10-adversarial-review-and-delivery.md#E01-E02",
         "docs/research/universal-policy-design/external-foundations/lifecycle/08-incidents-and-edge-cases.md#X04,X08"
       ],
@@ -1328,7 +1390,9 @@
         "owner_delivery: reviewed native result with scoped local proof",
         "composed_acceptance: actual emitted dependencies and fresh consumer on bound source",
         "original_obligation_disposition: canonical owner decision; history preserved"
-      ]
+      ],
+      "dependency_stage": "owner_readiness",
+      "completion_contract_ref": "execution/stage-requirements.json#default"
     },
     {
       "id": "LIF-07",
@@ -1336,8 +1400,8 @@
       "source_ids": [
         "docs/research/universal-policy-design/external-foundations/lifecycle/05-implementation-protocols.md#§3,§7",
         "docs/research/universal-policy-design/external-foundations/lifecycle/06-delivery-and-review.md#R05-R06,T09-T10,T17",
-        "docs/research/universal-policy-design/acquisition/03-storage-and-reuse.md#§3-§6",
-        "docs/research/universal-policy-design/acquisition/05-implementation-and-review.md#AP14-AP15,AP18-AP19",
+        "docs/research/universal-policy-design/external-foundations/acquisition/03-storage-and-reuse.md#§3-§6",
+        "docs/research/universal-policy-design/external-foundations/acquisition/05-implementation-and-review.md#AP14-AP15,AP18-AP19",
         "docs/research/universal-policy-design/external-foundations/lifecycle/08-incidents-and-edge-cases.md#X06",
         "docs/research/universal-policy-design/external-foundations/lifecycle/10-adversarial-review-and-delivery.md#E11-E14"
       ],
@@ -1438,7 +1502,9 @@
         "owner_delivery: reviewed native result with scoped local proof",
         "composed_acceptance: actual emitted dependencies and fresh consumer on bound source",
         "original_obligation_disposition: canonical owner decision; history preserved"
-      ]
+      ],
+      "dependency_stage": "owner_readiness",
+      "completion_contract_ref": "execution/stage-requirements.json#default"
     },
     {
       "id": "LIF-08",
@@ -1447,8 +1513,8 @@
         "docs/research/universal-policy-design/external-foundations/lifecycle/06-delivery-and-review.md#R11",
         "docs/research/universal-policy-design/external-foundations/lifecycle/06-delivery-and-review.md#W6",
         "docs/research/universal-policy-design/external-foundations/lifecycle/06-delivery-and-review.md#T18-T20",
-        "docs/research/universal-policy-design/acquisition/05-implementation-and-review.md#AP05,AP09,AP12,AP16-AP17",
-        "docs/research/universal-policy-design/acquisition/06-operational-continuity.md#§1,§3",
+        "docs/research/universal-policy-design/external-foundations/acquisition/05-implementation-and-review.md#AP05,AP09,AP12,AP16-AP17",
+        "docs/research/universal-policy-design/external-foundations/acquisition/06-operational-continuity.md#§1,§3",
         "docs/research/universal-policy-design/external-foundations/lifecycle/10-adversarial-review-and-delivery.md#E09,E11-E13"
       ],
       "requires_other_mechanisms": [
@@ -1521,7 +1587,8 @@
       "depends_on": [
         "P0-REBIND",
         "LIF-03",
-        "CAP-03"
+        "CAP-03",
+        "CAP-02"
       ],
       "dispatch_condition": "Actual E02 acceptance; accepted upstream outputs; interface versions pinned; exact non-overlapping write lease and resource ticket.",
       "acceptance_steps": [
@@ -1551,7 +1618,15 @@
         "owner_delivery: reviewed native result with scoped local proof",
         "composed_acceptance: actual emitted dependencies and fresh consumer on bound source",
         "original_obligation_disposition: canonical owner decision; history preserved"
-      ]
+      ],
+      "required_producer_binding": {
+        "supplier_task": "CAP-02",
+        "selection": "P0/CNT-01 chooses a materially distinct second source/profile. CAP-02 must own its capture output as an explicit subordinate slice, or root adds a stable bounded CAP task if transport/parser support is new.",
+        "dispatch_rule": "No second-source composition dispatch on a first-route WDI receipt. Bind actual source/profile/parser and persisted capture output; producer_missing until supported or implemented. Shared owner leases still apply.",
+        "scope": "Do not claim pagination merely because a second single-response source passes; test the actual declared layout/transport distinction."
+      },
+      "dependency_stage": "owner_readiness",
+      "completion_contract_ref": "execution/stage-requirements.json#default"
     },
     {
       "id": "LIF-09",
@@ -1560,7 +1635,7 @@
         "docs/research/universal-policy-design/external-foundations/lifecycle/06-delivery-and-review.md#W0-W6",
         "docs/research/universal-policy-design/external-foundations/lifecycle/10-adversarial-review-and-delivery.md#E01-E15",
         "docs/research/universal-policy-design/external-foundations/lifecycle/06-delivery-and-review.md#R01-R12,T01-T20",
-        "docs/research/universal-policy-design/acquisition/05-implementation-and-review.md#AP01-AP19",
+        "docs/research/universal-policy-design/external-foundations/acquisition/05-implementation-and-review.md#AP01-AP19",
         "docs/research/universal-policy-design/external-foundations/lifecycle/08-incidents-and-edge-cases.md#X01-X08"
       ],
       "requires_other_mechanisms": [
@@ -1658,7 +1733,9 @@
         "owner_delivery: reviewed native result with scoped local proof",
         "composed_acceptance: actual emitted dependencies and fresh consumer on bound source",
         "original_obligation_disposition: canonical owner decision; history preserved"
-      ]
+      ],
+      "dependency_stage": "final_reviewed_replay_identity",
+      "completion_contract_ref": "execution/stage-requirements.json#default"
     },
     {
       "id": "GYD-01",
@@ -1688,7 +1765,7 @@
         "proposed": []
       },
       "deliverable": "PR1a: real canonical data-only N4-bound promotable receipt. Protected PR1b: amended ADR-0178/0179 conjunction with persisted S6 all-five-axis report on verifier-reachable refutation-capable evidence; S8 frontier/generation normative admission; promotion-safety acceptance; S7 governed_pilot_eligibility bound to those digests. Separately retain original authentic field-pilot near-miss requirement; never manufacture a harmful external event or call a fixture authentic.",
-      "positive": "Authentic N4 input; EvalSafety=blocked + near_miss=true; reconcile counters/hash; core unchanged.",
+      "positive": "Record PR1a and PR1b outcomes separately. PR1a: canonical authentic data-only N4 receipt. PR1b: complete protected-mode evidence at original scope; authentic attempted field-pilot EvalSafety blocked/near_miss receipt remains a separate named requirement, never a fixture substitution.",
       "adversarial": "Wrong source/epoch/ancestry or no protected batch cannot promote.",
       "removal": "Remove atom/trinity/source binding or admission; unchanged receipt consumer refuses.",
       "surface": "Cycle receipt + O0 audit event.",
@@ -1731,45 +1808,52 @@
       "original_debt_refs": [
         {
           "id": "DS11-GROUNDED-PERFORMANCE",
-          "source_line": 467,
+          "source_line": null,
           "criterion_ref": "inventory/debt-inventory.json#DS11-GROUNDED-PERFORMANCE"
         },
         {
           "id": "first-promotion-candidate-with-complete-evidence",
-          "source_line": 485,
+          "source_line": null,
           "criterion_ref": "inventory/debt-inventory.json#first-promotion-candidate-with-complete-evidence"
         },
         {
           "id": "promotion-s6-s7-s8-injected-posture-admission-mapping",
-          "source_line": 486,
+          "source_line": null,
           "criterion_ref": "inventory/debt-inventory.json#promotion-s6-s7-s8-injected-posture-admission-mapping"
         },
         {
           "id": "eval-safety-promotion-authority-producer-missing",
-          "source_line": 487,
+          "source_line": null,
           "criterion_ref": "inventory/debt-inventory.json#eval-safety-promotion-authority-producer-missing"
         },
         {
           "id": "GY-PA1",
-          "source_line": 592,
+          "source_line": null,
           "criterion_ref": "inventory/debt-inventory.json#GY-PA1"
         },
         {
           "id": "gy-promotion-obligations-scope-insufficient",
-          "source_line": 618,
+          "source_line": null,
           "criterion_ref": "inventory/debt-inventory.json#gy-promotion-obligations-scope-insufficient"
         },
         {
           "id": "GY-O0-NC-01",
-          "source_line": 619,
+          "source_line": null,
           "criterion_ref": "inventory/debt-inventory.json#GY-O0-NC-01"
         },
         {
           "id": "GY-GAP7",
-          "source_line": 665,
+          "source_line": null,
           "criterion_ref": "inventory/debt-inventory.json#GY-GAP7"
         }
-      ]
+      ],
+      "dependency_stage": "owner_readiness",
+      "completion_contract_ref": "execution/stage-requirements.json#overrides/GYD-01",
+      "milestone_predicates": {
+        "PR1a": "Actual canonical data-only N4-bound receipt with its source hashes and independent original owner disposition; no authentic near-miss prerequisite.",
+        "PR1b": "Amended protected promotion conjunction plus its exact institutional scope; original authentic O0 attempted-field-pilot refusal/near-miss criterion separately recorded. No unsafe pilot execution.",
+        "aggregation": "PR1a result does not close PR1b or GY-PR1 full criterion; original standing changes only by competent source owner."
+      }
     },
     {
       "id": "GYD-02",
@@ -1828,7 +1912,9 @@
         "owner_delivery: reviewed native result with scoped local proof",
         "composed_acceptance: actual emitted dependencies and fresh consumer on bound source",
         "original_obligation_disposition: canonical owner decision; history preserved"
-      ]
+      ],
+      "dependency_stage": "owner_readiness",
+      "completion_contract_ref": "execution/stage-requirements.json#default"
     },
     {
       "id": "GYD-03",
@@ -1887,7 +1973,9 @@
         "owner_delivery: reviewed native result with scoped local proof",
         "composed_acceptance: actual emitted dependencies and fresh consumer on bound source",
         "original_obligation_disposition: canonical owner decision; history preserved"
-      ]
+      ],
+      "dependency_stage": "owner_readiness",
+      "completion_contract_ref": "execution/stage-requirements.json#default"
     },
     {
       "id": "GYD-04",
@@ -1952,15 +2040,17 @@
       "original_debt_refs": [
         {
           "id": "GY-PA1",
-          "source_line": 592,
+          "source_line": null,
           "criterion_ref": "inventory/debt-inventory.json#GY-PA1"
         },
         {
           "id": "cg2-production-relation-gold-acceptance-unspecified",
-          "source_line": 593,
+          "source_line": null,
           "criterion_ref": "inventory/debt-inventory.json#cg2-production-relation-gold-acceptance-unspecified"
         }
-      ]
+      ],
+      "dependency_stage": "owner_readiness",
+      "completion_contract_ref": "execution/stage-requirements.json#default"
     },
     {
       "id": "GYD-05",
@@ -2023,15 +2113,17 @@
       "original_debt_refs": [
         {
           "id": "s3-law-to-lever-correspondence-is-unverified",
-          "source_line": 433,
+          "source_line": null,
           "criterion_ref": "inventory/debt-inventory.json#s3-law-to-lever-correspondence-is-unverified"
         },
         {
           "id": "s3-r12-legal-knowledge-store-selects-an-unavailable-version",
-          "source_line": 563,
+          "source_line": null,
           "criterion_ref": "inventory/debt-inventory.json#s3-r12-legal-knowledge-store-selects-an-unavailable-version"
         }
-      ]
+      ],
+      "dependency_stage": "owner_readiness",
+      "completion_contract_ref": "execution/stage-requirements.json#default"
     },
     {
       "id": "GYD-06",
@@ -2095,10 +2187,12 @@
       "original_debt_refs": [
         {
           "id": "gy-j-positive-evidence-admission-producer-has-no-owner",
-          "source_line": 428,
+          "source_line": null,
           "criterion_ref": "inventory/debt-inventory.json#gy-j-positive-evidence-admission-producer-has-no-owner"
         }
-      ]
+      ],
+      "dependency_stage": "owner_readiness",
+      "completion_contract_ref": "execution/stage-requirements.json#default"
     },
     {
       "id": "GYD-07",
@@ -2157,7 +2251,9 @@
         "owner_delivery: reviewed native result with scoped local proof",
         "composed_acceptance: actual emitted dependencies and fresh consumer on bound source",
         "original_obligation_disposition: canonical owner decision; history preserved"
-      ]
+      ],
+      "dependency_stage": "owner_readiness",
+      "completion_contract_ref": "execution/stage-requirements.json#default"
     },
     {
       "id": "GYD-08",
@@ -2216,7 +2312,9 @@
         "owner_delivery: reviewed native result with scoped local proof",
         "composed_acceptance: actual emitted dependencies and fresh consumer on bound source",
         "original_obligation_disposition: canonical owner decision; history preserved"
-      ]
+      ],
+      "dependency_stage": "owner_readiness",
+      "completion_contract_ref": "execution/stage-requirements.json#default"
     },
     {
       "id": "GYD-09",
@@ -2280,7 +2378,9 @@
         "owner_delivery: reviewed native result with scoped local proof",
         "composed_acceptance: actual emitted dependencies and fresh consumer on bound source",
         "original_obligation_disposition: canonical owner decision; history preserved"
-      ]
+      ],
+      "dependency_stage": "owner_readiness",
+      "completion_contract_ref": "execution/stage-requirements.json#default"
     },
     {
       "id": "GYD-10",
@@ -2343,7 +2443,9 @@
         "owner_delivery: reviewed native result with scoped local proof",
         "composed_acceptance: actual emitted dependencies and fresh consumer on bound source",
         "original_obligation_disposition: canonical owner decision; history preserved"
-      ]
+      ],
+      "dependency_stage": "owner_readiness",
+      "completion_contract_ref": "execution/stage-requirements.json#default"
     },
     {
       "id": "GYD-11",
@@ -2403,7 +2505,9 @@
         "owner_delivery: reviewed native result with scoped local proof",
         "composed_acceptance: actual emitted dependencies and fresh consumer on bound source",
         "original_obligation_disposition: canonical owner decision; history preserved"
-      ]
+      ],
+      "dependency_stage": "owner_readiness",
+      "completion_contract_ref": "execution/stage-requirements.json#default"
     },
     {
       "id": "GYD-12",
@@ -2411,9 +2515,7 @@
       "source_ids": [
         "GY-O3"
       ],
-      "requires_other_mechanisms": [
-        "E02; O1 posterior; AS3 corpus; current N12/N13b state; DS21 surface."
-      ],
+      "requires_other_mechanisms": [],
       "owner_paths": {
         "existing": [
           "src/polisyos/fabric/world/events.py::persist_world_event_with_facts",
@@ -2468,7 +2570,13 @@
         "owner_delivery: reviewed native result with scoped local proof",
         "composed_acceptance: actual emitted dependencies and fresh consumer on bound source",
         "original_obligation_disposition: canonical owner decision; history preserved"
-      ]
+      ],
+      "dependency_stage": "owner_readiness",
+      "completion_contract_ref": "execution/stage-requirements.json#default",
+      "acceptance_dependencies": [
+        "UI-08"
+      ],
+      "downstream_consumer": "UI-08/DS21 reads O3 output; it is not an O3 producer/build prerequisite."
     },
     {
       "id": "GYD-13",
@@ -2533,10 +2641,12 @@
       "original_debt_refs": [
         {
           "id": "gy-builder-mechanisms-have-no-production-caller",
-          "source_line": 556,
+          "source_line": null,
           "criterion_ref": "inventory/debt-inventory.json#gy-builder-mechanisms-have-no-production-caller"
         }
-      ]
+      ],
+      "dependency_stage": "owner_readiness",
+      "completion_contract_ref": "execution/stage-requirements.json#default"
     },
     {
       "id": "GYD-14",
@@ -2600,10 +2710,12 @@
       "original_debt_refs": [
         {
           "id": "gy-builder-mechanisms-have-no-production-caller",
-          "source_line": 556,
+          "source_line": null,
           "criterion_ref": "inventory/debt-inventory.json#gy-builder-mechanisms-have-no-production-caller"
         }
-      ]
+      ],
+      "dependency_stage": "owner_readiness",
+      "completion_contract_ref": "execution/stage-requirements.json#default"
     },
     {
       "id": "GYD-15",
@@ -2625,8 +2737,8 @@
       },
       "deliverable": "Per capability: typed contract, production producer, persisted receipt, exact reader, negative.",
       "positive": "Only independently verified, scope-bound receipts admit.",
-      "adversarial": "Missing/self-authored/wrong-scope/unverifiable receipt refuses.",
-      "removal": "Remove binding; negative must fail.",
+      "adversarial": "Missing/self-authored/wrong-scope/unverifiable receipt refuses. Mandatory FA1 cutoff falsifier: change the actual admitted source subtree while retaining its declared cutoff/path list and signature; reconcile against an independent source and refuse the false basis. Freeze P37 classification; same-writer walks cannot confer authority.",
+      "removal": "Remove binding; negative must fail. Remove independent cutoff-basis reconciliation but keep declaration/signature; the mutated actual source set must turn the gate red.",
       "surface": "Observations remain non-authoritative.",
       "resource_locks": "One writer + independent reader per capability.",
       "rollback": "Continue refusal.",
@@ -2667,10 +2779,12 @@
       "original_debt_refs": [
         {
           "id": "GY-DEF22",
-          "source_line": 599,
+          "source_line": null,
           "criterion_ref": "inventory/debt-inventory.json#GY-DEF22"
         }
-      ]
+      ],
+      "dependency_stage": "owner_readiness",
+      "completion_contract_ref": "execution/stage-requirements.json#default"
     },
     {
       "id": "GYD-16",
@@ -2733,10 +2847,14 @@
       "final_execution_property": "Recompute complete moved-row denominator and chain+semantic-test status.",
       "execute_during": "FINAL-REPLAY",
       "acceptance_dependencies": [
-        "FINAL-REVIEW",
-        "actual frozen source/input/backend profile"
+        "FINAL-REVIEW"
       ],
-      "completion_rule": "Owner preparation may complete before freeze; original V obligation closes only on its named post-review execution receipt."
+      "completion_rule": "Owner preparation may complete before freeze; original V obligation closes only on its named post-review execution receipt.",
+      "dependency_stage": "owner_readiness",
+      "completion_contract_ref": "execution/stage-requirements.json#verification_preparation",
+      "acceptance_evidence_requirements": [
+        "actual frozen source/input/backend profile"
+      ]
     },
     {
       "id": "GYD-17",
@@ -2798,13 +2916,17 @@
         "composed_acceptance: actual emitted dependencies and fresh consumer on bound source",
         "original_obligation_disposition: canonical owner decision; history preserved"
       ],
-      "final_execution_property": "Real production trigger on real case; persist workspace graph, ledger, exit contract, measurement-rooted proof or honest ceiling.",
+      "final_execution_property": "Real production trigger on real case; persist workspace graph, ledger, exit contract, measurement-rooted proof or honest ceiling.  Read back the complete WorkspaceContract, artifact graph, SearchLedger, FrontierSnapshot and typed SearchExitContract, each with gy_evidence_canon hashes, from the production-triggered real-input run.",
       "execute_during": "FINAL-REPLAY",
       "acceptance_dependencies": [
-        "FINAL-REVIEW",
-        "actual frozen source/input/backend profile"
+        "FINAL-REVIEW"
       ],
-      "completion_rule": "Owner preparation may complete before freeze; original V obligation closes only on its named post-review execution receipt."
+      "completion_rule": "Owner preparation may complete before freeze; original V obligation closes only on its named post-review execution receipt.",
+      "dependency_stage": "owner_readiness",
+      "completion_contract_ref": "execution/stage-requirements.json#verification_preparation",
+      "acceptance_evidence_requirements": [
+        "actual frozen source/input/backend profile"
+      ]
     },
     {
       "id": "GYD-18",
@@ -2868,10 +2990,14 @@
       "final_execution_property": "Record per-domain terminal/evidence/decision-grade/rung distributions across local, recursive, non-panel and unseen-third cases.",
       "execute_during": "FINAL-REPLAY",
       "acceptance_dependencies": [
-        "FINAL-REVIEW",
-        "actual frozen source/input/backend profile"
+        "FINAL-REVIEW"
       ],
-      "completion_rule": "Owner preparation may complete before freeze; original V obligation closes only on its named post-review execution receipt."
+      "completion_rule": "Owner preparation may complete before freeze; original V obligation closes only on its named post-review execution receipt.",
+      "dependency_stage": "owner_readiness",
+      "completion_contract_ref": "execution/stage-requirements.json#verification_preparation",
+      "acceptance_evidence_requirements": [
+        "actual frozen source/input/backend profile"
+      ]
     },
     {
       "id": "GYD-19",
@@ -2931,13 +3057,17 @@
         "composed_acceptance: actual emitted dependencies and fresh consumer on bound source",
         "original_obligation_disposition: canonical owner decision; history preserved"
       ],
-      "final_execution_property": "Execute every applicable listed negative across authority, search, composition, surface, CAS, time, VOI, EvalSafety, stale cert, delta and equilibrium.",
+      "final_execution_property": "Execute every applicable listed negative across authority, search, composition, surface, CAS, time, VOI, EvalSafety, stale cert, delta and equilibrium.  Maintain the complete original a–v indexed matrix, each executed with retained deciding evidence. Original all-probes criterion controls; no blanket applicable-only skip. Any genuine exclusion requires completed P34 isolation and competent source-bound disposition, and is not counted as a passing negative.",
       "execute_during": "FINAL-REPLAY",
       "acceptance_dependencies": [
-        "FINAL-REVIEW",
-        "actual frozen source/input/backend profile"
+        "FINAL-REVIEW"
       ],
-      "completion_rule": "Owner preparation may complete before freeze; original V obligation closes only on its named post-review execution receipt."
+      "completion_rule": "Owner preparation may complete before freeze; original V obligation closes only on its named post-review execution receipt.",
+      "dependency_stage": "owner_readiness",
+      "completion_contract_ref": "execution/stage-requirements.json#verification_preparation",
+      "acceptance_evidence_requirements": [
+        "actual frozen source/input/backend profile"
+      ]
     },
     {
       "id": "GYD-20",
@@ -2998,13 +3128,17 @@
         "composed_acceptance: actual emitted dependencies and fresh consumer on bound source",
         "original_obligation_disposition: canonical owner decision; history preserved"
       ],
-      "final_execution_property": "Show byte-identical deterministic replay, reconstructable agent trace, promoted-artifact revalidation, time-invariant hashes.",
+      "final_execution_property": "Show byte-identical deterministic replay, reconstructable agent trace, promoted-artifact revalidation, time-invariant hashes.  Bind deterministic input hashes, parameter hashes, seed and container digest. Re-run and compare named output_hash across time. Agentic trace replay and promoted-artifact revalidation remain separate levels.",
       "execute_during": "FINAL-REPLAY",
       "acceptance_dependencies": [
-        "FINAL-REVIEW",
-        "actual frozen source/input/backend profile"
+        "FINAL-REVIEW"
       ],
-      "completion_rule": "Owner preparation may complete before freeze; original V obligation closes only on its named post-review execution receipt."
+      "completion_rule": "Owner preparation may complete before freeze; original V obligation closes only on its named post-review execution receipt.",
+      "dependency_stage": "owner_readiness",
+      "completion_contract_ref": "execution/stage-requirements.json#verification_preparation",
+      "acceptance_evidence_requirements": [
+        "actual frozen source/input/backend profile"
+      ]
     },
     {
       "id": "GYD-21",
@@ -3070,10 +3204,14 @@
       "final_execution_property": "Run every GY artifact through full validator set with no uncatalogued drift.",
       "execute_during": "FINAL-REPLAY",
       "acceptance_dependencies": [
-        "FINAL-REVIEW",
-        "actual frozen source/input/backend profile"
+        "FINAL-REVIEW"
       ],
-      "completion_rule": "Owner preparation may complete before freeze; original V obligation closes only on its named post-review execution receipt."
+      "completion_rule": "Owner preparation may complete before freeze; original V obligation closes only on its named post-review execution receipt.",
+      "dependency_stage": "owner_readiness",
+      "completion_contract_ref": "execution/stage-requirements.json#verification_preparation",
+      "acceptance_evidence_requirements": [
+        "actual frozen source/input/backend profile"
+      ]
     },
     {
       "id": "GYD-22",
@@ -3138,10 +3276,14 @@
       "final_execution_property": "Measure envelope expansion, semantic loss, governance throughput, demand-pull/abstention, search recall/index staleness.",
       "execute_during": "FINAL-REPLAY",
       "acceptance_dependencies": [
-        "FINAL-REVIEW",
-        "actual frozen source/input/backend profile"
+        "FINAL-REVIEW"
       ],
-      "completion_rule": "Owner preparation may complete before freeze; original V obligation closes only on its named post-review execution receipt."
+      "completion_rule": "Owner preparation may complete before freeze; original V obligation closes only on its named post-review execution receipt.",
+      "dependency_stage": "owner_readiness",
+      "completion_contract_ref": "execution/stage-requirements.json#verification_preparation",
+      "acceptance_evidence_requirements": [
+        "actual frozen source/input/backend profile"
+      ]
     },
     {
       "id": "GYD-23",
@@ -3160,8 +3302,8 @@
         "proposed": []
       },
       "deliverable": "Measure both fixtures, operation/replay levels, poor-recall routing, VOI continuation and terminal precedence.",
-      "positive": "Groundable estimate partial; tourism ceiling honest; poor recall forces repair.",
-      "adversarial": "Inactive op, forced groundable or poor-recall abstention fails.",
+      "positive": "Groundable Slice-0 exits measurement-rooted grounded_partial_admissible at the Estimate port only; tourism ceiling honest; poor recall forces repair.  Exact Slice-0 operation set is BIND/ESTIMATE/VERIFY discovered from registries, deterministic SeedTrajectoryPlanner only; expectations come from committed Slice0FixtureManifest; BudgetVector uses only the original §3.5.1 minimal subset. Both groundable and tourism paths include FrontierSnapshot/SearchLedger and original terminal precedence.",
+      "adversarial": "Inactive op, forced groundable or poor-recall abstention fails. Any agent/full playbook, inactive operation, grounded_admissible or DesignCandidate emission in Slice0, inline fixture expectation or extra unauthorized budget field fails, even if final terminals otherwise match. A partial terminal without the actual measurement root, a matching terminal reached at any later port, or any continuation past the Estimate stopping point fails; status spelling alone is insufficient.",
       "removal": "Remove terminal/VOI semantics with markers; unchanged consumer fails.",
       "surface": "Run/Search/VOI packet.",
       "resource_locks": "One fixture manifest/workspace run.",
@@ -3199,7 +3341,9 @@
         "owner_delivery: reviewed native result with scoped local proof",
         "composed_acceptance: actual emitted dependencies and fresh consumer on bound source",
         "original_obligation_disposition: canonical owner decision; history preserved"
-      ]
+      ],
+      "dependency_stage": "owner_readiness",
+      "completion_contract_ref": "execution/stage-requirements.json#default"
     },
     {
       "id": "GYD-24",
@@ -3219,8 +3363,8 @@
         "proposed": []
       },
       "deliverable": "Measure fail-closed applicability and real RequiredDataSpec→DataNeedSpec→fetch or costed exit.",
-      "positive": "Missing facet blocks/downgrades; pinned gap fetches or emits acquisition_required with cost/distribution.",
-      "adversarial": "Unknown facet, bad connector, missing VOI basis cannot fetch/admit.",
+      "positive": "Missing facet blocks/downgrades; pinned gap fetches or emits acquisition_required with cost/distribution. Source-derived complete 16-facet admission and all three named connectors rest.json/unpd/ukons are checked before fetch. Real ACQUIRE resolves the pinned gap to fetch or exact costed rung-7 acquisition_required with named missing distribution.",
+      "adversarial": "Unknown facet, bad connector, missing VOI basis cannot fetch/admit. Dropping any original facet/connector, fetching before its applicability result, or emitting a cost without the rung-7 named missing distribution fails; no one-facet sample substitutes for the full set.",
       "removal": "Remove admission bridge; real path refuses.",
       "surface": "Applicability, acquisition and exit receipts.",
       "resource_locks": "One catalog/acquisition writer.",
@@ -3258,7 +3402,9 @@
         "owner_delivery: reviewed native result with scoped local proof",
         "composed_acceptance: actual emitted dependencies and fresh consumer on bound source",
         "original_obligation_disposition: canonical owner decision; history preserved"
-      ]
+      ],
+      "dependency_stage": "owner_readiness",
+      "completion_contract_ref": "execution/stage-requirements.json#default"
     },
     {
       "id": "GYD-25",
@@ -3316,7 +3462,9 @@
         "owner_delivery: reviewed native result with scoped local proof",
         "composed_acceptance: actual emitted dependencies and fresh consumer on bound source",
         "original_obligation_disposition: canonical owner decision; history preserved"
-      ]
+      ],
+      "dependency_stage": "owner_readiness",
+      "completion_contract_ref": "execution/stage-requirements.json#default"
     },
     {
       "id": "GYD-26",
@@ -3373,7 +3521,9 @@
         "owner_delivery: reviewed native result with scoped local proof",
         "composed_acceptance: actual emitted dependencies and fresh consumer on bound source",
         "original_obligation_disposition: canonical owner decision; history preserved"
-      ]
+      ],
+      "dependency_stage": "owner_readiness",
+      "completion_contract_ref": "execution/stage-requirements.json#default"
     },
     {
       "id": "GYD-27",
@@ -3430,7 +3580,9 @@
         "owner_delivery: reviewed native result with scoped local proof",
         "composed_acceptance: actual emitted dependencies and fresh consumer on bound source",
         "original_obligation_disposition: canonical owner decision; history preserved"
-      ]
+      ],
+      "dependency_stage": "owner_readiness",
+      "completion_contract_ref": "execution/stage-requirements.json#default"
     },
     {
       "id": "GYD-28",
@@ -3448,8 +3600,8 @@
         "proposed": []
       },
       "deliverable": "Complete raw/public scan plus digest, dedup, tamper, GC and dereference evidence.",
-      "positive": "No scoped leak; tamper refused; referenced blobs survive GC.",
-      "adversarial": "Nested secret, changed blob, absent manifest caught.",
+      "positive": "No scoped leak; tamper refused; referenced blobs survive GC. Every DAG/loop CAS output carries the admitted manifest.authority for that actual artifact; its producer and consumers bind authority separately from canonical-byte integrity.",
+      "adversarial": "Nested secret, changed blob, absent manifest caught. Missing, wrong-boundary or stale manifest.authority with valid digest and manifest shape must refuse/limit at the actual consumer; digest integrity alone cannot pass.",
       "removal": "Remove scan/digest property while marker stays; consumer fails.",
       "surface": "Scan/CAS report + route readback.",
       "resource_locks": "One CAS store and egress fixture.",
@@ -3487,7 +3639,9 @@
         "owner_delivery: reviewed native result with scoped local proof",
         "composed_acceptance: actual emitted dependencies and fresh consumer on bound source",
         "original_obligation_disposition: canonical owner decision; history preserved"
-      ]
+      ],
+      "dependency_stage": "owner_readiness",
+      "completion_contract_ref": "execution/stage-requirements.json#default"
     },
     {
       "id": "GYD-29",
@@ -3504,8 +3658,8 @@
         "proposed": []
       },
       "deliverable": "Measure time-role dispositions, S12 dereference/downgrade and full 406 candidate-positive denominator.",
-      "positive": "Each row reconciles; mismatch blocks/downgrades or creates obligation.",
-      "adversarial": "Stale catalog, out-of-as-of time, bad ref or false exclusion fails.",
+      "positive": "Each row reconciles; mismatch blocks/downgrades or creates obligation. Every current source-derived candidate-positive row records producer/source, field path, status text, candidate-positive rule, firewall, exclusion reason, resulting boundary and false-exclusion review. Reconcile the original406-row baseline to the actual full set; false exclusions are zero or explicit named repair tickets, with each deciding predicate provenance classified under P37.",
+      "adversarial": "Stale catalog, out-of-as-of time, bad ref or false exclusion fails. A complete ID/count aggregate with a missing firewall, false exclusion or unreviewed row fails; historical406 is not a fixed current cap.",
       "removal": "Remove time/inventory bind; validator fails.",
       "surface": "Candidate inventory + time/source report.",
       "resource_locks": "Freeze candidate set and N12 refs.",
@@ -3543,7 +3697,9 @@
         "owner_delivery: reviewed native result with scoped local proof",
         "composed_acceptance: actual emitted dependencies and fresh consumer on bound source",
         "original_obligation_disposition: canonical owner decision; history preserved"
-      ]
+      ],
+      "dependency_stage": "owner_readiness",
+      "completion_contract_ref": "execution/stage-requirements.json#default"
     },
     {
       "id": "GYD-30",
@@ -3565,7 +3721,7 @@
       },
       "deliverable": "Measure two-chapter composition, feedback-decomposition refusal and grounded emergent cap.",
       "positive": "Joint result grounded; invalid cycle refused; no independence inflation.",
-      "adversarial": "Feedback loop or adjacency-only claim cannot ground.",
+      "adversarial": "Feedback loop or adjacency-only claim cannot ground. Drop a non-first verified Ukraine contract/family consumer while retaining the first-family composition; the complete contract-to-workflow coverage proof must fail.",
       "removal": "Remove joint grounding; consumer rejects.",
       "surface": "Certificate + promotion readback.",
       "resource_locks": "One certificate writer.",
@@ -3607,10 +3763,15 @@
       "original_debt_refs": [
         {
           "id": "foundry-ukraine-method-contract-consumer-residual",
-          "source_line": 439,
+          "source_line": null,
           "criterion_ref": "inventory/debt-inventory.json#foundry-ukraine-method-contract-consumer-residual"
         }
-      ]
+      ],
+      "dependency_stage": "owner_readiness",
+      "completion_contract_ref": "execution/stage-requirements.json#default",
+      "original_specific_obligations": {
+        "foundry-ukraine-method-contract-consumer-residual": "Measure and repair the actual workflow-consumer coverage of all original13 verified Ukraine method contracts/families. Bind each admitted contract to a real workflow caller, produced result and fresh consumer or exact original-criterion limitation; the currently exercised single family cannot stand for the set. Preserve GY-G composition criteria and GY-S2 knowledge binding as distinct claims; source-derived set readback controls, not a hardcoded13."
+      }
     },
     {
       "id": "GYD-31",
@@ -3670,7 +3831,9 @@
         "owner_delivery: reviewed native result with scoped local proof",
         "composed_acceptance: actual emitted dependencies and fresh consumer on bound source",
         "original_obligation_disposition: canonical owner decision; history preserved"
-      ]
+      ],
+      "dependency_stage": "owner_readiness",
+      "completion_contract_ref": "execution/stage-requirements.json#default"
     },
     {
       "id": "GYD-32",
@@ -3691,8 +3854,8 @@
         ]
       },
       "deliverable": "Measure complete real vocabulary, content-address substrate, owner validation, L1/L4/L5 lift and mutation gates.",
-      "positive": "Same slice/same hash; permitted new source registers without code; real WMR binds it.",
-      "adversarial": "Unknown trust/schema widens/refuses; fake input cannot exercise free-grow.",
+      "positive": "Same slice/same hash; permitted new source registers without code; real WMR binds it. Real populated Ukraine L4 registry plus firm_fundamentals/distress/budget panels binds through L1 DCAT and L5 into queryable content-addressed GlobalState/WMR, retaining period_id, record_hash, schema_version and source_snapshot_id. Exact selected corpus/count is measured read-only under its permit; historical8.8M is not a new assumed count. ValueOuterSet width changes with identification_mode and trust, not just metadata.",
+      "adversarial": "Unknown trust/schema widens/refuses; fake input cannot exercise free-grow. Synthetic/sparse fixture cannot replace real-substrate positive. Trust tier, identification mode, prewar/wartime schema regime/buffer and calibration scope mismatch change the actual bound set or downgrade/refuse; proxy never becomes a point by relabeling.",
       "removal": "Remove registry/change mode; consumer changes or refuses.",
       "surface": "Registry/WMR/value readback.",
       "resource_locks": "One registry writer; serialize manifests.",
@@ -3730,7 +3893,9 @@
         "owner_delivery: reviewed native result with scoped local proof",
         "composed_acceptance: actual emitted dependencies and fresh consumer on bound source",
         "original_obligation_disposition: canonical owner decision; history preserved"
-      ]
+      ],
+      "dependency_stage": "owner_readiness",
+      "completion_contract_ref": "execution/stage-requirements.json#default"
     },
     {
       "id": "GYD-33",
@@ -3792,10 +3957,12 @@
       "original_debt_refs": [
         {
           "id": "foundry-ukraine-method-contract-consumer-residual",
-          "source_line": 439,
+          "source_line": null,
           "criterion_ref": "inventory/debt-inventory.json#foundry-ukraine-method-contract-consumer-residual"
         }
-      ]
+      ],
+      "dependency_stage": "owner_readiness",
+      "completion_contract_ref": "execution/stage-requirements.json#default"
     },
     {
       "id": "UI-01",
@@ -3807,9 +3974,7 @@
         "atlas-public-verification-record-bridge",
         "public-decision-verified-badge-is-client-computed",
         "DEBT:ds10-public-decision-rendering",
-        "DEBT:DS11-PUBLIC-SIGNATURE-POPULATION",
-        "DEBT:ds8-public-case-publication",
-        "DEBT:ds8-signed-public-decision-surface"
+        "DEBT:DS11-PUBLIC-SIGNATURE-POPULATION"
       ],
       "requires_other_mechanisms": [
         "Reuse closed verifier/badge mechanism.",
@@ -3881,25 +4046,17 @@
       "original_debt_refs": [
         {
           "id": "ds10-public-decision-rendering",
-          "source_line": 417,
+          "source_line": null,
           "criterion_ref": "inventory/debt-inventory.json#ds10-public-decision-rendering"
         },
         {
           "id": "DS11-PUBLIC-SIGNATURE-POPULATION",
-          "source_line": 464,
+          "source_line": null,
           "criterion_ref": "inventory/debt-inventory.json#DS11-PUBLIC-SIGNATURE-POPULATION"
-        },
-        {
-          "id": "ds8-public-case-publication",
-          "source_line": 480,
-          "criterion_ref": "inventory/debt-inventory.json#ds8-public-case-publication"
-        },
-        {
-          "id": "ds8-signed-public-decision-surface",
-          "source_line": 600,
-          "criterion_ref": "inventory/debt-inventory.json#ds8-signed-public-decision-surface"
         }
-      ]
+      ],
+      "dependency_stage": "owner_readiness",
+      "completion_contract_ref": "execution/stage-requirements.json#default"
     },
     {
       "id": "UI-02",
@@ -3918,8 +4075,8 @@
         "INT-K08",
         "DEBT:ds10-public-decision-rendering",
         "DEBT:DS11-PUBLIC-SIGNATURE-POPULATION",
-        "DEBT:ds8-public-case-publication",
-        "DEBT:ds8-signed-public-decision-surface"
+        "DS1-N020",
+        "DS1-N023"
       ],
       "requires_other_mechanisms": [
         "GY-PR1 gates a real record; signer absence gates a signature, not capability.",
@@ -3937,9 +4094,9 @@
         ]
       },
       "deliverable": "Producer→exact CAS view/typed-empty slot→event→verify→browser/MACHINE/CLI→audit/rights-gated egress; include DS11 signature population.",
-      "positive": "Before PR1 publish refusal chronology only; then issue exact-view data record under signer policy; preserve INT-K02/06/08.",
-      "adversarial": "Candidate, wrong view/tenant, lost rights, pending intent, bad signature or proof leak never yields public bytes.",
-      "removal": "Remove view/owner gate with markers retained; served negative fails.",
+      "positive": "Before PR1 publish refusal chronology only; then issue exact-view data record under signer policy; preserve INT-K02/06/08. Public route has the original no-third-party-tracker/security-header/mobile/i18n/plain-language posture. Actual beacon/fetch/error-telemetry transports obey the selected self-hosted/scrubbed/absent public policy; classification/redaction occurs before persisted signing.",
+      "adversarial": "Candidate, wrong view/tenant, lost rights, pending intent, bad signature or proof leak never yields public bytes. DS1-N020: identifiers/payloads in route/query/tags/breadcrumbs/extras cannot leave via telemetry. DS1-N023: encoded/nested private fields are rejected/redacted before signing, not hidden only after persistence. Allowed telemetry destination does not authorize protected content.",
+      "removal": "Remove view/owner gate with markers retained; served negative fails. Remove request/telemetry projection or pre-sign classification while preserving signature and badge markers; controlled egress/builders detect the private payload and must fail.",
       "surface": [
         "citizen browser",
         "MACHINE",
@@ -3995,25 +4152,17 @@
       "original_debt_refs": [
         {
           "id": "ds10-public-decision-rendering",
-          "source_line": 417,
+          "source_line": null,
           "criterion_ref": "inventory/debt-inventory.json#ds10-public-decision-rendering"
         },
         {
           "id": "DS11-PUBLIC-SIGNATURE-POPULATION",
-          "source_line": 464,
+          "source_line": null,
           "criterion_ref": "inventory/debt-inventory.json#DS11-PUBLIC-SIGNATURE-POPULATION"
-        },
-        {
-          "id": "ds8-public-case-publication",
-          "source_line": 480,
-          "criterion_ref": "inventory/debt-inventory.json#ds8-public-case-publication"
-        },
-        {
-          "id": "ds8-signed-public-decision-surface",
-          "source_line": 600,
-          "criterion_ref": "inventory/debt-inventory.json#ds8-signed-public-decision-surface"
         }
-      ]
+      ],
+      "dependency_stage": "owner_readiness",
+      "completion_contract_ref": "execution/stage-requirements.json#overrides/UI-02"
     },
     {
       "id": "UI-03",
@@ -4098,15 +4247,17 @@
       "original_debt_refs": [
         {
           "id": "ds10-global-case-index-producer-allocation",
-          "source_line": 420,
+          "source_line": null,
           "criterion_ref": "inventory/debt-inventory.json#ds10-global-case-index-producer-allocation"
         },
         {
           "id": "ds8-global-case-index",
-          "source_line": 601,
+          "source_line": null,
           "criterion_ref": "inventory/debt-inventory.json#ds8-global-case-index"
         }
-      ]
+      ],
+      "dependency_stage": "owner_readiness",
+      "completion_contract_ref": "execution/stage-requirements.json#default"
     },
     {
       "id": "UI-04",
@@ -4135,9 +4286,9 @@
         ]
       },
       "deliverable": "Append-only response/revocation/supersession events through API/client to browser, CLI, MACHINE and audit.",
-      "positive": "Closed bytes stay fixed; attributable response and new supersession are visible.",
-      "adversarial": "Mutation, self-asserted response, auto-resolution, hidden lineage or collapsed status refuses.",
-      "removal": "Remove event join with markers retained; parity witness fails.",
+      "positive": "Closed bytes stay fixed; attributable response and new supersession are visible. Retained Phase5.7 accessibility requires actual large-text, screen-reader and plain-language behavior on consultation/response/history surfaces, with qualified human plain-language assessment rather than a keyword assertion. Formal language register follows the accepted locale/authoring contract and applicable audience requirements.",
+      "adversarial": "Mutation, self-asserted response, auto-resolution, hidden lineage or collapsed status refuses. Private challenger exposed without consent, silent comment removal, informal statement shown as adjudication, or consultative response shown as binding fails; external institution decides, PolicyOS records typed evidence and its own claim reaction. Large-text clipping/lost controls, wrong screen-reader order/labels or semantically inaccessible/plain-language distortion fail. A locale badge or translation-presence assertion is insufficient; the independent audience-qualified reviewer must assess the selected text and meaning.",
+      "removal": "Remove event join with markers retained; parity witness fails. Remove large-text/screen-reader semantics or substitute meaning-changing copy while keeping accessibility and locale markers; corresponding rendered/audience checks fail.",
       "surface": [
         "history UI",
         "API/client",
@@ -4190,15 +4341,35 @@
       "original_debt_refs": [
         {
           "id": "ds10-global-case-index-producer-allocation",
-          "source_line": 420,
+          "source_line": null,
           "criterion_ref": "inventory/debt-inventory.json#ds10-global-case-index-producer-allocation"
         },
         {
           "id": "ds8-global-case-index",
-          "source_line": 601,
+          "source_line": null,
           "criterion_ref": "inventory/debt-inventory.json#ds8-global-case-index"
         }
-      ]
+      ],
+      "dependency_stage": "owner_readiness",
+      "completion_contract_ref": "execution/stage-requirements.json#default",
+      "retained_criteria_dispositions": [
+        {
+          "source": "Marketing retained Phase5.5/5.7",
+          "plane": "own receipt/projection; integrate institutional acts",
+          "property": "Challenger privacy/consent and permitted audience; formal/informal outcome provenance; consultation never implied binding; non-silent removal reason and audit event; accessible response/history. External moderation, court/appeal or dispute decisions remain outside PolicyOS ownership."
+        },
+        {
+          "source": "Marketing retained Phase6.6",
+          "plane": "own scoped feed projection; integrate regulator authority",
+          "property": "If regulator feed is claimed, bind exact schema/signature/verifier/audience and update semantics to existing DS13 producer. Otherwise explicit out_of_scope for that delivery channel plus owner/trigger; generic MACHINE history is not feed parity."
+        }
+      ],
+      "locale_scope_reconciliation": {
+        "original": "Marketing Phase5.7 names formal Ukrainian/Russian register where applicable, alongside large-text/screen-reader/plain-language criteria.",
+        "governing_contract": "Atlas D4-A1 (2026-08-19): en authored primary, uk translation, ru legacy_continuity_frozen; no automatic reactivation of Russian UI.",
+        "required_action": "Bind audience/jurisdiction and exact currently admitted locale. Preserve formal-register acceptance where applicable within that contract. If the commissioned use truly requires active Russian presentation, record that conflicting requirement and seek competent locale-contract amendment or a source-qualified external translated evidence integration; do not silently waive the requirement, activate ru, or block unrelated admitted locales.",
+        "authority": "External moderation/appeal/dispute decisions remain institutional; these are PolicyOS projection/accessibility obligations."
+      }
     },
     {
       "id": "UI-05",
@@ -4211,7 +4382,8 @@
         "DS9",
         "P15",
         "W5-K02",
-        "DEBT:ds8-lex-clerk-authority-repair"
+        "DEBT:ds8-lex-clerk-authority-repair",
+        "GY-PA2 bounded DS9 gate"
       ],
       "requires_other_mechanisms": [
         "Gate is GY-I+DS9; PA3 loss receipt; GY-I Done-when not_measured.",
@@ -4282,10 +4454,31 @@
       "original_debt_refs": [
         {
           "id": "ds8-lex-clerk-authority-repair",
-          "source_line": 481,
+          "source_line": null,
           "criterion_ref": "inventory/debt-inventory.json#ds8-lex-clerk-authority-repair"
         }
-      ]
+      ],
+      "dependency_stage": "owner_readiness",
+      "completion_contract_ref": "execution/stage-requirements.json#default",
+      "conditional_acceptance_requirements": [
+        {
+          "when": "DS14 outward agent/tool action is actually dispatched",
+          "suppliers": [
+            "UI-13"
+          ],
+          "output": "Exact accepted DS9/PA2 role-purpose-TTL delegation and contestability artifact/bridge",
+          "consumer": "UI-05 before the action; wrong-role/expired-TTL/contested grant refuses. Root rebinds actual DS9 owner; UI-13 is its programme coordination route, not a new approval owner."
+        },
+        {
+          "when": "cross-projection disclosure can reconstruct a protected premise",
+          "suppliers": [
+            "LIF-05"
+          ],
+          "output": "Source-defined disclosure composition and permitted projections",
+          "consumer": "UI-05 repeated REVIEWER/MACHINE/PUBLIC exposures if those audiences are actually allowed; diff/hash/order/timing cannot bypass rights."
+        }
+      ],
+      "pa2_scope_rule": "DS9 owns the bounded PA2 pre-action gate; DS14 owns PA3 compression-loss/authority-delta projection. If DS14 remains proposal-only, classify external action out_of_scope with no action buttons; preserve the accepted DS9 bounded receipt, never claim universal PA2 coverage."
     },
     {
       "id": "UI-06",
@@ -4304,7 +4497,7 @@
         "DEBT:estimand-binding-strength-terms-unregistered"
       ],
       "requires_other_mechanisms": [
-        "Extend DS4 after closed DS7; GY-AQ1 supplies ceiling algebras.",
+        "Extend DS4 after DS4 for definition; consumer landing requires real DS7 capstone value output; GY-AQ1 supplies ceiling algebras.",
         "Missing mandate/licence remains refusal."
       ],
       "owner_paths": {
@@ -4318,8 +4511,8 @@
         ]
       },
       "deliverable": "Set/interval/unknown/incomparable values and ceilings flow through producer, API/client and consumer.",
-      "positive": "Bounds, provenance, purpose, rule version and time round-trip unchanged.",
-      "adversarial": "Mixed/unknown/incomparable or missing license never infers readiness.",
+      "positive": "Bounds, provenance, purpose, rule version and time round-trip unchanged. Derive the complete eight AQ1 ceiling algebra set from its canonical owner and prove each current member plus mixed unknown/incomparable cases through real producer→API/client→DOM/MACHINE; no manually maintained partial list or scalar coercion.",
+      "adversarial": "Mixed/unknown/incomparable or missing license never infers readiness. Drop any source-owned algebra, serve a placeholder instead of actual capstone values, or give a refusal a quantity badge; consumer acceptance fails. Closed C23 eleven-refusal machinery is reused, not rebuilt.",
       "removal": "Remove composition but keep schema markers; semantic witness fails.",
       "surface": [
         "Cycle Board",
@@ -4370,18 +4563,31 @@
       "original_debt_refs": [
         {
           "id": "corr-wave-unowned-destinations",
-          "source_line": 432,
+          "source_line": null,
           "criterion_ref": "inventory/debt-inventory.json#corr-wave-unowned-destinations"
         },
         {
           "id": "int-r2-ceiling-vocabulary-owners",
-          "source_line": 437,
+          "source_line": null,
           "criterion_ref": "inventory/debt-inventory.json#int-r2-ceiling-vocabulary-owners"
         },
         {
           "id": "estimand-binding-strength-terms-unregistered",
-          "source_line": 566,
+          "source_line": null,
           "criterion_ref": "inventory/debt-inventory.json#estimand-binding-strength-terms-unregistered"
+        }
+      ],
+      "dependency_stage": "owner_readiness",
+      "completion_contract_ref": "execution/stage-requirements.json#default",
+      "conditional_acceptance_requirements": [
+        {
+          "when": "landing a value/quantity consumer rather than defining grammar",
+          "suppliers": [
+            "GYD-17"
+          ],
+          "property": "Accepted actual DS7 capstone value/quantity/basis witness, or an already accepted exact equivalent reconciled at P0. DS7 closed label/static hero/refusal-only output is insufficient. Early controlled surface preparation is permitted; real-value acceptance waits on this witness.",
+          "required_stage": "composed_acceptance",
+          "preparation_rule": "Consumer preparation before final replay may use a pinned interface, not claim real-data acceptance."
         }
       ]
     },
@@ -4465,7 +4671,9 @@
         "owner_delivery: reviewed native result with scoped local proof",
         "composed_acceptance: actual emitted dependencies and fresh consumer on bound source",
         "original_obligation_disposition: canonical owner decision; history preserved"
-      ]
+      ],
+      "dependency_stage": "owner_readiness",
+      "completion_contract_ref": "execution/stage-requirements.json#default"
     },
     {
       "id": "UI-08",
@@ -4496,8 +4704,8 @@
         ]
       },
       "deliverable": "Cause/authority/time/branch-bound prediction and world-growth records reach readout, MACHINE and audit.",
-      "positive": "Only prediction_error updates effect; O2 remains candidate_unverified.",
-      "adversarial": "Protective action, unresolved cause, stale branch or candidate never becomes causal authority.",
+      "positive": "Only prediction_error updates effect; O2 remains candidate_unverified. Preserve all four source-derived causes: prediction_error, implementation_failure, measurement_change, behavioral_response; only prediction_error updates the effect posterior. Compound/unresolved diagnosis remains unresolved, O2 candidate_unverified stays candidate. Deployment and acquisition updates retain distinct provenance in one versioned growing-world branch, no implied second world or merge.",
+      "adversarial": "Protective action, unresolved cause, stale branch or candidate never becomes causal authority. Collapsing any non-prediction cause into an estimate update, treating protective response as confirmation, or showing acquisition/deployment as separate worlds fails the full cause/provenance matrix.",
       "removal": "Remove O1/O3 binding but retain markers; witness fails.",
       "surface": [
         "reviewer readout",
@@ -4546,11 +4754,13 @@
         "owner_delivery: reviewed native result with scoped local proof",
         "composed_acceptance: actual emitted dependencies and fresh consumer on bound source",
         "original_obligation_disposition: canonical owner decision; history preserved"
-      ]
+      ],
+      "dependency_stage": "owner_readiness",
+      "completion_contract_ref": "execution/stage-requirements.json#default"
     },
     {
       "id": "UI-09",
-      "title": "Dispatch DS19 pending rows through their owner slices",
+      "title": "Route the complete DS19 estate, auxiliary obligations and negative lifecycle",
       "source_ids": [
         "DS19",
         "DS19-disposition-population"
@@ -4568,9 +4778,9 @@
           "Each entry's accepted owner-slice successor; root resolves full DAG"
         ]
       },
-      "deliverable": "Route all pending entries to named successors; unresolved owner stays blocked/absent-unallocated; strangle follows consumer migration.",
+      "deliverable": "Route all pending entries to named successors; unresolved owner stays blocked/absent-unallocated; strangle follows consumer migration. Walk all four canonical arrays: entries, subunits, supplemental_findings, seeded_negative_lifecycle. Bind each row to its current exact original criterion/owner, task or accepted closure/obsolete/out_of_scope disposition; reconcile source conflicts before dispatch. Entries261 alone is not the complete estate obligation set. Use inventory/atlas-auxiliary-obligations.json for the85 auxiliary decisions, not a second source register.",
       "positive": "Complete census maps each entry to owner, consumer and closure signal.",
-      "adversarial": "Filename-only successor, orphan, or delete without consumer proof stays open.",
+      "adversarial": "Filename-only successor, orphan, or delete without consumer proof stays open. Drop one row from each array, omit an open supplemental or seeded negative, or treat a negative lifecycle label as a passed test: completeness/admission must fail. Do not rebuild source-recorded closed DS7 terminal-fact or DS16 C23 refusal binding.",
       "removal": "Drop one route with markers; census finds orphan.",
       "surface": [
         "maintainer queue",
@@ -4617,7 +4827,16 @@
         "owner_delivery: reviewed native result with scoped local proof",
         "composed_acceptance: actual emitted dependencies and fresh consumer on bound source",
         "original_obligation_disposition: canonical owner decision; history preserved"
-      ]
+      ],
+      "dependency_stage": "owner_readiness",
+      "completion_contract_ref": "execution/stage-requirements.json#default",
+      "original_specific_obligations": {
+        "source_recorded_conflicts": [
+          "run-lifecycle-terminal-fact: DEBT row449 records closed; old supplemental open_debt is stale",
+          "producer-binding-readiness-scientific-depth: Atlas2161–2171 records C23 refusal binding closure; DS16 real-value grammar remains separate"
+        ],
+        "rule": "Reconcile through canonical register/generator owner at accepted-source rebind; do not edit governed source inventories during this docs-only pass or call documentary reconciliation fresh runtime verification."
+      }
     },
     {
       "id": "UI-10",
@@ -4691,7 +4910,9 @@
         "owner_delivery: reviewed native result with scoped local proof",
         "composed_acceptance: actual emitted dependencies and fresh consumer on bound source",
         "original_obligation_disposition: canonical owner decision; history preserved"
-      ]
+      ],
+      "dependency_stage": "owner_readiness",
+      "completion_contract_ref": "execution/stage-requirements.json#default"
     },
     {
       "id": "UI-11",
@@ -4769,13 +4990,15 @@
       "original_debt_refs": [
         {
           "id": "DS20-B B3 promotion CAS",
-          "source_line": 654,
+          "source_line": null,
           "criterion_ref": "inventory/debt-inventory.json#DS20-B B3 promotion CAS"
         }
       ],
       "source_criterion_locations": [
         "policy-engine/docs/plans/active/POLICYOS_ATLAS_SURFACE_IMPLEMENTATION_MASTER_PLAN.md:731"
-      ]
+      ],
+      "dependency_stage": "owner_readiness",
+      "completion_contract_ref": "execution/stage-requirements.json#default"
     },
     {
       "id": "UI-12",
@@ -4851,13 +5074,15 @@
       "original_debt_refs": [
         {
           "id": "DS20-B B5 PostgreSQL linearizability proofs",
-          "source_line": 655,
+          "source_line": null,
           "criterion_ref": "inventory/debt-inventory.json#DS20-B B5 PostgreSQL linearizability proofs"
         }
       ],
       "source_criterion_locations": [
         "policy-engine/docs/plans/active/POLICYOS_ATLAS_SURFACE_IMPLEMENTATION_MASTER_PLAN.md:732"
-      ]
+      ],
+      "dependency_stage": "owner_readiness",
+      "completion_contract_ref": "execution/stage-requirements.json#default"
     },
     {
       "id": "UI-13",
@@ -4936,13 +5161,15 @@
       "original_debt_refs": [
         {
           "id": "DS20-B-scorecard-provenance-producer-trust",
-          "source_line": 656,
+          "source_line": null,
           "criterion_ref": "inventory/debt-inventory.json#DS20-B-scorecard-provenance-producer-trust"
         }
       ],
       "source_criterion_locations": [
         "policy-engine/docs/plans/active/POLICYOS_ATLAS_SURFACE_IMPLEMENTATION_MASTER_PLAN.md:733"
-      ]
+      ],
+      "dependency_stage": "owner_readiness",
+      "completion_contract_ref": "execution/stage-requirements.json#default"
     },
     {
       "id": "UI-14",
@@ -5017,24 +5244,25 @@
       "original_debt_refs": [
         {
           "id": "DS20-B Helm policy mirror",
-          "source_line": 657,
+          "source_line": null,
           "criterion_ref": "inventory/debt-inventory.json#DS20-B Helm policy mirror"
         }
       ],
       "source_criterion_locations": [
         "policy-engine/docs/plans/active/POLICYOS_ATLAS_SURFACE_IMPLEMENTATION_MASTER_PLAN.md:734"
-      ]
+      ],
+      "dependency_stage": "owner_readiness",
+      "completion_contract_ref": "execution/stage-requirements.json#default"
     },
     {
       "id": "UI-15",
-      "title": "Route Trust Center and Docs IA unique content to DS11",
+      "title": "Resolve Trust Center/Docs IA successor scope, then deliver assigned content",
       "source_ids": [
         "DS11",
         "DS11-FULL-TRUST-CENTER-AND-DOCS-IA",
         "old-marketing-plan-material-only",
         "Phase 2.11 Trust Center",
         "Phase 2.15 Public Docs IA",
-        "DEBT:DS11-SCOPE-ADJUDICATION-RECORD",
         "DEBT:DS11-FULL-TRUST-CENTER-AND-DOCS-IA"
       ],
       "requires_other_mechanisms": [
@@ -5051,7 +5279,7 @@
           "tests/integration/runtime_frontend/test_ds11_trust_docs_surfaces.py"
         ]
       },
-      "deliverable": "Trust Center claim/evidence posture and dated downloads plus canonical-source docs landing/article IA; keep DS11 MACHINE status authoritative.",
+      "deliverable": "Prepare source-qualified Atlas-versus-marketing owner proposal for retained Phase2.11/2.15 unique content. Only after the competent architect records allocation, deliver that scope through its approved canonical owner and evidence contract; do not assume DS11 ownership from this task ID.",
       "positive": "Each claim has evidence or explicit planned posture; source/version/date and canonical doc link render.",
       "adversarial": "Unsupported certification, stale copy, signature-as-policy-authority, contradictory duplicate or private evidence never looks supported.",
       "removal": "Remove status binding but keep copy; semantic/a11y test fails.",
@@ -5104,16 +5332,16 @@
       ],
       "original_debt_refs": [
         {
-          "id": "DS11-SCOPE-ADJUDICATION-RECORD",
-          "source_line": 465,
-          "criterion_ref": "inventory/debt-inventory.json#DS11-SCOPE-ADJUDICATION-RECORD"
-        },
-        {
           "id": "DS11-FULL-TRUST-CENTER-AND-DOCS-IA",
-          "source_line": 469,
+          "source_line": null,
           "criterion_ref": "inventory/debt-inventory.json#DS11-FULL-TRUST-CENTER-AND-DOCS-IA"
         }
-      ]
+      ],
+      "dispatch_decisions": [
+        "P0-REBIND records the source-scope ruling before implementation; research/mapping can proceed. Scope not decided by UI title."
+      ],
+      "dependency_stage": "owner_readiness",
+      "completion_contract_ref": "execution/stage-requirements.json#default"
     },
     {
       "id": "UI-16",
@@ -5131,7 +5359,7 @@
       "owner_paths": {
         "existing": [
           "docs/plans/active/atlas-slices/DS11-trust-docs-posture.md",
-          "docs/plans/active/atlas-slices/DS12-public-publication-foundation.md"
+          "docs/plans/active/POLICYOS_ATLAS_SURFACE_IMPLEMENTATION_MASTER_PLAN.md#DS12"
         ],
         "proposed": [
           "DS11 claim-register exact performance claim/evidence binding"
@@ -5191,10 +5419,12 @@
       "original_debt_refs": [
         {
           "id": "DS11-GROUNDED-PERFORMANCE",
-          "source_line": 467,
+          "source_line": null,
           "criterion_ref": "inventory/debt-inventory.json#DS11-GROUNDED-PERFORMANCE"
         }
-      ]
+      ],
+      "dependency_stage": "owner_readiness",
+      "completion_contract_ref": "execution/stage-requirements.json#overrides/UI-16"
     },
     {
       "id": "UI-17",
@@ -5206,14 +5436,13 @@
         "GY-N13b",
         "GY-VC1",
         "INT-R9",
-        "DEBT:ds5-waist-successors-routed-to-unscoped-slices",
         "DEBT:ds15-mandate-intake-has-no-registered-task",
         "DEBT:wdi-acquisition-cost-basis-not-admitted",
         "DEBT:ds15-production-n13b-execution-handshake",
         "DEBT:ds15-fresh-positive-production-route",
         "DEBT:ds15-deterministic-admission-bundle-producer",
-        "DEBT:ds15-numeric-voi-metric-residual-granularity",
-        "DEBT:ds15-int-r2-gap-acquisition-case-union"
+        "DEBT:ds15-int-r2-gap-acquisition-case-union",
+        "DEBT:ds15-numeric-voi-metric-residual-granularity"
       ],
       "requires_other_mechanisms": [
         "DS15 slice closed; later route debt blocked on cost, native policy and exact route/cutoff/facet scope.",
@@ -5284,46 +5513,43 @@
       ],
       "original_debt_refs": [
         {
-          "id": "ds5-waist-successors-routed-to-unscoped-slices",
-          "source_line": 482,
-          "criterion_ref": "inventory/debt-inventory.json#ds5-waist-successors-routed-to-unscoped-slices"
-        },
-        {
           "id": "ds15-mandate-intake-has-no-registered-task",
-          "source_line": 560,
+          "source_line": null,
           "criterion_ref": "inventory/debt-inventory.json#ds15-mandate-intake-has-no-registered-task"
         },
         {
           "id": "wdi-acquisition-cost-basis-not-admitted",
-          "source_line": 583,
+          "source_line": null,
           "criterion_ref": "inventory/debt-inventory.json#wdi-acquisition-cost-basis-not-admitted"
         },
         {
           "id": "ds15-production-n13b-execution-handshake",
-          "source_line": 612,
+          "source_line": null,
           "criterion_ref": "inventory/debt-inventory.json#ds15-production-n13b-execution-handshake"
         },
         {
           "id": "ds15-fresh-positive-production-route",
-          "source_line": 613,
+          "source_line": null,
           "criterion_ref": "inventory/debt-inventory.json#ds15-fresh-positive-production-route"
         },
         {
           "id": "ds15-deterministic-admission-bundle-producer",
-          "source_line": 614,
+          "source_line": null,
           "criterion_ref": "inventory/debt-inventory.json#ds15-deterministic-admission-bundle-producer"
         },
         {
-          "id": "ds15-numeric-voi-metric-residual-granularity",
-          "source_line": 616,
-          "criterion_ref": "inventory/debt-inventory.json#ds15-numeric-voi-metric-residual-granularity"
+          "id": "ds15-int-r2-gap-acquisition-case-union",
+          "source_line": null,
+          "criterion_ref": "inventory/debt-inventory.json#ds15-int-r2-gap-acquisition-case-union"
         },
         {
-          "id": "ds15-int-r2-gap-acquisition-case-union",
-          "source_line": 617,
-          "criterion_ref": "inventory/debt-inventory.json#ds15-int-r2-gap-acquisition-case-union"
+          "id": "ds15-numeric-voi-metric-residual-granularity",
+          "source_line": null,
+          "criterion_ref": "inventory/debt-inventory.json#ds15-numeric-voi-metric-residual-granularity"
         }
-      ]
+      ],
+      "dependency_stage": "owner_readiness",
+      "completion_contract_ref": "execution/stage-requirements.json#default"
     },
     {
       "id": "UI-18",
@@ -5409,30 +5635,32 @@
       "original_debt_refs": [
         {
           "id": "GY-GAP2",
-          "source_line": 595,
+          "source_line": null,
           "criterion_ref": "inventory/debt-inventory.json#GY-GAP2"
         },
         {
           "id": "GY-GAP3",
-          "source_line": 596,
+          "source_line": null,
           "criterion_ref": "inventory/debt-inventory.json#GY-GAP3"
         },
         {
           "id": "GY-GAP5",
-          "source_line": 597,
+          "source_line": null,
           "criterion_ref": "inventory/debt-inventory.json#GY-GAP5"
         },
         {
           "id": "GY-GAP6",
-          "source_line": 598,
+          "source_line": null,
           "criterion_ref": "inventory/debt-inventory.json#GY-GAP6"
         },
         {
           "id": "ds15-gy-gap6-evidence-register-closure",
-          "source_line": 615,
+          "source_line": null,
           "criterion_ref": "inventory/debt-inventory.json#ds15-gy-gap6-evidence-register-closure"
         }
-      ]
+      ],
+      "dependency_stage": "owner_readiness",
+      "completion_contract_ref": "execution/stage-requirements.json#default"
     },
     {
       "id": "UI-19",
@@ -5450,7 +5678,8 @@
         "DEBT:ds18-positive-transition-verification-producer-missing",
         "DEBT:governed-public-record-refuses-later-epoch-heads",
         "DEBT:epoch-origin-admission-collapses-distinct-failures-into-one-refusal",
-        "DEBT:gy-n12-epoch-current-decision-lineage-carrier-unallocated"
+        "DEBT:gy-n12-epoch-current-decision-lineage-carrier-unallocated",
+        "DEBT:DS11-SCOPE-ADJUDICATION-RECORD"
       ],
       "requires_other_mechanisms": [
         "Reconcile debt closure against GY-CR4 unconfigured opt-in reader.",
@@ -5465,7 +5694,7 @@
           "DS18/GY-CR4 owner reconciliation and positive consumer route"
         ]
       },
-      "deliverable": "Keep positive transition unavailable until producer, configured reader and real consumer are source-proven.",
+      "deliverable": "Keep positive transition unavailable until producer, configured reader and real consumer are source-proven. Own the selected fresh claim/decision currentness surface composed with CAP-04 source events and LIF-02; distinguish original DS18 requiredness from new R9 event classes. Name exact native publisher/API/MACHINE readers at P0; acquisition UI-17 alone does not discharge this property.",
       "positive": "Only replayable reconciled denominator, transition and lineage render current.",
       "adversarial": "Legacy branch, opt-in None, hash equality, caller label or unappointed signer never asserts authority.",
       "removal": "Remove configured reader/lineage but leave green marker; witness fails.",
@@ -5520,35 +5749,46 @@
       "original_debt_refs": [
         {
           "id": "merged-lanes-need-a-reissue-path-neither-lane-declared",
-          "source_line": 427,
+          "source_line": null,
           "criterion_ref": "inventory/debt-inventory.json#merged-lanes-need-a-reissue-path-neither-lane-declared"
         },
         {
           "id": "DS11-CLAIM-LIFECYCLE-ORCHESTRATION",
-          "source_line": 463,
+          "source_line": null,
           "criterion_ref": "inventory/debt-inventory.json#DS11-CLAIM-LIFECYCLE-ORCHESTRATION"
         },
         {
           "id": "ds18-positive-transition-verification-producer-missing",
-          "source_line": 475,
+          "source_line": null,
           "criterion_ref": "inventory/debt-inventory.json#ds18-positive-transition-verification-producer-missing"
         },
         {
           "id": "governed-public-record-refuses-later-epoch-heads",
-          "source_line": 575,
+          "source_line": null,
           "criterion_ref": "inventory/debt-inventory.json#governed-public-record-refuses-later-epoch-heads"
         },
         {
           "id": "epoch-origin-admission-collapses-distinct-failures-into-one-refusal",
-          "source_line": 576,
+          "source_line": null,
           "criterion_ref": "inventory/debt-inventory.json#epoch-origin-admission-collapses-distinct-failures-into-one-refusal"
         },
         {
           "id": "gy-n12-epoch-current-decision-lineage-carrier-unallocated",
-          "source_line": 608,
+          "source_line": null,
           "criterion_ref": "inventory/debt-inventory.json#gy-n12-epoch-current-decision-lineage-carrier-unallocated"
+        },
+        {
+          "id": "DS11-SCOPE-ADJUDICATION-RECORD",
+          "source_line": null,
+          "criterion_ref": "inventory/debt-inventory.json#DS11-SCOPE-ADJUDICATION-RECORD"
         }
-      ]
+      ],
+      "acceptance_dependencies": [
+        "CAP-04",
+        "DEB-14"
+      ],
+      "dependency_stage": "owner_readiness",
+      "completion_contract_ref": "execution/stage-requirements.json#default"
     },
     {
       "id": "CNT-01",
@@ -5671,7 +5911,10 @@
         "owner_delivery: reviewed native result with scoped local proof",
         "composed_acceptance: actual emitted dependencies and fresh consumer on bound source",
         "original_obligation_disposition: canonical owner decision; history preserved"
-      ]
+      ],
+      "dependency_stage": "owner_readiness",
+      "completion_contract_ref": "execution/stage-requirements.json#default",
+      "selection_output": "A versioned case/profile selection binds required facets and source obligations. On change, materialize conditional acceptance/execution requirements and invalidate only affected witnesses before dispatch; P0 may prepare conditional templates before the sponsor chooses a case."
     },
     {
       "id": "CNT-02",
@@ -5765,7 +6008,9 @@
         "owner_delivery: reviewed native result with scoped local proof",
         "composed_acceptance: actual emitted dependencies and fresh consumer on bound source",
         "original_obligation_disposition: canonical owner decision; history preserved"
-      ]
+      ],
+      "dependency_stage": "owner_readiness",
+      "completion_contract_ref": "execution/stage-requirements.json#default"
     },
     {
       "id": "CNT-03",
@@ -5890,7 +6135,9 @@
         "owner_delivery: reviewed native result with scoped local proof",
         "composed_acceptance: actual emitted dependencies and fresh consumer on bound source",
         "original_obligation_disposition: canonical owner decision; history preserved"
-      ]
+      ],
+      "dependency_stage": "owner_readiness",
+      "completion_contract_ref": "execution/stage-requirements.json#default"
     },
     {
       "id": "CNT-04",
@@ -5983,8 +6230,7 @@
       ],
       "write_scope_rule": "Task evidence and owner-local data/config only by default. CAP/LIF/GYD/UI own mechanism changes; request their boundary lease rather than duplicating services.",
       "acceptance_dependencies": [
-        "CNT-03",
-        "relevant native method/permission verifier only"
+        "CNT-03"
       ],
       "read_only_mechanism_anchors": {
         "verified_existing": [
@@ -6022,20 +6268,26 @@
       "original_debt_refs": [
         {
           "id": "s3-law-to-lever-correspondence-is-unverified",
-          "source_line": 433,
+          "source_line": null,
           "criterion_ref": "inventory/debt-inventory.json#s3-law-to-lever-correspondence-is-unverified"
         },
         {
           "id": "s3-r12-legal-knowledge-store-selects-an-unavailable-version",
-          "source_line": 563,
+          "source_line": null,
           "criterion_ref": "inventory/debt-inventory.json#s3-r12-legal-knowledge-store-selects-an-unavailable-version"
         },
         {
           "id": "gy-n12-lex-amendment-valid-effect-carrier",
-          "source_line": 609,
+          "source_line": null,
           "criterion_ref": "inventory/debt-inventory.json#gy-n12-lex-amendment-valid-effect-carrier"
         }
-      ]
+      ],
+      "dependency_stage": "owner_readiness",
+      "completion_contract_ref": "execution/stage-requirements.json#default",
+      "acceptance_evidence_requirements": [
+        "relevant native method/permission verifier only"
+      ],
+      "acceptance_owner_binding": "Before composed acceptance, root resolves the relevant native verifier/use owner on the selected exact method/permission profile; bind actual verifier provenance and output. No generic method marker or empty task-ID list discharges this required evidence."
     },
     {
       "id": "CNT-05",
@@ -6120,8 +6372,7 @@
       ],
       "write_scope_rule": "Task evidence and owner-local data/config only by default. CAP/LIF/GYD/UI own mechanism changes; request their boundary lease rather than duplicating services.",
       "acceptance_dependencies": [
-        "CNT-03",
-        "relevant native method/permission verifier only"
+        "CNT-03"
       ],
       "read_only_mechanism_anchors": {
         "verified_existing": [
@@ -6151,7 +6402,13 @@
         "owner_delivery: reviewed native result with scoped local proof",
         "composed_acceptance: actual emitted dependencies and fresh consumer on bound source",
         "original_obligation_disposition: canonical owner decision; history preserved"
-      ]
+      ],
+      "dependency_stage": "owner_readiness",
+      "completion_contract_ref": "execution/stage-requirements.json#default",
+      "acceptance_evidence_requirements": [
+        "relevant native method/permission verifier only"
+      ],
+      "acceptance_owner_binding": "Before composed acceptance, root resolves the relevant native verifier/use owner on the selected exact method/permission profile; bind actual verifier provenance and output. No generic method marker or empty task-ID list discharges this required evidence."
     },
     {
       "id": "CNT-06",
@@ -6239,8 +6496,7 @@
       ],
       "write_scope_rule": "Task evidence and owner-local data/config only by default. CAP/LIF/GYD/UI own mechanism changes; request their boundary lease rather than duplicating services.",
       "acceptance_dependencies": [
-        "CNT-03",
-        "relevant native method/permission verifier only"
+        "CNT-03"
       ],
       "read_only_mechanism_anchors": {
         "verified_existing": [
@@ -6275,10 +6531,16 @@
       "original_debt_refs": [
         {
           "id": "cg2-production-relation-gold-acceptance-unspecified",
-          "source_line": 593,
+          "source_line": null,
           "criterion_ref": "inventory/debt-inventory.json#cg2-production-relation-gold-acceptance-unspecified"
         }
-      ]
+      ],
+      "dependency_stage": "owner_readiness",
+      "completion_contract_ref": "execution/stage-requirements.json#default",
+      "acceptance_evidence_requirements": [
+        "relevant native method/permission verifier only"
+      ],
+      "acceptance_owner_binding": "Before composed acceptance, root resolves the relevant native verifier/use owner on the selected exact method/permission profile; bind actual verifier provenance and output. No generic method marker or empty task-ID list discharges this required evidence."
     },
     {
       "id": "CNT-07",
@@ -6362,8 +6624,7 @@
       ],
       "write_scope_rule": "Task evidence and owner-local data/config only by default. CAP/LIF/GYD/UI own mechanism changes; request their boundary lease rather than duplicating services.",
       "acceptance_dependencies": [
-        "CNT-03",
-        "relevant native method/permission verifier only"
+        "CNT-03"
       ],
       "read_only_mechanism_anchors": {
         "verified_existing": [
@@ -6394,7 +6655,13 @@
         "owner_delivery: reviewed native result with scoped local proof",
         "composed_acceptance: actual emitted dependencies and fresh consumer on bound source",
         "original_obligation_disposition: canonical owner decision; history preserved"
-      ]
+      ],
+      "dependency_stage": "owner_readiness",
+      "completion_contract_ref": "execution/stage-requirements.json#default",
+      "acceptance_evidence_requirements": [
+        "relevant native method/permission verifier only"
+      ],
+      "acceptance_owner_binding": "Before composed acceptance, root resolves the relevant native verifier/use owner on the selected exact method/permission profile; bind actual verifier provenance and output. No generic method marker or empty task-ID list discharges this required evidence."
     },
     {
       "id": "CNT-08",
@@ -6527,7 +6794,28 @@
         "owner_delivery: reviewed native result with scoped local proof",
         "composed_acceptance: actual emitted dependencies and fresh consumer on bound source",
         "original_obligation_disposition: canonical owner decision; history preserved"
-      ]
+      ],
+      "conditional_acceptance_requirements": [
+        {
+          "when": "legal premise selected by CNT-01",
+          "suppliers": [
+            "CNT-04",
+            "CAP-05"
+          ],
+          "output": "Exact legal-content relation/applicability artifact and native verifier result",
+          "consumer": "CNT-08 changed-basis comparison; CNT-09 decision/status and permitted surface"
+        },
+        {
+          "when": "participation/value/testimony premise selected by CNT-01",
+          "suppliers": [
+            "CNT-07"
+          ],
+          "output": "Permitted occurrence/meaning/translation/challenge artifact with rights and affected-use links",
+          "consumer": "CNT-08 comparison and CNT-09 status/surface"
+        }
+      ],
+      "dependency_stage": "owner_readiness",
+      "completion_contract_ref": "execution/stage-requirements.json#default"
     },
     {
       "id": "CNT-09",
@@ -6670,7 +6958,8 @@
           "policy-engine/apps/runtime-dashboard/src/features/runs/components/acquisitionRouteExport.ts"
         ],
         "audiences": "Authorized REVIEWER/EXPERT and MACHINE/audit; public raw content out_of_scope until separately commissioned",
-        "negative": "Forged receipt, foreign purpose/tenant or stale generation cannot produce green or disclose raw bytes."
+        "negative": "Forged receipt, foreign purpose/tenant or stale generation cannot produce green or disclose raw bytes.",
+        "generated_family_ref": "execution/conflict-groups.json#runtime-api-family"
       },
       "canonical_lease_keys": [
         "write:exact-path/{canonical_repo_path}"
@@ -6680,7 +6969,28 @@
         "owner_delivery: reviewed native result with scoped local proof",
         "composed_acceptance: actual emitted dependencies and fresh consumer on bound source",
         "original_obligation_disposition: canonical owner decision; history preserved"
-      ]
+      ],
+      "conditional_acceptance_requirements": [
+        {
+          "when": "legal premise selected by CNT-01",
+          "suppliers": [
+            "CNT-04",
+            "CAP-05"
+          ],
+          "output": "Exact legal-content relation/applicability artifact and native verifier result",
+          "consumer": "CNT-08 changed-basis comparison; CNT-09 decision/status and permitted surface"
+        },
+        {
+          "when": "participation/value/testimony premise selected by CNT-01",
+          "suppliers": [
+            "CNT-07"
+          ],
+          "output": "Permitted occurrence/meaning/translation/challenge artifact with rights and affected-use links",
+          "consumer": "CNT-08 comparison and CNT-09 status/surface"
+        }
+      ],
+      "dependency_stage": "owner_readiness",
+      "completion_contract_ref": "execution/stage-requirements.json#overrides/CNT-09"
     },
     {
       "id": "OPS-01",
@@ -6709,9 +7019,9 @@
           "policy-engine/tools/ops_runners/runtime/check_effective_deployment.py"
         ]
       },
-      "deliverable": "Pinned build/lock/profile, source and purpose, actors/audience, grants, trust root, owners/deputy, stores/copies, declared targets and reversible promotion dossier.",
-      "positive": "Commissioning receipt binds the exact digest and effective profile; named owners approve the selected source/use and targets.",
-      "adversarial": "POLISYOS_ENV=production with missing or weaker POLISYOS_EXECUTION_PROFILE, absent grant, or untrusted root is rejected or carried as an explicit limitation.",
+      "deliverable": "Pinned build/lock/profile, source and purpose, actors/audience, grants, trust root, owners/deputy, stores/copies, declared targets and reversible promotion dossier. For admission keys, bind initial trust provision digest, scope and generation through an independently authenticated operator/release trust path outside the newly supplied self-signed package. An operator-selected prototype root proves only declared local candidate scope, not institutional competence.",
+      "positive": "Commissioning receipt binds the exact digest and effective profile; named owners approve the selected source/use and targets. An independently authorized initial provision is resolved and content-bound; a fresh source-use reader identifies the admitted trust generation.",
+      "adversarial": "POLISYOS_ENV=production with missing or weaker POLISYOS_EXECUTION_PROFILE, absent grant, or untrusted root is rejected or carried as an explicit limitation. A self-consistent key plus self-hash/signature has no independent appointment warrant and cannot bootstrap authority.",
       "removal": "Remove effective-profile and independent-grant verification while retaining env/manifest markers; the gate must fail its property check.",
       "surface": "Release dossier plus operator-visible effective-profile/authority receipt.",
       "resource_locks": [
@@ -6753,7 +7063,12 @@
         "owner_delivery: reviewed native result with scoped local proof",
         "composed_acceptance: actual emitted dependencies and fresh consumer on bound source",
         "original_obligation_disposition: canonical owner decision; history preserved"
-      ]
+      ],
+      "acceptance_dependencies": [
+        "CAP-03"
+      ],
+      "dependency_stage": "owner_readiness",
+      "completion_contract_ref": "execution/stage-requirements.json#default"
     },
     {
       "id": "OPS-02",
@@ -6829,7 +7144,33 @@
         "owner_delivery: reviewed native result with scoped local proof",
         "composed_acceptance: actual emitted dependencies and fresh consumer on bound source",
         "original_obligation_disposition: canonical owner decision; history preserved"
-      ]
+      ],
+      "execution_requirements": [
+        {
+          "when": "local candidate rehearsal executes",
+          "suppliers": [
+            "LIF-06",
+            "OPS-01"
+          ],
+          "property": "Enforced selected host/input/decoded-byte/concurrency/memory/scratch limits and pre-exhaustion defer/refuse. A run-count ticket or estimate is insufficient for a hard-cap claim."
+        },
+        {
+          "when": "multiple concurrent process classes/replicas share physical host",
+          "suppliers": [
+            "OPS-08"
+          ],
+          "property": "Shared enforcement accounts for every process plus OS/control/recovery reserve; per-process permit multiplication fails."
+        },
+        {
+          "when": "first real practical use rather than isolated verification",
+          "suppliers": [
+            "FINAL-USE"
+          ],
+          "property": "Actual first-use approval and commissioning; rehearsal proves no release authorization."
+        }
+      ],
+      "dependency_stage": "owner_readiness",
+      "completion_contract_ref": "execution/stage-requirements.json#default"
     },
     {
       "id": "OPS-03",
@@ -6854,7 +7195,6 @@
           "policy-engine/src/polisyos/runtime/http/container.py"
         ],
         "proposed": [
-          "policy-engine/src/polisyos/runtime/http/routes/health.py",
           "policy-engine/tests/integration/runtime/http/test_effective_profile_readiness.py"
         ]
       },
@@ -6903,7 +7243,9 @@
         "owner_delivery: reviewed native result with scoped local proof",
         "composed_acceptance: actual emitted dependencies and fresh consumer on bound source",
         "original_obligation_disposition: canonical owner decision; history preserved"
-      ]
+      ],
+      "dependency_stage": "owner_readiness",
+      "completion_contract_ref": "execution/stage-requirements.json#default"
     },
     {
       "id": "OPS-04",
@@ -6972,7 +7314,8 @@
         "deciding outputs and independent review"
       ],
       "canonical_write_candidates": [
-        "policy-engine/tools/ops_runners/runtime/ (proposed supervised entrypoint)"
+        "policy-engine/tools/ops_runners/runtime/run_control_worker.py (proposed, absent at observed C)",
+        "policy-engine/tests/integration/runtime/test_external_control_worker_lifecycle.py (proposed; exact accepted-source path at P0)"
       ],
       "read_only_mechanism_anchors": [
         "policy-engine/src/polisyos/runtime/http/services/control_worker.py",
@@ -6988,7 +7331,9 @@
         "owner_delivery: reviewed native result with scoped local proof",
         "composed_acceptance: actual emitted dependencies and fresh consumer on bound source",
         "original_obligation_disposition: canonical owner decision; history preserved"
-      ]
+      ],
+      "dependency_stage": "owner_readiness",
+      "completion_contract_ref": "execution/stage-requirements.json#default"
     },
     {
       "id": "OPS-05",
@@ -7020,9 +7365,9 @@
           "policy-engine/tests/integration/runtime/http/test_control_store_restore.py"
         ]
       },
-      "deliverable": "Versioned control-store schema, expand/contract and N-1 reader gates, backup inventory, quarantine restore receipt, and reconciled DB/control/CAS/right-history recovery procedure.",
-      "positive": "Restore from an actual supported backup meets owner-set RPO/RTO measured from start to fresh protected read and includes all post-snapshot revocations before admission.",
-      "adversarial": "Partial DB/CAS cut, missing WAL/object, old snapshot that predates revocation, interrupted migration, and N-1 reader detect mismatch and remain quarantined.",
+      "deliverable": "Versioned control-store schema, expand/contract and N-1 reader gates, backup inventory, quarantine restore receipt, and reconciled DB/control/CAS/right-history recovery procedure. Bind the actual filesystem-CAS mount/volume type, relevant options, topology and durability/visibility guarantees in the selected dossier; filesystem labels do not imply remote/host-failure parity.",
+      "positive": "Restore from an actual supported backup meets owner-set RPO/RTO measured from start to fresh protected read and includes all post-snapshot revocations before admission. Separate API/worker instances on the exact selected CAS mount survive concurrent publication, crash/restart and quarantine restore with the declared visibility/durability semantics.",
+      "adversarial": "Partial DB/CAS cut, missing WAL/object, old snapshot that predates revocation, interrupted migration, and N-1 reader detect mismatch and remain quarantined. Changing a local directory to an untested network/container volume cannot inherit its conformance; partial rename/write/lock or persistence differences remain verification_missing.",
       "removal": "Remove hash/reference/revocation reconciliation but keep backup/restore markers; restore test must fail to authorize fresh read.",
       "surface": "Migration receipt, quarantine/restore status, audit trail, and controlled fresh-read gate.",
       "resource_locks": [
@@ -7073,10 +7418,12 @@
       "original_debt_refs": [
         {
           "id": "DS20-B B5 PostgreSQL linearizability proofs",
-          "source_line": 655,
+          "source_line": null,
           "criterion_ref": "inventory/debt-inventory.json#DS20-B B5 PostgreSQL linearizability proofs"
         }
-      ]
+      ],
+      "dependency_stage": "owner_readiness",
+      "completion_contract_ref": "execution/stage-requirements.json#default"
     },
     {
       "id": "OPS-06",
@@ -7154,7 +7501,9 @@
         "owner_delivery: reviewed native result with scoped local proof",
         "composed_acceptance: actual emitted dependencies and fresh consumer on bound source",
         "original_obligation_disposition: canonical owner decision; history preserved"
-      ]
+      ],
+      "dependency_stage": "owner_readiness",
+      "completion_contract_ref": "execution/stage-requirements.json#default"
     },
     {
       "id": "OPS-07",
@@ -7234,7 +7583,9 @@
         "owner_delivery: reviewed native result with scoped local proof",
         "composed_acceptance: actual emitted dependencies and fresh consumer on bound source",
         "original_obligation_disposition: canonical owner decision; history preserved"
-      ]
+      ],
+      "dependency_stage": "owner_readiness",
+      "completion_contract_ref": "execution/stage-requirements.json#default"
     },
     {
       "id": "OPS-08",
@@ -7321,7 +7672,9 @@
         "owner_delivery: reviewed native result with scoped local proof",
         "composed_acceptance: actual emitted dependencies and fresh consumer on bound source",
         "original_obligation_disposition: canonical owner decision; history preserved"
-      ]
+      ],
+      "dependency_stage": "owner_readiness",
+      "completion_contract_ref": "execution/stage-requirements.json#default"
     },
     {
       "id": "OPS-09",
@@ -7403,7 +7756,9 @@
         "owner_delivery: reviewed native result with scoped local proof",
         "composed_acceptance: actual emitted dependencies and fresh consumer on bound source",
         "original_obligation_disposition: canonical owner decision; history preserved"
-      ]
+      ],
+      "dependency_stage": "owner_readiness",
+      "completion_contract_ref": "execution/stage-requirements.json#overrides/OPS-09"
     },
     {
       "id": "OPS-10",
@@ -7489,7 +7844,9 @@
         "owner_delivery: reviewed native result with scoped local proof",
         "composed_acceptance: actual emitted dependencies and fresh consumer on bound source",
         "original_obligation_disposition: canonical owner decision; history preserved"
-      ]
+      ],
+      "dependency_stage": "owner_readiness",
+      "completion_contract_ref": "execution/stage-requirements.json#overrides/OPS-10"
     },
     {
       "id": "OPS-11",
@@ -7519,9 +7876,9 @@
         ]
       },
       "deliverable": "Authenticated root succession/compromise recovery and durable currentness duty owner/deputy, deadline, reaction, signed transfer or validity cutoff.",
-      "positive": "Authorized successor rotates trust and assumes watch duties; first current claim is gated on active watch; retirement records acceptance or signed cutoff.",
-      "adversarial": "Self-authorized key substitution, old-root rollback, snapshot restore that drops a revocation, or unsigned shutdown cannot preserve current status; a missing duty owner or missed deadline gates the affected currentness path, while independently owned claims may continue.",
-      "removal": "Remove independent successor authorization or cutoff owner while leaving hash/owner fields; property tests must reject the self-consistent marker-only path.",
+      "positive": "Authorized successor rotates trust and assumes watch duties; first current claim is gated on active watch; retirement records acceptance or signed cutoff. After compromise of the currently trusted root, an independently authorized recovery path admits the exact successor scope/generation; the compromised key alone cannot authorize its replacement.",
+      "adversarial": "Self-authorized key substitution, old-root rollback, snapshot restore that drops a revocation, or unsigned shutdown cannot preserve current status; a missing duty owner or missed deadline gates the affected currentness path, while independently owned claims may continue. Self-signed replacement, old-root rollback and recovery signed only by the compromised root refuse; historic signature validity never implies current-use permission.",
+      "removal": "Remove independent successor authorization or cutoff owner while leaving hash/owner fields; property tests must reject the self-consistent marker-only path. Remove independent recovery admission but keep a valid signature chain; the fresh CAP-03 reader must reject unauthorized current trust.",
       "surface": "Trust generation, duty owner/deputy, watch health, transfer/cutoff, and claim currentness projection.",
       "resource_locks": [
         "trust root and generation state",
@@ -7569,7 +7926,13 @@
         "owner_delivery: reviewed native result with scoped local proof",
         "composed_acceptance: actual emitted dependencies and fresh consumer on bound source",
         "original_obligation_disposition: canonical owner decision; history preserved"
-      ]
+      ],
+      "acceptance_dependencies": [
+        "CAP-03",
+        "LIF-08"
+      ],
+      "dependency_stage": "owner_readiness",
+      "completion_contract_ref": "execution/stage-requirements.json#default"
     },
     {
       "id": "OPS-12",
@@ -7648,7 +8011,9 @@
         "owner_delivery: reviewed native result with scoped local proof",
         "composed_acceptance: actual emitted dependencies and fresh consumer on bound source",
         "original_obligation_disposition: canonical owner decision; history preserved"
-      ]
+      ],
+      "dependency_stage": "owner_readiness",
+      "completion_contract_ref": "execution/stage-requirements.json#overrides/OPS-12"
     },
     {
       "id": "P0-ACCEPT",
@@ -7685,7 +8050,9 @@
         "owner_delivery: reviewed native result with scoped local proof",
         "composed_acceptance: actual emitted dependencies and fresh consumer on bound source",
         "original_obligation_disposition: canonical owner decision; history preserved"
-      ]
+      ],
+      "dependency_stage": "owner_readiness",
+      "completion_contract_ref": "execution/stage-requirements.json#default"
     },
     {
       "id": "P0-REBIND",
@@ -7704,12 +8071,16 @@
         "external-foundations R9",
         "DEBT:literature-infers-evidence-class-from-a-sentence",
         "DEBT:extraction-ask-offers-six-of-ten-evidence-classes",
-        "DEBT:GY-DEFC-3"
+        "DEBT:GY-DEFC-3",
+        "DEBT:ds8-public-case-publication",
+        "DEBT:ds8-signed-public-decision-surface",
+        "DEBT:ds5-waist-successors-routed-to-unscoped-slices",
+        "DEBT:DS11-FULL-TRUST-CENTER-AND-DOCS-IA"
       ],
       "owner_paths": [
         "Program task manifest and original source owners"
       ],
-      "deliverable": "Rebind every scheduled owner, criterion, closed mechanism and residual against accepted E02; resolve exact read/write/API families. Reconciliation itself uses parallel read-only owner mappers. Mechanism dispatch starts after this bounded complete checkpoint, not after a partial unmarked reconciliation.",
+      "deliverable": "Rebind every scheduled owner, criterion, closed mechanism and residual against accepted E02; resolve exact read/write/API families. Reconciliation itself uses parallel read-only owner mappers. Mechanism dispatch starts after this bounded complete checkpoint, not after a partial unmarked reconciliation. Explicitly reconcile the original scope-acquisition signals of the two DS8 rows without substituting publication success; resolve Trust/Docs Atlas-versus-marketing routing and DS5 remaining promotion-union allocation. A pending decision keeps affected implementation unleased; it does not silently close an obligation.",
       "positive": "All original inventories have explicit routes; shared mechanisms have one writer.",
       "adversarial": "Stale count/duplicate owner/omitted nonclosed row blocks dispatch of affected task.",
       "removal": "Remove the decisive native binding while retaining declarations; the unchanged consumer/gate must fail its exact property. For documentary reconciliation, dropping a source obligation must be detected.",
@@ -7734,19 +8105,47 @@
       "original_debt_refs": [
         {
           "id": "literature-infers-evidence-class-from-a-sentence",
-          "source_line": 521,
+          "source_line": null,
           "criterion_ref": "inventory/debt-inventory.json#literature-infers-evidence-class-from-a-sentence"
         },
         {
           "id": "extraction-ask-offers-six-of-ten-evidence-classes",
-          "source_line": 522,
+          "source_line": null,
           "criterion_ref": "inventory/debt-inventory.json#extraction-ask-offers-six-of-ten-evidence-classes"
         },
         {
           "id": "GY-DEFC-3",
-          "source_line": 666,
+          "source_line": null,
           "criterion_ref": "inventory/debt-inventory.json#GY-DEFC-3"
+        },
+        {
+          "id": "ds8-public-case-publication",
+          "source_line": null,
+          "criterion_ref": "inventory/debt-inventory.json#ds8-public-case-publication"
+        },
+        {
+          "id": "ds8-signed-public-decision-surface",
+          "source_line": null,
+          "criterion_ref": "inventory/debt-inventory.json#ds8-signed-public-decision-surface"
+        },
+        {
+          "id": "ds5-waist-successors-routed-to-unscoped-slices",
+          "source_line": null,
+          "criterion_ref": "inventory/debt-inventory.json#ds5-waist-successors-routed-to-unscoped-slices"
+        },
+        {
+          "id": "DS11-FULL-TRUST-CENTER-AND-DOCS-IA",
+          "source_line": null,
+          "criterion_ref": "inventory/debt-inventory.json#DS11-FULL-TRUST-CENTER-AND-DOCS-IA"
         }
+      ],
+      "dependency_stage": "owner_readiness",
+      "completion_contract_ref": "execution/stage-requirements.json#default",
+      "selected_binding_requirements": [
+        "Reconcile each current original predicate, not just ID membership; resolve explicit source conflicts before affected implementation.",
+        "Expand selected conditional facets and deployment claims into source-task -> persisted artifact -> verifier/use owner -> consumer/status -> surface witnesses.",
+        "Bind each exact semantic/file/generated owner once; classify build edges, composition witness edges, execution permits and original disposition separately.",
+        "Recompute the selected stage graph and resource/conflict admission before dispatch. Absence of a selected producer adds a bounded owner task or producer_missing, never a free-text bypass."
       ]
     },
     {
@@ -7771,9 +8170,9 @@
         "policy-engine/tools/quality/validation",
         "policy-engine/architecture"
       ],
-      "deliverable": "Declare full roots/filetypes/predicates and actual input identity for each diagnostic; migrate all in-scope instruments and close the census blind spots.",
+      "deliverable": "Declare full roots/filetypes/predicates and actual input identity for each diagnostic; migrate all in-scope instruments and close the census blind spots. For transitive-runner-closure-unbound, replay its existing covered executable/transitive-chunk falsifier when the runner surface or any of its inputs changes, including transitive chunk bytes with unchanged entry identity and bind the complete current path/file-type denominator. Preserve intake-only attestation; do not silently commission new out-of-band attestation infrastructure or close the bounded residual.",
       "positive": "Same inputs reproduce absence; an outside-root founding instrument is detected.",
-      "adversarial": "Retain headline/markers but omit an input root or unreadable source; no false absence.",
+      "adversarial": "Retain headline/markers but omit an input root or unreadable source; no false absence. A modified transitive executable with unchanged entry identity must be observed as the original falsifier specifies; an intake receipt must not claim executable integrity. If stronger integrity is claimed, independently admitted out-of-band runner identity must actually be resolved and bound; otherwise not_established.",
       "removal": "Remove the decisive native binding while retaining declarations; the unchanged consumer/gate must fail its exact property. For documentary reconciliation, dropping a source obligation must be detected.",
       "surface": "Source-qualified journal, native API/audit or explicit out_of_scope; no invented authority.",
       "resource_locks": [
@@ -7796,35 +8195,37 @@
       "original_debt_refs": [
         {
           "id": "instruments-report-absence-without-declaring-what-they-read",
-          "source_line": 567,
+          "source_line": null,
           "criterion_ref": "inventory/debt-inventory.json#instruments-report-absence-without-declaring-what-they-read"
         },
         {
           "id": "absence-instruments-await-input-disclosure-migration",
-          "source_line": 569,
+          "source_line": null,
           "criterion_ref": "inventory/debt-inventory.json#absence-instruments-await-input-disclosure-migration"
         },
         {
           "id": "absence-instrument-census-covers-six-percent-of-executable-source",
-          "source_line": 570,
+          "source_line": null,
           "criterion_ref": "inventory/debt-inventory.json#absence-instrument-census-covers-six-percent-of-executable-source"
         },
         {
           "id": "singleton-literal-census-predicate-unstated",
-          "source_line": 581,
+          "source_line": null,
           "criterion_ref": "inventory/debt-inventory.json#singleton-literal-census-predicate-unstated"
         },
         {
           "id": "trust-posture-literal-census-pins-a-total-that-source-growth-moves",
-          "source_line": 584,
+          "source_line": null,
           "criterion_ref": "inventory/debt-inventory.json#trust-posture-literal-census-pins-a-total-that-source-growth-moves"
         },
         {
           "id": "transitive-runner-closure-unbound",
-          "source_line": 602,
+          "source_line": null,
           "criterion_ref": "inventory/debt-inventory.json#transitive-runner-closure-unbound"
         }
-      ]
+      ],
+      "dependency_stage": "owner_readiness",
+      "completion_contract_ref": "execution/stage-requirements.json#default"
     },
     {
       "id": "DEB-02",
@@ -7870,15 +8271,17 @@
       "original_debt_refs": [
         {
           "id": "pyproject-size-gate-is-satisfied-by-relocation",
-          "source_line": 572,
+          "source_line": null,
           "criterion_ref": "inventory/debt-inventory.json#pyproject-size-gate-is-satisfied-by-relocation"
         },
         {
           "id": "openapi-snapshot-pins-environment-derived-digests",
-          "source_line": 574,
+          "source_line": null,
           "criterion_ref": "inventory/debt-inventory.json#openapi-snapshot-pins-environment-derived-digests"
         }
-      ]
+      ],
+      "dependency_stage": "owner_readiness",
+      "completion_contract_ref": "execution/stage-requirements.json#default"
     },
     {
       "id": "DEB-03",
@@ -7924,15 +8327,17 @@
       "original_debt_refs": [
         {
           "id": "cross-module-private-names-reached-from-src",
-          "source_line": 577,
+          "source_line": null,
           "criterion_ref": "inventory/debt-inventory.json#cross-module-private-names-reached-from-src"
         },
         {
           "id": "release-fragments-declare-python-public-api-breaks-without-inventory-review",
-          "source_line": 582,
+          "source_line": null,
           "criterion_ref": "inventory/debt-inventory.json#release-fragments-declare-python-public-api-breaks-without-inventory-review"
         }
-      ]
+      ],
+      "dependency_stage": "owner_readiness",
+      "completion_contract_ref": "execution/stage-requirements.json#default"
     },
     {
       "id": "DEB-04",
@@ -7980,30 +8385,32 @@
       "original_debt_refs": [
         {
           "id": "education-importer-provenance-neither-inherited-nor-excluded",
-          "source_line": 562,
+          "source_line": null,
           "criterion_ref": "inventory/debt-inventory.json#education-importer-provenance-neither-inherited-nor-excluded"
         },
         {
           "id": "governed-projection-test-replaces-a-production-module-in-sys-modules",
-          "source_line": 578,
+          "source_line": null,
           "criterion_ref": "inventory/debt-inventory.json#governed-projection-test-replaces-a-production-module-in-sys-modules"
         },
         {
           "id": "n13a-fail-closed-tests-take-catalog-absence-from-the-repository-layout",
-          "source_line": 579,
+          "source_line": null,
           "criterion_ref": "inventory/debt-inventory.json#n13a-fail-closed-tests-take-catalog-absence-from-the-repository-layout"
         },
         {
           "id": "value-gate-tests-red-on-unresolved-dependency-discriminant-bytes",
-          "source_line": 580,
+          "source_line": null,
           "criterion_ref": "inventory/debt-inventory.json#value-gate-tests-red-on-unresolved-dependency-discriminant-bytes"
         },
         {
           "id": "GY-DEF22",
-          "source_line": 599,
+          "source_line": null,
           "criterion_ref": "inventory/debt-inventory.json#GY-DEF22"
         }
-      ]
+      ],
+      "dependency_stage": "owner_readiness",
+      "completion_contract_ref": "execution/stage-requirements.json#default"
     },
     {
       "id": "DEB-05",
@@ -8050,20 +8457,22 @@
       "original_debt_refs": [
         {
           "id": "udf-retained-source-schema-is-malformed-and-stays-ambiguous",
-          "source_line": 565,
+          "source_line": null,
           "criterion_ref": "inventory/debt-inventory.json#udf-retained-source-schema-is-malformed-and-stays-ambiguous"
         },
         {
           "id": "calibration-schema-version-regex-rejects-its-own-default",
-          "source_line": 573,
+          "source_line": null,
           "criterion_ref": "inventory/debt-inventory.json#calibration-schema-version-regex-rejects-its-own-default"
         },
         {
           "id": "calibration-report-fixture-blanket-fields",
-          "source_line": 684,
+          "source_line": null,
           "criterion_ref": "inventory/debt-inventory.json#calibration-report-fixture-blanket-fields"
         }
-      ]
+      ],
+      "dependency_stage": "owner_readiness",
+      "completion_contract_ref": "execution/stage-requirements.json#default"
     },
     {
       "id": "DEB-06",
@@ -8113,30 +8522,32 @@
       "original_debt_refs": [
         {
           "id": "merged-lanes-need-a-reissue-path-neither-lane-declared",
-          "source_line": 427,
+          "source_line": null,
           "criterion_ref": "inventory/debt-inventory.json#merged-lanes-need-a-reissue-path-neither-lane-declared"
         },
         {
           "id": "ds18-positive-transition-verification-producer-missing",
-          "source_line": 475,
+          "source_line": null,
           "criterion_ref": "inventory/debt-inventory.json#ds18-positive-transition-verification-producer-missing"
         },
         {
           "id": "governed-public-record-refuses-later-epoch-heads",
-          "source_line": 575,
+          "source_line": null,
           "criterion_ref": "inventory/debt-inventory.json#governed-public-record-refuses-later-epoch-heads"
         },
         {
           "id": "epoch-origin-admission-collapses-distinct-failures-into-one-refusal",
-          "source_line": 576,
+          "source_line": null,
           "criterion_ref": "inventory/debt-inventory.json#epoch-origin-admission-collapses-distinct-failures-into-one-refusal"
         },
         {
           "id": "gy-n12-epoch-current-decision-lineage-carrier-unallocated",
-          "source_line": 608,
+          "source_line": null,
           "criterion_ref": "inventory/debt-inventory.json#gy-n12-epoch-current-decision-lineage-carrier-unallocated"
         }
-      ]
+      ],
+      "dependency_stage": "owner_readiness",
+      "completion_contract_ref": "execution/stage-requirements.json#default"
     },
     {
       "id": "DEB-07",
@@ -8151,13 +8562,11 @@
       "source_ids": [
         "DEBT:corr-wave-unowned-destinations",
         "DEBT:int-r2-ceiling-vocabulary-owners",
-        "DEBT:DS11-SCOPE-ADJUDICATION-RECORD",
         "DEBT:estimand-binding-strength-terms-unregistered",
         "DEBT:wdi-acquisition-cost-basis-not-admitted",
         "DEBT:ds15-production-n13b-execution-handshake",
         "DEBT:ds15-fresh-positive-production-route",
         "DEBT:ds15-deterministic-admission-bundle-producer",
-        "DEBT:ds15-numeric-voi-metric-residual-granularity",
         "DEBT:ds15-int-r2-gap-acquisition-case-union"
       ],
       "owner_paths": [
@@ -8190,50 +8599,47 @@
       "original_debt_refs": [
         {
           "id": "corr-wave-unowned-destinations",
-          "source_line": 432,
+          "source_line": null,
           "criterion_ref": "inventory/debt-inventory.json#corr-wave-unowned-destinations"
         },
         {
           "id": "int-r2-ceiling-vocabulary-owners",
-          "source_line": 437,
+          "source_line": null,
           "criterion_ref": "inventory/debt-inventory.json#int-r2-ceiling-vocabulary-owners"
         },
         {
           "id": "estimand-binding-strength-terms-unregistered",
-          "source_line": 566,
+          "source_line": null,
           "criterion_ref": "inventory/debt-inventory.json#estimand-binding-strength-terms-unregistered"
         },
         {
           "id": "wdi-acquisition-cost-basis-not-admitted",
-          "source_line": 583,
+          "source_line": null,
           "criterion_ref": "inventory/debt-inventory.json#wdi-acquisition-cost-basis-not-admitted"
         },
         {
           "id": "ds15-production-n13b-execution-handshake",
-          "source_line": 612,
+          "source_line": null,
           "criterion_ref": "inventory/debt-inventory.json#ds15-production-n13b-execution-handshake"
         },
         {
           "id": "ds15-fresh-positive-production-route",
-          "source_line": 613,
+          "source_line": null,
           "criterion_ref": "inventory/debt-inventory.json#ds15-fresh-positive-production-route"
         },
         {
           "id": "ds15-deterministic-admission-bundle-producer",
-          "source_line": 614,
+          "source_line": null,
           "criterion_ref": "inventory/debt-inventory.json#ds15-deterministic-admission-bundle-producer"
         },
         {
-          "id": "ds15-numeric-voi-metric-residual-granularity",
-          "source_line": 616,
-          "criterion_ref": "inventory/debt-inventory.json#ds15-numeric-voi-metric-residual-granularity"
-        },
-        {
           "id": "ds15-int-r2-gap-acquisition-case-union",
-          "source_line": 617,
+          "source_line": null,
           "criterion_ref": "inventory/debt-inventory.json#ds15-int-r2-gap-acquisition-case-union"
         }
-      ]
+      ],
+      "dependency_stage": "owner_readiness",
+      "completion_contract_ref": "execution/stage-requirements.json#default"
     },
     {
       "id": "DEB-08",
@@ -8283,30 +8689,32 @@
       "original_debt_refs": [
         {
           "id": "GY-GAP2",
-          "source_line": 595,
+          "source_line": null,
           "criterion_ref": "inventory/debt-inventory.json#GY-GAP2"
         },
         {
           "id": "GY-GAP3",
-          "source_line": 596,
+          "source_line": null,
           "criterion_ref": "inventory/debt-inventory.json#GY-GAP3"
         },
         {
           "id": "GY-GAP5",
-          "source_line": 597,
+          "source_line": null,
           "criterion_ref": "inventory/debt-inventory.json#GY-GAP5"
         },
         {
           "id": "GY-GAP6",
-          "source_line": 598,
+          "source_line": null,
           "criterion_ref": "inventory/debt-inventory.json#GY-GAP6"
         },
         {
           "id": "ds15-gy-gap6-evidence-register-closure",
-          "source_line": 615,
+          "source_line": null,
           "criterion_ref": "inventory/debt-inventory.json#ds15-gy-gap6-evidence-register-closure"
         }
-      ]
+      ],
+      "dependency_stage": "owner_readiness",
+      "completion_contract_ref": "execution/stage-requirements.json#default"
     },
     {
       "id": "DEB-09",
@@ -8329,8 +8737,6 @@
         "DEBT:w5-institutional-authority-slots",
         "DEBT:gy-n12-epoch-predicate-policy-authority-unappointed",
         "DEBT:gy-n12-epoch-transition-signing-authority-unappointed",
-        "DEBT:DS11-SCOPE-ADJUDICATION-RECORD",
-        "DEBT:ds5-waist-successors-routed-to-unscoped-slices",
         "DEBT:GY-DEF22",
         "DEBT:GY-DEF23"
       ],
@@ -8363,71 +8769,66 @@
       ],
       "original_debt_refs": [
         {
-          "id": "DS11-SCOPE-ADJUDICATION-RECORD",
-          "source_line": 465,
-          "criterion_ref": "inventory/debt-inventory.json#DS11-SCOPE-ADJUDICATION-RECORD"
-        },
-        {
           "id": "ds18-epoch-predicate-policy-signer-unappointed",
-          "source_line": 471,
+          "source_line": null,
           "criterion_ref": "inventory/debt-inventory.json#ds18-epoch-predicate-policy-signer-unappointed"
         },
         {
           "id": "ds18-epoch-transition-signer-unappointed",
-          "source_line": 472,
+          "source_line": null,
           "criterion_ref": "inventory/debt-inventory.json#ds18-epoch-transition-signer-unappointed"
         },
         {
           "id": "ds18-epoch-history-independent-holder-unappointed",
-          "source_line": 473,
+          "source_line": null,
           "criterion_ref": "inventory/debt-inventory.json#ds18-epoch-history-independent-holder-unappointed"
         },
         {
           "id": "ds15-signed-v2-delegation-mandate-owner-authority",
-          "source_line": 478,
+          "source_line": null,
           "criterion_ref": "inventory/debt-inventory.json#ds15-signed-v2-delegation-mandate-owner-authority"
         },
         {
           "id": "ds15-semantic-epoch-qualification-authority",
-          "source_line": 479,
+          "source_line": null,
           "criterion_ref": "inventory/debt-inventory.json#ds15-semantic-epoch-qualification-authority"
         },
         {
-          "id": "ds5-waist-successors-routed-to-unscoped-slices",
-          "source_line": 482,
-          "criterion_ref": "inventory/debt-inventory.json#ds5-waist-successors-routed-to-unscoped-slices"
-        },
-        {
           "id": "ds15-mandate-intake-has-no-registered-task",
-          "source_line": 560,
+          "source_line": null,
           "criterion_ref": "inventory/debt-inventory.json#ds15-mandate-intake-has-no-registered-task"
         },
         {
           "id": "w5-institutional-authority-slots",
-          "source_line": 590,
+          "source_line": null,
           "criterion_ref": "inventory/debt-inventory.json#w5-institutional-authority-slots"
         },
         {
           "id": "GY-DEF22",
-          "source_line": 599,
+          "source_line": null,
           "criterion_ref": "inventory/debt-inventory.json#GY-DEF22"
         },
         {
           "id": "GY-DEF23",
-          "source_line": 604,
+          "source_line": null,
           "criterion_ref": "inventory/debt-inventory.json#GY-DEF23"
         },
         {
           "id": "gy-n12-epoch-predicate-policy-authority-unappointed",
-          "source_line": 606,
+          "source_line": null,
           "criterion_ref": "inventory/debt-inventory.json#gy-n12-epoch-predicate-policy-authority-unappointed"
         },
         {
           "id": "gy-n12-epoch-transition-signing-authority-unappointed",
-          "source_line": 607,
+          "source_line": null,
           "criterion_ref": "inventory/debt-inventory.json#gy-n12-epoch-transition-signing-authority-unappointed"
         }
-      ]
+      ],
+      "dependency_stage": "owner_readiness",
+      "completion_contract_ref": "execution/stage-requirements.json#overrides/DEB-09",
+      "original_specific_obligations": {
+        "GY-DEF22": "Obtain the exact appointed Foundry catalog/discovery owner acceptance of all six bounded claims with content-bound readback. This is separate from FA1 mechanisms and from P41 attribution of the two-host digest mismatch. Neither acceptance nor provenance finding closes the other."
+      }
     },
     {
       "id": "DEB-10",
@@ -8473,20 +8874,22 @@
       "original_debt_refs": [
         {
           "id": "DS11-EXTERNAL-A11Y-COUNTERSIGN",
-          "source_line": 466,
+          "source_line": null,
           "criterion_ref": "inventory/debt-inventory.json#DS11-EXTERNAL-A11Y-COUNTERSIGN"
         },
         {
           "id": "DS11-INHERITED-C13-PRINT-RECEIPT",
-          "source_line": 468,
+          "source_line": null,
           "criterion_ref": "inventory/debt-inventory.json#DS11-INHERITED-C13-PRINT-RECEIPT"
         },
         {
           "id": "ds10-c13-print-receipt-reissue",
-          "source_line": 646,
+          "source_line": null,
           "criterion_ref": "inventory/debt-inventory.json#ds10-c13-print-receipt-reissue"
         }
-      ]
+      ],
+      "dependency_stage": "owner_readiness",
+      "completion_contract_ref": "execution/stage-requirements.json#default"
     },
     {
       "id": "DEB-11",
@@ -8531,19 +8934,21 @@
       "original_debt_refs": [
         {
           "id": "aiohttp Fabric connector cleanup",
-          "source_line": 658,
+          "source_line": null,
           "criterion_ref": "inventory/debt-inventory.json#aiohttp Fabric connector cleanup"
         },
         {
           "id": "worktree-tooling-gap",
-          "source_line": 659,
+          "source_line": null,
           "criterion_ref": "inventory/debt-inventory.json#worktree-tooling-gap"
         }
       ],
       "source_criterion_locations": [
         "policy-engine/docs/plans/active/POLICYOS_ATLAS_SURFACE_IMPLEMENTATION_MASTER_PLAN.md:735 (two unclosed connector/session diagnostics from authorized discover_data_sources/resolve_data_needs)",
         "policy-engine/docs/plans/active/POLICYOS_ATLAS_SURFACE_IMPLEMENTATION_MASTER_PLAN.md:726 (fresh-worktree toolchain baseline; DS1/DS19 non-receipts)"
-      ]
+      ],
+      "dependency_stage": "owner_readiness",
+      "completion_contract_ref": "execution/stage-requirements.json#default"
     },
     {
       "id": "DEB-12",
@@ -8586,14 +8991,16 @@
       "original_debt_refs": [
         {
           "id": "foundry-requirements-flat-manifest-consumer-unmeasured",
-          "source_line": 564,
+          "source_line": null,
           "criterion_ref": "inventory/debt-inventory.json#foundry-requirements-flat-manifest-consumer-unmeasured"
         }
-      ]
+      ],
+      "dependency_stage": "owner_readiness",
+      "completion_contract_ref": "execution/stage-requirements.json#default"
     },
     {
       "id": "FINAL-FREEZE",
-      "title": "Freeze composed source and all obligation dispositions",
+      "title": "Freeze internal source readiness and truthful current obligation dispositions",
       "workstream": "FINAL",
       "task_mode": "checkpoint",
       "implementation_status": "planned_after_E02_acceptance",
@@ -8697,14 +9104,17 @@
         "DEB-09",
         "DEB-10",
         "DEB-11",
-        "DEB-12"
+        "DEB-12",
+        "DEB-13",
+        "DEB-14",
+        "UI-20"
       ],
       "source_ids": [],
       "owner_paths": [
         "Integration branch and programme records"
       ],
-      "deliverable": "One exact composition and explicit applicable/unselected profile matrix, with every mandatory internal task complete.",
-      "positive": "Every included interface/consumer binds the frozen tree.",
+      "deliverable": "Freeze exact internal owner-ready source, input/backend/profile selection and the complete original obligation ledger with truthful current dispositions. Owner-ready is not original closure; genuine unavailable inputs may remain explicit and prevent later release. Selected missing internal mechanisms block freeze. No final global replay is required to satisfy its own predecessor.",
+      "positive": "All admitted owner-readiness predicates resolved; selected producer/consumer bindings are concrete; unavailable external predicates and unselected conditional tiers remain visible without green credit.",
       "adversarial": "Unresolved internal capability cannot be disguised as external input.",
       "removal": "Remove the decisive native binding while retaining declarations; the unchanged consumer/gate must fail its exact property. For documentary reconciliation, dropping a source obligation must be detected.",
       "surface": "Source-qualified journal, native API/audit or explicit out_of_scope; no invented authority.",
@@ -8724,7 +9134,10 @@
         "owner_delivery: reviewed native result with scoped local proof",
         "composed_acceptance: actual emitted dependencies and fresh consumer on bound source",
         "original_obligation_disposition: canonical owner decision; history preserved"
-      ]
+      ],
+      "dependency_stage": "owner_readiness",
+      "completion_contract_ref": "execution/stage-requirements.json#default",
+      "release_credit": null
     },
     {
       "id": "FINAL-REVIEW",
@@ -8761,7 +9174,10 @@
         "owner_delivery: reviewed native result with scoped local proof",
         "composed_acceptance: actual emitted dependencies and fresh consumer on bound source",
         "original_obligation_disposition: canonical owner decision; history preserved"
-      ]
+      ],
+      "dependency_stage": "frozen_review_candidate",
+      "completion_contract_ref": "execution/stage-requirements.json#default",
+      "final_identity_rule": "Initial freeze is the review candidate. After blocking fixes and independent delta review, root records the final replay source/tree plus exact input/backend/upstream identities; prior review carries only across demonstrably unchanged bound scope."
     },
     {
       "id": "FINAL-REPLAY",
@@ -8799,7 +9215,9 @@
         "owner_delivery: reviewed native result with scoped local proof",
         "composed_acceptance: actual emitted dependencies and fresh consumer on bound source",
         "original_obligation_disposition: canonical owner decision; history preserved"
-      ]
+      ],
+      "dependency_stage": "final_reviewed_replay_identity",
+      "completion_contract_ref": "execution/stage-requirements.json#default"
     },
     {
       "id": "FINAL-USE",
@@ -8836,7 +9254,196 @@
         "owner_delivery: reviewed native result with scoped local proof",
         "composed_acceptance: actual emitted dependencies and fresh consumer on bound source",
         "original_obligation_disposition: canonical owner decision; history preserved"
+      ],
+      "dependency_stage": "composed_verification_and_original_dispositions",
+      "completion_contract_ref": "execution/stage-requirements.json#default",
+      "required_original_dispositions": {
+        "source_sets": [
+          "inventory/gy-inventory.json",
+          "inventory/atlas-inventory.json",
+          "inventory/debt-inventory.json",
+          "inventory/r9-obligations.json"
+        ],
+        "rule": "Read the entire rebound original set and each required predicate; each mandatory original needs accepted evidence or competent-owner formal closure under its original criterion. Preserved historical closures need no reopening absent a material delta. Correct refusal, owner-readiness, test PASS, unselected-by-preference and planned external request do not close an original obligation.",
+        "human_scope_change": "Only explicit human scope change can authorize earlier use with deferred mandatory work; record exact IDs, claims, risks and validity, never infer it.",
+        "negative": "Leave GY-O0-NC-01 or another mandatory original unresolved after all local tasks are ready: FINAL-USE remains blocked."
+      }
+    },
+    {
+      "id": "DEB-13",
+      "title": "Commission numeric VOI granularity and its decision/ranking basis",
+      "workstream": "DEB",
+      "task_mode": "contract_research_then_native_owner_delivery",
+      "implementation_status": "planned_after_E02_acceptance",
+      "product_verification": "UNRUN",
+      "depends_on": [
+        "P0-REBIND"
+      ],
+      "source_ids": [
+        "DEBT:ds15-numeric-voi-metric-residual-granularity"
+      ],
+      "owner_paths": [
+        "Native metric/VOI owner and DS15 metric consumer; exact paths after accepted-source caller census"
+      ],
+      "deliverable": "Separate metric-design work from acquisition cost admission. Resolve the original 15-row predicate against accepted E02; research and propose measure, population, horizon, estimand, expected-value/expected-cost assumptions and authority purpose. Bind a content-qualified owner decision/ranking artifact and actual inputs; implement the approved native metric producer, persisted result and DS15 consumer. Do not invent a number from unsupported inputs.",
+      "positive": "On independently specified small data, approved law and real owner decision/ranking basis, recompute the declared metric and exact granularity at the fresh consumer; distinguish candidate from authorized use.",
+      "adversarial": "Missing measure/population/horizon, incomparable estimand, unavailable expected-value/cost or caller-supplied ranking returns metric_residual_granularity_not_supported or the existing typed limitation; actual 15-row historical denominator is rebound, not hardcoded.",
+      "removal": "Remove the owner decision or substitute measure/expected cost while retaining output fields; the consumer refuses or recomputes the changed property.",
+      "surface": "DS15 metric/refusal projection, native API/MACHINE and audit; no autonomous acquisition authorization",
+      "resource_locks": [
+        "exact write set assigned at P0",
+        "shared generators/stores only if touched"
+      ],
+      "rollback": "Preserve history and receipts; suspend affected admission and restore compatible code/config without resurrecting authority.",
+      "migration": "Use native versioned expand/verify/retire path; do not upgrade legacy meaning by default.",
+      "requires_other_mechanisms": [],
+      "detail": "workstreams/06-debt-and-specialist-work.md",
+      "canonical_lease_keys": [
+        "write:exact-path/{canonical_repo_path}",
+        "write:semantic-owner/voi-metric"
+      ],
+      "lease_rule": "Resolve every key instance and exact path overlap before dispatch. Human-friendly resource_locks are descriptions, never independent mutex identities. Any shared file or semantic owner wins over differing labels.",
+      "completion_planes": [
+        "owner_delivery: reviewed native result with scoped local proof",
+        "composed_acceptance: actual emitted dependencies and fresh consumer on bound source",
+        "original_obligation_disposition: canonical owner decision; history preserved"
+      ],
+      "commissioning_rule": "Programme assignment permits source-bound research and implementation within existing ratified contracts after E02/P0. Any new authority/metric/public promise requires the named architecture/competent-owner decision before dependent code; research and independent owner work continue.",
+      "acceptance_dependencies": [
+        "UI-17"
+      ],
+      "non_dependencies": [
+        "CAP-03 acquisition cost basis is distinct; DEB-07 ceiling vocabulary does not own this metric. Reuse either only when the selected law truly consumes its exact output."
+      ],
+      "original_debt_refs": [
+        {
+          "id": "ds15-numeric-voi-metric-residual-granularity",
+          "source_line": null,
+          "criterion_ref": "inventory/debt-inventory.json#ds15-numeric-voi-metric-residual-granularity"
+        }
+      ],
+      "dependency_stage": "owner_readiness",
+      "completion_contract_ref": "execution/stage-requirements.json#default",
+      "owner_paths_role": "Metric definition/producer owns this new residual. GYD-23 consumes the selected lawful result where relevant; core SearchLedger retains its native writer. No duplicate VOI budget owner."
+    },
+    {
+      "id": "DEB-14",
+      "title": "Wire purpose-scoped scope ruling into claim lifecycle and surface",
+      "workstream": "DEB",
+      "task_mode": "contract_research_then_native_owner_delivery",
+      "implementation_status": "planned_after_E02_acceptance",
+      "product_verification": "UNRUN",
+      "depends_on": [
+        "P0-REBIND",
+        "LIF-01",
+        "LIF-02"
+      ],
+      "source_ids": [
+        "DEBT:DS11-SCOPE-ADJUDICATION-RECORD"
+      ],
+      "owner_paths": [
+        "policy-engine/src/polisyos/core/contracts/scope_adjudication.py",
+        "policy-engine/src/polisyos/scientist/evidence/claims/head_index.py",
+        "Native Runtime run_lifecycle/container and governed scope projection; exact accepted-source footprint at P0"
+      ],
+      "deliverable": "Reuse the existing candidate artifact and ratified one-plane four-way rule. Implement the actual predicate resolver, purpose-scoped ruling producer, persisted evidence and authority-band claim-lifecycle admission/replay bridge, then governed surface. Candidate authority_effect=none/closure_effect=none remains valid as candidate, not terminal closure. This is an internal ratified-rule mechanism, not a missing institutional appointment.",
+      "positive": "Actual independently reconciled predicates produce the correct one-plane ruling through persistence, fresh lifecycle/head reader and governed surface; the canonical test_four_way_ruling_is_produced_consumed_and_plane_specific measures the full property.",
+      "adversarial": "Mixed planes, fake/unresolved predicates, wrong purpose or candidate-only artifact cannot mutate authority head; valid supersession remains a separate allowed control.",
+      "removal": "Remove scoped event admission or substitute scope evidence while keeping signed markers; fresh head/surface refuses incorrect authority. Preserve historical events and prove replay.",
+      "surface": "Native scope ruling API/MACHINE/audit and assigned DS11 projection; surface owner is explicit, not a marketing appointment",
+      "resource_locks": [
+        "exact write set assigned at P0",
+        "shared generators/stores only if touched"
+      ],
+      "rollback": "Preserve history and receipts; suspend affected admission and restore compatible code/config without resurrecting authority.",
+      "migration": "Use native versioned expand/verify/retire path; do not upgrade legacy meaning by default.",
+      "requires_other_mechanisms": [],
+      "detail": "workstreams/06-debt-and-specialist-work.md",
+      "canonical_lease_keys": [
+        "write:exact-path/{canonical_repo_path}",
+        "write:semantic-owner/claim-lifecycle",
+        "write:runtime-api-generated-family if changed"
+      ],
+      "lease_rule": "Resolve every key instance and exact path overlap before dispatch. Human-friendly resource_locks are descriptions, never independent mutex identities. Any shared file or semantic owner wins over differing labels.",
+      "completion_planes": [
+        "owner_delivery: reviewed native result with scoped local proof",
+        "composed_acceptance: actual emitted dependencies and fresh consumer on bound source",
+        "original_obligation_disposition: canonical owner decision; history preserved"
+      ],
+      "commissioning_rule": "Programme assignment permits source-bound research and implementation within existing ratified contracts after E02/P0. Any new authority/metric/public promise requires the named architecture/competent-owner decision before dependent code; research and independent owner work continue.",
+      "acceptance_dependencies": [
+        "UI-19"
+      ],
+      "original_debt_refs": [
+        {
+          "id": "DS11-SCOPE-ADJUDICATION-RECORD",
+          "source_line": null,
+          "criterion_ref": "inventory/debt-inventory.json#DS11-SCOPE-ADJUDICATION-RECORD"
+        }
+      ],
+      "dependency_stage": "owner_readiness",
+      "completion_contract_ref": "execution/stage-requirements.json#default",
+      "owner_paths_role": "Producer/resolver adapter owns its leased files. Common head_index/lifecycle/publisher mutations are delivered by LIF-02 canonical writer under the same reviewed feature handoff; UI-19 owns projection. No concurrent writes from DEB-14 to shared lifecycle owner.",
+      "canonical_write_candidates": [
+        "Existing scope-adjudication producer/resolver adapter exact accepted-source paths; no head_index.py ownership transfer"
       ]
+    },
+    {
+      "id": "UI-20",
+      "title": "Allocate and deliver DS15 promotion union and private issuer",
+      "workstream": "UI",
+      "task_mode": "contract_research_then_native_owner_delivery",
+      "implementation_status": "planned_after_E02_acceptance",
+      "product_verification": "UNRUN",
+      "depends_on": [
+        "P0-REBIND"
+      ],
+      "source_ids": [
+        "DS5 enforcement-waist promotion candidate status",
+        "DS15",
+        "DEBT:ds5-waist-successors-routed-to-unscoped-slices"
+      ],
+      "owner_paths": [
+        "Canonical promotion contract/generator and private issuer, DS15 consumer; exact DS5 table group/sites bound at P0"
+      ],
+      "deliverable": "Claim the one remaining unallocated DS5 successor property: generated promotion union and private issuer. Resolve the exact original DS5 group and named negative; extend its canonical native contract/generator plus actual issuer/admission bridge and consumer. Other DS12/DS14/DS18 successors are reused, not rebuilt.",
+      "positive": "Owner-produced promotion variants round-trip through canonical generated union and private issuer into actual DS15 consumer with authority/status/limitations preserved.",
+      "adversarial": "Forged caller union, public construction bypass, novel/unhandled variant or stripped limitation cannot create owner-issued authority; candidate path remains allowed at its band.",
+      "removal": "Bypass private issuer or remove a generated variant guard while retaining type labels; original DS5 named negative and fresh consumer detect it.",
+      "surface": "DS15 permitted browser/API/MACHINE; generated family and original DS5 closure witness",
+      "resource_locks": [
+        "exact write set assigned at P0",
+        "shared generators/stores only if touched"
+      ],
+      "rollback": "Preserve history and receipts; suspend affected admission and restore compatible code/config without resurrecting authority.",
+      "migration": "Use native versioned expand/verify/retire path; do not upgrade legacy meaning by default.",
+      "requires_other_mechanisms": [],
+      "detail": "workstreams/04-atlas.md",
+      "canonical_lease_keys": [
+        "write:exact-path/{canonical_repo_path}",
+        "write:semantic-owner/promotion",
+        "write:runtime-api-generated-family if changed"
+      ],
+      "lease_rule": "Resolve every key instance and exact path overlap before dispatch. Human-friendly resource_locks are descriptions, never independent mutex identities. Any shared file or semantic owner wins over differing labels.",
+      "completion_planes": [
+        "owner_delivery: reviewed native result with scoped local proof",
+        "composed_acceptance: actual emitted dependencies and fresh consumer on bound source",
+        "original_obligation_disposition: canonical owner decision; history preserved"
+      ],
+      "commissioning_rule": "Programme assignment permits source-bound research and implementation within existing ratified contracts after E02/P0. Any new authority/metric/public promise requires the named architecture/competent-owner decision before dependent code; research and independent owner work continue.",
+      "dispatch_decisions": [
+        "P0-REBIND names the competent owning slice/contract for the remaining DS5 property and accepts its scope; this planning task is not itself the canonical allocation act."
+      ],
+      "original_debt_refs": [
+        {
+          "id": "ds5-waist-successors-routed-to-unscoped-slices",
+          "source_line": null,
+          "criterion_ref": "inventory/debt-inventory.json#ds5-waist-successors-routed-to-unscoped-slices"
+        }
+      ],
+      "dependency_stage": "owner_readiness",
+      "completion_contract_ref": "execution/stage-requirements.json#default",
+      "issuer_semantics": "Private issuer means internal exhaustive/branded presentation constructor, not external institutional signer. Actual promotion authority remains typed owner evidence; no self-appointment."
     }
   ]
 }

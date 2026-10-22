@@ -1,0 +1,73 @@
+# Red-team note: bounded lead-to-leaf execution
+
+**Scope:** future execution policy only. No product work, tests, imports, builds, installs, production-data reads, tracked edits, Git mutations, or child agents were used for this note.
+
+**Checkout:** `/Users/deniskopylov/.codex/worktrees/e02-integration-6971/polisyos`, branch `codex/e02-integration`, observed `HEAD=413c120e73c0323294997e767abbd1a1a7a5a226`; worktree was clean at inspection. The ignored report path is covered by `policy-engine/.gitignore` (`_build/`).
+
+**Recommendation:** keep root as the sole program authority, global dispatcher, and integrator. Add an optional, runtime-gated `root → lead → leaf` path for bounded planning and execution slices. Root remains the admission point for every agent and lease. A lead may create only pre-authorized leaves, and a leaf may never create agents. The current runtime restriction means the effective topology remains root-to-direct-agent until nested spawn permission is actually available.
+
+## What the current plan says
+
+- `execution/02-parallel-execution.md` §Purpose (line 5) makes all workers direct reports and gives root sole dispatch and integration. Its roles section (lines 69–79) says leads do not dispatch. Its executor outline (line 107) prohibits children.
+- `execution/02-parallel-execution.md` §Staffing envelopes (lines 83–92) defines 24, 48, and 100 as *direct worker* slots and says root is additional. `execution/03-waves.md` §What 100 agents means (lines 49–55) repeats 100 direct agents plus root and says coordinators never spawn children.
+- `prompts/README.md` (lines 3–5), `prompts/orchestrator.md` (line 9), and the writer, reviewer, verifier, and supplier prompts all encode no-child execution. `tasks.json` top-level `ownership` (line 7) also says root dispatches direct agents only. A full standard-library JSON parse found 106 unique task entries in that complete `.json` file; the manifest labels itself `planning_schema_not_product_contract` and `product_execution: UNRUN` (lines 2–6). There is no delegation-grant or agent-ancestry field today.
+- The plan already has the right foundations to reuse: root-published exact write leases, one canonical writer per shared semantic owner, resource tickets, a single append-only journal, and a single root integrator. Preserve those controls. Do not add per-lead copies of the task, write, or resource registries.
+- The `02-parallel-execution.md` header pins source `d40bca270ef5c456e8233196e4d8d65e099777a7`, while this assigned checkout is at `413c120e73c0323294997e767abbd1a1a7a5a226`. Rebind the plan source identity when incorporating a change; this report describes the checked-out tree, not the older pin.
+
+## Safe topology and authority
+
+Use depth `0=root`, `1=lead`, `2=leaf`; reject depth 3. Root may assign work directly at either worker role. A lead is a root-assigned planner/owner for a bounded slice. It can prepare a decomposition and use only the child seats that root reserved in a grant. The root admission journal must record a child identity and task before creation, either from an exact child manifest or a pre-authorized slot grant with bounded task classes and paths. This leaves room to decompose work without giving a lead independent program-wide dispatch authority.
+
+Nested spawn is available only when both the execution runtime permits it and root enables it for that assignment. Missing or ambiguous runtime permission means direct-root dispatch only. Prompt text or a manifest boolean cannot manufacture runtime permission. Delegation cannot bypass the actual E02 acceptance gate, P0 source/obligation rebind, or the existing requirement that an owner task be ready before a lease is issued.
+
+A child grant is a finite, revocable lease. Bind it to `grant_id`, `agent_id`, `parent_id`, depth, task IDs/source obligations, branch/base and upstream identities, exact read/write sets, resource keys and vector budget, maximum child seats, expiry/renewal rule, and required output receipt. A child lease must be a subset of its lead's and root's authority. Neither a lead nor a child may widen a write set, resource budget, source claim, or task scope; it returns the proposed change to root.
+
+Count one global pool across the whole tree. The 100-agent ceiling includes root and every direct and nested agent. Reserve a seat before runtime creation; starting, running, output-pending, and cancellation-pending agents consume seats until terminal state is confirmed. Completed work releases an agent seat, but its output and audit trail remain in custody. Per-lead allocations can only be sub-budgets whose sum is bounded by root's pool. CPU, RAM, disk, browser, fixed-port, database, and provider limits are also global resource tickets; no lead gets a fresh copy of the same limit.
+
+Use the existing Wave 0 task/lease registry and append-only journal as the root-owned admission and resource ledger, adding ancestry/grant/status fields there. Avoid a new standalone agent-management subsystem. On parent failure, expiry, or root revocation, the grant cannot mint more children. Root freezes new dispatch under it and either explicitly reissues a narrowed lease or cancels descendants. Until cancellation/termination is confirmed, descendants continue to consume seats and any held write/resource locks; do not replace them and oversubscribe. Root reads the exact tree/branch and outputs before reassignment, consistent with the current history rules.
+
+Child output stays a candidate. The root-owned record must retain the leaf's source/base identity, exact paths and output commit/hash, complete deciding output and limitations, and parent/grant ancestry. A lead relays the child's evidence without dropping negatives or changing its status; root checks readback before integration. Leads can plan, sequence, and explain their slices, but they cannot accept a capability, close an original obligation, approve a release, or integrate a branch on root's behalf.
+
+An independent reviewer must sit outside the author's delegation subtree. For a leaf authored under lead A, neither lead A nor a sibling/descendant under A can count as its independent reviewer. Root assigns the review to a direct reviewer or a separate non-author branch. The reviewer reads the exact frozen candidate and returns its own disposition; the authoring parent cannot promote the reviewer's conclusion into acceptance. Root remains accountable for integration and final acceptance boundaries.
+
+## Illustrative seat arithmetic
+
+These examples reinterpret the existing role envelope as a **global active-agent cap inclusive of root and descendants**. They are slot arithmetic only; they predict no task throughput, speedup, queue time, or resource capacity. “Up to child seats” shows one possible mix inside the role totals, not a per-lead quota. Ready work, disjoint leases, measured resources, and independent-review capacity will often reduce actual concurrency.
+
+| Global cap | Root | Program leads | Writers | Mappers | Independent reviewers | Resource stewards | Example child seats inside worker roles | Sum |
+|---:|---:|---:|---:|---:|---:|---:|---:|---:|
+| 24 | 1 | 4 | 9 | 4 | 4 | 2 | up to 6 | 1 + 4 + 9 + 4 + 4 + 2 = 24 |
+| 48 | 1 | 4 | 23 | 8 | 8 | 4 | up to 12 | 1 + 4 + 23 + 8 + 8 + 4 = 48 |
+| 100 | 1 | 4 | 47 | 20 | 20 | 8 | up to 24 | 1 + 4 + 47 + 20 + 20 + 8 = 100 |
+
+All leads are direct reports in these examples; child seats are included within the writer/mapper/reviewer/steward totals, and every remaining worker seat is root-direct. The role labels do not force a child to be a writer. Review seats still obey the author-subtree exclusion. The 100 row corrects “100 direct workers plus root” to 100 total active agents. Root may use fewer seats and should leave them idle when the graph or shared resources cannot admit more work.
+
+## Main bottlenecks and failure probes
+
+The first bottleneck remains root's source rebind, admission, lease reconciliation, and serial integration. Leads reduce root's task-decomposition load only if their slices are already bounded and their outputs are concise, source-pinned, and easy to audit. Otherwise the extra handoff adds coordination latency and creates context loss, hidden blockers, duplicate work, and review cost. Root's attention and the count of independently reviewable claims may saturate before the global seat cap.
+
+The next bottlenecks are owner boundaries and review capacity: there is still one canonical writer per API/schema/generator/shared artifact; authors cannot review their own family; and compatible changes still integrate through root. Shared WMR/DuckDB state, Playwright, Storybook, fixed ports, provider quotas, CPU/RAM/disk, and the one expensive closeout wave remain globally contended. Nested agents multiply demand on these same pools; they do not create capacity. External issuers, readiness dependencies, and a single-source or backend requirement can keep substantial work blocked regardless of agent count.
+
+Admission should exercise properties, not flags. P37/P38 probes for the future dispatcher:
+
+1. Attempt child spawn when runtime permission is absent, unknown, or revoked while a prompt says it is allowed; dispatch must stay direct-only.
+2. Give four leads individual-looking limits that would allow 100 children each; the root ledger must reject any launch that would exceed 100 active agents including root and all descendants. This distinguishes the global property from a per-branch counter.
+3. Attempt a third edge (`root → lead → leaf → grandchild`); the root admission check must reject it even when the parent has free seats.
+4. Let a lead or leaf fail with children active; root must retain their identities and output receipts, prevent new overlapping writers while old cancellation is unconfirmed, and require a fresh root lease before resuming.
+5. Have an authoring lead assign review to its own sibling leaf; the independence check must reject it. A separate root-assigned reviewer must be accepted against the same frozen source.
+6. Have a leaf return a green summary while omitting a negative result or exact source/output identity; root readback must keep the work unaccepted.
+7. Have a child request a shared schema or resource outside its lease; the write/resource gate must deny it before execution or write, not merely flag it in a final prompt.
+
+## Concrete document patch recommendation
+
+1. In `execution/02-parallel-execution.md`, update the opening and roles section to state the conditional depth-2 topology, root-only admission/integration, lead grant, leaf no-delegation, and current direct-only fallback. Extend lease identity with ancestry, grant, seat, expiry, and global resource reservation. Add parent failure/revocation and exact child-output custody rules.
+2. Replace the staffing statement that root is additional. Recast the 24/48/100 table as the global-inclusive examples above, label descendant seats as a possible distribution, and keep the no-benchmark caveat. The existing writer and review concurrency limits still derive from the ready graph, leases, and measured resource budgets.
+3. In `execution/03-waves.md` Wave 0 and “What 100 agents means,” bind all admitted descendants into the one root registry, change the total to include root, and remove the unconditional “coordinators never spawn children” statement in favor of the grant rule. Keep the E02/P0 gates and root integrator unchanged.
+4. Add a `prompts/lead.md` with placeholders for `delegation_grant_id`, runtime permission receipt, max depth, child-seat reservation, child task manifest, global resource keys, and output-custody requirements. Revise `prompts/orchestrator.md` to allocate grants conditionally. Keep writer, reviewer, verifier, and supplier prompts as leaf prompts with no delegation; ensure the reviewer prompt explicitly excludes the author's entire delegation subtree.
+5. Surgically change `tasks.json` top-level ownership/dispatch metadata to state the conditional policy, global inclusive cap, maximum depth, and root admission. Do not rewrite the full JSON. Per-task child decomposition remains proposals derived from an admitted task, not new authority or product contracts.
+
+## Pattern pass and acceptance signal
+
+Relevant risks: P02 thin orchestration (a parent that only relays labels); P13 governance gravity (a new per-lead registry or quota system); P27 owner-bypass duplication; P31 instance-patching; P32 trust-by-form; P37/P38 admission gates keyed to declarations or per-branch counters; P39 if the cap accidentally counts mandatory journals as agent seats. The target pattern reuses the root task/lease journal, admits one exact delegation edge under a finite grant, retains a single global resource pool, and keeps all child work candidate until independent review and root integration. No product capability is claimed: nested delegation is `absent/unallocated` under the current runtime restriction until a runtime permission and root admission path exist.
+
+A future change is reviewable when a positive two-level assignment executes through a root-issued grant; disabled permission, depth 3, global-seat overflow, resource/write escalation, parent loss, and author-family review all fail closed; child evidence remains readable by root after handoff; and a 24/48/100 arithmetic parse confirms each global envelope sums to its stated cap. This is a behavioral acceptance definition, not evidence that the current executor can run nested agents.

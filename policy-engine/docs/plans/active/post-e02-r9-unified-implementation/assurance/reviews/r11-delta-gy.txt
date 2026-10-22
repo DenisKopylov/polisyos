@@ -1,0 +1,93 @@
+# GY R11 delta review
+
+**Target:** working tree based on `codex/e02-integration` at `413c120e73c0323294997e767abbd1a1a7a5a226`; reviewed the current `tasks.json`, `workstreams/03-gy.md`, and new stage/release contracts. Finding IDs refer to the pinned, fully enumerated prior report `gy.md`; this is a delta disposition, not a new census. Read-only review; no tests, builds, imports, installs, production data access, or tracked edits. The report is under ignored `policy-engine/_build/`.
+
+**Disposition:** the stage/release contract preserves the original boundary: owner readiness and freeze earn no original closure; authentic external acts remain open when absent; FINAL-USE reads the full rebound GY/Atlas/debt/R9 sets and stays blocked on any unresolved mandatory original (`execution/05-stage-and-release-contracts.md:24-38`, `tasks.json:9214-9223`, `execution/stage-requirements.json:4-8,56-78`). No phase/status change or scope waiver found. Twelve prior GY findings now have explicit source-derived acceptance coverage. GYD-23 still omits one decisive GY-H terminal detail; see GY-R11-7.
+
+## Findings
+
+### GY-R11-1 — Medium — same class, deeper check — GO
+
+**Evidence.** `tasks.json:2505-2534,2561-2566` removes UI-08/DS21 from GYD-12 producer prerequisites, keeps GYD-09/GYD-11, and names UI-08 as a downstream consumer/composition witness. UI-08 still consumes GYD-12 (`tasks.json:4692-4696`); the stage contract distinguishes build edges from composition witnesses (`execution/05-stage-and-release-contracts.md:14`).
+
+**Divergent scenario checked.** Treating DS21 as an O3 producer/build prerequisite would recreate the prior false dependency; the current task field and stage rule prohibit that interpretation. **Fix:** none. **Affected tasks:** GYD-12, UI-08.
+
+### GY-R11-2 — Medium — same class, deeper check — GO
+
+**Evidence.** `tasks.json:1754-1755,1839-1842` separately records PR1a and PR1b and explicitly says PR1a cannot close PR1b/GY-PR1. `stage-requirements.json:15-18` and `05-stage-and-release-contracts.md:26-28` retain the authentic refused attempted-field-pilot receipt as unresolved composition/original-disposition evidence, without unsafe execution or fixture substitution.
+
+**Divergent scenario checked.** A PR1a data receipt without an authentic PR1b near-miss is now representable as a distinct result and cannot close the source row. **Fix:** none. **Affected task:** GYD-01.
+
+### GY-R11-3 — High — same class, deeper check — GO
+
+**Evidence.** `tasks.json:2727-2728` makes the actual-source-subtree mutation with unchanged declaration/path list/signature a mandatory falsifier, requires independent reconciliation and refusal, and repeats the removal probe with the independent reconciliation removed.
+
+**Divergent scenario checked.** A signed declaration whose admitted subtree changed cannot pass on declaration/signature alone. **Fix:** none. **Affected task:** GYD-15.
+
+### GY-R11-4 — Medium — same class, deeper check — GO
+
+**Evidence.** `tasks.json:2904` now requires the production-triggered real-input readback of the complete `WorkspaceContract`, artifact graph, `SearchLedger`, `FrontierSnapshot`, and typed `SearchExitContract`, each with `gy_evidence_canon` hashes.
+
+**Divergent scenario checked.** Missing frontier or unhashed packet member no longer satisfies the explicit final property. **Fix:** none. **Affected task:** GYD-17.
+
+### GY-R11-5 — Medium — same class, deeper check — GO
+
+**Evidence.** `tasks.json:3041` requires the complete indexed original a–v matrix with deciding evidence, says the original all-probes criterion controls, rejects blanket applicability skips, and requires completed P34 isolation plus competent source-bound disposition for a genuine exclusion; an exclusion is not a passing negative.
+
+**Divergent scenario checked.** Quietly omitting a connector-secret/stale-certificate/equilibrium probe cannot leave the battery green. The original source criterion remains controlling. **Fix:** none. **Affected task:** GYD-19.
+
+### GY-R11-6 — Medium — same class, deeper check — GO
+
+**Evidence.** `tasks.json:8783-8784` assigns DEB-09 exact appointed Foundry catalog/discovery-owner acceptance of all six bounded claims with content-bound readback, and separately preserves P41 digest-mismatch attribution. GYD-15 still references GY-DEF22 (`tasks.json:2710-2712,2768-2770`), but `workstreams/03-gy.md:21,31` expressly separates that owner acceptance from FA1 and P41; stage rules give task readiness no original-closure credit (`stage-requirements.json:4-8`; `tasks.json:9214-9223`).
+
+**Divergent scenario checked.** FA1 receipts or general intake/refusal cannot stand in for six-claim acceptance or P41 attribution; unresolved original facts keep FINAL-USE blocked. **Fix:** none. **Affected tasks:** GYD-15, DEB-09.
+
+### GY-R11-7 — Medium — same class, deeper check — RESIDUAL
+
+**Evidence.** GY-H requires the groundable fixture to exit as measurement-rooted `grounded_partial_admissible` at the **Estimate port only**, prohibits `grounded_admissible`, and separately requires tourism terminal, poor-recall repair, and simultaneous-trigger precedence (`GY-engine-subordination.md:2032-2043`). The delta strengthens B/H operation, fixture, manifest, budget, terminal, and precedence coverage (`tasks.json:3277-3280`; `workstreams/03-gy.md:34`), but says only “Groundable estimate partial”; it does not bind that result to the exact terminal, measurement root, or Estimate-port-only stopping point.
+
+**Divergent scenario.** The groundable fixture emits a partial terminal only after progressing beyond the Estimate port, or emits a partial result without the measurement root, while still meeting the broad task phrase and other listed negatives. This would not meet GY-H’s source criterion.
+
+**Minimal documentation fix.** State that the actual measurement-rooted terminal is `grounded_partial_admissible` at the Estimate port only; add a matched negative showing missing measurement root or advancement beyond that port refuses/turns the property red. Keep the existing ban on `grounded_admissible`/`DesignCandidate` and the current B/H checks.
+
+**Affected task:** GYD-23.
+
+### GY-R11-8 — Medium — same class, deeper check — GO
+
+**Evidence.** `tasks.json:3339-3340` requires source-derived admission of all original 16 facets and all three named connectors (`rest.json`, `unpd`, `ukons`) before fetch, with the exact costed rung-7 `acquisition_required` exit and named missing distribution; dropping any facet/connector or fetching before applicability fails.
+
+**Divergent scenario checked.** A one-facet or one-connector sample cannot stand for the complete admission set. **Fix:** none. **Affected task:** GYD-24.
+
+### GY-R11-9 — High — same class, deeper check — GO
+
+**Evidence.** `tasks.json:3576-3578` requires admitted `manifest.authority` on every DAG/loop CAS output and separate producer/consumer authority binding. The adversarial condition refuses missing, wrong-boundary, or stale authority with a valid digest/manifest shape.
+
+**Divergent scenario checked.** Digest integrity or manifest presence alone cannot satisfy artifact authority. **Fix:** none. **Affected task:** GYD-28.
+
+### GY-R11-10 — Medium — same class, deeper check — GO
+
+**Evidence.** `tasks.json:3634-3636` requires the full current source-derived candidate-positive row tuple and false-exclusion review, zero false exclusions or named repair tickets, and P37 predicate-provenance classification. The historical 406 is explicitly not a fixed current cap.
+
+**Divergent scenario checked.** An aggregate ID/count with a row missing source/firewall/exclusion review fails. **Fix:** none. **Affected task:** GYD-29.
+
+### GY-R11-11 — Medium — same class, deeper check — GO
+
+**Evidence.** `tasks.json:3110` binds deterministic replay to input and parameter hashes, seed, container digest, and a rerun comparing named `output_hash` across time; agent trace replay and promoted-artifact revalidation remain separate levels.
+
+**Divergent scenario checked.** Repeating an ambient output without frozen identity or cross-time hash comparison no longer meets the final property. **Fix:** none. **Affected task:** GYD-20.
+
+### GY-R11-12 — Medium — same class, deeper check — GO
+
+**Evidence.** `tasks.json:3830-3831` requires a real populated Ukraine L4 registry and firm-fundamentals/distress/budget panels through L1 DCAT and L5 into queryable content-addressed GlobalState/WMR, bound by period, record hash, schema version, and source snapshot. The selected corpus is measured read-only; 8.8M is historical, not a hardcoded count; trust/identification/schema/calibration mismatches must affect the set or refuse.
+
+**Divergent scenario checked.** Synthetic/sparse fixture cannot stand in for the real substrate, and metadata-only trust/identification claims fail. **Fix:** none. **Affected task:** GYD-32.
+
+### GY-R11-13 — Medium — same class, deeper check — GO
+
+**Evidence.** `tasks.json:3697` makes removal of a non-first verified Ukraine contract/family consumer fail the complete contract-to-workflow coverage proof. `tasks.json:3736-3747` binds the original debt to workflow caller, produced result, and fresh consumer (or exact original-criterion limitation) for the source-derived full set; it keeps GY-G and GY-S2 distinct and disallows a hardcoded count. `stage-requirements.json:4-8,70` and FINAL-USE (`tasks.json:9214-9223`) prevent local readiness/typed limitation from silently closing an original.
+
+**Divergent scenario checked.** First-family composition with other method-family consumers absent fails the set-level witness; an honest limitation remains open absent competent disposition. **Fix:** none. **Affected tasks:** GYD-30, GYD-33.
+
+## Pattern pass
+
+P02 is addressed by separating O3 production from its DS21 consumer. P04 by separate PR1a/PR1b milestones. P05/P01 by artifact-specific authority binding. P07 by replay identity. P10/P29/P34 by exact semantic packets and non-passing exclusions. P36/P37/P38 by source-bound claim sets and falsifiers. P40 applies to the remaining GYD-23 residual as the same semantic-compression class; do not call that acceptance complete until the estimate-port predicate is explicit or record a bounded, source-qualified limitation without closure credit.

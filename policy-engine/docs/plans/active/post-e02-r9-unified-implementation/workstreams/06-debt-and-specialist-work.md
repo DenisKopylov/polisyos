@@ -1,6 +1,6 @@
 # Остаточные долги: классы ремонта и межпоточные обязательства
 
-Полный routing всех 86 nonclosed ID находится в [debt inventory](../inventory/debt-inventory.json), конкретные DEB-01–12 — в [task manifest](../tasks.json). Номер DEB обозначает класс работ, а не закрытие всех связанных debts одним commit. Исходные closure predicates не заменяются общим названием.
+Полный routing всех 86 nonclosed ID находится в [debt inventory](../inventory/debt-inventory.json), конкретные DEB-01–14 — в [task manifest](../tasks.json). Номер DEB обозначает класс работ, а не закрытие всех связанных debts одним commit. Исходные closure predicates не заменяются общим названием.
 
 ## Инструменты и воспроизводимость — DEB-01–04
 
@@ -39,3 +39,15 @@ Appointment, mandate, policy signer, history holder и независимая co
 Новый task manifest управляет назначениями; canonical DEBT-REGISTER остаётся владельцем статусов. Сначала accepted mechanism и его consumers, затем отдельное source-qualified disposition каждого исходного ID. Не переписывать исторические closures и не добавлять массовый новый registry. Mandatory report/test/generated companions входят в deliverable, но не в искусственный лимит mechanism paths. General rollback: compatible source/config может быть восстановлен append-only, действительное решение revoke/currentness не откатывается вместе с бинарником.
 
 Pattern pass: P06/P07/P10, P27/P29/P31–P41. Acceptance — закрывается текущая смысловая граница; remove-the-property-keep-the-markers отрицательная проверка отличает новый механизм от красивой записи в реестре. Все будущие runtime signals сейчас UNRUN.
+
+## Newly separated semantic assignments — DEB-13/14 and UI-20
+
+**DEB-13 — numeric VOI granularity.** The original DS15 metric debt is not acquisition-cost admission or INT-R2 vocabulary. Resolve its owner decision/ranking reference, measure/population/horizon/estimand, expected-value and expected-cost inputs. Research alternative laws and submit a precise G choice if authority/meaning changes; implement only the chosen native mechanism and real consumer. Unsupported inputs retain the existing refusal. UI-17 projects the result and does not own its mathematics.
+
+**DEB-14 — scope-adjudication chain.** Extend the existing candidate artifact into the owed purpose-scoped ruling producer, resolver, persistence, claim-lifecycle admission/replay and governed surface under the ratified one-plane four-way rule. Candidate authority_effect=none is correct but not terminal. DEB-14 owns the producer adapter; LIF-02 owns common head/lifecycle mutation, UI-19 the permitted projection. This internal mechanism must not be blocked as a missing external appointment.
+
+**UI-20** owns the exact remaining DS5 promotion-union/private-issuer property through its canonical generator/consumer; other successors retain their allocation. Two DS8 rows are instead scope/signal reconciliation at P0, not publication-build closure. Trust Center/Docs IA remains an Atlas-versus-marketing allocation decision before affected implementation.
+
+**DEB-01 runner boundary:** retain the original intake-only attestation. Re-run the transitive executable mutation falsifier after runner changes with the complete current denominator. Missing out-of-band runner identity is a bounded residual; a local self-hash is not an independent replacement, and this plan does not silently commission external attestation infrastructure. Stronger claims require a concrete separate decision; the original row is not closed by truthful disclosure.
+
+`source_extracted_capability_gap_labels` in the inventory are explicitly historical full-row phrases. The current remaining_property and accepted-source rebind govern dispatch; those labels cannot reopen an already built producer.

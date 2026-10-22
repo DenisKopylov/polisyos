@@ -240,8 +240,8 @@
       "id": "DS14",
       "source_ref": "policy-engine/docs/plans/active/POLICYOS_ATLAS_SURFACE_IMPLEMENTATION_MASTER_PLAN.md#L660-L661; detail #L1956-L2026; policy-engine/docs/plans/active/layer3-slices/GY-engine-subordination.md#L1785; Atlas master #L1646-L1652,#L1988-L2015",
       "source_status": "planned; corrected gate is GY-I plus DS9 (both marked met in Atlas); not blocked by Phase-6 O tasks",
-      "remaining_obligation": "Own the agent-session and orchestration-audit producer/bridge over GY-I contracts, schema/client regeneration, grounded candidate/refusal UX, GY-PA2 delegation packet as a pre-action gate, GY-PA3 compression-loss/authority-delta projection and re-grounding the existing Clerk interface; keep outputs REVIEWER/EXPERT, never PUBLIC. Lex source-document equivalence is a separate open question. GY-I is `executed` in the standing table, but the same row says full Done-when remains not_measured; preserve that evidence limitation.",
-      "evidence_basis": "Atlas Revision 3.39 correction supersedes the earlier O-block gate. DS14 is planned surface work, not a completed capability because GY-I's contract exists; its scope also includes PA2 pre-action delegation/contestability and PA3 compression-loss rendering.",
+      "remaining_obligation": "Own PA3 agent-session/orchestration-audit candidate surface and compression-loss/authority-delta projection. DS9 owns PA2 bounded pre-action gate; if DS14 dispatches outward actions, bind that exact gate; otherwise mark actions out_of_scope. Preserve GY-I actual consumed evidence and broader not_measured rider separately.",
+      "evidence_basis": "Atlas master distinguishes DS9 PA2 from DS14 PA3; DS9 disclaims universal PA2 coverage. Per-action consumer requiredness is explicitly reconciled, not inferred from neighboring status.",
       "route_hint": "planned; GY-I task status is not a substitute for producer, bridge, consumer, generated API and semantic tests",
       "program_tasks": [
         "UI-05"
@@ -261,10 +261,10 @@
     {
       "id": "DS16",
       "source_ref": "policy-engine/docs/plans/active/POLICYOS_ATLAS_SURFACE_IMPLEMENTATION_MASTER_PLAN.md#L654; detail #L2113-L2197; policy-engine/docs/plans/active/layer3-slices/GY-engine-subordination.md#L1800",
-      "source_status": "authority half landed 1f03d2cda; value/uncertainty grammar body deferred to successor gated on DS7 (closed)",
+      "source_status": "authority half source-recorded closed; grammar body deferred; DS4 defines grammar, real DS7 capstone value surface is the landing predicate",
       "remaining_obligation": "Integrate the deferred value/uncertainty grammar and GY-AQ1's eight ceiling algebras without scalarizing unknown/incomparable or minting values. DS4-C23 authority binding resolves all 11 inventory families through generated fields or typed refusals, but all 11 are refusals because runtime producers do not supply values. No transform planner; single-transform provenance only.",
       "evidence_basis": "Atlas explicitly separates DS16 authority half from grammar body; GY-AQ1 executed and is routed as an extension.",
-      "route_hint": "successor slice after DS7; producer_missing for real values is an honest refusal, not grounds to synthesize",
+      "route_hint": "UI-06 can define grammar after DS4; real-value landing requires named emitted quantity/basis and complete AQ1 algebra set, not DS7 closed label.",
       "program_tasks": [
         "UI-06",
         "UI-07"
@@ -594,7 +594,10 @@
       "remaining_obligation": "DS9/Atlas consumers still owe the PA2 delegation packet as a pre-action gate with wrong-role/expired-TTL negatives and contestability; DS14 owes PA3 authority-delta and CompressionLossReceipt rendering plus cross-projection disclosure-budget negatives. These are not closed by the GY mechanism status.",
       "evidence_basis": "GY status table marks both tasks executed; Atlas assigns the consumer/rendering obligations to the human decision flow and DS14, with Clerk remaining re-grounded on the existing interface.",
       "route_hint": "DS9 approval flow plus DS14 agent-session/Clerk surface",
-      "program_tasks": []
+      "program_tasks": [
+        "UI-05",
+        "UI-13"
+      ]
     },
     {
       "id": "GY-AQ1",

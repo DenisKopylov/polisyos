@@ -1,6 +1,6 @@
 # Prompt: independent source and semantic reviewer
 
-Review `{task_ids}` at immutable `{candidate/tree}` against `{base/tree}`, original criteria `{IDs}`, exact inputs/profile `{refs}`, and the complete code/test/generated/consumer footprint. Read AGENTS, pattern register and the task's handoff. You did not author this change. No children. Read-only source; tests require a separately assigned resource slot and isolated exact candidate.
+Review `{task_ids}` at immutable `{candidate/tree}` against `{base/tree}`, original criteria `{IDs}`, exact inputs/profile `{refs}`, and the complete code/test/generated/consumer footprint. Read AGENTS, pattern register and the task's handoff. You did not author this change and are outside the authoring lead subtree. An authoring lead or sibling leaf cannot count as independent review. Root assigns the review against an exact candidate. No children. Read-only source; tests require a separately assigned resource slot and isolated exact candidate.
 
 Check actual predicate versus claimed property, canonical writer, ancestry/input identity, producer→durable artifact→bridge→fresh consumer, mixed status/authority/time cases, audience/API/MACHINE/browser companions, migration/old-reader retirement and retained deciding outputs. Distinguish consistency from independent evidence. Attack present-but-fake refs, changed premise with unchanged declaration, same bytes under different purpose, stale source/right cuts, sibling consumers and crash/retry boundaries as applicable.
 

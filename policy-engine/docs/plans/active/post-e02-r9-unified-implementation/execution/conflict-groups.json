@@ -1,0 +1,338 @@
+{
+  "kind": "planning_conflict_registry_not_runtime_lock_service",
+  "reviewed_plan": "413c120e73c0323294997e767abbd1a1a7a5a226",
+  "code_observation": "dccea950845cda5b38f026e7770c07819d31f4d9",
+  "scope": "Pinned references plus explicitly proposed new-task owner relations. Exact accepted-source write sets still required at P0. Mixed reference overlap is not proof of concurrent writes.",
+  "path_base": "policy-engine/ unless already rooted; placeholders explicitly unresolved",
+  "groups": [
+    {
+      "id": "capture-service",
+      "classification": "confirmed_write_overlap",
+      "tasks": [
+        "CAP-01",
+        "CAP-03"
+      ],
+      "anchors": [
+        "src/polisyos/runtime/http/services/acquisition_action_service.py"
+      ],
+      "resolution": "CAP-01 resolves service selection; CAP-03 consumes/adapts only after that exact file lease is released. Frozen interface work can run concurrently elsewhere."
+    },
+    {
+      "id": "capture-executor",
+      "classification": "confirmed_write_overlap",
+      "tasks": [
+        "CAP-02",
+        "CAP-03"
+      ],
+      "anchors": [
+        "src/polisyos/runtime/quality/acquisition_executor.py"
+      ],
+      "resolution": "CAP-02 capture output precedes CAP-03 admission use; same file serialized without locking all Fabric."
+    },
+    {
+      "id": "acquisition-surface",
+      "classification": "mixed_reference_roles",
+      "tasks": [
+        "CAP-01",
+        "CAP-02",
+        "CAP-03",
+        "CAP-04",
+        "CNT-09",
+        "UI-17",
+        "OPS-02"
+      ],
+      "anchors": [
+        "src/polisyos/runtime/http/routes/acquisitions.py",
+        "src/polisyos/runtime/http/services/acquisition_surface_projection.py",
+        "apps/runtime-dashboard/src/features/runs/domain/acquisitionRoutePresentation.ts",
+        "apps/runtime-dashboard/src/features/runs/components/acquisitionRouteExport.ts"
+      ],
+      "resolution": "UI-17 writes the surface; CAP supplies exact native outputs, CNT/OPS consume. References alone do not grant writes."
+    },
+    {
+      "id": "runtime-api-family",
+      "classification": "generated_family",
+      "tasks": [
+        "UI-01",
+        "UI-02",
+        "UI-03",
+        "UI-04",
+        "UI-05",
+        "UI-06",
+        "UI-07",
+        "UI-08",
+        "UI-10",
+        "UI-17",
+        "UI-18",
+        "UI-19",
+        "UI-20",
+        "CAP-01",
+        "CAP-03",
+        "CAP-04",
+        "DEB-14"
+      ],
+      "anchors": [
+        "schemas/runtime_api_v1.openapi.json",
+        "packages/runtime-api-client/types.ts",
+        "packages/runtime-api-client/canonicalRuntimeApiClient.ts",
+        "packages/runtime-api-client/canonicalRuntimeApiClient.js",
+        "apps/runtime-dashboard/src/api/types.ts"
+      ],
+      "resolution": "One canonical native DTO/schema writer and complete generator family per frozen cut. Five artifacts total (schema plus four outputs), not five generated clients. Use canonical package/dashboard wrappers, not low-level scratch-generator outputs as delivery."
+    },
+    {
+      "id": "public-view",
+      "classification": "mixed_reference_roles",
+      "tasks": [
+        "UI-01",
+        "UI-04"
+      ],
+      "anchors": [
+        "apps/runtime-dashboard/src/features/runs/routes/PublicDecisionViewerPage.tsx"
+      ],
+      "resolution": "Verification and history are separate claims, shared component editing is serial or owner-composed."
+    },
+    {
+      "id": "governed-projection",
+      "classification": "mixed_reference_roles",
+      "tasks": [
+        "UI-03",
+        "UI-04",
+        "UI-07",
+        "UI-08",
+        "UI-10",
+        "UI-18"
+      ],
+      "anchors": [
+        "src/polisyos/runtime/http/routes/governed_projections.py"
+      ],
+      "resolution": "Native projection owner integrates independent consumer requests against frozen DTO; exact current path checked at P0."
+    },
+    {
+      "id": "run-deck-cycle",
+      "classification": "mixed_reference_roles",
+      "tasks": [
+        "UI-06",
+        "UI-08",
+        "UI-10"
+      ],
+      "anchors": [
+        "AtlasRunDeck component (exact path at P0)",
+        "cycle_board_projection native owner (exact path at P0)"
+      ],
+      "resolution": "Grammar and learning components may prepare independently, common projection/component writes are root-leased."
+    },
+    {
+      "id": "catalog-search",
+      "classification": "mixed_reference_roles",
+      "tasks": [
+        "GYD-02",
+        "GYD-24",
+        "GYD-32"
+      ],
+      "anchors": [
+        "Catalog search.py native owner (exact path at P0)"
+      ],
+      "resolution": "D1 catalog, D2/E applicability and real substrate consumers share a native catalog contract; one writer for actual shared source."
+    },
+    {
+      "id": "requirements",
+      "classification": "mixed_reference_roles",
+      "tasks": [
+        "GYD-03",
+        "GYD-24"
+      ],
+      "anchors": [
+        "RequiredDataSpec native owner (exact path at P0)"
+      ],
+      "resolution": "One requirements contract; other task consumes selected version."
+    },
+    {
+      "id": "workspace-loop",
+      "classification": "mixed_reference_roles",
+      "tasks": [
+        "GYD-07",
+        "GYD-17",
+        "GYD-23",
+        "GYD-26"
+      ],
+      "anchors": [
+        "workspace/loop.py native owner (exact path at P0)"
+      ],
+      "resolution": "V2 is verifier, not competing loop writer; L/skeleton/judge changes batched by actual owner."
+    },
+    {
+      "id": "world-model",
+      "classification": "mixed_reference_roles",
+      "tasks": [
+        "GYD-09",
+        "GYD-11",
+        "GYD-12"
+      ],
+      "anchors": [
+        "world_model_record.py native owner (exact path at P0)"
+      ],
+      "resolution": "O1/AS3/O3 independent producer work converges into one WMR owner; no duplicated world writeback."
+    },
+    {
+      "id": "waist-layer2",
+      "classification": "mixed_reference_roles",
+      "tasks": [
+        "GYD-23",
+        "GYD-24",
+        "GYD-25",
+        "GYD-27",
+        "GYD-30",
+        "GYD-31"
+      ],
+      "anchors": [
+        "gy_waist.py native owner (exact path at P0)",
+        "layer2 native boundary (exact path at P0)"
+      ],
+      "resolution": "Independent proofs do not imply independent writes to the orchestration waist; one owner accepts their deltas."
+    },
+    {
+      "id": "claim-lifecycle",
+      "classification": "semantic_owner",
+      "tasks": [
+        "LIF-02",
+        "CAP-04",
+        "GYD-29",
+        "UI-19",
+        "DEB-06",
+        "DEB-14"
+      ],
+      "anchors": [
+        "src/polisyos/scientist/evidence/claims/head_index.py",
+        "Native claim lifecycle/publisher (exact paths at P0)"
+      ],
+      "resolution": "LIF-02 owns common currentness/head mutation; event producers, scope adapter and UI consumers submit requirements/patches through that owner."
+    },
+    {
+      "id": "copy-rights-disclosure",
+      "classification": "semantic_owner",
+      "tasks": [
+        "LIF-05",
+        "CAP-03",
+        "CAP-06",
+        "OPS-05",
+        "UI-05"
+      ],
+      "anchors": [
+        "Native access_scope/ArtifactStore/privacy source-use owner (exact paths at P0)"
+      ],
+      "resolution": "LIF-05 selects one existing rights/privacy owner for managed-copy and source-defined disclosure transitions; other tasks consume. Shared semantic rule outranks differing filenames."
+    },
+    {
+      "id": "frontier",
+      "classification": "semantic_owner",
+      "tasks": [
+        "LIF-03",
+        "CAP-02",
+        "LIF-08"
+      ],
+      "anchors": [
+        "Native cursor_store (exact path at P0)"
+      ],
+      "resolution": "LIF-03 owns receipt-before-frontier/fencing; CAP captures; second-source composition cannot invent cursor state."
+    },
+    {
+      "id": "durable-worker",
+      "classification": "semantic_owner",
+      "tasks": [
+        "LIF-04",
+        "OPS-02",
+        "OPS-04",
+        "OPS-05",
+        "OPS-07",
+        "OPS-08",
+        "OPS-09"
+      ],
+      "anchors": [
+        "Native control store/worker (exact paths at P0)"
+      ],
+      "resolution": "LIF-04 owns durable intent/outcome semantics; OPS configures supervision/deployment. No second queue or scheduler."
+    },
+    {
+      "id": "ops-profile",
+      "classification": "mixed_reference_roles",
+      "tasks": [
+        "OPS-01",
+        "OPS-03",
+        "OPS-10",
+        "OPS-12"
+      ],
+      "anchors": [
+        "src/polisyos/runtime/http/execution_policy.py",
+        "ops/release/deployment-topology.toml"
+      ],
+      "resolution": "One profile/topology writer; deployment-tier dossier consumers remain read-only until exact assigned delta."
+    },
+    {
+      "id": "ops-restore",
+      "classification": "mixed_reference_roles",
+      "tasks": [
+        "OPS-05",
+        "OPS-12"
+      ],
+      "anchors": [
+        "ops/migrations/runtime_state/README.md"
+      ],
+      "resolution": "Restore owner writes common runbook; offline tier supplies bounded addition."
+    },
+    {
+      "id": "ops-quota",
+      "classification": "mixed_reference_roles",
+      "tasks": [
+        "OPS-07",
+        "OPS-08",
+        "LIF-06"
+      ],
+      "anchors": [
+        "Native quotas configuration (exact path at P0)"
+      ],
+      "resolution": "Monetary/disclosure/compute policies stay distinct despite sharing configuration. Root serializes exact shared file only."
+    },
+    {
+      "id": "control-action",
+      "classification": "mixed_reference_roles",
+      "tasks": [
+        "OPS-06",
+        "UI-05"
+      ],
+      "anchors": [
+        "Native control route (exact path at P0)"
+      ],
+      "resolution": "Transport policy and bounded Clerk action use one route owner and actual PA2 requiredness."
+    },
+    {
+      "id": "voi-metric",
+      "classification": "semantic_owner",
+      "tasks": [
+        "DEB-13",
+        "GYD-23",
+        "UI-17"
+      ],
+      "anchors": [
+        "Native VOI metric/definition owner and core SearchLedger (exact paths at P0)"
+      ],
+      "resolution": "DEB-13 owns commissioned metric semantics, core ledger retains writer, GYD-23 and UI-17 consume; no parallel VOI budget."
+    },
+    {
+      "id": "promotion-presentation",
+      "classification": "semantic_owner",
+      "tasks": [
+        "UI-20",
+        "UI-17",
+        "GYD-01"
+      ],
+      "anchors": [
+        "Native generated promotion union and private presentation issuer (exact paths at P0)"
+      ],
+      "resolution": "UI-20 private issuer is internal constructor/branding, not institutional appointment. Consume true promotion evidence; common generated family remains single-writer."
+    }
+  ],
+  "unknown_rule": "A task with unresolved actual write/read/generated set is not a certified disjoint writer. Root maps it before dispatch; independent read-only work can continue.",
+  "family_source": "policy-engine/architecture/generated_artifacts.toml#runtime-api-client,runtime-dashboard-api-types plus Runtime OpenAPI family; rebind before execution",
+  "verification": "Static source/reference review only; no generators or product probes run."
+}

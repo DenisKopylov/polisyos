@@ -97,3 +97,9 @@ At closeout re-open `policy-design-case-failure-patterns.md`, classify each repe
 ## Конечный объём программы и открытый мир оснований
 
 Полное завершение программы до first use означает закрытие конкретных исходных engineering/verification/operational obligations. Это пользовательский порядок релиза, а не универсальный runtime gate. Для R9 обязательны общая грамматика всех26семейств, их маршруты/пределы и доказательства заявленных классов; конкретному case нужны фактические допустимые основания его вопроса. Это не требование собрать все197источников, сделать каждый ground authority или завершить бесконечное будущее расширение каталога. Невыбранная семья/новый будущий источник может оставаться unadmitted без незавершённого пункта текущей программы. Однако уже назначенную обязательную реализацию или проверку нельзя превратить в будущий контент ради раннего запуска. Условность определяется исходным критерием, а не удобством исполнителя.
+
+## Selected facets become concrete input edges
+
+CNT-01 produces the case/facet selection. Root binds each selected facet to supplier task, persisted artifact, native verifier/use owner, consumer/status effect and surface before composition. Legal premises route CNT-04 → CAP-05 → CNT-08/09; testimony/participation routes CNT-07 → CNT-08/09. Other selected families receive the same explicit mapping; nonselected facets have a reason/trigger. Missing genuine input activates the typed limitation/refusal branch, never silently disappears from the packet.
+
+The absence of a sponsor case does not stop independent mechanisms. It prevents an authentic-case positive and remains visible in [the staged release contract](../execution/05-stage-and-release-contracts.md). A successful costed refusal does not close unrelated original obligations.

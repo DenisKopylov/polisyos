@@ -2,7 +2,7 @@
 
 **Kind:** future execution design; not runtime evidence or an E02 acceptance record.
 **Source pin:** worktree branch `codex/e02-integration`, HEAD `d40bca270ef5c456e8233196e4d8d65e099777a7` (2026-10-22).
-**Purpose:** shape a future program spanning R9 lifecycle/acquisition work, remaining GY work, Atlas, and assigned debt. Root remains the sole dispatcher and integrator; all workers report directly to root. Domain leads may plan and own slices, but may not delegate or create children.
+**Purpose:** shape a future program spanning R9 lifecycle/acquisition work, remaining GY work, Atlas, and assigned debt. Root remains the sole admission authority and integrator. Future execution may use `root → lead → leaf` under a bounded root grant and actual runtime permission; leaf delegation is forbidden. If the runtime permits only direct agents, root dispatches every worker directly. This review itself uses direct agents only.
 
 This document records a scheduling design only. No product tests, imports, builds, installs, or production-data reads were run for this note.
 
@@ -46,7 +46,7 @@ The critical path is the longest chain of actual dependencies (often interface r
 
 Each task envelope declares a **read set**, **write set**, **generated outputs**, **claimed property**, **interface versions**, **upstream artifact refs**, **resource keys**, and expected output. Root admits the task only after checking current branch attachment and exact paths. A conflict exists for overlapping writes or a shared semantic owner, not merely for two tasks having the same broad domain name.
 
-Use one canonical writer per independently owned public API, DTO, generator, status grammar, or governed artifact. Consumers may work read-only against a pinned interface version. The generator owner owns the schema plus all generated outputs and regeneration receipt; generated files are regenerated from the canonical source, never hand-merged. Atlas’s explicit exclusive sets include (a) each shared `architecture/atlas_surfaces/**` artifact, (b) `schemas/runtime_api_v1.openapi.json` together with its five generated client outputs, (c) the Playwright visual/snapshot lane, (d) Storybook, and (e) a fixed-port dev server. GY’s actual shared-state set includes the composed-WMR/DuckDB scratch, FTS index, owner caches, source-flip harness, and any same canonical artifact. The claim ledger, debt register/generated ledger, Atlas master plan, GY plan, and a shared append-only journal each have one writer while being changed. Do not lock all of `src/`, `apps/`, or `docs/` because one file in the tree is contested.
+Use one canonical writer per independently owned public API, DTO, generator, status grammar, or governed artifact. Consumers may work read-only against a pinned interface version. The generator owner owns the schema plus all generated outputs and regeneration receipt; generated files are regenerated from the canonical source, never hand-merged. Atlas’s explicit exclusive sets include (a) each shared `architecture/atlas_surfaces/**` artifact, (b) `schemas/runtime_api_v1.openapi.json` together with its four generated client/type outputs (five family artifacts including the schema), (c) the Playwright visual/snapshot lane, (d) Storybook, and (e) a fixed-port dev server. GY’s actual shared-state set includes the composed-WMR/DuckDB scratch, FTS index, owner caches, source-flip harness, and any same canonical artifact. The claim ledger, debt register/generated ledger, Atlas master plan, GY plan, and a shared append-only journal each have one writer while being changed. Do not lock all of `src/`, `apps/`, or `docs/` because one file in the tree is contested.
 
 If a task discovers a new overlap, stop before writing the shared path. Return the exact conflicting path/owner and proposed boundary to root; root either serializes the writers or cuts the slice at a real API boundary. Never duplicate a DTO, generator, ledger rule, or “temporary” second implementation to avoid a lease. Keep established public surfaces strict and update actual consumers in the same slice or an explicitly dependent slice.
 
@@ -66,11 +66,11 @@ No global number of concurrent tests or runs is useful before their costs and sh
 
 ## Roles and checkable outputs
 
-All workers are direct reports to root. A role is a task mode, not a department that can create further workers.
+A role is a task mode, not an independent department. Every worker, including a lead-created leaf, is admitted in the single root registry under the delegation rules below.
 
 | Role | Write permission | Required output |
 |---|---|---|
-| Domain lead/planner (GY, R9, Atlas, debt) | The assigned plan slice only, if leased; otherwise read-only | Source paths and `@commit` pin; complete denominator for any set-level claim; exact capability nodes, dependencies, owner/API/write sets, conflicts, missing labels, pattern pass, and next acceptance signal. Lead does not dispatch. |
+| Domain lead/planner (GY, R9, Atlas, debt) | The assigned plan slice only, if leased; otherwise read-only | Source paths and `@commit` pin; complete denominator for any set-level claim; exact capability nodes, dependencies, owner/API/write sets, conflicts, missing labels, pattern pass, and next acceptance signal. Lead may create only children explicitly covered by a root grant and permitted by the runtime; otherwise it returns the assignment proposal to root. |
 | Owner implementer | Exact leased mechanism paths and its mirrored claim-scoped tests | One self-contained behavior change proving the assigned property; producer → persisted artifact/event → bridge → consumer → surface/out-of-scope; negative/removal witness; exact commands/results once implementation is authorized; versioned refs, migration, residual labels, and clean commit. |
 | API/DTO/generator owner | One canonical schema/DTO/generator family and its generated outputs | Strict versioned contract plus one real use/consumer, regenerated outputs and parity/freshness evidence, compatibility and downstream handoff. No sibling implementation. |
 | Independent reviewer | Read-only against an exact source snapshot | Review package identity; claims assessed; blocking findings with divergent case/property and source path; cosmetic debt distinguished; disposition per claim. After repair, delta-only review with the first findings as checklist. |
@@ -82,13 +82,13 @@ Tests stay claim-scoped: each capability owner writes the behavior test(s) with 
 
 ## Staffing envelopes (illustrative headcount, not work quotas)
 
-The numbers are direct-worker slots; the single root dispatcher/integrator is additional and common to every envelope. Four planning seats correspond to the four program streams and cannot dispatch children. “Writers” are **maximum concurrent independent write leases**, never simultaneous edits to shared files. Use fewer if the ready/conflict/resource graphs expose fewer independent slices. Reallocate unneeded planning/read/run seats to the active review backlog; never invent tasks to fill a tier.
+The numbers count all non-root agents across both permitted levels; the single root is additional. Leads, writers, reviewers and nested leaves share this one pool. Four planning seats correspond to the four program streams; each permitted child consumes a seat already included in the table, never an additional per-lead quota. “Writers” are **maximum concurrent independent write leases**, never simultaneous edits to shared files. Use fewer if the ready/conflict/resource graphs expose fewer independent slices. Reallocate unneeded planning/read/run seats to the active review backlog; never invent tasks to fill a tier.
 
 | Envelope | Program leads | Independent mechanism writers (lease ceiling) | Read-only source/contract mappers | Independent reviewers | Resource/run stewards | Arithmetic |
 |---|---:|---:|---:|---:|---:|---:|
-| 24 direct workers | 4 | 10 | 4 | 4 | 2 | 4 + 10 + 4 + 4 + 2 = 24 |
-| 48 direct workers | 4 | 24 | 8 | 8 | 4 | 4 + 24 + 8 + 8 + 4 = 48 |
-| 100 direct workers | 4 | 48 | 20 | 20 | 8 | 4 + 48 + 20 + 20 + 8 = 100 |
+| 24 total worker seats | 4 | 10 | 4 | 4 | 2 | 4 + 10 + 4 + 4 + 2 = 24 |
+| 48 total worker seats | 4 | 24 | 8 | 8 | 4 | 4 + 24 + 8 + 8 + 4 = 48 |
+| 100 total worker seats | 4 | 48 | 20 | 20 | 8 | 4 + 48 + 20 + 20 + 8 = 100 |
 
 **Stage allocation:** at program admission, leads and read-only mappers build the four source-bound maps; writers take only already-ready owner nodes, reviewers challenge completed frozen slices, and resource stewards admit only runs with a valid resource ticket. During fanout, the writer ceiling is further limited by the number of pairwise-disjoint ready write sets and measured budget. During integration, root serializes shared-file batches and may integrate independent reviewed slices from different streams in one deterministic batch. At freeze, writing on the reviewed slice stops; its reviewers work in parallel on the same exact snapshot. The expensive closeout token remains one per genuinely shared resource regardless of whether the staff envelope is 24, 48, or 100. No tier implies a fixed count of PRs, tests, file changes, or executions.
 
@@ -104,7 +104,7 @@ The integration bottleneck is deliberate: there is one accountable integrator, o
 
 ## Executor prompt outline
 
-> You are assigned directly by root; do not delegate or create child workers. Own claim `<claim_id>` in stage `<stage>`. Base branch/tree is `<branch>@<commit>`; interface/schema/rule identity is `<version + hash>`. Your exclusive write set is `<paths>`; read-only inputs are `<paths/artifact refs>`; resources to lease are `<resource keys>`. Upstream accepted outputs are `<refs>`; the property and one distinguishing negative are `<property/falsifier>`; expected capability closure is `<producer → artifact/event → bridge → consumer → surface>`.
+> You are a leaf assignment admitted by root, directly or under grant `<grant_id/parent_id>`. Do not create child workers. Only the separate lead prompt can receive a delegation grant. Own claim `<claim_id>` in stage `<stage>`. Base branch/tree is `<branch>@<commit>`; interface/schema/rule identity is `<version + hash>`. Your exclusive write set is `<paths>`; read-only inputs are `<paths/artifact refs>`; resources to lease are `<resource keys>`. Upstream accepted outputs are `<refs>`; the property and one distinguishing negative are `<property/falsifier>`; expected capability closure is `<producer → artifact/event → bridge → consumer → surface>`.
 >
 > First confirm the branch is attached and the source pin and file ownership still match. Apply reuse-first and the existing native owner boundaries. Keep the change self-contained and include its claim-scoped semantic test/negative. Do not alter shared APIs, generated files, ledgers, or another worker’s leased path; report the precise overlap to root before writing. Keep protected payload/credentials local; cloud scope is limited to approved code/docs/synthetic inputs. Use only the declared resource budget and measured timeout. Return exact changed paths, source/input identity, contract versions, commands and full deciding outputs, review status, residual capability labels, blockers, and a clean committed boundary. If an unexpected branch/tree or upstream identity appears, stop and preserve the work for root’s reassignment decision.
 
@@ -130,3 +130,20 @@ External large-change references (guidance only; PolicyOS rules take precedence)
 - [Google Engineering Practices: Speed of Code Reviews](https://google.github.io/eng-practices/review/reviewer/speed.html) — optimize team throughput and split oversized reviews rather than queueing one large package.
 - [Trunk Based Development: Short-Lived Feature Branches](https://trunkbaseddevelopment.com/short-lived-feature-branches/) — isolated single-owner changes, short review/integration cycle, and review/merge capacity as a separate constraint from agent output.
 - [Martin Fowler: Branch by Abstraction](https://martinfowler.com/bliki/BranchByAbstraction.html) — a gradual migration pattern where coexisting implementations sit behind one owned abstraction; use only when it fits the existing owner contract and Atlas strangling rule.
+
+
+## Optional bounded delegation in future execution
+
+Depth is `root=0`, `lead=1`, `leaf=2`; depth3 is forbidden. Nested creation requires both actual runtime permission and a root-issued grant. This document is a project execution procedure, not a request to build an agent-management service. Current research uses direct agents only.
+
+Root retains one task/admission/write/resource journal. A grant binds parent and child IDs, permitted tasks, exact source/read/write sets, semantic-owner and generated-family leases, child-seat allowance, resource sub-budget, renewal/expiry, output location and cancellation/recovery responsibility. Root reserves each child seat before creation; a pre-authorized manifest may contain finite placeholders resolved to actual IDs immediately after spawn. A lead may narrow, never widen, its grant. Required companions remain part of the assigned capability, not a reason for a second uncontrolled writer.
+
+The global limit is100 **non-root agents** because the requested capacity is100 subagents. All direct leads and nested leaves count together; waiting leads, starting workers, workers with pending outputs and cancellation-pending workers remain counted until terminal state is confirmed. Example: four leads with six leaves each use28 seats, leaving72 for all other roles. This is capacity arithmetic, not a speedup forecast. Resource tickets are likewise subdivisions of one global budget; a child gets no fresh CPU/RAM/provider allowance.
+
+A failed or expired parent loses permission to spawn. Root fences new overlapping assignments, reconciles surviving children, exact branches, pending effects and outputs, then explicitly cancels or reissues leases. Revocation alone does not stop a process or release its memory/write lock. Preserve unique work before reassignment; confirm terminal state before returning capacity.
+
+Independent review is assigned outside the authoring lead's subtree, with access to the exact candidate and complete deciding outputs. A lead may summarize results but cannot hide negatives, upgrade a leaf's evidence, accept its own capability, close an original finding or integrate the programme branch. Root remains the sole integrator. A shared owner discovered by a child returns to root for lease reconciliation before writing.
+
+Future procedure challenges: deny depth3, runtime-disallowed creation, per-lead quota multiplication, out-of-lease writes, parent-failure reassignment before confirmed stop, and sibling-leaf independent review. Preserve a permitted two-level assignment and its evidence chain. These are future execution checks, not runtime results from this documentation task.
+
+The [source-reviewed conflict registry](conflict-groups.json) and [dispatch procedure](06-conflicts-and-dispatch.md) distinguish confirmed write collisions from references whose role remains to be assigned. Absence of a collision in this bounded registry is not a disjointness certificate.

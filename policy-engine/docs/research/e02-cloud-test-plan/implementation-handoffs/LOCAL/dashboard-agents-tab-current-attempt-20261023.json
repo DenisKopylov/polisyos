@@ -1,0 +1,146 @@
+{
+  "schema": "policyos.e02.local-candidate-slice.v1",
+  "slice": "dashboard-agents-tab-current-core-attempt",
+  "authorship_branch": "codex/e02-unified-local-20261009",
+  "implementation": {
+    "slice_base": "2c45bcdb43d5831a62e77e19746c48446ac1bddd",
+    "candidate": "0528a26997f491febec6d3cb3d31111c40aeeaca",
+    "tree": "0ca6a8aae82e9c12e480411ffad9cb04f8fc26dd",
+    "parents": [
+      "2c45bcdb43d5831a62e77e19746c48446ac1bddd"
+    ],
+    "full_footprint": [
+      {
+        "path": "policy-engine/apps/runtime-dashboard/src/features/runs/routes/tabs/AgentsTab.tsx",
+        "sha256": "886cf48011eaec63e5963dd0848326bd5d10464e5466a10142b65d3e48408162"
+      },
+      {
+        "path": "policy-engine/apps/runtime-dashboard/src/features/runs/routes/tabs/AgentsTab.test.tsx",
+        "sha256": "2b3cdcdfffd0f8215363ecdbdb61a24be1f38532dfed76d66d9278d3a2556c32"
+      },
+      {
+        "path": "policy-engine/release-fragments/unreleased/2026-10-23-e02-agent-tab-current-attempt.toml",
+        "sha256": "cccc0f6aa65aad6d52bd705e9af57c886cf929afbf306718317a037ce6b4b1b3"
+      }
+    ],
+    "committed_bytes_read_back": true,
+    "readback": {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/root-alias-agents-implementation-commit-20261023-r1/readback.json",
+      "sha256": "687664b7b7c15e2c4bad62968c224b781f835ed534a5f66e46eda2e926f4d9f9"
+    }
+  },
+  "property": "AgentsTab uses the selected Core attempt from the shared RunInspector query contract; changed attempt or SSE invalidation cannot keep an independently fetched stale agents projection.",
+  "chain": {
+    "producer": "Existing Core selected-attempt run details response",
+    "artifact": "Existing typed RunDetails/agent_pipeline HTTP projection",
+    "bridge": "Existing shared RunInspector query cache and live-update invalidation",
+    "consumer": "AgentsTab through useRunInspector() from RunInspectorContext, whose useRunDetailSummary() bridge calls useRunAgents(coreRunId, runReady)",
+    "surface": "Runtime dashboard Agents tab",
+    "verification": "Canonical Vitest setup and actual hooks/cache; mocked transport, no live production claim"
+  },
+  "verification": {
+    "profile": "Darwin dashboard locked Corepack workspace dependencies; one Vitest worker; actual canonical source and config imported through RAW output/cache wrapper",
+    "native_receipt": {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/root-alias-canonical-ui-wave-20261023-r2/receipt.json",
+      "sha256": "25c5840f5a572165c42b2d67468781baee1d85e4af8428a152491deef80d055e"
+    },
+    "source_frame": {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/root-mo-fixture-and-id-release-application-20261023-r1/full-composed-source-frame.json",
+      "sha256": "7f00e387994c448db9334c6a5118b041c93093509dda399d8abded7520a71296"
+    },
+    "command": [
+      "/opt/homebrew/bin/corepack",
+      "pnpm",
+      "--dir",
+      "/Users/deniskopylov/.codex/worktrees/e02-unified-local-20261009/polisyos/policy-engine/apps/runtime-dashboard",
+      "exec",
+      "vitest",
+      "run",
+      "--config",
+      "/Users/deniskopylov/.codex/worktrees/e02-unified-local-20261009/polisyos/policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/root-alias-canonical-ui-wave-20261023-r2/vitest.raw-cache.config.mts",
+      "--configLoader",
+      "bundle",
+      "src/features/runs/routes/tabs/AgentsTab.test.tsx",
+      "src/features/runs/routes/runDetailSurfaces.test.tsx",
+      "--maxWorkers",
+      "1",
+      "--reporter=json",
+      "--outputFile=/Users/deniskopylov/.codex/worktrees/e02-unified-local-20261009/polisyos/policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/root-alias-canonical-ui-wave-20261023-r2/vitest.json"
+    ],
+    "cwd": "/Users/deniskopylov/.codex/worktrees/e02-unified-local-20261009/polisyos",
+    "exit_code": 0,
+    "counts": {
+      "numTotalTests": 37,
+      "numPassedTests": 37,
+      "numFailedTests": 0,
+      "numPendingTests": 0,
+      "numTotalTestSuites": 4,
+      "success": true
+    },
+    "full_stdout": {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/root-alias-canonical-ui-wave-20261023-r2/stdout",
+      "sha256": "6462c76917c27dc436669ea5a50b31a75e54f96a215ef88c235779014d80857c"
+    },
+    "full_stderr": {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/root-alias-canonical-ui-wave-20261023-r2/stderr",
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    "full_report": {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/root-alias-canonical-ui-wave-20261023-r2/vitest.json",
+      "sha256": "1a6537edc47b01a64344e6335eb90e55e14e572476d9fd478bdd90ff9302f310"
+    },
+    "source_unchanged_during_native": true,
+    "initial_harness_non_receipt": "The first configLoader=runner attempt failed before collection on canonical config __dirname; retained R1; R2 uses supported bundle loader with RAW-local .vite-temp directory."
+  },
+  "independent_reviews": [
+    {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/resume-b164-protected-writer-author-20261022-r1/alias-agents-tab-independent-review-20261023-r1/review.json",
+      "sha256": "a0a8b14b7400ba02b79870f5d446f277004c5d1f9ab7c9d1b2f34662ec8c0fd3"
+    },
+    {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/resume-b164-protected-writer-author-20261022-r1/alias-agents-tab-native-replay-release-addendum-20261023-r3/addendum.json",
+      "sha256": "18feae289929a2d1e7caeb3481d828003346cd5e953f7351b37f87007f6beeaf"
+    }
+  ],
+  "ownership_incident": {
+    "state": "Retained after ownership established and independent review; no root recovery/rewrite",
+    "detail": "Author violated RAW-only instructions and wrote the two intended UI mechanism paths directly. Root preserved diff/postimages, verified all other frame bytes, established authorship, retained the authorized change, reran canonical tests and committed.",
+    "preservation": {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/incidents/agents-tab-direct-owned-write-20261023-r1/preservation.json",
+      "sha256": "05d751b1599e2b9c1a73a6ab6199a30e2fa9d2d0527b42979c763bd775b90534"
+    },
+    "reconciliation": {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/root-alias-owned-source-reconciliation-20261023-r1/reconciliation.json",
+      "sha256": "5d772ac98a9ab73e08445e5bde8d6c9a4cc8c21b8e17fc38193d528bab17753a"
+    }
+  },
+  "pattern_pass": [
+    "P02 shared existing orchestration/read bridge",
+    "P03 selected-attempt external surface",
+    "P07/P08 attempt/cache invalidation",
+    "P29 actual hook/cache behavior rather than markers",
+    "P40 retain bounded UI property; no authority promotion"
+  ],
+  "proposal": {
+    "state": "implemented_and_focused_verified",
+    "scope": "Selected-attempt AgentsTab read/cache behavior only",
+    "whole_finding_closure_proposed": false,
+    "affected_ids_require_full_occurrence_reconciliation": true
+  },
+  "limitations": [
+    "Full app TypeScript check currently has nine independent/stale-generated diagnostics; exact origin not_established without slice-base replay.",
+    "Live browser and final composed source/input/backend freeze remain pending.",
+    "This receipt does not establish production currentness, authority or billing.",
+    "Candidate is local; remote publication and G acceptance are separate."
+  ],
+  "next_check": "Compose monetary-origin summary and other dashboard companions, run current TypeScript/generated consumers and browser after official regeneration, then bind full-ID proposals to final freeze.",
+  "source_freeze": false,
+  "closure_ids": [],
+  "formal_adjudication_reserved_to": "G",
+  "G_acceptance_claimed": false,
+  "supersedes": {
+    "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/root-agents-tab-receipt-preparation-20261023-r1/dashboard-agents-tab-current-attempt-20261023.json",
+    "sha256": "8d22299fc0d4b9ad7c855c3577b826a2dc641d8f69383d20c9c22f6462c8932e",
+    "reason": "Corrected actual hook chain and made reserved G role explicit after independent metadata review; implementation and native outputs unchanged."
+  }
+}

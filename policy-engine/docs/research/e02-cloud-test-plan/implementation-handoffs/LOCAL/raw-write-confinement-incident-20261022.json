@@ -1,0 +1,112 @@
+{
+  "schema": "policyos.e02.local_slice_handoff.v1",
+  "slice": "RAW source-link recovery and local write confinement",
+  "scope": "Operational authoring/evidence boundary; no product capability claim",
+  "head_at_recovery": "43db279dff4cbb61e81f0de7c48fac12846c5174",
+  "tree_at_recovery": "35d635273ee8e7ba35124ab12957e1fb1565d67e",
+  "parents": [
+    "88a085af4aa86c1c0a8b46e680319dbf74d69531"
+  ],
+  "current_entry": {
+    "head": "fc525a61dd287008da31a29d853bae62c8027c46",
+    "tree": "60620a48f3372375ba0b4df7a122a28e9b23b77f",
+    "parents": [
+      "43db279dff4cbb61e81f0de7c48fac12846c5174"
+    ]
+  },
+  "branch": "codex/e02-unified-local-20261009",
+  "source_freeze": false,
+  "incident_targets": [
+    {
+      "path": "policy-engine/src/polisyos/scientist/compute/runner.py",
+      "sha256": "ad6fbe486a0bfb0e84d5f8e81ed99b452c40fa33b42837d9cd7c9ef6a6f29650"
+    },
+    {
+      "path": "policy-engine/src/polisyos/scientist/methods/search/uncertainty.py",
+      "sha256": "05a83ff0aa934bd18b31ccd3bcdd21613898ed18063327e18df27daaedc025c0"
+    }
+  ],
+  "history_and_index": "Recovery used exactly the human-approved patch; HEAD and index unchanged. No reset, rebase, restore, stash, deletion or history replacement.",
+  "cause": {
+    "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/incidents/raw-project-symlink-write-through-20261022-r1/root-cause-and-prevention.json",
+    "sha256": "562b96a61e81176ddc0a67bd2ffe97e03636b5d0e1a0ba1aefcf45ffd1dea289",
+    "availability": "local retained ignored RAW; not Git-delivered bytes"
+  },
+  "recovery_proposal": {
+    "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/incidents/raw-project-symlink-write-through-20261022-r1/proposal.json",
+    "sha256": "7a6884a7344a7121a713045a556f52a33aefa85ad1018f4912b524633a8ca7a2",
+    "availability": "local retained ignored RAW; not Git-delivered bytes"
+  },
+  "recovery_review": {
+    "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/incidents/raw-project-symlink-recovery-independent-20261022-r1/review.md",
+    "sha256": "54244e4d1265fd5785dcc2958b40219b1f3e1a8d3fff6d6d41c756be6ded21fd",
+    "availability": "local retained ignored RAW; not Git-delivered bytes"
+  },
+  "authorization_addendum": {
+    "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/incidents/raw-project-symlink-recovery-independent-20261022-r1/authorization-addendum.json",
+    "sha256": "bf49ac2b73098ab7012efbea4357d5b8be2570b139cda7c0e413da9d5e78670a",
+    "availability": "local retained ignored RAW; not Git-delivered bytes"
+  },
+  "recovery_readback": {
+    "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/incidents/raw-project-symlink-authorized-recovery-20261022-r1/readback.json",
+    "sha256": "5b4302d7c5201cd9acd5b939d0afc31e89d649ad285ad83901f28ef2ac7016bb",
+    "availability": "local retained ignored RAW; not Git-delivered bytes"
+  },
+  "operational_harness": {
+    "path": "LOCAL/raw/run-raw-write-confined-20261022-r1.py",
+    "sha256": "ad6b54ae6986190c44fcaa1996fb807c66624c0cf76535bb162aecb558cad61d",
+    "availability": "local ignored harness; explicit manual invocation, no installed product API",
+    "mechanism": "macOS sandbox-exec denies filesystem writes globally except the one validated physical RAW prefix and /dev/null; child Python uses the literal existing venv and RAW TMPDIR."
+  },
+  "verification": {
+    "selected_backend": "existing macOS local host and isolation-local Python 3.14.3; no package installation or environment copy",
+    "proof": {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/incidents/raw-write-confinement-prototype-20261022-r1/receipt.json",
+      "sha256": "6851871638cdb8449722cd1ff63b1b9feb6b0f9af197ac44d54e5d00adad0541",
+      "availability": "local retained ignored RAW; not Git-delivered bytes"
+    },
+    "actual_launcher_replay": {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/incidents/raw-write-confinement-prototype-20261022-r1/protected/permitted/actual-launcher/receipt.json",
+      "sha256": "f70d91856a6a3ab5168076beb1342b6241b39d0615969ee657b393e7aa7ffd33",
+      "availability": "local retained ignored RAW; not Git-delivered bytes"
+    },
+    "deciding_output_locations": "Each receipt content-binds its complete stdout, stderr, argv and profile. Full outputs stay beside those receipts.",
+    "negative_controls": [
+      "direct write outside permitted prefix",
+      "write through an inside symlink to outside bytes",
+      "grandchild write outside permitted prefix"
+    ],
+    "positive_control": "write inside permitted physical prefix succeeds",
+    "property_removed_control": "The same synthetic write operations succeed without confinement and change only the separate synthetic RAW canary.",
+    "source_reconciliation": {
+      "holder": "root; independently checked by the named recovery reviewer",
+      "classification": "recomputed",
+      "frame_paths": 350,
+      "known_paths": 102,
+      "all_other_paths_preserved": true
+    }
+  },
+  "limitations": [
+    "Confinement evidence uses controlled synthetic canaries; production source/data were never used as write probes.",
+    "Only subprocesses launched through the wrapper receive this confinement. Explicit root canonical application remains a separate authorized operation with readback.",
+    "The local macOS harness is not an installed cross-platform tool, runtime admission verifier, production-currentness proof or formal closure."
+  ],
+  "pattern": "P38 same physical-write/proxy-boundary class; mechanism observes actual writes rather than a RAW string prefix.",
+  "proposal_fields": {
+    "formal_closure_requested": false,
+    "finding_id_proposals": []
+  },
+  "closure_ids": [],
+  "human_authorization": {
+    "source": "Direct human reply in this Codex chat, 2026-10-22; root records the instruction, not a new institutional authority.",
+    "question_item_id": "[\"request_user_input_async\",\"call_e5a6f744220d4ebfa2f6037ace910cb4\",0]",
+    "answer": "Разрешить точечное восстановление и продолжить E02",
+    "exact_authorized_patch_sha256": "b69ee2a122993751a67176fdb9b86609c3413aa72e631c669c04710726524e82",
+    "execution_intent": {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/incidents/raw-project-symlink-authorized-recovery-20261022-r1/intent.json",
+      "sha256": "b52f29c4c5d93a0907d5fc768d7b0965fe65a8b6906c2f4a6a85c1c8296e59d5",
+      "availability": "local retained ignored RAW"
+    },
+    "scope": "Only restoration of runner.py and scientist/methods/search/uncertainty.py to their pinned preincident bytes. The earlier N11-only permission was not reused."
+  }
+}

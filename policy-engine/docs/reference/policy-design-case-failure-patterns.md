@@ -485,3 +485,20 @@ source files. Its regression executes the original empty-argv behavior against
 an unrelated synthetic file, then verifies the guarded path cannot touch it.
 Final physical-topology checks remain required; this does not constrain arbitrary
 shell commands that bypass the helper.
+
+### P38 instance: a RAW pathname writes through a source symlink (2026-10-22)
+
+**Diagnostic question.** Does the write boundary constrain the actual filesystem
+objects reached by the process and its children, or only a pathname under RAW?
+A RAW prefix does not establish physical isolation when a destination is a
+symlink to canonical source.
+
+**Closure move.** Preserve the observed bytes and resolve the write topology
+before repair. Keep candidate write files physical, reject symlink destinations,
+and confine author subprocess writes to their assigned physical scratch tree.
+Exercise direct, symlink and child-process escapes on synthetic canaries: each
+must fail without changing the outside bytes, while an allowed write succeeds.
+A property-removed control must demonstrate the escaping writes. Keep canonical
+application with its declared writer and source readback; scratch confinement
+does not establish semantic correctness or publication authority. See the
+[bounded recovery and local confinement receipt](../research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw-write-confinement-incident-20261022.json).

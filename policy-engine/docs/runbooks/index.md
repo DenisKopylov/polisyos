@@ -29,6 +29,8 @@ environment evidence.
 | [Canary Rollback or Failed Promotion](canary-rollback-or-promotion-failure.md) | A staged rollout or promotion is blocked or rolled back. | `@platform-owners` |
 | [Migration Release Promotion](migration-release-promotion.md) | A breaking database, runtime-state, API, IR, or persisted-artifact migration blocks promotion. | `@platform-owners` |
 | [E02 Persisted Artifact Compatibility and Recovery](e02-persisted-artifact-compatibility.md) | A persisted legacy N4 association or DataSnapshot owner-lineage artifact needs a supported read or owner-produced replacement path. | @runtime-owners with the affected Core, Scientist, or Data Forge owner group |
+| [E02 Scientist Search State Compatibility](e02-scientist-search-state-compatibility.md) | VOI runtime snapshots, search transfer histories, or strict internal JobResult readers need an upgrade/rollback compatibility check. | @runtime-owners and @scientist-owners |
+| [Catalog Search Envelope Consumer Rollout](catalog-search-datasets-envelope-rollout.md) | Registered search_datasets clients must move from a top-level list to the result envelope. | @data-forge-owners and @scientist-owners |
 | [Idempotency Incident](idempotency-incident.md) | Retry or replay produces duplicates, mismatches, or stuck pending state. | `@runtime-owners` |
 | [Mutation Audit Investigation](mutation-audit-investigation.md) | An operator needs to trace a runtime mutation. | `@runtime-owners` |
 | [Cache Rebuild Storm](cache-rebuild-storm.md) | Run, timeline, or lineage cache rebuilds cause latency or resource pressure. | `@runtime-owners` |

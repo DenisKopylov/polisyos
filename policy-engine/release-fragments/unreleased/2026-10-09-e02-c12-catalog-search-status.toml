@@ -11,26 +11,40 @@ evidence = [
   "tests/unit/runtime/quality/test_workspace_loop.py",
   "tests/unit/data_forge/domains/catalog/batch/test_benchmark.py",
 ]
-compatibility = "DatasetSearchResult adds optional typed search_mode, vector_refusal_code, and query_generation_context fields; DatasetSearchResponse adds the same query context alongside results, search_mode, vector_refusal_code, and limitation_code. Direct DatasetCatalogGraph.search_datasets and KnowledgeToolkit.search_datasets calls keep their legacy list return, while the registered search_datasets tool and workspace artifacts preserve query context for empty and non-empty results. Semantic benchmark run v2 adds per-query status and query-generation context; legacy v1 payloads retain their exact serialized shape."
-change_class = "python-public-api"
-surface_classification = "public_experimental: polisyos.data_forge.read_api.catalog DatasetSearchResult, DatasetSearchResponse, CatalogEmbeddingProfile, and CatalogQueryGenerationContext; registered KnowledgeToolkit search_datasets tool response"
-migration = "Direct Python list callers need no change but cannot retain query context for empty results. Registered-tool and workspace consumers can inspect search_mode/vector_refusal_code/limitation_code and query_generation_context; text fallback rows remain candidates, and empty results may carry a refusal, limitation, and explicit absent/refused/selected/unknown context."
-api = "DatasetSearchResponse carries rows plus same-query mode, vector refusal, limitation, and query-generation context; DatasetCatalogGraph.search_datasets_with_status and the registered KnowledgeToolkit search_datasets tool expose it. DatasetSearchResult carries the same context when rows exist. Measurement-root artifacts and semantic benchmark run v2 persist per-query context without changing semantic adequacy scoring; query metrics remain diagnostics, and the prompt formatter renders text fallback as candidate-only."
-limitations = "Selected profiles report persisted generation inputs and the live reader asset identity used in compatibility admission. They do not establish executable encode behavior, trusted provider ownership, vector ranking quality, or policy authority. Unknown remains explicit for legacy callers that cannot supply query-local context. The registered search tool response is a separate JSON consumer surface; its ABI classification remains unresolved and is not settled by the Python API review."
-generated_client_compatibility = "not_applicable"
+compatibility = "Direct DatasetCatalogGraph.search_datasets and KnowledgeToolkit.search_datasets remain list-returning; their typed status additions are additive. The registered search_datasets tool has a separate breaking JSON ABI: its prior top-level array is now a DatasetSearchResponse object with results and query-local retrieval status. Strict registered-tool clients that expect an array must update. Semantic benchmark run v2 carries the new per-query status; legacy run v1 keeps its exact serialized shape."
+change_class = "python-public-api; registered-tool JSON ABI"
+surface_classification = "public_experimental: polisyos.data_forge.read_api.catalog typed search DTOs and direct Python methods; breaking schema-openapi-abi: registered KnowledgeToolkit.search_datasets JSON result envelope"
+migration = "Direct Python list callers keep their existing return shape. Registered tool clients must decode the DatasetSearchResponse object and consume its results list, search_mode, vector_refusal_code, limitation_code, and query_generation_context.state; empty results must retain refusal/limitation context rather than being treated as an unqualified no-match. Update strict decoders before using the current registered response. See docs/migration/e02-catalog-search-datasets-envelope.md and docs/runbooks/catalog-search-datasets-envelope-rollout.md."
+api = "DatasetCatalogGraph.search_datasets_with_status returns one same-query DatasetSearchResponse. The registered KnowledgeToolkit.search_datasets tool now serializes an object envelope with results, search_mode, vector_refusal_code, limitation_code, and query_generation_context; direct list-returning Python methods remain unchanged. Workspace artifacts and semantic benchmark v2 preserve query-local context, while benchmark v1 serialization remains unchanged."
+limitations = "Selected profiles describe persisted generation inputs and the live reader asset identity used in compatibility admission. They do not establish executable encode behavior, trusted provider ownership, vector ranking quality, or policy authority. The registered-tool output has no old-array compatibility mode in this candidate; public-surface inventory review remains false and independent G acceptance is pending."
+generated_client_compatibility = "breaking_requires_consumer_action"
 public_surface_inventory_reviewed = false
-migration_docs = ["src/polisyos/data_forge/domains/catalog/knowledge/README.md"]
-runbook_docs = []
+migration_docs = ["docs/migration/e02-catalog-search-datasets-envelope.md", "src/polisyos/data_forge/domains/catalog/knowledge/README.md"]
+runbook_docs = ["docs/runbooks/catalog-search-datasets-envelope-rollout.md"]
 
 [[compatibility_change]]
 id = "catalog-result-search-status-fields-and-atomic-tool-envelope"
-change_class = "python-public-api"
+change_class = "schema-openapi-abi"
 impact = "breaking"
-surface = "public_experimental: polisyos.data_forge.read_api.catalog.DatasetSearchResult, DatasetSearchResponse, CatalogEmbeddingProfile, and CatalogQueryGenerationContext; registered KnowledgeToolkit search_datasets"
+surface = "public_experimental registered KnowledgeToolkit.search_datasets JSON result: the previous top-level array is replaced by a DatasetSearchResponse object envelope"
+owner = "team-data-forge"
+version_owner = "team-runtime"
+deprecation_window = "No dual-shape compatibility window is declared; strict registered-tool consumers must upgrade before using the object response."
+release_note = "The registered search_datasets result is a DatasetSearchResponse object instead of the previous top-level array; consumers must read results and preserve query status."
+generated_client_compatibility = "breaking_requires_consumer_action"
+public_surface_inventory_reviewed = false
+migration_docs = ["docs/migration/e02-catalog-search-datasets-envelope.md"]
+runbook_docs = ["docs/runbooks/catalog-search-datasets-envelope-rollout.md"]
+
+[[compatibility_change]]
+id = "catalog-result-search-status-python-dtos"
+change_class = "python-public-api"
+impact = "additive"
+surface = "public_experimental: polisyos.data_forge.read_api.catalog DatasetSearchResult, DatasetSearchResponse, CatalogEmbeddingProfile, CatalogQueryGenerationContext, and DatasetCatalogGraph.search_datasets_with_status; direct search_datasets Python methods remain list-returning"
 owner = "team-data-forge"
 version_owner = "team-data-forge"
 deprecation_window = "not_applicable"
-release_note = "Dataset query results expose text/vector mode, named vector-refusal reason, and the selected generation/live reader profile checked for that query independently of verbose explanations. The registered knowledge tool and downstream workspace artifacts retain this context for empty and non-empty results; semantic benchmark run v2 persists it per query while legacy benchmark run v1 serialization remains unchanged."
+release_note = "Typed search rows and the new status-returning Python method add query-local retrieval context while existing direct list-returning methods remain unchanged."
 generated_client_compatibility = "not_applicable"
 public_surface_inventory_reviewed = false
 migration_docs = ["src/polisyos/data_forge/domains/catalog/knowledge/README.md"]

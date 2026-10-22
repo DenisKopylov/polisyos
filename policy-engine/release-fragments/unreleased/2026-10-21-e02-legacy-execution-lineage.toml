@@ -10,27 +10,27 @@ evidence = [
   "src/polisyos/scientist/compute/__init__.py",
   "tests/unit/scientist/compute/test_runner_execution_lineage.py",
 ]
-compatibility = "The SimulationResults payload and schema remain unchanged. JobResult adds an optional strict typed provenance field that is omitted from its default serialized form when unset; existing constructors retain their defaults. Legacy Scientist capture is not a Foundry graph admission or policy-authority signal."
-change_class = "python-public-api"
-surface_classification = "internal: polisyos.scientist.compute JobResult provenance"
-migration = "Consumers that need this provenance should resolve JobResult.simulation_results_ref through read_job_result_method_execution_capture with an explicit positive manifest-byte limit; no default-profile fallback is available."
+compatibility = "SimulationResults payload/schema stay unchanged. The internal strict JobResult DTO adds method_execution_capture to successful run_job output even when capture roles are unavailable; an older extra=forbid JobResult reader rejects this serialized key. Constructor defaults remain, but default construction does not preserve cross-version serialized-reader compatibility. Legacy provenance remains non-authoritative."
+change_class = "internal"
+surface_classification = "internal: polisyos.scientist.compute JobResult provenance; the package is not listed as a supported entrypoint and no relevant symbol is re-exported from polisyos.scientist"
+migration = "Upgrade any first-party serialized JobResult reader before consuming new run_job output, or use an explicitly versioned consumer projection that removes the new field for an old reader. There is no dual-shape output mode or external compatibility promise for polisyos.scientist.compute. See docs/migration/e02-scientist-internal-search-and-compute-compatibility.md and docs/runbooks/e02-scientist-search-state-compatibility.md."
 api = "JobResult.method_execution_capture exposes MethodExecutionCaptureProvenance with availability=available|partial|unavailable and exact full-profile bundle/binding-set refs. read_job_result_method_execution_capture(store, result, *, max_manifest_bytes) validates the selected SimulationResults manifest and each selected input manifest without loading artifact payloads."
 limitations = "Availability proves only that the exact profile-qualified refs are present and resolve to the expected artifact kinds. The 256 KiB legacy manifest bound is an operational metadata-read limit, not a payload, process RSS, scientific resource, graph-admission, validity, or authority guarantee. Refs returned with producer failure or partial status remain diagnostic; availability does not establish successful execution."
 generated_client_compatibility = "not_applicable"
 public_surface_inventory_reviewed = false
-migration_docs = []
-runbook_docs = []
+migration_docs = ["docs/migration/e02-scientist-internal-search-and-compute-compatibility.md"]
+runbook_docs = ["docs/runbooks/e02-scientist-search-state-compatibility.md"]
 
 [[compatibility_change]]
 id = "e02-legacy-execution-lineage"
-change_class = "python-public-api"
-impact = "compatible"
-surface = "internal: polisyos.scientist.compute JobResult provenance"
+change_class = "internal"
+impact = "breaking"
+surface = "internal serialized DTO: polisyos.scientist.compute.JobResult returned by run_job; older strict extra=forbid readers reject method_execution_capture"
 owner = "team-polisyos"
 version_owner = "team-polisyos"
-deprecation_window = "not_applicable"
-release_note = "Legacy JobResult consumers can inspect exact method-capture refs resolved from the selected SimulationResults manifest while existing payload schema and constructor defaults remain compatible."
+deprecation_window = "No dual-format compatibility window is provided; upgrade strict readers before consuming results from the new producer."
+release_note = "Successful legacy run_job output now includes typed capture provenance, including unavailable states; pre-change strict readers reject the added field."
 generated_client_compatibility = "not_applicable"
 public_surface_inventory_reviewed = false
-migration_docs = []
-runbook_docs = []
+migration_docs = ["docs/migration/e02-scientist-internal-search-and-compute-compatibility.md"]
+runbook_docs = ["docs/runbooks/e02-scientist-search-state-compatibility.md"]

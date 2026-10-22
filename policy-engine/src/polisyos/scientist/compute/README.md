@@ -6,15 +6,17 @@
 the Foundry runtime: legacy program execution, method-based dispatch, and the
 C7 advanced-suite path used by causal and simulation-oriented workflow nodes.
 
+The supported namespace is governed by architecture/public_surface/contract.toml. It lists polisyos.scientist and selected subpaths, but not polisyos.scientist.compute. This package facade preserves convenient exports for first-party Runtime composition; those exports do not establish a supported external API or a compatibility promise.
+
 ## Where to Start
 
-- Stable package facade: [`__init__.py`](__init__.py)
+- Convenience package exports (internal): [`__init__.py`](__init__.py)
 - Job contracts: [`job_spec.py`](job_spec.py)
 - Runtime backend and dispatch path: [`runner.py`](runner.py)
 - Advanced method suite: [`advanced_methods.py`](advanced_methods.py)
 - Downstream method/runtime context: [`../../foundry/methods/README.md`](../../foundry/methods/README.md)
 
-## Public Entrypoints
+## Package Exports (Internal)
 
 - Job contracts in [`job_spec.py`](job_spec.py): `JobSpec`, `JobKey`, and `JobResult`
 - Runtime execution in [`runner.py`](runner.py): `run_job(...)` and `MethodBackend`

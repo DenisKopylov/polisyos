@@ -55,6 +55,10 @@ transportability layer over the dataset catalog built by the batch pipeline.
   a profile selector can still read its actual default view unchanged when that manifest carries
   the declared Core profile.
 
+## Registered Tool JSON Migration
+
+The registered search_datasets tool returns a DatasetSearchResponse object with a results array and query-local status fields. This wire result is distinct from the legacy list returned by direct Python search_datasets methods. Registered-tool consumers must migrate to the object envelope; see [the migration guide](../../../../../../docs/migration/e02-catalog-search-datasets-envelope.md) and [the rollout runbook](../../../../../../docs/runbooks/catalog-search-datasets-envelope-rollout.md).
+
 ## Public API
 
 - `DatasetCatalogGraph`

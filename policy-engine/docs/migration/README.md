@@ -23,6 +23,9 @@ not supply it.
   candidate `ukraine-data` console composition, caller boundary, and the Linux
   installed-wheel/C7 verification that remains open.
 
+- [E02 Scientist internal search and compute compatibility](e02-scientist-internal-search-and-compute-compatibility.md) records the governed internal/public namespace boundary, strict JobResult reader impact, VOI state format, and transfer-history migration limits.
+- [E02 registered Catalog search envelope](e02-catalog-search-datasets-envelope.md) documents the registered tool's list-to-object JSON ABI change while direct Python list methods remain unchanged.
+
 ## Dated archive
 
 Browse [archive/2026-q1](archive/2026-q1/). The archive location identifies a

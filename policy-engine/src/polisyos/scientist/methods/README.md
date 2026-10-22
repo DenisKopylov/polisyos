@@ -28,6 +28,8 @@ causal, discovery, DOE, autotune, research_dag, and `compute.advanced_methods`
 shims were also removed after reaching zero, tiny, or small non-compat callers.
 New first-party code should import from `polisyos.scientist.methods.*`.
 
+Those are repository-owned implementation routes. External compatibility is governed by the exact entrypoints in architecture/public_surface/contract.toml: polisyos.scientist.methods.search, polisyos.scientist.methods.autotune, and polisyos.scientist.compute are not listed and remain internal by default. Their existing exports are preserved for first-party callers. The supported polisyos.scientist.policy_design facade remains public; use only symbols it actually exports as public entrypoints.
+
 ## Common Commands
 
 Run from `policy-engine/`.

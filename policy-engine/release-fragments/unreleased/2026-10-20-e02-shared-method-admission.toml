@@ -10,27 +10,27 @@ evidence = [
   "tests/unit/common/test_async_tools.py",
   "tests/unit/scientist/compute/test_runner_method_execution_work.py",
 ]
-compatibility = "Existing ready-input MethodBackend.run(...) callers keep their dispatch-only worker boundary and retain the corresponding input/output memory limitation. The new observational route is separately selected by Runtime with a typed immutable work descriptor; graph metric verification receives only full-profile source refs and does not replace or relabel the raw graph result."
-change_class = "python-public-api"
-surface_classification = "internal: polisyos.scientist.compute.runner qualified Runtime backend operations"
-migration = "Runtime composition must inject its server-owned current-attempt admission service and graph store resolver into the cached MethodBackend. No request creates a backend or supplies a store/path/callback. Existing ready-input callers may continue on the legacy run(...) boundary until their caller migration is separately established."
+compatibility = "The qualified compute operations are first-party Runtime implementation routes. The existing compute.__init__ exports and call behavior are preserved, but the governed public-surface contract does not promise external compatibility for this unlisted package."
+change_class = "internal"
+surface_classification = "internal: polisyos.scientist.compute; the package is not listed as a supported entrypoint and no relevant symbol is re-exported from polisyos.scientist"
+migration = "Keep Runtime's current in-repository composition on its existing owner route. External users of polisyos.scientist.compute are outside the supported entrypoint set; no new public facade or replacement API is introduced. The exports remain available for repository-owned callers. See docs/migration/e02-scientist-internal-search-and-compute-compatibility.md."
 api = "MethodBackend.submit_method_execution_work(MethodExecutionWork) returns SharedExecutionHandle[MethodExecutionRefOutcome]. MethodBackend.submit_method_metric_projection_work(MethodMetricProjectionWork) returns SharedExecutionHandle[MethodMetricProjectionRefOutcome]. Both operations use the process-wide configured shared executor and strict full-profile ArtifactRef snapshots."
 limitations = "The worker cap is process-local physical worker capacity; selected manifest-byte and JSON payload byte/depth/element limits do not bound Core owner control-index or transaction-intent records and do not provide a whole-request RSS ceiling. This change does not claim deployment-wide concurrency, CPU-core or native-thread limits, or interruptibility of running native work. The legacy ready-input boundary is not memory-qualified. A verified graph admission token is candidate evidence until Runtime atomically binds it to the current attempt fence."
 generated_client_compatibility = "not_applicable"
 public_surface_inventory_reviewed = false
-migration_docs = []
+migration_docs = ["docs/migration/e02-scientist-internal-search-and-compute-compatibility.md"]
 runbook_docs = []
 
 [[compatibility_change]]
 id = "e02-shared-method-admission"
-change_class = "python-public-api"
-impact = "compatible"
-surface = "internal: polisyos.scientist.compute.runner qualified Runtime backend operations"
+change_class = "internal"
+impact = "internal"
+surface = "internal: polisyos.scientist.compute.MethodBackend Runtime operations; no supported root export"
 owner = "team-polisyos"
 version_owner = "team-polisyos"
 deprecation_window = "not_applicable"
-release_note = "Runtime can submit immutable full-profile work references through the existing process-wide shared compute owner. The pre-existing ready-input MethodBackend.run(...) behavior and its dispatch-only memory limitation remain unchanged."
+release_note = "Runtime keeps the new immutable full-profile work route on the existing process-wide shared compute owner; the qualified compute package remains internal."
 generated_client_compatibility = "not_applicable"
 public_surface_inventory_reviewed = false
-migration_docs = []
+migration_docs = ["docs/migration/e02-scientist-internal-search-and-compute-compatibility.md"]
 runbook_docs = []

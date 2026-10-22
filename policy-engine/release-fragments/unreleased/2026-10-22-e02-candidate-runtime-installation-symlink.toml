@@ -1,0 +1,20 @@
+id = "2026-10-22-e02-candidate-runtime-installation-symlink"
+title = "Resolve candidate Python runtime through the environment executable"
+type = "fixed"
+component = "foundry"
+owner = "team-polisyos"
+summary = "Resolve environment/bin/python to its actual runtime root before observing and sealing candidate Python installation evidence."
+evidence = [
+  "src/polisyos/foundry/methods/catalog/dependency_authority.py",
+  "tests/unit/foundry/methods/test_dependency_runtime_install_symlink.py",
+]
+compatibility = "Candidate-installation behavior only; no DTO, facade export, persisted schema, or production authority behavior changes."
+change_class = "internal"
+surface_classification = "public_stable: polisyos.foundry facade unchanged; internal: candidate runtime installation observer and seal implementation"
+migration = "No migration is required; no persisted artifact or consumer contract changes."
+api = "No DTO or facade export changes. Candidate installation resolves environment/bin/python to the actual runtime root and executable-relative path before observation and sealing; fresh candidate observation still binds the environment-to-target link."
+limitations = "Candidate installation mechanics only; no owner-enforced runtime-subtree cutoff is established. The production authority builder and its negative-only registration are unchanged. N11 authority, currentness, and closure remain not_established; no N11 closure is proposed."
+generated_client_compatibility = "not_applicable"
+public_surface_inventory_reviewed = false
+migration_docs = []
+runbook_docs = []

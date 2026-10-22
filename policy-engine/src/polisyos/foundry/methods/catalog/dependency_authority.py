@@ -5097,11 +5097,21 @@ def build_candidate_python_runtime_installation(
 ) -> CandidatePythonRuntimeInstallation | BidirectionalUnestablishedAuthorityPredicate:
     """Build reference installation evidence without entering the production graph."""
 
+    executable_relative_path = evidence_module.RootedRelativePath(value="bin/python")
+    try:
+        runtime_root, resolved_executable_relative_path, _raw_link = (
+            _candidate_executable_runtime_root(
+                environment_root.resolve(strict=True),
+                executable_relative_path,
+            )
+        )
+    except (OSError, ValueError):
+        return _candidate_runtime_not_established(source_authority.digest_registry)
     observation = observe_candidate_python_runtime(
         environment_root=environment_root,
-        runtime_root=environment_root,
+        runtime_root=runtime_root,
         environment_creation_nonce=environment_creation_nonce,
-        executable_relative_path=evidence_module.RootedRelativePath(value="bin/python"),
+        executable_relative_path=resolved_executable_relative_path,
         version=admission.version,
         platform_tag=admission.platform_tag,
         abi_tag="cp314",
@@ -5144,7 +5154,7 @@ def build_candidate_python_runtime_installation(
         statement=statement,
     )
     opened_root = _open_owner_directory(
-        directory=environment_root.resolve(strict=True),
+        directory=runtime_root.resolve(strict=True),
         owner_kind=OwnerCapabilityKind.RUNTIME_INSTALLATION,
         handle_type=_PosixOpenedDirectoryHandle,
     )

@@ -6,8 +6,8 @@ owner = "B-W07"
 summary = "Producer model admission precedes copies, isolated representation installs preserve narrow grants, and completed refs cross the runner wire as canonical models."
 evidence = ["tests/unit/scientist/orchestration/engine/test_skg_snapshot_replay.py", "tests/integration/scientist/orchestration/engine/test_skg_prepared_read_cache.py", "tests/unit/scientist/orchestration/engine/test_producer_scope_reconciliation.py", "tests/unit/scientist/orchestration/engine/test_producer_model_scope_oracle.py", "tests/unit/scientist/orchestration/engine/test_producer_validation_graph_oracle.py"]
 compatibility = "Existing grants, alias journals, frozen model semantics and prepared SKG cache/query behavior are retained. Async unsupported graph admission produces a structured failure."
-change_class = "internal"
-surface_classification = "Internal producer tracking; additive public_experimental academic read facade exports of existing PreparedSKGRead and PreparedSKGReadReceipt."
+change_class = "internal; persisted-artifact-format"
+surface_classification = "Internal producer tracking; additive public_experimental academic read facade exports of existing PreparedSKGRead and PreparedSKGReadReceipt; retained ExperimentState.inputs.skg_source_snapshot is carried in versioned CAS scientist.experiment_state artifacts."
 migration = "Producer models with model-level assignment validators require a field-only supported profile or an explicit separate replay contract. No arbitrary model wire class is newly admitted."
 api = "Existing executor/worker and strict runner wire signatures remain unchanged."
 limitations = "Finite ordinary model fields and container graphs only; arbitrary callback closure effects/reflection are not sandboxed. Runtime, style, typing and matched-removal checks for the new candidate are UNRUN."
@@ -44,9 +44,9 @@ runbook_docs = []
 
 [[compatibility_change]]
 id = "b61-explicit-retained-operational-source"
-change_class = "runtime-state-format"
+change_class = "persisted-artifact-format"
 impact = "additive"
-surface = "public_experimental: ExperimentState.inputs.skg_source_snapshot"
+surface = "public_experimental: versioned CAS scientist.experiment_state artifacts carrying ExperimentState.inputs.skg_source_snapshot"
 owner = "scientist.engine"
 version_owner = "scientist.engine"
 deprecation_window = "not_applicable"

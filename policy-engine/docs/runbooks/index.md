@@ -28,6 +28,7 @@ environment evidence.
 | [Key Rotation](key-rotation.md) | Signing-key or trust-store rotation is needed. | `@platform-owners` and security |
 | [Canary Rollback or Failed Promotion](canary-rollback-or-promotion-failure.md) | A staged rollout or promotion is blocked or rolled back. | `@platform-owners` |
 | [Migration Release Promotion](migration-release-promotion.md) | A breaking database, runtime-state, API, IR, or persisted-artifact migration blocks promotion. | `@platform-owners` |
+| [E02 Persisted Artifact Compatibility and Recovery](e02-persisted-artifact-compatibility.md) | A persisted legacy N4 association or DataSnapshot owner-lineage artifact needs a supported read or owner-produced replacement path. | @runtime-owners with the affected Core, Scientist, or Data Forge owner group |
 | [Idempotency Incident](idempotency-incident.md) | Retry or replay produces duplicates, mismatches, or stuck pending state. | `@runtime-owners` |
 | [Mutation Audit Investigation](mutation-audit-investigation.md) | An operator needs to trace a runtime mutation. | `@runtime-owners` |
 | [Cache Rebuild Storm](cache-rebuild-storm.md) | Run, timeline, or lineage cache rebuilds cause latency or resource pressure. | `@runtime-owners` |

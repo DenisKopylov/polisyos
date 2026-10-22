@@ -14,12 +14,12 @@ evidence = [
   "tests/unit/scientist/adapters/test_fabric_bridge.py",
   "tests/integration/core_runtime/test_acquisition_world_growth_chain.py",
 ]
-change_class = "runtime-state-format"
+change_class = "persisted-artifact-format"
 surface_classification = "public_experimental: polisyos.core.contracts.DataSnapshot owner-lineage schema 0.3.0"
 compatibility = "Existing DataSnapshot 0.2.0 artifacts and their bytes remain unchanged. The ordinary NL control intake resolves selected Core DataSnapshot profiles for declared versions 0.2.0 and 0.3.0. Recognized owner families require the same fresh source verification under both versions; ordinary 0.2.0 snapshots retain exact typed-field/role closure. For production-data-state payloads, only the exact DataStatePayload schema emitted by materialize_l4_data_state_snapshot remains on that generic path; it does not establish acquisition-owner custody. Profileless references remain refused. The three named producers emit 0.3.0."
 migration = "The ordinary NL control intake accepts selected Core DataSnapshot profiles for schema 0.2.0 and 0.3.0. For recognized owner families, schema 0.3.0 uses its typed source_lineage and schema 0.2.0 recovers the existing owner refs from verified source bytes; both require the same owner checks. A 0.2.0 lineage field or incomplete/malformed owner evidence is refused. Keep historical bytes as written: no read-time promotion or manifest rewrite occurs. Other strict readers must recognize schema 0.3.0 before consuming new outputs."
 limitations = "This source set verifies measurement-root fetches, Scientist FabricBridge tabular results, and activated acquisition overlays by their existing producer contracts across schema 0.2.0 and 0.3.0. Other 0.2.0 DataSnapshot writers receive only the exact typed-field/role check. The ordinary DataState schema path does not prove acquisition-marker absence or original producer identity, so it cannot be described as acquired-overlay custody. Owner verification proves the specified CAS relations only; it does not establish external source truth, causal adequacy, legal meaning, or publication authority."
-generated_client_compatibility = "requires_regeneration"
+generated_client_compatibility = "not_applicable"
 public_surface_inventory_reviewed = false
 migration_docs = [
   "src/polisyos/core/contracts/README.md",
@@ -29,16 +29,16 @@ runbook_docs = []
 
 [[compatibility_change]]
 id = "datasnapshot-owner-lineage-0-3"
-change_class = "runtime-state-format"
+change_class = "persisted-artifact-format"
 impact = "breaking"
-surface = "CAS DataSnapshot schema 0.3.0 emitted by measurement-root, Scientist FabricBridge, and activated acquisition-overlay producers"
+surface = "Persisted CAS DataSnapshot schema 0.3.0 emitted by measurement-root, Scientist FabricBridge, and activated acquisition-overlay producers"
 owner = "team-policyos-runtime"
 version_owner = "team-policyos-runtime"
 deprecation_window = "not_applicable"
 release_note = "The ordinary NL control intake accepts selected Core DataSnapshot profiles for schema 0.2.0 and 0.3.0. Recognized owner families receive the same source verification in both versions; ordinary 0.2.0 snapshots retain exact typed-field/role closure. Other readers consuming the three updated producer paths must recognize 0.3.0 and verify its owner refs. Historical bytes remain unchanged and are not restamped."
-generated_client_compatibility = "requires_regeneration"
+generated_client_compatibility = "not_applicable"
 migration_docs = [
   "src/polisyos/core/contracts/README.md",
   "src/polisyos/runtime/quality/README.md",
 ]
-runbook_docs = []
+runbook_docs = ["docs/runbooks/migration-release-promotion.md", "docs/runbooks/e02-persisted-artifact-compatibility.md"]

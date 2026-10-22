@@ -53,6 +53,15 @@ Record:
 5. If the change is breaking, stop promotion until release notes,
    migration-guide material, and this runbook cover the operator action.
 
+### E02 persisted-artifact compatibility
+
+For E02 N4 outcome-binding and DataSnapshot owner-lineage persisted-artifact changes, follow the
+[E02 Persisted Artifact Compatibility and Recovery runbook](e02-persisted-artifact-compatibility.md)
+for exact selected-profile reads, authorized new-diagnostic requests, and the
+owner-specific replacement boundary. It distinguishes fresh Runtime consumer
+admission from generic artifact inspection and does not authorize rewriting
+historical CAS bytes.
+
 ### Runtime API strict-reader changes
 
 For a response field that the candidate server emits unconditionally, classify

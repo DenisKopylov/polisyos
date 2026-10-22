@@ -14,8 +14,8 @@ evidence = [
   "docs/reference/api/nl-profiled-run-inputs.md",
 ]
 compatibility = "The selected forecast basis is additive. Callers may omit all basis fields to retain the existing profileless N4 request behavior and v1 request-intent representation. When selected, all five basis fields, a typed profile-qualified data snapshot, and the existing N4 candidate-intent literal are required; a partial, explicitly null, malformed, wrong-kind, or non-joining supplied value is refused instead of defaulted. The source references are retained as run inputs; they do not confer authority."
-change_class = "schema-openapi-abi; js-package-api; runtime-state-format"
-surface_classification = "public_stable: polisyos.runtime HTTP API natural-language run request; public_stable: @polisyos/runtime-api-client; internal: runtime-dashboard generated API types and Composer controls"
+change_class = "schema-openapi-abi; js-package-api; persisted-artifact-format"
+surface_classification = "public_stable: polisyos.runtime HTTP API natural-language run request; public_stable: @polisyos/runtime-api-client; internal: runtime-dashboard generated API types and Composer controls; immutable natural-language request-intent and Core run-input CAS artifacts"
 migration = "Regenerate the canonical Runtime API OpenAPI snapshot and both generated TypeScript surfaces before strict clients send the new fields. Callers may keep omitting the full bundle. Callers that select it must preserve every exact CAS artifact id, expected kind, JSON media type, and manifest-profile hash, and must reuse an Idempotency-Key only for the same immutable request."
 api = "POST /api/v1/control/runs/nl adds optional value_data_profile_ref, value_data_unit_id, model_spec_ref, policy_spec_ref, and calibration_rule_ref. Supplying any requires all five, a typed profile-qualified data_source.data_snapshot_ref, and joint_interaction_candidate_intent=n4_unique_parent_source_members.v1. Admission resolves and joins the selected profile and snapshot before N4 and retains the selected refs in the Core run inputs."
 limitations = "The local candidate's full browser journey and canonical OpenAPI/client regeneration remain UNRUN pending composed-source verification. A selected reference does not establish issuer authority, external custody, production currentness, causal validity, successful calibration, or publication permission; generated model output remains a candidate. The public-surface contract classifies polisyos.runtime as public_stable while keeping HTTP subpackages internal unless separately documented; this fragment extends the already documented and previously reviewed natural-language v1 route, adds no Python package export, and leaves the public-surface inventory owner review pending."
@@ -52,7 +52,7 @@ runbook_docs = []
 
 [[compatibility_change]]
 id = "natural-language-selected-forecast-basis-intent"
-change_class = "runtime-state-format"
+change_class = "persisted-artifact-format"
 impact = "additive"
 surface = "internal: immutable natural-language request-intent snapshot and persisted Core run inputs"
 owner = "team-runtime"

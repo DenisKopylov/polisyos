@@ -12,7 +12,7 @@ evidence = [
   "docs/reference/api/runs.md",
 ]
 compatibility = "The v3 association response adds typed S10 binding status, limitation refs, owner authority boundary, and purpose denials under the existing /api/v1 endpoint. Older generated clients use strict DTO schemas and may reject the additions, so update or regenerate those clients before consuming the new response. Legacy v2 N4 artifacts without the complete owner projection fail fresh readback with HTTP 409; immutable historical bytes and events are not rewritten."
-change_class = "schema-openapi-abi"
+change_class = "schema-openapi-abi; persisted-artifact-format"
 surface_classification = "public API: POST and GET /api/v1/runs/{run_id}/predictive-calibration; OpenAPI, generated runtime client, and dashboard run overview."
 migration = "Update or regenerate consumers against the v3 response schema before rollout; no in-place migration or retroactive upgrade. Consumers receiving a 409 for an incomplete legacy N4 association may request a new diagnostic with a distinct intent and current selected inputs under existing permissions. An unestablished target relation remains blocked and limited."
 api = "PredictiveCalibrationResponse v3 includes the complete typed S10 projection. GET reopens the selected association and compares that projection with current owner recomputation. Missing legacy-v2 N4 owner projection is refused as predictive_calibration_association_invalid."
@@ -37,13 +37,13 @@ runbook_docs = []
 
 [[compatibility_change]]
 id = "legacy-v2-n4-s10-readback"
-change_class = "runtime-state-format"
+change_class = "persisted-artifact-format"
 impact = "breaking"
-surface = "run GET for persisted legacy-v2 N4 associations without the full current owner S10 projection"
+surface = "persisted CAS legacy-v2 N4 association; a fresh run GET refuses associations without the full current owner S10 projection"
 owner = "team-runtime"
 version_owner = "team-runtime"
 deprecation_window = "not_applicable"
 release_note = "Fresh GET refuses incomplete legacy-v2 N4 associations with HTTP 409; bytes and events remain unchanged, and any replacement requires the normal authorized producer path."
 generated_client_compatibility = "not_applicable"
 migration_docs = ["docs/reference/api/runs.md"]
-runbook_docs = []
+runbook_docs = ["docs/runbooks/migration-release-promotion.md", "docs/runbooks/e02-persisted-artifact-compatibility.md"]

@@ -37,7 +37,7 @@ public_surface_inventory_reviewed = false
 
 [[compatibility_change]]
 id = "e02-b200-unverified-in-memory-origin-labels"
-change_class = "python-runtime-behavior"
+change_class = "python-public-api"
 impact = "breaking"
 surface = "public_stable: polisyos.foundry.uncertainty.aggregate_envelopes"
 owner = "team-foundry"

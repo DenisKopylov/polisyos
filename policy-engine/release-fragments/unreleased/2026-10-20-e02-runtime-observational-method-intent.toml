@@ -1,3 +1,20 @@
+id = "2026-10-20-e02-runtime-observational-method-intent"
+title = "Bind observational method runs to explicit selected-input governance"
+type = "added"
+component = "runtime"
+owner = "team-runtime"
+summary = "Bind observational method runs to explicit selected-input governance, immutable method pins, and attempt-fenced producer refs."
+evidence = [
+  "src/polisyos/runtime/http/routes/runs.py",
+  "src/polisyos/runtime/http/services/control/run_lifecycle.py",
+  "src/polisyos/runtime/http/services/control/job_attempt_publication.py",
+  "src/polisyos/scientist/compute/runner.py",
+  "tests/unit/runtime/http/test_observational_method_runtime.py",
+  "tests/unit/runtime/http/test_observational_run_intent_contract.py",
+  "tests/unit/scientist/compute/test_runner_execution_lineage.py",
+  "tests/unit/scientist/compute/test_runner_method_execution_work.py",
+]
+
 [release]
 kind = "feature"
 summary = "Bind observational method runs to explicit selected-input governance, immutable method pins, and attempt-fenced producer refs."

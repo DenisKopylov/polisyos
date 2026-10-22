@@ -1,3 +1,17 @@
+id = "2026-10-20-e02-governance-report-currentness"
+type = "changed"
+component = "scientist.governance"
+owner = "team-scientist"
+summary = "Decision consumers admit GovernanceReport and VerifiedPolicyReport artifacts as current only when the run owner links the exact successful builtin producer output and its complete source projection still matches. A persisted terminal-state transition separates engine finalizer outputs from later source changes, and its output refs must also replay from the Core owner trace; historical or stale reports remain readable as non-current evidence."
+evidence = [
+  "src/polisyos/scientist/governance/report_currentness.py",
+  "src/polisyos/scientist/nodes/builtins/decide/build_verified_policy_report.py",
+  "src/polisyos/scientist/nodes/builtins/governance/run_governance.py",
+  "tests/unit/scientist/governance/test_report_currentness.py",
+  "tests/unit/scientist/nodes/builtins/decide/test_build_verified_policy_report.py",
+  "tests/unit/scientist/nodes/test_build_policy_output_bundle.py",
+]
+
 title = "Bind engine-produced policy reports to their current source"
 
 [changes]

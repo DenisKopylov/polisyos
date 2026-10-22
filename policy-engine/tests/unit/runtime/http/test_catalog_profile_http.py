@@ -1,10 +1,84 @@
 from __future__ import annotations
 
+import json
 from dataclasses import replace
 from pathlib import Path
-from typing import TYPE_CHECKING, Any
+from typing import TYPE_CHECKING
 
 import pytest
+
+
+def _build_complete_published_fixture(
+    tmp_path: Path,
+    monkeypatch: MonkeyPatch,
+    *,
+    excluded_profile_input: bool = False,
+) -> object:
+    """Load the fixture helper beside this RAW-only test overlay."""
+    import importlib.util
+    import sys
+
+    fixture_path = Path(__file__).with_name("_published_catalog_fixture.py")
+    module_name = "_e02_complete_published_catalog_fixture"
+    spec = importlib.util.spec_from_file_location(module_name, fixture_path)
+    if spec is None:
+        raise AssertionError("fixture helper module spec was not created")
+    if spec.loader is None:
+        raise AssertionError("fixture helper module has no loader")
+    module = importlib.util.module_from_spec(spec)
+    sys.modules[module_name] = module
+    spec.loader.exec_module(module)
+    return module.build_published_catalog_fixture(
+        tmp_path, monkeypatch, excluded_profile_input=excluded_profile_input
+    )
+
+
+def test_fixture_source_preflight_refuses_new_required_blocker(tmp_path: Path) -> None:
+    """A new owner blocker cannot disappear behind the fixture's finite source map."""
+    import importlib.util
+    import sys
+
+    import yaml
+
+    from polisyos.data_forge.domains.catalog.registry import default_catalog_source_registry_path
+
+    helper_path = Path(__file__).with_name("_published_catalog_fixture.py")
+    spec = importlib.util.spec_from_file_location("_e02_catalog_coverage_fixture", helper_path)
+    if spec is None:
+        raise AssertionError("fixture helper module spec was not created")
+    if spec.loader is None:
+        raise AssertionError("fixture helper module has no loader")
+    helper = importlib.util.module_from_spec(spec)
+    sys.modules[spec.name] = helper
+    spec.loader.exec_module(helper)
+
+    canonical_path = default_catalog_source_registry_path()
+    snapshot_path = tmp_path / "captured-source-registry.yaml"
+    snapshot = helper._capture_fixture_source_registry(canonical_path, snapshot_path)
+    assert snapshot.required_source_ids == helper.FIXTURE_SUPPORTED_SOURCE_IDS
+
+    payload = yaml.safe_load(snapshot.source_bytes)
+    sources = payload["sources"]
+    marker = dict(next(row for row in sources if row["name"] == "oecd"))
+    marker["name"] = "fixture_marker_blocker"
+    marker["endpoint"] = "https://fixture.invalid/marker"
+    sources.append(marker)
+    candidate_bytes = yaml.safe_dump(payload, sort_keys=False).encode("utf-8")
+    candidate_path = tmp_path / "registry-with-new-blocker.yaml"
+    candidate_path.write_bytes(candidate_bytes)
+
+    with pytest.raises(AssertionError, match="source coverage mismatch") as refusal:
+        helper._assert_fixture_source_coverage(candidate_path)
+    assert "fixture_marker_blocker" in str(refusal.value)
+
+    # Simulate a registry mutation after admission but before fixture writing. The
+    # writer must refuse the changed source basis rather than use stale selected IDs.
+    snapshot_path.write_bytes(candidate_bytes)
+    fixture_registry_path = tmp_path / "fixture-registry.yaml"
+    with pytest.raises(AssertionError, match="changed after coverage preflight"):
+        helper._write_registry(fixture_registry_path, "http://127.0.0.1:1", snapshot)
+    assert not fixture_registry_path.exists()
+
 
 try:  # pragma: no cover - optional runtime dependency
     from fastapi.testclient import TestClient
@@ -13,6 +87,8 @@ except ModuleNotFoundError:  # pragma: no cover
 
 if TYPE_CHECKING:
     from _pytest.monkeypatch import MonkeyPatch
+    from fastapi.testclient import TestClient as FastAPITestClient
+    from httpx import Response
 
 
 _PROFILE = "prod_full"
@@ -28,51 +104,6 @@ _SCOPE_NEED = {
     "mode": "fastlane",
     "allow_explore_fallback": False,
 }
-
-
-def _publish_scope_catalog(
-    tmp_path: Path,
-    monkeypatch: MonkeyPatch,
-    *,
-    excluded_profile_input: bool = False,
-) -> tuple[Path, Path, object, object]:
-    """Publish through the real producer and leave only its closed snapshot."""
-    from tests.unit.fabric.test_retrieval_service_catalog import (
-        _actual_scope_catalog,
-        _install_builtin_worldbank_profile_scope,
-    )
-
-    profile_registry = _install_builtin_worldbank_profile_scope(monkeypatch)
-    baseline = profile_registry.get("worldbank_wdi")
-    assert baseline is not None
-    catalog_root = tmp_path / "catalog"
-    catalog_root.mkdir(parents=True, exist_ok=True)
-    catalog = None
-    try:
-        if excluded_profile_input:
-            profile_registry.register(
-                baseline.model_copy(
-                    update={"headers": {"X-PolicyOS-Fixture": "present-at-publish"}},
-                    deep=True,
-                ),
-                override=True,
-            )
-            # This canonical publisher records excluded-present profile input in
-            # its own generated receipt; the test never edits that receipt.
-            catalog = _actual_scope_catalog(catalog_root)
-        else:
-            catalog = _actual_scope_catalog(
-                catalog_root,
-                profile_registry=profile_registry,
-            )
-        snapshot_root = catalog_root / "snapshot"
-        database_path = catalog.database_path
-        return snapshot_root, database_path, catalog, profile_registry
-    finally:
-        if excluded_profile_input:
-            profile_registry.register(baseline, override=True)
-        if catalog is not None:
-            catalog.close()
 
 
 def _build_api_env(
@@ -103,7 +134,9 @@ def _build_api_env(
     return env, selection
 
 
-def _resolve(client: Any, env: dict[str, object], *, profile: object = _PROFILE):
+def _resolve(
+    client: FastAPITestClient, env: dict[str, object], *, profile: object = _PROFILE
+) -> Response:
     from tests._helpers.runtime_http import _runtime_api_request
 
     payload = dict(_SCOPE_NEED)
@@ -125,21 +158,26 @@ def test_catalog_profile_http_selects_published_plan_through_fresh_reader(
     tmp_path: Path,
     monkeypatch: MonkeyPatch,
 ) -> None:
-    """The public route carries a typed profile to a new reader of the published DB."""
+    """The public route carries a typed profile to a fresh current producer snapshot."""
     from tests._helpers.runtime_http import close_runtime_api_env
 
-    snapshot_root, database_path, producer_graph, profile_registry = _publish_scope_catalog(
-        tmp_path,
-        monkeypatch,
-    )
-    env, selection = _build_api_env(
-        tmp_path,
-        monkeypatch,
-        snapshot_root=snapshot_root,
-    )
-    client = env["client"]
-    assert client is not None
+    fixture = _build_complete_published_fixture(tmp_path, monkeypatch)
+    env = None
     try:
+        snapshot_root = fixture.snapshot_root
+        database_path = fixture.database_path
+        producer_graph = fixture.producer_graph
+        profile_registry = fixture.profile_registry
+        assert fixture.readiness["consumer_ready"] is True
+        assert fixture.readiness["evaluation_ready"] is True
+        assert fixture.readiness["full_publish_ready"] == (fixture.evaluation_mode == "full-ready")
+        env, selection = _build_api_env(
+            tmp_path,
+            monkeypatch,
+            snapshot_root=snapshot_root,
+        )
+        client = env["client"]
+        assert client is not None
         response = _resolve(client, env)
         assert response.status_code == 200, response.text
         body = response.json()
@@ -166,8 +204,38 @@ def test_catalog_profile_http_selects_published_plan_through_fresh_reader(
         assert fresh_graph is not None
         assert fresh_graph is not producer_graph
         assert fresh_graph.database_path.resolve() == database_path.resolve()
+
+        # Remove a real producer-lineage artifact, then create a second fresh reader.
+        # The consumer must stop issuing plans when the native publish receipt is absent.
+        stage_state_path = snapshot_root / "datasets" / "manifests" / "stage_state.json"
+        stage_state = json.loads(stage_state_path.read_text(encoding="utf-8"))
+        assert stage_state["publish"]["status"] == "complete"
+        stage_state_path.unlink()
+        refused_env, _refused_selection = _build_api_env(
+            tmp_path / "receipt-removed-reader",
+            monkeypatch,
+            snapshot_root=snapshot_root,
+        )
+        refused_client = refused_env["client"]
+        assert refused_client is not None
+        try:
+            refused = _resolve(refused_client, refused_env)
+            assert refused.status_code == 200, refused.text
+            refused_body = refused.json()
+            assert refused_body["fetch_plans"] == []
+            assert len(refused_body["candidates"]) == 1
+            assert refused_body["candidates"][0]["metadata"]["source_currentness"] != "current"
+            assert any(
+                warning.startswith(("catalog_source_not_established:", "catalog_source_stale:"))
+                for warning in refused_body["warnings"]
+            )
+        finally:
+            close_runtime_api_env(refused_env)
     finally:
-        close_runtime_api_env(env)
+        if env is not None:
+            close_runtime_api_env(env)
+        fixture.producer_graph.close()
+        fixture.close()
 
 
 @pytest.mark.skipif(TestClient is None, reason="fastapi is not installed")
@@ -180,18 +248,17 @@ def test_catalog_profile_http_refuses_absent_conflicting_and_malformed_selection
     from polisyos.runtime.quality import substrate_registry
     from tests._helpers.runtime_http import close_runtime_api_env
 
-    snapshot_root, database_path, _producer_graph, _profile_registry = _publish_scope_catalog(
-        tmp_path,
-        monkeypatch,
-    )
-    selected_env, _selection = _build_api_env(
-        tmp_path / "selected",
-        monkeypatch,
-        snapshot_root=snapshot_root,
-    )
-    selected_client = selected_env["client"]
-    assert selected_client is not None
+    fixture = _build_complete_published_fixture(tmp_path, monkeypatch)
+    selected_env = None
+    missing_env = None
     try:
+        selected_env, _selection = _build_api_env(
+            tmp_path / "selected",
+            monkeypatch,
+            snapshot_root=fixture.snapshot_root,
+        )
+        selected_client = selected_env["client"]
+        assert selected_client is not None
         conflict = _resolve(selected_client, selected_env, profile="rest_backfill")
         assert conflict.status_code == 422, conflict.text
         assert conflict.json()["code"] == "catalog_run_profile_conflict"
@@ -201,75 +268,108 @@ def test_catalog_profile_http_refuses_absent_conflicting_and_malformed_selection
         assert malformed.status_code == 422, malformed.text
         assert "detail" in malformed.json()
         assert "fetch_plans" not in malformed.json()
-    finally:
-        close_runtime_api_env(selected_env)
 
-    # Exercise the same actual published DB with no app-selected/requested profile.
-    # The path override is test-local; the production profile or publisher receipt
-    # is not synthesized or changed.
-    original_paths = substrate_registry.default_substrate_catalog_paths
-    original_overlay = catalog_read_api.default_acquisition_overlay_path
-    startup_root = Path.cwd().resolve()
-    overlay_path = tmp_path / "missing-acquisition-overlay.duckdb"
-    monkeypatch.setattr(
-        substrate_registry,
-        "default_substrate_catalog_paths",
-        lambda root: (
-            replace(original_paths(root), l1_dcat_path=database_path)
-            if Path(root).resolve() == startup_root
-            else original_paths(root)
-        ),
-    )
-    monkeypatch.setattr(
-        catalog_read_api,
-        "default_acquisition_overlay_path",
-        lambda root: (
-            overlay_path if Path(root).resolve() == startup_root else original_overlay(root)
-        ),
-    )
-    missing_env, _ = _build_api_env(
-        tmp_path / "missing",
-        monkeypatch,
-        snapshot_root=None,
-    )
-    missing_client = missing_env["client"]
-    assert missing_client is not None
-    try:
+        # Exercise the same actual published DB with no app-selected/requested profile.
+        # The path override is test-local; the production profile or publisher receipt
+        # is not synthesized or changed.
+        original_paths = substrate_registry.default_substrate_catalog_paths
+        original_overlay = catalog_read_api.default_acquisition_overlay_path
+        startup_root = Path.cwd().resolve()
+        overlay_path = tmp_path / "missing-acquisition-overlay.duckdb"
+        database_path = fixture.database_path
+        monkeypatch.setattr(
+            substrate_registry,
+            "default_substrate_catalog_paths",
+            lambda root: (
+                replace(original_paths(root), l1_dcat_path=database_path)
+                if Path(root).resolve() == startup_root
+                else original_paths(root)
+            ),
+        )
+        monkeypatch.setattr(
+            catalog_read_api,
+            "default_acquisition_overlay_path",
+            lambda root: (
+                overlay_path if Path(root).resolve() == startup_root else original_overlay(root)
+            ),
+        )
+        missing_env, _ = _build_api_env(
+            tmp_path / "missing",
+            monkeypatch,
+            snapshot_root=None,
+        )
+        missing_client = missing_env["client"]
+        assert missing_client is not None
         missing = _resolve(missing_client, missing_env, profile=_MISSING)
         assert missing.status_code == 422, missing.text
         assert missing.json()["code"] == "catalog_run_profile_unresolved"
         assert "fetch_plans" not in missing.json()
     finally:
-        close_runtime_api_env(missing_env)
+        if selected_env is not None:
+            close_runtime_api_env(selected_env)
+        if missing_env is not None:
+            close_runtime_api_env(missing_env)
+        fixture.producer_graph.close()
+        fixture.close()
 
 
 @pytest.mark.skipif(TestClient is None, reason="fastapi is not installed")
-def test_catalog_profile_http_blocks_published_excluded_profile_inputs(
+def test_catalog_profile_http_refuses_unversioned_private_profile_inputs(
     tmp_path: Path,
     monkeypatch: MonkeyPatch,
 ) -> None:
-    """Producer-time excluded profile inputs cannot produce a current fetch plan."""
+    """Unversioned private profile input blocks publish and the HTTP fetch plan."""
+    from polisyos.fabric.connectors.profiles.builtin_profiles import BUILTIN_PROFILES
     from tests._helpers.runtime_http import close_runtime_api_env
 
-    snapshot_root, _database_path, _producer_graph, _profile_registry = _publish_scope_catalog(
+    fixture = _build_complete_published_fixture(
         tmp_path,
         monkeypatch,
         excluded_profile_input=True,
     )
-    env, _selection = _build_api_env(
-        tmp_path,
-        monkeypatch,
-        snapshot_root=snapshot_root,
-    )
-    client = env["client"]
-    assert client is not None
+    env = None
     try:
+        profile_registry = fixture.profile_registry
+        published_profile = profile_registry.get("worldbank_wdi")
+        assert published_profile is not None
+        assert published_profile.headers == {"X-PolicyOS-Fixture": "present-at-publish"}
+        assert fixture.report_basis_state == "not_established"
+        assert fixture.report_basis_reason == "profile_private_inputs_unversioned"
+        assert fixture.publish_blocked_reason == (
+            "Dataset publish blocked: benchmark/QC report basis not_established "
+            "(profile_private_inputs_unversioned)"
+        )
+        assert fixture.publish_receipt_state == "not_established"
+        assert fixture.publish_receipt_reason == "publish_lineage_absent"
+
+        baseline = next(
+            profile for profile in BUILTIN_PROFILES if profile.profile_id == "worldbank_wdi"
+        ).model_copy(update={"headers": {}}, deep=True)
+        profile_registry.register(baseline, override=True)
+        assert profile_registry.get("worldbank_wdi") == baseline
+
+        env, selection = _build_api_env(
+            tmp_path / "reader-with-baseline-profile",
+            monkeypatch,
+            snapshot_root=fixture.snapshot_root,
+        )
+        client = env["client"]
+        assert client is not None
         response = _resolve(client, env)
         assert response.status_code == 200, response.text
         body = response.json()
         assert body["fetch_plans"] == []
         assert len(body["candidates"]) == 1
-        assert any(warning.startswith("catalog_source_stale:") for warning in body["warnings"])
-        assert body["candidates"][0]["metadata"]["source_currentness"] == "stale"
+        assert any(
+            warning.startswith("catalog_source_not_established:") for warning in body["warnings"]
+        )
+        assert body["candidates"][0]["metadata"]["source_currentness"] == "not_established"
+        service = env["app"].state._control_service
+        assert service._catalog_run_profile == _PROFILE
+        assert service._catalog_source_selection is selection
+        assert service._registry_providers.source_profiles is profile_registry
     finally:
-        close_runtime_api_env(env)
+        if env is not None:
+            close_runtime_api_env(env)
+        fixture.producer_graph.close()
+        fixture.close()

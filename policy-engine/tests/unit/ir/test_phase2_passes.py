@@ -2,10 +2,13 @@ from __future__ import annotations
 
 from typing import TYPE_CHECKING
 
+import pytest
+
 from polisyos.core.artifacts import ensure_ir_artifact_store as _ensure_ir_artifact_store
 from polisyos.core.artifacts.ir_adapter import ensure_ir_artifact_store
 from polisyos.core.artifacts.store import FileSystemCAS
 from polisyos.ir.artifacts import put_json_artifact
+from polisyos.ir.artifacts.lineage import ArtifactLineageGraph
 from polisyos.ir.governance.policy_spec import InterventionSpec, PolicySpec
 from polisyos.ir.governance.problem_frame import ProblemDomain, ProblemFrame
 from polisyos.ir.governance.schedule import ScheduleSpec
@@ -17,17 +20,22 @@ from polisyos.ir.kernel.metrics import DEFAULT_METRIC_REGISTRY
 from polisyos.ir.kernel.selector_fields import DEFAULT_SELECTOR_FIELD_REGISTRY
 from polisyos.ir.kernel.slots import DEFAULT_SLOT_REGISTRY
 from polisyos.ir.kernel.units import DEFAULT_UNITS_REGISTRY, MoneyUnit, UnitsRegistry
+from polisyos.ir.linker import LinkedTrinityBundle
 from polisyos.ir.model_layer.model_spec import ModelSpec
 from polisyos.ir.observation.causal_execution import BoundsEstimationEntry, CausalExecutionBundle
 from polisyos.ir.observation.contracts import ObservationFamily
 from polisyos.ir.passes import (
+    ArtifactRefTypeCheckResult,
     CrossModelTypeCheckPass,
     PassContext,
     PassPipeline,
+    PassResult,
     RegistryDependencyPass,
+    SlotMechanismReachability,
     SlotMechanismReachabilityPass,
     TrinityLinkAnalysisPass,
     UnusedArtifactAnalysisPass,
+    UnusedArtifactAnalysisResult,
 )
 from polisyos.ir.registry.refs import BoundsBundleRef
 from polisyos.ir.registry.registry_fragments import (
@@ -41,6 +49,14 @@ from polisyos.ir.trinity import TrinityBundle
 
 if TYPE_CHECKING:
     from pathlib import Path
+
+
+class _ManifestOnlyReader:
+    def __init__(self, manifests: dict[str, object]) -> None:
+        self._manifests = manifests
+
+    def get_manifest(self, artifact_id: object) -> object:
+        return self._manifests.get(str(artifact_id))
 
 
 def _units_fragment(fragment_id: str) -> UnitsFragment:
@@ -105,7 +121,7 @@ class CountingLinkPass(TrinityLinkAnalysisPass):
         super().__init__()
         self.calls = 0
 
-    def run(self, context: PassContext):  # type: ignore[override]
+    def run(self, context: PassContext) -> PassResult:
         self.calls += 1
         return super().run(context)
 
@@ -140,7 +156,8 @@ def test_pipeline_caches_link_analysis_and_invalidates_on_registry_change() -> N
     third = pipeline.run(changed_context)
 
     assert link_pass.calls == 2
-    assert third.require("linked_trinity_bundle").bindings.used_slots_write == ["agents.income"]
+    linked_bundle = third.require_as("linked_trinity_bundle", LinkedTrinityBundle)
+    assert linked_bundle.bindings.used_slots_write == ["agents.income"]
 
 
 def test_slot_mechanism_reachability_flags_orphan_mechanisms() -> None:
@@ -161,10 +178,30 @@ def test_slot_mechanism_reachability_flags_orphan_mechanisms() -> None:
     )
 
     result = pipeline.run(context)
-    reachability = result.require("slot_mechanism_reachability")
+    reachability = result.require_as(
+        "slot_mechanism_reachability",
+        SlotMechanismReachability,
+    )
 
     assert reachability.orphan_mechanisms == ["queue"]
     assert any(diagnostic.code == "orphan_mechanism" for diagnostic in result.diagnostics)
+
+
+def test_pass_context_require_as_rejects_untyped_surface_values() -> None:
+    context = PassContext().with_surface("link_report", {"ok": True})
+
+    with pytest.raises(TypeError, match="PassContext value 'link_report'"):
+        context.require_as("link_report", LinkedTrinityBundle)
+
+
+def test_slot_mechanism_reachability_rejects_non_linked_bundle() -> None:
+    context = PassContext().with_surface(
+        "linked_trinity_bundle",
+        {"bindings": {}},
+    )
+
+    with pytest.raises(TypeError, match="LinkedTrinityBundle"):
+        SlotMechanismReachabilityPass().run(context)
 
 
 def test_cross_model_type_check_and_unused_artifact_analysis_cover_execution_outputs(
@@ -240,21 +277,123 @@ def test_cross_model_type_check_and_unused_artifact_analysis_cover_execution_out
     )
     result = pipeline.run(context)
 
-    assert result.require("cross_model_type_check").missing_ref_count == 0
-    assert result.require("artifact_lineage_graph").produced_by(used_ref["artifact_id"]) == (
-        "task.bounds",
+    cross_model_result = result.require_as(
+        "cross_model_type_check",
+        ArtifactRefTypeCheckResult,
     )
-    assert result.require("artifact_lineage_graph").derived_from(used_ref["artifact_id"]) == (
-        upstream_ref["artifact_id"],
+    lineage_graph = result.require_as("artifact_lineage_graph", ArtifactLineageGraph)
+    unused_result = result.require_as(
+        "unused_artifact_analysis",
+        UnusedArtifactAnalysisResult,
     )
-    assert result.require("unused_artifact_analysis").unused_artifact_ids == [
-        unused_ref["artifact_id"]
-    ]
+    assert cross_model_result.missing_ref_count == 0
+    assert lineage_graph.produced_by(used_ref["artifact_id"]) == ("task.bounds",)
+    assert lineage_graph.derived_from(used_ref["artifact_id"]) == (upstream_ref["artifact_id"],)
+    assert unused_result.unused_artifact_ids == [unused_ref["artifact_id"]]
+
+    ir_store = ensure_ir_artifact_store(store)
+    manifest_only_reader = _ManifestOnlyReader(
+        {
+            str(ref["artifact_id"]): ir_store.get_manifest(ref["artifact_id"])
+            for ref in (upstream_ref, used_ref, unused_ref)
+        }
+    )
+    assert not hasattr(manifest_only_reader, "put_json")
+    assert not hasattr(manifest_only_reader, "iter_artifact_ids")
+    reader_result = PassPipeline([UnusedArtifactAnalysisPass()]).run(
+        context.with_surface("artifact_store", manifest_only_reader).with_surface(
+            "root_artifact_ids",
+            [unused_ref["artifact_id"]],
+        )
+    )
+    reader_lineage = reader_result.require_as("artifact_lineage_graph", ArtifactLineageGraph)
+    reader_unused = reader_result.require_as(
+        "unused_artifact_analysis",
+        UnusedArtifactAnalysisResult,
+    )
+    assert reader_lineage.derived_from(used_ref["artifact_id"]) == (upstream_ref["artifact_id"],)
+    assert reader_unused.used_artifact_ids == [str(unused_ref["artifact_id"])]
+    assert reader_unused.unused_artifact_ids == sorted(
+        {str(upstream_ref["artifact_id"]), str(used_ref["artifact_id"])}
+    )
+
+    with pytest.raises(
+        TypeError,
+        match="must be ArtifactLineageGraph; received ArtifactRefTypeCheckResult",
+    ):
+        result.require_as("cross_model_type_check", ArtifactLineageGraph)
+    explicit_root_result = pipeline.run(
+        context.with_surface("root_artifact_ids", (unused_ref["artifact_id"],))
+    )
+    explicit_root_analysis = explicit_root_result.require_as(
+        "unused_artifact_analysis",
+        UnusedArtifactAnalysisResult,
+    )
+    assert explicit_root_analysis.root_artifact_ids == [str(unused_ref["artifact_id"])]
+    assert explicit_root_analysis.used_artifact_ids == [str(unused_ref["artifact_id"])]
+    assert explicit_root_analysis.unused_artifact_ids == sorted(
+        {str(upstream_ref["artifact_id"]), str(used_ref["artifact_id"])}
+    )
+
+    empty_root_sets: tuple[list[str] | tuple[object, ...], ...] = ([], ())
+    for empty_roots in empty_root_sets:
+        empty_root_result = pipeline.run(context.with_surface("root_artifact_ids", empty_roots))
+        empty_root_analysis = empty_root_result.require_as(
+            "unused_artifact_analysis",
+            UnusedArtifactAnalysisResult,
+        )
+        assert empty_root_analysis.root_artifact_ids == [str(used_ref["artifact_id"])]
+        assert empty_root_analysis.used_artifact_ids == sorted(
+            {
+                str(upstream_ref["artifact_id"]),
+                str(used_ref["artifact_id"]),
+            }
+        )
+        assert empty_root_analysis.unused_artifact_ids == [str(unused_ref["artifact_id"])]
+
+    empty_generator_result = pipeline.run(context.with_surface("root_artifact_ids", iter(())))
+    empty_generator_analysis = empty_generator_result.require_as(
+        "unused_artifact_analysis",
+        UnusedArtifactAnalysisResult,
+    )
+    assert empty_generator_analysis.root_artifact_ids == []
+    assert empty_generator_analysis.used_artifact_ids == []
+    assert empty_generator_analysis.unused_artifact_ids == sorted(
+        {
+            str(upstream_ref["artifact_id"]),
+            str(used_ref["artifact_id"]),
+            str(unused_ref["artifact_id"]),
+        }
+    )
 
     bad_result = pipeline.run(
         PassContext()
         .with_surface("artifact_store", ensure_ir_artifact_store(store))
         .with_surface("causal_execution_bundle", bad_execution_bundle)
     )
-    assert bad_result.require("cross_model_type_check").missing_ref_count == 1
+    bad_cross_model_result = bad_result.require_as(
+        "cross_model_type_check",
+        ArtifactRefTypeCheckResult,
+    )
+    assert bad_cross_model_result.missing_ref_count == 1
     assert any(diagnostic.code == "artifact_ref_missing" for diagnostic in bad_result.diagnostics)
+
+    unused_pass = UnusedArtifactAnalysisPass()
+    with pytest.raises(TypeError, match="artifact_ids must be an iterable"):
+        unused_pass.run(context.with_surface("artifact_ids", 42))
+    with pytest.raises(TypeError, match="root_artifact_ids must be an iterable"):
+        unused_pass.run(context.with_surface("root_artifact_ids", str(unused_ref["artifact_id"])))
+    for malformed_roots in (0, False, ""):
+        with pytest.raises(TypeError, match="root_artifact_ids must be an iterable"):
+            unused_pass.run(context.with_surface("root_artifact_ids", malformed_roots))
+    with pytest.raises(
+        TypeError,
+        match="must provide a callable get_manifest method",
+    ):
+        unused_pass.run(PassContext().with_surface("artifact_store", object()))
+    noncallable_reader = type("_NonCallableManifestReader", (), {"get_manifest": 0})()
+    with pytest.raises(
+        TypeError,
+        match="must provide a callable get_manifest method",
+    ):
+        unused_pass.run(context.with_surface("artifact_store", noncallable_reader))

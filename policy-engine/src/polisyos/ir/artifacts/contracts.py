@@ -2,9 +2,11 @@
 
 from __future__ import annotations
 
+import builtins as _builtins
 import re
 from collections.abc import Mapping
-from dataclasses import asdict, dataclass
+from dataclasses import Field as DataclassField
+from dataclasses import asdict, dataclass, fields, is_dataclass
 from typing import (
     TYPE_CHECKING,
     Any,
@@ -62,19 +64,28 @@ class ArtifactID(RootModel[str]):
     def validate_root(cls, value: object) -> str:
         if not isinstance(value, str):
             value = str(value)
-        if not value.startswith(cls.prefix):
+        # str() may return a str subclass on Python 3.14; normalize its native payload.
+        value = _builtins.str.__str__(value)
+        prefix = _builtins.str.__str__(cls.prefix)
+        if not value.startswith(prefix):
             raise ValueError("ArtifactID must start with sha256:")
-        hex64 = value[len(cls.prefix) :].lower()
+        hex64 = value[_builtins.len(prefix) :].lower()
         if not _SHA256_HEX_RE.match(hex64):
             raise ValueError("sha256 hex must be 64 lowercase characters [0-9a-f]")
-        return f"{cls.prefix}{hex64}"
+        return f"{prefix}{hex64}"
 
     @classmethod
     def from_sha256_hex(cls, hex64: str) -> ArtifactID:
+        if isinstance(hex64, str):
+            hex64 = _builtins.str.__str__(hex64)
         hex64 = hex64.lower()
+        if isinstance(hex64, str):
+            # Preserve external .lower() callbacks while normalizing their subclass result.
+            hex64 = _builtins.str.__str__(hex64)
         if not _SHA256_HEX_RE.match(hex64):
             raise ValueError("sha256 hex must be 64 characters [0-9a-f]")
-        return cls(f"{cls.prefix}{hex64}")
+        prefix = _builtins.str.__str__(cls.prefix)
+        return cls(f"{prefix}{hex64}")
 
     @property
     def hex(self) -> str:
@@ -221,12 +232,33 @@ class ArtifactStore(Protocol):
     def iter_artifact_ids(self) -> list[Any]: ...
 
 
-def _as_payload(value: object) -> dict[str, Any]:
-    if isinstance(value, dict):
-        return dict(value)
+def _string_key_payload(value: object) -> dict[str, object]:
+    if not isinstance(value, Mapping):
+        raise TypeError("Input reference payload must be a mapping")
+    payload: dict[str, object] = {}
+    seen: set[str] = set()
+    for key in tuple(value):
+        if not isinstance(key, str):
+            raise TypeError("Input reference payload keys must be strings")
+        if key in seen:
+            raise TypeError(f"Input reference payload contains duplicate key: {key}")
+        seen.add(key)
+        try:
+            item = value[key]
+        except KeyError as exc:
+            raise TypeError(
+                f"Input reference payload key has no corresponding value: {key}"
+            ) from exc
+        payload[key] = item
+    return payload
+
+
+def _as_payload(value: object) -> dict[str, object]:
+    if isinstance(value, Mapping):
+        return _string_key_payload(value)
     model_dump = getattr(value, "model_dump", None)
     if callable(model_dump):
-        return dict(model_dump(mode="python"))
+        return _string_key_payload(model_dump(mode="python"))
     return {
         "artifact_id": getattr(value, "artifact_id", value),
         "role": getattr(value, "role", "input"),
@@ -271,9 +303,128 @@ def to_store_put_options(opts: PutOptions) -> StorePutOptions:
     )
 
 
+@dataclass(frozen=True, slots=True)
+class _DataclassFieldInventory:
+    """Validated raw and value-bearing field names for one dataclass selector."""
+
+    raw_names: frozenset[str]
+    value_names: frozenset[str]
+
+
+def _validated_dataclass_field_inventory(
+    value: object,
+) -> _DataclassFieldInventory | None:
+    """Validate raw dataclass metadata before any selector projection.
+
+    An empty marker provides no dataclass attestation. Callers may still accept its object through
+    the ordinary strict mapping or structural-selector checks.
+    """
+    if not is_dataclass(value):
+        return None
+    if isinstance(value, type):
+        raise TypeError("Artifact reference dataclass selector must be an instance")
+
+    missing = object()
+    raw_metadata: object = missing
+    try:
+        for cls in type(value).__mro__:
+            namespace = cls.__dict__
+            if "__dataclass_fields__" in namespace:
+                raw_metadata = namespace["__dataclass_fields__"]
+                break
+    except Exception as exc:
+        raise TypeError(
+            "Artifact reference dataclass selector has malformed field metadata"
+        ) from exc
+    if raw_metadata is missing or not isinstance(raw_metadata, Mapping):
+        raise TypeError("Artifact reference dataclass selector has malformed field metadata")
+
+    raw_mapping: Mapping[object, object] = raw_metadata
+    try:
+        raw_length = len(raw_mapping)
+        raw_keys = tuple(raw_mapping)
+        if raw_length != len(raw_keys):
+            raise TypeError("Dataclass field metadata length does not match its keys")
+
+        raw_fields: dict[str, object] = {}
+        field_identities: set[int] = set()
+        for key in raw_keys:
+            if not isinstance(key, str) or not key.isidentifier() or key in raw_fields:
+                raise TypeError("Dataclass field metadata has an invalid or duplicate key")
+            field = raw_mapping[key]
+            if not isinstance(field, DataclassField):
+                raise TypeError("Dataclass field metadata contains a non-Field value")
+            if not isinstance(field.name, str) or not field.name.isidentifier():
+                raise TypeError("Dataclass field metadata contains an invalid Field name")
+            if field.name != key:
+                raise TypeError("Dataclass field metadata key does not match Field.name")
+            if id(field) in field_identities:
+                raise TypeError("Dataclass field metadata reuses a Field object")
+            field_identities.add(id(field))
+            raw_fields[key] = field
+
+        raw_items = tuple(raw_mapping.items())
+        if len(raw_items) != raw_length:
+            raise TypeError("Dataclass field metadata items do not match its length")
+        item_keys: set[str] = set()
+        for item in raw_items:
+            if not isinstance(item, tuple) or len(item) != 2:
+                raise TypeError("Dataclass field metadata contains a malformed item")
+            item_key, item_field = item
+            if (
+                not isinstance(item_key, str)
+                or item_key not in raw_fields
+                or item_key in item_keys
+                or item_field is not raw_fields[item_key]
+            ):
+                raise TypeError("Dataclass field metadata items disagree with its keys")
+            item_keys.add(item_key)
+        if item_keys != set(raw_fields):
+            raise TypeError("Dataclass field metadata items omit a key")
+
+        derived_fields = fields(value)
+        value_names: set[str] = set()
+        value_field_identities: set[int] = set()
+        for field in derived_fields:
+            if not isinstance(field, DataclassField):
+                raise TypeError("Dataclass value fields contain a non-Field value")
+            field_name = field.name
+            if (
+                not isinstance(field_name, str)
+                or not field_name.isidentifier()
+                or field_name in value_names
+                or id(field) in value_field_identities
+                or raw_fields.get(field_name) is not field
+                or not hasattr(value, field_name)
+            ):
+                raise TypeError("Dataclass value fields disagree with raw field metadata")
+            value_names.add(field_name)
+            value_field_identities.add(id(field))
+    except Exception as exc:
+        raise TypeError(
+            "Artifact reference dataclass selector has malformed field metadata"
+        ) from exc
+
+    if not raw_fields:
+        if value_names:
+            raise TypeError("Artifact reference dataclass selector has malformed field metadata")
+        return None
+    return _DataclassFieldInventory(
+        raw_names=frozenset(raw_fields),
+        value_names=frozenset(value_names),
+    )
+
+
 def normalize_artifact_ref(ref: object) -> dict[str, str]:
     """Normalize a store-specific artifact handle into the stable IR ref mapping boundary."""
     from polisyos.ir.registry.refs import ArtifactRefModel
+
+    field_inventory = _validated_dataclass_field_inventory(ref)
+    if field_inventory is not None:
+        _refuse_unknown_model_fields(
+            {name for name in field_inventory.raw_names if not name.startswith("_")},
+            ArtifactRefModel.model_fields,
+        )
 
     model_dump = getattr(ref, "model_dump", None)
     if callable(model_dump):
@@ -290,20 +441,39 @@ def normalize_artifact_ref(ref: object) -> dict[str, str]:
         if hasattr(ref, "__dict__"):
             declared_fields.update(name for name in vars(ref) if not name.startswith("_"))
         _refuse_unknown_model_fields(declared_fields, ArtifactRefModel.model_fields)
-    elif hasattr(ref, "__dataclass_fields__"):
-        payload = asdict(ref)
-        _refuse_unknown_model_fields(_selector_public_fields(ref), ArtifactRefModel.model_fields)
-    elif hasattr(ref, "__dict__"):
-        instance_payload = {
-            name: value for name, value in vars(ref).items() if not name.startswith("_")
-        }
-        model_fields = ArtifactRefModel.model_fields
-        required_fields = {name for name, field in model_fields.items() if field.is_required()}
-        _refuse_unknown_model_fields(_selector_public_fields(ref), model_fields)
-        if required_fields <= set(instance_payload):
-            payload = instance_payload
+    elif is_dataclass(ref):
+        if isinstance(ref, type):
+            raise TypeError("Artifact reference dataclass selector must be an instance")
+        if field_inventory is not None:
+            # An allowed selector member cannot disappear merely because dataclasses omits a
+            # ClassVar or InitVar from the value projection.
+            missing_value_fields = sorted(
+                (field_inventory.raw_names - field_inventory.value_names)
+                & ArtifactRefModel.model_fields.keys()
+            )
+            if missing_value_fields:
+                raise TypeError(
+                    "Artifact reference dataclass selector fields must be value-bearing: "
+                    + ", ".join(missing_value_fields)
+                )
+            try:
+                payload = asdict(ref)
+            except Exception as exc:
+                raise TypeError(
+                    "Artifact reference dataclass selector has malformed field values"
+                ) from exc
+            if frozenset(payload) != field_inventory.value_names:
+                raise TypeError("Artifact reference dataclass selector has malformed field values")
+            _refuse_unknown_model_fields(
+                _selector_public_fields(ref, field_inventory), ArtifactRefModel.model_fields
+            )
         else:
-            payload = _structural_artifact_ref_payload(ref, model_fields)
+            # Empty marker metadata is not dataclass attestation; require the ordinary object shape.
+            payload = _object_artifact_ref_payload(
+                ref, ArtifactRefModel.model_fields, field_inventory=field_inventory
+            )
+    elif hasattr(ref, "__dict__"):
+        payload = _object_artifact_ref_payload(ref, ArtifactRefModel.model_fields)
     else:
         model_fields = ArtifactRefModel.model_fields
         payload = _structural_artifact_ref_payload(ref, model_fields)
@@ -334,16 +504,40 @@ def _declared_public_fields(value: object) -> set[str]:
     return names
 
 
-def _selector_public_fields(value: object) -> set[str]:
+def _selector_public_fields(
+    value: object,
+    field_inventory: _DataclassFieldInventory | None = None,
+) -> set[str]:
     """Collect public selector fields before projecting a supported ref shape."""
     names = _declared_public_fields(value)
     if isinstance(value, Mapping):
         names.update(name for name in value if isinstance(name, str))
     if hasattr(value, "__dict__"):
         names.update(name for name in vars(value) if not name.startswith("_"))
-    if hasattr(value, "__dataclass_fields__"):
-        names.update(name for name in value.__dataclass_fields__ if not name.startswith("_"))
+    if field_inventory is None:
+        field_inventory = _validated_dataclass_field_inventory(value)
+    if field_inventory is not None:
+        names.update(name for name in field_inventory.raw_names if not name.startswith("_"))
     return names
+
+
+def _object_artifact_ref_payload(
+    ref: object,
+    model_fields: Mapping[str, Any],
+    *,
+    field_inventory: _DataclassFieldInventory | None = None,
+) -> dict[str, Any]:
+    """Normalize an ordinary object selector without trusting dataclass-shaped markers."""
+    instance_payload = (
+        {name: value for name, value in vars(ref).items() if not name.startswith("_")}
+        if hasattr(ref, "__dict__")
+        else {}
+    )
+    required_fields = {name for name, field in model_fields.items() if field.is_required()}
+    _refuse_unknown_model_fields(_selector_public_fields(ref, field_inventory), model_fields)
+    if required_fields <= set(instance_payload):
+        return instance_payload
+    return _structural_artifact_ref_payload(ref, model_fields)
 
 
 def _structural_artifact_ref_payload(

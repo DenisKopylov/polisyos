@@ -3,14 +3,21 @@
 from __future__ import annotations
 
 from enum import Enum
-from typing import TYPE_CHECKING, Any
+from typing import TYPE_CHECKING, Any, Protocol, runtime_checkable
 
 from pydantic import BaseModel, ConfigDict, Field
 
-from polisyos.ir.artifacts.contracts import ArtifactID, ArtifactStore
+from polisyos.ir.artifacts.contracts import ArtifactID
 
 if TYPE_CHECKING:
     from collections.abc import Iterable
+
+
+@runtime_checkable
+class _ArtifactManifestReader(Protocol):
+    """Expose the manifest lookup required by lineage graph construction."""
+
+    def get_manifest(self, artifact_id: ArtifactID) -> object: ...
 
 
 class ArtifactLineageNodeKind(str, Enum):
@@ -160,12 +167,16 @@ def _task_node_id(task_id: str) -> str:
 
 
 def build_artifact_lineage_graph(
-    store: ArtifactStore,
+    store: _ArtifactManifestReader,
     *,
     artifact_ids: Iterable[ArtifactID | str] | None = None,
     task_bindings: Iterable[ArtifactTaskBinding] | None = None,
 ) -> ArtifactLineageGraph:
-    """Build a lineage graph from CAS manifests and optional semantic task bindings."""
+    """Build a graph using manifest reads and optional semantic task bindings.
+
+    The reader provides get_manifest. iter_artifact_ids is an optional
+    discovery convenience and is used only when artifact_ids is omitted.
+    """
 
     if artifact_ids is None:
         iter_ids = getattr(store, "iter_artifact_ids", None)

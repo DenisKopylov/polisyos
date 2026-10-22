@@ -2,6 +2,7 @@
 
 from __future__ import annotations
 
+import builtins as _builtins
 import re
 from typing import ClassVar
 
@@ -29,14 +30,21 @@ class ArtifactID(RootModel[str]):
             ValueError: If the value is missing the `sha256:` prefix or digest
                 format is invalid.
         """
-        if not isinstance(v, str):
-            v = str(v)
-        if not v.startswith(cls.prefix):
+        if _builtins.isinstance(v, _builtins.str):
+            # Validate the native string payload without invoking subclass overrides
+            # for __str__, startswith, slicing, or lower.
+            v = _builtins.str.__str__(v)
+        else:
+            # Non-string __str__ callbacks may return a str subclass on Python 3.14.
+            # Normalize that result through the exact native descriptor as well.
+            v = _builtins.str.__str__(_builtins.str(v))
+        prefix = _builtins.str.__str__(cls.prefix)
+        if not v.startswith(prefix):
             raise ValueError("ArtifactID must start with sha256:")
-        hex64 = v[len(cls.prefix) :].lower()
+        hex64 = v[_builtins.len(prefix) :].lower()
         if not _SHA256_HEX_RE.match(hex64):
             raise ValueError("sha256 hex must be 64 lowercase characters [0-9a-f]")
-        return f"{cls.prefix}{hex64}"
+        return f"{prefix}{hex64}"
 
     @classmethod
     def from_sha256_hex(cls, hex64: str) -> ArtifactID:
@@ -52,10 +60,18 @@ class ArtifactID(RootModel[str]):
         Raises:
             ValueError: If `hex64` is not exactly 64 hexadecimal characters.
         """
+        if _builtins.isinstance(hex64, _builtins.str):
+            # A string subclass may override lower; normalize through the native
+            # descriptor before invoking any string operations.
+            hex64 = _builtins.str.__str__(hex64)
         hex64 = hex64.lower()
+        if _builtins.isinstance(hex64, _builtins.str):
+            # An external lower() method may itself return a str subclass.
+            hex64 = _builtins.str.__str__(hex64)
         if not _SHA256_HEX_RE.match(hex64):
             raise ValueError("sha256 hex must be 64 characters [0-9a-f]")
-        return cls(f"{cls.prefix}{hex64}")
+        prefix = _builtins.str.__str__(cls.prefix)
+        return cls(f"{prefix}{hex64}")
 
     @property
     def algo(self) -> str:

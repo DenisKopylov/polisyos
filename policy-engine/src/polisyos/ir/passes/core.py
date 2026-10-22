@@ -2,14 +2,21 @@
 
 from __future__ import annotations
 
-from typing import TYPE_CHECKING
+from collections.abc import Iterable
+from typing import TypeGuard
 
 from pydantic import BaseModel, Field, ValidationError
 
+from polisyos.ir._internal.runtime_protocols import protocol_declared_callables_are_callable
 from polisyos.ir.analytics.estimand import EstimandAST, normalize_estimand_ast
-from polisyos.ir.artifacts.lineage import build_artifact_lineage_graph
+from polisyos.ir.artifacts.contracts import ArtifactID
+from polisyos.ir.artifacts.lineage import (
+    ArtifactTaskBinding,
+    _ArtifactManifestReader,
+    build_artifact_lineage_graph,
+)
 from polisyos.ir.kernel.base import KernelModel
-from polisyos.ir.linker import link_trinity
+from polisyos.ir.linker import LinkedTrinityBundle, link_trinity
 from polisyos.ir.observation.causal_execution import CausalExecutionBundle
 from polisyos.ir.passes.base import (
     IRAnalysis,
@@ -26,9 +33,6 @@ from polisyos.ir.registry.registry_fragments import (
     compose_registry_fragments,
 )
 from polisyos.ir.trinity import TrinityBundle
-
-if TYPE_CHECKING:
-    from collections.abc import Iterable
 
 
 class ArtifactRefTypeCheckResult(KernelModel):
@@ -71,6 +75,44 @@ def _sorted_diagnostics(diagnostics: Iterable[PassDiagnostic]) -> tuple[PassDiag
                 diagnostic.message,
             ),
         )
+    )
+
+
+def _is_artifact_manifest_reader(value: object) -> TypeGuard[_ArtifactManifestReader]:
+    """Narrow a reader to the exact callable manifest surface used by lineage passes."""
+    return isinstance(value, _ArtifactManifestReader) and protocol_declared_callables_are_callable(
+        value,
+        _ArtifactManifestReader,
+    )
+
+
+def _artifact_ids(value: object, *, surface_name: str) -> tuple[ArtifactID | str, ...] | None:
+    """Validate a dynamic artifact-ID collection before passing it to lineage analysis."""
+    if value is None:
+        return None
+    if isinstance(value, (str, bytes)) or not isinstance(value, Iterable):
+        raise TypeError(f"{surface_name} must be an iterable of artifact IDs")
+    artifact_ids: list[ArtifactID | str] = []
+    for artifact_id in value:
+        if not isinstance(artifact_id, (ArtifactID, str)):
+            raise TypeError(f"{surface_name} entries must be ArtifactID or str values")
+        artifact_ids.append(artifact_id)
+    return tuple(artifact_ids)
+
+
+def _artifact_task_bindings(
+    value: object,
+) -> tuple[ArtifactTaskBinding, ...] | None:
+    """Validate and model dynamic task-binding rows at the lineage boundary."""
+    if value is None:
+        return None
+    if isinstance(value, (str, bytes)) or not isinstance(value, Iterable):
+        raise TypeError("artifact_task_bindings must be an iterable of binding rows")
+    return tuple(
+        binding
+        if isinstance(binding, ArtifactTaskBinding)
+        else ArtifactTaskBinding.model_validate(binding)
+        for binding in value
     )
 
 
@@ -386,6 +428,8 @@ class SlotMechanismReachabilityPass(IRAnalysis):
         linked_bundle = context.get("linked_trinity_bundle")
         if linked_bundle is None:
             return PassResult.noop()
+        if not isinstance(linked_bundle, LinkedTrinityBundle):
+            raise TypeError("linked_trinity_bundle must be a LinkedTrinityBundle")
 
         reachable_mechanisms = sorted(set(linked_bundle.bindings.used_mechanisms))
         reachable_slots = sorted(
@@ -447,8 +491,15 @@ class UnusedArtifactAnalysisPass(IRAnalysis):
 
     def _root_artifact_ids(self, context: PassContext) -> list[str]:
         explicit_roots = context.get("root_artifact_ids")
-        if explicit_roots:
-            return sorted({str(artifact_id) for artifact_id in explicit_roots})
+        if explicit_roots is not None:
+            explicit_roots_are_truthy = bool(explicit_roots)
+            roots = _artifact_ids(explicit_roots, surface_name="root_artifact_ids")
+            if roots is None:
+                raise TypeError("root_artifact_ids must be iterable when supplied")
+            if explicit_roots_are_truthy:
+                return sorted(
+                    {str(ArtifactID.model_validate(str(artifact_id))) for artifact_id in roots}
+                )
         bundle = context.get("causal_execution_bundle")
         if bundle is not None:
             execution_bundle = (
@@ -460,12 +511,18 @@ class UnusedArtifactAnalysisPass(IRAnalysis):
         return []
 
     def run(self, context: PassContext) -> PassResult:
-        store = context.get("artifact_store")
-        if store is None:
+        store_value = context.get("artifact_store")
+        if store_value is None:
             return PassResult.noop()
+        if not _is_artifact_manifest_reader(store_value):
+            raise TypeError("artifact_store must provide a callable get_manifest method")
+        store = store_value
 
-        artifact_ids = context.get("artifact_ids")
-        task_bindings = context.get("artifact_task_bindings") or ()
+        artifact_ids = _artifact_ids(
+            context.get("artifact_ids"),
+            surface_name="artifact_ids",
+        )
+        task_bindings = _artifact_task_bindings(context.get("artifact_task_bindings"))
         lineage_graph = build_artifact_lineage_graph(
             store,
             artifact_ids=artifact_ids,

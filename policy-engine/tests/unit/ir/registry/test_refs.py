@@ -1,6 +1,10 @@
 from __future__ import annotations
 
-from dataclasses import dataclass
+from collections import UserDict
+from collections.abc import Iterator, Mapping
+from dataclasses import InitVar, dataclass
+from dataclasses import field as dataclass_field
+from typing import ClassVar
 
 import pytest
 from pydantic import BaseModel, ConfigDict, Field, ValidationError
@@ -12,7 +16,11 @@ from polisyos.core.artifacts.manifest import CanonInfo as CoreCanonInfo
 from polisyos.core.artifacts.manifest import SchemaInfo as CoreSchemaInfo
 from polisyos.core.artifacts.store import FileSystemCAS
 from polisyos.core.artifacts.write_contract import ArtifactWriteOptions
-from polisyos.ir.artifacts.contracts import ArtifactID, normalize_artifact_ref
+from polisyos.ir.artifacts.contracts import (
+    ArtifactID,
+    normalize_artifact_ref,
+    normalize_input_refs,
+)
 from polisyos.ir.artifacts.io import get_json_artifact, put_json_artifact
 from polisyos.ir.model_layer.canon import CanonViolation
 from polisyos.ir.registry.refs import ArtifactRefModel, StrategicPayoffTableRef
@@ -212,6 +220,60 @@ def test_normalize_artifact_ref_uses_the_strict_shared_ref_schema() -> None:
     assert normalize_artifact_ref(SlotsSelector()) == dict(legacy)
 
 
+def test_normalize_artifact_ref_uses_dataclass_instances_not_field_markers() -> None:
+    expected = {
+        "artifact_id": "sha256:" + "d" * 64,
+        "kind": "ir.structural_ref",
+        "media_type": "application/json",
+    }
+
+    class StructuralSelector:
+        __dataclass_fields__: ClassVar[dict[str, object]] = {}
+
+        def __init__(self) -> None:
+            self.artifact_id = expected["artifact_id"]
+            self.kind = expected["kind"]
+            self.media_type = expected["media_type"]
+
+    assert normalize_artifact_ref(StructuralSelector()) == expected
+
+
+def test_normalize_artifact_ref_refuses_malformed_dataclass_field_metadata() -> None:
+    class MalformedSelector:
+        __dataclass_fields__: ClassVar[dict[str, object]] = {"artifact_id": object()}
+
+        def __init__(self) -> None:
+            self.artifact_id = "sha256:" + "d" * 64
+            self.kind = "ir.structural_ref"
+            self.media_type = "application/json"
+
+    with pytest.raises(TypeError, match="malformed field metadata"):
+        normalize_artifact_ref(MalformedSelector())
+
+
+def test_normalize_artifact_ref_does_not_use_dataclass_class_defaults() -> None:
+    @dataclass(frozen=True, slots=True)
+    class DefaultedSelector:
+        artifact_id: str = "sha256:" + "e" * 64
+        kind: str = "ir.structural_ref"
+        media_type: str = "application/json"
+
+    with pytest.raises(TypeError, match="dataclass selector must be an instance"):
+        normalize_artifact_ref(DefaultedSelector)
+
+
+def test_normalize_artifact_ref_keeps_slotted_dataclass_extension_refusal() -> None:
+    @dataclass(frozen=True, slots=True)
+    class ExtendedSelector:
+        artifact_id: str = "sha256:" + "f" * 64
+        kind: str = "ir.structural_ref"
+        media_type: str = "application/json"
+        selection_hint: str = "extra field"
+
+    with pytest.raises(TypeError, match="unexpected field.*selection_hint"):
+        normalize_artifact_ref(ExtendedSelector())
+
+
 def test_get_json_artifact_rejects_property_extension_before_manifest_or_payload_reads(
     tmp_path, monkeypatch
 ) -> None:
@@ -324,3 +386,379 @@ def test_typed_artifact_ref_fresh_load_keeps_selected_manifest_view(tmp_path) ->
         ir_reader.get_manifest(wrong_view)
     with pytest.raises(FileNotFoundError):
         get_json_artifact(_ensure_ir_artifact_store(ir_reader), wrong_view)
+
+
+def test_normalize_artifact_ref_rejects_incoherent_dataclass_metadata() -> None:
+    @dataclass(frozen=True)
+    class FieldSource:
+        artifact_id: str
+        kind: str
+        media_type: str
+
+    fields_by_name = FieldSource.__dataclass_fields__
+    valid_metadata = {
+        "artifact_id": fields_by_name["artifact_id"],
+        "kind": fields_by_name["kind"],
+        "media_type": fields_by_name["media_type"],
+    }
+
+    class DuplicateKeyMapping(Mapping[str, object]):
+        def __init__(self, values: Mapping[str, object]) -> None:
+            self._values = values
+
+        def __getitem__(self, key: str) -> object:
+            return self._values[key]
+
+        def __iter__(self) -> Iterator[str]:
+            return iter(("artifact_id", "artifact_id", "kind", "media_type"))
+
+        def __len__(self) -> int:
+            return 4
+
+    class DuplicateItemsMapping(DuplicateKeyMapping):
+        def __iter__(self) -> Iterator[str]:
+            return iter(("artifact_id", "kind", "media_type"))
+
+        def __len__(self) -> int:
+            return 3
+
+        def items(self) -> Iterator[tuple[str, object]]:
+            return iter(
+                (
+                    ("artifact_id", self._values["artifact_id"]),
+                    ("artifact_id", self._values["artifact_id"]),
+                    ("kind", self._values["kind"]),
+                    ("media_type", self._values["media_type"]),
+                )
+            )
+
+    malformed_metadata: dict[str, object] = {
+        "key_name_mismatch": {
+            "selection_hint": fields_by_name["artifact_id"],
+            "kind": fields_by_name["kind"],
+            "media_type": fields_by_name["media_type"],
+        },
+        "duplicate_field_identity": {
+            "artifact_id": fields_by_name["artifact_id"],
+            "kind": fields_by_name["artifact_id"],
+            "media_type": fields_by_name["media_type"],
+        },
+        "non_field_value": {
+            "artifact_id": fields_by_name["artifact_id"],
+            "kind": object(),
+            "media_type": fields_by_name["media_type"],
+        },
+        "invalid_field_name": {
+            "artifact_id": dataclass_field(),
+            "kind": fields_by_name["kind"],
+            "media_type": fields_by_name["media_type"],
+        },
+        "non_string_key": {
+            1: fields_by_name["artifact_id"],
+            "kind": fields_by_name["kind"],
+            "media_type": fields_by_name["media_type"],
+        },
+        "non_mapping_marker": object(),
+        "duplicate_mapping_key": DuplicateKeyMapping(valid_metadata),
+        "duplicate_mapping_item": DuplicateItemsMapping(valid_metadata),
+    }
+
+    for name, metadata in malformed_metadata.items():
+        selector_type = type("MetadataSelector", (), {"__dataclass_fields__": metadata})
+        selector = selector_type()
+        selector.artifact_id = "sha256:" + "d" * 64
+        selector.kind = "ir.example"
+        selector.media_type = "application/json"
+
+        try:
+            normalize_artifact_ref(selector)
+        except TypeError:
+            continue
+        pytest.fail(f"{name} dataclass metadata was accepted")
+
+
+def test_normalize_artifact_ref_rejects_unknown_dataclass_raw_classvar_and_initvar() -> None:
+    @dataclass(frozen=True)
+    class ClassVarExtension:
+        artifact_id: str
+        kind: str
+        media_type: str
+        selection_hint: ClassVar[str] = "unknown"
+
+    @dataclass(frozen=True)
+    class InitVarExtension:
+        artifact_id: str
+        kind: str
+        media_type: str
+        selection_hint: InitVar[str]
+
+    with pytest.raises(TypeError, match="unexpected field.*selection_hint"):
+        normalize_artifact_ref(
+            ClassVarExtension("sha256:" + "d" * 64, "ir.example", "application/json")
+        )
+    with pytest.raises(TypeError, match="unexpected field.*selection_hint"):
+        normalize_artifact_ref(
+            InitVarExtension("sha256:" + "d" * 64, "ir.example", "application/json", "extra")
+        )
+
+
+def test_normalize_artifact_ref_accepts_inherited_dataclass_metadata_and_rejects_slots() -> None:
+    @dataclass(frozen=True)
+    class BaseSelector:
+        artifact_id: str
+        kind: str
+        media_type: str
+
+    @dataclass(frozen=True)
+    class ExtendedSelector(BaseSelector):
+        manifest_profile_sha256: str | None = None
+
+    class UndecoratedInheritedSelector(BaseSelector):
+        pass
+
+    class SlotExtension:
+        __slots__ = ("selection_hint",)
+
+    @dataclass
+    class SlottedDataclassSelector(SlotExtension):
+        artifact_id: str
+        kind: str
+        media_type: str
+
+    base_args = ("sha256:" + "d" * 64, "ir.example", "application/json")
+    assert normalize_artifact_ref(ExtendedSelector(*base_args)) == {
+        "artifact_id": base_args[0],
+        "kind": base_args[1],
+        "media_type": base_args[2],
+    }
+    assert normalize_artifact_ref(UndecoratedInheritedSelector(*base_args)) == {
+        "artifact_id": base_args[0],
+        "kind": base_args[1],
+        "media_type": base_args[2],
+    }
+
+    slotted = SlottedDataclassSelector(*base_args)
+    slotted.selection_hint = "extra"
+    with pytest.raises(TypeError, match="unexpected field.*selection_hint"):
+        normalize_artifact_ref(slotted)
+
+
+def test_normalize_artifact_ref_empty_dataclass_uses_only_structural_contract() -> None:
+    @dataclass(frozen=True)
+    class EmptyDataclass:
+        pass
+
+    with pytest.raises(TypeError, match="required fields"):
+        normalize_artifact_ref(EmptyDataclass())
+
+
+def test_normalize_artifact_ref_refuses_schema_members_without_values() -> None:
+    profile = "sha256:" + "9" * 64
+    artifact_id = "sha256:" + "8" * 64
+
+    @dataclass(frozen=True)
+    class InitVarProfileSelector:
+        artifact_id: str
+        kind: str
+        media_type: str
+        manifest_profile_sha256: InitVar[str | None]
+
+    @dataclass(frozen=True)
+    class ClassVarProfileSelector:
+        artifact_id: str
+        kind: str
+        media_type: str
+        manifest_profile_sha256: ClassVar[str | None] = profile
+
+    @dataclass(frozen=True)
+    class InitVarKindSelector:
+        artifact_id: str
+        kind: InitVar[str]
+        media_type: str
+
+    with pytest.raises(TypeError, match="must be value-bearing"):
+        normalize_artifact_ref(
+            InitVarProfileSelector(artifact_id, "ir.example", "application/json", profile)
+        )
+    with pytest.raises(TypeError, match="must be value-bearing"):
+        normalize_artifact_ref(
+            ClassVarProfileSelector(artifact_id, "ir.example", "application/json")
+        )
+    with pytest.raises(TypeError, match="must be value-bearing"):
+        normalize_artifact_ref(InitVarKindSelector(artifact_id, "ir.example", "application/json"))
+
+    @dataclass(frozen=True)
+    class StoredProfileSelector:
+        artifact_id: str
+        kind: str
+        media_type: str
+        manifest_profile_sha256: str | None = None
+
+    stored = StoredProfileSelector(artifact_id, "ir.example", "application/json", profile)
+    assert normalize_artifact_ref(stored) == {
+        "artifact_id": artifact_id,
+        "kind": "ir.example",
+        "media_type": "application/json",
+        "manifest_profile_sha256": profile,
+    }
+
+    @dataclass(frozen=True)
+    class LegacyProfilelessSelector:
+        artifact_id: str
+        kind: str
+        media_type: str
+
+    legacy = LegacyProfilelessSelector(artifact_id, "ir.example", "application/json")
+    assert normalize_artifact_ref(legacy) == {
+        "artifact_id": artifact_id,
+        "kind": "ir.example",
+        "media_type": "application/json",
+    }
+
+
+def test_normalize_input_refs_preserves_mapping_and_model_dump_payloads() -> None:
+    artifact_id = "sha256:" + "a" * 64
+    profile = "sha256:" + "b" * 64
+    payload = {
+        "artifact_id": artifact_id,
+        "role": "input",
+        "manifest_profile_sha256": profile,
+    }
+
+    class DumpedReference:
+        def model_dump(self, *, mode: str) -> object:
+            assert mode == "python"
+            return UserDict(payload)
+
+    references = normalize_input_refs([UserDict(payload), DumpedReference()])
+
+    assert len(references) == 2
+    for reference in references:
+        assert str(reference.artifact_id) == artifact_id
+        assert reference.role == "input"
+        assert reference.manifest_profile_sha256 == profile
+
+
+def test_normalize_input_refs_rejects_non_string_payload_keys() -> None:
+    with pytest.raises(TypeError, match="keys must be strings"):
+        normalize_input_refs(
+            [{"artifact_id": "sha256:" + "c" * 64, "role": "input", 17: "unexpected"}]
+        )
+
+
+def test_normalize_input_refs_rejects_non_mapping_model_dump() -> None:
+    class PairSequenceDump:
+        def model_dump(self, *, mode: str) -> object:
+            assert mode == "python"
+            return [
+                ("artifact_id", "sha256:" + "d" * 64),
+                ("role", "input"),
+            ]
+
+    with pytest.raises(TypeError, match="must be a mapping"):
+        normalize_input_refs([PairSequenceDump()])
+
+
+def test_normalize_input_refs_rejects_duplicate_mapping_keys() -> None:
+    class DuplicateKeyMapping(UserDict[str, object]):
+        def __iter__(self):
+            return iter(("artifact_id", "role", "role"))
+
+        def __len__(self) -> int:
+            return 3
+
+    with pytest.raises(TypeError, match="duplicate key"):
+        normalize_input_refs(
+            [DuplicateKeyMapping({"artifact_id": "sha256:" + "e" * 64, "role": "input"})]
+        )
+
+
+def test_normalize_input_refs_keeps_unknown_fields_fail_closed() -> None:
+    with pytest.raises(ValidationError):
+        normalize_input_refs(
+            [
+                {
+                    "artifact_id": "sha256:" + "f" * 64,
+                    "role": "input",
+                    "selection_hint": "must not be dropped",
+                }
+            ]
+        )
+
+
+def test_normalize_input_refs_preserves_attribute_fallback() -> None:
+    artifact_id = "sha256:" + "1" * 64
+    profile = "sha256:" + "2" * 64
+
+    class AttributeReference:
+        def __init__(self) -> None:
+            self.artifact_id = artifact_id
+            self.role = "input"
+            self.manifest_profile_sha256 = profile
+
+    reference = normalize_input_refs([AttributeReference()])[0]
+
+    assert str(reference.artifact_id) == artifact_id
+    assert reference.role == "input"
+    assert reference.manifest_profile_sha256 == profile
+
+
+@pytest.mark.parametrize("via_model_dump", [False, True], ids=["mapping", "model_dump"])
+def test_normalize_input_refs_keeps_mapping_keys_when_items_omits_them(
+    via_model_dump: bool,
+) -> None:
+    artifact_id = "sha256:" + "a" * 64
+    payload = {
+        "artifact_id": artifact_id,
+        "role": "input",
+        "selection_hint": "must remain visible to strict validation",
+    }
+
+    class ItemsOmissionMapping(Mapping[str, object]):
+        def __getitem__(self, key: str) -> object:
+            return payload[key]
+
+        def __iter__(self) -> Iterator[str]:
+            return iter(payload)
+
+        def __len__(self) -> int:
+            return len(payload)
+
+        def items(self) -> Iterator[tuple[str, object]]:
+            return iter(
+                (
+                    ("artifact_id", payload["artifact_id"]),
+                    ("role", payload["role"]),
+                )
+            )
+
+    class DumpedItemsOmission:
+        def model_dump(self, *, mode: str) -> object:
+            assert mode == "python"
+            return ItemsOmissionMapping()
+
+    supplied: object = ItemsOmissionMapping()
+    if via_model_dump:
+        supplied = DumpedItemsOmission()
+    with pytest.raises(ValidationError):
+        normalize_input_refs([supplied])
+
+
+def test_normalize_input_refs_refuses_mapping_key_without_value() -> None:
+    class MissingValueMapping(Mapping[str, object]):
+        def __getitem__(self, key: str) -> object:
+            if key == "artifact_id":
+                return "sha256:" + "b" * 64
+            raise KeyError(key)
+
+        def __iter__(self) -> Iterator[str]:
+            return iter(("artifact_id", "role"))
+
+        def __len__(self) -> int:
+            return 2
+
+        def items(self) -> Iterator[tuple[str, object]]:
+            return iter((("artifact_id", self["artifact_id"]),))
+
+    with pytest.raises(TypeError, match="no corresponding value: role"):
+        normalize_input_refs([MissingValueMapping()])

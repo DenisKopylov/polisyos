@@ -74,10 +74,19 @@ def test_transactional_reads_normalize_and_enforce_reader_selector_contracts(
     original_capture = store._capture_public_read_operation
 
     @contextmanager
-    def record_artifact_lease(artifact_id: CoreArtifactID, *, exclusive: bool):
+    def record_artifact_lease(
+        artifact_id: CoreArtifactID,
+        *,
+        exclusive: bool,
+        create_lock_files: bool = True,
+    ):
         nonlocal lease_depth
         lease_attempts.append((str(artifact_id), exclusive))
-        with original_artifact_lease(artifact_id, exclusive=exclusive) as lease:
+        with original_artifact_lease(
+            artifact_id,
+            exclusive=exclusive,
+            create_lock_files=create_lock_files,
+        ) as lease:
             lease_depth += 1
             try:
                 yield lease
@@ -399,13 +408,22 @@ def test_unscoped_cas_loser_refuses_default_claimed_during_write(
         monkeypatch.setattr(coordinator, "_stripe", route_contender_to_another_stripe)
 
     @contextmanager
-    def observe_contender_lease(candidate_id, *, exclusive):
+    def observe_contender_lease(
+        candidate_id,
+        *,
+        exclusive,
+        create_lock_files: bool = True,
+    ):
         is_contender = (
             candidate_id == artifact_id and threading.current_thread().name == "ambient-contender"
         )
         if is_contender:
             ambient_lease_attempted.set()
-        with original_artifact_lease(candidate_id, exclusive=exclusive) as lease:
+        with original_artifact_lease(
+            candidate_id,
+            exclusive=exclusive,
+            create_lock_files=create_lock_files,
+        ) as lease:
             if is_contender:
                 ambient_lease_entered.set()
             yield lease

@@ -11,7 +11,7 @@ from __future__ import annotations
 from abc import ABC, abstractmethod
 from collections.abc import Mapping, Sequence
 from dataclasses import dataclass, field, fields, is_dataclass
-from typing import Any
+from typing import Any, TypeVar
 
 from pydantic import BaseModel
 
@@ -95,6 +95,9 @@ class PassDiagnostic:
     data: Mapping[str, Any] = field(default_factory=dict)
 
 
+_ContextValue = TypeVar("_ContextValue")
+
+
 @dataclass(frozen=True)
 class PassContext:
     """Immutable bundle of surfaces, analysis outputs, and diagnostics."""
@@ -116,6 +119,21 @@ class PassContext:
         if name in self.surfaces:
             return self.surfaces[name]
         raise KeyError(f"PassContext has no surface or analysis named '{name}'")
+
+    def require_as(self, name: str, expected_type: type[_ContextValue]) -> _ContextValue:
+        """Return a required pass value after checking its runtime type.
+
+        Pass surfaces remain open to domain-specific values. Consumers that need a
+        concrete contract can narrow the dynamic boundary once and keep that type
+        through subsequent processing.
+        """
+        value = self.require(name)
+        if not isinstance(value, expected_type):
+            raise TypeError(
+                f"PassContext value '{name}' must be {expected_type.__name__}; "
+                f"received {type(value).__name__}"
+            )
+        return value
 
     def token(self, name: str) -> str:
         if name in self._analysis_fingerprints:

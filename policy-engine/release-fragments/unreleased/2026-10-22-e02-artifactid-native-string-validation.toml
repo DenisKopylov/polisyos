@@ -1,0 +1,42 @@
+id = "2026-10-22-e02-artifactid-native-string-validation"
+title = "Harden Core and IR artifact identity and reader boundaries"
+type = "fixed"
+component = "core and IR artifacts"
+owner = "team-polisyos"
+summary = "Core and IR artifact IDs validate native text, while IR reference normalization and pass/lineage consumers enforce typed boundaries."
+evidence = [
+  "src/polisyos/core/artifacts/ids.py",
+  "src/polisyos/ir/artifacts/contracts.py",
+  "src/polisyos/ir/artifacts/lineage.py",
+  "src/polisyos/ir/passes/base.py",
+  "src/polisyos/ir/passes/core.py",
+  "tests/unit/core/artifacts/test_artifact_id_native_string_validation.py",
+  "tests/unit/ir/artifacts/test_artifact_id_native_string_validation.py",
+  "tests/unit/core/artifacts/test_artifact_id_serialization_contract.py",
+  "tests/unit/ir/registry/test_refs.py",
+  "tests/unit/ir/test_phase2_passes.py",
+]
+compatibility = "Valid native ArtifactID text and persisted artifact schemas remain unchanged. The documented IR reference normalizer now refuses malformed mapping, model, or dataclass selector metadata before read or persistence; callers relying on malformed selectors may fail closed. PassContext.require_as is additive, and the lineage builder now types its reader dependency through a narrow structural protocol."
+change_class = "python-public-api"
+surface_classification = "public_stable: polisyos.core.artifacts and polisyos.ir"
+migration = "No persisted artifact or schema migration is required. Callers should provide string-keyed, schema-conforming references and well-formed dataclass selectors; there is no automatic rewrite of existing stored artifacts."
+api = "The source slice changes Python-visible behavior in the public Core and IR artifact boundaries: native-string ArtifactID validation is hardened, normalize_artifact_ref rejects malformed selector projections, PassContext gains require_as, and build_artifact_lineage_graph is typed against the private _ArtifactManifestReader protocol. No module-level facade export, DTO schema, or persisted artifact format is changed. Public-surface inventory review remains pending."
+limitations = "These typed checks do not establish producer provenance, store authority, legal truth, or global E02 readiness. The commit adds no public-surface inventory regeneration; public_surface_inventory_reviewed remains false until the owner reviews/regenerates the inventory. Full generated/installed consumer and whole-repository verification remain separate."
+generated_client_compatibility = "not_applicable"
+public_surface_inventory_reviewed = false
+migration_docs = []
+runbook_docs = []
+
+[[compatibility_change]]
+id = "core-ir-artifact-reader-boundaries"
+change_class = "python-public-api"
+impact = "changed"
+surface = "public_stable: polisyos.core.artifacts and polisyos.ir"
+owner = "team-polisyos"
+version_owner = "team-polisyos"
+deprecation_window = "not_applicable"
+release_note = "Harden Core and IR ArtifactID and reference validation, add typed pass-context access, and bind lineage reads to the typed reader protocol without changing persisted schemas."
+generated_client_compatibility = "not_applicable"
+public_surface_inventory_reviewed = false
+migration_docs = []
+runbook_docs = []

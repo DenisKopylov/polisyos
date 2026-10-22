@@ -109,6 +109,14 @@ public-surface inventory still reports `unresolved_exports` for this entrypoint;
 the inventory owner’s regeneration and review remain pending. This README does
 not claim that inventory review has occurred.
 
+The internal [selected-row candidate scope owner](data_plane/selected_row_candidate_scope.py)
+persists a source binding and quantity, treatment-contrast, population, and outcome
+projections for an explicit HTE request. Its bounded fresh reader reopens the
+selected input and recomputes the physical rows, arrays, method profile, and
+lineage. Declared variable-to-slot meaning remains `consumer_asserted`; units
+remain unknown. Runtime and Search lifecycle orchestration is `bridge_missing`.
+The helper is internal and is not exported by the `data_plane` facade.
+
 The route interface's stable import boundary does not grant evidence authority.
 Its output remains a candidate search constraint; it certifies neither a source
 manifest nor observed data, causal effects, legal admissibility, or promotion.

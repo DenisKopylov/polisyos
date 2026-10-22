@@ -71,7 +71,7 @@
       "PassContext.require_as checks consumed runtime values; lineage validates IDs/task bindings, needs only callable get_manifest for explicit-ID analysis, and leaves iter_artifact_ids optional when IDs are supplied."
     ],
     "chain": "Existing Core CAS/manifest reader and IR artifact-ref, lineage, and pass consumers; no new authority producer or external claim.",
-    "surface": "Existing Core/IR APIs and facades retained; no public export or DTO schema changes. Full E02 Runtime/Search/GP and installed-package consumers are outside this slice.",
+    "surface": "No module-level facade export or DTO schema change is present. Python-visible surface changes: PassContext.require_as is a new member on an exported class, build_artifact_lineage_graph uses a narrow structural reader annotation, and documented normalize_artifact_ref now rejects malformed selectors. Public-surface inventory review remains pending. Full E02 Runtime/Search/GP and installed-package consumers are outside this slice.",
     "semantic_controls": [
       "Hostile str subclass dispatch cannot change normalized prefix/text; derived-prefix and non-string callback observability/refusal controls remain.",
       "Mapping items() omission, model_dump omission, duplicate/non-string keys, and enumerated key without a value are refused through one strict normalization seam.",
@@ -478,5 +478,37 @@
     "finding_proposals": [],
     "formal_close_proposal_ids": [],
     "next_check": "Include these exact postimages in the frozen E02 source/input/backend composition; run remaining native, architecture, backend/CI, installed wheel/sdist and actual composed consumer checks, then independent G acceptance. Mapping stable-input limits and empty closure_ids remain."
-  }
+  },
+  "correction_history": [
+    {
+      "kind": "whole-slice release companion and surface-claim correction",
+      "prior_receipt_commit": "53f842ad73b627fef3419c3d655e3bdf08fb399c",
+      "prior_receipt_content_sha256": "72476303e838fc5910cdb2dc91016fe3447794f9e745daf62d90d289902fccf6",
+      "historical_prefix_reconciled": true,
+      "hash_identity_note": "The prior short prefix names the Git receipt commit, not a file SHA-256. The source commit remains dccea950845cda5b38f026e7770c07819d31f4d9.",
+      "previous_surface_statement": "Existing Core/IR APIs and facades retained; no public export or DTO schema changes. Full E02 Runtime/Search/GP and installed-package consumers are outside this slice.",
+      "corrected_surface_statement": "No module-level facade export or DTO schema change is present. Python-visible surface changes: PassContext.require_as is a new member on an exported class, build_artifact_lineage_graph uses a narrow structural reader annotation, and documented normalize_artifact_ref now rejects malformed selectors. Public-surface inventory review remains pending. Full E02 Runtime/Search/GP and installed-package consumers are outside this slice.",
+      "companion": {
+        "commit": "d79195302b77ea542a16f850eacf68f090249936",
+        "tree": "7a0f9ac8cadb45b11551ba95fed25e927b755dea",
+        "parents": [
+          "b3cc0d81811037c4bb0a4dd60a3bdec91e04e457"
+        ],
+        "path": "policy-engine/release-fragments/unreleased/2026-10-22-e02-artifactid-native-string-validation.toml",
+        "sha256": "3b3b803a891b5cf2666ee3b5009e7c4ffb5d664184ff142bfb45fa3c57d153bc",
+        "readback": {
+          "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/root-ir-release-companion-code-commit-20261022-r1/readback.json",
+          "sha256": "058b62e46788e516bdf63159ed3f1105c1e59b4e455a33cf50dd59b97cc81d54"
+        }
+      },
+      "independent_review": {
+        "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/resume-fabric-f4-native-review-20261022/ir-release-companion-review-r1/final-r1/review.json",
+        "sha256": "ae6005ebb91e1f5232713cc6d87c2ff9436a8fca02c38898c600ad34302aa170"
+      },
+      "promotion_status": "Public inventory review/regeneration is pending; fragment deliberately retains public_surface_inventory_reviewed=false. No claim that the release gate passes.",
+      "source_test_results_changed": false,
+      "global_source_freeze": false,
+      "closure_ids": []
+    }
+  ]
 }

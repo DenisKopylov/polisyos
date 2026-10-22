@@ -1,0 +1,270 @@
+{
+  "capability": {
+    "authority": "No owner-enforced runtime-subtree cutoff, authenticated production facts, or N11 authority/closure established.",
+    "behavior_controls": [
+      "Focused new test covers symlinked environment install and fresh verification through a separately rooted runtime.",
+      "The test redirects the link to a byte-identical copied runtime and expects PYTHON_RUNTIME_MISMATCH.",
+      "Three existing production fail-closed negative tests passed unchanged: cutoff refusal only; refusal before sync/candidate edges; candidate evidence does not substitute for missing cutoff owner."
+    ],
+    "boundary": "Exact commit touches only candidate builder source, its unit test, and its release fragment. No DTO, facade export, persisted schema, production authority builder, or negative-only registration change is in this three-path delta.",
+    "mechanism": "Candidate installation resolves environment/bin/python to the selected runtime root and executable-relative path before candidate observation and sealing that root.",
+    "state": "bounded_candidate_only",
+    "surface": "Internal candidate mechanism. Public-surface inventory review remains false/not established; no broader public API or production claim is made.",
+    "verification_label": "verification_missing"
+  },
+  "closure_ids": [],
+  "global_source_freeze": false,
+  "limitations": [
+    "MyPy and basedpyright fail on this source file; MyPy reports 66 errors, basedpyright 71 errors and 3 warnings. P41 ownership of these reds is not_established because no pre-slice baseline replay was made; they are not marked inherited.",
+    "The focused wave is not green overall; test and Ruff passes do not override failing type gates.",
+    "No full source/input/backend freeze, complete immutable closure, strict CAS-before-import proof, or composed post-repair replay is present.",
+    "Public-surface inventory is unreviewed; authenticated production facts and N11 authority are absent.",
+    "Native evidence is pre-commit but hash-bound to the exact 3 committed postimages; no post-commit replay occurred."
+  ],
+  "proposal_fields": {
+    "finding_proposals": [
+      "P41 type-gate provenance remains not_established; do not label the red inherited or introduced until the exact pre-slice baseline is replayed."
+    ],
+    "formal_close_proposal_ids": [],
+    "mechanism_proposal": "Retain only as bounded internal candidate evidence; no production authority or N11 closure.",
+    "next_check": "Resolve the typed owner and strict CAS-before-import boundary; establish a complete immutable source/input closure, then replay focused behavior and type gates on the repaired source and independently reconcile authentic production facts before any formal acceptance."
+  },
+  "schema": "e02-local-implementation-receipt-v1",
+  "selected_execution": {
+    "backend": {
+      "environment_copied_or_installed": false,
+      "kind": "existing local product Python environment",
+      "platform": "macOS-27.0.1-arm64-arm-64bit-Mach-O",
+      "python": "/Users/deniskopylov/.codex/worktrees/e02-unified-local-20261009/polisyos/policy-engine/.venv/bin/python",
+      "version": "Python 3.14.3"
+    },
+    "driver": {
+      "path": "LOCAL/raw/run-pinned-canonical-python-wave-20261022-r4.py",
+      "sha256": "f2ad10c395252605655839ee0415f83ff104115c8ed05336fd78908d46fe95d2"
+    },
+    "full_commands_recorded_in": {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/root-foundry-symlink-native-wave-20261022-r1/receipt.json",
+      "sha256": "7bb5f08778a34b3af2c29a5bc4525b1d4761a240e438684bdacca33106582631"
+    },
+    "input_manifest": {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/root-foundry-symlink-native-wave-20261022-r1/manifest.json",
+      "sha256": "433b8ceee9274154b999408d928efde660a3857c3dfe552f89f3c8aed0206a19"
+    },
+    "pytest_targets": [
+      "tests/unit/foundry/methods/test_dependency_runtime_install_symlink.py",
+      "tests/unit/foundry/methods/test_dependency_profile.py::test_current_production_authority_returns_only_unpersisted_cutoff_refusal",
+      "tests/unit/foundry/methods/test_dependency_profile.py::test_source_failure_and_cutoff_refusal_precede_repository_sync_and_candidate_edges",
+      "tests/unit/foundry/methods/test_dependency_profile.py::test_candidate_runtime_evidence_does_not_substitute_for_missing_cutoff_owner"
+    ],
+    "sandbox_profile": {
+      "invocation": {
+        "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/root-foundry-symlink-native-wave-20261022-r1/native-run-r1/invocation.json",
+        "sha256": "268a6c476517b7d70efb4c611271d4b985e933d16b73f5a9fa0eb9ac6bfa2fcc"
+      },
+      "profile": {
+        "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/root-foundry-symlink-native-wave-20261022-r1/native-run-r1/profile.sb",
+        "sha256": "ce93c1f367f2d24947fe7183c5b7501cbffc03fd05357558b91027705a189862"
+      }
+    },
+    "source_freeze": false
+  },
+  "slice": "Foundry candidate Python runtime installation through an environment bin/python symlink",
+  "source": {
+    "all_other_frame_hashes_preserved": true,
+    "applied_source_frame": {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/root-foundry-symlink-code-commit-20261022-r1/full-composed-source-frame.json",
+      "sha256": "1c1ab25aaea67e1fc759221eaa368240cc904e449a4ed8e75866a03a37fdd576"
+    },
+    "base": "0f4028a3395152e82180af8bc514db3215f9a926",
+    "branch": "codex/e02-unified-local-20261009",
+    "changed_paths": [
+      {
+        "path": "policy-engine/src/polisyos/foundry/methods/catalog/dependency_authority.py",
+        "sha256": "acb06751bbfc667f6729e45c7227d9920069ded522bc4ba9f8f096e318b24be8"
+      },
+      {
+        "path": "policy-engine/tests/unit/foundry/methods/test_dependency_runtime_install_symlink.py",
+        "sha256": "2ec883f6b2b88ae86ba55edfb3394b81777ea2bff1536002de0f16dd84d9ce87"
+      },
+      {
+        "path": "policy-engine/release-fragments/unreleased/2026-10-22-e02-candidate-runtime-installation-symlink.toml",
+        "sha256": "08b6e5608955f19e8c79a23b4cf998b4ff3502e30d4a02cfdf057eb6064430dc"
+      }
+    ],
+    "checkout": "/Users/deniskopylov/.codex/worktrees/e02-unified-local-20261009/polisyos",
+    "commit": "8467e140d35432ad8c3817d24c549336ded1fc18",
+    "note": "Native wave ran at parent HEAD 0f4028a with source_freeze=false before this ordinary commit. All 3 manifest target hashes exactly match the committed readback; this is source-hash-bound evidence, not an after-commit rerun or whole-source freeze.",
+    "parents": [
+      "0f4028a3395152e82180af8bc514db3215f9a926"
+    ],
+    "readback": {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/root-foundry-symlink-code-commit-20261022-r1/readback.json",
+      "sha256": "67b1965784bce73e3d6f3616ebbaddc9c8e9024015f53912f6a12c6ebaf29fd2"
+    },
+    "remaining_known_dirty_paths_after_commit": 131,
+    "tree": "0c387800c6a3ba17d439562b340c5acd2a7974a1"
+  },
+  "status": "author_receipt_for_independent_G_review",
+  "verification": {
+    "command_rows": [
+      {
+        "exit_code": 0,
+        "name": "ruff-check",
+        "stderr": {
+          "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/root-foundry-symlink-native-wave-20261022-r1/ruff-check.stderr",
+          "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+        },
+        "stdout": {
+          "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/root-foundry-symlink-native-wave-20261022-r1/ruff-check.stdout",
+          "sha256": "4f69ac85c876c19fa34e0db02549e0eb7161a640fce4695bbf760d567f391083"
+        },
+        "timed_out": false,
+        "wall_seconds": 0.1987839590292424
+      },
+      {
+        "exit_code": 0,
+        "name": "ruff-format-check",
+        "stderr": {
+          "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/root-foundry-symlink-native-wave-20261022-r1/ruff-format-check.stderr",
+          "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+        },
+        "stdout": {
+          "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/root-foundry-symlink-native-wave-20261022-r1/ruff-format-check.stdout",
+          "sha256": "5bec448f99dead92c94f18dc3891d997f3e0fc8d71b73d996112766ff982df26"
+        },
+        "timed_out": false,
+        "wall_seconds": 0.2077959580346942
+      },
+      {
+        "exit_code": 1,
+        "name": "mypy",
+        "stderr": {
+          "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/root-foundry-symlink-native-wave-20261022-r1/mypy.stderr",
+          "sha256": "f31fef6442411303a63ca024e1e49412bbb4ef2c226ce28708681ad94301d20c"
+        },
+        "stdout": {
+          "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/root-foundry-symlink-native-wave-20261022-r1/mypy.stdout",
+          "sha256": "4ef6717df13f814e20b1915bbd3d45688006b240d75427b826daaf8c95632726"
+        },
+        "timed_out": false,
+        "wall_seconds": 50.28594375005923
+      },
+      {
+        "exit_code": 1,
+        "name": "basedpyright",
+        "stderr": {
+          "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/root-foundry-symlink-native-wave-20261022-r1/basedpyright.stderr",
+          "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+        },
+        "stdout": {
+          "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/root-foundry-symlink-native-wave-20261022-r1/basedpyright.stdout",
+          "sha256": "a8fb13f741754634aeda13d5f6549b9c2568e3a9eb78d8e43d1a311be7a372d2"
+        },
+        "timed_out": false,
+        "wall_seconds": 2.3280562090221792
+      },
+      {
+        "exit_code": 0,
+        "name": "pytest",
+        "stderr": {
+          "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/root-foundry-symlink-native-wave-20261022-r1/pytest.stderr",
+          "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+        },
+        "stdout": {
+          "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/root-foundry-symlink-native-wave-20261022-r1/pytest.stdout",
+          "sha256": "c4b808d34f4db00b333696dec1f3a43a2887d8bfe0cb7af07a3cb98ff43a7830"
+        },
+        "timed_out": false,
+        "wall_seconds": 21.161862875102088
+      }
+    ],
+    "complete_outer_outputs": [
+      {
+        "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/root-foundry-symlink-native-wave-20261022-r1/native-run-r1/stdout",
+        "sha256": "1e9cf3b4cc0497cce79262a7d8ed5a7b1e83992b4f13c166bf0717a2c90bf0a6"
+      },
+      {
+        "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/root-foundry-symlink-native-wave-20261022-r1/native-run-r1/stderr",
+        "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+      }
+    ],
+    "independent_reviews": [
+      {
+        "outcome": "GO_BOUNDED",
+        "reference": {
+          "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/resume-after-cleanup-20261022-r1/ui-generated-contract-oracle/foundry-candidate-symlink-independent-review-r1/review.json",
+          "sha256": "518cac5d14334c4a9d00750b38308cfe596f7546dcdab22b075e7380962cef1c"
+        },
+        "role": "independent source/test review"
+      },
+      {
+        "outcome": "GO_BOUNDED",
+        "reference": {
+          "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/resume-b164-protected-writer-author-20261022-r1/foundry-symlink-r2-review-final/review.json",
+          "sha256": "8223852c0c9023cfabab72fbb55f53576702ac20170e418cdff454eb1d3b1b3b"
+        },
+        "role": "independent metadata/release-fragment delta review"
+      },
+      {
+        "qualification": "0 contract errors and zero structured compatibility changes; the report-only no-structured-change warning is preserved in the metadata review.",
+        "reference": {
+          "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/resume-fabric-source-contract-f10-20261022/foundry-candidate-release-validator-r1/receipt.json",
+          "sha256": "0c5688cca96ddd90ee6a04f6f8090a9461e2677bd7d72007b77c9034d979db5a"
+        },
+        "role": "release fragment validation"
+      }
+    ],
+    "native_run_receipt": {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/root-foundry-symlink-native-wave-20261022-r1/native-run-r1/receipt.json",
+      "sha256": "612fce6a4df33a3e887e86e2d46077b7135dc62da722f8588a9e61c1f6e9dc05"
+    },
+    "property_removal_control": {
+      "expected": "Base yields not_established where CandidatePythonRuntimeInstallation is required.",
+      "receipt": {
+        "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/resume-f3-structural-contract-author-20261022-r3/owner-decorated-source-boundary/implementation-b-r1/candidate-installation-symlink-fix-r3/symlink-installation-removal-probe-r3/receipt.json",
+        "sha256": "fdb36dcd6941fa933c35d350929e451fd0e137ca64fde3a83dfb65bb76e8fea1"
+      },
+      "result": "expected RED on frozen base",
+      "stdout": {
+        "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/resume-f3-structural-contract-author-20261022-r3/owner-decorated-source-boundary/implementation-b-r1/candidate-installation-symlink-fix-r3/symlink-installation-removal-probe-r3/stdout",
+        "sha256": "8767da06fff31b48f2775ff1f3a8e5e82bcc48a1386fa71cc4feca35531c228a"
+      }
+    },
+    "source_frame": {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/root-foundry-symlink-application-20261022-r1/full-composed-source-frame.json",
+      "sha256": "708b3cceecb81d6ebdc2e1f7889606b172df2c6383a486318e68298a8eef5665"
+    },
+    "summary": {
+      "basedpyright": {
+        "errors": 71,
+        "exit_code": 1,
+        "warnings": 3
+      },
+      "baseline_unchanged": true,
+      "mypy": {
+        "errors": 66,
+        "exit_code": 1
+      },
+      "native_wave_exit_code": 1,
+      "pytest": {
+        "errors": 0,
+        "failures": 0,
+        "junit": {
+          "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/root-foundry-symlink-native-wave-20261022-r1/junit.xml",
+          "sha256": "8a2466d34aaa690cee582c8f444bc1e2f7e5a2704dcaecf30e7c03966d67845b"
+        },
+        "passed": 4,
+        "skipped": 0,
+        "tests": 4
+      },
+      "ruff_check_exit_code": 0,
+      "ruff_format_check_exit_code": 0,
+      "source_freeze": false,
+      "source_unchanged_during_wave": true
+    },
+    "wave_receipt": {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/root-foundry-symlink-native-wave-20261022-r1/receipt.json",
+      "sha256": "7bb5f08778a34b3af2c29a5bc4525b1d4761a240e438684bdacca33106582631"
+    }
+  }
+}

@@ -9,12 +9,13 @@ import math
 from collections.abc import Mapping
 from dataclasses import dataclass, field
 from pathlib import Path
-from typing import TYPE_CHECKING, Any, Literal, Protocol
+from typing import TYPE_CHECKING, Any, Literal, Protocol, SupportsIndex
 
 from pydantic import BaseModel, ConfigDict, Field, StrictStr
 
 from polisyos.core.artifacts import (
-    CoreJSONArtifactBoundedInputManifestReader,
+    ArtifactID,
+    CoreJSONArtifactBoundedInputManifestReceiptReader,
     CoreJSONArtifactBoundedMemberReader,
     CoreJsonArtifactBoundedRead,
     CoreJSONArtifactStore,
@@ -43,6 +44,9 @@ from polisyos.scientist.methods.search.objective import (
     SelectedMethodMetricArtifactRef,
     method_metric_observation_input_refs,
 )
+from polisyos.scientist.methods.search.objective import (
+    MethodMetricSourceUnit as SearchMethodMetricSourceUnit,
+)
 from polisyos.scientist.orchestration.engine.context import (
     CompletedMethodMetricSelectionOwner,
     CompletedMethodMetricSource,
@@ -60,7 +64,9 @@ if TYPE_CHECKING:
         ExecPlan,
         MethodExecutionBundle,
         MethodExecutionOccurrence,
+        MethodExecutionReturnedSlot,
         MethodMetricBinding,
+        MethodMetricSemanticContract,
         ProgramGraph,
     )
     from polisyos.ir.kernel.method_metrics import MethodMetricSourceUnit
@@ -85,7 +91,7 @@ METHOD_METRIC_PROJECTION_VERIFIER_REVISION = "1.0"
 
 class _MethodMetricProjectionArtifactStore(
     CoreJSONArtifactStore,
-    CoreJSONArtifactBoundedInputManifestReader,
+    CoreJSONArtifactBoundedInputManifestReceiptReader,
     CoreJSONArtifactBoundedMemberReader,
     Protocol,
 ):
@@ -93,7 +99,7 @@ class _MethodMetricProjectionArtifactStore(
 
 
 class _MethodMetricProjectionArtifactReader(
-    CoreJSONArtifactBoundedInputManifestReader,
+    CoreJSONArtifactBoundedInputManifestReceiptReader,
     CoreJSONArtifactBoundedMemberReader,
     Protocol,
 ):
@@ -137,7 +143,7 @@ class _EphemeralMethodMetricCapability:
     def __reduce__(self) -> NoReturn:
         raise TypeError("ephemeral_method_metric_capability_persistence_is_forbidden")
 
-    def __reduce_ex__(self, protocol: int) -> NoReturn:
+    def __reduce_ex__(self, protocol: SupportsIndex) -> NoReturn:
         del protocol
         raise TypeError("ephemeral_method_metric_capability_persistence_is_forbidden")
 
@@ -518,7 +524,7 @@ def attach_completed_method_metric_observation_projection(
 def admit_completed_method_metric_objective_score(
     basis: object | None,
     *,
-    candidate_ref: ArtifactRef,
+    candidate_ref: ArtifactRef | None,
     request_status: Literal["absent", "requested", "invalid"],
 ) -> Any | None:
     """Replay the configured whole-objective score from a fresh owner basis.
@@ -690,10 +696,17 @@ def admit_funnel_method_metric_objective_score(
     intent = _funnel_method_metric_intent(context)
     if intent.status in {"legacy", "absent"}:
         return None
+    candidate_ref = context.get("policy_candidate_ref")
+    if intent.status == "requested":
+        return admit_completed_method_metric_objective_score(
+            intent.projection_basis,
+            candidate_ref=candidate_ref,
+            request_status="requested",
+        )
     return admit_completed_method_metric_objective_score(
         intent.projection_basis,
-        candidate_ref=context.get("policy_candidate_ref"),
-        request_status=intent.status,
+        candidate_ref=candidate_ref,
+        request_status="invalid",
     )
 
 
@@ -1168,20 +1181,21 @@ def _core_artifact_ref(ref: ArtifactRef) -> ArtifactRef:
 
 def _selected_manifest(
     store: _MethodMetricProjectionArtifactReader,
-    ref: SelectedMethodMetricArtifactRef,
+    ref: ArtifactRef,
     *,
     read_budget: _ProjectionReadBudget,
 ) -> ArtifactManifest:
     """Resolve one bounded manifest and account its actual selected-sidecar bytes."""
-    key = artifact_ref_identity_key(ref)
+    selected_ref = _selected_ref(ref, kind=ref.kind)
+    key = artifact_ref_identity_key(selected_ref)
     cached = read_budget.manifests.get(key)
     if cached is not None:
         return cached
     try:
         bounded_manifest = read_core_manifest_profile_bounded(
             store,
-            _core_artifact_ref(ref),
-            max_manifest_bytes=read_budget.max_manifest_bytes_for(ref),
+            _core_artifact_ref(selected_ref),
+            max_manifest_bytes=read_budget.max_manifest_bytes_for(selected_ref),
         )
     except FileNotFoundError as exc:
         raise _UnestablishedProjectionError("selected_method_metric_manifest_unavailable") from exc
@@ -1194,17 +1208,19 @@ def _selected_manifest(
         raise _InvalidProjectionError("selected_method_metric_manifest_profile_invalid") from exc
     manifest = bounded_manifest.manifest
     read_budget.account_execution_source_bytes(_core_observed_source_bytes(bounded_manifest))
-    read_budget.account_manifest(_core_artifact_ref(ref), bounded_manifest.observed_manifest_bytes)
+    read_budget.account_manifest(
+        _core_artifact_ref(selected_ref), bounded_manifest.observed_manifest_bytes
+    )
     if (
-        str(manifest.artifact_id) != str(ref.artifact_id)
-        or manifest.kind != ref.kind
-        or manifest.media_type != ref.media_type
-        or artifact_manifest_profile_sha256(manifest) != ref.manifest_profile_sha256
+        str(manifest.artifact_id) != str(selected_ref.artifact_id)
+        or manifest.kind != selected_ref.kind
+        or manifest.media_type != selected_ref.media_type
+        or artifact_manifest_profile_sha256(manifest) != selected_ref.manifest_profile_sha256
     ):
         raise _InvalidProjectionError("selected_method_metric_manifest_profile_mismatch")
     input_limit = (
         MAX_METHOD_METRIC_VECTOR_INPUTS
-        if ref.kind == "scientist.policy_evaluation_vector"
+        if selected_ref.kind == "scientist.policy_evaluation_vector"
         else MAX_METHOD_METRIC_MANIFEST_INPUTS
     )
     if len(manifest.inputs) > input_limit:
@@ -1303,8 +1319,8 @@ def _validate_small_source_manifests(
         (
             "registry_bundle",
             "core.registry_bundle",
-            "polisyos.core.RegistryBundlePayload",
-            {"1.0"},
+            None,
+            None,
         ),
         (
             "metric_registry",
@@ -1327,9 +1343,10 @@ def _validate_small_source_manifests(
             read_budget=read_budget,
         )
         selected_manifest = _selected_manifest(store, ref, read_budget=read_budget)
-        if selected_manifest.artifact_schema is None or (
-            selected_manifest.artifact_schema.name != schema_name
-            or selected_manifest.artifact_schema.version not in schema_versions
+        if not _schema_matches_expected_contract(
+            selected_manifest.artifact_schema,
+            expected_schema_name=schema_name,
+            expected_schema_versions=schema_versions,
         ):
             raise _InvalidProjectionError(f"selected_binding_{role}_schema_invalid")
     if simulation_ref.kind != simulation_manifest.kind:
@@ -1492,7 +1509,7 @@ def _is_sha256_digest(value: str) -> bool:
     return len(digest) == 64 and all(character in "0123456789abcdef" for character in digest)
 
 
-def _method_class_source_sha256(method_class: type[Any]) -> str | None:
+def _method_class_source_sha256[MethodClassT](method_class: type[MethodClassT]) -> str | None:
     """Recompute the producer's narrowly declared class-source digest."""
     try:
         source = inspect.getsource(method_class).encode("utf-8")
@@ -1609,7 +1626,7 @@ def _admit_method_metric_binding(
         != len(set(positive_contract.actual_input_slot_ids))
         or set(provided_units) != set(expected_slots)
         or any(
-            _canonical_model(provided_units[slot_id]) != _canonical_model(expected_unit)
+            not _same_method_metric_source_unit(provided_units[slot_id], expected_unit)
             for slot_id, expected_unit in expected_slots.items()
         )
     ):
@@ -1777,12 +1794,20 @@ class _BoundedExecutionSourceReader:
     ) -> None:
         self._store = store
         self._read_budget = read_budget
+        self.last_source_identity: str | None = None
+        self._pending_state_blob_bindings: dict[
+            tuple[tuple[str, str, str, str | None], str, str, str | None], ArtifactRef
+        ] = {}
 
     def read_selected_manifest(
         self,
         ref: ArtifactRef,
     ) -> tuple[ArtifactManifest, int]:
         """Read one exact selected manifest under the remaining aggregate cap."""
+        self._pending_state_blob_bindings.clear()
+        self.last_source_identity = (
+            f"selected:{ref.artifact_id}:{ref.kind}:{ref.media_type}:{ref.manifest_profile_sha256}"
+        )
         remaining = self._read_budget.remaining_bytes
         if remaining < 1:
             self._raise_budget_refusal(observed_bytes=0)
@@ -1790,13 +1815,11 @@ class _BoundedExecutionSourceReader:
         try:
             bounded = read_core_manifest_profile_bounded(
                 self._store,
-                ref,
+                _core_artifact_ref(ref),
                 max_manifest_bytes=limit,
             )
         except CoreJsonReadBoundsRefusalError as exc:
-            observed = _core_observed_source_bytes(exc)
-            self._account_refusal(observed)
-            self._raise_budget_refusal(observed_bytes=observed)
+            self._raise_core_read_refusal(exc, read_kind="selected_manifest")
         except (AttributeError, OSError, RuntimeError, TypeError, ValueError) as exc:
             observed = getattr(exc, "observed_source_bytes", None)
             if type(observed) is not int or observed < 0:
@@ -1804,20 +1827,101 @@ class _BoundedExecutionSourceReader:
                     "core_manifest_transfer_accounting_not_established"
                 ) from exc
             self._account_refusal(observed)
-            self._raise_budget_refusal(observed_bytes=observed)
+            self._raise_budget_refusal(observed_bytes=observed, cause=exc)
         observed = _core_observed_source_bytes(bounded)
         self._account_read(observed)
+        if ref.kind == "foundry.state_snapshot":
+            observed += self._bind_selected_state_snapshot_parent(ref, bounded.manifest)
         return bounded.manifest, observed
+
+    def _bind_selected_state_snapshot_parent(
+        self,
+        ref: ArtifactRef,
+        manifest: ArtifactManifest,
+    ) -> int:
+        """Resolve one strict snapshot parent before allowing its binary child edge."""
+        from polisyos.core.contracts.foundry import StateSnapshot
+
+        if (
+            ref.manifest_profile_sha256 is None
+            or ref.kind != "foundry.state_snapshot"
+            or ref.media_type != "application/json"
+            or manifest.kind != "foundry.state_snapshot"
+            or manifest.media_type != "application/json"
+        ):
+            raise _InvalidProjectionError("state_snapshot_selected_identity_invalid")
+
+        typed_manifest, value, manifest_bytes, payload_bytes = self.read_typed_model(
+            StateSnapshot,
+            ref,
+        )
+        if typed_manifest != manifest or not isinstance(value, StateSnapshot):
+            raise _InvalidProjectionError("state_snapshot_selected_payload_identity_mismatch")
+        expected_schema_version = StateSnapshot.SCHEMA_MANIFEST_VERSION_BY_PAYLOAD_VERSION.get(
+            value.schema_version
+        )
+        if (
+            expected_schema_version is None
+            or manifest.artifact_schema
+            != SchemaInfo(
+                name="polisyos.core.StateSnapshot",
+                version=expected_schema_version,
+            )
+            or value.lineage_inputs is None
+            or value.state_ref.kind != "foundry.state_blob"
+            or value.state_ref.media_type != "application/x-npz"
+            or value.state_ref.manifest_profile_sha256 is None
+        ):
+            raise _InvalidProjectionError("state_snapshot_payload_identity_invalid")
+
+        expected_edge = input_ref_from_artifact_ref(value.state_ref, role="state_blob")
+        state_blob_edges = [edge for edge in manifest.inputs if edge.role == "state_blob"]
+        if (
+            manifest.inputs != value.lineage_inputs
+            or len(state_blob_edges) != 1
+            or state_blob_edges[0] != expected_edge
+        ):
+            raise _InvalidProjectionError("state_snapshot_blob_parent_edge_mismatch")
+
+        self._pending_state_blob_bindings[
+            (
+                artifact_ref_identity_key(ref),
+                str(expected_edge.artifact_id),
+                expected_edge.role,
+                expected_edge.manifest_profile_sha256,
+            )
+        ] = value.state_ref
+        return manifest_bytes + payload_bytes
 
     def read_edge_manifest(
         self,
+        parent_ref: ArtifactRef,
         edge: InputRef,
     ) -> tuple[ArtifactRef, ArtifactManifest, int]:
         """Resolve one profiled input edge without synthesizing kind or media."""
+        pending_state_blob_ref = self._pending_state_blob_bindings.pop(
+            (
+                artifact_ref_identity_key(parent_ref),
+                str(edge.artifact_id),
+                edge.role,
+                edge.manifest_profile_sha256,
+            ),
+            None,
+        )
+        self.last_source_identity = (
+            f"edge:{parent_ref.artifact_id}:{parent_ref.manifest_profile_sha256}:"
+            f"{edge.role}:{edge.artifact_id}:{edge.manifest_profile_sha256}"
+        )
         remaining = self._read_budget.remaining_bytes
         if remaining < 1:
             self._raise_budget_refusal(observed_bytes=0)
         limit = min(self._read_budget.max_manifest_bytes, remaining)
+        if pending_state_blob_ref is not None:
+            return self._read_bound_state_blob_manifest(
+                edge,
+                pending_state_blob_ref,
+                max_manifest_bytes=limit,
+            )
         try:
             bounded = read_core_input_manifest_profile_bounded(
                 self._store,
@@ -1825,9 +1929,7 @@ class _BoundedExecutionSourceReader:
                 max_manifest_bytes=limit,
             )
         except CoreJsonReadBoundsRefusalError as exc:
-            observed = _core_observed_source_bytes(exc)
-            self._account_refusal(observed)
-            self._raise_budget_refusal(observed_bytes=observed)
+            self._raise_core_read_refusal(exc, read_kind="input_edge_manifest")
         except (AttributeError, OSError, RuntimeError, TypeError, ValueError) as exc:
             observed = getattr(exc, "observed_source_bytes", None)
             if type(observed) is not int or observed < 0:
@@ -1835,19 +1937,132 @@ class _BoundedExecutionSourceReader:
                     "core_manifest_transfer_accounting_not_established"
                 ) from exc
             self._account_refusal(observed)
-            self._raise_budget_refusal(observed_bytes=observed)
+            self._raise_budget_refusal(observed_bytes=observed, cause=exc)
         observed = _core_observed_source_bytes(bounded)
         self._account_read(observed)
         return bounded.effective_ref, bounded.manifest, observed
 
-    def read_typed_model(
+    def _read_bound_state_blob_manifest(
         self,
-        model: type[BaseModel],
+        edge: InputRef,
+        selected_ref: ArtifactRef,
+        *,
+        max_manifest_bytes: int,
+    ) -> tuple[ArtifactRef, ArtifactManifest, int]:
+        """Read only the exact binary child selected by a validated snapshot parent."""
+        if (
+            edge.role != "state_blob"
+            or edge != input_ref_from_artifact_ref(selected_ref, role="state_blob")
+            or selected_ref.kind != "foundry.state_blob"
+            or selected_ref.media_type != "application/x-npz"
+            or selected_ref.manifest_profile_sha256 is None
+        ):
+            raise _InvalidProjectionError("state_blob_selected_parent_binding_invalid")
+        try:
+            bounded = read_core_manifest_profile_bounded(
+                self._store,
+                selected_ref,
+                max_manifest_bytes=max_manifest_bytes,
+                allow_profile_absent=True,
+            )
+        except CoreJsonReadBoundsRefusalError as exc:
+            self._raise_core_read_refusal(exc, read_kind="state_blob_manifest")
+        except (AttributeError, OSError, RuntimeError, TypeError, ValueError) as exc:
+            observed = getattr(exc, "observed_source_bytes", None)
+            if type(observed) is not int or observed < 0:
+                raise _UnestablishedProjectionError(
+                    "core_manifest_transfer_accounting_not_established"
+                ) from exc
+            self._account_refusal(observed)
+            self._raise_budget_refusal(observed_bytes=observed, cause=exc)
+        manifest = bounded.manifest
+        if (
+            bounded.effective_ref != selected_ref
+            or manifest.artifact_id != selected_ref.artifact_id
+            or manifest.kind != "foundry.state_blob"
+            or manifest.media_type != "application/x-npz"
+            or manifest.artifact_schema is not None
+            or manifest.canon is not None
+            or artifact_manifest_profile_sha256(manifest) != selected_ref.manifest_profile_sha256
+        ):
+            raise _InvalidProjectionError("state_blob_manifest_identity_mismatch")
+        observed = _core_observed_source_bytes(bounded)
+        self._account_read(observed)
+        return selected_ref, manifest, observed
+
+    def _raise_core_read_refusal(
+        self,
+        exc: CoreJsonReadBoundsRefusalError,
+        *,
+        read_kind: str,
+    ) -> NoReturn:
+        """Keep bounded overruns, semantic refusal, and unknown usage distinct."""
+        observed = _core_observed_source_bytes(exc)
+        limit_name = getattr(exc, "limit_name", None)
+        if type(limit_name) is str:
+            observed_limit = {
+                "max_manifest_bytes": getattr(exc, "observed_manifest_bytes", None),
+                "max_bytes": getattr(exc, "observed_payload_bytes", None),
+                "max_depth": getattr(exc, "observed_depth", None),
+                "max_elements": getattr(exc, "observed_elements", None),
+            }.get(limit_name)
+            limit_value = getattr(exc, "limit_value", None)
+            if (
+                type(observed_limit) is int
+                and type(limit_value) is int
+                and limit_value >= 0
+                and observed_limit > limit_value
+                and limit_name in {"max_manifest_bytes", "max_bytes"}
+            ):
+                self._account_refusal(observed)
+                remaining_bytes = self._read_budget.remaining_bytes + observed
+                if limit_name == "max_manifest_bytes" and limit_value == remaining_bytes:
+                    self._raise_budget_refusal(observed_bytes=observed, cause=exc)
+                raise _UnestablishedProjectionError(
+                    f"{read_kind}_bounded_{limit_name}_limit_exceeded"
+                ) from exc
+            if (
+                type(observed_limit) is int
+                and type(limit_value) is int
+                and limit_value >= 0
+                and observed_limit > limit_value
+            ):
+                self._account_refusal(observed)
+                raise _UnestablishedProjectionError(
+                    f"{read_kind}_bounded_{limit_name}_limit_exceeded"
+                ) from exc
+            self._account_refusal(observed)
+            raise _UnestablishedProjectionError(
+                f"{read_kind}_bounded_limit_evidence_inconsistent"
+            ) from exc
+        if getattr(exc, "failure_stage", None) in {
+            "selected_manifest_profile_validation",
+            "selected_manifest_result_validation",
+            "selected_manifest_local_validation",
+        }:
+            self._account_read(observed)
+            code = getattr(exc, "code", None)
+            if type(code) is not str or not code:
+                code = "profile_validation_refused"
+            raise _InvalidProjectionError(f"{read_kind}_refused:{code}") from exc
+        self._account_refusal(observed)
+        raise _UnestablishedProjectionError(
+            f"{read_kind}_bounded_read_outcome_not_established"
+        ) from exc
+
+    def read_typed_model[ModelT: BaseModel](
+        self,
+        model: type[ModelT],
         ref: ArtifactRef,
-    ) -> tuple[ArtifactManifest, BaseModel, int, int]:
+    ) -> tuple[ArtifactManifest, ModelT, int, int]:
         """Read and strictly validate one Core model within remaining bytes."""
         from polisyos.foundry.execute.api import ExecutionSourceBoundedReadRefusal
 
+        self._pending_state_blob_bindings.clear()
+        self.last_source_identity = (
+            f"typed:{model.__module__}.{model.__qualname__}:{ref.artifact_id}:"
+            f"{ref.kind}:{ref.media_type}:{ref.manifest_profile_sha256}"
+        )
         remaining = self._read_budget.remaining_bytes
         if remaining < 3:
             raise ExecutionSourceBoundedReadRefusal(
@@ -1866,15 +2081,11 @@ class _BoundedExecutionSourceReader:
             max_manifest_bytes=manifest_limit,
         )
         try:
-            bounded = read_core_json_artifact_bounded(self._store, ref, limits=limits)
+            bounded = read_core_json_artifact_bounded(
+                self._store, _core_artifact_ref(ref), limits=limits
+            )
         except CoreJsonReadBoundsRefusalError as exc:
-            observed = _core_observed_source_bytes(exc)
-            self._account_refusal(observed)
-            raise ExecutionSourceBoundedReadRefusal(
-                "method_metric_source_bytes_exceed_bounded_admission",
-                observed_bytes=observed,
-                limit_bytes=self._read_budget.max_bytes,
-            ) from exc
+            self._raise_core_read_refusal(exc, read_kind="typed_model")
         manifest = bounded.manifest
         try:
             value = validate_core_model_bounded_read(model, bounded)
@@ -1921,7 +2132,7 @@ class _BoundedExecutionSourceReader:
 class _SelectedArtifactRefSnapshot:
     """Immutable scalar copy of the complete base ArtifactRef identity."""
 
-    artifact_id: str
+    artifact_id: ArtifactID
     kind: str
     media_type: str
     manifest_profile_sha256: str
@@ -1938,7 +2149,7 @@ class _SelectedArtifactRefSnapshot:
         ):
             raise ValueError("method_metric_source_ref_requires_selected_profile")
         return cls(
-            artifact_id=str(ref.artifact_id),
+            artifact_id=ref.artifact_id,
             kind=ref.kind,
             media_type=ref.media_type,
             manifest_profile_sha256=ref.manifest_profile_sha256,
@@ -2150,15 +2361,42 @@ class MethodMetricProjectionRefOutcome(_EphemeralMethodMetricCapability):
 
 
 class MethodMetricProjectionWorkLike(Protocol):
-    """Structural view accepted by the server-owned configured-CAS resolver."""
+    """Read-only structural view accepted by the configured-CAS resolver."""
 
-    job_id: str
-    run_id: str
-    attempt: int
-    simulation_result_ref: ArtifactRef
-    method_execution_bundle_ref: ArtifactRef
-    method_metric_binding_set_ref: ArtifactRef
-    method_result_ref: ArtifactRef | None
+    @property
+    def job_id(self) -> str:
+        """Return the selected execution job identity."""
+        ...
+
+    @property
+    def run_id(self) -> str:
+        """Return the selected execution run identity."""
+        ...
+
+    @property
+    def attempt(self) -> int:
+        """Return the selected lease attempt."""
+        ...
+
+    @property
+    def simulation_result_ref(self) -> ArtifactRef:
+        """Return the selected simulation result ref."""
+        ...
+
+    @property
+    def method_execution_bundle_ref(self) -> ArtifactRef:
+        """Return the selected method execution bundle ref."""
+        ...
+
+    @property
+    def method_metric_binding_set_ref(self) -> ArtifactRef:
+        """Return the selected method metric binding set ref."""
+        ...
+
+    @property
+    def method_result_ref(self) -> ArtifactRef | None:
+        """Return the optional selected method result ref."""
+        ...
 
 
 class MethodMetricProjectionStoreResolver(Protocol):
@@ -2325,11 +2563,27 @@ def _admit_execution_source_candidate(
             reader=reader,
         )
     except ExecutionSourceBoundedReadRefusal as exc:
+        core_cause = exc.__cause__
         raise _UnestablishedProjectionError(
-            "foundry_execution_source_admission_bounded_read_not_established"
+            "foundry_execution_source_admission_bounded_read_not_established:"
+            f"source={reader.last_source_identity!r};"
+            f"cause={type(core_cause).__name__ if core_cause is not None else None}:"
+            f"{core_cause!s};"
+            f"stage={getattr(core_cause, 'failure_stage', None)!r};"
+            f"limit={getattr(exc, 'limit_bytes', None)};"
+            f"observed={getattr(exc, 'observed_bytes', None)};"
+            f"total={read_budget.observed_execution_source_bytes};"
+            f"remaining={read_budget.remaining_bytes}"
         ) from exc
     except ExecutionSourceAdmissionRefusal as exc:
-        raise _InvalidProjectionError("foundry_execution_source_admission_refused") from exc
+        cause: BaseException | None = exc.__cause__
+        while cause is not None:
+            if isinstance(cause, _UnestablishedProjectionError):
+                raise cause
+            if isinstance(cause, _InvalidProjectionError):
+                raise cause
+            cause = cause.__cause__
+        raise _InvalidProjectionError(f"foundry_execution_source_admission_refused:{exc}") from exc
 
     observed_source_bytes = read_budget.observed_execution_source_bytes - before
     if (
@@ -2404,7 +2658,10 @@ def _admit_method_metric_observations(
         max_bytes=MAX_METHOD_METRIC_SOURCE_BYTES,
         read_budget=read_budget,
     )
-    if simulation.schema_version != simulation_manifest.artifact_schema.version:
+    simulation_schema = simulation_manifest.artifact_schema
+    if simulation_schema is None:
+        raise _InvalidProjectionError("simulation_result_artifact_schema_missing")
+    if simulation.schema_version != simulation_schema.version:
         raise _InvalidProjectionError("simulation_result_payload_schema_version_mismatch")
 
     _require_exact_manifest_edge(
@@ -2492,7 +2749,7 @@ def _admit_method_metric_observations(
         role="method_metric_bindings",
         ref=binding_ref,
     )
-    if simulation_manifest.artifact_schema.version not in {"1.3", "1.4"}:
+    if simulation_schema.version not in {"1.3", "1.4"}:
         raise _InvalidProjectionError("simulation_result_schema_unsupported")
 
     binding_manifest, binding_set = _load_method_metric_model(
@@ -2544,11 +2801,13 @@ def _admit_method_metric_observations(
         ref=registry_bundle_ref,
         model=RegistryBundlePayload,
         expected_kind="core.registry_bundle",
-        expected_schema_name="polisyos.core.RegistryBundlePayload",
-        expected_schema_versions={"1.0"},
+        expected_schema_name=None,
+        expected_schema_versions=None,
         max_bytes=MAX_METHOD_METRIC_SOURCE_BYTES,
         read_budget=read_budget,
     )
+    if registry_bundle.metric_registry is None or registry_bundle.units_registry is None:
+        raise _InvalidProjectionError("registry_bundle_registry_refs_missing")
     _require_payload_ref_match(
         registry_bundle.metric_registry,
         metric_registry_ref,
@@ -2794,7 +3053,7 @@ def _admit_method_metric_observations(
             )
         ):
             raise _InvalidProjectionError("current_method_class_and_registry_signature_disagree")
-        if signature is None or class_signature is None:
+        if signature is None or class_signature is None or method_class is None:
             append_unobserved_rows(
                 status="not_established",
                 limitation="current_method_registry_signature_unavailable",
@@ -2833,24 +3092,11 @@ def _admit_method_metric_observations(
             binding.law_id,
             binding.semantics,
         )
-        output_slot_contract_matches = (
-            binding.output_shape == "scalar"
-            and getattr(slot.slot_type, "value", slot.slot_type) == "scalar"
-            and slot.shape == ()
-            and slot.contract_id == binding.output_contract_id
-            and _canonical_model(
-                RegisteredMethodMetricSourceUnit.model_validate(
-                    {
-                        "dimension": slot.unit.dimension,
-                        "symbol": slot.unit.symbol,
-                        "scale": slot.unit.scale,
-                    }
-                )
-            )
-            == _canonical_model(source_unit)
-            and binding.method_fqn == "policy.evaluation.ex_ante_simulation@1.0.0"
-            and binding.method_version == "1.0.0"
-            and tuple(binding.output_value_path) == ("mean_change",)
+        output_slot_contract_matches = _registered_method_metric_output_slot_contract_matches(
+            binding=binding,
+            slot=slot,
+            registered_law_identity=registered_law_identity,
+            registered_semantics_match=registered_semantics_match,
         )
         positive_contract = _RegisteredMethodMetricBindingContract(
             law_identity=registered_law_identity,
@@ -2890,6 +3136,7 @@ def _admit_method_metric_observations(
             append_unobserved_rows(
                 status="not_established",
                 limitation="actual_method_environment_manifest_missing",
+                current_admission=admission,
             )
             continue
         if not environment_loaded:
@@ -2898,12 +3145,15 @@ def _admit_method_metric_observations(
                 ref=environment_ref,
                 model=EnvironmentManifest,
                 expected_kind="foundry.environment_manifest",
-                expected_schema_name="polisyos.core.EnvironmentManifest",
+                expected_schema_name="polisyos.core.artifacts.environment.EnvironmentManifest",
                 expected_schema_versions={"1.0"},
                 max_bytes=MAX_METHOD_METRIC_SOURCE_BYTES,
                 read_budget=read_budget,
             )
-            if environment.schema_version != environment_manifest.artifact_schema.version:
+            environment_schema = environment_manifest.artifact_schema
+            if environment_schema is None:
+                raise _InvalidProjectionError("environment_manifest_artifact_schema_missing")
+            if environment.schema_version != environment_schema.version:
                 raise _InvalidProjectionError(
                     "environment_manifest_payload_schema_version_mismatch"
                 )
@@ -3020,8 +3270,10 @@ def _selected_returned_slot(
     occurrence: MethodExecutionOccurrence,
     signature: Any,
     output_slot_id: str,
-) -> tuple[Any | None, str | None]:
-    """Require selected output capture to agree with the complete ABI return inventory."""
+    expected_value_path: tuple[str, ...],
+    selected_value: int | float | None = None,
+) -> tuple[MethodExecutionReturnedSlot | None, str | None]:
+    """Join a selected scalar capture to its complete ABI return inventory."""
     if occurrence.returned_slot_inventory_status != "captured":
         return (
             None,
@@ -3041,8 +3293,7 @@ def _selected_returned_slot(
         row = inventory[slot_id]
         if (
             not row.declared_by_signature
-            or row.declared_slot_type
-            != getattr(signature_slot.slot_type, "value", signature_slot.slot_type)
+            or row.declared_slot_type != _method_signature_slot_type_name(signature_slot.slot_type)
             or row.declared_shape != tuple(str(dimension) for dimension in signature_slot.shape)
         ):
             raise _InvalidProjectionError(
@@ -3065,19 +3316,104 @@ def _selected_returned_slot(
     if returned.returned != "returned":
         raise _InvalidProjectionError("captured_method_output_disagrees_with_return_inventory")
     if (
-        returned.runtime_shape_status != "captured"
-        or returned.runtime_shape != ()
-        or returned.runtime_type not in {"builtins.int", "builtins.float"}
-        or returned.codec_status != "json_scalar_supported"
-        or returned.retention_status != "selected_metric_output"
-    ):
-        return None, "selected_method_scalar_return_not_fully_captured"
-    if (
-        getattr(signature_slot.slot_type, "value", signature_slot.slot_type) != "scalar"
+        _method_signature_slot_type_name(signature_slot.slot_type) != "SCALAR"
         or signature_slot.shape != ()
     ):
         raise _InvalidProjectionError("selected_method_output_is_not_a_declared_scalar")
+    if (
+        returned.codec_status != "json_scalar_supported"
+        or returned.retention_status != "selected_metric_output"
+    ):
+        return None, "selected_method_scalar_return_not_fully_captured"
+    # Foundry may expose a JSON-valued ABI slot while separately persisting a
+    # typed scalar selected through the exact non-empty value path. The caller
+    # has already content-read that MethodOutputPayload and matched its path.
+    selected_value_is_numeric = selected_value is None or type(selected_value) in {int, float}
+    # Direct scalar selection requires the content-read typed value so the
+    # persisted owner type claim cannot stand alone.
+    direct_scalar_runtime_type_matches = selected_value is not None and (
+        (type(selected_value) is int and returned.runtime_type == "builtins.int")
+        or (type(selected_value) is float and returned.runtime_type == "builtins.float")
+    )
+    direct_scalar = (
+        not expected_value_path
+        and selected_value_is_numeric
+        and direct_scalar_runtime_type_matches
+        and returned.runtime_shape_status == "captured"
+        and returned.runtime_shape == ()
+    )
+    selected_json_member = (
+        bool(expected_value_path)
+        and selected_value_is_numeric
+        and returned.runtime_type == "builtins.dict"
+        and _is_exact_json_result_container_unit(getattr(signature_slot, "unit", None))
+        and returned.runtime_shape_status == "not_established"
+        and returned.runtime_shape is None
+    )
+    if not (direct_scalar or selected_json_member):
+        return None, "selected_method_scalar_return_not_fully_captured"
     return returned, None
+
+
+def _registered_method_metric_output_slot_contract_matches(
+    *,
+    binding: MethodMetricBinding,
+    slot: Any,
+    registered_law_identity: tuple[str, str, str] | None,
+    registered_semantics_match: bool,
+) -> bool:
+    """Join the current ABI container to the exact registered metric law."""
+    return (
+        registered_law_identity is not None
+        and (binding.law_id, binding.law_version, binding.law_code_digest)
+        == registered_law_identity
+        and registered_semantics_match
+        and binding.semantics is not None
+        and binding.output_shape == "scalar"
+        and _method_signature_slot_type_name(slot.slot_type) == "SCALAR"
+        and slot.shape == ()
+        and slot.contract_id == binding.output_contract_id
+        and tuple(binding.output_value_path) == tuple(binding.semantics.output_value_path)
+        # The registered law selects a numeric child from this exact JSON
+        # result container. Its ABI unit differs from the selected metric unit.
+        and _is_exact_json_result_container_unit(slot.unit)
+    )
+
+
+def _is_exact_json_result_container_unit(unit: Any) -> bool:
+    """Recognize the selected method ABI's exact JSON container unit."""
+    return (
+        getattr(unit, "dimension", None) == "result"
+        and getattr(unit, "symbol", None) == "json"
+        and getattr(unit, "scale", None) == 1.0
+    )
+
+
+def _method_signature_slot_type_name(slot_type: object) -> str | None:
+    """Use the stable enum-name representation persisted by Foundry's owner."""
+    name = getattr(slot_type, "name", None)
+    return name if type(name) is str and name else None
+
+
+def _same_method_metric_source_unit(
+    left: MethodMetricSourceUnit,
+    right: MethodMetricSourceUnit,
+) -> bool:
+    """Compare exact unit identity without confusing numeric representation with meaning."""
+    return (
+        left.dimension == right.dimension
+        and left.symbol == right.symbol
+        and type(left.scale) in {int, float}
+        and type(right.scale) in {int, float}
+        and left.scale == right.scale
+    )
+
+
+def _search_method_metric_source_unit(
+    source_unit: MethodMetricSourceUnit,
+) -> SearchMethodMetricSourceUnit:
+    """Convert the IR-owned source unit through the Search observation schema."""
+    return SearchMethodMetricSourceUnit.model_validate(source_unit.model_dump(mode="python"))
 
 
 def _method_metric_execution_context(
@@ -3085,7 +3421,7 @@ def _method_metric_execution_context(
     occurrence: MethodExecutionOccurrence,
     graph_node: Any,
     signature: Any,
-    semantics: Any,
+    semantics: MethodMetricSemanticContract,
     expected_method_fqn: str,
     expected_method_version: str,
     expected_method_abi_digest: str,
@@ -3105,14 +3441,25 @@ def _method_metric_execution_context(
     dispatch = occurrence.dispatch
     if dispatch is None:
         return None, "method_dispatch_record_missing"
+    method_fqn = occurrence.method_fqn
+    method_version = occurrence.method_version
+    method_abi_digest = occurrence.method_abi_digest
+    method_abi_digest_algorithm = occurrence.method_abi_digest_algorithm
+    if (
+        method_fqn is None
+        or method_version is None
+        or method_abi_digest is None
+        or method_abi_digest_algorithm is None
+    ):
+        raise _InvalidProjectionError("method_execution_current_abi_identity_mismatch")
     signature_input_slot_ids = tuple(sorted(slot.name for slot in signature.input_slots))
     signature_output_slot_ids = tuple(sorted(slot.name for slot in signature.output_slots))
     signature_parameter_names = tuple(sorted(parameter.name for parameter in signature.parameters))
     if (
-        occurrence.method_fqn != expected_method_fqn
-        or occurrence.method_version != expected_method_version
-        or occurrence.method_abi_digest != expected_method_abi_digest
-        or occurrence.method_abi_digest_algorithm != expected_method_abi_digest_algorithm
+        method_fqn != expected_method_fqn
+        or method_version != expected_method_version
+        or method_abi_digest != expected_method_abi_digest
+        or method_abi_digest_algorithm != expected_method_abi_digest_algorithm
         or signature.fqn != expected_method_fqn
         or signature.version != expected_method_version
         or signature.abi_digest() != expected_method_abi_digest
@@ -3131,18 +3478,29 @@ def _method_metric_execution_context(
         raise _InvalidProjectionError("duplicate_method_dispatch_input_slot_identity")
     if set(input_rows) != set(signature_input_slot_ids):
         return None, "method_dispatch_input_slot_inventory_not_established"
-    input_values = tuple(
-        MethodMetricInputContext(
-            method_input_slot_id=slot_id,
-            status=("captured" if input_rows[slot_id].status == "captured" else "not_established"),
-            value_sha256=(
-                input_rows[slot_id].value_sha256
-                if input_rows[slot_id].status == "captured"
-                else None
-            ),
-        )
-        for slot_id in signature_input_slot_ids
-    )
+    input_value_contexts: list[MethodMetricInputContext] = []
+    for slot_id in signature_input_slot_ids:
+        row = input_rows[slot_id]
+        if row.status == "captured":
+            value_sha256 = row.value_sha256
+            if value_sha256 is None:
+                raise _InvalidProjectionError("captured_method_dispatch_input_digest_missing")
+            input_value_contexts.append(
+                MethodMetricInputContext(
+                    method_input_slot_id=slot_id,
+                    status="captured",
+                    value_sha256=value_sha256,
+                )
+            )
+        else:
+            input_value_contexts.append(
+                MethodMetricInputContext(
+                    method_input_slot_id=slot_id,
+                    status="not_established",
+                    value_sha256=None,
+                )
+            )
+    input_values = tuple(input_value_contexts)
 
     requested_parameters = graph_node.method_params
     parameter_specs = {parameter.name: parameter for parameter in signature.parameters}
@@ -3205,37 +3563,42 @@ def _method_metric_execution_context(
             )
         )
 
-    input_role_rows = []
+    input_role_rows: list[MethodMetricInputRoleContext] = []
     for role in semantics.input_roles:
         input_slot = input_rows.get(role.method_input_slot_id)
         if input_slot is not None and input_slot.status == "captured":
+            value_sha256 = input_slot.value_sha256
+            if value_sha256 is None:
+                raise _InvalidProjectionError("captured_method_dispatch_role_digest_missing")
             input_role_rows.append(
                 MethodMetricInputRoleContext(
                     role_id=role.role_id,
                     method_input_slot_id=role.method_input_slot_id,
-                    value_sha256=input_slot.value_sha256,
+                    value_sha256=value_sha256,
                 )
             )
 
     dispatch_seed_status = dispatch.seed_status
-    seed_status = (
-        dispatch_seed_status
-        if dispatch_seed_status in {"reconciled", "mismatch"}
-        else "not_established"
-    )
+    if dispatch_seed_status == "reconciled":
+        seed_status: Literal["reconciled", "mismatch", "not_established"] = "reconciled"
+    elif dispatch_seed_status == "mismatch":
+        seed_status = "mismatch"
+    else:
+        seed_status = "not_established"
     dispatch_backend_status = dispatch.backend_identity_status
-    backend_status = (
-        dispatch_backend_status
-        if dispatch_backend_status in {"reconciled", "mismatch"}
-        else "not_established"
-    )
+    if dispatch_backend_status == "reconciled":
+        backend_status: Literal["reconciled", "mismatch", "not_established"] = "reconciled"
+    elif dispatch_backend_status == "mismatch":
+        backend_status = "mismatch"
+    else:
+        backend_status = "not_established"
     prestate_captured = dispatch.input_state_status == "captured"
     return MethodMetricExecutionContext(
         dispatch_outcome=dispatch.outcome,
-        method_fqn=occurrence.method_fqn,
-        method_version=occurrence.method_version,
-        method_abi_digest=occurrence.method_abi_digest,
-        method_abi_digest_algorithm=occurrence.method_abi_digest_algorithm,
+        method_fqn=method_fqn,
+        method_version=method_version,
+        method_abi_digest=method_abi_digest,
+        method_abi_digest_algorithm=method_abi_digest_algorithm,
         method_build_digest=occurrence.method_build_digest,
         method_build_digest_scope=(occurrence.method_build_digest_scope or "unavailable"),
         output_slot_id=expected_output_slot_id,
@@ -3427,7 +3790,9 @@ def _captured_input_arrays_from_snapshot(
             max_manifest_bytes=manifest_limit,
             max_snapshot_payload_bytes=snapshot_payload_limit,
             max_state_blob_bytes=state_blob_limit,
-            max_entries=min(32, len(signature_slot_ids)),
+            # Foundry uses this independent ceiling for snapshot JSON structure too;
+            # the NPZ reader separately requires the exact selected slot inventory.
+            max_entries=32,
             max_elements=MAX_METHOD_METRIC_READ_ELEMENTS,
         )
     except StateSnapshotInputReadRefusal as exc:
@@ -3442,8 +3807,12 @@ def _captured_input_arrays_from_snapshot(
                 "method_metric_current_prestate_transfer_accounting_not_established"
             ) from exc
         read_budget.account_refused_execution_source_bytes(observed_source_bytes)
+        reason = exc.reason if type(exc.reason) is str and exc.reason else "unreported_refusal"
+        observed = exc.observed_bytes if type(exc.observed_bytes) is int else "unmeasured"
+        limit = exc.limit_bytes if type(exc.limit_bytes) is int else "unmeasured"
         raise _UnestablishedProjectionError(
-            "method_metric_current_prestate_bounded_read_refused"
+            "method_metric_current_prestate_bounded_read_refused:"
+            f"{reason}:observed={observed}:limit={limit}"
         ) from exc
 
     observed_source_bytes = getattr(bounded, "observed_source_bytes", None)
@@ -3579,6 +3948,9 @@ def _observe_binding_occurrence(
             adapter_identity=adapter_identity,
             verifier_code_digest=verifier_code_digest,
         )
+    semantics = binding.semantics
+    if semantics is None:
+        raise _InvalidProjectionError("admitted_method_metric_binding_semantics_missing")
     dispatch = occurrence.dispatch
     if dispatch is None or dispatch.outcome != "succeeded":
         raise _InvalidProjectionError("successful_method_occurrence_dispatch_mismatch")
@@ -3664,7 +4036,7 @@ def _observe_binding_occurrence(
         )
     output_slot = output_rows[0]
     output_ref: SelectedMethodMetricArtifactRef | None = None
-    output_payload: Any | None = None
+    output_payload: MethodOutputPayload | None = None
     if output_slot.status == "captured":
         output_ref = _selected_ref(output_slot.output_ref, kind="foundry.method_output")
         _require_exact_manifest_edge(
@@ -3672,7 +4044,7 @@ def _observe_binding_occurrence(
             role=f"method_output:{occurrence.occurrence_id}:{binding.output_slot_id}",
             ref=output_ref,
         )
-        output_manifest, output_payload = _load_method_metric_model(
+        output_manifest, selected_output_payload = _load_method_metric_model(
             store,
             ref=output_ref,
             model=MethodOutputPayload,
@@ -3682,12 +4054,14 @@ def _observe_binding_occurrence(
             max_bytes=1024 * 1024,
             read_budget=read_budget,
         )
+        output_payload = selected_output_payload
         if (
             output_payload.occurrence_id != occurrence.occurrence_id
             or output_payload.invocation_id != occurrence.invocation_id
             or output_payload.node_id != occurrence.node_id
             or output_payload.slot_id != binding.output_slot_id
             or tuple(output_payload.value_path) != tuple(binding.output_value_path)
+            or output_manifest.artifact_schema is None
             or output_manifest.artifact_schema.version != output_payload.schema_version
         ):
             raise _InvalidProjectionError("selected_method_output_payload_identity_mismatch")
@@ -3712,10 +4086,15 @@ def _observe_binding_occurrence(
             verifier_code_digest=verifier_code_digest,
         )
 
+    if output_payload is None:
+        raise _InvalidProjectionError("captured_method_output_payload_missing")
+
     returned_slot, returned_slot_limitation = _selected_returned_slot(
         occurrence=occurrence,
         signature=signature,
         output_slot_id=binding.output_slot_id,
+        expected_value_path=tuple(binding.output_value_path),
+        selected_value=output_payload.value,
     )
     if returned_slot_limitation is not None:
         return _build_unobserved_method_metric_observation(
@@ -3734,6 +4113,8 @@ def _observe_binding_occurrence(
             adapter_identity=adapter_identity,
             verifier_code_digest=verifier_code_digest,
         )
+    if returned_slot is None:
+        raise _InvalidProjectionError("selected_method_return_inventory_inconsistent")
 
     if environment_ref is None:
         return _build_unobserved_method_metric_observation(
@@ -3845,7 +4226,10 @@ def _observe_binding_occurrence(
         max_bytes=MAX_METHOD_METRIC_SOURCE_BYTES,
         read_budget=read_budget,
     )
-    if input_capture.schema_version != input_capture_manifest.artifact_schema.version:
+    input_capture_schema = input_capture_manifest.artifact_schema
+    if input_capture_schema is None:
+        raise _InvalidProjectionError("method_metric_input_capture_artifact_schema_missing")
+    if input_capture.schema_version != input_capture_schema.version:
         raise _InvalidProjectionError("method_metric_input_capture_schema_version_mismatch")
     _require_payload_ref_match(
         input_capture.program_graph_ref,
@@ -3905,7 +4289,7 @@ def _observe_binding_occurrence(
         occurrence=occurrence,
         graph_node=graph_node,
         signature=signature,
-        semantics=binding.semantics,
+        semantics=semantics,
         expected_method_fqn=binding.method_fqn,
         expected_method_version=binding.method_version,
         expected_method_abi_digest=binding.method_abi_digest,
@@ -3932,7 +4316,7 @@ def _observe_binding_occurrence(
         )
     law = apply_registered_ex_ante_mean_change_law(
         output_payload.value,
-        binding.semantics,
+        semantics,
         execution_context=execution_context,
         input_values=captured_input_values,
         input_capture_prestate_identity_sha256=recomputed_prestate_identity_sha256,
@@ -3949,7 +4333,7 @@ def _observe_binding_occurrence(
         source_unit,
         target_unit,
         law_id=binding.law_id,
-        semantics=binding.semantics,
+        semantics=semantics,
     )
     if (
         (law.law_id, law.law_version, law.code_digest) != law_identity
@@ -4091,13 +4475,13 @@ def _observe_binding_occurrence(
         method_build_digest=occurrence.method_build_digest,
         method_build_digest_scope=occurrence.method_build_digest_scope or "unavailable",
         slot_id=binding.output_slot_id,
-        population_id=binding.semantics.population_id,
-        axes=tuple(binding.semantics.axes),
-        denominator_id=binding.semantics.denominator_id,
-        time_role=binding.semantics.time_role,
-        quantity_kind=binding.semantics.quantity_kind,
-        quantity_role=binding.semantics.quantity_role,
-        source_unit=source_unit,
+        population_id=semantics.population_id,
+        axes=tuple(semantics.axes),
+        denominator_id=semantics.denominator_id,
+        time_role=semantics.time_role,
+        quantity_kind=semantics.quantity_kind,
+        quantity_role=semantics.quantity_role,
+        source_unit=_search_method_metric_source_unit(source_unit),
         target_unit=target_unit,
         value=value,
         law_id=law.law_id,
@@ -4173,7 +4557,7 @@ def _build_unobserved_method_metric_observation(
         time_role=None if semantics is None else semantics.time_role,
         quantity_kind=None if semantics is None else semantics.quantity_kind,
         quantity_role=None if semantics is None else semantics.quantity_role,
-        source_unit=source_unit,
+        source_unit=_search_method_metric_source_unit(source_unit),
         target_unit=target_unit,
         law_id=law_identity[0],
         law_version=law_identity[1],
@@ -4215,11 +4599,24 @@ def _read_bounded_method_metric_artifact(
             "selected_method_metric_artifact_bytes_unavailable"
         ) from exc
     except CoreJsonReadBoundsRefusalError as exc:
+        observed_source_bytes = _core_observed_source_bytes(exc)
+        observed_manifest_bytes = exc.observed_manifest_bytes
+        observed_payload_bytes = exc.observed_bytes
+        if (
+            type(observed_manifest_bytes) is not int
+            or observed_manifest_bytes < 0
+            or type(observed_payload_bytes) is not int
+            or observed_payload_bytes < 0
+        ):
+            read_budget.account_refused_execution_source_bytes(observed_source_bytes)
+            raise _UnestablishedProjectionError(
+                "core_bounded_refusal_transfer_accounting_not_established"
+            ) from exc
         read_budget.account_refused_read(
             core_ref,
-            observed_manifest_bytes=exc.observed_manifest_bytes,
-            observed_bytes=exc.observed_bytes,
-            observed_source_bytes=_core_observed_source_bytes(exc),
+            observed_manifest_bytes=observed_manifest_bytes,
+            observed_bytes=observed_payload_bytes,
+            observed_source_bytes=observed_source_bytes,
         )
         raise _InvalidProjectionError(
             "selected_method_metric_artifact_exceeds_bounded_read"
@@ -4233,23 +4630,43 @@ def _read_bounded_method_metric_artifact(
     return bounded_read
 
 
+def _schema_matches_expected_contract(
+    schema: SchemaInfo | None,
+    *,
+    expected_schema_name: str | None,
+    expected_schema_versions: set[str] | None,
+) -> bool:
+    """Match either an exact schema descriptor or the owner's exact no-schema contract."""
+    if expected_schema_name is None and expected_schema_versions is None:
+        return schema is None
+    return (
+        schema is not None
+        and expected_schema_name is not None
+        and expected_schema_versions is not None
+        and schema.name == expected_schema_name
+        and schema.version in expected_schema_versions
+    )
+
+
 def _validate_bounded_method_metric_model[ModelT: BaseModel](
     model: type[ModelT],
     bounded_read: CoreJsonArtifactBoundedRead,
     *,
     expected_kind: str,
-    expected_schema_name: str,
-    expected_schema_versions: set[str],
+    expected_schema_name: str | None,
+    expected_schema_versions: set[str] | None,
 ) -> ModelT:
     """Apply Core's typed adapter to an already bounded selected-profile read."""
     manifest = bounded_read.manifest
-    schema = manifest.artifact_schema
+    schema_matches = _schema_matches_expected_contract(
+        manifest.artifact_schema,
+        expected_schema_name=expected_schema_name,
+        expected_schema_versions=expected_schema_versions,
+    )
     if (
         manifest.kind != expected_kind
         or manifest.media_type != "application/json"
-        or schema is None
-        or schema.name != expected_schema_name
-        or schema.version not in expected_schema_versions
+        or not schema_matches
     ):
         raise _InvalidProjectionError("selected_method_metric_artifact_schema_or_kind_mismatch")
     try:
@@ -4259,17 +4676,17 @@ def _validate_bounded_method_metric_model[ModelT: BaseModel](
         raise _InvalidProjectionError("selected_method_metric_artifact_payload_invalid") from exc
 
 
-def _load_method_metric_model(
+def _load_method_metric_model[ModelT: BaseModel](
     store: _MethodMetricProjectionArtifactStore,
     *,
     ref: SelectedMethodMetricArtifactRef,
-    model: type[BaseModel],
+    model: type[ModelT],
     expected_kind: str,
-    expected_schema_name: str,
-    expected_schema_versions: set[str],
+    expected_schema_name: str | None,
+    expected_schema_versions: set[str] | None,
     max_bytes: int,
     read_budget: _ProjectionReadBudget,
-) -> tuple[ArtifactManifest, BaseModel]:
+) -> tuple[ArtifactManifest, ModelT]:
     """Load one strict model from a single bounded selected-profile read."""
     bounded_read = _read_bounded_method_metric_artifact(
         store,

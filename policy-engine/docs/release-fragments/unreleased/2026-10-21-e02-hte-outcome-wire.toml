@@ -1,4 +1,0 @@
-[release]
-type = "change"
-area = "causal-hte"
-summary = "Add source-bound HTE successor artifacts and a Runtime-owned producer bridge while preserving the legacy HTEResult 1.0 contract."

@@ -5,14 +5,19 @@ from __future__ import annotations
 import argparse
 import dataclasses
 import json
+import posixpath
 import sys
 import tomllib
 import types
 from dataclasses import dataclass, fields
-from pathlib import Path
+from html.parser import HTMLParser
+from pathlib import Path, PurePosixPath
 from typing import Any, Union, get_args, get_origin, get_type_hints
+from urllib.parse import unquote, urlsplit
 
+from tools.lib.document_references import reference_scan_text
 from tools.lib.fs import (
+    iter_repository_files,
     measure_file_reads,
     measured_read_bytes,
     write_scoped_report_text,
@@ -69,6 +74,7 @@ def build_report(
     findings: list[Finding] = []
 
     contract_errors.extend(_validate_policy(repo_root, policy_path, policy))
+    contract_errors.extend(_validate_release_companion_paths(repo_root, header))
     public_surface_errors, public_surface_evidence = _validate_public_surface(repo_root, header)
     contract_errors.extend(public_surface_errors)
     contract_errors.extend(_validate_extension_points(repo_root, header))
@@ -1096,6 +1102,224 @@ def _validate_release_template(
                 "template required fields disagree with release-fragment policy",
             )
         )
+    return errors
+
+
+def _contains_path_sequence(parts: tuple[str, ...], sequence: tuple[str, ...]) -> bool:
+    """Return whether a relative path contains a configured directory sequence."""
+    return any(
+        parts[index : index + len(sequence)] == sequence
+        for index in range(len(parts) - len(sequence) + 1)
+    )
+
+
+class _MarkdownAnchorHrefParser(HTMLParser):
+    """Collect actual anchor destinations from rendered Markdown HTML."""
+
+    def __init__(self) -> None:
+        super().__init__(convert_charrefs=True)
+        self.hrefs: list[str] = []
+
+    def handle_starttag(self, tag: str, attrs: list[tuple[str, str | None]]) -> None:
+        if tag.casefold() != "a":
+            return
+        self.hrefs.extend(
+            value for name, value in attrs if name.casefold() == "href" and value is not None
+        )
+
+
+def _rendered_markdown_anchor_hrefs(markdown_renderer: Any, source_text: str) -> list[str]:
+    """Return anchor hrefs emitted by the Markdown renderer, excluding code examples."""
+    markdown_renderer.reset()
+    rendered = markdown_renderer.convert(source_text)
+    parser = _MarkdownAnchorHrefParser()
+    parser.feed(rendered)
+    parser.close()
+    return parser.hrefs
+
+
+def _validate_release_companion_paths(repo_root: Path, header: dict[str, Any]) -> list[Finding]:
+    """Keep maintained release companions and source references under policy-owned paths."""
+    policy_rel = str(header.get("release_fragment_policy", "")).strip()
+    if not policy_rel:
+        return []
+    policy_path = _resolve(repo_root, policy_rel)
+    if not policy_path.is_file():
+        return []
+    release_policy = _read_toml(policy_path).get("release_fragments", {})
+    if not isinstance(release_policy, dict):
+        return [
+            Finding(
+                "release-fragment-placement",
+                "error",
+                _relative(policy_path, repo_root),
+                "release_fragments policy must be a table",
+            )
+        ]
+
+    root_raw = str(release_policy.get("root", "")).strip()
+    unreleased_raw = str(release_policy.get("unreleased_root", "")).strip()
+    root = Path(root_raw)
+    unreleased_root = Path(unreleased_raw)
+    if (
+        not root_raw
+        or not unreleased_raw
+        or root.is_absolute()
+        or unreleased_root.is_absolute()
+        or any(part in {"", ".", ".."} for part in (*root.parts, *unreleased_root.parts))
+        or unreleased_root.parts[: len(root.parts)] != root.parts
+    ):
+        return [
+            Finding(
+                "release-fragment-placement",
+                "error",
+                _relative(policy_path, repo_root),
+                "release-fragment policy must define a relative unreleased root beneath root",
+                f"root={root_raw!r}; unreleased_root={unreleased_raw!r}",
+            )
+        ]
+
+    configured_consumer_root = str(
+        header.get("release_fragment_unreleased_root", unreleased_raw)
+    ).strip()
+    if Path(configured_consumer_root) != unreleased_root:
+        return [
+            Finding(
+                "release-fragment-placement",
+                "error",
+                _relative(policy_path, repo_root),
+                "release-gate consumer root disagrees with release-fragment policy",
+                f"policy={unreleased_raw}; consumer={configured_consumer_root}",
+            )
+        ]
+
+    raw_extensions = release_policy.get("accepted_extensions")
+    if (
+        not isinstance(raw_extensions, list)
+        or not raw_extensions
+        or any(
+            not isinstance(extension, str) or not extension.startswith(".")
+            for extension in raw_extensions
+        )
+    ):
+        return [
+            Finding(
+                "release-fragment-placement",
+                "error",
+                _relative(policy_path, repo_root),
+                "release-fragment policy accepted_extensions must be a non-empty suffix list",
+                repr(raw_extensions),
+            )
+        ]
+    accepted_extensions = {extension.lower() for extension in raw_extensions}
+    canonical_root = PurePosixPath(*unreleased_root.parts)
+    canonical_parts = canonical_root.parts
+    errors: list[Finding] = []
+    markdown_renderer = None
+    try:
+        import markdown
+
+        markdown_renderer = markdown.Markdown(extensions=["fenced_code"])
+    except ImportError as error:
+        errors.append(
+            Finding(
+                "release-fragment-placement",
+                "error",
+                _relative(policy_path, repo_root),
+                "source Markdown parser is unavailable",
+                type(error).__name__,
+            )
+        )
+    try:
+        maintained_paths = tuple(iter_repository_files(repo_root))
+    except (OSError, RuntimeError) as error:
+        return [
+            Finding(
+                "release-fragment-placement",
+                "error",
+                _relative(repo_root, repo_root),
+                "maintained source-path census is unavailable",
+                type(error).__name__,
+            )
+        ]
+
+    for path in maintained_paths:
+        try:
+            relative = path.relative_to(repo_root)
+        except ValueError:
+            continue
+        candidate_parent = PurePosixPath(relative.as_posix()).parent
+        parent_parts = candidate_parent.parts
+        is_canonical_subtree = parent_parts[: len(canonical_parts)] == canonical_parts
+        repeats_canonical_root = _contains_path_sequence(parent_parts, canonical_parts)
+        if (
+            relative.parts[:2] != ("docs", "research")
+            and relative.suffix.lower() in accepted_extensions
+            and repeats_canonical_root
+            and not is_canonical_subtree
+        ):
+            errors.append(
+                Finding(
+                    "release-fragment-placement",
+                    "error",
+                    relative.as_posix(),
+                    "release candidate is outside the policy-configured unreleased root",
+                    f"canonical={canonical_root.as_posix()}",
+                )
+            )
+
+        if (
+            relative.parts[:1] != ("src",)
+            or relative.suffix.lower() != ".md"
+            or markdown_renderer is None
+        ):
+            continue
+        try:
+            source_text = path.read_text(encoding="utf-8")
+        except (OSError, UnicodeError) as error:
+            errors.append(
+                Finding(
+                    "release-fragment-placement",
+                    "error",
+                    relative.as_posix(),
+                    "maintained source document is unreadable",
+                    type(error).__name__,
+                )
+            )
+            continue
+        scan_text = reference_scan_text(relative, source_text)
+        for target in _rendered_markdown_anchor_hrefs(markdown_renderer, scan_text):
+            parsed_target = urlsplit(target)
+            if parsed_target.scheme or parsed_target.netloc:
+                continue
+            target_path = unquote(parsed_target.path)
+            if not target_path or target_path.startswith("/"):
+                continue
+            resolved_target = PurePosixPath(
+                posixpath.normpath(posixpath.join(relative.parent.as_posix(), target_path))
+            )
+            target_directory = (
+                resolved_target.parent
+                if resolved_target.suffix.lower() in accepted_extensions
+                else resolved_target
+            )
+            target_parts = target_directory.parts
+            target_is_canonical_subtree = target_parts[: len(canonical_parts)] == canonical_parts
+            if (
+                _contains_path_sequence(target_parts, canonical_parts)
+                and not target_is_canonical_subtree
+            ):
+                errors.append(
+                    Finding(
+                        "release-fragment-placement",
+                        "error",
+                        relative.as_posix(),
+                        "maintained source link resolves outside the policy-configured "
+                        "unreleased root",
+                        f"target={target}; canonical={canonical_root.as_posix()}",
+                    )
+                )
+                break
     return errors
 
 

@@ -85,7 +85,7 @@ agent-sim tooling.
 | `data_plane.HTEInputLimits` | Type alias for Core's four-field `CoreJsonReadLimits`; construct limits with `CoreJsonReadLimits(max_bytes=payload_byte_limit, max_depth=depth_limit, max_elements=element_limit, max_manifest_bytes=manifest_byte_limit)` using explicit field names. |
 
 The HTE input exports are an additive public-stable API through the existing
-`polisyos.foundry.data_plane` entrypoint; see the [release fragment](../../../docs/release-fragments/unreleased/2026-10-21-e02-hte-physical-source-binding.toml).
+`polisyos.foundry.data_plane` entrypoint; see the [release fragment](../../../release-fragments/unreleased/2026-10-21-e02-hte-physical-source-binding.toml).
 `HTEInputLimits` is a typing alias,
 not a runtime constructor; create the value with `CoreJsonReadLimits` from
 `polisyos.core.artifacts`, naming `max_bytes`, `max_depth`, `max_elements`,

@@ -1,0 +1,39 @@
+id = "2026-10-21-e02-hte-outcome-wire"
+title = "Add source-bound HTE successor artifacts and a Runtime-owned producer bridge"
+type = "changed"
+component = "causal-hte"
+owner = "team-polisyos"
+summary = "Add source-bound HTE successor artifacts and a Runtime-owned producer bridge while preserving the legacy HTEResult 1.0 contract."
+evidence = [
+  "src/polisyos/scientist/compute/hte_outcome_bridge.py",
+  "src/polisyos/core/contracts/owned_attempt_anchor.py",
+  "src/polisyos/foundry/methods/catalog/causal/hte_v2.py",
+  "src/polisyos/ir/analytics/hte.py",
+  "tests/unit/scientist/compute/test_hte_outcome_bridge.py",
+  "tests/unit/ir/test_hte_outcome_contract.py",
+  "tests/unit/foundry/methods/catalog/causal/test_hte_v2_resource_capture.py",
+  "tests/unit/runtime/http/test_owned_attempt_anchor_associations.py",
+]
+compatibility = "The source-bound HTE successor artifacts and Runtime-owned producer bridge are additive; the existing legacy HTEResult 1.0 contract is preserved."
+change_class = "internal"
+surface_classification = "internal: source-bound HTE successor artifacts and Runtime-owned producer bridge"
+migration = "Existing HTEResult 1.0 artifacts retain their contract; this note declares no migration for them."
+limitations = "This fragment records the artifact and producer composition only. It does not establish scientific validity, ordinary failed-run GET behavior, integration publication, or publication authority."
+generated_client_compatibility = "not_applicable"
+public_surface_inventory_reviewed = false
+migration_docs = []
+runbook_docs = []
+
+[[compatibility_change]]
+id = "e02-hte-outcome-wire"
+change_class = "internal"
+impact = "internal"
+surface = "internal: source-bound HTE successor artifacts and Runtime-owned producer bridge"
+owner = "team-polisyos"
+version_owner = "team-polisyos"
+deprecation_window = "not_applicable"
+release_note = "Add source-bound HTE successor artifacts and a Runtime-owned producer bridge while preserving the legacy HTEResult 1.0 contract."
+generated_client_compatibility = "not_applicable"
+public_surface_inventory_reviewed = false
+migration_docs = []
+runbook_docs = []

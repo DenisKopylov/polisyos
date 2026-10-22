@@ -3,9 +3,12 @@ from __future__ import annotations
 import json
 from datetime import UTC, datetime
 from pathlib import Path
+from typing import ClassVar, get_type_hints
 
 import pytest
+from pydantic import ValidationError
 
+from polisyos.fabric import SourceContract as PublicSourceContract
 from polisyos.fabric.connectors.contracts import (
     SOURCE_CONTRACT_SCHEMA_VERSION,
     SourceContract,
@@ -13,6 +16,7 @@ from polisyos.fabric.connectors.contracts import (
     SourceContractReplay,
     SourceContractSchema,
     SourceContractSecurity,
+    SourceContractSLA,
     SourceDeprecationPolicy,
     SourceFieldAccessPolicy,
     source_contracts_compatibility_evidence,
@@ -29,9 +33,44 @@ from polisyos.fabric.connectors.sources._contracts import WDI_GENERIC_CONTRACT
 from polisyos.fabric.connectors.sources.world_bank import WorldBankConnector
 from polisyos.fabric.connectors.testing.conformance import validate_source_conformance_v2
 from polisyos.fabric.quality.processing_guarantees import ProcessingGuarantee
+from polisyos.ir.connectors import ConnectorMetadataSpec
 from tools.quality.validation import fabric_source_contracts
 
 REPO_ROOT = Path(__file__).resolve().parents[4]
+
+
+def test_source_contract_metadata_annotation_resolves_for_runtime_introspection() -> None:
+    hints = get_type_hints(SourceContract.from_connector_schema_contract)
+
+    assert hints["metadata"] == ConnectorMetadataSpec | None
+
+
+def test_source_contract_sla_metadata_annotation_resolves_for_runtime_introspection() -> None:
+    hints = get_type_hints(SourceContractSLA.from_metadata)
+
+    assert hints["metadata"] is ConnectorMetadataSpec
+
+
+def test_source_contract_factory_invokes_custom_subclass_initializer() -> None:
+    class TrackingSourceContract(SourceContract):
+        initializer_calls: ClassVar[int] = 0
+
+    original_init = TrackingSourceContract.__init__
+
+    def tracking_init(self: TrackingSourceContract, **data: object) -> None:
+        type(self).initializer_calls += 1
+        assert isinstance(data["schema"], SourceContractSchema)
+        original_init(self, **data)
+
+    TrackingSourceContract.__init__ = tracking_init
+    contract = TrackingSourceContract.from_connector_schema_contract(
+        WDI_GENERIC_CONTRACT,
+        metadata=WorldBankConnector.metadata,
+        profile_id="worldbank_wdi",
+    )
+
+    assert type(contract) is TrackingSourceContract
+    assert TrackingSourceContract.initializer_calls == 1
 
 
 def test_source_contract_v2_wraps_existing_connector_schema_contract() -> None:
@@ -61,6 +100,73 @@ def test_source_contract_v2_wraps_existing_connector_schema_contract() -> None:
         >= contract.retention.min_retention_days
     )
     assert contract.content_hash.startswith("sha256:")
+
+
+def test_source_contract_schema_supports_class_and_instance_access() -> None:
+    contract = SourceContract.from_connector_schema_contract(
+        WDI_GENERIC_CONTRACT,
+        metadata=WorldBankConnector.metadata,
+        profile_id="worldbank_wdi",
+    )
+
+    assert contract.schema is contract.schema_contract
+
+    class_schema = SourceContract.schema(by_alias=True)
+    assert class_schema == SourceContract.model_json_schema(by_alias=True)
+    assert "schema" in class_schema["properties"]
+    assert "schema_contract" not in class_schema["properties"]
+
+    payload = contract.model_dump(mode="json", by_alias=True)
+    assert "schema" in payload
+    assert "schema_contract" not in payload
+    assert SourceContract.model_validate(payload).content_hash == contract.content_hash
+
+    field_name_payload = {key: value for key, value in payload.items() if key != "schema"}
+    field_name_payload["schema_contract"] = payload["schema"]
+    assert SourceContract.model_validate(field_name_payload).schema.schema_id == (
+        contract.schema.schema_id
+    )
+    assert set(SourceContract.model_fields) == {
+        "schema_version",
+        "id",
+        "version",
+        "owner",
+        "reviewer",
+        "source",
+        "schema_contract",
+        "semantics",
+        "security",
+        "quality",
+        "sla",
+        "terms",
+        "replay",
+        "lineage",
+        "source_trust",
+        "processing",
+        "retention",
+        "docs",
+        "status",
+        "deprecation",
+        "created_at",
+    }
+    assert PublicSourceContract is SourceContract
+
+    with pytest.raises(ValidationError):
+        SourceContract.model_validate({**payload, "unrecognized": True})
+
+    with pytest.warns(DeprecationWarning, match="schema_json"):
+        schema_json = SourceContract.schema_json(by_alias=True)
+    assert json.loads(schema_json) == SourceContract.model_json_schema(by_alias=True)
+
+
+def test_source_field_access_rejects_unknown_decision_role_before_literal_narrowing() -> None:
+    with pytest.raises(
+        ValidationError,
+        match="field access decision_role must not be unknown",
+    ):
+        SourceFieldAccessPolicy.model_validate(
+            {"field_id": "employment.count", "decision_role": "unknown"}
+        )
 
 
 def test_source_contract_replay_requires_fixture_or_reason() -> None:

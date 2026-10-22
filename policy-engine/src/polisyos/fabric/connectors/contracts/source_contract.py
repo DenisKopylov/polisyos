@@ -4,9 +4,9 @@ from __future__ import annotations
 
 from collections.abc import Mapping, Sequence
 from datetime import UTC, datetime
-from typing import Any, Literal
+from typing import Any, ClassVar, Literal, Protocol, overload
 
-from pydantic import BaseModel, ConfigDict, Field, field_validator, model_validator
+from pydantic import BaseModel, ConfigDict, Field, TypeAdapter, field_validator, model_validator
 
 from polisyos.core.canon import content_hash as compute_content_hash
 from polisyos.fabric.numerics.finite import ensure_probability
@@ -15,6 +15,8 @@ from polisyos.fabric.quality.processing_guarantees import (
     ProcessingGuaranteeContract,
     default_processing_contract_for_connector,
 )
+
+# Runtime binding keeps public method annotations resolvable by typing.get_type_hints.
 from polisyos.ir.connectors import ConnectorMetadataSpec
 from polisyos.ir.model_layer.canon import CanonSpec, to_canonical_bytes
 
@@ -41,6 +43,8 @@ Classification = Literal[
     "regulated_pii",
     "sensitive_policy_legal_signal",
 ]
+_CLASSIFICATION_ADAPTER: TypeAdapter[Classification] = TypeAdapter(Classification)
+
 PIITier = Literal["none", "low", "moderate", "high", "regulated"]
 TenantScope = Literal["shared_public", "tenant_isolated", "restricted"]
 DecisionRole = Literal["decision", "telemetry", "layout", "debug"]
@@ -170,10 +174,15 @@ class SourceFieldAccessPolicy(BaseModel):
         max_length=512,
     )
 
+    @field_validator("decision_role", mode="before")
+    @classmethod
+    def _reject_unknown_decision_role(cls, value: object) -> object:
+        if value == "unknown":
+            raise ValueError("field access decision_role must not be unknown")
+        return value
+
     @model_validator(mode="after")
     def _validate_policy_reference(self) -> SourceFieldAccessPolicy:
-        if self.decision_role == "unknown":  # defensive for untyped callers
-            raise ValueError("field access decision_role must not be unknown")
         if (
             self.classification != "public"
             or self.pii_tier != "none"
@@ -374,6 +383,31 @@ class SourceDeprecationPolicy(BaseModel):
         return value.astimezone(UTC)
 
 
+class _SchemaMethod(Protocol):
+    def __call__(self, by_alias: bool = ..., ref_template: str = ...) -> dict[str, Any]: ...
+
+
+class _DualSchema:
+    @overload
+    def __get__(
+        self, instance: None, owner: type[SourceContract] | None = None
+    ) -> _SchemaMethod: ...
+
+    @overload
+    def __get__(
+        self, instance: SourceContract, owner: type[SourceContract] | None = None
+    ) -> SourceContractSchema: ...
+
+    def __get__(
+        self, instance: SourceContract | None, owner: type[SourceContract] | None = None
+    ) -> _SchemaMethod | SourceContractSchema:
+        if instance is not None:
+            return instance.schema_contract
+        if owner is None:
+            raise RuntimeError("class owner is required for SourceContract schema access")
+        return super(SourceContract, owner).schema
+
+
 class SourceContract(BaseModel):
     """Best-in-class source contract covering schema, trust, quality, and replay."""
 
@@ -381,7 +415,12 @@ class SourceContract(BaseModel):
         frozen=True,
         extra="forbid",
         populate_by_name=True,
+        ignored_types=(_DualSchema,),
     )
+
+    # Preserve both public_stable surfaces under architecture/public_surface/contract.toml.
+    # Mypy cannot model the instance field and inherited class method on one declaration.
+    schema: ClassVar[_DualSchema] = _DualSchema()  # type: ignore[assignment]
 
     schema_version: str = SOURCE_CONTRACT_SCHEMA_VERSION
     id: str = Field(..., pattern=CONTRACT_ID_PATTERN)
@@ -472,11 +511,6 @@ class SourceContract(BaseModel):
             raise ValueError("source-level classification must cover all field access policies")
 
     @property
-    def schema(self) -> SourceContractSchema:
-        """Backwards-compatible accessor for callers using ``contract.schema``."""
-        return self.schema_contract
-
-    @property
     def content_hash(self) -> str:
         payload = self.model_dump(
             mode="json",
@@ -516,13 +550,18 @@ class SourceContract(BaseModel):
             if metadata is not None and metadata.quality_contract_id
             else f"fabric.quality.{schema_contract.contract_id}.v1"
         )
-        classification = metadata.data_classification if metadata is not None else "public"
+        classification = (
+            _CLASSIFICATION_ADAPTER.validate_python(metadata.data_classification)
+            if metadata is not None
+            else "public"
+        )
         field_policies = default_source_field_access_policies(
             schema_contract.schema.fields,
-            classification=classification,  # type: ignore[arg-type]
+            classification=classification,
         )
         replay_required = replay_fixture_ref is not None
-        return cls(
+        # Mypy models the field name; preserve the established subclass-visible alias.
+        return cls(  # type: ignore[call-arg]
             id=schema_contract.contract_id,
             version=version,
             owner=owner or (metadata.owner if metadata is not None else "@fabric-owners"),
@@ -541,7 +580,7 @@ class SourceContract(BaseModel):
                 canonical_ids=(schema_contract.schema.schema_id,),
             ),
             security=SourceContractSecurity(
-                classification=classification,  # type: ignore[arg-type]
+                classification=classification,
                 field_policies=field_policies,
             ),
             quality=SourceContractQuality(

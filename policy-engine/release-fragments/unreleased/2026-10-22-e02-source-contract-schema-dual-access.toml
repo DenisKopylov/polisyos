@@ -1,0 +1,34 @@
+id = "2026-10-22-e02-source-contract-schema-dual-access"
+title = "Preserve SourceContract instance and class schema access"
+type = "changed"
+component = "fabric"
+owner = "team-polisyos"
+summary = "Preserve SourceContract runtime metadata introspection and subclass construction while adding typed dual-access schema access."
+evidence = [
+  "src/polisyos/fabric/connectors/contracts/source_contract.py",
+  "tests/unit/fabric/connectors/test_source_contract_v2.py",
+]
+compatibility = "Existing instance contract.schema access, the schema_contract field and schema wire alias, class-level Pydantic schema behavior, runtime metadata annotation resolution, subclass initializer dispatch, model validation, content hashes, and snapshots stay unchanged. No schema version or serialized artifact changes."
+change_class = "python-public-api"
+surface_classification = "public_stable: polisyos.fabric"
+migration = "No constructor, producer, reader, wire-format, or stored-snapshot migration is required. Reassess the deprecated class-level schema branch when adopting Pydantic v3, where BaseModel.schema is removed."
+api = "SourceContract.schema is a typed descriptor: instance access returns SourceContractSchema; class access delegates to the inherited Pydantic schema method. The factory continues to invoke subclass constructors using the established schema wire alias; the typed model field remains named schema_contract. A before-field validator rejects unknown decision roles before Literal narrowing; no field, facade export, or wire-format change is added."
+limitations = "The public-surface inventory review and the complete composed E02 closeout remain open. Canonical native type gates are reported separately from this focused candidate release fragment."
+generated_client_compatibility = "not_applicable"
+public_surface_inventory_reviewed = false
+migration_docs = []
+runbook_docs = []
+
+[[compatibility_change]]
+id = "e02-source-contract-schema-dual-access"
+change_class = "python-public-api"
+impact = "compatible"
+surface = "public_stable: polisyos.fabric"
+owner = "team-polisyos"
+version_owner = "team-polisyos"
+deprecation_window = "not_applicable"
+release_note = "SourceContract preserves runtime-resolvable metadata annotations and subclass construction while keeping its typed instance .schema accessor and inherited Pydantic class-level .schema(...) behavior; wire fields and serialized schema bytes stay unchanged."
+generated_client_compatibility = "not_applicable"
+public_surface_inventory_reviewed = false
+migration_docs = []
+runbook_docs = []

@@ -1,8 +1,10 @@
 from __future__ import annotations
 
 import asyncio
+import gc
 import math
 import threading
+import warnings
 from collections.abc import AsyncIterator
 from typing import TypeGuard
 
@@ -239,6 +241,128 @@ def test_aiohttp_client_response_uses_readonly_header_surface() -> None:
     assert response.headers["Content-Length"] == str(len(body))
 
 
+def test_aiohttp_client_response_uses_read_fallback() -> None:
+    body = b'{"ok":true}'
+    response = _run(_aiohttp_response(body, None))
+    payload = _run(
+        read_bounded_response_body(
+            response,
+            connector_id="test.http",
+            url="https://example.test/data",
+            max_response_bytes=32,
+            max_decompressed_bytes=32,
+        )
+    )
+    assert payload == body
+
+
+class _HeaderContractResponse:
+    def __init__(self, headers: object) -> None:
+        self.headers = headers
+        self.content: object = None
+        self.read_calls = 0
+
+    async def read(self) -> bytes:
+        self.read_calls += 1
+        return b"body"
+
+
+@pytest.mark.parametrize(
+    "headers",
+    [
+        pytest.param(None, id="missing-header-object"),
+        pytest.param(object(), id="missing-getter"),
+    ],
+)
+def test_bounded_response_rejects_missing_header_getter(headers: object) -> None:
+    response = _HeaderContractResponse(headers)
+    with pytest.raises(TypeError, match="callable get method"):
+        _run(
+            read_bounded_response_body(
+                response,
+                connector_id="test.http",
+                url="https://example.test/data",
+                max_response_bytes=32,
+                max_decompressed_bytes=32,
+            )
+        )
+    assert response.read_calls == 0
+
+
+def test_bounded_response_rejects_malformed_present_header_value() -> None:
+    class _MalformedHeaders:
+        def get(self, _key: str, /) -> object:
+            return 11
+
+    response = _HeaderContractResponse(_MalformedHeaders())
+    with pytest.raises(TypeError, match="str or None"):
+        _run(
+            read_bounded_response_body(
+                response,
+                connector_id="test.http",
+                url="https://example.test/data",
+                max_response_bytes=32,
+                max_decompressed_bytes=32,
+            )
+        )
+    assert response.read_calls == 0
+
+
+def test_bounded_response_refuses_async_header_getter_without_leaking_coroutine() -> None:
+    async_body_ran = False
+
+    class _AsyncHeaders:
+        async def get(self, _key: str, /) -> str | None:
+            nonlocal async_body_ran
+            async_body_ran = True
+            return "999"
+
+    response = _HeaderContractResponse(_AsyncHeaders())
+    with warnings.catch_warnings(record=True) as caught:
+        warnings.simplefilter("always", RuntimeWarning)
+        with pytest.raises(TypeError, match="awaitable"):
+            _run(
+                read_bounded_response_body(
+                    response,
+                    connector_id="test.http",
+                    url="https://example.test/data",
+                    max_response_bytes=32,
+                    max_decompressed_bytes=32,
+                )
+            )
+        gc.collect()
+
+    assert async_body_ran is False
+    assert response.read_calls == 0
+    assert not [item for item in caught if issubclass(item.category, RuntimeWarning)]
+
+
+def test_bounded_response_rejects_non_bytes_fallback_before_callbacks() -> None:
+    class _NonBytesResponse:
+        headers = {"Content-Length": "3"}
+        content: object = None
+
+        async def read(self) -> object:
+            return bytearray(b"abc")
+
+    progress: list[int] = []
+    classified: list[object] = []
+    with pytest.raises(TypeError, match="non-bytes body"):
+        _run(
+            read_bounded_response_body(
+                _NonBytesResponse(),
+                connector_id="test.http",
+                url="https://example.test/data",
+                max_response_bytes=32,
+                max_decompressed_bytes=32,
+                on_progress=progress.append,
+                before_classification=classified.append,
+            )
+        )
+    assert progress == []
+    assert classified == []
+
+
 def test_readonly_http_response_contract_keeps_chunked_body_callbacks_and_limits() -> None:
     body = b'{"ok":true}'
     response = _ReadOnlyResponse(body, _ChunkedContent([b'{"ok":', b"true}"]))
@@ -320,3 +444,264 @@ def test_chunked_content_rejects_bytearray_extendable_non_bytes_chunks() -> None
                 max_decompressed_bytes=32,
             )
         )
+
+
+class _LyingBytes(bytes):
+    def __len__(self) -> int:
+        return 1
+
+    def decode(self, encoding: str = "utf-8", errors: str = "strict") -> str:
+        return "benign"
+
+    def __bytes__(self) -> bytes:
+        return b"x"
+
+    def __getitem__(self, index: int | slice) -> int | bytes:
+        return b"x"
+
+    def __buffer__(self, _flags: int) -> memoryview:
+        return memoryview(b"forged")
+
+    def __int__(self) -> int:
+        return 1
+
+
+class _LyingContentLength(str):
+    def __len__(self) -> int:
+        return 1
+
+    def __str__(self) -> str:
+        return "0"
+
+    def __int__(self) -> int:
+        return 0
+
+    def __getitem__(self, index: int | slice) -> str:
+        return "0"
+
+
+class _StaticHeaders:
+    def __init__(self, value: object) -> None:
+        self._value = value
+
+    def get(self, key: str, /) -> object:
+        assert key == "Content-Length"
+        return self._value
+
+
+class _FallbackObjectResponse:
+    def __init__(self, headers: object, body: object) -> None:
+        self.headers = headers
+        self.content: object = None
+        self._body = body
+        self.read_calls = 0
+
+    async def read(self) -> object:
+        self.read_calls += 1
+        return self._body
+
+
+def test_fallback_normalizes_bytes_subclass_before_pii_and_callbacks() -> None:
+    actual = b"contact alice@example.test for details"
+    response = _FallbackObjectResponse(
+        {"Content-Length": str(len(actual))},
+        _LyingBytes(actual),
+    )
+    progress: list[int] = []
+    classified: list[object] = []
+
+    with pytest.raises(FetchError, match="secret/PII"):
+        _run(
+            read_bounded_response_body(
+                response,
+                connector_id="test.http",
+                url="https://example.test/data",
+                max_response_bytes=128,
+                max_decompressed_bytes=128,
+                on_progress=progress.append,
+                before_classification=classified.append,
+            )
+        )
+
+    assert response.read_calls == 1
+    assert progress == [len(actual)]
+    assert len(classified) == 1
+    assert type(classified[0]) is bytes
+    assert classified[0] == actual
+
+
+def test_fallback_size_limit_uses_bytes_subclass_backing_length() -> None:
+    actual = b"more than the one byte limit"
+    response = _FallbackObjectResponse(
+        {"Content-Length": "0"},
+        _LyingBytes(actual),
+    )
+    progress: list[int] = []
+    classified: list[object] = []
+
+    with pytest.raises(FetchError, match="exceeds safe limit"):
+        _run(
+            read_bounded_response_body(
+                response,
+                connector_id="test.http",
+                url="https://example.test/data",
+                max_response_bytes=1,
+                max_decompressed_bytes=128,
+                on_progress=progress.append,
+                before_classification=classified.append,
+            )
+        )
+
+    assert response.read_calls == 1
+    assert progress == []
+    assert classified == []
+
+
+def test_fallback_bytes_subclass_is_normalized_before_callback_and_return() -> None:
+    actual = b"safe payload"
+    response = _FallbackObjectResponse(
+        {"Content-Length": str(len(actual))},
+        _LyingBytes(actual),
+    )
+    progress: list[int] = []
+    classified: list[object] = []
+
+    payload = _run(
+        read_bounded_response_body(
+            response,
+            connector_id="test.http",
+            url="https://example.test/data",
+            max_response_bytes=128,
+            max_decompressed_bytes=128,
+            on_progress=progress.append,
+            before_classification=classified.append,
+        )
+    )
+
+    assert type(payload) is bytes
+    assert payload == actual
+    assert progress == [len(actual)]
+    assert classified == [actual]
+    assert type(classified[0]) is bytes
+
+
+def test_content_length_str_subclass_cannot_override_numeric_value() -> None:
+    response = _FallbackObjectResponse(
+        _StaticHeaders(_LyingContentLength("999")),
+        b"safe",
+    )
+
+    with pytest.raises(FetchError, match="exceeds safe limit"):
+        _run(
+            read_bounded_response_body(
+                response,
+                connector_id="test.http",
+                url="https://example.test/data",
+                max_response_bytes=10,
+                max_decompressed_bytes=128,
+            )
+        )
+
+    assert response.read_calls == 0
+
+
+@pytest.mark.parametrize(
+    "value",
+    ["", "+1", "-1", "1_0", "1, 2", " 1", "1 ", "\u0661"],
+)
+def test_malformed_present_content_length_is_rejected_before_read(value: str) -> None:
+    response = _FallbackObjectResponse(
+        {"Content-Length": value},
+        b"safe",
+    )
+
+    with pytest.raises(ValueError, match="ASCII decimal"):
+        _run(
+            read_bounded_response_body(
+                response,
+                connector_id="test.http",
+                url="https://example.test/data",
+                max_response_bytes=128,
+                max_decompressed_bytes=128,
+            )
+        )
+
+    assert response.read_calls == 0
+
+
+def test_huge_content_length_exceeds_limit_before_read() -> None:
+    response = _FallbackObjectResponse(
+        {"Content-Length": "9" * 5000},
+        b"safe",
+    )
+
+    with pytest.raises(FetchError, match="exceeds safe limit"):
+        _run(
+            read_bounded_response_body(
+                response,
+                connector_id="test.http",
+                url="https://example.test/data",
+                max_response_bytes=128,
+                max_decompressed_bytes=128,
+            )
+        )
+
+    assert response.read_calls == 0
+
+
+def test_chunked_bytes_subclass_uses_actual_buffer_before_return() -> None:
+    actual = b"safe streamed payload"
+
+    class _LyingChunkStream:
+        async def iter_chunked(self, _chunk_size: int) -> AsyncIterator[bytes]:
+            yield _LyingBytes(actual)
+
+    response = _ReadOnlyResponse(actual, _LyingChunkStream())
+    progress: list[int] = []
+    classified: list[object] = []
+
+    payload = _run(
+        read_bounded_response_body(
+            response,
+            connector_id="test.http",
+            url="https://example.test/data",
+            max_response_bytes=128,
+            max_decompressed_bytes=128,
+            on_progress=progress.append,
+            before_classification=classified.append,
+        )
+    )
+
+    assert type(payload) is bytes
+    assert payload == actual
+    assert progress == [len(actual)]
+    assert classified == [actual]
+    assert type(classified[0]) is bytes
+
+
+@pytest.mark.parametrize(
+    ("content_length", "body"),
+    [("0", b""), ("0000", b""), ("0004", b"safe")],
+)
+def test_valid_zero_and_leading_zero_content_length_values(
+    content_length: str,
+    body: bytes,
+) -> None:
+    response = _FallbackObjectResponse(
+        {"Content-Length": content_length},
+        body,
+    )
+
+    payload = _run(
+        read_bounded_response_body(
+            response,
+            connector_id="test.http",
+            url="https://example.test/data",
+            max_response_bytes=4,
+            max_decompressed_bytes=4,
+        )
+    )
+
+    assert type(payload) is bytes
+    assert payload == body
+    assert response.read_calls == 1

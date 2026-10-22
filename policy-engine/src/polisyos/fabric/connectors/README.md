@@ -101,11 +101,22 @@ value with the wrong shape raises instead of being silently replaced. The
 existing per-handle lock makes typed setdefault atomic and validates both its
 proposed value and any existing winner.
 
-Shared HTTP readers accept response objects through read-only headers and
-content properties. The chunked reader is adapted at the consumer boundary,
-then checks the returned async stream and each yielded bytes chunk before the
-size limits, classification, and progress callbacks run. The fallback read()
-path and response scan remain in force.
+Shared HTTP readers consume response objects through read-only headers and
+content properties. At the consumption boundary, the header get method must be
+callable synchronously and return str or None for Content-Length; present
+values are read from their native string contents and must contain only ASCII
+decimal digits. Only an absent header is treated as missing, and an
+over-limit declaration is refused before body consumption. The chunked reader
+is adapted at the consumer boundary, then checks the returned async stream and
+each yielded bytes chunk before size limits, classification, and progress
+callbacks run. Stream chunks and the fallback read() result are normalized
+from their native bytes contents before size checks, callbacks, scanning, or
+return. Non-bytes chunks and fallback bodies are refused. The fallback
+response.read() path still materializes the whole body before actual-size and
+PII checks, and the chunked path appends a yielded chunk before checking its
+cumulative size. These checks reject oversized results but do not cap
+transient allocation; PII scanning runs on the whole consumed body rather than
+concurrently with input.
 
 Cached HTTP JSON and SDMX HEAD executors are held by nominal owner adapters.
 Each adapter invokes the stored callable with the runtime arguments, verifies

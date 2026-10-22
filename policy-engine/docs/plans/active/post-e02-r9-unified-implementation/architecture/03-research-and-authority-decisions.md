@@ -26,3 +26,7 @@ The four outputs compose conjunctively for a runtime-authority claim; each remai
 ## No recurring abstract clarification loop
 
 Before escalating, the executor must inspect existing owners, accepted E02 outputs, original criteria and admissible alternative inputs; develop the smallest sound implementation or a bounded research proposal. An escalation lists what was actually tried, exact unresolved proposition, recommended option, rejected alternatives, effect on dependent tasks, migration and a decisive experiment/oracle. It does not ask G to select a generic technology or approve an empty concept. Missing institutional authority is requested as an exact original act/competence/scope/time packet; G's architecture choice cannot manufacture it.
+
+## R13 preferred engineering and precise remaining choices
+
+[109 preferred task solutions](../solutions/index.md) now supply implementation paths and alternatives. [AS2 comparator operationalization and WP-01/02 activation](../solutions/decision-clarifications.md) are explicit remaining normative boundaries, not generic technology questions. The current no-posterior-mutation rule remains in force. Their producer/diagnosis/refusal engineering can progress under the ordinary post-E02 entry conditions; update-dependent acceptance cannot be inferred from that preparation. No SDD amendment is applied by this plan.

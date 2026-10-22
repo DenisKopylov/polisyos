@@ -13,9 +13,10 @@
 3. [Сверенный остаток](inventory/README.md), [исходные версии](inventory/sources.json), полные GY/Atlas/debt crosswalks.
 4. [Архитектура композиции](architecture/01-integration-boundaries.md): кто пишет общий механизм, кто только потребляет.
 5. [Пакеты работ](workstreams/README.md) и [машинный план](tasks.json): исходные обязательства, зависимости, пути владельцев, результат, миграция, позитивные и отрицательные проверки.
-6. [Исполнение и параллельность](execution/02-parallel-execution.md), [волны и критический путь](execution/03-waves.md), [правила изменения плана](execution/04-change-and-rebind.md), [стадии готовности и допуска](execution/05-stage-and-release-contracts.md), [реальные конфликты записи](execution/06-conflicts-and-dispatch.md).
-7. [Приёмка](assurance/01-assurance.md), [матрица сценариев R9](inventory/r9-obligations.json), [допуск практического применения](operations/02-practical-use.md).
-8. [Развёртывание](operations/01-deployment.md) и [готовые задания](prompts/README.md).
+6. [Предпочтительные решения для всех 109 задач](solutions/index.md), [общие механизмы](solutions/00-shared-decisions.md), [research sources](solutions/sources.md), [самостоятельное review](solutions/root-review.md).
+7. [Исполнение и параллельность](execution/02-parallel-execution.md), [волны и критический путь](execution/03-waves.md), [правила изменения плана](execution/04-change-and-rebind.md), [стадии готовности и допуска](execution/05-stage-and-release-contracts.md), [реальные конфликты записи](execution/06-conflicts-and-dispatch.md).
+8. [Приёмка](assurance/01-assurance.md), [матрица сценариев R9](inventory/r9-obligations.json), [допуск практического применения](operations/02-practical-use.md).
+9. [Развёртывание](operations/01-deployment.md) и [готовые задания](prompts/README.md).
 
 ## Что является источником истины
 
@@ -39,3 +40,5 @@ Pattern pass: P01/P02/P03, P04/P05/P07/P08/P14/P15, P27/P29/P31–P41. Глав�
 Последующий глубокий разбор: [R11 — findings и решения](assurance/redteam-r11-disposition.md), [85 дополнительных обязательств Atlas](inventory/atlas-auxiliary-obligations.json). Полный manifest теперь содержит109 задач; новые задания уточняют ранее нераспределённые критерии, не увеличивают исходные debt IDs.
 
 Самостоятельный повторный разбор: [R12 — исправления и границы проверки](assurance/self-review-r12.md), [точные стадии и условные зависимости](execution/07-scoped-readiness.md). [Receipt R12](assurance/self-review-r12-validation.json). Изменения R12 проверены автором документации, без новых субагентов; прежние независимые reviews не выданы за review нового delta.
+
+R13 добавляет конкретные способы реализации, alternatives/tradeoffs, migration, free-grow и falsifiers для каждого task. [Исследование и red-team](solutions/review-disposition.md) и [проверка полного пакета](solutions/validation.json). [Два нормативных уточнения](solutions/decision-clarifications.md) подготовлены без изменения SDD: AS2 comparator и фактическая активация WP-01/02. Обычные инженерные отклонения разрешены при evidence-bound обосновании и сохранении исходного свойства.

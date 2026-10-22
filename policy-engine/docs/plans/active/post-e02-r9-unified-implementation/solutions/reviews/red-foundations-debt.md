@@ -1,0 +1,67 @@
+# Independent red-team review: R13 foundations and debt proposals
+
+Review boundary: documentation-only comparison of the two final proposal JSONs against the original task criteria, workstreams, shared decisions, relevant ratified SDD passages, and the proposal's cited research. No code behavior, implementation status, or acceptance was verified. The final JSONs contain 9 foundations rows (CNT-01–CNT-09) and 14 debt rows (DEB-01–DEB-14); coverage of those IDs is complete.
+
+## P40 class ledger
+
+These are proposal-level defects. Where one class appears in multiple task rows, repair the shared distinction instead of editing each symptom separately. The post-E02 rebind remains necessary; it cannot erase criteria already explicit in the pinned source plan.
+
+### NEW CLASS N1; same-class recurrence in CNT-01 and CNT-09 — all-family grammar versus all-source acquisition
+
+**Anchors.** `foundations-proposal.json:259-260` rejects “the full 26-family editorial map or 197 source cards” before case selection, which is a sound rejection of premature corpus harvesting but leaves the scope easy to misread. `foundations-proposal.json:798` says CNT-09 composes “only the selected foundations” and does not carry the separate all-family baseline into its acceptance statement. The source task is explicit: `tasks.json:6999` requires “Full current grammar/routes/limits obligations for all26families”; `workstreams/05-substantive-foundations.md:97-99` clarifies that this is the common grammar, routes, limits, and evidence for claimed classes—not all 197 source cards, universal authority, or future catalog growth.
+
+**Counterexample.** A real selected packet reaches a consumer and the team treats the successful packet plus “future case-specific sources stay in the atlas” as sufficient, while one unselected family's required route or limitation remains unspecified. The packet is valid for its case, but the current programme obligation is still open.
+
+**Smallest coherent fix.** State one program-level obligation alongside CNT-09: finish/reconcile the common 26-family grammar, routes, limits, and evidence for claimed classes; keep each case's source acquisition scoped to its actual question. Do not add a global source registry or require 197 cards. The proposal does not establish that the common obligation is already fulfilled; rebind and measure that exact set after E02.
+
+### NEW CLASS N2; same-class recurrence in CNT-01 and CNT-05 — candidate formulation is over-gated by sponsor/mandate choices
+
+**Anchors.** `foundations-proposal.json:225` requires the sponsor to choose the “intervention atom” and estimand before the Runtime integrator resolves gaps. The source CNT-01 asks for a task-scoped claim/gap, relevant facets, route, custodian or blocker, purpose/audience, owner, next action, consumer, and refresh (`tasks.json:5944`); it also requires a sponsor-selected claim, intervention, estimand, jurisdiction/period, and actual answerers (`tasks.json:5926`). The proposal hardens that into sponsor-authored, atom-level formulation before runtime candidate decomposition. `foundations-proposal.json:510,533-534,559` correctly protects the principal's operative metric choice, but its removal discriminator says without mandate the metric result is “inadmissible” without specifying that the gate applies to operative use, not candidate/sensitivity analysis. Earlier text permits conditional metric alternatives; the discriminator needs to preserve that distinction too.
+
+**Counterexample.** A sponsor commissions a policy question, purpose, and decision boundary but does not know which atom/estimand decomposition is plausible. The runtime cannot formulate and compare candidate scopes; or it computes a clearly hypothetical metric sensitivity but suppresses it because no operative mandate exists. Both lose candidate work that cannot itself create authority.
+
+**Smallest coherent fix.** Let the runtime derive candidate claims, atom/estimand decompositions, and alternative metric results under explicit assumptions from the commissioned question/purpose/decision boundary. The sponsor/principal then selects and freezes the scope or normative basis before protected action, recommendation use, or publication. Keep hypothetical value frames available for conditional candidate analysis, as adopted SDD-B01 says (`policy-design-causal-operating-system-north-star.md:191-202`); do not let the engine select social weights. Retain CNT-04's human review for the original provision-to-lever and actual-act interpretation; that explicit legal review is not a reason to require humans for ordinary source fact extraction. The proposal names existing registries and consumers but does not identify a candidate-formulation producer/bridge; after rebind, reuse one if present or report `producer_missing`/`bridge_missing` if those edges are absent rather than making candidate formulation a sponsor prerequisite.
+
+This is one repeated P40 class across CNT-01/CNT-05. Widen the candidate-versus-authority rule once at the shared composition boundary; do not remove the protected admission gate.
+
+### NEW CLASS N3 — DEB-11 turns recoverable internal engineering criteria into a foreign-owner blocker
+
+**Anchors.** `debt-proposal.json:453,460-463,471` says both properties/closure signals are unstated, gates implementation on recovering them, and says not to migrate until that recovery. But `tasks.json:9039-9042` already commits to completing aiohttp cleanup and the reproducible workspace/tooling delta, with positive and adversarial signals. It pins the actual source criteria at `tasks.json:9073-9075`: Atlas master L735 is two unclosed sessions/connectors from authorized `discover_data_sources`/`resolve_data_needs` handler witnesses; L726 is the fresh-worktree baseline and DS1/DS19 non-receipts. The earlier review already records that these criteria are recoverable and DEB-11 failed to carry them (`assurance/reviews/red-inventory.txt:30-33`).
+
+**Counterexample.** The owning Fabric/workspace lanes wait for a foreign authority to restate an acceptance contract that is already in their assigned source plan; the two concrete engineering obligations remain documentary “not established” debt.
+
+**Smallest coherent fix.** Carry the criteria into DEB-11: close the authorized Fabric handler's connector/session lifecycle; make later slices declare and reproduce the DS19-style fresh-worktree toolchain baseline. Preserve normal/error/cancel cleanup and distinguish setup non-receipts from product defects. Use the named existing GY/Fabric and ops/workspace owners. Ask for outside clarification only for a fact those sources actually leave unknown; source rebind after E02 is still required.
+
+### NEW CLASS N4 — DEB-13 conflates gross EVSI with costed/net value and leaves calculation profile underspecified
+
+**Anchors.** `debt-proposal.json:506` defines EVSI as expected improvement in decision utility, then says unknown cost yields a typed refusal/limited estimate. `debt-proposal.json:527-528` repeats cost as a required input for a numeric result. The source debt correctly separates metric design from cost admission and lists cost as needed where the approved metric requires it (`tasks.json:9431-9434`; `tasks.json:9458-9459`). The proposal itself distinguishes gross EVSI from subtracting acquisition cost for net sampling value at line 506, so the later blanket cost requirement contradicts that distinction.
+
+**Counterexample.** The action set, utility, state distribution, and proposed observation likelihood are available and yield gross EVSI, but a provider has not yet quoted acquisition price. The proposal refuses even the gross candidate metric, although only ENBS/net value or a price-aware acquisition ranking needs the cost.
+
+**Smallest coherent fix.** Specify a bounded finite-action/state expectation as the default exact calculation when its inputs are enumerable. Use nested Monte Carlo only if enumeration is measured infeasible; carry method, sampling error/uncertainty, and convergence limits in the result. Keep gross EVSI available as a candidate under a declared hypothetical utility/model; require admitted cost only for ENBS/net value, cost-sensitive ranking, or an action that consumes price. Missing objective, state law, observation model, population, or horizon can still limit/refuse the metric. Do not authorize acquisition from a gross metric.
+
+### NEW CLASS N5 — CNT-02 does not carry two required source-profile dimensions explicitly
+
+**Anchors.** `foundations-proposal.json:297` lists issuer/resource/version, representation/language, coverage, update cadence, access method, license/access limit, and provenance. The source deliverable explicitly requires `access-level` and `jurisdiction` as distinct metadata (`tasks.json:6052`).
+
+**Counterexample.** Two records for the same resource and representation can differ by jurisdiction or by public/query-only/restricted access level while sharing a broad access method or license label; the catalog cannot route the right legal/source validator or state the access ceiling precisely.
+
+**Smallest coherent fix.** Add explicit jurisdiction and access-level fields, or name the existing owner fields that carry each distinction and prove the mapping is lossless. This is a single-row omission, not a reason to expand into a new universal catalog.
+
+## Cross-cutting disposition
+
+The proposal generally preserves the canonical owners and architecture boundaries. CNT-02/03 keep metadata, exact capture, rights, legal applicability, and freshness separate; CNT-04 distinguishes legal text/version, reviewer interpretation, and external act; CNT-06/08 preserve estimands, ancestry, uncertainty, transport, and the exploratory/confirmatory split; CNT-07 keeps testimony, representation, mandate, expertise, and capacity distinct. CNT-09 requires persisted producer evidence to alter a real consumer/status and align permitted projections. DEB-04 keeps red provenance separate from owner attribution; DEB-10 distinguishes the external accessibility evaluator and DS18 reconciliation from UI projection; DEB-14 routes the internal ratified one-plane rule through the canonical LIF-02 lifecycle writer rather than creating another scope engine.
+
+Plurality/authority boundaries are mostly right but N2 must be fixed: the ratified SDDs preserve joint evaluation while allowing a concrete exact joint witness (C01), permit justified inference profiles without mixing guarantees (C02), and scope K14 independence to verification claims rather than every rebuild (`policy-design-causal-operating-system-north-star.md:215-232`; `stage0-custody-kernel-ratification.md:142-152`). The proposal's CNT-06 profile plurality and CNT-09 joint-witness treatment are consistent with those decisions. Do not turn independence into a universal prerequisite for all candidate results.
+
+No duplicate global registry, scheduler, rights ledger, legal/causal interpretation engine, or generic runner is justified by these rows; the proposals mostly wire the existing catalog, metric owners, ledger, claim lifecycle, and UI consumers. JCS is conditional on a demonstrated canonicalization gap. Free-grow generally stays bounded to data/config inside supported semantics and requires typed adapters/conformance for new meaning or transport. DEB-13 is the exception where the metric path needs a more concrete default before adding a new owner/producer.
+
+Primary-source spot check: the OECD IDD metadata supports the narrow point that the square-root equivalence scale is a convention, and the 2026 UK Green Book supports separating appraisal from policy choice; neither supplies PolicyOS weights ([OECD IDD metadata](https://www.oecd.org/content/dam/oecd/en/data/datasets/income-and-wealth-distribution-databases/idd-metadata-sources-and-income-years.pdf), [2026 Green Book](https://www.gov.uk/government/publications/the-green-book--2/the-green-book-2026)). [EUR-Lex's consolidation guidance](https://eur-lex.europa.eu/collection/eu-law/consleg.html?locale=en) is properly kept EU-scoped. The OpenAPI specification supports treating an OpenAPI Description as an entry document plus referenced documents; WCAG-EM supports scoped sampling/reporting, not whole-product conformance ([OpenAPI 3.1.1](https://spec.openapis.org/oas/v3.1.1.html), [WCAG-EM 2.0](https://www.w3.org/TR/WCAG-EM/)). ISPOR distinguishes EVSI from net benefit of sampling and supports N4's gross/net split ([ISPOR value-of-information report](https://eprints.whiterose.ac.uk/id/eprint/158254/1/ISPOR_TF_Report2_Final.pdf)). No cited source establishes local PolicyOS implementation, performance, admissibility, or owner appointment; the proposal generally marks those as unresolved rather than importing external authority.
+
+## P40 summary
+
+- **N1:** new class; repeated across CNT-01/CNT-09. Keep common 26-family grammar/routes/limits separate from per-case acquisition and the optional 197-card corpus.
+- **N2:** new class; repeated across CNT-01/CNT-05. Fix the shared candidate-formulation versus protected-use boundary, not two row-local gates.
+- **N3, N4, N5:** separate new classes, each localized to DEB-11, DEB-13, and CNT-02 respectively.
+
+No product acceptance or closure claim is made here. Any unresolved item after accepted-source rebind should be carried as a bounded residual with its exact counterexample, falsifier, and smallest missing capability.

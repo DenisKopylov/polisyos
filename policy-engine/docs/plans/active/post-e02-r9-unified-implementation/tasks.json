@@ -9,6 +9,7 @@
   "tasks": [
     {
       "id": "CAP-01",
+      "preferred_solution_ref": "solutions/01-capture.md#CAP-01",
       "title": "Exact-source reconciliation and candidate discovery",
       "source_ids": [
         "A0; acquisition/05-implementation-and-review.md#A0",
@@ -30,7 +31,7 @@
       ],
       "deliverable": "Extend the located AcquisitionActionService/production WDI port only for the generic selected-source/second-use gap; preserve existing served route. Produce exact candidate/source/profile resolution and consumer receipt; no duplicate action service. For selected web/LLM discovery, bind the actual outbound query projection to purpose, sensitivity, authorized provider/recipient and retention/log policy before egress. Retrieved instructions remain data; discovery cannot expand tools/rights.",
       "positive": "Equivalent preseed and runtime candidate resolve through one owner; receipt is persisted and consumed by acquisition route. A permitted minimal query reaches only its admitted recipient and permitted log projection; denied private context never leaves the boundary.",
-      "adversarial": "Ambiguous selector, stale contract, fake ID, injected URL, self-asserted license and no-hit cause no live fetch or admission. Allowed destination with a confidential institution/population/policy query is still denied without query-disclosure authorization; page injection cannot cause tool expansion or context exfiltration. Keep a caller permitted marker intact while removing its owner-authorized disclosure basis or changing the projected query/provider: no protected query is emitted. Unknown sensitivity is not inferred public.",
+      "adversarial": "Ambiguous selector, stale contract, fake ID, injected URL or self-asserted license causes no candidate/source fetch or admission. An authorized search request may run to establish no-hit; that result causes no subsequent candidate/source fetch or admitted use. Refused query disclosure sends no protected query to the search provider or logs. Allowed destination with a confidential institution/population/policy query is still denied without query-disclosure authorization; page injection cannot cause tool expansion or context exfiltration. Keep a caller permitted marker intact while removing its owner-authorized disclosure basis or changing the projected query/provider: no protected query is emitted. Unknown sensitivity is not inferred public.",
       "removal": "Remove source/profile binding but retain status fields; resolver and consumer fail closed. Remove query-projection admission while keeping destination/URL guards; a controlled provider/log sink observes the forbidden payload and the negative must fail.",
       "surface": "Audit/API shows candidate basis/trace and ambiguity without projecting candidate as evidence. Audit the query decision and opaque binding without leaking the protected query itself.",
       "resource_locks": [
@@ -108,6 +109,7 @@
     },
     {
       "id": "CAP-02",
+      "preferred_solution_ref": "solutions/01-capture.md#CAP-02",
       "title": "Safe capture, complete immutable snapshot and exact reuse",
       "source_ids": [
         "A1; acquisition/05-implementation-and-review.md#A1",
@@ -217,6 +219,7 @@
     },
     {
       "id": "CAP-03",
+      "preferred_solution_ref": "solutions/01-capture.md#CAP-03",
       "title": "Purpose-aware owner admission and immutable library reuse",
       "source_ids": [
         "AP01/AP02/AP07/AP09/AP11/AP14/AP16/AP17; acquisition/05-implementation-and-review.md#4",
@@ -345,6 +348,7 @@
     },
     {
       "id": "CAP-04",
+      "preferred_solution_ref": "solutions/01-capture.md#CAP-04",
       "title": "Source-specific change event producer and acquisition consumer",
       "source_ids": [
         "AP06/AP18; acquisition/05-implementation-and-review.md#4",
@@ -451,6 +455,7 @@
     },
     {
       "id": "CAP-05",
+      "preferred_solution_ref": "solutions/01-capture.md#CAP-05",
       "title": "Official/legal source relation and temporal applicability",
       "source_ids": [
         "AP06/AP16/AP19; acquisition/05-implementation-and-review.md#4",
@@ -561,6 +566,7 @@
     },
     {
       "id": "CAP-06",
+      "preferred_solution_ref": "solutions/01-capture.md#CAP-06",
       "title": "Restricted/private source and remote-compute outcome binding",
       "source_ids": [
         "A4/A5/A6; acquisition/05-implementation-and-review.md#A4–A6",
@@ -668,6 +674,7 @@
     },
     {
       "id": "LIF-01",
+      "preferred_solution_ref": "solutions/02-custody.md#LIF-01",
       "title": "Bind relation evidence to a specific admissible use",
       "source_ids": [
         "docs/research/universal-policy-design/external-foundations/lifecycle/05-implementation-protocols.md#§3",
@@ -797,6 +804,7 @@
     },
     {
       "id": "LIF-02",
+      "preferred_solution_ref": "solutions/02-custody.md#LIF-02",
       "title": "Enroll source dependencies and fence currentness at publication",
       "source_ids": [
         "docs/research/universal-policy-design/external-foundations/lifecycle/05-implementation-protocols.md#§4",
@@ -933,6 +941,7 @@
     },
     {
       "id": "LIF-03",
+      "preferred_solution_ref": "solutions/02-custody.md#LIF-03",
       "title": "Fence capture frontier commits against stale writers",
       "source_ids": [
         "docs/research/universal-policy-design/external-foundations/lifecycle/05-implementation-protocols.md#§2,§2.4",
@@ -1058,6 +1067,7 @@
     },
     {
       "id": "LIF-04",
+      "preferred_solution_ref": "solutions/02-custody.md#LIF-04",
       "title": "Preserve long-running duty across retry, cancel and uncertain effects",
       "source_ids": [
         "docs/research/universal-policy-design/external-foundations/lifecycle/05-implementation-protocols.md#§6",
@@ -1191,6 +1201,7 @@
     },
     {
       "id": "LIF-05",
+      "preferred_solution_ref": "solutions/02-custody.md#LIF-05",
       "title": "Fence rights-sensitive materialization, deletion and restore",
       "source_ids": [
         "docs/research/universal-policy-design/external-foundations/lifecycle/05-implementation-protocols.md#§5",
@@ -1323,6 +1334,7 @@
     },
     {
       "id": "LIF-06",
+      "preferred_solution_ref": "solutions/03-lineage.md#LIF-06",
       "title": "Bound lifecycle work and reserve custody/control capacity",
       "source_ids": [
         "docs/research/universal-policy-design/external-foundations/lifecycle/09-resource-execution-design.md#§2-§8",
@@ -1436,6 +1448,7 @@
     },
     {
       "id": "LIF-07",
+      "preferred_solution_ref": "solutions/03-lineage.md#LIF-07",
       "title": "Bind derived outputs, caches and learning to exact influence",
       "source_ids": [
         "docs/research/universal-policy-design/external-foundations/lifecycle/05-implementation-protocols.md#§3,§7",
@@ -1548,6 +1561,7 @@
     },
     {
       "id": "LIF-08",
+      "preferred_solution_ref": "solutions/03-lineage.md#LIF-08",
       "title": "Compose a second source and its compatibility lifecycle",
       "source_ids": [
         "docs/research/universal-policy-design/external-foundations/lifecycle/06-delivery-and-review.md#R11",
@@ -1670,6 +1684,7 @@
     },
     {
       "id": "LIF-09",
+      "preferred_solution_ref": "solutions/03-lineage.md#LIF-09",
       "title": "Run frozen cross-owner lifecycle acceptance and publish evidence",
       "source_ids": [
         "docs/research/universal-policy-design/external-foundations/lifecycle/06-delivery-and-review.md#W0-W6",
@@ -1782,6 +1797,7 @@
     },
     {
       "id": "GYD-01",
+      "preferred_solution_ref": "solutions/04-gy-core.md#GYD-01",
       "title": "PR1a data receipt + PR1b protected pilot",
       "source_ids": [
         "GY-PR1",
@@ -1900,6 +1916,7 @@
     },
     {
       "id": "GYD-02",
+      "preferred_solution_ref": "solutions/04-gy-core.md#GYD-02",
       "title": "D1 canonical catalog binding repair and reissue",
       "source_ids": [
         "GY-D1"
@@ -1961,6 +1978,7 @@
     },
     {
       "id": "GYD-03",
+      "preferred_solution_ref": "solutions/04-gy-core.md#GYD-03",
       "title": "C3 route and constraint composition with actual prerequisites",
       "source_ids": [
         "GY-C3"
@@ -2022,6 +2040,7 @@
     },
     {
       "id": "GYD-04",
+      "preferred_solution_ref": "solutions/04-gy-core.md#GYD-04",
       "title": "K adjudicated correspondence accuracy",
       "source_ids": [
         "GY-K",
@@ -2097,6 +2116,7 @@
     },
     {
       "id": "GYD-05",
+      "preferred_solution_ref": "solutions/04-gy-core.md#GYD-05",
       "title": "S3 source-backed legal-subject membership",
       "source_ids": [
         "GY-S3",
@@ -2170,6 +2190,7 @@
     },
     {
       "id": "GYD-06",
+      "preferred_solution_ref": "solutions/04-gy-core.md#GYD-06",
       "title": "J positive evidence-admission producer",
       "source_ids": [
         "GY-J",
@@ -2239,6 +2260,7 @@
     },
     {
       "id": "GYD-07",
+      "preferred_solution_ref": "solutions/04-gy-core.md#GYD-07",
       "title": "L current-family post-output GX",
       "source_ids": [
         "GY-L"
@@ -2300,6 +2322,8 @@
     },
     {
       "id": "GYD-08",
+      "execution_qualification": "Preserve the original AS2 comparator criterion; its precise operational reading remains unclosed pending source-owner clarification proposed in solutions/decision-clarifications.md. Sealed-corpus/access-history/refusal engineering can proceed independently after the normal entry conditions.",
+      "preferred_solution_ref": "solutions/05-gy-learning.md#GYD-08",
       "title": "AS2 sealed diagnosis holdout",
       "source_ids": [
         "GY-AS2"
@@ -2361,6 +2385,8 @@
     },
     {
       "id": "GYD-09",
+      "execution_qualification": "Current WP-01/WP-02 prohibit operative posterior mutation. Build the assigned producers/diagnostics/refusal and activation consumer, but update-dependent positive requires an actual competent scoped activation. Isolated research is non-authoritative and does not close that positive. See solutions/decision-clarifications.md.",
+      "preferred_solution_ref": "solutions/05-gy-learning.md#GYD-09",
       "title": "O1 confirmatory effect updater",
       "source_ids": [
         "GY-O1"
@@ -2427,6 +2453,7 @@
     },
     {
       "id": "GYD-10",
+      "preferred_solution_ref": "solutions/05-gy-learning.md#GYD-10",
       "title": "O2 exploratory FDR candidate controller",
       "source_ids": [
         "GY-O2"
@@ -2492,6 +2519,8 @@
     },
     {
       "id": "GYD-11",
+      "execution_qualification": "Current WP-01/WP-02 prohibit operative posterior mutation. Build the assigned producers/diagnostics/refusal and activation consumer, but update-dependent positive requires an actual competent scoped activation. Isolated research is non-authoritative and does not close that positive. See solutions/decision-clarifications.md.",
+      "preferred_solution_ref": "solutions/05-gy-learning.md#GYD-11",
       "title": "AS3 O3 sealed corpus + consumer mutations",
       "source_ids": [
         "GY-AS3"
@@ -2554,6 +2583,8 @@
     },
     {
       "id": "GYD-12",
+      "execution_qualification": "Current WP-01/WP-02 prohibit operative posterior mutation. Build the assigned producers/diagnostics/refusal and activation consumer, but update-dependent positive requires an actual competent scoped activation. Isolated research is non-authoritative and does not close that positive. See solutions/decision-clarifications.md.",
+      "preferred_solution_ref": "solutions/05-gy-learning.md#GYD-12",
       "title": "O3 O1-confirmed versioned world write-back",
       "source_ids": [
         "GY-O3"
@@ -2623,6 +2654,7 @@
     },
     {
       "id": "GYD-13",
+      "preferred_solution_ref": "solutions/05-gy-learning.md#GYD-13",
       "title": "CB2 operator-trial production consumer",
       "source_ids": [
         "GY-CB2",
@@ -2693,6 +2725,7 @@
     },
     {
       "id": "GYD-14",
+      "preferred_solution_ref": "solutions/05-gy-learning.md#GYD-14",
       "title": "ML2 Lex rendition production consumer",
       "source_ids": [
         "GY-ML2",
@@ -2762,6 +2795,7 @@
     },
     {
       "id": "GYD-15",
+      "preferred_solution_ref": "solutions/05-gy-learning.md#GYD-15",
       "title": "FA1 four owner-allocated authority capabilities",
       "source_ids": [
         "GY-FA1",
@@ -2831,6 +2865,7 @@
     },
     {
       "id": "GYD-16",
+      "preferred_solution_ref": "solutions/06-verification.md#GYD-16",
       "title": "V1 complete moved-row coverage matrix",
       "source_ids": [
         "GY-V1"
@@ -2901,6 +2936,7 @@
     },
     {
       "id": "GYD-17",
+      "preferred_solution_ref": "solutions/06-verification.md#GYD-17",
       "title": "V2 real B2 end-to-end loop proof",
       "source_ids": [
         "GY-V2"
@@ -2973,6 +3009,7 @@
     },
     {
       "id": "GYD-18",
+      "preferred_solution_ref": "solutions/06-verification.md#GYD-18",
       "title": "V3 per-domain multi-case distribution battery",
       "source_ids": [
         "GY-V3"
@@ -3049,6 +3086,7 @@
     },
     {
       "id": "GYD-19",
+      "preferred_solution_ref": "solutions/06-verification.md#GYD-19",
       "title": "V4 live adversarial firewall battery",
       "source_ids": [
         "GY-V4"
@@ -3119,6 +3157,7 @@
     },
     {
       "id": "GYD-20",
+      "preferred_solution_ref": "solutions/06-verification.md#GYD-20",
       "title": "V5 three-level replay audit",
       "source_ids": [
         "GY-V5"
@@ -3195,6 +3234,7 @@
     },
     {
       "id": "GYD-21",
+      "preferred_solution_ref": "solutions/06-verification.md#GYD-21",
       "title": "V6 whole GX/Task-0/audit validation closure",
       "source_ids": [
         "GY-V6"
@@ -3268,6 +3308,7 @@
     },
     {
       "id": "GYD-22",
+      "preferred_solution_ref": "solutions/06-verification.md#GYD-22",
       "title": "V7 five health-signal readout",
       "source_ids": [
         "GY-V7"
@@ -3347,6 +3388,7 @@
     },
     {
       "id": "GYD-23",
+      "preferred_solution_ref": "solutions/04-gy-core.md#GYD-23",
       "title": "B/H terminal precedence and VOI measurement",
       "source_ids": [
         "GY-B",
@@ -3407,6 +3449,7 @@
     },
     {
       "id": "GYD-24",
+      "preferred_solution_ref": "solutions/04-gy-core.md#GYD-24",
       "title": "D2/E applicability and acquisition bridge",
       "source_ids": [
         "GY-D2",
@@ -3468,6 +3511,7 @@
     },
     {
       "id": "GYD-25",
+      "preferred_solution_ref": "solutions/04-gy-core.md#GYD-25",
       "title": "D3 governed semantic adequacy benchmark",
       "source_ids": [
         "GY-D3"
@@ -3528,6 +3572,7 @@
     },
     {
       "id": "GYD-26",
+      "preferred_solution_ref": "solutions/04-gy-core.md#GYD-26",
       "title": "C2 judge-output binding and real-input verdict",
       "source_ids": [
         "GY-C2"
@@ -3587,6 +3632,7 @@
     },
     {
       "id": "GYD-27",
+      "preferred_solution_ref": "solutions/04-gy-core.md#GYD-27",
       "title": "I event-backed roles and Ring-2 refusal",
       "source_ids": [
         "GY-I"
@@ -3646,6 +3692,7 @@
     },
     {
       "id": "GYD-28",
+      "preferred_solution_ref": "solutions/04-gy-core.md#GYD-28",
       "title": "F2 secret/PII and CAS integrity surface",
       "source_ids": [
         "GY-F2"
@@ -3705,6 +3752,7 @@
     },
     {
       "id": "GYD-29",
+      "preferred_solution_ref": "solutions/04-gy-core.md#GYD-29",
       "title": "F3 time/source and 406-row reconciliation",
       "source_ids": [
         "GY-F3"
@@ -3763,6 +3811,7 @@
     },
     {
       "id": "GYD-30",
+      "preferred_solution_ref": "solutions/04-gy-core.md#GYD-30",
       "title": "G canonical joint composition evidence",
       "source_ids": [
         "GY-G",
@@ -3835,6 +3884,7 @@
     },
     {
       "id": "GYD-31",
+      "preferred_solution_ref": "solutions/04-gy-core.md#GYD-31",
       "title": "N-V ValueOuterSet consumer readback",
       "source_ids": [
         "GY-N-V"
@@ -3897,6 +3947,7 @@
     },
     {
       "id": "GYD-32",
+      "preferred_solution_ref": "solutions/04-gy-core.md#GYD-32",
       "title": "S0/S1 real substrate and free-grow",
       "source_ids": [
         "GY-S0",
@@ -3959,6 +4010,7 @@
     },
     {
       "id": "GYD-33",
+      "preferred_solution_ref": "solutions/04-gy-core.md#GYD-33",
       "title": "S2 L2/L3 knowledge consumer binding",
       "source_ids": [
         "GY-S2",
@@ -4026,6 +4078,7 @@
     },
     {
       "id": "UI-01",
+      "preferred_solution_ref": "solutions/07-atlas-public.md#UI-01",
       "title": "Finish DS12 consumers over accepted verification",
       "source_ids": [
         "DS12",
@@ -4120,6 +4173,7 @@
     },
     {
       "id": "UI-02",
+      "preferred_solution_ref": "solutions/07-atlas-public.md#UI-02",
       "title": "Build publication capability and one data-only practice",
       "source_ids": [
         "DS12",
@@ -4226,6 +4280,7 @@
     },
     {
       "id": "UI-03",
+      "preferred_solution_ref": "solutions/07-atlas-public.md#UI-03",
       "title": "Allocate accepted index and wire DS13 consumer",
       "source_ids": [
         "DS12",
@@ -4328,6 +4383,7 @@
     },
     {
       "id": "UI-04",
+      "preferred_solution_ref": "solutions/07-atlas-public.md#UI-04",
       "title": "Add DS13 consultation and immutable history",
       "source_ids": [
         "DS13",
@@ -4449,6 +4505,7 @@
     },
     {
       "id": "UI-05",
+      "preferred_solution_ref": "solutions/07-atlas-public.md#UI-05",
       "title": "Re-ground Clerk in G6 candidate and audit artifacts",
       "source_ids": [
         "DS14",
@@ -4558,6 +4615,7 @@
     },
     {
       "id": "UI-06",
+      "preferred_solution_ref": "solutions/08-atlas-data.md#UI-06",
       "title": "Land DS16 value/uncertainty grammar",
       "source_ids": [
         "DS16",
@@ -4669,6 +4727,7 @@
     },
     {
       "id": "UI-07",
+      "preferred_solution_ref": "solutions/08-atlas-data.md#UI-07",
       "title": "Bridge DS16 derived-data provenance through N13b",
       "source_ids": [
         "DS16",
@@ -4753,6 +4812,8 @@
     },
     {
       "id": "UI-08",
+      "execution_qualification": "Current WP-01/WP-02 prohibit operative posterior mutation. Build the assigned producers/diagnostics/refusal and activation consumer, but update-dependent positive requires an actual competent scoped activation. Isolated research is non-authoritative and does not close that positive. See solutions/decision-clarifications.md.",
+      "preferred_solution_ref": "solutions/08-atlas-data.md#UI-08",
       "title": "Add DS21 effect/world-growth readout after O1/O3",
       "source_ids": [
         "DS21",
@@ -4845,6 +4906,7 @@
     },
     {
       "id": "UI-09",
+      "preferred_solution_ref": "solutions/08-atlas-data.md#UI-09",
       "title": "Route the complete DS19 estate, auxiliary obligations and negative lifecycle",
       "source_ids": [
         "DS19",
@@ -4925,6 +4987,7 @@
     },
     {
       "id": "UI-10",
+      "preferred_solution_ref": "solutions/07-atlas-public.md#UI-10",
       "title": "Rebind DS1-N010 dashboard identity/fallback consumer",
       "source_ids": [
         "DS20",
@@ -5001,6 +5064,7 @@
     },
     {
       "id": "UI-11",
+      "preferred_solution_ref": "solutions/08-atlas-data.md#UI-11",
       "title": "Route DS20-B B3 revision-CAS to Fabric/N13b",
       "source_ids": [
         "DS20",
@@ -5087,6 +5151,7 @@
     },
     {
       "id": "UI-12",
+      "preferred_solution_ref": "solutions/08-atlas-data.md#UI-12",
       "title": "Run DS20-B B5 in real PostgreSQL verification",
       "source_ids": [
         "DS20",
@@ -5171,6 +5236,7 @@
     },
     {
       "id": "UI-13",
+      "preferred_solution_ref": "solutions/08-atlas-data.md#UI-13",
       "title": "Reconcile DS20 scorecard provenance through DS9",
       "source_ids": [
         "DS20",
@@ -5258,6 +5324,7 @@
     },
     {
       "id": "UI-14",
+      "preferred_solution_ref": "solutions/08-atlas-data.md#UI-14",
       "title": "Route DS20-B Helm policy mirror to ops/deploy",
       "source_ids": [
         "DS20",
@@ -5341,6 +5408,7 @@
     },
     {
       "id": "UI-15",
+      "preferred_solution_ref": "solutions/07-atlas-public.md#UI-15",
       "title": "Resolve Trust Center/Docs IA successor scope, then deliver assigned content",
       "source_ids": [
         "DS11",
@@ -5430,6 +5498,7 @@
     },
     {
       "id": "UI-16",
+      "preferred_solution_ref": "solutions/07-atlas-public.md#UI-16",
       "title": "Keep DS11 performance claims blocked until grounded evidence",
       "source_ids": [
         "DS11",
@@ -5513,6 +5582,7 @@
     },
     {
       "id": "UI-17",
+      "preferred_solution_ref": "solutions/08-atlas-data.md#UI-17",
       "title": "Carry DS15 positive-route residual through existing acquisition owner",
       "source_ids": [
         "DS15",
@@ -5650,6 +5720,7 @@
     },
     {
       "id": "UI-18",
+      "preferred_solution_ref": "solutions/08-atlas-data.md#UI-18",
       "title": "Route DS17 positive coverage and risk-spend residuals to GY-N11",
       "source_ids": [
         "DS17",
@@ -5761,6 +5832,7 @@
     },
     {
       "id": "UI-19",
+      "preferred_solution_ref": "solutions/08-atlas-data.md#UI-19",
       "title": "Reconcile DS18 positive transition/currentness consumers",
       "source_ids": [
         "DS18",
@@ -5889,6 +5961,7 @@
     },
     {
       "id": "CNT-01",
+      "preferred_solution_ref": "solutions/09-foundations.md#CNT-01",
       "title": "Reconcile decision slice and commission owners (W0)",
       "task_class": "scope/owner reconciliation + human commissioning",
       "source_ids": [
@@ -6015,6 +6088,7 @@
     },
     {
       "id": "CNT-02",
+      "preferred_solution_ref": "solutions/09-foundations.md#CNT-02",
       "title": "Onboard source-library metadata and supported classes (data/config only)",
       "task_class": "catalog/source metadata; grants no rights or authority",
       "source_ids": [
@@ -6111,6 +6185,7 @@
     },
     {
       "id": "CNT-03",
+      "preferred_solution_ref": "solutions/09-foundations.md#CNT-03",
       "title": "Acquire exact representations and admit purpose-bounded reuse (W1)",
       "task_class": "runtime/Fabric capture code + per-source onboarding; permission needs real grant",
       "source_ids": [
@@ -6238,6 +6313,7 @@
     },
     {
       "id": "CNT-04",
+      "preferred_solution_ref": "solutions/09-foundations.md#CNT-04",
       "title": "Resolve law, effectivity, competence and actual acts (W4)",
       "task_class": "legal/custody code plus human legal/institutional determinations",
       "source_ids": [
@@ -6393,6 +6469,7 @@
     },
     {
       "id": "CNT-05",
+      "preferred_solution_ref": "solutions/09-foundations.md#CNT-05",
       "title": "Register measures, alternatives and authorized value choices (W2)",
       "task_class": "metric/concept config + validators; principal's value choice is a human act",
       "source_ids": [
@@ -6519,6 +6596,7 @@
     },
     {
       "id": "CNT-06",
+      "preferred_solution_ref": "solutions/09-foundations.md#CNT-06",
       "title": "Ground empirical, causal, transport and calibration claims (W3)",
       "task_class": "evidence/method/world-model bridge; access does not grant inference authority",
       "source_ids": [
@@ -6656,6 +6734,7 @@
     },
     {
       "id": "CNT-07",
+      "preferred_solution_ref": "solutions/09-foundations.md#CNT-07",
       "title": "Admit testimony, participation, values, expertise and feasibility under distinct authority (W4)",
       "task_class": "human/custodian intake + typed bridge; system does not create consent, mandate, representation or acts",
       "source_ids": [
@@ -6782,6 +6861,7 @@
     },
     {
       "id": "CNT-08",
+      "preferred_solution_ref": "solutions/09-foundations.md#CNT-08",
       "title": "Compare bases and learn without double-count or authority laundering (W5)",
       "task_class": "cross-foundation synthesis/adaptive-learning bridge",
       "source_ids": [
@@ -6936,6 +7016,7 @@
     },
     {
       "id": "CNT-09",
+      "preferred_solution_ref": "solutions/09-foundations.md#CNT-09",
       "title": "Prove one selected packet through consumer and surfaces (W6)",
       "task_class": "bounded end-to-end integration, not corpus-completeness claim",
       "source_ids": [
@@ -7111,6 +7192,7 @@
     },
     {
       "id": "OPS-01",
+      "preferred_solution_ref": "solutions/10-operations.md#OPS-01",
       "title": "A0 source/profile commissioning and trust dossier",
       "source_ids": [
         "G-doc:R9-04 §2-5",
@@ -7189,6 +7271,7 @@
     },
     {
       "id": "OPS-02",
+      "preferred_solution_ref": "solutions/10-operations.md#OPS-02",
       "title": "Finite local candidate pilot",
       "source_ids": [
         "G-doc:R9-04 §3",
@@ -7291,6 +7374,7 @@
     },
     {
       "id": "OPS-03",
+      "preferred_solution_ref": "solutions/10-operations.md#OPS-03",
       "title": "Effective posture and dependency readiness",
       "source_ids": [
         "G-doc:R9-04 §2,§4",
@@ -7366,6 +7450,7 @@
     },
     {
       "id": "OPS-04",
+      "preferred_solution_ref": "solutions/10-operations.md#OPS-04",
       "title": "Supervised external worker composition",
       "source_ids": [
         "G-doc:R9-04 §2-4",
@@ -7454,6 +7539,7 @@
     },
     {
       "id": "OPS-05",
+      "preferred_solution_ref": "solutions/10-operations.md#OPS-05",
       "title": "Control-store migrations and cross-store recovery",
       "source_ids": [
         "G-doc:R9-05 §3-4",
@@ -7544,6 +7630,7 @@
     },
     {
       "id": "OPS-06",
+      "preferred_solution_ref": "solutions/10-operations.md#OPS-06",
       "title": "Tenant, job-read and egress authorization proof",
       "source_ids": [
         "G-doc:R9-04 §2,§4-6",
@@ -7624,6 +7711,7 @@
     },
     {
       "id": "OPS-07",
+      "preferred_solution_ref": "solutions/10-operations.md#OPS-07",
       "title": "Source secret resolution and provider budget accounting",
       "source_ids": [
         "G-doc:R9-04 §4-6",
@@ -7706,6 +7794,7 @@
     },
     {
       "id": "OPS-08",
+      "preferred_solution_ref": "solutions/10-operations.md#OPS-08",
       "title": "Measured resource classes and shared admission",
       "source_ids": [
         "G-doc:R9-04 §4",
@@ -7795,6 +7884,7 @@
     },
     {
       "id": "OPS-09",
+      "preferred_solution_ref": "solutions/10-operations.md#OPS-09",
       "title": "Hybrid private-source worker cell",
       "source_ids": [
         "G-doc:R9-04 §3,§6",
@@ -7879,6 +7969,7 @@
     },
     {
       "id": "OPS-10",
+      "preferred_solution_ref": "solutions/10-operations.md#OPS-10",
       "title": "Remote CAS parity and distributed/cloud cell",
       "source_ids": [
         "G-doc:R9-04 §3-4,§7",
@@ -7967,6 +8058,7 @@
     },
     {
       "id": "OPS-11",
+      "preferred_solution_ref": "solutions/10-operations.md#OPS-11",
       "title": "Trust succession, currentness duty, and custody cutoff",
       "source_ids": [
         "G-doc:R9-06 §1,§3-4",
@@ -8053,6 +8145,7 @@
     },
     {
       "id": "OPS-12",
+      "preferred_solution_ref": "solutions/10-operations.md#OPS-12",
       "title": "Conditional air-gapped cell",
       "source_ids": [
         "G-doc:R9-04 §3",
@@ -8134,6 +8227,7 @@
     },
     {
       "id": "P0-ACCEPT",
+      "preferred_solution_ref": "solutions/12-execution.md#P0-ACCEPT",
       "title": "Resolve actual E02 acceptance",
       "workstream": "P0",
       "task_mode": "external_entry_decision",
@@ -8173,6 +8267,7 @@
     },
     {
       "id": "P0-REBIND",
+      "preferred_solution_ref": "solutions/12-execution.md#P0-REBIND",
       "title": "Reconcile source, obligations, ownership and lease map",
       "workstream": "P0",
       "task_mode": "reconciliation",
@@ -8267,6 +8362,7 @@
     },
     {
       "id": "DEB-01",
+      "preferred_solution_ref": "solutions/11-debt.md#DEB-01",
       "title": "Measurement instruments: complete input disclosure",
       "workstream": "DEB",
       "task_mode": "devx",
@@ -8347,6 +8443,7 @@
     },
     {
       "id": "DEB-02",
+      "preferred_solution_ref": "solutions/11-debt.md#DEB-02",
       "title": "Build/configuration gates and reproducible OpenAPI",
       "workstream": "DEB",
       "task_mode": "devx",
@@ -8404,6 +8501,7 @@
     },
     {
       "id": "DEB-03",
+      "preferred_solution_ref": "solutions/11-debt.md#DEB-03",
       "title": "Public/private boundary and release inventory",
       "workstream": "DEB",
       "task_mode": "devx",
@@ -8461,6 +8559,7 @@
     },
     {
       "id": "DEB-04",
+      "preferred_solution_ref": "solutions/11-debt.md#DEB-04",
       "title": "Isolation and real-input semantic test repairs",
       "workstream": "DEB",
       "task_mode": "verification",
@@ -8535,6 +8634,7 @@
     },
     {
       "id": "DEB-05",
+      "preferred_solution_ref": "solutions/11-debt.md#DEB-05",
       "title": "Native source schema and calibration contracts",
       "workstream": "DEB",
       "task_mode": "mechanism",
@@ -8598,6 +8698,7 @@
     },
     {
       "id": "DEB-06",
+      "preferred_solution_ref": "solutions/11-debt.md#DEB-06",
       "title": "Canonical epoch reissue and current-decision lineage",
       "workstream": "DEB",
       "task_mode": "mechanism",
@@ -8674,6 +8775,7 @@
     },
     {
       "id": "DEB-07",
+      "preferred_solution_ref": "solutions/11-debt.md#DEB-07",
       "title": "Ceiling vocabulary and destination allocation",
       "workstream": "DEB",
       "task_mode": "research_then_mechanism",
@@ -8767,6 +8869,7 @@
     },
     {
       "id": "DEB-08",
+      "preferred_solution_ref": "solutions/11-debt.md#DEB-08",
       "title": "Recursive-cycle and cross-scope confidence residuals",
       "workstream": "DEB",
       "task_mode": "mechanism",
@@ -8843,6 +8946,7 @@
     },
     {
       "id": "DEB-09",
+      "preferred_solution_ref": "solutions/11-debt.md#DEB-09",
       "title": "Institutional inputs and exact authority slots",
       "workstream": "DEB",
       "task_mode": "input_and_intake",
@@ -8958,6 +9062,7 @@
     },
     {
       "id": "DEB-10",
+      "preferred_solution_ref": "solutions/11-debt.md#DEB-10",
       "title": "Independent print and accessibility evidence",
       "workstream": "DEB",
       "task_mode": "verification_and_consumer",
@@ -9020,6 +9125,7 @@
     },
     {
       "id": "DEB-11",
+      "preferred_solution_ref": "solutions/11-debt.md#DEB-11",
       "title": "Foreign residuals: connector cleanup and worktree tooling",
       "workstream": "DEB",
       "task_mode": "engineering",
@@ -9080,6 +9186,7 @@
     },
     {
       "id": "DEB-12",
+      "preferred_solution_ref": "solutions/11-debt.md#DEB-12",
       "title": "Foundry required-manifest consumer reconciliation",
       "workstream": "DEB",
       "task_mode": "research_then_mechanism",
@@ -9129,6 +9236,7 @@
     },
     {
       "id": "FINAL-FREEZE",
+      "preferred_solution_ref": "solutions/12-execution.md#FINAL-FREEZE",
       "title": "Freeze internal source readiness and truthful current obligation dispositions",
       "workstream": "FINAL",
       "task_mode": "checkpoint",
@@ -9271,6 +9379,7 @@
     },
     {
       "id": "FINAL-REVIEW",
+      "preferred_solution_ref": "solutions/12-execution.md#FINAL-REVIEW",
       "title": "Independent composed review and blocking delta closure",
       "workstream": "FINAL",
       "task_mode": "review",
@@ -9311,6 +9420,7 @@
     },
     {
       "id": "FINAL-REPLAY",
+      "preferred_solution_ref": "solutions/12-execution.md#FINAL-REPLAY",
       "title": "One source-bound composed replay and commissioning wave",
       "workstream": "FINAL",
       "task_mode": "verification",
@@ -9364,6 +9474,7 @@
     },
     {
       "id": "FINAL-USE",
+      "preferred_solution_ref": "solutions/12-execution.md#FINAL-USE",
       "title": "Full programme disposition and first-use admission proposal",
       "workstream": "FINAL",
       "task_mode": "release_decision",
@@ -9414,6 +9525,7 @@
     },
     {
       "id": "DEB-13",
+      "preferred_solution_ref": "solutions/11-debt.md#DEB-13",
       "title": "Commission numeric VOI granularity and its decision/ranking basis",
       "workstream": "DEB",
       "task_mode": "contract_research_then_native_owner_delivery",
@@ -9472,6 +9584,7 @@
     },
     {
       "id": "DEB-14",
+      "preferred_solution_ref": "solutions/11-debt.md#DEB-14",
       "title": "Wire purpose-scoped scope ruling into claim lifecycle and surface",
       "workstream": "DEB",
       "task_mode": "contract_research_then_native_owner_delivery",
@@ -9535,6 +9648,7 @@
     },
     {
       "id": "UI-20",
+      "preferred_solution_ref": "solutions/08-atlas-data.md#UI-20",
       "title": "Allocate and deliver DS15 promotion union and private issuer",
       "workstream": "UI",
       "task_mode": "contract_research_then_native_owner_delivery",

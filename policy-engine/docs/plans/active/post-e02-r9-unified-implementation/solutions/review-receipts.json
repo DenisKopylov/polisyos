@@ -1,0 +1,170 @@
+{
+  "schema": "policyos.post_e02_review_receipts.v1",
+  "review_records": [
+    {
+      "path": "reviews/r13-red-capture-custody.md",
+      "sha256": "8a7535756658ce5836ed83007bc60ac6e6e111947ea00c8211b08a54d3f69c8e",
+      "bytes": 17796,
+      "original_ignored_output_sha256": "f8eac61fe27d3568945fae253ef4359d712dae4b7109c60680ad821102730864",
+      "formatting": "Trailing whitespace/empty EOF lines normalized only; original full output retained at corresponding ignored scratch path."
+    },
+    {
+      "path": "reviews/red-lineage-ops.md",
+      "sha256": "f1e581376963320eea68ea4d063108125d2a99082d0e7637871e282e9eb951e6",
+      "bytes": 17735
+    },
+    {
+      "path": "reviews/red-gy.md",
+      "sha256": "0c0e77e8b6ea6db21b349309fb8bfb8a1d1df32a3f5dc7ba8d4de49979cd048d",
+      "bytes": 16542
+    },
+    {
+      "path": "reviews/red-atlas.md",
+      "sha256": "c3803f8fc4e507f9db14b9730be011d0eaf74e03ed45053a935e5c762f795b14",
+      "bytes": 11233,
+      "original_ignored_output_sha256": "be3ea68ceff5df236eb30a880671d81aa9c6dbd486a4fa49161299f97e132fbe",
+      "formatting": "Trailing whitespace/empty EOF lines normalized only; original full output retained at corresponding ignored scratch path."
+    },
+    {
+      "path": "reviews/red-foundations-debt.md",
+      "sha256": "668f6749a9cef0b7ce504115dffa277ebc3ccdd2f07fcaeb7f12580248de134e",
+      "bytes": 13457
+    },
+    {
+      "path": "reviews/red-verification-execution.md",
+      "sha256": "7895144854519bd145de915f4a7f57f2198bcfd2e9230c50dae407d547b0c6e9",
+      "bytes": 15367
+    },
+    {
+      "path": "reviews/delta-red-capture-custody.md",
+      "sha256": "bfdddb87c2e947a510c24a8b4de56ded154d48e701e4cf8278be6c1f73599cb3",
+      "bytes": 6539,
+      "original_ignored_output_sha256": "a4bb211272943de90a9ba3d15f5f30daec9fecc5ea43e40b3a6433ffa8dd2863",
+      "formatting": "Trailing whitespace/empty EOF lines normalized only; original full output retained at corresponding ignored scratch path."
+    },
+    {
+      "path": "reviews/delta-red-lineage-ops.md",
+      "sha256": "f4ed3e31f115bff980550a45a891439aa324f68973c2c82606c3d52e198b8abe",
+      "bytes": 9970
+    },
+    {
+      "path": "reviews/delta-red-gy.md",
+      "sha256": "2c788d13727d971bb98f7e16cfb6eaf5c731f3f89af24d490d18a3816f60c096",
+      "bytes": 3287
+    },
+    {
+      "path": "reviews/delta-red-atlas.md",
+      "sha256": "220f788abcebc31808d5e395c85ecfb8af3508bd0ac9148489bf5ba8526f749a",
+      "bytes": 4235,
+      "original_ignored_output_sha256": "0cea2f558ffa0bf8a02071fff26dab996f7c0c689ff5f496c9df2ce3b979e839",
+      "formatting": "Trailing whitespace/empty EOF lines normalized only; original full output retained at corresponding ignored scratch path."
+    },
+    {
+      "path": "reviews/delta-red-foundations-debt.md",
+      "sha256": "efc29499a89e57ffb9d80bedec32c0076bf24382bf6347447e87da08005e3d9d",
+      "bytes": 4235
+    },
+    {
+      "path": "reviews/delta-red-verification-execution.md",
+      "sha256": "5c27b0bf144ce7d93164cdfcbd4d49822ff51f2ef0611152746adb592ca613b0",
+      "bytes": 9136
+    },
+    {
+      "path": "reviews/final-delta-capture.md",
+      "sha256": "3ab6898a14fdbb895f6ba6ba707aee99487165c49d20151adc26c6d5cd8752eb",
+      "bytes": 1850,
+      "original_ignored_output_sha256": "0a31b9794051d702a48b5e7a34fcaf18b292dfe94336f9a2a295d1f7313ecd42",
+      "formatting": "Trailing whitespace/empty EOF lines normalized only; original full output retained at corresponding ignored scratch path."
+    },
+    {
+      "path": "reviews/final-delta-atlas.md",
+      "sha256": "959f58d4cc8f3e01a906c0f6dc304a2e32e21191ae7bbe847e7830997b1a1633",
+      "bytes": 2256
+    },
+    {
+      "path": "reviews/final-delta-foundations-debt.md",
+      "sha256": "2a0cb5dd365076f6c9da23f403b384c1dcea868c414309962c619bc007e96237",
+      "bytes": 1118
+    },
+    {
+      "path": "reviews/final-delta-verification-execution.md",
+      "sha256": "4156c01befee0a921da5bd8098818f480bde8ab3085d33f0124501af892e14b8",
+      "bytes": 3234
+    }
+  ],
+  "research_input_refs": [
+    {
+      "path": "policy-engine/_build/post-e02-r13-solutions-20261022/atlas_data-proposal.json",
+      "sha256": "9f66e9cd3f7f675c862eca5ac3f3799d719c00b5e1b417faa025f3df21d5b2d5",
+      "bytes": 81722,
+      "retention": "ignored local research input; final recommendations are in preferred-solutions.json"
+    },
+    {
+      "path": "policy-engine/_build/post-e02-r13-solutions-20261022/atlas_public-proposal.json",
+      "sha256": "07d15afc37569e76bed8336829851fc55799603902d80f8013bcb0145e39c236",
+      "bytes": 58664,
+      "retention": "ignored local research input; final recommendations are in preferred-solutions.json"
+    },
+    {
+      "path": "policy-engine/_build/post-e02-r13-solutions-20261022/capture-proposal.json",
+      "sha256": "b1ee52a3152afab2aef0a7387930d2891ee5516500dd1e4f13b927be461f21ef",
+      "bytes": 62201,
+      "retention": "ignored local research input; final recommendations are in preferred-solutions.json"
+    },
+    {
+      "path": "policy-engine/_build/post-e02-r13-solutions-20261022/custody-proposal.json",
+      "sha256": "e70c2669e5b06d965a1d866684faccf7d98b28d9f0fa17c950a5cd52842d163b",
+      "bytes": 43920,
+      "retention": "ignored local research input; final recommendations are in preferred-solutions.json"
+    },
+    {
+      "path": "policy-engine/_build/post-e02-r13-solutions-20261022/debt-proposal.json",
+      "sha256": "94723dcde56c4fb6b5ed3578a99bff6f6bd77ab3115fdd70053e13d06933551b",
+      "bytes": 98260,
+      "retention": "ignored local research input; final recommendations are in preferred-solutions.json"
+    },
+    {
+      "path": "policy-engine/_build/post-e02-r13-solutions-20261022/execution-proposal.json",
+      "sha256": "5b644e552058fd8c3c8b521dda0a2f6a799031f69edca558280f1598b7e71b2e",
+      "bytes": 42377,
+      "retention": "ignored local research input; final recommendations are in preferred-solutions.json"
+    },
+    {
+      "path": "policy-engine/_build/post-e02-r13-solutions-20261022/foundations-proposal.json",
+      "sha256": "23108b51e3e69634182fbd7f458f4a6ed46e793831d68e148ce5977690141228",
+      "bytes": 73561,
+      "retention": "ignored local research input; final recommendations are in preferred-solutions.json"
+    },
+    {
+      "path": "policy-engine/_build/post-e02-r13-solutions-20261022/gy_core-proposal.json",
+      "sha256": "3c63a91508c059c5ff1348945e610163cd47e09ef691bbf20cb0298cc7cc5672",
+      "bytes": 75685,
+      "retention": "ignored local research input; final recommendations are in preferred-solutions.json"
+    },
+    {
+      "path": "policy-engine/_build/post-e02-r13-solutions-20261022/gy_learning-proposal.json",
+      "sha256": "feaf9451b1a7142c44235c2284ff656df638597c1fd7cc1daf143227fe488747",
+      "bytes": 71060,
+      "retention": "ignored local research input; final recommendations are in preferred-solutions.json"
+    },
+    {
+      "path": "policy-engine/_build/post-e02-r13-solutions-20261022/lineage-proposal.json",
+      "sha256": "61a2dac9dae05347f814aba14122710f64040f8a17dddbb830bdd97a875e252e",
+      "bytes": 55101,
+      "retention": "ignored local research input; final recommendations are in preferred-solutions.json"
+    },
+    {
+      "path": "policy-engine/_build/post-e02-r13-solutions-20261022/ops-proposal.json",
+      "sha256": "7e0f40c5effd682dbf5823ef12bf5ed924d743d6e0e048e67929f6c21d8e5ee7",
+      "bytes": 85514,
+      "retention": "ignored local research input; final recommendations are in preferred-solutions.json"
+    },
+    {
+      "path": "policy-engine/_build/post-e02-r13-solutions-20261022/verification-proposal.json",
+      "sha256": "f2fd500b81e8c3525505acbff71d49873e5db6d2b1b1be3a3400117da624af0c",
+      "bytes": 61425,
+      "retention": "ignored local research input; final recommendations are in preferred-solutions.json"
+    }
+  ],
+  "limits": "Full deciding review outputs retained. Intermediate proposal inputs remain local ignored research; final consolidated rows and their root-review hashes are portable. These are planning reviews, not product acceptance."
+}

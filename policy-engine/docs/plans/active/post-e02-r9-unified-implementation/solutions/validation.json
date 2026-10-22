@@ -1,0 +1,96 @@
+{
+  "schema": "policyos.post_e02_solution_document_validation.v1",
+  "status": "PASS_document_checks_only",
+  "baseline": "dc075e7dc0275fb8ea38a5a5bd8cd7a00968b895",
+  "scope": "Documentation only; no product imports/tests/builds/installs/production reads or runtime acceptance. PDF rendering is a small document process.",
+  "task_rows": 109,
+  "task_cards": 12,
+  "root_review_rows": 109,
+  "source_records": 185,
+  "web_source_records": 168,
+  "unique_web_urls": 156,
+  "local_source_records": 17,
+  "reuse_anchor_occurrences": 355,
+  "anchor_and_local_source_objects_checked": 372,
+  "missing_objects": 0,
+  "complete_task_fields_and_source_ids": true,
+  "root_review_hashes_match": true,
+  "all_original_task_fields_preserved_except": [
+    "109 preferred_solution_ref additions",
+    "5 execution_qualification additions preserving withheld/ambiguous criteria",
+    "CAP-01 no-hit sequencing clarification"
+  ],
+  "source_inventories_byte_unchanged": 10,
+  "dag": {
+    "tasks": 109,
+    "by_stream": {
+      "CAP": 6,
+      "LIF": 9,
+      "GYD": 33,
+      "UI": 20,
+      "CNT": 9,
+      "OPS": 12,
+      "P0": 2,
+      "DEB": 14,
+      "FINAL": 4
+    },
+    "hard_edges": 318,
+    "levels": 12,
+    "max_logical_width": 58,
+    "cyclic": false,
+    "debt_nonclosed_bidirectional_routes": 86,
+    "GY_nonexecuted_routes": 22,
+    "R9_trace_rows": 115
+  },
+  "scoped_rebind_and_conditional_stages_preserved": true,
+  "local_markdown_file_links": 759,
+  "broken_local_links": 0,
+  "review_records": 16,
+  "research_scopes": 12,
+  "independent_redteam_scopes": 6,
+  "delegation_depth_used": "root to direct agent only",
+  "executive_pdf_pages": 10,
+  "pdf_visual_review": "contact sheet all10pages; no overflow/clipped content observed",
+  "package_files_excluding_this_receipt": 112,
+  "package_bytes_excluding_this_receipt": 4266692,
+  "package_path_sha256_manifest_digest_excluding_this_receipt": "499db60b3707a3dbc45da937ec0d49dd93fb15fe21bc8e079fbb83bc756392fe",
+  "key_artifacts": [
+    {
+      "path": "tasks.json",
+      "sha256": "71ca91bce7d70dcfdac17c4a23216d2650d02945255297740b226c7b4874d7c4"
+    },
+    {
+      "path": "solutions/preferred-solutions.json",
+      "sha256": "6cb38d99eff9dd75870ff49a0a2a01c35972aeb5daafffb63399c177ebf3bd8f"
+    },
+    {
+      "path": "solutions/sources.json",
+      "sha256": "c40a56a6ad6cc363a40595353b011b898bd6ae41dd689f558139122bd59b3b9b"
+    },
+    {
+      "path": "solutions/root-review.json",
+      "sha256": "915d643a27bbea8fc2ad1016a856a8d786360059ec2ea9f6197eaf90da289915"
+    },
+    {
+      "path": "solutions/00-shared-decisions.md",
+      "sha256": "f0e7f1ee1ecc3e4a82a46cc5a8a9f393c7c4e81204d411060466160fe7b78fea"
+    },
+    {
+      "path": "solutions/decision-clarifications.md",
+      "sha256": "1a35ad443b1573ff385b7e153d97e3d9aa6d1821fcb8c434e7604d7d5830c14d"
+    },
+    {
+      "path": "executive/summary.pdf",
+      "sha256": "ea325c2fd6067f5eea9fbb1c3d09f8be2ebabb1bc492ad75ec3b2cb872558267"
+    }
+  ],
+  "doc_check_output": "policy-engine/_build/post-e02-r13-solutions-20261022/doc-check-output.json@025f35ad93fa61b92408fd5dcb686b0dd7f363a3af6e8ea6d2ec25a075a392e0",
+  "product_execution": "UNRUN",
+  "SDD_changes": "none",
+  "E02_acceptance": "not_established_by_this_documentation",
+  "unresolved_normative_boundaries": [
+    "AS2 comparator operational interpretation requires source-owner decision; original criterion remains unclosed",
+    "WP-01/02 activation requires competent actual scoped decision; current no-mutation remains"
+  ],
+  "hooks": "No hook configuration changes. Product-related contrast/reduced-motion/typecheck are UNRUN under explicit user no-heavy/no-tests constraint; only docs checks are PASS."
+}

@@ -1,0 +1,879 @@
+{
+  "schema": "policyos.post_e02_root_solution_review.v1",
+  "method": "Root personally reviewed all 109 task solutions after author research, independent red-team and corrections; documentation judgement only, not independent code acceptance.",
+  "task_denominator": 109,
+  "rows": [
+    {
+      "task_id": "CAP-01",
+      "solution_sha256": "3d43ab05d5dd16cb47fa80dae0ef71f7b43132c3a383ad2d18049b89b43eaac4",
+      "root_assessment": "Разделены discovery и authority; no-hit возникает после разрешённого search, но не запускает source fetch. Provider contract и custodian grant — альтернативные основания где применимо; логирование проверяется отдельно.",
+      "input_distinction": "Caller/registry — внутренняя работа; реальные source/use terms и допустимость disclosure — внешние факты.",
+      "standing": "preferred_subject_to_accepted_source_rebind",
+      "product_execution": "UNRUN"
+    },
+    {
+      "task_id": "CAP-02",
+      "solution_sha256": "ecdf2722e1e551f3cfe070b0851559d1b98850aee1e9364b0f65ee5b89f07632",
+      "root_assessment": "Выбран bounded capture с pre-write rights; 304 не восстанавливает тело, CDN и overlap подчинены конкретному provider. Второй producer LIF-08 сохранён отдельно от первой успешной загрузки.",
+      "input_distinction": "Capture/fencing/egress adapter реализует команда; continuation/cut/CDN semantics предоставляет источник.",
+      "standing": "preferred_subject_to_accepted_source_rebind",
+      "product_execution": "UNRUN"
+    },
+    {
+      "task_id": "CAP-03",
+      "solution_sha256": "9adb0b04c96952867c95e127632ae03a742e6d34df57751770e9695d3542ae6b",
+      "root_assessment": "CAS хранит только разрешённую representation. Query-only сохраняет допустимый receipt/result, и fresh reuse заново проверяет purpose/rights.",
+      "input_distinction": "Admission bridge внутренний; право копирования, result retention и custodian evidence внешние.",
+      "standing": "preferred_subject_to_accepted_source_rebind",
+      "product_execution": "UNRUN"
+    },
+    {
+      "task_id": "CAP-04",
+      "solution_sha256": "e642fe2725bf7f9ed049f7589363ec586712d8bdae0106df7e1c8fe9eb91fb83",
+      "root_assessment": "Event producer остаётся source-specific, а cascade/enrollment/currentness едины в LIF-02; задержка feed не выдаётся за отсутствие изменения.",
+      "input_distinction": "Producer и bridge строятся внутри; надёжность source journal и компетенция emitter не изобретаются.",
+      "standing": "preferred_subject_to_accepted_source_rebind",
+      "product_execution": "UNRUN"
+    },
+    {
+      "task_id": "CAP-05",
+      "solution_sha256": "414b69c67be37b61d6765572e0c6bbfc4dc43f2d2a9eba5c95fecdb462a036e8",
+      "root_assessment": "Правовой текст, аутентичность issuer, applicability и interpretation разделены; temporal profile jurisdiction-specific. Подпись не доказывает юридическую применимость.",
+      "input_distinction": "Lex adapter внутренний; официальная версия, компетенция и необходимое юридическое суждение внешние.",
+      "standing": "preferred_subject_to_accepted_source_rebind",
+      "product_execution": "UNRUN"
+    },
+    {
+      "task_id": "CAP-06",
+      "solution_sha256": "48f82650e0317c92a22e1e3313e55177e7e03a14ae68f47161c1432142e98ebc",
+      "root_assessment": "Remote intent и effect разделены; потерянный ответ не разрешает blind retry. Query-only право охватывает actual sinks и disclosure composition.",
+      "input_distinction": "ControlWorker binding внутренний; provider lookup/idempotency horizon, custody и grants внешние.",
+      "standing": "preferred_subject_to_accepted_source_rebind",
+      "product_execution": "UNRUN"
+    },
+    {
+      "task_id": "LIF-01",
+      "solution_sha256": "5c1b92de18e469396c901be4bb1f191d6751a06fc4a012671df8a5b65c470ee9",
+      "root_assessment": "Assertion/assessment/use связаны отдельно; admissibility относится к конкретному use. Независимый oracle обязателен для заявленной независимой correctness, не для каждого replay.",
+      "input_distinction": "Relation consumer внутренний; источник и claim-appropriate основания могут требовать внешнего поставщика.",
+      "standing": "preferred_subject_to_accepted_source_rebind",
+      "product_execution": "UNRUN"
+    },
+    {
+      "task_id": "LIF-02",
+      "solution_sha256": "0258fbda8a99fa414a997fb5883a5e044b82884428ac3537d826643608f5dcca",
+      "root_assessment": "Cut/enrollment/replay и publication fence закрывают гонки; подписанный cutoff не равен currentness. Cross-store fallback сохраняет ограничение вместо ложной атомарности.",
+      "input_distinction": "Native transaction/reconcile внутренние; source-supported cut/continuity должны быть реально установлены.",
+      "standing": "preferred_subject_to_accepted_source_rebind",
+      "product_execution": "UNRUN"
+    },
+    {
+      "task_id": "LIF-03",
+      "solution_sha256": "eb018d9bf558055f49ac62373a8c9aa527b9c784094c09e443ad8d80fc43e78f",
+      "root_assessment": "Expected-prior-root плюс attempt fence нужны даже при lock. Receipt-before-frontier защищает stale writer и ABA; sparse offsets проверяются по adapter semantics.",
+      "input_distinction": "Cursor механизм внутренний; source incarnation/continuity — входной контракт поставщика.",
+      "standing": "preferred_subject_to_accepted_source_rebind",
+      "product_execution": "UNRUN"
+    },
+    {
+      "task_id": "LIF-04",
+      "solution_sha256": "8458daa9203b90eda76fb6ed7922a33f925f63685d1bcf9a34d1c99a0842f68f",
+      "root_assessment": "Intent/attempt/provider observation/local commit дают конечные outcomes, включая unknown. Cancel request не доказывает остановку и не освобождает резерв автоматически.",
+      "input_distinction": "Recovery writer внутренний; provider authoritative lookup/cancel и service delegation внешние.",
+      "standing": "preferred_subject_to_accepted_source_rebind",
+      "product_execution": "UNRUN"
+    },
+    {
+      "task_id": "LIF-05",
+      "solution_sha256": "2811d242d9b32417500ddbb3586085d4273a47da9b63f731b41a750e3c254427",
+      "root_assessment": "Назначен один source-use/AP07 seam; AccessScope и RetentionPlanner не превращаются в grant authority. Pre-write fence, placement outcomes и quarantine restore едины.",
+      "input_distinction": "Allocation/decision API/copy inventory внутренние; реальные rights acts и foreign placement receipts внешние.",
+      "standing": "preferred_subject_to_accepted_source_rebind",
+      "product_execution": "UNRUN"
+    },
+    {
+      "task_id": "LIF-06",
+      "solution_sha256": "b77243232faf6b18af679e067fa2f3fe609e0fe889498218f3c9abdaa54563ef",
+      "root_assessment": "Один admission owner расширяется минимально; OPS-08 отвечает за host enforcement. Generic resource profile не создаёт физический hard cap для неизвестного типа ресурса.",
+      "input_distinction": "Механизм и адаптеры строятся внутри; фактические host limits/workload commissioning измеряются при исполнении.",
+      "standing": "preferred_subject_to_accepted_source_rebind",
+      "product_execution": "UNRUN"
+    },
+    {
+      "task_id": "LIF-07",
+      "solution_sha256": "df0b15ddf2bacee9828427ac354a4c013aafe5834304c5ad75b3412c5b53d4a7",
+      "root_assessment": "Exact cache identity отделена от current admissibility; начать с recompute, incremental только после crossover measurement. Lineage не доказывает независимость.",
+      "input_distinction": "Dependency closure/cache reader внутренние; current source/change/correction evidence нужно получать у источника.",
+      "standing": "preferred_subject_to_accepted_source_rebind",
+      "product_execution": "UNRUN"
+    },
+    {
+      "task_id": "LIF-08",
+      "solution_sha256": "4fdca4bdd30b015829655a8c7f55c526405d444d529cc5bc76f73ca9fb863da5",
+      "root_assessment": "Второй materially distinct source проверяет free-grow и directional compatibility, не создавая центральный allowlist или фиктивный общий snapshot.",
+      "input_distinction": "Generic adapter/conformance внутренние; реальный второй source/cut/rights — выбранные внешние входы.",
+      "standing": "preferred_subject_to_accepted_source_rebind",
+      "product_execution": "UNRUN"
+    },
+    {
+      "task_id": "LIF-09",
+      "solution_sha256": "f6fdf52d3ca299dedf8a3c4cd9bc90ba9f5442465f9af4d4756468f87e8d540a",
+      "root_assessment": "Это composed verification shard, а не новый сервис. Полный positive не заменяется корректным отказом; отдельные reviews не дублируют дорогую финальную волну.",
+      "input_distinction": "Review/matrix/bridges внутренние; selected permitted inputs и actual E02 acceptance остаются необходимыми.",
+      "standing": "preferred_subject_to_accepted_source_rebind",
+      "product_execution": "UNRUN"
+    },
+    {
+      "task_id": "GYD-01",
+      "solution_sha256": "b8fc855f427328c84db7620e02cb00f4363ea38c376c5e95507f083f6f608ccd",
+      "root_assessment": "PR1a не ждёт PR1b; уже согласованные ADR не переоткрываются. S6 всех пяти осей необходимо, но недостаточно; authentic near-miss не фабрикуется.",
+      "input_distinction": "Engineering composition внутренний; signer/mandate и настоящий безопасно наблюдённый near-miss внешние.",
+      "standing": "preferred_subject_to_accepted_source_rebind",
+      "product_execution": "UNRUN"
+    },
+    {
+      "task_id": "GYD-02",
+      "solution_sha256": "78dc51fd23ac7bb8a675d3a2feb3488333fc0eaa8a0a0185d667e82aa7aaac2a",
+      "root_assessment": "Resource→distribution identity исправляется отдельно от GDP/WDI unit-period facts. Историческое число четыре не ограничивает актуальный census.",
+      "input_distinction": "Binding reissue внутренний; отсутствующие provider units/periods запрашиваются, не угадываются.",
+      "standing": "preferred_subject_to_accepted_source_rebind",
+      "product_execution": "UNRUN"
+    },
+    {
+      "task_id": "GYD-03",
+      "solution_sha256": "59609773dc8aee26d437198d3558b74be6517d735fb28a073fe8a086b5f03068",
+      "root_assessment": "ConstraintStoreIngestor переиспользуется с реальным D0/basis/safety; второй store не нужен. Consumer removal проверяет реальный оптимизатор.",
+      "input_distinction": "Producer wiring внутренний; independent safety/context evidence зависит от выбранной задачи.",
+      "standing": "preferred_subject_to_accepted_source_rebind",
+      "product_execution": "UNRUN"
+    },
+    {
+      "task_id": "GYD-04",
+      "solution_sha256": "ecd12f17fbd674b74e2b924e642a0c5c5903e19fc7acb9840e43e875a70a7fdd",
+      "root_assessment": "Correspondence quality считается на полном source-pinned denominator с независимой adjudication; failover retrieval не semantic decider.",
+      "input_distinction": "Calculation/corpus custody внутренние; компетентный adjudicator и source labels нельзя самоназначить как authority.",
+      "standing": "preferred_subject_to_accepted_source_rebind",
+      "product_execution": "UNRUN"
+    },
+    {
+      "task_id": "GYD-05",
+      "solution_sha256": "5623e649e258403fef76c8f074fc9e56e2213dec52f88697446053fb815a8500",
+      "root_assessment": "Membership purpose/jurisdiction/time-bound; parser comparison не заменяет institutional ruling. Сохраняется candidate route.",
+      "input_distinction": "Native membership bridge внутренний; реальное CORR-B1 основание и ruling внешние.",
+      "standing": "preferred_subject_to_accepted_source_rebind",
+      "product_execution": "UNRUN"
+    },
+    {
+      "task_id": "GYD-06",
+      "solution_sha256": "fa224ef11f67ea8a6e60070f43df3bf4ef5f39634a875846bcae415843aa4792",
+      "root_assessment": "Отсутствующий authentic producer назначается и строится; fixture не входит в authentic numerator. Нулевая наблюдаемая база не превращается в положительный результат.",
+      "input_distinction": "Producer allocation внутренний; genuine canonical-population evidence внешний input.",
+      "standing": "preferred_subject_to_accepted_source_rebind",
+      "product_execution": "UNRUN"
+    },
+    {
+      "task_id": "GYD-07",
+      "solution_sha256": "8ad77f2d6d50a0d9b11eb0f339e6b2fe334952278d1327f14a5d040837d0afe4",
+      "root_assessment": "Ремонтируется полный текущий routed-red set; suppressions/clean failed job не закрывают GX. Historical38 только исходный ориентир.",
+      "input_distinction": "Все validator/consumer repairs внутренние; missing actual production input фиксируется отдельно.",
+      "standing": "preferred_subject_to_accepted_source_rebind",
+      "product_execution": "UNRUN"
+    },
+    {
+      "task_id": "GYD-23",
+      "solution_sha256": "46567d7d1442e370231e578b83b8e5239eb89b9942efdcc69ffd62ca1270fb19",
+      "root_assessment": "Slice0 минимален по исходному budget/operator subset, с точным Estimate terminal и root. Поздний terminal не оправдывается более богатой реализацией.",
+      "input_distinction": "Planner/ledger wiring внутренние; реальные grounding inputs отделены от fixture expectations.",
+      "standing": "preferred_subject_to_accepted_source_rebind",
+      "product_execution": "UNRUN"
+    },
+    {
+      "task_id": "GYD-24",
+      "solution_sha256": "44dcf861060707de53023c3ffb5f2f82ab37b6de20669015bab7e623fa4eee2e",
+      "root_assessment": "Все 16facets и 3connector routes сохранены; actual fetch либо точный costed rung7. Новый facet должен идти generic owner route.",
+      "input_distinction": "Acquisition wiring внутренний; source availability/price/use inputs внешние.",
+      "standing": "preferred_subject_to_accepted_source_rebind",
+      "product_execution": "UNRUN"
+    },
+    {
+      "task_id": "GYD-25",
+      "solution_sha256": "57acc1f344ffada753467138a4d82deb4d037752b7cd693466caf6f297922f80",
+      "root_assessment": "Freshness default true заменяется owner-derived property; precision/recall и seed set version-bound. Threshold без authority не переопределяется.",
+      "input_distinction": "Semantic gate/repair path внутренние; governed labels и relevant source refresh evidence нужны реально.",
+      "standing": "preferred_subject_to_accepted_source_rebind",
+      "product_execution": "UNRUN"
+    },
+    {
+      "task_id": "GYD-26",
+      "solution_sha256": "187effdec84cb27b5fdb376de116d823890f13b992c5f307c3ab3fd5a367ee5d",
+      "root_assessment": "Judge output обязательно resolve/content-bind на exact input; удалённый output с оставшимся promote marker отвергается.",
+      "input_distinction": "Judge bridge/persistence внутренние; нормативная компетенция остаётся у её источника.",
+      "standing": "preferred_subject_to_accepted_source_rebind",
+      "product_execution": "UNRUN"
+    },
+    {
+      "task_id": "GYD-27",
+      "solution_sha256": "86634e617bf881eade04492ff74b2101046b91b7c0871adf85e87dbadd75816a",
+      "root_assessment": "Реальный tool loop выпускает candidate events; actor/role не transcript label. Ring2 потребляет verifier provenance, VOI не самозаявлен.",
+      "input_distinction": "Event bridge и constructors внутренние; real provider permissions/valid cost basis scoped.",
+      "standing": "preferred_subject_to_accepted_source_rebind",
+      "product_execution": "UNRUN"
+    },
+    {
+      "task_id": "GYD-28",
+      "solution_sha256": "a1eebe134cc8613d884c05c549df0978910236db747c04e2d388c337098ec1be",
+      "root_assessment": "Integrity, PII scan и manifest authority — разные predicates; общий intake/emission защищает всех actual consumers, GC сохраняет живые refs.",
+      "input_distinction": "CAS/emission/gates внутренние; sensitive-content policy и actual authority evidence внешние где требуется.",
+      "standing": "preferred_subject_to_accepted_source_rebind",
+      "product_execution": "UNRUN"
+    },
+    {
+      "task_id": "GYD-29",
+      "solution_sha256": "d3fa760d21d555b647c0f6eb916ac365f8671733703619b4aca27e63f1328cf0",
+      "root_assessment": "406 — historical baseline, не cap. Полный текущий set с false-exclusion review; timestamp не authority, predicate provenance проверяется.",
+      "input_distinction": "Census/consumer repairs внутренние; исключения требуют конкретного обоснования, не нового внешнего владельца для каждой строки.",
+      "standing": "preferred_subject_to_accepted_source_rebind",
+      "product_execution": "UNRUN"
+    },
+    {
+      "task_id": "GYD-30",
+      "solution_sha256": "882eb8eafd757a72d0050bcd74e3d7f960eb1c4cff1df78d04ec5d1f3488ce7a",
+      "root_assessment": "Один CompositionCertificate owner; все source-derived Ukraine method families проходят actual workflow. Exact joint witness ограничен своим свойством.",
+      "input_distinction": "Consolidation/bridges внутренние; scientific premises/target evidence отдельно от family count.",
+      "standing": "preferred_subject_to_accepted_source_rebind",
+      "product_execution": "UNRUN"
+    },
+    {
+      "task_id": "GYD-31",
+      "solution_sha256": "0645e77123c664c2e259e89b56a4e89ea4cc75f83281299eaf0d654c7a67f549",
+      "root_assessment": "Set-valued semantics доходят до S1/N8/N6, width derived, unknown не scalar. DTO presence не закрывает missing bridge.",
+      "input_distinction": "ValueOuterSet consumers внутренние; identification/trust/calibration inputs source-qualified.",
+      "standing": "preferred_subject_to_accepted_source_rebind",
+      "product_execution": "UNRUN"
+    },
+    {
+      "task_id": "GYD-32",
+      "solution_sha256": "d2adac49c3392d4a522fcb77e94b1ad4714f55b67dbc288ffe99f85edb4595c1",
+      "root_assessment": "Настоящий populated substrate, режимы времени и trust влияют на bounds. 8.8M не текущая статистика; source discovery не hardcoded.",
+      "input_distinction": "DataForge/Foundry wiring внутренние; разрешённые authentic panels и их coverage внешние.",
+      "standing": "preferred_subject_to_accepted_source_rebind",
+      "product_execution": "UNRUN"
+    },
+    {
+      "task_id": "GYD-33",
+      "solution_sha256": "23bd89db907120917c0ad4df25dfe2e0c9a1a962d89eed78bc58ef95cc0e644d",
+      "root_assessment": "Scholar/Lex owners разделены и связаны с реальными N-consumers; contested edge/transport/amendment меняют результат по своему смыслу.",
+      "input_distinction": "Versioned binding bridge внутренний; knowledge/legal grounds и effective-time facts внешние.",
+      "standing": "preferred_subject_to_accepted_source_rebind",
+      "product_execution": "UNRUN"
+    },
+    {
+      "task_id": "GYD-08",
+      "solution_sha256": "16c104b1325ce58cde880c9620c0098393171297dcb2c4b5317989b1d47fb0dc",
+      "root_assessment": "Sealed corpus, access history и O1 refusal исполнимы; ambiguous holdout comparator вынесен в конкретное предложение, literal criterion пока не закрыт. WP09/10 числа не назначены.",
+      "input_distinction": "Custody/oracle implementation внутренние; source-owner interpretation и admissible labels остаются отдельными входами.",
+      "standing": "preferred_with_explicit_activation_or_criterion_decision",
+      "product_execution": "UNRUN"
+    },
+    {
+      "task_id": "GYD-09",
+      "solution_sha256": "c5cde4e1dc483b15b72db1d6f6ab5ee90c74d463e6b38c5e9b291cb84031a72b",
+      "root_assessment": "Устранён конфликт WP01/02: сейчас no mutation. Подготовка producers и activation consumer допустима, operative positive требует реальной scoped activation.",
+      "input_distinction": "Live comparison/provenance — engineering; WP01 principal activation и optional WP02 ruling — governance inputs.",
+      "standing": "preferred_with_explicit_activation_or_criterion_decision",
+      "product_execution": "UNRUN"
+    },
+    {
+      "task_id": "GYD-10",
+      "solution_sha256": "7868daf9dcb500450afdef278c8301d925cde7fa318034df2a3155e00fdee329",
+      "root_assessment": "FDR-controller сохраняет candidate_unverified; alpha wealth без допущений и denominator не доказательство контроля. Не импортируется новый статистический режим из статьи.",
+      "input_distinction": "Ledger/controller bridge внутренний; valid observation/testing assumptions должны быть подтверждены для выбранного потока.",
+      "standing": "preferred_subject_to_accepted_source_rebind",
+      "product_execution": "UNRUN"
+    },
+    {
+      "task_id": "GYD-11",
+      "solution_sha256": "90d096956b1b9310560fd1d11db9380d33d538ab2e92c9768fa700f2c7e0b131",
+      "root_assessment": "AS3 сохраняет 24packets/5mutations/valid controls; проверяет O3, не заменяет AS2. Activation-dependent positive явно отделён от isolated corpus research.",
+      "input_distinction": "Corpus/consumer mutations внутренние; operative update authority следует GYD-09.",
+      "standing": "preferred_subject_to_accepted_source_rebind",
+      "product_execution": "UNRUN"
+    },
+    {
+      "task_id": "GYD-12",
+      "solution_sha256": "e16b9725d69501ceb47f4c2e5b2eeaaef49a7c38ca9675db92a23b11f77cf481",
+      "root_assessment": "Единственный world writer допускает confirmed effect или O2-origin после O1, не прямой anomaly. Multiobject publication получает transaction либо intent/reconcile/quarantine.",
+      "input_distinction": "WMR/branch recovery внутренние; фактическая confirmation/update policy и target evidence не выводятся из branch CAS.",
+      "standing": "preferred_subject_to_accepted_source_rebind",
+      "product_execution": "UNRUN"
+    },
+    {
+      "task_id": "GYD-13",
+      "solution_sha256": "8997fa3ed2b203b16b55e7fc21148b9673dee250899fb91cfdae6b8e6b0a114e",
+      "root_assessment": "Real operator caller и fresh event readback закрывают instrument gap, но не человеческое понимание. Synthetic tenant не authentic witness.",
+      "input_distinction": "Trial producer/bridge внутренние; actual operator event и независимое comprehension adjudication разные внешние входы.",
+      "standing": "preferred_subject_to_accepted_source_rebind",
+      "product_execution": "UNRUN"
+    },
+    {
+      "task_id": "GYD-14",
+      "solution_sha256": "9c3fab7fa08a21d7d6726813eb5f2daa9096c65f413d5f922a35d9f9b79717e0",
+      "root_assessment": "Полный rendition denominator и real bytes сохраняют finite candidate assurance. Отсутствующая trust root не заменяется локальным signer.",
+      "input_distinction": "Lex production consumer внутренний; реальные rendition/competence inputs внешние, legal equivalence withheld.",
+      "standing": "preferred_subject_to_accepted_source_rebind",
+      "product_execution": "UNRUN"
+    },
+    {
+      "task_id": "GYD-15",
+      "solution_sha256": "0328775d61b2d61a8505fd19dda2802e6c64e8f02d5c7931f0a4357f887dfa97",
+      "root_assessment": "FA1 разделён на 4capabilities со своими owners/receipts; registry flag не authority. FR-AUTH01 остаётся proposal, не блокирует всю инженерную подготовку.",
+      "input_distinction": "Cutoff/store/toolchain/data-trust mechanisms внутренние; необходимая независимость controls/реальные grants подтверждаются, не симулируются.",
+      "standing": "preferred_subject_to_accepted_source_rebind",
+      "product_execution": "UNRUN"
+    },
+    {
+      "task_id": "GYD-16",
+      "solution_sha256": "f51fb4e5e2cb94be252a7a059b8ebee0fe67f9efa93be197a71122ad0f0aa629",
+      "root_assessment": "Expected coverage выводится из source obligations, не самой матрицы; обязательны actual bridges и remove-property signal.",
+      "input_distinction": "Census/verifier repairs внутренние; acceptance receipt supplied G, не создан этим планом.",
+      "standing": "preferred_subject_to_accepted_source_rebind",
+      "product_execution": "UNRUN"
+    },
+    {
+      "task_id": "GYD-17",
+      "solution_sha256": "0adae901ab72c4089b312ba3b8305d69fcaac90fa694261d64dd6eac289e5710",
+      "root_assessment": "V2 требует настоящий HTTP→worker→CAS→fresh reader; чистое завершение или fixture недостаточны. Honest ceiling только в точном исходном смысле.",
+      "input_distinction": "Whole route внутренний; разрешённый реальный case/data input внешний.",
+      "standing": "preferred_subject_to_accepted_source_rebind",
+      "product_execution": "UNRUN"
+    },
+    {
+      "task_id": "GYD-18",
+      "solution_sha256": "90eae8b27ce39d9ca614b57993fd95e50bb16ead726d826661be9f9f75338d61",
+      "root_assessment": "Distribution сохраняет domain/acquisition strata; named post-N13b case требует именно typed_deeper_terminal без world-growth epoch.",
+      "input_distinction": "Corpus runner/denominator внутренние; разрешённые real domain cases выбираются отдельно.",
+      "standing": "preferred_subject_to_accepted_source_rebind",
+      "product_execution": "UNRUN"
+    },
+    {
+      "task_id": "GYD-19",
+      "solution_sha256": "94def9ba28b119b3d38e73abf19830dca27d8f7eeb46e6ef184429301c27c711",
+      "root_assessment": "Все a–v negatives сохранены с исходным consumer/property, sibling mutation проверяет класс. Нет blanket applicable-only waiver.",
+      "input_distinction": "Gate repairs и tests внутренние; genuine unavailable input не считается прошедшей отрицательной проверкой.",
+      "standing": "preferred_subject_to_accepted_source_rebind",
+      "product_execution": "UNRUN"
+    },
+    {
+      "task_id": "GYD-20",
+      "solution_sha256": "ac31abe268d46ed5f2b5b61418f5dc96c58d5eab92d2c373aecbd5de9bf0ac06",
+      "root_assessment": "Deterministic byte replay, agent trace reconstruction и current revalidation разделены. Semantic time нельзя выкинуть canonicalizer вместе с capture time.",
+      "input_distinction": "Replay/canonicalization внутренние; provider rerun не требуется для честной реконструкции trace.",
+      "standing": "preferred_subject_to_accepted_source_rebind",
+      "product_execution": "UNRUN"
+    },
+    {
+      "task_id": "GYD-21",
+      "solution_sha256": "6d1a9408689a50c4923bab29dd0ee98b409f891cbfccbeb2746c69369b99e295",
+      "root_assessment": "Expected artifact×validator pairs выводятся из V6/owner contracts до actual map; missing edge видим даже при другой coverage. Один final wave.",
+      "input_distinction": "Validator wiring/crosswalk внутренние; отсутствие internal verifier не внешний hold.",
+      "standing": "preferred_subject_to_accepted_source_rebind",
+      "product_execution": "UNRUN"
+    },
+    {
+      "task_id": "GYD-22",
+      "solution_sha256": "9868e3848a2d2012e4dd3d1a7cc97c2b2992e37f3cff7f61f0f70c2b4bad6cf7",
+      "root_assessment": "Пять constitution signals описательны; missing не zero, stale search не отсутствие mandate. Causal attribution требует отдельного контраста.",
+      "input_distinction": "Metric producers/projection внутренние; причинные premises и реальные observations не заменяются KPI.",
+      "standing": "preferred_subject_to_accepted_source_rebind",
+      "product_execution": "UNRUN"
+    },
+    {
+      "task_id": "UI-01",
+      "solution_sha256": "2814e897d61fe4fea24f688b9919f5b149ac96f4e39729dcec532c3264ace51a",
+      "root_assessment": "Report authentication отделена от 7authority dimensions; offline trust snapshot не live revocation. UI только проецирует server record.",
+      "input_distinction": "Consumer wiring внутренний; реальная trust evidence не UI assertion.",
+      "standing": "preferred_subject_to_accepted_source_rebind",
+      "product_execution": "UNRUN"
+    },
+    {
+      "task_id": "UI-02",
+      "solution_sha256": "705bc34bec22edceeab00c5a8c88de4a5ff1d073694ca6075430165f24a440fe",
+      "root_assessment": "Три bands: capability/refusal, PR1a data-only, PR1b pilot signature. Actual-page a11y/locale/plain language и pre-persistence telemetry не потеряны.",
+      "input_distinction": "Public/MACHINE/CLI wiring внутренний; appointment только для требующего её band.",
+      "standing": "preferred_subject_to_accepted_source_rebind",
+      "product_execution": "UNRUN"
+    },
+    {
+      "task_id": "UI-03",
+      "solution_sha256": "a9f814045700b72d17c3737f5502c0838cc0b25d26936687ec9feb53819c6f6e",
+      "root_assessment": "Один canonical case index; candidate search не admitted public set. Identity aliases не заменяют exact public record/view.",
+      "input_distinction": "Index bridge внутренний; actual source admission/rights отдельные predicates.",
+      "standing": "preferred_subject_to_accepted_source_rebind",
+      "product_execution": "UNRUN"
+    },
+    {
+      "task_id": "UI-04",
+      "solution_sha256": "adf63933bfd84955dcc0ea063e8b9ed2c67077638920ada1aa455d1b46098404",
+      "root_assessment": "Consultation — append-only attributable events, не access-audit ledger и не новая институциональная функция. Closed bytes сохраняются.",
+      "input_distinction": "Event/projection mechanism внутренний; actual act/consent/response competence внешние.",
+      "standing": "preferred_subject_to_accepted_source_rebind",
+      "product_execution": "UNRUN"
+    },
+    {
+      "task_id": "UI-05",
+      "solution_sha256": "44885b53c72fed88aca698c27dcd5ab223769908fd578fd5051fdafebda587fa",
+      "root_assessment": "Clerk остаётся reviewer/expert; loss receipt удерживает ограничения и rejected choices. Fluent summary не создаёт authority.",
+      "input_distinction": "G6 bridge и compression checks внутренние; meaningful evaluation не выдумывается из наличия текста.",
+      "standing": "preferred_subject_to_accepted_source_rebind",
+      "product_execution": "UNRUN"
+    },
+    {
+      "task_id": "UI-10",
+      "solution_sha256": "3e323973149b2ff6056586c108d3866d5631e8f5da4ff147f704b83c874c7dd0",
+      "root_assessment": "Server-governed identity/status вместо placeholders; DS20closedauthfloor не переоткрывается.",
+      "input_distinction": "Consumer repair внутренний; owner evidence проверяется на accepted source.",
+      "standing": "preferred_subject_to_accepted_source_rebind",
+      "product_execution": "UNRUN"
+    },
+    {
+      "task_id": "UI-15",
+      "solution_sha256": "378ec822008fe4c0925edb9ec196fb4c0c15ddc013c84195c3e688a1af5c09e0",
+      "root_assessment": "Предложен splitDS11evidence/DocsIA без второго CMS; allocation не выдано за текущего owner. Новый сайт не закрывает вопрос.",
+      "input_distinction": "Архитектурное назначение внутреннее; реальные публичные claims нуждаются в основаниях.",
+      "standing": "preferred_subject_to_accepted_source_rebind",
+      "product_execution": "UNRUN"
+    },
+    {
+      "task_id": "UI-16",
+      "solution_sha256": "59b88861cdd3630b2754399016c97720cc9ece9aa67da53689280f828b3d1d9f",
+      "root_assessment": "Public grounded-performance остаётся blocked без promoted-design evidence; этот запрет не распространяется на все candidate numbers.",
+      "input_distinction": "Projection/refusal internal; substantive evidence от engineering/research, не декоративный TrustCenter.",
+      "standing": "preferred_subject_to_accepted_source_rebind",
+      "product_execution": "UNRUN"
+    },
+    {
+      "task_id": "UI-06",
+      "solution_sha256": "d93acc8d92cd438db4c5ca2d3f3d48e1300fca67ae787cb5a3c02c32cd33c26c",
+      "root_assessment": "DS16algebra и 8AQ1relations generic; scalar только где разрешает owner. Interface prep не ждёт realDS7, composed quantity ждёт.",
+      "input_distinction": "Typed projection/generation внутренние; exact DS7 grounding output — upstream work, не внешний вопрос.",
+      "standing": "preferred_subject_to_accepted_source_rebind",
+      "product_execution": "UNRUN"
+    },
+    {
+      "task_id": "UI-07",
+      "solution_sha256": "c55600c7eaae0965e96165fc6c8eed0092852052ff0c2e172d591572786b71a3",
+      "root_assessment": "Interface-level prep параллелен N13b; actual lineage/currentness требует producer/replay. Historical read отделён от current-authority claim.",
+      "input_distinction": "Certificate/projection bridge внутренний; source revocation facts приходят через native owners.",
+      "standing": "preferred_subject_to_accepted_source_rebind",
+      "product_execution": "UNRUN"
+    },
+    {
+      "task_id": "UI-08",
+      "solution_sha256": "a7c537a05f94a94384f32995b3c0a6633a4f7fbbd282bc002cc0c412e88c94b4",
+      "root_assessment": "Read-only view, O1/O3 единственные writers; WP01/02 no mutation сохранено. Acquisition/deployment не создают два мира.",
+      "input_distinction": "Projection внутренний; real event evidence и scoped activation управляют operative update.",
+      "standing": "preferred_subject_to_accepted_source_rebind",
+      "product_execution": "UNRUN"
+    },
+    {
+      "task_id": "UI-09",
+      "solution_sha256": "bb4c7feb95391eb7d6aab86a9ae2af203187e02bc8dd369f8ae50350fe56f092",
+      "root_assessment": "Все 4DS19arrays261/2/60/23 маршрутизируются;85aux не новая closure. Статус исходника не меняется от назначения lane.",
+      "input_distinction": "Estate reconciliation внутренняя; actual closure evidence поставляется исполнителями, не source labels.",
+      "standing": "preferred_subject_to_accepted_source_rebind",
+      "product_execution": "UNRUN"
+    },
+    {
+      "task_id": "UI-11",
+      "solution_sha256": "dcee4ab72c6298518040193adc5f2e906787c03fe2e3ca381af6a39f6bfbc570",
+      "root_assessment": "CAS на mutation boundary Fabric/N13b; OPA-before-write без atomic revision check недостаточен.",
+      "input_distinction": "Owner CAS/outbox внутренний; selected backend qualified separately.",
+      "standing": "preferred_subject_to_accepted_source_rebind",
+      "product_execution": "UNRUN"
+    },
+    {
+      "task_id": "UI-12",
+      "solution_sha256": "6598b872a8b9ed37f61cd9b7c593021c6491619beff7584dcf0df68668392789",
+      "root_assessment": "RealPG допускается локальный или cloud; четыре properties с двумя apps. FAIL/ERROR/SKIP/UNRUN не прячутся под environment_blocked.",
+      "input_distinction": "Harness/environment provisioning internal where possible; real DSN/access permission scoped, не обязательная cloud зависимость.",
+      "standing": "preferred_subject_to_accepted_source_rebind",
+      "product_execution": "UNRUN"
+    },
+    {
+      "task_id": "UI-13",
+      "solution_sha256": "0b416fa4d52b10c2116347acda40b571690ae411cfd041d6700426d4a9e917a5",
+      "root_assessment": "DS9 принимает реальный DS20scorecard provenance; HTTPauthorization не mandate/dissent. Unmerged label не меняет Gitfact.",
+      "input_distinction": "Intake/reader companions внутренние; actual signed mandate/dissent separateexternal.",
+      "standing": "preferred_subject_to_accepted_source_rebind",
+      "product_execution": "UNRUN"
+    },
+    {
+      "task_id": "UI-14",
+      "solution_sha256": "f4b743788ec292796e655b3c55fc66485ed4e4cc3d3effe958dd8a6c7d12ac51",
+      "root_assessment": "Предпочтено убрать mirror; если packaging требует — generated raw-byte parity полного set. Path normalization не нормализует policy semantics.",
+      "input_distinction": "Packaging/conformance внутренние; deployedHelmmajor rebind, подпись не semantic parity.",
+      "standing": "preferred_subject_to_accepted_source_rebind",
+      "product_execution": "UNRUN"
+    },
+    {
+      "task_id": "UI-17",
+      "solution_sha256": "8e5159e547d88125e0938e9bb387b76f848aea3d2f90d590dc364d1b677ed2da",
+      "root_assessment": "GrossVOI, cost, netvalue и action имеют отдельные predicates; unknowncost не скрывает валидный grossmetric. Client не calculator.",
+      "input_distinction": "API/consumer internal; utility/price/rights нужны только соответствующей claim/action.",
+      "standing": "preferred_subject_to_accepted_source_rebind",
+      "product_execution": "UNRUN"
+    },
+    {
+      "task_id": "UI-18",
+      "solution_sha256": "638abed37474b4be2a4962cdf16978451d3e5c8a8dfd1980dc6128e9dc91d898",
+      "root_assessment": "DS17closednegatives сохраняются; realN11certificate нужен positive. Sequence/familyprobability не выводится из localreceipt.",
+      "input_distinction": "Certificateconsumer internal; live sequence/scope evidence genuine wherecriterionrequires.",
+      "standing": "preferred_subject_to_accepted_source_rebind",
+      "product_execution": "UNRUN"
+    },
+    {
+      "task_id": "UI-19",
+      "solution_sha256": "8ddfa1912a2a75711c50c3675bc32e0532f4add0bcadb553f77674a6371633f7",
+      "root_assessment": "Canonical epoch cascade и wholeDS18denominator; originalrequiredness отдельно от новых eventclasses. Equalhash не currentness.",
+      "input_distinction": "Eventbridge/projection internal; компетентные signer/policyinput onlyaffectedauthority.",
+      "standing": "preferred_subject_to_accepted_source_rebind",
+      "product_execution": "UNRUN"
+    },
+    {
+      "task_id": "UI-20",
+      "solution_sha256": "e9af75714d86ef2b3b96e754c6bb611abf35f24a80d921974358584b6432ba70",
+      "root_assessment": "PrivateTSissuer предотвращает случайную сборку, не wireforgery. Nativeunion/runtimeverification и generatedfamily меняются вместе.",
+      "input_distinction": "DTO/generator/consumer internal; institutional mandate не появляется от privateconstructor.",
+      "standing": "preferred_subject_to_accepted_source_rebind",
+      "product_execution": "UNRUN"
+    },
+    {
+      "task_id": "CNT-01",
+      "solution_sha256": "36c63f4a436f69f1ffeb31fab1b9dfda2048653c26f32cd5bab0e441cf68f123",
+      "root_assessment": "Sponsor коммиссионирует вопрос, runtime может предложить atom/estimand; protectedscope выбирается потом.26familycommonbaseline не 197downloads.",
+      "input_distinction": "Candidateformulation bridge внутренний; principalquestion/purpose и selectedoperativebasis внешние.",
+      "standing": "preferred_subject_to_accepted_source_rebind",
+      "product_execution": "UNRUN"
+    },
+    {
+      "task_id": "CNT-02",
+      "solution_sha256": "fa847527d4769d1442debf8088fbb0c9c784232b8b349c12d4f40c88a0057884",
+      "root_assessment": "DCAT interchange не новый registry; jurisdiction/accesslevel отдельны от license/accessmethod. Metadata не contentproof.",
+      "input_distinction": "Catalogmapping internal; issuerresourcefacts поставляются источниками.",
+      "standing": "preferred_subject_to_accepted_source_rebind",
+      "product_execution": "UNRUN"
+    },
+    {
+      "task_id": "CNT-03",
+      "solution_sha256": "4dc22649c615772c8f23394cdaaccf3d2d074a74b57d16196d0db4b2f167a738",
+      "root_assessment": "Managedcopies и queryonlyreceipts проходят rights до хранения и freshuse; WDIprofilelimits не универсальный paginationban.",
+      "input_distinction": "Acquisition/library wiring internal; use/retention instrument и custodianreceipt external.",
+      "standing": "preferred_subject_to_accepted_source_rebind",
+      "product_execution": "UNRUN"
+    },
+    {
+      "task_id": "CNT-04",
+      "solution_sha256": "ee4782c469d44eb95a517f0327f2522c3670612b1f889a3adfdaeb529b88df9b",
+      "root_assessment": "Legalversion/time, reviewerinterpretation и institutionact разделены; humanreview обязателен для исходного provision→lever criterion, не любой extraction.",
+      "input_distinction": "Corpus/applicability adapters internal; компетентное суждение/actualact внешние.",
+      "standing": "preferred_subject_to_accepted_source_rebind",
+      "product_execution": "UNRUN"
+    },
+    {
+      "task_id": "CNT-05",
+      "solution_sha256": "245cf53c35b988f8dbb66c6465af99dca711bebc1866326c57c157025e6c5b65",
+      "root_assessment": "Metricformula/construct/mandate разделены; hypotheticalweights допустимы candidate, operativeweights выбирает principal. Rankreversal виден.",
+      "input_distinction": "Metricproducer/sensitivity internal; нормативный выбор и validmeasurementbases внешние.",
+      "standing": "preferred_subject_to_accepted_source_rebind",
+      "product_execution": "UNRUN"
+    },
+    {
+      "task_id": "CNT-06",
+      "solution_sha256": "26df75e8b89cee05bc033ba47ff5853b55cd883ce99b279005cc3fd0c83fc173",
+      "root_assessment": "Claim-specific causalprofile/transport/uncertainty; Bayesian не монополия. Partialidentification может быть корректным boundedresult.",
+      "input_distinction": "Methodbinding internal; identification/transport/calibration evidence externalorscientificinputs.",
+      "standing": "preferred_subject_to_accepted_source_rebind",
+      "product_execution": "UNRUN"
+    },
+    {
+      "task_id": "CNT-07",
+      "solution_sha256": "0b0c84d9f37bec0b2ce8dcff4b566a9b079e0a1ede52547ffed73f9cc227b9fe",
+      "root_assessment": "Testimonyoccurrence не person/prevalence/mandate. Feasibility требует actualcapacity, не обещания; dissent и consent сохраняются.",
+      "input_distinction": "Typedaccount/usegraph internal; participation/mandate/capacityfacts внешние.",
+      "standing": "preferred_subject_to_accepted_source_rebind",
+      "product_execution": "UNRUN"
+    },
+    {
+      "task_id": "CNT-08",
+      "solution_sha256": "3a3b71378f4538f91c6fc23ecd8025db4dbdb0e823a012a3569b6b99f2174554",
+      "root_assessment": "Competingbases сохраняются, sharedancestry не independentvotes. Exploratoryselection не confirmation; update только affecteduses.",
+      "input_distinction": "Lineage/basisdiff internal; methodvalidity и independentbasis genuine whenclaimrequires.",
+      "standing": "preferred_subject_to_accepted_source_rebind",
+      "product_execution": "UNRUN"
+    },
+    {
+      "task_id": "CNT-09",
+      "solution_sha256": "c5a7fc433271191f89bd33e3ec858e556017657b96c85d710c026cc6b829c218",
+      "root_assessment": "Selectedvertical плюс отдельный 26familygrammarobligation; отказ полезен, но не authenticpositive. Wholeconsumer/status/surfacechain проверяется.",
+      "input_distinction": "Composition internal; actual commissionedcase/suppliers/permissions scopedexternal.",
+      "standing": "preferred_subject_to_accepted_source_rebind",
+      "product_execution": "UNRUN"
+    },
+    {
+      "task_id": "OPS-01",
+      "solution_sha256": "d3b02069779de6db34d8900742ad6912ed7c8deb8ad3a36c79302f4d9bad9272",
+      "root_assessment": "Commissioning связывает effectiveprofile, operators, stores, limits и trust; selfsignature не назначает issuer. Пример limits не SLO.",
+      "input_distinction": "Dossier/checker internal; institutionappointments/grants/serviceobjectives внешние.",
+      "standing": "preferred_subject_to_accepted_source_rebind",
+      "product_execution": "UNRUN"
+    },
+    {
+      "task_id": "OPS-02",
+      "solution_sha256": "af4993c85a018390ca0cd7bc7ed92e1e38448d721bed419aa05d6d678a4a9a99",
+      "root_assessment": "Один worker только initialunmeasuredrehearsal, не глобальная parallelcap. SQLiteWALsamehost; syntheticrehearsal не authenticcase.",
+      "input_distinction": "Localsetup internal; paid/sensitiveuse требует отдельного реальногоразрешения.",
+      "standing": "preferred_subject_to_accepted_source_rebind",
+      "product_execution": "UNRUN"
+    },
+    {
+      "task_id": "OPS-03",
+      "solution_sha256": "dd58b47fa2a8b764198b0e9bb9ed8ea98e0a3a39d58fbc8fa60e323eaf1fed64",
+      "root_assessment": "Readiness проверяет mandatorylivecomponents, liveness не копирует remotehealth. Independentroute сохраняется еслисвой contract позволяет.",
+      "input_distinction": "Health/workerbinding internal; selectedprofilecommissioning scopedinput.",
+      "standing": "preferred_subject_to_accepted_source_rebind",
+      "product_execution": "UNRUN"
+    },
+    {
+      "task_id": "OPS-04",
+      "solution_sha256": "e6b24031bd2e53a2ce55b9f9053d571fb3fc05532037de57e8e3792db09b608c",
+      "root_assessment": "Supervisor использует existingdurablequeue; restart не exactlyonce. Unknownremoteeffect сохраняется до reconcile.",
+      "input_distinction": "Entrypoint/leases internal; provideridempotency/statusscope внешний.",
+      "standing": "preferred_subject_to_accepted_source_rebind",
+      "product_execution": "UNRUN"
+    },
+    {
+      "task_id": "OPS-05",
+      "solution_sha256": "cfcdc2d35ad6aea126ec8bbfb67b89cadf66fe6778ac258e899c9688ce8ae6fb",
+      "root_assessment": "Fullretainedmigrationmatrix и matchedDB/CAS/rightsrestore; RTO до freshpermittedread. Rollingcompat только если profilerolling.",
+      "input_distinction": "Migration/recovery internal; backup/retentionhistory и actualmountsemantics проверяются.",
+      "standing": "preferred_subject_to_accepted_source_rebind",
+      "product_execution": "UNRUN"
+    },
+    {
+      "task_id": "OPS-06",
+      "solution_sha256": "c50f6298d69a72baba0b48d613ac8ac9595ac30ea59fe928e648e01968961a89",
+      "root_assessment": "Objectowner+action+purpose проверяются перед serialization/effect; opaqueID не auth. Метрикине exactaccessreceipt.",
+      "input_distinction": "Nativeauthz/audit internal; delegationgrant external whereapplicable.",
+      "standing": "preferred_subject_to_accepted_source_rebind",
+      "product_execution": "UNRUN"
+    },
+    {
+      "task_id": "OPS-07",
+      "solution_sha256": "6e3df5f9a25ae4a8a0b57cd7a8b9b69940f94c04052f7730aecc1a64a00ce3f6",
+      "root_assessment": "Один budgetowner на providerprincipal; unknowncharge удерживает reservation. Secretref не payload, incompleteaccountmetering не hardcap.",
+      "input_distinction": "Ownerextension internal; priceceiling/accountcoverage/credentialauthority внешние.",
+      "standing": "preferred_subject_to_accepted_source_rebind",
+      "product_execution": "UNRUN"
+    },
+    {
+      "task_id": "OPS-08",
+      "solution_sha256": "ffba04ada4f7853223260770c6424b9d2f4166c5b7cae3187e2566f127c986f0",
+      "root_assessment": "SharedadmissionLIF06 плюс physicalreserve/hostadapter; cgroupOOM не gracefulguarantee. Concurrency только measuredprofile.",
+      "input_distinction": "Hostadapters/metrics internal; фактический resourceenvelopecommissioning измеряется, нетуниверсальныхчисел.",
+      "standing": "preferred_subject_to_accepted_source_rebind",
+      "product_execution": "UNRUN"
+    },
+    {
+      "task_id": "OPS-09",
+      "solution_sha256": "b872221597785f477ec91f650491e2326005f86c9f92d11a384433ba4d3d3596",
+      "root_assessment": "Custodianpullworker сохраняет rawlocal; lease не grant, outputrecipientrecheck обязателен. Remoteexecution не rawcloudcopy.",
+      "input_distinction": "Worker/protocol internal; sitegrant/egress/custodianreceipt external.",
+      "standing": "preferred_subject_to_accepted_source_rebind",
+      "product_execution": "UNRUN"
+    },
+    {
+      "task_id": "OPS-10",
+      "solution_sha256": "34e2fcfa67e28958b9b1245303aef9349739054cc7789cee758aaa2fa252450e",
+      "root_assessment": "Remoteadapter можно квалифицировать ради custody/topology, не только exhaustedvertical. DB/objectstore не multiatomic.",
+      "input_distinction": "Adapters/reconcile internal; exactbucketIAM/provideroperationsemantics deploymentinputs.",
+      "standing": "preferred_subject_to_accepted_source_rebind",
+      "product_execution": "UNRUN"
+    },
+    {
+      "task_id": "OPS-11",
+      "solution_sha256": "7f94191662ca1df3c18973f3c9a58a8f614ebf511e17c5b4d0ff4e24ee2b5c9a",
+      "root_assessment": "Succession сохраняет historicalverification; compromisedroot неавторизуетсамзамену. Unstaffedduty ограничивает affectedcurrentness.",
+      "input_distinction": "Trustconsumer/cutoff internal; реальные institutionrecovery/successorappointments external.",
+      "standing": "preferred_subject_to_accepted_source_rebind",
+      "product_execution": "UNRUN"
+    },
+    {
+      "task_id": "OPS-12",
+      "solution_sha256": "085e6f79e5a0f7e2c026cf6ce67bd8be696561dedb0b77c81532898f835d6609",
+      "root_assessment": "Airgap только selectedprofile; antirollback и clock/freshnessbounds требуют реальных controls. Приложениебез fetch не доказывает noegress.",
+      "input_distinction": "Bundle/hostchecks internal; offlineinstitutiontrust/validitypolicy external.",
+      "standing": "preferred_subject_to_accepted_source_rebind",
+      "product_execution": "UNRUN"
+    },
+    {
+      "task_id": "DEB-01",
+      "solution_sha256": "22d2861f2db9192d3e55f7de8e14d037e997f80f4a895c40184e6c7bd139272c",
+      "root_assessment": "Полный declareduniverse и observedreads отделены; unreadable не empty. Runnerreceiptintake не executableintegrity.",
+      "input_distinction": "Measurementinstrument/census internal; independentlyadmittedrunnerbasis whenclaimrequires.",
+      "standing": "preferred_subject_to_accepted_source_rebind",
+      "product_execution": "UNRUN"
+    },
+    {
+      "task_id": "DEB-02",
+      "solution_sha256": "bc249b0e0edb14e2f99c80eeee8e11adfdc5a83a6abc716d4adf80237f9ba858",
+      "root_assessment": "Settingsbudget измеряет effectiveinterfaces, не filelength. FullOpenAPIdescription+refs environmentbound; JCS не обязательнаясмена codec.",
+      "input_distinction": "Gate/exportrepair internal; budgetmeaning ownerdecision, не случайноновый threshold.",
+      "standing": "preferred_subject_to_accepted_source_rebind",
+      "product_execution": "UNRUN"
+    },
+    {
+      "task_id": "DEB-03",
+      "solution_sha256": "7ddc91f6d46ec3be8d231baecca59abef7b8e4011c4363b244f5b25d32055c3b",
+      "root_assessment": "Privateimport исправляется canonicalprotocol/API, не blanketpublic. Releaseinventoryreview actualdelta, не boolean.",
+      "input_distinction": "Architecturalplacement/review internal; sourcepolicy не внешняяблокировка.",
+      "standing": "preferred_subject_to_accepted_source_rebind",
+      "product_execution": "UNRUN"
+    },
+    {
+      "task_id": "DEB-04",
+      "solution_sha256": "4e2b1fb1f141a064638eeefb48c625854d20f8e6c29531040b2250a85a6ba7f1",
+      "root_assessment": "Fixtureisolation не загрязняет sys.modules; realabsenceinput, discriminantbytes и P41 слейс base. Краснота не назначаетсяпо соседству.",
+      "input_distinction": "Все repairs/sourceattribution internal; невозможность replay честно not_established.",
+      "standing": "preferred_subject_to_accepted_source_rebind",
+      "product_execution": "UNRUN"
+    },
+    {
+      "task_id": "DEB-05",
+      "solution_sha256": "5a24dda644841bce2bdf036e296d2ef6af981692239144410cbf987c0e3aad4b",
+      "root_assessment": "Malformed не empty; versiondefault проходиттотже validator; extra=forbid и freshproducerreadback. Неверные fixtures не расширяют contract.",
+      "input_distinction": "Schema/readerrepair internal; legitimateversionpolicy canonicalowner.",
+      "standing": "preferred_subject_to_accepted_source_rebind",
+      "product_execution": "UNRUN"
+    },
+    {
+      "task_id": "DEB-06",
+      "solution_sha256": "86953fbb678d580a48cd6f8e4891d5a3c450581681d03ea92161cb900899b905",
+      "root_assessment": "Fifthmerge append-only сдвумя parents; laterhead typedreplay не blanketrefusal. Programmererror отделён от missinginstitutioninput.",
+      "input_distinction": "Epoch/intake/projection internal; signerappointment не блокирует featureconstruction.",
+      "standing": "preferred_subject_to_accepted_source_rebind",
+      "product_execution": "UNRUN"
+    },
+    {
+      "task_id": "DEB-07",
+      "solution_sha256": "aec60dc5c1c1626e42d3f94af37c6d92d4bf84d06379d4b58177002e5aef66a3",
+      "root_assessment": "Пять CORR ипять INT-R2 смысловне collapse; estimandrelation partialorder толькообоснованная. Cost не VOI.",
+      "input_distinction": "Vocabulary/consumer work internal; justifiedsemanticrules и realcostbasis namedinputs.",
+      "standing": "preferred_subject_to_accepted_source_rebind",
+      "product_execution": "UNRUN"
+    },
+    {
+      "task_id": "DEB-08",
+      "solution_sha256": "edacead4c0e495223c8889fa9088ba4c67e873380d10b4a70a9eb0de4b817159",
+      "root_assessment": "GAP2scopecomposition, GAP3transcript, GAP5enumerator, GAP6per-rowconsumer различены. ExistingDS15receipt не переделывается.",
+      "input_distinction": "Missinginternalproducers строятся; sourcecontrolledfamilytranscript и scope-ruledecision separateinputs.",
+      "standing": "preferred_subject_to_accepted_source_rebind",
+      "product_execution": "UNRUN"
+    },
+    {
+      "task_id": "DEB-09",
+      "solution_sha256": "693c4f7d367017fca4bc9c9720b53de121e2b46196b7f1d5058c1c3ad2a32e62",
+      "root_assessment": "Пять institutionroles остаютсяразными typedempty; candidateconstruction неждёт appointment. Local signer незамена externalact.",
+      "input_distinction": "Verification/refusal internal; actualmandate/historyholder/signers genuineexternal.",
+      "standing": "preferred_subject_to_accepted_source_rebind",
+      "product_execution": "UNRUN"
+    },
+    {
+      "task_id": "DEB-10",
+      "solution_sha256": "6c914872be102910264b8f5db9007161ab811febac99152de54faa8c963fb2f7",
+      "root_assessment": "A11ycountersignscope и C13schemaappend distinct; historical504 не currentcriterion. Sampleaudit не wholeproductconformance.",
+      "input_distinction": "Reconciliation/schema internal; independentevaluatorreport external.",
+      "standing": "preferred_subject_to_accepted_source_rebind",
+      "product_execution": "UNRUN"
+    },
+    {
+      "task_id": "DEB-11",
+      "solution_sha256": "86bac23a171e484d1a1799542625d906c1d49d5f651ab5f7a0d1991979f8949f",
+      "root_assessment": "Recoveredconnector/toolingcriteria ужеизвестны, не waitforforeignrestatement. Cleanupsuccess/error/cancel и freshcheckoutbaseline конкретны.",
+      "input_distinction": "Engineeringinternal; только действительно отсутствующая accessfact можетбыть external.",
+      "standing": "preferred_subject_to_accepted_source_rebind",
+      "product_execution": "UNRUN"
+    },
+    {
+      "task_id": "DEB-12",
+      "solution_sha256": "0d8e008b4ba1a666c0c6f7b28e2ffa47fd25f58e6b0fd853db2e4dd016cb8741",
+      "root_assessment": "Declaredruntimeentryset+dynamicextensions задают boundedcompletecensus; nohit не zero. Retirement после realreachableclosure.",
+      "input_distinction": "Reachability/migration internal; гипотетическибудущие plugins не бесконечныйбарьер.",
+      "standing": "preferred_subject_to_accepted_source_rebind",
+      "product_execution": "UNRUN"
+    },
+    {
+      "task_id": "DEB-13",
+      "solution_sha256": "76f0037a1261036741a6810942aaeb5e3f27c553483627f6923dcef581706357",
+      "root_assessment": "DefaultfiniteexactEVSI с independentoracle; continuousscale→qualifiedquadrature/MC. Grossmetric не cost, subsetrows не allornothing.",
+      "input_distinction": "Metricproducer internal; utility/law/observationinputs required, costonlynet/action, normativeuseprincipal.",
+      "standing": "preferred_subject_to_accepted_source_rebind",
+      "product_execution": "UNRUN"
+    },
+    {
+      "task_id": "DEB-14",
+      "solution_sha256": "875d87418ab244f2c2a8a06b84649ecb8fef527e60dfc44c7eda15eabef8b2e3",
+      "root_assessment": "Ratifiedfour-wayrule потребляется поодной plane; candidate не ruling. LifecyclewriterLIF02 один, внешнее appointment не нужно длясамогоправила.",
+      "input_distinction": "Producer/bridge/ruling implementation internal; фактические externalacts остаются sourceboundevidence.",
+      "standing": "preferred_subject_to_accepted_source_rebind",
+      "product_execution": "UNRUN"
+    },
+    {
+      "task_id": "P0-ACCEPT",
+      "solution_sha256": "d1ffc26de6fa20ce8317d12d7f6f3b3a34723d0f98aac99f9226a7fc316a6cd4",
+      "root_assessment": "Нужна реальная G приёмка, не scenarioassumption/формальный shape. Codeacceptance и findingclosure отдельно.",
+      "input_distinction": "Gdecision действительныйвход; этот documentationpack его не создаёт.",
+      "standing": "preferred_subject_to_accepted_source_rebind",
+      "product_execution": "UNRUN"
+    },
+    {
+      "task_id": "P0-REBIND",
+      "solution_sha256": "ef05010c02172133ed89ed107277ac821420721f7855b0e7e99dd2fb7a350e1e",
+      "root_assessment": "Полный affectedscope разрешает independentwork; wholeprogramrebind нужен к freeze. Oldsourcepin не acceptedidentity.",
+      "input_distinction": "Reconciliation/ownerallocation internal; exactacceptedE02receipt required.",
+      "standing": "preferred_subject_to_accepted_source_rebind",
+      "product_execution": "UNRUN"
+    },
+    {
+      "task_id": "FINAL-FREEZE",
+      "solution_sha256": "53c6a57a1c60a77ba701a24d3bf668e78c9f13316115d01c4abcd264a89b6528",
+      "root_assessment": "Freeze содержит source/input/rule/schema/backend/upstream identities и fullobligations. Internalmissingproducer не externalresidual.",
+      "input_distinction": "Rootengineeringcheck; genuineunavailableexternalinputs сохраняютсяс scope без closurecredit.",
+      "standing": "preferred_subject_to_accepted_source_rebind",
+      "product_execution": "UNRUN"
+    },
+    {
+      "task_id": "FINAL-REVIEW",
+      "solution_sha256": "99b2011402d06e874ac33e043f9fc2e0505da4d8eb040d9af16a91f14307bf58",
+      "root_assessment": "Author/revieweridentity separation плюс specificfalsifiers. P40 второй sameclass→mechanism/residual с absencecheck, не бесконечный instancepatch.",
+      "input_distinction": "Reviewprocess internal; компетентность/independence устанавливаются по заявленнойпроверке.",
+      "standing": "preferred_subject_to_accepted_source_rebind",
+      "product_execution": "UNRUN"
+    },
+    {
+      "task_id": "FINAL-REPLAY",
+      "solution_sha256": "c05cd977fcc6bc24fcfbea883706b973a43a4e384b3a8ae328d8e126feb4df0a",
+      "root_assessment": "Shards под actualresourceleases; completionjoins не startbarriers. Rule/schema/upstreamswap инвалидирует exactaffectedreceipt.",
+      "input_distinction": "Executioncoordination internal; selectedpermittedinputs/backendavailability separatefacts.",
+      "standing": "preferred_subject_to_accepted_source_rebind",
+      "product_execution": "UNRUN"
+    },
+    {
+      "task_id": "FINAL-USE",
+      "solution_sha256": "7390d2cd5c3a50fb7bdd856268ea86de650ba54d0c5ffc35598329e0e3da3390",
+      "root_assessment": "Полный originaldenominator остаётсяобязательным; replaycompletion не acceptance. Scopedoperationaluse неподменяет programmecloseout.",
+      "input_distinction": "Operationalreadiness internal; lawfulcommissioning/mandate и explicituserscopechange genuineinputs.",
+      "standing": "preferred_subject_to_accepted_source_rebind",
+      "product_execution": "UNRUN"
+    }
+  ]
+}

@@ -1,0 +1,11 @@
+# Final delta: UI-08, UI-12, UI-17
+
+Reconciled only the three prior residuals against `policy-engine/docs/plans/active/post-e02-r9-unified-implementation/solutions/preferred-solutions.json`. No residual contradiction remains in these rows.
+
+| Status / residual severity | Task and anchor | Counterexample the row must prevent | Current correction |
+|---|---|---|---|
+| Closed; no remaining finding | UI-12 — `preferred_solution`, `inputs_to_resolve`, `implementation_steps`, `composition_contracts` | A commissioned local PostgreSQL environment is wrongly rejected because the harness requires cloud identity; or an executed failing assertion is mislabeled `environment_blocked` / every `SKIP` is treated as missing DSN. | The row accepts commissioned local **or** cloud PostgreSQL, limits cloud identity to the cloud profile, and distinguishes pre-execution missing environment (`environment_blocked`) from assertion failure (`FAIL`), harness error/interruption (`ERROR`), intentional `SKIP`, and unexecuted (`UNRUN`). Acceptance still requires all four real-PG properties. |
+| Closed; no remaining finding | UI-17 — `preferred_solution`, `implementation_steps` (metrics and numeric claims) | Unknown acquisition cost suppresses a valid owner-produced gross VOI, or a gross VOI is presented as net value / authorization to acquire. | Gross VOI display is independently gated on its producer and basis and may remain visible with cost unknown. Cost, net value, ranking, and action each require their own admitted inputs; the missing cost is explicit and does not erase gross VOI. |
+| Closed; no remaining finding | UI-08 — `preferred_solution`, `implementation_steps`, `composition_contracts` | A prediction error alone mutates a posterior under current WP-01/02, or UI creates a second causal/world history while projecting owner outputs. | Current WP-01/02 explicitly prohibit posterior mutation. Only after competent scoped activation may the actual update policy admit a cause/profile; prediction error alone and unresolved contributors do not qualify. O1/O3 remain the emitters/persistors, and UI-08 is read-only over their artifacts. |
+
+Review scope was limited to those three task rows; no product acceptance or broader re-review is asserted.

@@ -259,6 +259,38 @@ def _classify_execution_receipt(
     return "failed"
 
 
+def _create_c7_attempt_directory(
+    workspace_root: Path,
+) -> tuple[tempfile.TemporaryDirectory[str], Path]:
+    """Create one private attempt directory outside the supplied checkout."""
+
+    workspace = workspace_root.resolve(strict=True)
+    temp_parent = Path(tempfile.gettempdir()).resolve(strict=True)
+    if not temp_parent.is_dir():
+        raise ValueError("system temporary directory is not a directory")
+    if temp_parent == workspace or temp_parent.is_relative_to(workspace):
+        raise ValueError("system temporary directory is inside the repository checkout")
+
+    temporary_directory = tempfile.TemporaryDirectory(
+        prefix="polisyos-ukraine-c7-", dir=temp_parent
+    )
+    candidate = Path(temporary_directory.name)
+    try:
+        if candidate.is_symlink():
+            raise ValueError("private attempt directory must not be a symlink")
+        attempt_root = candidate.resolve(strict=True)
+        if (
+            attempt_root.parent != temp_parent
+            or attempt_root.is_relative_to(workspace)
+            or workspace.is_relative_to(attempt_root)
+        ):
+            raise ValueError("private attempt directory overlaps the repository checkout")
+    except (OSError, ValueError):
+        temporary_directory.cleanup()
+        raise
+    return temporary_directory, attempt_root
+
+
 def _run_repository_gate(config: ServerConfig, workspace_root: Path | None) -> PartAGateManifest:
     """Execute C7 against the supplied checkout after domain admission."""
 
@@ -282,6 +314,17 @@ def _run_repository_gate(config: ServerConfig, workspace_root: Path | None) -> P
     attempt_id = uuid.uuid4().hex
     execution_receipt: PartAGateExecutionReceipt | None = None
     verification_error: str | None = None
+    try:
+        attempt_directory, receipt_root = _create_c7_attempt_directory(workspace_root)
+    except (OSError, ValueError) as exc:
+        return PartAGateManifest(
+            status="failed",
+            command=[],
+            server_only=True,
+            passed=False,
+            skipped=False,
+            notes=[f"C7 private attempt scratch is unavailable: {exc}"],
+        )
     command = [
         config.uv_bin,
         "run",
@@ -292,11 +335,13 @@ def _run_repository_gate(config: ServerConfig, workspace_root: Path | None) -> P
         "--strict-markers",
         "-o",
         "addopts=",
+        "-o",
+        f"cache_dir={receipt_root / 'pytest-cache'}",
+        f"--basetemp={receipt_root / 'pytest-basetemp'}",
         "-p",
         "tools.quality.testing.pytest_workload_receipt",
         _C7_TEST_PATH,
     ]
-    receipt_root = Path(tempfile.mkdtemp(prefix="polisyos-ukraine-c7-"))
     workload_path = receipt_root / "workload.json"
     phases_path = receipt_root / "phases.json"
     env = dict(os.environ)
@@ -367,7 +412,7 @@ def _run_repository_gate(config: ServerConfig, workspace_root: Path | None) -> P
     finally:
         for path in (workload_path, phases_path):
             path.unlink(missing_ok=True)
-        receipt_root.rmdir()
+        attempt_directory.cleanup()
 
     stdout = completed.stdout or ""
     status = _classify_execution_receipt(execution_receipt)

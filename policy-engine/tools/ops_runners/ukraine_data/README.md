@@ -41,7 +41,11 @@ teardown report and a retained skip reason;
 it passes only when the exact source/config identity is reconciled and every
 phase succeeds. A zero exit code, console summary, collect-only run, or narrowed
 selection cannot substitute for that evidence. A macOS focused test run does
-not verify the Linux installed-wheel path or the actual C7 server lifecycle.
+not verify the Linux installed-wheel path or the actual C7 server lifecycle. Each C7 child also gets
+a unique system-temporary attempt directory outside the supplied checkout; explicit pytest `cache_dir`
+and `--basetemp` options keep its cache and per-test temporary files in that directory. The directory
+is removed after the typed receipts are read. An approved caller-provided JUnit report remains at its
+requested path.
 
 Operational rules:
 

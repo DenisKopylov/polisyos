@@ -215,6 +215,31 @@ def _write_synthetic_execution_receipts(call: dict[str, object]) -> None:
     )
 
 
+def _assert_c7_attempt_command(command: list[str]) -> None:
+    assert command[:10] == [
+        "uv",
+        "run",
+        "pytest",
+        "-q",
+        "-ra",
+        "--import-mode=importlib",
+        "--strict-markers",
+        "-o",
+        "addopts=",
+        "-o",
+    ]
+    assert command[10].startswith("cache_dir=")
+    assert command[11].startswith("--basetemp=")
+    attempt_root = Path(command[10][len("cache_dir=") :]).parent
+    assert Path(command[10][len("cache_dir=") :]) == attempt_root / "pytest-cache"
+    assert Path(command[11][len("--basetemp=") :]) == attempt_root / "pytest-basetemp"
+    assert command[12:] == [
+        "-p",
+        "tools.quality.testing.pytest_workload_receipt",
+        "tests/integration/test_c7_synthetic_full_pipeline.py",
+    ]
+
+
 def _make_repository_checkout(root: Path) -> Path:
     """Create only the structural inputs needed for the repository gate."""
 
@@ -317,20 +342,8 @@ def test_part_a_gate_requires_structured_execution_evidence(
     assert len(calls) == 1
     assert manifest.server_only is True
     call = calls[0]
-    assert call["command"] == [
-        "uv",
-        "run",
-        "pytest",
-        "-q",
-        "-ra",
-        "--import-mode=importlib",
-        "--strict-markers",
-        "-o",
-        "addopts=",
-        "-p",
-        "tools.quality.testing.pytest_workload_receipt",
-        "tests/integration/test_c7_synthetic_full_pipeline.py",
-    ]
+    command = cast("list[str]", call["command"])
+    _assert_c7_attempt_command(command)
     assert call["cwd"] == repo_root
     assert call["capture_output"] is True
     assert call["text"] is True
@@ -477,20 +490,8 @@ def test_console_cli_composes_ops_runner_for_part_a_gate(
 
     assert result == 0
     assert len(calls) == 1
-    assert calls[0]["command"] == [
-        "uv",
-        "run",
-        "pytest",
-        "-q",
-        "-ra",
-        "--import-mode=importlib",
-        "--strict-markers",
-        "-o",
-        "addopts=",
-        "-p",
-        "tools.quality.testing.pytest_workload_receipt",
-        "tests/integration/test_c7_synthetic_full_pipeline.py",
-    ]
+    command = cast("list[str]", calls[0]["command"])
+    _assert_c7_attempt_command(command)
     assert calls[0]["cwd"] == workspace_root
     assert calls[0]["env"]["POLISYOS_RUN_INTEGRATION"] == "1"  # type: ignore[index]
     assert calls[0]["check"] is False

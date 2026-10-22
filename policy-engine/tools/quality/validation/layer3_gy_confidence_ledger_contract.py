@@ -199,12 +199,30 @@ class OwnerEvidenceBundle:
     projection_sha256: str
 
 
+def _resolve_retained_scratch_root(path: Path | None) -> Path | None:
+    """Resolve an existing absolute root used only by explicit retained runs."""
+
+    if path is None:
+        return None
+    requested = Path(path).expanduser()
+    if not requested.is_absolute():
+        raise ValueError("retained_scratch_root_must_be_absolute")
+    try:
+        resolved = requested.resolve(strict=True)
+    except OSError as exc:
+        raise ValueError("retained_scratch_root_missing") from exc
+    if not resolved.is_dir():
+        raise ValueError("retained_scratch_root_not_directory")
+    return resolved
+
+
 def load_owner_bundle(
     repo_root: Path,
     *,
     catalog_path: Path,
     l5_path: Path,
     objective_progress: Callable[[str], None] | None = None,
+    retained_scratch_root: Path | None = None,
 ) -> OwnerEvidenceBundle:
     """Recompute and cache the real N10/N13b narrow owner projections.
 
@@ -218,6 +236,7 @@ def load_owner_bundle(
         catalog_path: Immutable N13b epoch-zero catalog.
         l5_path: N13b measurement trust registry.
         objective_progress: Optional observer for monotone derivation milestones.
+        retained_scratch_root: Existing absolute directory for explicitly retained scratch.
 
     Returns:
         A narrow, immutable owner evidence bundle.
@@ -230,6 +249,7 @@ def load_owner_bundle(
     root = Path(repo_root).resolve()
     catalog = Path(catalog_path).resolve()
     l5 = Path(l5_path).resolve()
+    retained_root = _resolve_retained_scratch_root(retained_scratch_root)
     controlled_environment = _declared_owner_environment()
     token = _OWNER_PROGRESS_CALLBACK.set(objective_progress)
     try:
@@ -246,6 +266,7 @@ def load_owner_bundle(
                 catalog.as_posix(),
                 l5.as_posix(),
                 _consumed_input_cache_key(consumed_inputs),
+                retained_root.as_posix() if retained_root is not None else None,
             )
             _report_owner_progress("owner_post_derivation_fence_started")
             post_derivation_inputs = _owner_consumed_input_set(
@@ -294,12 +315,19 @@ def _load_owner_bundle_cached(
     catalog_path: str,
     l5_path: str,
     consumed_input_cache_key: str,
+    retained_scratch_root: str | None = None,
 ) -> OwnerEvidenceBundle:
     root = Path(repo_root)
     catalog = Path(catalog_path)
     l5 = Path(l5_path)
     _report_owner_progress("n10_owner_recomputation_started")
-    capstone = _recompute_n10_capstone(root)
+    if retained_scratch_root is None:
+        capstone = _recompute_n10_capstone(root)
+    else:
+        capstone = _recompute_n10_capstone(
+            root,
+            retained_scratch_root=Path(retained_scratch_root),
+        )
     _report_owner_progress("n10_owner_recomputation_complete")
     _report_owner_progress("n13b_owner_recomputation_started")
     contract = _recompute_n13b_contract(root, catalog_path=catalog, l5_path=l5)
@@ -337,7 +365,11 @@ def _report_owner_progress(milestone: str) -> None:
         callback(milestone)
 
 
-def _recompute_n10_capstone(repo_root: Path) -> dict[str, Any]:
+def _recompute_n10_capstone(
+    repo_root: Path,
+    *,
+    retained_scratch_root: Path | None = None,
+) -> dict[str, Any]:
     from tools.quality.validation.check_layer3_gy_depth_n_universality_contract import (
         UniversalityContractError,
     )
@@ -347,7 +379,13 @@ def _recompute_n10_capstone(repo_root: Path) -> dict[str, Any]:
     _validate_n10_payload(stored)
     stored_routes = _extract_n10_route_projection(stored)
     try:
-        recomputed = _build_n10_cached_payload(Path(repo_root))
+        if retained_scratch_root is None:
+            recomputed = _build_n10_cached_payload(Path(repo_root))
+        else:
+            recomputed = _build_n10_cached_payload(
+                Path(repo_root),
+                retained_scratch_root=retained_scratch_root,
+            )
     except OwnerProjectionError:
         raise
     except UniversalityContractError as exc:
@@ -381,7 +419,11 @@ def _validate_n10_payload(payload: Mapping[str, Any]) -> None:
         raise OwnerProjectionError("n10_capstone_invalid", repr(issues))
 
 
-def _build_n10_cached_payload(repo_root: Path) -> dict[str, Any]:
+def _build_n10_cached_payload(
+    repo_root: Path,
+    *,
+    retained_scratch_root: Path | None = None,
+) -> dict[str, Any]:
     from tools.quality.validation.check_layer3_gy_depth_n_universality_contract import (
         build_live_payload,
         check_provenance_stability,
@@ -396,7 +438,13 @@ def _build_n10_cached_payload(repo_root: Path) -> dict[str, Any]:
             "n10_capstone_provenance_unstable",
             repr(stability.get("issues")),
         )
-    return build_live_payload(repo_root, lane="cached")
+    if retained_scratch_root is None:
+        return build_live_payload(repo_root, lane="cached")
+    return build_live_payload(
+        repo_root,
+        lane="cached",
+        retained_scratch_root=retained_scratch_root,
+    )
 
 
 def _extract_n10_route_projection(payload: Mapping[str, Any]) -> object:

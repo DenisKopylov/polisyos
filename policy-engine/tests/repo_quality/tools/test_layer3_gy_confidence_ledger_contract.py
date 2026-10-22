@@ -519,6 +519,7 @@ def test_n13b_recomputation_rejects_declared_accounting_projection_drift(
 
 
 def test_n10_cached_owner_primes_provenance_before_async_capstone_replay(
+    tmp_path: Path,
     monkeypatch: pytest.MonkeyPatch,
 ) -> None:
     from tools.quality.validation import (
@@ -526,16 +527,23 @@ def test_n10_cached_owner_primes_provenance_before_async_capstone_replay(
     )
 
     calls: list[str] = []
+    observed_roots: list[Path | None] = []
 
     def check_provenance_stability(repo_root: Path) -> dict[str, str]:
         assert repo_root == POLICY_ENGINE_ROOT
         calls.append("provenance")
         return {"status": "stable"}
 
-    def build_live_payload(repo_root: Path, *, lane: str) -> dict[str, str]:
+    def build_live_payload(
+        repo_root: Path,
+        *,
+        lane: str,
+        retained_scratch_root: Path | None = None,
+    ) -> dict[str, str]:
         assert repo_root == POLICY_ENGINE_ROOT
         assert lane == "cached"
         calls.append("capstone")
+        observed_roots.append(retained_scratch_root)
         return {"owner": "recomputed"}
 
     monkeypatch.setattr(
@@ -546,7 +554,13 @@ def test_n10_cached_owner_primes_provenance_before_async_capstone_replay(
     monkeypatch.setattr(n10_owner, "build_live_payload", build_live_payload)
 
     assert adapter._build_n10_cached_payload(POLICY_ENGINE_ROOT) == {"owner": "recomputed"}
-    assert calls == ["provenance", "capstone"]
+    retained_root = tmp_path.resolve()
+    assert adapter._build_n10_cached_payload(
+        POLICY_ENGINE_ROOT,
+        retained_scratch_root=retained_root,
+    ) == {"owner": "recomputed"}
+    assert calls == ["provenance", "capstone", "provenance", "capstone"]
+    assert observed_roots == [None, retained_root]
 
 
 def test_nonzero_admission_state_without_enumerable_passports_fails_closed(
@@ -2624,3 +2638,203 @@ def test_n11_consumed_inputs_reconcile_complete_loaded_tools_closure(
         )
     assert exc_info.value.code == "owner_source_runtime_code_mismatch"
     assert cache_calls == []
+
+
+def test_explicit_retained_scratch_contexts_survive_and_default_contexts_clean(
+    tmp_path: Path,
+) -> None:
+    from tools.quality.validation import check_layer3_gy_depth_n_universality_contract as depth
+
+    retained_root = checker._create_retained_scratch_root(tmp_path / "retained")
+    assert retained_root == (tmp_path / "retained").resolve()
+
+    with checker._retained_tempdir(
+        prefix="n11-accounted-",
+        retained_scratch_root=retained_root,
+    ) as n11_path:
+        n11_retained = Path(n11_path)
+        (n11_retained / "marker").write_text("n11", encoding="utf-8")
+    assert (n11_retained / "marker").read_text(encoding="utf-8") == "n11"
+
+    with depth._n10_replay_tempdir(
+        prefix="n10-role-replay-",
+        retained_scratch_root=retained_root,
+    ) as n10_path:
+        n10_retained = Path(n10_path)
+        (n10_retained / "marker").write_text("n10", encoding="utf-8")
+    assert (n10_retained / "marker").read_text(encoding="utf-8") == "n10"
+
+    with checker._retained_tempdir(
+        prefix="n11-default-",
+        retained_scratch_root=None,
+    ) as default_path:
+        default_directory = Path(default_path)
+        assert default_directory.is_dir()
+    assert not default_directory.exists()
+
+    with pytest.raises(ValueError, match="retained_scratch_root_must_be_absolute"):
+        checker._create_retained_scratch_root(Path("relative-scratch"))
+    with pytest.raises(FileExistsError, match="retained_scratch_root_must_be_new"):
+        checker._create_retained_scratch_root(retained_root)
+
+
+def test_n10_retained_scratch_root_is_admitted_before_directory_creation(
+    tmp_path: Path,
+    monkeypatch: pytest.MonkeyPatch,
+) -> None:
+    from tools.quality.validation import check_layer3_gy_depth_n_universality_contract as depth
+    from tools.quality.validation.substrate_source_context import (
+        CandidateSubstrateSourceContext,
+        CandidateSubstrateSourceError,
+    )
+
+    workspace = tmp_path / "workspace"
+    workspace.mkdir()
+    outside_root = tmp_path / "outside-retained"
+    outside_root.mkdir()
+    source_context = CandidateSubstrateSourceContext(
+        code_root=POLICY_ENGINE_ROOT.resolve(),
+        source_owner_root=POLICY_ENGINE_ROOT.resolve(),
+        workspace_root=workspace.resolve(),
+        manifest_ref="test-only-workspace-context",
+        manifest_sha256="0" * 64,
+    )
+    allocations: list[dict[str, object]] = []
+
+    def record_temporary_directory(**kwargs: object) -> object:
+        allocations.append(kwargs)
+        raise AssertionError("rejected retained root reached temporary directory creation")
+
+    with monkeypatch.context() as patch:
+        patch.setattr(depth, "TemporaryDirectory", record_temporary_directory)
+        with pytest.raises(
+            CandidateSubstrateSourceError,
+            match="selected_substrate_workspace_output_escape",
+        ):
+            depth._n10_replay_tempdir(
+                prefix="n10-outside-retained-",
+                retained_scratch_root=outside_root,
+                source_context=source_context,
+            )
+    assert allocations == []
+    assert list(outside_root.iterdir()) == []
+
+    retained_root = workspace / "retained"
+    retained_root.mkdir()
+    with depth._n10_replay_tempdir(
+        prefix="n10-internal-retained-",
+        retained_scratch_root=retained_root,
+        source_context=source_context,
+    ) as retained_path:
+        retained_directory = Path(retained_path).resolve()
+        assert retained_directory.is_relative_to(retained_root.resolve())
+        assert retained_directory.is_relative_to(workspace.resolve())
+        assert source_context.require_workspace_tree(retained_directory) == retained_directory
+        marker = retained_directory / "retained-marker"
+        marker.write_text("kept", encoding="utf-8")
+    assert marker.read_text(encoding="utf-8") == "kept"
+
+    with depth._n10_replay_tempdir(
+        prefix="n10-default-context-",
+        retained_scratch_root=None,
+        source_context=source_context,
+        default_parent=workspace,
+    ) as default_path:
+        default_directory = Path(default_path)
+        assert default_directory.is_dir()
+        assert default_directory.parent == workspace.resolve()
+    assert not default_directory.exists()
+
+
+def test_cached_n10_replay_passes_retained_root_to_every_role(
+    tmp_path: Path,
+    monkeypatch: pytest.MonkeyPatch,
+) -> None:
+    import asyncio
+
+    from tools.quality.validation import check_layer3_gy_depth_n_universality_contract as depth
+
+    roles = tuple(depth.PLAIN_LANGUAGE_PROOF_REQUESTS)
+    observed: list[tuple[str, Path | None]] = []
+
+    async def record_replay_root(
+        _repo_root: Path,
+        *,
+        role: str,
+        recording: object,
+        historical_domain_run: object = None,
+        source_context: object = None,
+        retained_scratch_root: Path | None = None,
+    ) -> tuple[dict[str, object], dict[str, object], tuple[object, ...]]:
+        del recording, historical_domain_run, source_context
+        observed.append((role, retained_scratch_root))
+        return {"terminal_distribution": {}}, {"role": role}, (object(),)
+
+    monkeypatch.setattr(depth, "_build_pending_payload", lambda *_args, **_kwargs: {})
+    monkeypatch.setattr(depth, "_domain_run_and_normalized_recording", record_replay_root)
+    monkeypatch.setattr(
+        depth,
+        "_controlled_recording_receipt_blocks",
+        lambda *_args, **_kwargs: (),
+    )
+    monkeypatch.setattr(depth, "_depth_summary_comparison_admissions", lambda *_args, **_kwargs: ())
+    monkeypatch.setattr(
+        depth,
+        "build_gy_comparison_projection_plan",
+        lambda *_args, **_kwargs: object(),
+    )
+    monkeypatch.setattr(depth, "_set_artifact_identities", lambda *_args, **_kwargs: None)
+
+    retained_root = tmp_path.resolve()
+    asyncio.run(
+        depth._complete_payload_from_recordings(
+            POLICY_ENGINE_ROOT,
+            recordings={role: {} for role in roles},
+            retained_scratch_root=retained_root,
+        )
+    )
+
+    assert observed == [(role, retained_root) for role in roles]
+
+
+def test_retained_root_is_bound_to_owner_bundle_cache_key(
+    tmp_path: Path,
+    monkeypatch: pytest.MonkeyPatch,
+) -> None:
+    inputs = _sealed_owner_inputs("sha256:" + "1" * 64)
+    observed_roots: list[str | None] = []
+    bundle = SimpleNamespace(consumed_inputs=inputs)
+
+    monkeypatch.setattr(
+        adapter,
+        "_owner_consumed_input_set",
+        lambda *_args, **_kwargs: inputs,
+    )
+
+    def cached_owner(
+        _repo_root: str,
+        _catalog_path: str,
+        _l5_path: str,
+        _input_key: str,
+        retained_scratch_root: str | None = None,
+    ) -> object:
+        observed_roots.append(retained_scratch_root)
+        return bundle
+
+    monkeypatch.setattr(adapter, "_load_owner_bundle_cached", cached_owner)
+    first_root = checker._create_retained_scratch_root(tmp_path / "first-retained")
+    second_root = checker._create_retained_scratch_root(tmp_path / "second-retained")
+
+    for retained_root in (first_root, first_root, second_root):
+        adapter.load_owner_bundle(
+            POLICY_ENGINE_ROOT,
+            catalog_path=CATALOG_PATH,
+            l5_path=L5_PATH,
+            retained_scratch_root=retained_root,
+        )
+
+    assert observed_roots == [
+        first_root.as_posix(),
+        first_root.as_posix(),
+        second_root.as_posix(),
+    ]

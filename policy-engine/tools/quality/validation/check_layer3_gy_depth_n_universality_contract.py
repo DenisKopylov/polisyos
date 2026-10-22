@@ -33,7 +33,13 @@ import subprocess
 import sys
 import time
 import tomllib
-from collections.abc import Callable, Iterator, Mapping, MutableMapping, Sequence
+from collections.abc import (
+    Callable,
+    Iterator,
+    Mapping,
+    MutableMapping,
+    Sequence,
+)
 from dataclasses import dataclass
 from decimal import Decimal
 from pathlib import Path
@@ -5162,6 +5168,35 @@ async def _domain_run_from_recording(
     return domain_run
 
 
+def _n10_replay_tempdir(
+    *,
+    prefix: str,
+    retained_scratch_root: Path | None,
+    source_context: CandidateSubstrateSourceContext | None = None,
+    default_parent: Path | None = None,
+) -> contextlib.AbstractContextManager[str]:
+    """Retain replay scratch only after admitting its root to the caller workspace."""
+
+    if retained_scratch_root is None:
+        if source_context is not None:
+            default_parent = source_context.require_workspace_tree(
+                default_parent if default_parent is not None else source_context.workspace_root
+            )
+        return TemporaryDirectory(prefix=prefix, dir=default_parent)
+    requested = Path(retained_scratch_root).expanduser()
+    if not requested.is_absolute():
+        raise ValueError("retained_scratch_root_must_be_absolute")
+    try:
+        retained_root = requested.resolve(strict=True)
+    except OSError as exc:
+        raise ValueError("retained_scratch_root_missing") from exc
+    if not retained_root.is_dir():
+        raise ValueError("retained_scratch_root_not_directory")
+    if source_context is not None:
+        retained_root = source_context.require_workspace_tree(retained_root)
+    return TemporaryDirectory(prefix=prefix, dir=retained_root, delete=False)
+
+
 async def _domain_run_and_normalized_recording(
     repo_root: Path,
     *,
@@ -5169,6 +5204,7 @@ async def _domain_run_and_normalized_recording(
     recording: Mapping[str, Any],
     historical_domain_run: Mapping[str, Any] | None = None,
     source_context: CandidateSubstrateSourceContext | None = None,
+    retained_scratch_root: Path | None = None,
 ) -> tuple[dict[str, Any], dict[str, Any], tuple[GyComparisonAdmission, ...]]:
     """Re-derive current owners and supersede no-context fixed-vertical evidence."""
 
@@ -5313,9 +5349,11 @@ async def _domain_run_and_normalized_recording(
     )
     sessions_by_node_ref: dict[str, ConfidenceLedgerSession] = {}
     with (
-        TemporaryDirectory(
+        _n10_replay_tempdir(
             prefix=f"gy-depth-n-{role}-n9-verification-",
-            dir=source_context.workspace_root if source_context is not None else None,
+            retained_scratch_root=retained_scratch_root,
+            source_context=source_context,
+            default_parent=(source_context.workspace_root if source_context is not None else None),
         ) as temp_dir,
         _temporary_environment(_mapping(n4_recording.get("effective_environment"))),
     ):
@@ -6051,6 +6089,7 @@ async def _complete_payload_from_recordings(
     recordings: Mapping[str, Any],
     historical_domain_runs: Mapping[str, Any] | None = None,
     source_context: CandidateSubstrateSourceContext | None = None,
+    retained_scratch_root: Path | None = None,
 ) -> tuple[dict[str, Any], GyComparisonProjectionPlan]:
     """Aggregate three cached owner runs over the stable Task-12 evidence graph."""
 
@@ -6066,6 +6105,9 @@ async def _complete_payload_from_recordings(
     recording_admissions: list[GyComparisonAdmission] = []
     receipt_counts_by_role: dict[str, int] = {}
     for role in PLAIN_LANGUAGE_PROOF_REQUESTS:
+        domain_run_kwargs: dict[str, Any] = {}
+        if retained_scratch_root is not None:
+            domain_run_kwargs["retained_scratch_root"] = retained_scratch_root
         (
             domain_run,
             normalized_recording,
@@ -6080,6 +6122,7 @@ async def _complete_payload_from_recordings(
                 else None
             ),
             source_context=source_context,
+            **domain_run_kwargs,
         )
         domain_runs[role] = domain_run
         normalized_recordings[role] = normalized_recording
@@ -6405,6 +6448,7 @@ def build_live_payload(
     lane: str = "lane0",
     source_context: CandidateSubstrateSourceContext | None = None,
     source_artifact_path: Path | None = None,
+    retained_scratch_root: Path | None = None,
 ) -> dict[str, Any]:
     """Build either the cheap pending view or the cached completed proof.
 
@@ -6420,12 +6464,21 @@ def build_live_payload(
         UniversalityContractError: If the entry graph or recordings drift.
     """
 
-    payload, _ = _build_live_payload_with_plan(
-        repo_root,
-        lane=lane,
-        source_context=source_context,
-        source_artifact_path=source_artifact_path,
-    )
+    if retained_scratch_root is None:
+        payload, _ = _build_live_payload_with_plan(
+            repo_root,
+            lane=lane,
+            source_context=source_context,
+            source_artifact_path=source_artifact_path,
+        )
+    else:
+        payload, _ = _build_live_payload_with_plan(
+            repo_root,
+            lane=lane,
+            source_context=source_context,
+            source_artifact_path=source_artifact_path,
+            retained_scratch_root=retained_scratch_root,
+        )
     return payload
 
 
@@ -6435,6 +6488,7 @@ def _build_live_payload_with_plan(
     lane: str,
     source_context: CandidateSubstrateSourceContext | None = None,
     source_artifact_path: Path | None = None,
+    retained_scratch_root: Path | None = None,
 ) -> tuple[dict[str, Any], GyComparisonProjectionPlan]:
     """Build a payload together with its ephemeral producer-bound plan."""
 
@@ -6453,14 +6507,14 @@ def _build_live_payload_with_plan(
         raise UniversalityContractError("proof_recordings_missing")
     committed = _read_json(path)
     recordings = _mapping(committed.get("proof_recordings"))
-    return asyncio.run(
-        _complete_payload_from_recordings(
-            root,
-            recordings=recordings,
-            historical_domain_runs=_mapping(committed.get("domain_runs")),
-            source_context=source_context,
-        )
-    )
+    replay_kwargs: dict[str, Any] = {
+        "recordings": recordings,
+        "historical_domain_runs": _mapping(committed.get("domain_runs")),
+        "source_context": source_context,
+    }
+    if retained_scratch_root is not None:
+        replay_kwargs["retained_scratch_root"] = retained_scratch_root
+    return asyncio.run(_complete_payload_from_recordings(root, **replay_kwargs))
 
 
 def _build_pending_payload(

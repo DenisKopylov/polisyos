@@ -21,7 +21,7 @@ import tempfile
 import time
 import traceback
 from collections.abc import Callable, Mapping
-from contextlib import suppress
+from contextlib import AbstractContextManager, suppress
 from dataclasses import asdict, dataclass
 from decimal import ROUND_FLOOR, Decimal, localcontext
 from fractions import Fraction
@@ -108,6 +108,58 @@ DEFAULT_L5_PATH = Path(
     "runtime_calibration_internals/calibration/d2/measurement_registry.json"
 )
 SCHEMA_VERSION = "policyos.policy_design_case.layer3_gy.n11_confidence_ledger.v1"
+
+
+def _create_retained_scratch_root(path: Path) -> Path:
+    """Create a new absolute scratch root without creating or removing its parent."""
+
+    requested = Path(path).expanduser()
+    if not requested.is_absolute():
+        raise ValueError("retained_scratch_root_must_be_absolute")
+    if not requested.name:
+        raise ValueError("retained_scratch_root_must_be_new")
+    try:
+        parent = requested.parent.resolve(strict=True)
+    except OSError as exc:
+        raise ValueError("retained_scratch_root_parent_missing") from exc
+    if not parent.is_dir():
+        raise ValueError("retained_scratch_root_parent_missing")
+    candidate = parent / requested.name
+    if candidate.exists() or candidate.is_symlink():
+        raise FileExistsError("retained_scratch_root_must_be_new")
+    candidate.mkdir(exist_ok=False)
+    return candidate.resolve(strict=True)
+
+
+def _resolve_existing_retained_scratch_root(path: Path | None) -> Path | None:
+    """Resolve an existing absolute scratch root for explicit retained runs."""
+
+    if path is None:
+        return None
+    requested = Path(path).expanduser()
+    if not requested.is_absolute():
+        raise ValueError("retained_scratch_root_must_be_absolute")
+    try:
+        resolved = requested.resolve(strict=True)
+    except OSError as exc:
+        raise ValueError("retained_scratch_root_missing") from exc
+    if not resolved.is_dir():
+        raise ValueError("retained_scratch_root_not_directory")
+    return resolved
+
+
+def _retained_tempdir(
+    *,
+    prefix: str,
+    retained_scratch_root: Path | None,
+) -> AbstractContextManager[str]:
+    """Create an automatically cleaned default or explicitly retained temp directory."""
+
+    retained_root = _resolve_existing_retained_scratch_root(retained_scratch_root)
+    if retained_root is None:
+        return tempfile.TemporaryDirectory(prefix=prefix)
+    return tempfile.TemporaryDirectory(prefix=prefix, dir=retained_root, delete=False)
+
 
 CONFIDENCE_LEDGER_SOURCE_PATH = Path("src/polisyos/runtime/quality/confidence_ledger.py")
 PROMOTION_SOURCE_PATH = Path("src/polisyos/runtime/quality/promotion_sequence.py")
@@ -1233,6 +1285,7 @@ def build_live_contract(
     catalog_path: Path,
     l5_path: Path,
     objective_progress: Callable[[str], None] | None = None,
+    retained_scratch_root: Path | None = None,
 ) -> FrozenConfidenceLedgerContract:
     """Recompute N10/N13b owners and account their narrow projections."""
 
@@ -1243,12 +1296,22 @@ def build_live_contract(
     root = Path(repo_root).resolve()
     registry = load_confidence_ledger_registry(root / REGISTRY_PATH)
     report("confidence_registry_loaded")
-    owner_bundle = load_owner_bundle(
-        root,
-        catalog_path=Path(catalog_path),
-        l5_path=Path(l5_path),
-        objective_progress=report,
-    )
+    retained_root = _resolve_existing_retained_scratch_root(retained_scratch_root)
+    if retained_root is None:
+        owner_bundle = load_owner_bundle(
+            root,
+            catalog_path=Path(catalog_path),
+            l5_path=Path(l5_path),
+            objective_progress=report,
+        )
+    else:
+        owner_bundle = load_owner_bundle(
+            root,
+            catalog_path=Path(catalog_path),
+            l5_path=Path(l5_path),
+            objective_progress=report,
+            retained_scratch_root=retained_root,
+        )
     report("owner_bundle_loaded")
     owner_routes = _bind_code_owned_owner_certificate_routes(registry)
     for route in owner_bundle.n10.routes:
@@ -1308,7 +1371,10 @@ def build_live_contract(
         )
 
     evidence_records: list[dict[str, Any]] = []
-    with tempfile.TemporaryDirectory(prefix="gy-n11-accounted-") as temporary:
+    with _retained_tempdir(
+        prefix="gy-n11-accounted-",
+        retained_scratch_root=retained_root,
+    ) as temporary:
         scratch = Path(temporary)
         store = FileSystemCAS(scratch / "cas")
         real_scope = _real_risk_scope(owner_bundle)
@@ -3720,6 +3786,7 @@ def _closeout_worker_main(
     l5_path: str,
     cold: bool,
     profile_path: str,
+    retained_scratch_root: str | None = None,
 ) -> None:
     """Run both contract builds in one killable process with one shared cache."""
 
@@ -3759,15 +3826,25 @@ def _closeout_worker_main(
             )
             stage_started = time.monotonic()
             objective_progress(stage, "stage_started")
-            contract = build_live_contract(
-                Path(repo_root),
-                catalog_path=Path(catalog_path),
-                l5_path=Path(l5_path),
-                objective_progress=lambda milestone, stage=stage: objective_progress(
-                    stage,
-                    milestone,
-                ),
-            )
+
+            def stage_progress(milestone: str, stage: str = stage) -> None:
+                objective_progress(stage, milestone)
+
+            if retained_scratch_root is None:
+                contract = build_live_contract(
+                    Path(repo_root),
+                    catalog_path=Path(catalog_path),
+                    l5_path=Path(l5_path),
+                    objective_progress=stage_progress,
+                )
+            else:
+                contract = build_live_contract(
+                    Path(repo_root),
+                    catalog_path=Path(catalog_path),
+                    l5_path=Path(l5_path),
+                    objective_progress=stage_progress,
+                    retained_scratch_root=Path(retained_scratch_root),
+                )
             objective_progress(stage, "stage_complete")
             cache_after = owner_bundle_cache_stats()
             if result_role == "warmup":
@@ -3940,6 +4017,7 @@ def _run_closeout_worker(
     l5_path: Path,
     cold: bool,
     process_start_method: str,
+    retained_scratch_root: Path | None = None,
     worker_target: Callable[..., None] = _closeout_worker_main,
     _bootstrap_target: Callable[..., None] = _closeout_worker_bootstrap,
 ) -> dict[str, Any]:
@@ -3984,7 +4062,11 @@ def _run_closeout_worker(
     stop_stage: str | None = None
     worker_error: dict[str, Any] | None = None
     process_group_clean = False
-    with tempfile.TemporaryDirectory(prefix="gy-n11-worker-profile-") as temporary:
+    retained_root = _resolve_existing_retained_scratch_root(retained_scratch_root)
+    with _retained_tempdir(
+        prefix="gy-n11-worker-profile-",
+        retained_scratch_root=retained_root,
+    ) as temporary:
         profile_path = Path(temporary) / "worker-stack.txt"
         worker_kwargs: dict[str, object] = {
             "repo_root": repo_root.as_posix(),
@@ -3993,6 +4075,8 @@ def _run_closeout_worker(
             "cold": cold,
             "profile_path": profile_path.as_posix(),
         }
+        if retained_root is not None:
+            worker_kwargs["retained_scratch_root"] = retained_root.as_posix()
         process = context.Process(
             target=_bootstrap_target,
             kwargs={
@@ -4373,16 +4457,27 @@ def _derive_byte_stable_contract(
     *,
     catalog_path: Path,
     l5_path: Path,
+    retained_scratch_root: Path | None = None,
 ) -> tuple[FrozenConfidenceLedgerContract, bytes]:
     """Derive twice in a killable worker and return byte-identical output."""
 
-    worker = _run_closeout_worker(
-        repo_root,
-        catalog_path=catalog_path,
-        l5_path=l5_path,
-        cold=True,
-        process_start_method="spawn",
-    )
+    if retained_scratch_root is None:
+        worker = _run_closeout_worker(
+            repo_root,
+            catalog_path=catalog_path,
+            l5_path=l5_path,
+            cold=True,
+            process_start_method="spawn",
+        )
+    else:
+        worker = _run_closeout_worker(
+            repo_root,
+            catalog_path=catalog_path,
+            l5_path=l5_path,
+            cold=True,
+            process_start_method="spawn",
+            retained_scratch_root=retained_scratch_root,
+        )
     if worker["profiling_stop"]:
         raise RuntimeError("historical_stage_two_x_profiling_stop")
     if worker["worker_error"] is not None:
@@ -4408,6 +4503,7 @@ def _run_one_process_closeout(
     output: Path,
     cold: bool,
     write_output: bool = False,
+    retained_scratch_root: Path | None = None,
     _process_start_method: str = "spawn",
 ) -> dict[str, Any]:
     """Run one cold-or-warm owner build plus a cache-hit equivalence pass."""
@@ -4420,13 +4516,23 @@ def _run_one_process_closeout(
         cold=cold,
     )
     first_stage = "cold_owner_derivation" if cold else "warm_owner_derivation"
-    worker = _run_closeout_worker(
-        repo_root,
-        catalog_path=catalog_path,
-        l5_path=l5_path,
-        cold=cold,
-        process_start_method=_process_start_method,
-    )
+    if retained_scratch_root is None:
+        worker = _run_closeout_worker(
+            repo_root,
+            catalog_path=catalog_path,
+            l5_path=l5_path,
+            cold=cold,
+            process_start_method=_process_start_method,
+        )
+    else:
+        worker = _run_closeout_worker(
+            repo_root,
+            catalog_path=catalog_path,
+            l5_path=l5_path,
+            cold=cold,
+            process_start_method=_process_start_method,
+            retained_scratch_root=retained_scratch_root,
+        )
     first_bytes = worker["first_bytes"]
     second_bytes = worker["second_bytes"]
     first_wall = float(worker["first_wall"])
@@ -4602,6 +4708,11 @@ def build_parser() -> argparse.ArgumentParser:
     parser.add_argument("--catalog-path", type=Path, default=DEFAULT_CATALOG_PATH)
     parser.add_argument("--l5-path", type=Path, default=DEFAULT_L5_PATH)
     parser.add_argument("--output", type=Path, default=OUTPUT_PATH)
+    parser.add_argument(
+        "--retained-scratch-root",
+        type=Path,
+        help="Create a new absolute closeout scratch root and retain worker scratch beneath it.",
+    )
     parser.add_argument("--output-format", choices=("text", "json"), default="text")
     return parser
 
@@ -4623,7 +4734,22 @@ def main(argv: list[str] | None = None) -> int:
     root = args.repo_root.resolve()
     output = args.output if args.output.is_absolute() else root / args.output
     started = time.monotonic()
-    if args.source_flip_mutations:
+    retained_scratch_root: Path | None = None
+    retained_root_error: str | None = None
+    if args.retained_scratch_root is not None:
+        if args.source_flip_mutations:
+            retained_root_error = "retained_scratch_root_requires_closeout_mode"
+        else:
+            try:
+                retained_scratch_root = _create_retained_scratch_root(args.retained_scratch_root)
+            except (OSError, ValueError) as exc:
+                retained_root_error = str(exc)
+    retained_root_kwargs = (
+        {} if retained_scratch_root is None else {"retained_scratch_root": retained_scratch_root}
+    )
+    if retained_root_error is not None:
+        report = {"status": "fail", "issues": [{"code": retained_root_error}]}
+    elif args.source_flip_mutations:
         report = run_source_flip_mutations(root)
     elif args.warm_closeout:
         try:
@@ -4633,6 +4759,7 @@ def main(argv: list[str] | None = None) -> int:
                 l5_path=args.l5_path,
                 output=output,
                 cold=False,
+                **retained_root_kwargs,
             )
         except (OSError, RuntimeError, ValueError) as exc:
             report = {"status": "fail", "issues": [{"code": str(exc)}]}
@@ -4644,6 +4771,7 @@ def main(argv: list[str] | None = None) -> int:
                 l5_path=args.l5_path,
                 output=output,
                 cold=True,
+                **retained_root_kwargs,
             )
         except (OSError, RuntimeError, ValueError) as exc:
             report = {"status": "fail", "issues": [{"code": str(exc)}]}
@@ -4656,6 +4784,7 @@ def main(argv: list[str] | None = None) -> int:
                 output=output,
                 cold=True,
                 write_output=True,
+                **retained_root_kwargs,
             )
         except (OSError, RuntimeError, ValueError) as exc:
             report = {"status": "fail", "issues": [{"code": str(exc)}]}
@@ -4665,6 +4794,7 @@ def main(argv: list[str] | None = None) -> int:
                 root,
                 catalog_path=args.catalog_path,
                 l5_path=args.l5_path,
+                **retained_root_kwargs,
             )
             if args.rederive_audit:
                 report = validate_payload(live, expected=live)
@@ -4682,6 +4812,8 @@ def main(argv: list[str] | None = None) -> int:
                 "issues": [{"code": str(exc)}],
             }
     report["wall_time_seconds"] = round(time.monotonic() - started, 6)
+    if retained_scratch_root is not None:
+        report["retained_scratch_root"] = retained_scratch_root.as_posix()
     if args.output_format == "json":
         print(json.dumps(report, ensure_ascii=False, sort_keys=True))
     elif report["status"] == "pass":

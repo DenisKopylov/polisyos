@@ -1,0 +1,244 @@
+{
+  "schema": "e02-local-source-boundary-handoff-v1",
+  "slice": "HTE selected manifest Mapping intake and native type companion",
+  "authority": "Author candidate for independent G acceptance; no formal adjudication or global closeout claim.",
+  "closure_ids": [],
+  "source": {
+    "checkout": "/Users/deniskopylov/.codex/worktrees/e02-unified-local-20261009/polisyos",
+    "branch": "codex/e02-unified-local-20261009",
+    "slice_base": {
+      "sha": "3fa063828daed278b7aa541fd79401b9ab38eea2",
+      "tree": "d62ec199a5df7811f1627444150856d6e4304053",
+      "parents": [
+        "2028cbd483ff745cbbac0f50df29592e75332fd6"
+      ]
+    },
+    "candidate": {
+      "sha": "57ff8c8b120ab92770a29a858074a7f27ca773db",
+      "tree": "3d2f3a5147544de1e2d6e1ed49992dd7a8c3fa73",
+      "parents": [
+        "3fa063828daed278b7aa541fd79401b9ab38eea2"
+      ]
+    },
+    "footprint": [
+      {
+        "path": "policy-engine/src/polisyos/ir/analytics/hte.py",
+        "sha256": "3e6c014da11c7179d829ed862928829210e942112f33552c85a3c9b4657401b2"
+      },
+      {
+        "path": "policy-engine/tests/unit/ir/test_hte_outcome_contract.py",
+        "sha256": "80f6c96eb36dc639622c8e310463f80d4b2f2f23a2a272ba3821eb99acd05096"
+      }
+    ],
+    "readback": {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/root-hte-manifest-intake-code-commit-20261022-r1/readback.json",
+      "sha256": "f45c65ce919cc1e8ba5efdac410bcc8ed3cf79f87b1fd2e042f1be224418a942",
+      "availability": "Retained on this executor; RAW is ignored. Full deciding output is available at this exact path."
+    },
+    "tested_composition": {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/root-hte-r5-test-fixture-source-application-20261022-r1/full-composed-source-frame.json",
+      "sha256": "508c288eaf6c193d9cdb570447fe1c9ce7776282f47c60da7acdefae3c3236c6"
+    },
+    "status": "Two-path implementation commit read back from attached own branch. Tests ran on the declared dirty composition, not an isolated checkout of this commit.",
+    "remote_delivery": "No push of this candidate has been performed. The earlier ordinary push was rejected by dashboard typecheck; no hook bypass or remote/G acceptance claim."
+  },
+  "behavior": {
+    "contract": "A selected HTE manifest must be a Mapping after model_dump before any identity fields are read; malformed present input receives hte_manifest_invalid.",
+    "producer": "Existing persist_ate_inference_basis and Core CAS producer.",
+    "artifact": "Persisted ATE inference basis with its selected manifest/profile.",
+    "bridge": "load_ate_inference_basis retains exact selected identity checks for raw Mapping and model_dump paths.",
+    "consumer": "The actual persisted selected-basis reader in the IR HTE outcome suite.",
+    "surface": "Existing typed IR consumer. Runtime/GET/Search/GP composition is not proved by this slice.",
+    "semantic_controls": [
+      "Raw Mapping with selected identity is read from actual persisted CAS content.",
+      "Forged kind is refused as hte_selected_manifest_identity_mismatch.",
+      "Present model_dump returning a list is refused as hte_manifest_invalid.",
+      "Frozen adapter test substitutes the class method only for the selected ID and delegates all other IDs to the actual reader."
+    ],
+    "native_companions": "Reuse the existing registry-owned profiled reference type and simplify an unreachable overall-satisfied branch under Literal estimand_status=not_established. Independent review checked equivalence and preserved G point/conditional-interval/refusal semantics."
+  },
+  "selected_input_profile_backend": {
+    "input": "Controlled criterion-specific ATE inference basis with actual persisted/fresh-read CAS paths; no production payload census.",
+    "profile": "The exact selected manifest profile; no producer attestation or currentness is inferred from materialized reader fields.",
+    "backend": "Existing locked local Python 3.14 product venv; numerical libraries constrained to one thread. No environment copy or package installation."
+  },
+  "verification": {
+    "source_bound_receipt": {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/root-hte-r5-canonical-native-wave-20261022-r1/receipt.json",
+      "sha256": "5e588bc83c3b15372e2c4bd29868f037c203ad1817c52ac72d5354a9aaf9fa08",
+      "availability": "Retained on this executor; RAW is ignored. Full deciding output is available at this exact path."
+    },
+    "rows": [
+      {
+        "name": "ruff-check",
+        "argv": [
+          "/Users/deniskopylov/.codex/worktrees/e02-unified-local-20261009/polisyos/policy-engine/.venv/bin/python",
+          "-B",
+          "-m",
+          "tools.devx.workspace.ruff_sources",
+          "--manifest",
+          "/Users/deniskopylov/.codex/worktrees/e02-unified-local-20261009/polisyos/policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/root-hte-r5-canonical-native-wave-20261022-r1/ruff-manifest.json",
+          "--operation",
+          "check"
+        ],
+        "cwd": "/Users/deniskopylov/.codex/worktrees/e02-unified-local-20261009/polisyos/policy-engine",
+        "timeout_seconds": 90,
+        "exit_code": 0,
+        "timed_out": false,
+        "wall_seconds": 0.18236604100093246,
+        "stdout_sha256": "cafe02386d10ff72fcb6c474c48e68dfe07d751fa916df6151a3a053d60b6a4d",
+        "stderr_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+      },
+      {
+        "name": "ruff-format-check",
+        "argv": [
+          "/Users/deniskopylov/.codex/worktrees/e02-unified-local-20261009/polisyos/policy-engine/.venv/bin/python",
+          "-B",
+          "-m",
+          "tools.devx.workspace.ruff_sources",
+          "--manifest",
+          "/Users/deniskopylov/.codex/worktrees/e02-unified-local-20261009/polisyos/policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/root-hte-r5-canonical-native-wave-20261022-r1/ruff-manifest.json",
+          "--operation",
+          "format-check"
+        ],
+        "cwd": "/Users/deniskopylov/.codex/worktrees/e02-unified-local-20261009/polisyos/policy-engine",
+        "timeout_seconds": 90,
+        "exit_code": 0,
+        "timed_out": false,
+        "wall_seconds": 0.24826508294790983,
+        "stdout_sha256": "4d1a6e34058add42abb5b7c44f7ee13a44e650a269ae46d6169f147cf557c33e",
+        "stderr_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+      },
+      {
+        "name": "basedpyright",
+        "argv": [
+          "/Users/deniskopylov/.codex/worktrees/e02-unified-local-20261009/polisyos/policy-engine/.venv/bin/basedpyright",
+          "--baselinemode",
+          "lock",
+          "--project",
+          "/Users/deniskopylov/.codex/worktrees/e02-unified-local-20261009/polisyos/policy-engine/basedpyright.toml",
+          "--outputjson",
+          "src/polisyos/ir/analytics/hte.py"
+        ],
+        "cwd": "/Users/deniskopylov/.codex/worktrees/e02-unified-local-20261009/polisyos/policy-engine",
+        "timeout_seconds": 90,
+        "exit_code": 0,
+        "timed_out": false,
+        "wall_seconds": 1.6907046248670667,
+        "stdout_sha256": "48d5242d0476185ff147f331f82b6d680b9e4bbc2686248f27e7d495691ab520",
+        "stderr_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+      },
+      {
+        "name": "pytest",
+        "argv": [
+          "/Users/deniskopylov/.codex/worktrees/e02-unified-local-20261009/polisyos/policy-engine/.venv/bin/python",
+          "-B",
+          "-m",
+          "pytest",
+          "-q",
+          "-o",
+          "cache_dir=/Users/deniskopylov/.codex/worktrees/e02-unified-local-20261009/polisyos/policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/root-hte-r5-canonical-native-wave-20261022-r1/pytest-cache",
+          "--basetemp=/Users/deniskopylov/.codex/worktrees/e02-unified-local-20261009/polisyos/policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/root-hte-r5-canonical-native-wave-20261022-r1/temp",
+          "--junitxml=/Users/deniskopylov/.codex/worktrees/e02-unified-local-20261009/polisyos/policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/root-hte-r5-canonical-native-wave-20261022-r1/junit.xml",
+          "tests/unit/ir/test_hte_outcome_contract.py"
+        ],
+        "cwd": "/Users/deniskopylov/.codex/worktrees/e02-unified-local-20261009/polisyos/policy-engine",
+        "timeout_seconds": 180,
+        "exit_code": 0,
+        "timed_out": false,
+        "wall_seconds": 4.4010266659315675,
+        "stdout_sha256": "b1caae85ec31d08a00b70488af9cc30676ea609b8012c2800620e199adf3bcb2",
+        "stderr_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+      }
+    ],
+    "junit_counts": {
+      "tests": 40,
+      "failures": 0,
+      "errors": 0,
+      "skipped": 0
+    },
+    "basedpyright_summary": {
+      "filesAnalyzed": 1,
+      "errorCount": 0,
+      "warningCount": 1,
+      "informationCount": 0,
+      "timeInSec": 1.18
+    },
+    "baseline_before": "8ceca56253ec877284553b09de0ff1295a75583a6a4fc2238ef002cf9518b6af",
+    "baseline_after": "8ceca56253ec877284553b09de0ff1295a75583a6a4fc2238ef002cf9518b6af",
+    "deciding_outputs": [
+      {
+        "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/root-hte-r5-canonical-native-wave-20261022-r1/ruff-check.stdout",
+        "sha256": "cafe02386d10ff72fcb6c474c48e68dfe07d751fa916df6151a3a053d60b6a4d",
+        "availability": "Retained on this executor; RAW is ignored. Full deciding output is available at this exact path."
+      },
+      {
+        "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/root-hte-r5-canonical-native-wave-20261022-r1/ruff-check.stderr",
+        "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+        "availability": "Retained on this executor; RAW is ignored. Full deciding output is available at this exact path."
+      },
+      {
+        "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/root-hte-r5-canonical-native-wave-20261022-r1/ruff-format-check.stdout",
+        "sha256": "4d1a6e34058add42abb5b7c44f7ee13a44e650a269ae46d6169f147cf557c33e",
+        "availability": "Retained on this executor; RAW is ignored. Full deciding output is available at this exact path."
+      },
+      {
+        "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/root-hte-r5-canonical-native-wave-20261022-r1/ruff-format-check.stderr",
+        "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+        "availability": "Retained on this executor; RAW is ignored. Full deciding output is available at this exact path."
+      },
+      {
+        "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/root-hte-r5-canonical-native-wave-20261022-r1/basedpyright.stdout",
+        "sha256": "48d5242d0476185ff147f331f82b6d680b9e4bbc2686248f27e7d495691ab520",
+        "availability": "Retained on this executor; RAW is ignored. Full deciding output is available at this exact path."
+      },
+      {
+        "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/root-hte-r5-canonical-native-wave-20261022-r1/basedpyright.stderr",
+        "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+        "availability": "Retained on this executor; RAW is ignored. Full deciding output is available at this exact path."
+      },
+      {
+        "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/root-hte-r5-canonical-native-wave-20261022-r1/pytest.stdout",
+        "sha256": "b1caae85ec31d08a00b70488af9cc30676ea609b8012c2800620e199adf3bcb2",
+        "availability": "Retained on this executor; RAW is ignored. Full deciding output is available at this exact path."
+      },
+      {
+        "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/root-hte-r5-canonical-native-wave-20261022-r1/pytest.stderr",
+        "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+        "availability": "Retained on this executor; RAW is ignored. Full deciding output is available at this exact path."
+      }
+    ],
+    "independent_reviews": [
+      {
+        "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/resume-hte-native-mapping-independent-20261022-r1/review-r4-5ca5bf687c610102/review.md",
+        "sha256": "faeca4237c60b98a15d34f8b1ed20674e0297124da790c991b1266024ad60d3b",
+        "availability": "Retained on this executor; RAW is ignored. Full deciding output is available at this exact path."
+      },
+      {
+        "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/resume-hte-native-mapping-independent-20261022-r1/r5-test-fixture-final-20261022/review.md",
+        "sha256": "c0664b90c35089deb9d7ece76944bae6a5de57f82073407869398939710b6026",
+        "availability": "Retained on this executor; RAW is ignored. Full deciding output is available at this exact path."
+      }
+    ],
+    "first_native_iteration": "The first canonical run failed before the new consumer assertions because instance monkeypatching a frozen adapter was invalid. The reviewed R5 fixture repair resolves this; that failed output remains retained.",
+    "removal_control": "Pending a source-bound mutation probe; negative input tests above are not relabeled as a removal run.",
+    "native_whole_gate_status": "UNRUN: full architecture/native/backend/CI parity, SOTA rows, generated/installed wheel/sdist and composed Runtime consumers remain required.",
+    "commit_hooks": "Ordinary pre-commit ran. Frontend checks skipped by staged-path selection; those skips are not Python/native evidence."
+  },
+  "limitations": [
+    "The one BasedPyright private-usage warning is retained; no warning-free claim.",
+    "The full E02 source/input/backend freeze has not happened; 135 separately declared WIP paths remain after this implementation commit.",
+    "No empirical calibration, production currentness, external law/issuer/custody permission, G code acceptance or formal closure is supplied.",
+    "Each original finding/occurrence must be adjudicated separately after its whole property and dependencies are checked. Historical B198 is unchanged."
+  ],
+  "proposal_fields": {
+    "mechanism_proposal": "limited: implemented and focused native behavior verified on the declared composition.",
+    "finding_proposals": [],
+    "formal_close_proposal_ids": [],
+    "next_check": "Retain the mutation probe, compose Runtime/Search/GP and other selected producer contracts, freeze exact source/profile/backend inputs, then run composed native and installed consumers."
+  },
+  "decision_pointers": [
+    "G architecture 798bd1ab9646378f49fd127b3f04ebe71aca67d2: retain point when interval is unavailable; explicit conditional native interval scope; refuse unsupported fallback interval claims."
+  ],
+  "source_freeze": false
+}

@@ -1,0 +1,339 @@
+{
+  "schema": "e02-local-source-boundary-handoff-v1",
+  "slice": "CAN/C5b selected-source calibration promotion and DataForge-owned D4 source contracts",
+  "authority": "Author implementation and bounded proposal for independent G acceptance; no formal finding adjudication.",
+  "closure_ids": [],
+  "source": {
+    "checkout": "/Users/deniskopylov/.codex/worktrees/e02-unified-local-20261009/polisyos",
+    "branch": "codex/e02-unified-local-20261009",
+    "slice_base": {
+      "sha": "fe750905180680c37150124396406907b9d391f4",
+      "tree": "14c7635bbf324229c187d93743d6aefdbe83a00d",
+      "parents": [
+        "c50e5b42b1b2d45df8702bc8e27a9b283d0b0aa1"
+      ]
+    },
+    "author_source_provenance": "R4/R5/R6 and exact 13-model constructor/field parity retained by immutable R7 source-freeze; parent source boundary is independently pinned above.",
+    "candidate": {
+      "sha": "2028cbd483ff745cbbac0f50df29592e75332fd6",
+      "tree": "dace312e7807005d1343221472611b73aeb14bd2",
+      "parents": [
+        "fe750905180680c37150124396406907b9d391f4"
+      ]
+    },
+    "status": "20-path source commit read back from attached candidate branch; 130 separately registered WIP paths retained. This is not a complete source/input/backend freeze.",
+    "footprint": [
+      {
+        "path": "policy-engine/architecture/public_surface/contract.toml",
+        "sha256": "cce2e7cd4d96b4595ae5bf0721002776265d70f878d4fbfcd51570f9d89f10c9"
+      },
+      {
+        "path": "policy-engine/architecture/public_surface/inventory.json",
+        "sha256": "483f74bc8c7b61b4a3d48f8dd46c55de0e747ec825f5bae4ed3b01c28288039f"
+      },
+      {
+        "path": "policy-engine/docs/reference/public-surface.md",
+        "sha256": "5c8b4e8aa1dcb05b79391c39dce05593d2499b36f52ee3595204a53ebf2e9964"
+      },
+      {
+        "path": "policy-engine/release-fragments/unreleased/2026-10-22-e02-ukraine-d4-source-snapshot-contracts.toml",
+        "sha256": "6f6f40356cc4db2cf7221209e948287526a631d27474f5585426618bbbf27aea"
+      },
+      {
+        "path": "policy-engine/src/polisyos/data_forge/README.md",
+        "sha256": "356c58d777b6d42f3708e8767641decfc1602596958e19d5ed1f347aae307626"
+      },
+      {
+        "path": "policy-engine/src/polisyos/data_forge/read_api/__init__.py",
+        "sha256": "3aa60ef8b6f1ce05b5f96632d99cd6bad5b7a68576f8051e6e6c6802ebab98e5"
+      },
+      {
+        "path": "policy-engine/src/polisyos/data_forge/read_api/surface_routes.py",
+        "sha256": "201043202e8bf73d7a901e3c6568996c94afb901ee7d301da4170c5696777956"
+      },
+      {
+        "path": "policy-engine/src/polisyos/data_forge/read_api/ukraine.py",
+        "sha256": "6547cce860fbbb7f734ce527bc29a56e9cd129f18c73a71e03888729157d277a"
+      },
+      {
+        "path": "policy-engine/src/polisyos/ir/analytics/abstraction.py",
+        "sha256": "bb7f211072d649965d1a4f2c19282eb1480e5cd66d1de93f6789b894a6c94b26"
+      },
+      {
+        "path": "policy-engine/src/polisyos/ir/governance/policy_spec.py",
+        "sha256": "63b932fbee73c63486f8f9dcc4692211df983302be436f544fe859992b42a4be"
+      },
+      {
+        "path": "policy-engine/src/polisyos/ir/governance/problem_frame.py",
+        "sha256": "a1f61785d8afeb523faf8e7b48471f3f939c505b6681581fb38ae5cd77e2b3db"
+      },
+      {
+        "path": "policy-engine/src/polisyos/ir/governance/schedule.py",
+        "sha256": "694a2c9d3f5dffc47b8d17d7991500044d681c14f58c5f40163f48d1f2a9d18b"
+      },
+      {
+        "path": "policy-engine/src/polisyos/ir/model_layer/model_spec.py",
+        "sha256": "6b0bd9e03d314c270d620dbc44e60994de811762d0846fe0689bc69da8434cc1"
+      },
+      {
+        "path": "policy-engine/src/polisyos/ir/observation/bundles.py",
+        "sha256": "34f689a2b3feb3f265cf9a006029f84cb80c57f64858ee8ec58056c1a1bad167"
+      },
+      {
+        "path": "policy-engine/src/polisyos/ir/trinity/__init__.py",
+        "sha256": "3a21b87f5c6b8a71a94b4ddf601020b94228b4752e2bdd0515ae6d101649325e"
+      },
+      {
+        "path": "policy-engine/src/polisyos/scientist/governance/blueprint_release.py",
+        "sha256": "62d5c83f2a769a877d73a6131d59ff2917afdca420460b914f86ff2dfd8a500d"
+      },
+      {
+        "path": "policy-engine/src/polisyos/scientist/governance/calibration_validation.py",
+        "sha256": "7e66a8fa856506d6b1dc14fee18522dafa29d16b36447771faa519270c10e9af"
+      },
+      {
+        "path": "policy-engine/tests/unit/data_forge/read_api/test_ukraine_json_snapshot.py",
+        "sha256": "6b7494cdc27c837ec6c220b3a8bbb295caa53aed578e0726e20146dcbe787187"
+      },
+      {
+        "path": "policy-engine/tests/unit/scientist/governance/test_blueprint_release.py",
+        "sha256": "9375e3cbb84bc5b537b0594191d0ebc214afaeb6bdfc58faa867363c4747e9ba"
+      },
+      {
+        "path": "policy-engine/tests/unit/scientist/governance/test_calibration_validation.py",
+        "sha256": "0d59f0fc18ed2ae43962c9451fc1229e273c75d710412628be78074f1b1f7fbc"
+      }
+    ],
+    "remote_delivery": "Not published by this receipt. Candidate push remains subject to native pre-push checks; no remote SHA or G acceptance claim."
+  },
+  "behavior": {
+    "contract": "A selected calibration report can influence promotion only when its report/source bundle and all required typed role/profile/candidate joins reconcile. A same-body alternate source/profile or missing/malformed supplied source does not become absence or eligibility.",
+    "producer": "Existing calibration/report writer and DataForge Ukraine source snapshot producer; required D4 payload types and role/model lookup now share the DataForge read API owner.",
+    "artifact": "Strict selected source/profile report bundle and persisted blueprint/calibration artifacts under the existing Core CAS contracts.",
+    "bridge": "The shared report/source binding predicate is used by producer-side validation and the fresh persisted report/promotion reader.",
+    "consumer": "Blueprint promotion/lesson path and fresh selected-CAS readers; S1/D3 source roles remain distinct from D4.",
+    "surface": "Five additive public_experimental DataForge read-API declarations with unchanged existing exports; official inventory preserves unresolved/native-unproved classifications. No new HTTP/UI or authority surface is asserted.",
+    "semantic_controls": "Required-role/profile/candidate mismatch, same-ID alternate selected profile/source and valid-sibling source counterfactuals remain promotion-ineligible while source diagnostics/lessons are retained; all three full focused modules executed."
+  },
+  "selected_input_profile_backend": {
+    "input": "Controlled criterion-specific typed D4/S1 source/report fixtures and actual CAS persisted/fresh-reader paths in the three selected modules; no local production payload census.",
+    "profile": "Selected manifest/profile identities required at source admission; diagnostic/history readability is not producer attestation or promotion authority.",
+    "backend": "Existing locked local product Python 3.14.3 venv; one numerical thread; no new environment or dependency installation.",
+    "skipped_backends": "No tests skipped in this selected 59-case wave. Other package/installed-wheel/Linux/production backends were not run by this slice."
+  },
+  "verification": {
+    "canonical_wave": [
+      {
+        "name": "ruff-check",
+        "argv": [
+          "/Users/deniskopylov/.codex/worktrees/e02-unified-local-20261009/polisyos/policy-engine/.venv/bin/python",
+          "-B",
+          "-m",
+          "tools.devx.workspace.ruff_sources",
+          "--manifest",
+          "/Users/deniskopylov/.codex/worktrees/e02-unified-local-20261009/polisyos/policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/root-canonical-c5b-source-binding-r7-wave-20261022-r1/ruff-manifest.json",
+          "--operation",
+          "check"
+        ],
+        "cwd": "/Users/deniskopylov/.codex/worktrees/e02-unified-local-20261009/polisyos/policy-engine",
+        "timeout_seconds": 90,
+        "exit_code": 0,
+        "timed_out": false,
+        "wall_seconds": 0.6797940840478987,
+        "stdout_sha256": "ecc9c35156f3bcd96a6ace3cdeb7dbfbfece19c010976a4a3340aacb4377efd1",
+        "stderr_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+        "stdout": {
+          "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/root-canonical-c5b-source-binding-r7-wave-20261022-r1/ruff-check.stdout",
+          "sha256": "ecc9c35156f3bcd96a6ace3cdeb7dbfbfece19c010976a4a3340aacb4377efd1"
+        },
+        "stderr": {
+          "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/root-canonical-c5b-source-binding-r7-wave-20261022-r1/ruff-check.stderr",
+          "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+        }
+      },
+      {
+        "name": "ruff-format-check",
+        "argv": [
+          "/Users/deniskopylov/.codex/worktrees/e02-unified-local-20261009/polisyos/policy-engine/.venv/bin/python",
+          "-B",
+          "-m",
+          "tools.devx.workspace.ruff_sources",
+          "--manifest",
+          "/Users/deniskopylov/.codex/worktrees/e02-unified-local-20261009/polisyos/policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/root-canonical-c5b-source-binding-r7-wave-20261022-r1/ruff-manifest.json",
+          "--operation",
+          "format-check"
+        ],
+        "cwd": "/Users/deniskopylov/.codex/worktrees/e02-unified-local-20261009/polisyos/policy-engine",
+        "timeout_seconds": 90,
+        "exit_code": 0,
+        "timed_out": false,
+        "wall_seconds": 0.5988313751295209,
+        "stdout_sha256": "d3f2684cec4941f75017912cfd616efaaccc9acde618d76594c6b5d29ae98dfd",
+        "stderr_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+        "stdout": {
+          "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/root-canonical-c5b-source-binding-r7-wave-20261022-r1/ruff-format-check.stdout",
+          "sha256": "d3f2684cec4941f75017912cfd616efaaccc9acde618d76594c6b5d29ae98dfd"
+        },
+        "stderr": {
+          "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/root-canonical-c5b-source-binding-r7-wave-20261022-r1/ruff-format-check.stderr",
+          "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+        }
+      },
+      {
+        "name": "basedpyright",
+        "argv": [
+          "/Users/deniskopylov/.codex/worktrees/e02-unified-local-20261009/polisyos/policy-engine/.venv/bin/basedpyright",
+          "--baselinemode",
+          "lock",
+          "--project",
+          "/Users/deniskopylov/.codex/worktrees/e02-unified-local-20261009/polisyos/policy-engine/basedpyright.toml",
+          "--outputjson",
+          "src/polisyos/scientist/governance/blueprint_release.py",
+          "src/polisyos/scientist/governance/calibration_validation.py",
+          "src/polisyos/data_forge/read_api/ukraine.py",
+          "src/polisyos/data_forge/read_api/__init__.py",
+          "src/polisyos/data_forge/read_api/surface_routes.py",
+          "src/polisyos/ir/analytics/abstraction.py",
+          "src/polisyos/ir/observation/bundles.py",
+          "src/polisyos/ir/trinity/__init__.py",
+          "src/polisyos/ir/governance/problem_frame.py",
+          "src/polisyos/ir/governance/policy_spec.py",
+          "src/polisyos/ir/governance/schedule.py",
+          "src/polisyos/ir/model_layer/model_spec.py"
+        ],
+        "cwd": "/Users/deniskopylov/.codex/worktrees/e02-unified-local-20261009/polisyos/policy-engine",
+        "timeout_seconds": 90,
+        "exit_code": 0,
+        "timed_out": false,
+        "wall_seconds": 3.3573567911516875,
+        "stdout_sha256": "a20e22191ad7aa8dbfa5082752a39901d1c3e5f626401d22580268044682d331",
+        "stderr_sha256": "be5ea38695c877665c9b6e395b0c7004cd83a68a464c0e38c569150f25cee7a5",
+        "stdout": {
+          "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/root-canonical-c5b-source-binding-r7-wave-20261022-r1/basedpyright.stdout",
+          "sha256": "a20e22191ad7aa8dbfa5082752a39901d1c3e5f626401d22580268044682d331"
+        },
+        "stderr": {
+          "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/root-canonical-c5b-source-binding-r7-wave-20261022-r1/basedpyright.stderr",
+          "sha256": "be5ea38695c877665c9b6e395b0c7004cd83a68a464c0e38c569150f25cee7a5"
+        }
+      },
+      {
+        "name": "pytest",
+        "argv": [
+          "/Users/deniskopylov/.codex/worktrees/e02-unified-local-20261009/polisyos/policy-engine/.venv/bin/python",
+          "-B",
+          "-m",
+          "pytest",
+          "-q",
+          "-o",
+          "cache_dir=/Users/deniskopylov/.codex/worktrees/e02-unified-local-20261009/polisyos/policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/root-canonical-c5b-source-binding-r7-wave-20261022-r1/pytest-cache",
+          "--basetemp=/Users/deniskopylov/.codex/worktrees/e02-unified-local-20261009/polisyos/policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/root-canonical-c5b-source-binding-r7-wave-20261022-r1/temp",
+          "--junitxml=/Users/deniskopylov/.codex/worktrees/e02-unified-local-20261009/polisyos/policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/root-canonical-c5b-source-binding-r7-wave-20261022-r1/junit.xml",
+          "tests/unit/scientist/governance/test_blueprint_release.py",
+          "tests/unit/scientist/governance/test_calibration_validation.py",
+          "tests/unit/data_forge/read_api/test_ukraine_json_snapshot.py"
+        ],
+        "cwd": "/Users/deniskopylov/.codex/worktrees/e02-unified-local-20261009/polisyos/policy-engine",
+        "timeout_seconds": 300,
+        "exit_code": 0,
+        "timed_out": false,
+        "wall_seconds": 18.79110729205422,
+        "stdout_sha256": "028dd49c08f9ca3151612e7dd2db85e156b2c618b6b2899f2dfec4d2027564ae",
+        "stderr_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+        "stdout": {
+          "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/root-canonical-c5b-source-binding-r7-wave-20261022-r1/pytest.stdout",
+          "sha256": "028dd49c08f9ca3151612e7dd2db85e156b2c618b6b2899f2dfec4d2027564ae"
+        },
+        "stderr": {
+          "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/root-canonical-c5b-source-binding-r7-wave-20261022-r1/pytest.stderr",
+          "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+        }
+      }
+    ],
+    "pytest": {
+      "tests": 59,
+      "pass": 59,
+      "fail": 0,
+      "error": 0,
+      "skip": 0,
+      "junit": {
+        "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/root-canonical-c5b-source-binding-r7-wave-20261022-r1/junit.xml",
+        "sha256": "4c7f2812067378979758ad505dcc17744bd6b9ae9d4c7179ff789f640903466b"
+      },
+      "complete_deciding_output": "...........................................................              [100%]\n"
+    },
+    "basedpyright_summary": {
+      "filesAnalyzed": 12,
+      "errorCount": 0,
+      "warningCount": 0,
+      "informationCount": 0,
+      "timeInSec": 2.935
+    },
+    "baseline_before": "8ceca56253ec877284553b09de0ff1295a75583a6a4fc2238ef002cf9518b6af",
+    "baseline_after": "8ceca56253ec877284553b09de0ff1295a75583a6a4fc2238ef002cf9518b6af",
+    "public_generation": "Official canonical guardrails sync --skip-deep-import-baseline, RAW output paths, 2818 source/config pins all read back unchanged. Inventory/docs installed exactly after independent review. Generated-artifacts reference was byte-identical and not rewritten.",
+    "release_predicate": "Official report-only compatibility checker on one actual structured D4 fragment: 0 errors, 0 findings, predicate consistent. Owner-field corruption with paired policy/contract locators produces exactly owner drift; the earlier locator-only refusal is retained and explicitly not used as owner-field proof.",
+    "native_whole_gate_status": "Full architecture --check/required generated checks, full backend/CI parity, SOTA row-by-row and installed wheel/sdist consumers remain pending; selected report-only checks do not prove global native green.",
+    "commit_hooks": "Actual lefthook ran; frontend checks skipped by staged-path selection. These hook skips are not the Python/native capability receipt."
+  },
+  "evidence": [
+    {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/root-canonical-c5b-source-binding-r7-wave-20261022-r1/receipt.json",
+      "sha256": "954bf783ccb396facf414f1fae2dbaaeef03167177576c6d06bf35f64b7ed8e0",
+      "availability": "retained ignored RAW on this local executor; full deciding outputs are cited by these receipts"
+    },
+    {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/root-canonical-c5b-public-generation-20261022-r1/native-sync/receipt.json",
+      "sha256": "5472fc750e411be63395e8bce6e67d0a759ec798c2b74fa0a78f1105b736fa7f",
+      "availability": "retained ignored RAW on this local executor; full deciding outputs are cited by these receipts"
+    },
+    {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/root-canonical-c5b-public-generation-20261022-r1/input-manifest.json",
+      "sha256": "242e997225f4d45ab9c3ca9c7b012f6146e47051a7daba95a17f00d5e85a2d0d",
+      "availability": "retained ignored RAW on this local executor; full deciding outputs are cited by these receipts"
+    },
+    {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/root-canonical-c5b-public-generation-20261022-r1/output-readback.json",
+      "sha256": "cfc79fe7c298179874f89c74d2559bad608bc4493c8719d23cad62ac44c8ad1b",
+      "availability": "retained ignored RAW on this local executor; full deciding outputs are cited by these receipts"
+    },
+    {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/root-c5b-canonical-public-release-checks-20261022-r1/paired-owner-control-readback.json",
+      "sha256": "134bb23f1bb6d189443e15a8f8ad672b875acb9222ce699d78f9f8f53e4bf88a",
+      "availability": "retained ignored RAW on this local executor; full deciding outputs are cited by these receipts"
+    },
+    {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/can-current-whole-property-systemic-oracle-20261022-r1/r7-independent-review-r1/review.json",
+      "sha256": "e65357029ed56fc524dbdea09440607099a9064e06f132e8f120ee62f0721913",
+      "availability": "retained ignored RAW on this local executor; full deciding outputs are cited by these receipts"
+    },
+    {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/can-current-whole-property-systemic-oracle-20261022-r1/r8-independent-review-r1/review.json",
+      "sha256": "8498c590e1bf9b6db5045724ad94ce0635bf9398d6615a45ff1e90d67a3e2b05",
+      "availability": "retained ignored RAW on this local executor; full deciding outputs are cited by these receipts"
+    },
+    {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/root-c5b-selected-source-boundary-code-commit-20261022-r1/readback.json",
+      "sha256": "4e89eb1417895a9e6f02e5d79492633625ded93e99b1854703679b3ffbcdc179",
+      "availability": "retained ignored RAW on this local executor; full deciding outputs are cited by these receipts"
+    }
+  ],
+  "limitations": [
+    "No G code acceptance, integration publication, full capability closure, native export completeness or authentic production currentness/custody/calibration positive is created.",
+    "Controlled D4/S1 report/source recomputation does not create external law, issuer permission, production workload or causal calibration facts.",
+    "Canonical resource resolution and existing facade exports are retained; composed archive/sdist/rebuilt-wheel consumers remain required at Q2.",
+    "The exact 59-case source wave preceded generated-doc/release-only reconciliation; all tested Python source/test bytes are unchanged in the source commit.",
+    "No finding row is automatically promoted from this task-level PASS; the full 282-ID/291-occurrence report must reconcile the original criterion and dependencies separately. Historical decisions including B198 are untouched."
+  ],
+  "proposal_fields": {
+    "mechanism_proposal": "limited: implemented and focused canonical behavior verified; composed consumer/source/input/backend freeze and independent G acceptance remain required.",
+    "formal_close_proposal_ids": [],
+    "finding_proposals": [],
+    "next_check": "Compose remaining Runtime/Search/canary producers and selected source contracts, freeze exact profiles/inputs, execute full native/composed/installed-consumer wave, then price each original occurrence independently."
+  },
+  "decision_pointers": [
+    "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/c05-profile-denominator-g-decision-20261022.md",
+    "G architecture 798bd1ab9646378f49fd127b3f04ebe71aca67d2 CAN shared canonicalization with separate Core/IR admission and source/profile/provenance predicates"
+  ],
+  "source_freeze": false
+}

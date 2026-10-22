@@ -262,6 +262,7 @@ async def test_rest_json_fetch_binds_last_modified_source_marker(
     payloads,
     expected_strategy,
     expects_marker,
+    monkeypatch,
 ) -> None:
     """Fetch binds only a valid consistent Last-Modified source boundary."""
 
@@ -310,6 +311,7 @@ async def test_rest_json_fetch_binds_last_modified_source_marker(
         )
     )
     session = FakeSession()
+    monkeypatch.setattr(rest_json_module.aiohttp, "ClientSession", FakeSession)
     handle.set_state("session", session)
 
     result = await connector.fetch(handle, FetchRequest(dataset_id="dataset"))

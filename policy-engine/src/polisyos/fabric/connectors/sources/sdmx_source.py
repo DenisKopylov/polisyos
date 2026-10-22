@@ -18,7 +18,7 @@ from __future__ import annotations
 import time
 from collections.abc import AsyncIterator, Awaitable, Callable, Iterable
 from datetime import UTC, datetime
-from typing import Any, ClassVar
+from typing import Any, ClassVar, TypedDict, TypeGuard
 
 import aiohttp
 import pandas as pd
@@ -31,12 +31,18 @@ from polisyos.fabric.connectors.base import (
     FetchRequest,
     FetchResult,
     HealthStatus,
+    _ConnectionStateKey,
+    _invoke_runtime_async_callable,
+    _is_runtime_callable,
+    _MissingConnectionState,
 )
 from polisyos.fabric.connectors.contracts import make_schema_id
 from polisyos.fabric.connectors.resilience import apply_resilience
 from polisyos.fabric.connectors.sources.http_base import (
     HTTPConnectorBase,
     HTTPResilienceProfile,
+    _is_optional_resilience_cache_key,
+    _ResilienceCacheKey,
 )
 from polisyos.fabric.connectors.sources.http_common import frame_completeness
 from polisyos.fabric.connectors.types import (
@@ -66,6 +72,90 @@ from polisyos.ir.connectors import (
 
 
 _SDMXHeadExecutor = Callable[..., Awaitable[dict[str, str]]]
+
+
+class _CheckedSDMXHeadExecutor:
+    """Nominal cache owner that checks the real HEAD call and returned headers."""
+
+    __slots__ = ("_executor",)
+
+    def __init__(self, executor: object) -> None:
+        if not _is_runtime_callable(executor):
+            raise TypeError("SDMX HEAD executor must be callable")
+        self._executor = executor
+
+    async def __call__(
+        self,
+        *,
+        handle: ConnectionHandle,
+        session: aiohttp.ClientSession,
+        url: str,
+        connector_id: str,
+        headers: dict[str, str] | None = None,
+    ) -> dict[str, str]:
+        result = await _invoke_runtime_async_callable(
+            self._executor,
+            handle=handle,
+            session=session,
+            url=url,
+            connector_id=connector_id,
+            headers=headers,
+        )
+        if not isinstance(result, dict) or not all(
+            isinstance(key, str) and isinstance(value, str) for key, value in result.items()
+        ):
+            raise TypeError("SDMX HEAD executor returned invalid string headers")
+        return result
+
+
+class _SDMXSourceConfig(TypedDict):
+    agency: str
+    version: str
+    data_path: str
+    dataflow_path: str
+    dimension_order: list[str] | None
+    include_agency_in_data_path: bool
+    dataflow_detail: str
+
+
+def _is_sdmx_source_config(value: object) -> TypeGuard[_SDMXSourceConfig]:
+    expected = {
+        "agency",
+        "version",
+        "data_path",
+        "dataflow_path",
+        "dimension_order",
+        "include_agency_in_data_path",
+        "dataflow_detail",
+    }
+    if not isinstance(value, dict) or set(value) != expected:
+        return False
+    if not all(
+        isinstance(value.get(key), str)
+        for key in ("agency", "version", "data_path", "dataflow_path", "dataflow_detail")
+    ):
+        return False
+    order = value.get("dimension_order")
+    return (
+        order is None or (isinstance(order, list) and all(isinstance(item, str) for item in order))
+    ) and type(value.get("include_agency_in_data_path")) is bool
+
+
+def _is_optional_head_executor(
+    value: object,
+) -> TypeGuard[_CheckedSDMXHeadExecutor | None]:
+    return value is None or isinstance(value, _CheckedSDMXHeadExecutor)
+
+
+_SDMX_CONFIG_STATE_KEY: _ConnectionStateKey[_SDMXSourceConfig] = _ConnectionStateKey(
+    "sdmx", _is_sdmx_source_config
+)
+_SDMX_HEAD_EXECUTOR_STATE_KEY: _ConnectionStateKey[_CheckedSDMXHeadExecutor | None] = (
+    _ConnectionStateKey("_sdmx_head_executor", _is_optional_head_executor)
+)
+_SDMX_HEAD_EXECUTOR_CONFIG_STATE_KEY: _ConnectionStateKey[_ResilienceCacheKey | None] = (
+    _ConnectionStateKey("_sdmx_head_executor_config", _is_optional_resilience_cache_key)
+)
 
 
 def _join_url(base: str, *parts: str) -> str:
@@ -246,7 +336,7 @@ class SDMXSourceConnector(HTTPConnectorBase[pd.DataFrame]):
     # ------------------------------------------------------------------
 
     @staticmethod
-    def _parse_sdmx_config(config: ConnectionConfig) -> dict[str, Any]:
+    def _parse_sdmx_config(config: ConnectionConfig) -> _SDMXSourceConfig:
         dimension_order = config.headers.get("X-SDMX-DimensionOrder")
         order = None
         if dimension_order:
@@ -307,9 +397,9 @@ class SDMXSourceConnector(HTTPConnectorBase[pd.DataFrame]):
 
     async def connect(self, config: ConnectionConfig) -> ConnectionHandle:
         handle = await super().connect(config)
-        handle.set_state("sdmx", self._parse_sdmx_config(config))
-        handle.set_state("_sdmx_head_executor", None)
-        handle.set_state("_sdmx_head_executor_config", None)
+        handle._set_typed_state(_SDMX_CONFIG_STATE_KEY, self._parse_sdmx_config(config))
+        handle._set_typed_state(_SDMX_HEAD_EXECUTOR_STATE_KEY, None)
+        handle._set_typed_state(_SDMX_HEAD_EXECUTOR_CONFIG_STATE_KEY, None)
         return handle
 
     # ------------------------------------------------------------------
@@ -317,7 +407,9 @@ class SDMXSourceConnector(HTTPConnectorBase[pd.DataFrame]):
     # ------------------------------------------------------------------
 
     async def health_check(self, handle: ConnectionHandle) -> HealthStatus:
-        cfg = handle.get_state("sdmx") or self._parse_sdmx_config(handle.config)
+        cfg = handle._read_typed_state(_SDMX_CONFIG_STATE_KEY)
+        if isinstance(cfg, _MissingConnectionState):
+            cfg = self._parse_sdmx_config(handle.config)
         base = self._base_url(handle)
         url = _join_url(base, cfg["dataflow_path"], cfg["agency"])
         started = time.monotonic()
@@ -347,7 +439,9 @@ class SDMXSourceConnector(HTTPConnectorBase[pd.DataFrame]):
         self,
         handle: ConnectionHandle,
     ) -> AsyncIterator[DatasetDescriptor]:
-        cfg = handle.get_state("sdmx") or self._parse_sdmx_config(handle.config)
+        cfg = handle._read_typed_state(_SDMX_CONFIG_STATE_KEY)
+        if isinstance(cfg, _MissingConnectionState):
+            cfg = self._parse_sdmx_config(handle.config)
         base = self._base_url(handle)
         detail = cfg["dataflow_detail"]
         url = _join_url(base, cfg["dataflow_path"], cfg["agency"])
@@ -499,7 +593,9 @@ class SDMXSourceConnector(HTTPConnectorBase[pd.DataFrame]):
         handle: ConnectionHandle,
         request: FetchRequest,
     ) -> FetchResult[pd.DataFrame]:
-        cfg = handle.get_state("sdmx") or self._parse_sdmx_config(handle.config)
+        cfg = handle._read_typed_state(_SDMX_CONFIG_STATE_KEY)
+        if isinstance(cfg, _MissingConnectionState):
+            cfg = self._parse_sdmx_config(handle.config)
         filter_path = self._build_filter_path(request, cfg.get("dimension_order"))
         dataflow_key = request.dataset_id
 
@@ -609,7 +705,9 @@ class SDMXSourceConnector(HTTPConnectorBase[pd.DataFrame]):
         dataset_id: str,
         cached_version: DataVersion,
     ) -> FreshnessResult:
-        cfg = handle.get_state("sdmx") or self._parse_sdmx_config(handle.config)
+        cfg = handle._read_typed_state(_SDMX_CONFIG_STATE_KEY)
+        if isinstance(cfg, _MissingConnectionState):
+            cfg = self._parse_sdmx_config(handle.config)
         url = _join_url(
             self._base_url(handle),
             *_sdmx_path_parts(
@@ -671,7 +769,9 @@ class SDMXSourceConnector(HTTPConnectorBase[pd.DataFrame]):
         handle: ConnectionHandle,
         dataset_id: str,
     ) -> DatasetCapabilitySnapshot:
-        cfg = handle.get_state("sdmx") or self._parse_sdmx_config(handle.config)
+        cfg = handle._read_typed_state(_SDMX_CONFIG_STATE_KEY)
+        if isinstance(cfg, _MissingConnectionState):
+            cfg = self._parse_sdmx_config(handle.config)
         base = self._base_url(handle)
         url = _join_url(base, cfg["dataflow_path"], cfg["agency"], dataset_id)
         url = f"{url}?references=descendants&detail=referencepartial"
@@ -791,9 +891,12 @@ class SDMXSourceConnector(HTTPConnectorBase[pd.DataFrame]):
         return body, headers, raw
 
     def _head_executor(self, handle: ConnectionHandle) -> _SDMXHeadExecutor:
-        cached_key = handle.get_state("_sdmx_head_executor_config")
+        cached_key = handle._read_typed_state_or_default(
+            _SDMX_HEAD_EXECUTOR_CONFIG_STATE_KEY,
+            None,
+        )
         key = self._resilience_cache_key(handle)
-        cached: _SDMXHeadExecutor | None = handle.get_state("_sdmx_head_executor")
+        cached = handle._read_typed_state_or_default(_SDMX_HEAD_EXECUTOR_STATE_KEY, None)
         if cached is not None and cached_key == key:
             return cached
 
@@ -835,9 +938,10 @@ class SDMXSourceConnector(HTTPConnectorBase[pd.DataFrame]):
             _raw_head,
             config=self._resilience_config(handle),
         )
-        handle.set_state("_sdmx_head_executor", wrapped)
-        handle.set_state("_sdmx_head_executor_config", key)
-        return wrapped
+        checked = _CheckedSDMXHeadExecutor(wrapped)
+        handle._set_typed_state(_SDMX_HEAD_EXECUTOR_STATE_KEY, checked)
+        handle._set_typed_state(_SDMX_HEAD_EXECUTOR_CONFIG_STATE_KEY, key)
+        return checked
 
     async def _sdmx_request_head(
         self,

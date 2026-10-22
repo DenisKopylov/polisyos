@@ -2,14 +2,20 @@
 
 from __future__ import annotations
 
+from collections.abc import AsyncIterator, Callable
 from typing import Protocol
 
 from polisyos.core import scan_secret_and_pii
+from polisyos.fabric.connectors.base import (
+    _invoke_runtime_callable,
+    _is_runtime_async_iterable,
+    _is_runtime_callable,
+)
 from polisyos.fabric.connectors.types import FetchError
 
 
 class _HTTPHeaders(Protocol):
-    def get(self, key: str, default: str | None = None, /) -> str | None: ...
+    def get(self, key: str, /) -> str | None: ...
 
 
 class _BeforeClassification(Protocol):
@@ -21,16 +27,44 @@ class _OnProgress(Protocol):
 
 
 class _HTTPResponse(Protocol):
-    headers: _HTTPHeaders
-    content: object
+    @property
+    def headers(self) -> _HTTPHeaders: ...
+
+    @property
+    def content(self) -> object: ...
 
     async def read(self) -> bytes: ...
+
+
+class _ChunkedContentReader:
+    """Invoke one chunked reader and validate its async stream at consumption."""
+
+    __slots__ = ("_iter_chunked",)
+
+    def __init__(self, iter_chunked: Callable[..., object]) -> None:
+        self._iter_chunked = iter_chunked
+
+    async def iter_chunked(self, chunk_size: int, /) -> AsyncIterator[bytes]:
+        stream = _invoke_runtime_callable(self._iter_chunked, chunk_size)
+        if not _is_runtime_async_iterable(stream):
+            raise TypeError("HTTP iter_chunked callback did not return an async iterable")
+        async for chunk in stream:
+            if not isinstance(chunk, bytes):
+                raise TypeError("HTTP iter_chunked stream yielded a non-bytes chunk")
+            yield chunk
+
+
+def _chunked_content_reader(value: object) -> _ChunkedContentReader | None:
+    callback = getattr(value, "iter_chunked", None)
+    if not _is_runtime_callable(callback):
+        return None
+    return _ChunkedContentReader(callback)
 
 
 DEFAULT_READ_CHUNK_SIZE = 64 * 1024
 
 
-def _safe_int(value: object) -> int | None:
+def _safe_int(value: str | None) -> int | None:
     if value is None:
         return None
     try:
@@ -69,8 +103,9 @@ async def read_bounded_response_body(
 
     raw = bytearray()
     content = getattr(response, "content", None)
-    if content is not None and hasattr(content, "iter_chunked"):
-        async for chunk in content.iter_chunked(chunk_size):
+    chunked_reader = _chunked_content_reader(content)
+    if chunked_reader is not None:
+        async for chunk in chunked_reader.iter_chunked(chunk_size):
             raw.extend(chunk)
             _raise_if_body_limit_exceeded(
                 len(raw),

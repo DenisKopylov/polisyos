@@ -6,7 +6,7 @@ import time
 from collections.abc import AsyncIterator
 from datetime import UTC, datetime
 from pathlib import Path
-from typing import Any, ClassVar
+from typing import Any, ClassVar, TypedDict, TypeGuard
 from urllib.parse import urlparse
 
 from polisyos.fabric.connectors.base import (
@@ -16,6 +16,9 @@ from polisyos.fabric.connectors.base import (
     FetchRequest,
     FetchResult,
     HealthStatus,
+    _ConnectionStateKey,
+    _is_string_keyed_dict,
+    _is_string_map_of_string_keyed_dicts,
 )
 from polisyos.fabric.connectors.contracts import make_schema_id
 from polisyos.fabric.connectors.sources._file_common import (
@@ -41,6 +44,27 @@ from polisyos.ir.connectors import (
     QualityTier,
     TrustLevel,
     capabilities_from_flags,
+)
+
+
+class _FileTabularState(TypedDict):
+    schema_by_dataset: dict[str, dict[str, object]]
+    version_by_dataset: dict[str, dict[str, object]]
+
+
+def _is_file_tabular_state(value: object) -> TypeGuard[_FileTabularState]:
+    if not _is_string_keyed_dict(value) or set(value) != {
+        "schema_by_dataset",
+        "version_by_dataset",
+    }:
+        return False
+    return _is_string_map_of_string_keyed_dicts(value.get("schema_by_dataset")) and (
+        _is_string_map_of_string_keyed_dicts(value.get("version_by_dataset"))
+    )
+
+
+_FILE_TABULAR_STATE_KEY: _ConnectionStateKey[_FileTabularState] = _ConnectionStateKey(
+    "file_tabular", _is_file_tabular_state
 )
 
 
@@ -118,7 +142,10 @@ class FileTabularConnector(BaseConnector[Any]):
             issues = "; ".join(issue.message for issue in validation.issues)
             raise ValueError(f"invalid {self.connector_id} config: {issues}")
         handle = self._create_handle(config)
-        handle.set_state(self._STATE_KEY, {"schema_by_dataset": {}, "version_by_dataset": {}})
+        handle._set_typed_state(
+            _FILE_TABULAR_STATE_KEY,
+            {"schema_by_dataset": {}, "version_by_dataset": {}},
+        )
         return handle
 
     async def disconnect(self, handle: ConnectionHandle) -> None:
@@ -175,9 +202,12 @@ class FileTabularConnector(BaseConnector[Any]):
             format_name=format_name,
         )
 
-        state = handle.get_state(self._STATE_KEY) or {}
-        schema_by_dataset = dict(state.get("schema_by_dataset", {}))
-        version_by_dataset = dict(state.get("version_by_dataset", {}))
+        state = handle._read_typed_state_or_default(
+            _FILE_TABULAR_STATE_KEY,
+            {"schema_by_dataset": {}, "version_by_dataset": {}},
+        )
+        schema_by_dataset = dict(state["schema_by_dataset"])
+        version_by_dataset = dict(state["version_by_dataset"])
         schema_id = make_schema_id(self.connector_id, dataset_id)
         schema_by_dataset[dataset_id] = schema_dict_from_dataframe(
             frame,
@@ -189,8 +219,8 @@ class FileTabularConnector(BaseConnector[Any]):
             ),
         )
         version_by_dataset[dataset_id] = version.model_dump(mode="json")
-        handle.set_state(
-            self._STATE_KEY,
+        handle._set_typed_state(
+            _FILE_TABULAR_STATE_KEY,
             {
                 "schema_by_dataset": schema_by_dataset,
                 "version_by_dataset": version_by_dataset,
@@ -218,15 +248,21 @@ class FileTabularConnector(BaseConnector[Any]):
         handle: ConnectionHandle,
         dataset_id: str,
     ) -> dict[str, Any]:
-        state = handle.get_state(self._STATE_KEY) or {}
-        schema_by_dataset = dict(state.get("schema_by_dataset", {}))
+        state = handle._read_typed_state_or_default(
+            _FILE_TABULAR_STATE_KEY,
+            {"schema_by_dataset": {}, "version_by_dataset": {}},
+        )
+        schema_by_dataset = dict(state["schema_by_dataset"])
         schema = schema_by_dataset.get(dataset_id)
         if schema is not None:
             return dict(schema)
         result = await self.fetch(handle, FetchRequest(dataset_id=dataset_id))
         del result
-        state = handle.get_state(self._STATE_KEY) or {}
-        schema = dict(state.get("schema_by_dataset", {})).get(dataset_id)
+        state = handle._read_typed_state_or_default(
+            _FILE_TABULAR_STATE_KEY,
+            {"schema_by_dataset": {}, "version_by_dataset": {}},
+        )
+        schema = dict(state["schema_by_dataset"]).get(dataset_id)
         return dict(schema or {"error": f"schema not available for {dataset_id}"})
 
     async def check_freshness(

@@ -1,6 +1,8 @@
 from __future__ import annotations
 
 import asyncio
+import gc
+import warnings
 from collections.abc import Callable
 from datetime import UTC, datetime
 from typing import Any, ClassVar
@@ -992,3 +994,393 @@ def test_sync_fetch_handle_observer_flows_through_resilient_http_request() -> No
 
     assert result.row_count == 0
     assert events == ["before_request", "raw_response", "fetch_result"]
+
+
+def test_raw_http_observer_state_rejects_protocol_lookalike() -> None:
+    from polisyos.fabric.connectors.sources.http_base import _raw_http_response_observer
+
+    handle = ConnectionHandle(
+        "test.observer",
+        ConnectionConfig(url="https://example.test"),
+    )
+
+    class _Lookalike:
+        max_response_bytes = 1024
+        max_decompressed_bytes = 2048
+
+        def before_request(self) -> None:
+            return None
+
+        def on_raw_response(self) -> None:
+            return None
+
+    handle.set_state("_raw_http_response_observer", _Lookalike())
+    with pytest.raises(TypeError, match="connection state key '_raw_http_response_observer'"):
+        _raw_http_response_observer(handle)
+
+
+def test_raw_http_observer_checks_required_signature_before_network() -> None:
+    connector = _DummyConnector()
+
+    class _WrongSignatureObserver(_ObserverLimits):
+        def before_request(self) -> None:
+            return None
+
+        def on_raw_response(self) -> None:
+            return None
+
+    class _NoRequestSession:
+        def get(self, *_args: object, **_kwargs: object) -> object:
+            pytest.fail("network request started before observer authorization")
+
+    with pytest.raises(TypeError):
+        _run(
+            connector._request_json(
+                _NoRequestSession(),
+                "https://example.test/data",
+                params={},
+                connector_id=connector.connector_id,
+                raw_http_response_observer=_WrongSignatureObserver(),
+            )
+        )
+
+
+def test_json_executor_owner_rejects_callable_and_checks_result_contract() -> None:
+    from polisyos.fabric.connectors.sources.http_base import _CheckedJsonRequestExecutor
+
+    connector = _DummyConnector()
+    handle = ConnectionHandle(
+        "test.executor",
+        ConnectionConfig(url="https://example.test"),
+    )
+
+    async def arbitrary_executor(**_kwargs: object) -> object:
+        raise AssertionError("a raw cached callable must not be invoked")
+
+    handle.set_state("_http_json_executor", arbitrary_executor)
+    with pytest.raises(TypeError, match="connection state key '_http_json_executor'"):
+        connector._json_executor(handle)
+
+    async def malformed_executor() -> object:
+        return (None, {1: "bad"}, bytearray(b"raw"))
+
+    checked = _CheckedJsonRequestExecutor(malformed_executor)
+    with pytest.raises(TypeError, match="invalid string headers"):
+        _run(checked())
+
+
+def test_json_executor_owner_refuses_synchronous_callable() -> None:
+    from polisyos.fabric.connectors.sources.http_base import _CheckedJsonRequestExecutor
+
+    def synchronous_executor() -> object:
+        return (None, {}, b"raw")
+
+    checked = _CheckedJsonRequestExecutor(synchronous_executor)
+    with pytest.raises(TypeError, match="did not return an awaitable"):
+        _run(checked())
+
+
+def _assert_no_unawaited_coroutine_warning(caught: list[warnings.WarningMessage]) -> None:
+    assert not any(
+        issubclass(item.category, RuntimeWarning) and "was never awaited" in str(item.message)
+        for item in caught
+    )
+
+
+def test_raw_http_observer_rejects_async_authorization_before_network() -> None:
+    connector = _DummyConnector()
+    events: list[str] = []
+
+    class Observer(_ObserverLimits):
+        async def before_request(self, *args: object) -> None:
+            del args
+            events.append("authorization body ran")
+
+        def on_raw_response(self, *args: object) -> None:
+            del args
+            events.append("raw persistence ran")
+
+    class Session:
+        get_count = 0
+
+        def get(self, *_args: object, **_kwargs: object) -> _FakeResponse:
+            self.get_count += 1
+            return _FakeResponse(200, {}, b"{}")
+
+    session = Session()
+    with warnings.catch_warnings(record=True) as caught:
+        warnings.simplefilter("always", RuntimeWarning)
+        request_error: TypeError | None = None
+        try:
+            _run(
+                connector._request_json(
+                    session,
+                    "https://example.test",
+                    params={},
+                    connector_id=connector.connector_id,
+                    raw_http_response_observer=Observer(),
+                )
+            )
+        except TypeError as error:
+            request_error = error
+        gc.collect()
+    assert session.get_count == 0
+    assert events == []
+    assert isinstance(request_error, TypeError)
+    _assert_no_unawaited_coroutine_warning(caught)
+
+
+def test_raw_http_observer_rejects_async_raw_persistence_before_json_parse(
+    monkeypatch: pytest.MonkeyPatch,
+) -> None:
+    import polisyos.fabric.connectors.sources.http_base as http_base_module
+
+    connector = _DummyConnector()
+    events: list[str] = []
+    parsed: list[bytes] = []
+    original = http_base_module.json.loads
+
+    def track(payload: bytes) -> object:
+        parsed.append(payload)
+        return original(payload)
+
+    monkeypatch.setattr(http_base_module.json, "loads", track)
+
+    class Observer(_ObserverLimits):
+        def before_request(self, *args: object) -> None:
+            del args
+            events.append("before")
+
+        async def on_raw_response(self, *args: object) -> None:
+            del args
+            events.append("raw persistence body ran")
+
+    class Session:
+        get_count = 0
+
+        def get(self, *_args: object, **_kwargs: object) -> _FakeResponse:
+            self.get_count += 1
+            return _FakeResponse(200, {}, b"{}")
+
+    session = Session()
+    with warnings.catch_warnings(record=True) as caught:
+        warnings.simplefilter("always", RuntimeWarning)
+        with pytest.raises(TypeError, match="synchronous callback returned an awaitable"):
+            _run(
+                connector._request_json(
+                    session,
+                    "https://example.test",
+                    params={},
+                    connector_id=connector.connector_id,
+                    raw_http_response_observer=Observer(),
+                )
+            )
+        gc.collect()
+    assert session.get_count == 1
+    assert events == ["before"]
+    assert parsed == []
+    _assert_no_unawaited_coroutine_warning(caught)
+
+
+@pytest.mark.parametrize("hook", ["on_waiting", "on_response_headers", "on_body_progress"])
+def test_raw_http_observer_rejects_async_optional_hooks(hook: str) -> None:
+    connector = _DummyConnector()
+    events: list[str] = []
+
+    class Observer(_ObserverLimits):
+        heartbeat_interval_seconds = 0.001
+
+        def before_request(self, *args: object) -> None:
+            del args
+            events.append("before")
+
+        def on_raw_response(self, *args: object) -> None:
+            del args
+            events.append("raw")
+
+        async def optional_hook(self, *args: object) -> None:
+            del args
+            events.append("optional body ran")
+
+    setattr(Observer, hook, Observer.optional_hook)
+
+    class SlowResponse(_FakeResponse):
+        async def __aenter__(self) -> _FakeResponse:
+            await asyncio.sleep(0.01)
+            return self
+
+    class Session:
+        get_count = 0
+
+        def get(self, *_args: object, **_kwargs: object) -> _FakeResponse:
+            self.get_count += 1
+            if hook == "on_waiting":
+                return SlowResponse(200, {}, b"{}")
+            return _FakeResponse(
+                200, {}, b"{}", stream_chunks=[b"{}"] if hook == "on_body_progress" else None
+            )
+
+    session = Session()
+    with warnings.catch_warnings(record=True) as caught:
+        warnings.simplefilter("always", RuntimeWarning)
+        with pytest.raises(TypeError, match="synchronous callback returned an awaitable"):
+            _run(
+                connector._request_json(
+                    session,
+                    "https://example.test",
+                    params={},
+                    connector_id=connector.connector_id,
+                    raw_http_response_observer=Observer(),
+                )
+            )
+        gc.collect()
+    assert session.get_count == 1
+    assert events == ["before"]
+    _assert_no_unawaited_coroutine_warning(caught)
+
+
+def test_async_executor_path_remains_awaited_and_sync_boundary_cancels_future() -> None:
+    from polisyos.fabric.connectors.base import _invoke_runtime_callable
+    from polisyos.fabric.connectors.sources.http_base import _CheckedJsonRequestExecutor
+
+    events: list[str] = []
+
+    async def executor(**_kwargs: object) -> tuple[object, dict[str, str], bytes]:
+        events.append("awaited")
+        return {"ok": True}, {"Content-Type": "application/json"}, b"{}"
+
+    async def exercise() -> None:
+        result = await _CheckedJsonRequestExecutor(executor)(url="https://example.test")
+        assert result == ({"ok": True}, {"Content-Type": "application/json"}, b"{}")
+        future = asyncio.get_running_loop().create_future()
+        with pytest.raises(TypeError, match="synchronous callback returned an awaitable"):
+            _invoke_runtime_callable(lambda: future)
+        assert future.cancelled()
+
+        class CustomAwaitable:
+            def __init__(self) -> None:
+                self.closed = False
+
+            def __await__(self):
+                return iter(())
+
+            def close(self) -> None:
+                self.closed = True
+
+        custom = CustomAwaitable()
+        with pytest.raises(TypeError, match="synchronous callback returned an awaitable"):
+            _invoke_runtime_callable(lambda: custom)
+        assert custom.closed
+
+        class NonDisposableAwaitable:
+            def __await__(self):
+                events.append("non-disposable await ran")
+                yield None
+
+        passive = NonDisposableAwaitable()
+        with pytest.raises(TypeError, match="synchronous callback returned an awaitable"):
+            _invoke_runtime_callable(lambda: passive)
+        assert events == ["awaited"]
+
+    _run(exercise())
+    assert events == ["awaited"]
+
+
+def test_raw_http_observer_closes_coroutine_returned_by_custom_async_disposer() -> None:
+    connector = _DummyConnector()
+    events: list[str] = []
+
+    class AsyncCloseAwaitable:
+        def __await__(self):
+            events.append("await body ran")
+            yield None
+
+        async def close(self) -> None:
+            events.append("async close body ran")
+
+    class Observer(_ObserverLimits):
+        def before_request(self, *args: object) -> AsyncCloseAwaitable:
+            del args
+            return AsyncCloseAwaitable()
+
+        def on_raw_response(self, *args: object) -> None:
+            del args
+            events.append("raw persistence ran")
+
+    class Session:
+        get_count = 0
+
+        def get(self, *_args: object, **_kwargs: object) -> _FakeResponse:
+            self.get_count += 1
+            return _FakeResponse(200, {}, b"{}")
+
+    session = Session()
+    with warnings.catch_warnings(record=True) as caught:
+        warnings.simplefilter("always", RuntimeWarning)
+        with pytest.raises(TypeError, match="synchronous callback returned an awaitable"):
+            _run(
+                connector._request_json(
+                    session,
+                    "https://example.test",
+                    params={},
+                    connector_id=connector.connector_id,
+                    raw_http_response_observer=Observer(),
+                )
+            )
+        gc.collect()
+    assert session.get_count == 0
+    assert events == []
+    _assert_no_unawaited_coroutine_warning(caught)
+
+
+def test_raw_http_observer_does_not_await_opaque_disposer_result_before_network() -> None:
+    connector = _DummyConnector()
+    events: list[str] = []
+
+    class OpaqueDisposerResult:
+        def __await__(self):
+            events.append("opaque disposer result awaited")
+            yield None
+
+    class CustomAwaitable:
+        def __await__(self):
+            events.append("outer callback awaited")
+            yield None
+
+        def close(self) -> OpaqueDisposerResult:
+            events.append("opaque close hook invoked")
+            return OpaqueDisposerResult()
+
+    class Observer(_ObserverLimits):
+        def before_request(self, *args: object) -> CustomAwaitable:
+            del args
+            return CustomAwaitable()
+
+        def on_raw_response(self, *args: object) -> None:
+            del args
+            events.append("raw persistence ran")
+
+    class Session:
+        get_count = 0
+
+        def get(self, *_args: object, **_kwargs: object) -> _FakeResponse:
+            self.get_count += 1
+            return _FakeResponse(200, {}, b"{}")
+
+    session = Session()
+    with warnings.catch_warnings(record=True) as caught:
+        warnings.simplefilter("always", RuntimeWarning)
+        with pytest.raises(TypeError, match="synchronous callback returned an awaitable"):
+            _run(
+                connector._request_json(
+                    session,
+                    "https://example.test",
+                    params={},
+                    connector_id=connector.connector_id,
+                    raw_http_response_observer=Observer(),
+                )
+            )
+        gc.collect()
+    assert session.get_count == 0
+    assert events == ["opaque close hook invoked"]
+    _assert_no_unawaited_coroutine_warning(caught)

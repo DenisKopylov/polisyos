@@ -44,7 +44,7 @@ import asyncio
 import time
 from collections.abc import AsyncIterator
 from datetime import UTC, datetime
-from typing import TYPE_CHECKING, Any, ClassVar
+from typing import TYPE_CHECKING, Any, ClassVar, TypedDict, TypeGuard
 
 import aiohttp
 import pandas as pd
@@ -58,6 +58,8 @@ from polisyos.fabric.connectors.base import (
     FetchRequest,
     FetchResult,
     HealthStatus,
+    _ConnectionStateKey,
+    _MissingConnectionState,
 )
 from polisyos.fabric.connectors.contracts import make_schema_id
 from polisyos.fabric.connectors.http_limits import read_bounded_response_body
@@ -95,6 +97,69 @@ logger = get_logger(__name__)
 _DEFAULT_MAX_RESPONSE_BYTES = 20 * 1024 * 1024
 _DEFAULT_MAX_JSON_BYTES = 10 * 1024 * 1024
 _DEFAULT_MAX_DECOMPRESSED_BYTES = 50 * 1024 * 1024
+
+
+class _ReferenceSDMXConfig(TypedDict):
+    agency: str
+    version: str
+    data_path: str
+    dataflow_path: str
+    dimension_order: list[str] | None
+    dataflow_detail: str
+    max_response_bytes: int
+    max_json_bytes: int
+    max_decompressed_bytes: int
+
+
+def _is_reference_sdmx_config(value: object) -> TypeGuard[_ReferenceSDMXConfig]:
+    expected = {
+        "agency",
+        "version",
+        "data_path",
+        "dataflow_path",
+        "dimension_order",
+        "dataflow_detail",
+        "max_response_bytes",
+        "max_json_bytes",
+        "max_decompressed_bytes",
+    }
+    if not isinstance(value, dict) or set(value) != expected:
+        return False
+    if not all(
+        isinstance(value.get(key), str)
+        for key in ("agency", "version", "data_path", "dataflow_path", "dataflow_detail")
+    ):
+        return False
+    order = value.get("dimension_order")
+    if order is not None and (
+        not isinstance(order, list) or not all(isinstance(item, str) for item in order)
+    ):
+        return False
+    return all(
+        type(value.get(key)) is int and value[key] > 0
+        for key in ("max_response_bytes", "max_json_bytes", "max_decompressed_bytes")
+    )
+
+
+def _is_optional_client_session(
+    value: object,
+) -> TypeGuard[aiohttp.ClientSession | None]:
+    return value is None or isinstance(value, aiohttp.ClientSession)
+
+
+def _is_asyncio_lock(value: object) -> TypeGuard[asyncio.Lock]:
+    return isinstance(value, asyncio.Lock)
+
+
+_REFERENCE_SDMX_CONFIG_KEY: _ConnectionStateKey[_ReferenceSDMXConfig] = _ConnectionStateKey(
+    "sdmx", _is_reference_sdmx_config
+)
+_SESSION_STATE_KEY: _ConnectionStateKey[aiohttp.ClientSession | None] = _ConnectionStateKey(
+    "sdmx.http_session", _is_optional_client_session
+)
+_SESSION_LOCK_STATE_KEY: _ConnectionStateKey[asyncio.Lock] = _ConnectionStateKey(
+    "sdmx.http_session_lock", _is_asyncio_lock
+)
 
 
 def _positive_int_header(headers: Mapping[str, str], header_name: str, default: int) -> int:
@@ -248,7 +313,7 @@ class SDMXConnector(BaseConnector[pd.DataFrame]):
     # Config
     # ------------------------------------------------------------------
     @staticmethod
-    def _parse_sdmx_config(config: ConnectionConfig) -> dict[str, Any]:
+    def _parse_sdmx_config(config: ConnectionConfig) -> _ReferenceSDMXConfig:
         dimension_order = config.headers.get("X-SDMX-DimensionOrder")
         order = None
         if dimension_order:
@@ -314,35 +379,34 @@ class SDMXConnector(BaseConnector[pd.DataFrame]):
                 field="url",
             )
         handle = self._create_handle(config)
-        handle.set_state("sdmx", self._parse_sdmx_config(config))
-        handle.set_state(self._STATE_SESSION_KEY, None)
-        handle.set_state(self._STATE_SESSION_LOCK_KEY, asyncio.Lock())
+        handle._set_typed_state(_REFERENCE_SDMX_CONFIG_KEY, self._parse_sdmx_config(config))
+        handle._set_typed_state(_SESSION_STATE_KEY, None)
+        handle._set_typed_state(_SESSION_LOCK_STATE_KEY, asyncio.Lock())
         return handle
 
     async def disconnect(self, handle: ConnectionHandle) -> None:
         lock = self._session_lock(handle)
         async with lock:
-            session: aiohttp.ClientSession | None = handle.get_state(self._STATE_SESSION_KEY)
+            session: aiohttp.ClientSession | None = handle._read_typed_state_or_default(
+                _SESSION_STATE_KEY, None
+            )
             if session is not None and not session.closed:
                 await session.close()
-            handle.set_state(self._STATE_SESSION_KEY, None)
+            handle._set_typed_state(_SESSION_STATE_KEY, None)
 
     def _session_lock(self, handle: ConnectionHandle) -> asyncio.Lock:
-        lock = handle.get_state(self._STATE_SESSION_LOCK_KEY)
-        if isinstance(lock, asyncio.Lock):
-            return lock
-        lock = asyncio.Lock()
-        handle.set_state(self._STATE_SESSION_LOCK_KEY, lock)
-        return lock
+        return handle._setdefault_typed_state(_SESSION_LOCK_STATE_KEY, asyncio.Lock())
 
     async def _get_session(self, handle: ConnectionHandle) -> aiohttp.ClientSession:
         lock = self._session_lock(handle)
         async with lock:
-            session: aiohttp.ClientSession | None = handle.get_state(self._STATE_SESSION_KEY)
+            session: aiohttp.ClientSession | None = handle._read_typed_state_or_default(
+                _SESSION_STATE_KEY, None
+            )
             if session is None or session.closed:
                 timeout = aiohttp.ClientTimeout(total=handle.config.timeout_seconds)
                 session = aiohttp.ClientSession(timeout=timeout)
-                handle.set_state(self._STATE_SESSION_KEY, session)
+                handle._set_typed_state(_SESSION_STATE_KEY, session)
             return session
 
     # ------------------------------------------------------------------
@@ -352,7 +416,9 @@ class SDMXConnector(BaseConnector[pd.DataFrame]):
     @with_circuit_breaker()
     async def health_check(self, handle: ConnectionHandle) -> HealthStatus:
         start = time.monotonic()
-        cfg = handle.get_state("sdmx") or self._parse_sdmx_config(handle.config)
+        cfg = handle._read_typed_state(_REFERENCE_SDMX_CONFIG_KEY)
+        if isinstance(cfg, _MissingConnectionState):
+            cfg = self._parse_sdmx_config(handle.config)
         url = _join_url(handle.config.url, cfg["dataflow_path"], cfg["agency"])
         try:
             session = await self._get_session(handle)
@@ -377,7 +443,9 @@ class SDMXConnector(BaseConnector[pd.DataFrame]):
         self,
         handle: ConnectionHandle,
     ) -> AsyncIterator[DatasetDescriptor]:
-        cfg = handle.get_state("sdmx") or self._parse_sdmx_config(handle.config)
+        cfg = handle._read_typed_state(_REFERENCE_SDMX_CONFIG_KEY)
+        if isinstance(cfg, _MissingConnectionState):
+            cfg = self._parse_sdmx_config(handle.config)
         detail = cfg["dataflow_detail"]
         url = _join_url(handle.config.url, cfg["dataflow_path"], cfg["agency"])
         if detail:
@@ -427,7 +495,9 @@ class SDMXConnector(BaseConnector[pd.DataFrame]):
         handle: ConnectionHandle,
         request: FetchRequest,
     ) -> FetchResult[pd.DataFrame]:
-        cfg = handle.get_state("sdmx") or self._parse_sdmx_config(handle.config)
+        cfg = handle._read_typed_state(_REFERENCE_SDMX_CONFIG_KEY)
+        if isinstance(cfg, _MissingConnectionState):
+            cfg = self._parse_sdmx_config(handle.config)
         filter_path = self._build_filter_path(request, cfg.get("dimension_order"))
         dataflow_key = safe_path_segment(request.dataset_id, what="SDMX dataset_id")
         url = _join_url(
@@ -548,7 +618,9 @@ class SDMXConnector(BaseConnector[pd.DataFrame]):
         dataset_id: str,
         cached_version: DataVersion,
     ) -> FreshnessResult:
-        cfg = handle.get_state("sdmx") or self._parse_sdmx_config(handle.config)
+        cfg = handle._read_typed_state(_REFERENCE_SDMX_CONFIG_KEY)
+        if isinstance(cfg, _MissingConnectionState):
+            cfg = self._parse_sdmx_config(handle.config)
         safe_dataset_id = safe_path_segment(dataset_id, what="SDMX dataset_id")
         url = _join_url(handle.config.url, cfg["data_path"], cfg["agency"], safe_dataset_id)
         headers = self._sdmx_data_headers(handle.config)
@@ -652,7 +724,9 @@ class SDMXConnector(BaseConnector[pd.DataFrame]):
                 )
                 error.status_code = resp.status  # type: ignore[attr-defined]
                 raise error
-            cfg = handle.get_state("sdmx") or self._parse_sdmx_config(handle.config)
+            cfg = handle._read_typed_state(_REFERENCE_SDMX_CONFIG_KEY)
+            if isinstance(cfg, _MissingConnectionState):
+                cfg = self._parse_sdmx_config(handle.config)
             raw = await read_bounded_response_body(
                 resp,
                 connector_id=self.connector_id,

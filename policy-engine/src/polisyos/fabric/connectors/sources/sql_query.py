@@ -23,6 +23,9 @@ from polisyos.fabric.connectors.base import (
     FetchRequest,
     FetchResult,
     HealthStatus,
+    _ConnectionStateKey,
+    _DatasetSchemaState,
+    _is_dataset_schema_state,
 )
 from polisyos.fabric.connectors.contracts import infer_schema, make_schema_id
 from polisyos.fabric.connectors.types import (
@@ -78,6 +81,11 @@ def _validate_read_only_query(query: str) -> str:
     return candidate
 
 
+_SCHEMA_CACHE_STATE_KEY: _ConnectionStateKey[_DatasetSchemaState] = _ConnectionStateKey(
+    "sql_query", _is_dataset_schema_state
+)
+
+
 class SQLQueryConnector(BaseConnector[Any]):
     """Run read-only SQL queries against sqlite or duckdb connections."""
 
@@ -117,7 +125,7 @@ class SQLQueryConnector(BaseConnector[Any]):
             issues = "; ".join(issue.message for issue in validation.issues)
             raise ValueError(f"invalid {self.connector_id} config: {issues}")
         handle = self._create_handle(config)
-        handle.set_state(self._STATE_KEY, {"schema_by_dataset": {}})
+        handle._set_typed_state(_SCHEMA_CACHE_STATE_KEY, {"schema_by_dataset": {}})
         return handle
 
     async def disconnect(self, handle: ConnectionHandle) -> None:
@@ -217,8 +225,10 @@ class SQLQueryConnector(BaseConnector[Any]):
         schema_id = make_schema_id(self.connector_id, request.dataset_id or "query")
         schema = infer_schema(frame, schema_id=schema_id)
 
-        state = handle.get_state(self._STATE_KEY) or {}
-        schema_by_dataset = dict(state.get("schema_by_dataset", {}))
+        state = handle._read_typed_state_or_default(
+            _SCHEMA_CACHE_STATE_KEY, {"schema_by_dataset": {}}
+        )
+        schema_by_dataset = dict(state["schema_by_dataset"])
         schema_by_dataset[request.dataset_id or "query"] = {
             "schema_id": schema.schema_id,
             "version": str(schema.version),
@@ -236,7 +246,7 @@ class SQLQueryConnector(BaseConnector[Any]):
             "query_hash": query_hash,
             "table": request.dataset_id,
         }
-        handle.set_state(self._STATE_KEY, {"schema_by_dataset": schema_by_dataset})
+        handle._set_typed_state(_SCHEMA_CACHE_STATE_KEY, {"schema_by_dataset": schema_by_dataset})
 
         return FetchResult(
             data=frame,
@@ -262,13 +272,17 @@ class SQLQueryConnector(BaseConnector[Any]):
         handle: ConnectionHandle,
         dataset_id: str,
     ) -> dict[str, Any]:
-        state = handle.get_state(self._STATE_KEY) or {}
-        schema = dict(state.get("schema_by_dataset", {})).get(dataset_id)
+        state = handle._read_typed_state_or_default(
+            _SCHEMA_CACHE_STATE_KEY, {"schema_by_dataset": {}}
+        )
+        schema = dict(state["schema_by_dataset"]).get(dataset_id)
         if schema is not None:
             return dict(schema)
         await self.fetch(handle, FetchRequest(dataset_id=dataset_id, page_size=1))
-        state = handle.get_state(self._STATE_KEY) or {}
-        schema = dict(state.get("schema_by_dataset", {})).get(dataset_id)
+        state = handle._read_typed_state_or_default(
+            _SCHEMA_CACHE_STATE_KEY, {"schema_by_dataset": {}}
+        )
+        schema = dict(state["schema_by_dataset"]).get(dataset_id)
         return dict(schema or {"error": f"schema not available for {dataset_id}"})
 
     @classmethod

@@ -7,11 +7,13 @@ profile resolvers pass immutable ``ConnectionConfig`` / ``ConnectionHandle`` obj
 
 from __future__ import annotations
 
+import asyncio
 import hashlib
+import inspect
 import json
 import re
 import threading
-from collections.abc import AsyncIterator, Awaitable, Iterable, Mapping
+from collections.abc import AsyncIterable, AsyncIterator, Awaitable, Callable, Iterable, Mapping
 from dataclasses import dataclass, field
 from datetime import UTC, datetime
 from pathlib import Path
@@ -20,7 +22,10 @@ from typing import (
     TYPE_CHECKING,
     Any,
     ClassVar,
+    Generic,
     Protocol,
+    TypedDict,
+    TypeGuard,
     TypeVar,
     runtime_checkable,
 )
@@ -71,7 +76,115 @@ def _safe_local_path(location: str, *, scheme: str) -> Path:
     return Path(raw_path)
 
 
+def _is_runtime_callable(value: object) -> TypeGuard[Callable[..., object]]:
+    """Prove callability only; callback arguments and results remain checked at use."""
+    return callable(value)
+
+
+def _is_runtime_awaitable(value: object) -> TypeGuard[Awaitable[object]]:
+    """Prove the value implements the await protocol without claiming its result shape."""
+    return inspect.isawaitable(value)
+
+
+def _is_runtime_async_iterable(value: object) -> TypeGuard[AsyncIterable[object]]:
+    """Prove async iteration only; yielded items remain opaque until consumed."""
+    return isinstance(value, AsyncIterable)
+
+
+def _call_runtime_callable(
+    callback: object,
+    *args: object,
+    **kwargs: object,
+) -> object:
+    """Invoke a callable without imposing a sync or async result contract."""
+    if not _is_runtime_callable(callback):
+        raise TypeError("runtime callback is not callable")
+    return callback(*args, **kwargs)
+
+
+def _discard_runtime_awaitable(value: Awaitable[object]) -> None:
+    """Dispose awaitables returned to a synchronous callback boundary when supported."""
+    if isinstance(value, asyncio.Future):
+        value.cancel()
+        return
+    if inspect.iscoroutine(value):
+        value.close()
+        return
+    disposer = getattr(value, "close", None)
+    if not _is_runtime_callable(disposer):
+        disposer = getattr(value, "cancel", None)
+    if _is_runtime_callable(disposer):
+        disposal_result = _call_runtime_callable(disposer)
+        if isinstance(disposal_result, asyncio.Future):
+            disposal_result.cancel()
+        elif inspect.iscoroutine(disposal_result):
+            disposal_result.close()
+
+
+def _invoke_runtime_callable(
+    callback: object,
+    *args: object,
+    **kwargs: object,
+) -> object:
+    """Invoke a synchronous runtime callback and refuse awaitable results."""
+    result = _call_runtime_callable(callback, *args, **kwargs)
+    if _is_runtime_awaitable(result):
+        _discard_runtime_awaitable(result)
+        raise TypeError("runtime synchronous callback returned an awaitable")
+    return result
+
+
+async def _invoke_runtime_async_callable(
+    callback: object,
+    *args: object,
+    **kwargs: object,
+) -> object:
+    """Invoke an async runtime callback and await its validated result."""
+    result = _call_runtime_callable(callback, *args, **kwargs)
+    if not _is_runtime_awaitable(result):
+        raise TypeError("runtime callback did not return an awaitable")
+    return await result
+
+
 DataT = TypeVar("DataT")
+StateT = TypeVar("StateT")
+
+
+@dataclass(frozen=True, slots=True)
+class _ConnectionStateKey(Generic[StateT]):
+    name: str
+    accepts: Callable[[object], TypeGuard[StateT]]
+
+
+class _MissingConnectionState:
+    __slots__ = ()
+
+
+_MISSING_CONNECTION_STATE = _MissingConnectionState()
+
+
+class _DatasetSchemaState(TypedDict):
+    schema_by_dataset: dict[str, dict[str, object]]
+
+
+def _is_string_keyed_dict(value: object) -> TypeGuard[dict[str, object]]:
+    if not isinstance(value, dict):
+        return False
+    return all(isinstance(key, str) for key in value)
+
+
+def _is_string_map_of_string_keyed_dicts(
+    value: object,
+) -> TypeGuard[dict[str, dict[str, object]]]:
+    if not _is_string_keyed_dict(value):
+        return False
+    return all(_is_string_keyed_dict(item) for item in value.values())
+
+
+def _is_dataset_schema_state(value: object) -> TypeGuard[_DatasetSchemaState]:
+    if not _is_string_keyed_dict(value) or set(value) != {"schema_by_dataset"}:
+        return False
+    return _is_string_map_of_string_keyed_dicts(value.get("schema_by_dataset"))
 
 
 def _freeze_mapping(value: Mapping[str, object]) -> Mapping[str, object]:
@@ -102,6 +215,51 @@ class ConnectionState:
     def get(self, key: str, default: object = None) -> object:
         with self._lock:
             return self._data.get(key, default)
+
+    def _read_typed(
+        self,
+        key: _ConnectionStateKey[StateT],
+    ) -> StateT | _MissingConnectionState:
+        with self._lock:
+            if key.name not in self._data:
+                return _MISSING_CONNECTION_STATE
+            value = self._data[key.name]
+            if not key.accepts(value):
+                raise TypeError(
+                    f"connection state key {key.name!r} has invalid value type "
+                    f"{type(value).__name__}"
+                )
+            return value
+
+    def _set_typed(self, key: _ConnectionStateKey[StateT], value: object) -> None:
+        if not key.accepts(value):
+            raise TypeError(
+                f"connection state key {key.name!r} has invalid value type {type(value).__name__}"
+            )
+        with self._lock:
+            self._data[key.name] = value
+
+    def _setdefault_typed(
+        self,
+        key: _ConnectionStateKey[StateT],
+        default: object,
+    ) -> StateT:
+        with self._lock:
+            if not key.accepts(default):
+                raise TypeError(
+                    f"connection state key {key.name!r} has invalid value type "
+                    f"{type(default).__name__}"
+                )
+            if key.name in self._data:
+                value = self._data[key.name]
+                if not key.accepts(value):
+                    raise TypeError(
+                        f"connection state key {key.name!r} has invalid value type "
+                        f"{type(value).__name__}"
+                    )
+                return value
+            self._data[key.name] = default
+            return default
 
     def set(self, key: str, value: object) -> None:
         with self._lock:
@@ -299,6 +457,37 @@ class ConnectionHandle:
 
     def get_state(self, key: str, default: object = None) -> object:
         return self._state.get(key, default)
+
+    def _read_typed_state(
+        self,
+        key: _ConnectionStateKey[StateT],
+    ) -> StateT | _MissingConnectionState:
+        return self._state._read_typed(key)
+
+    def _set_typed_state(self, key: _ConnectionStateKey[StateT], value: object) -> None:
+        self._state._set_typed(key, value)
+
+    def _setdefault_typed_state(
+        self,
+        key: _ConnectionStateKey[StateT],
+        default: object,
+    ) -> StateT:
+        return self._state._setdefault_typed(key, default)
+
+    def _read_typed_state_or_default(
+        self,
+        key: _ConnectionStateKey[StateT],
+        default: object,
+    ) -> StateT:
+        value = self._read_typed_state(key)
+        if isinstance(value, _MissingConnectionState):
+            if not key.accepts(default):
+                raise TypeError(
+                    f"connection state key {key.name!r} has invalid default type "
+                    f"{type(default).__name__}"
+                )
+            return default
+        return value
 
     def set_state(self, key: str, value: object) -> None:
         self._state.set(key, value)

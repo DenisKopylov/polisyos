@@ -15,6 +15,9 @@ from polisyos.fabric.connectors.base import (
     FetchRequest,
     FetchResult,
     HealthStatus,
+    _ConnectionStateKey,
+    _DatasetSchemaState,
+    _is_dataset_schema_state,
 )
 from polisyos.fabric.connectors.contracts import infer_schema, make_schema_id
 from polisyos.fabric.connectors.sources._file_common import content_version, read_location_bytes
@@ -31,6 +34,10 @@ from polisyos.ir.connectors import (
     QualityTier,
     TrustLevel,
     capabilities_from_flags,
+)
+
+_SCHEMA_CACHE_STATE_KEY: _ConnectionStateKey[_DatasetSchemaState] = _ConnectionStateKey(
+    "event_stream", _is_dataset_schema_state
 )
 
 
@@ -78,7 +85,7 @@ class EventStreamConnector(BaseConnector[Any]):
             issues = "; ".join(issue.message for issue in validation.issues)
             raise ValueError(f"invalid {self.connector_id} config: {issues}")
         handle = self._create_handle(config)
-        handle.set_state(self._STATE_KEY, {"schema_by_dataset": {}})
+        handle._set_typed_state(_SCHEMA_CACHE_STATE_KEY, {"schema_by_dataset": {}})
         return handle
 
     async def disconnect(self, handle: ConnectionHandle) -> None:
@@ -151,8 +158,10 @@ class EventStreamConnector(BaseConnector[Any]):
         )
         frame = pd.DataFrame(messages)
         inferred = infer_schema(frame, schema_id=schema_id)
-        state = handle.get_state(self._STATE_KEY) or {}
-        schema_by_dataset = dict(state.get("schema_by_dataset", {}))
+        state = handle._read_typed_state_or_default(
+            _SCHEMA_CACHE_STATE_KEY, {"schema_by_dataset": {}}
+        )
+        schema_by_dataset = dict(state["schema_by_dataset"])
         schema_by_dataset[request.dataset_id or self._topic(handle.config)] = {
             "schema_id": inferred.schema_id,
             "version": str(inferred.version),
@@ -169,7 +178,7 @@ class EventStreamConnector(BaseConnector[Any]):
             "subject_or_topic": self._topic(handle.config),
             "message_ids": [msg["_message_id"] for msg in messages[:10]],
         }
-        handle.set_state(self._STATE_KEY, {"schema_by_dataset": schema_by_dataset})
+        handle._set_typed_state(_SCHEMA_CACHE_STATE_KEY, {"schema_by_dataset": schema_by_dataset})
 
         version = content_version(
             data=payload,
@@ -195,13 +204,17 @@ class EventStreamConnector(BaseConnector[Any]):
         handle: ConnectionHandle,
         dataset_id: str,
     ) -> dict[str, Any]:
-        state = handle.get_state(self._STATE_KEY) or {}
-        schema = dict(state.get("schema_by_dataset", {})).get(dataset_id)
+        state = handle._read_typed_state_or_default(
+            _SCHEMA_CACHE_STATE_KEY, {"schema_by_dataset": {}}
+        )
+        schema = dict(state["schema_by_dataset"]).get(dataset_id)
         if schema is not None:
             return dict(schema)
         await self.fetch(handle, FetchRequest(dataset_id=dataset_id))
-        state = handle.get_state(self._STATE_KEY) or {}
-        schema = dict(state.get("schema_by_dataset", {})).get(dataset_id)
+        state = handle._read_typed_state_or_default(
+            _SCHEMA_CACHE_STATE_KEY, {"schema_by_dataset": {}}
+        )
+        schema = dict(state["schema_by_dataset"]).get(dataset_id)
         return dict(schema or {"error": f"schema not available for {dataset_id}"})
 
     @classmethod

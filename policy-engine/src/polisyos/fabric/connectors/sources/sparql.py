@@ -19,7 +19,7 @@ import re
 import time
 from collections.abc import AsyncIterator
 from datetime import UTC, datetime
-from typing import Any, ClassVar
+from typing import Any, ClassVar, TypeGuard
 
 import aiohttp
 import pandas as pd
@@ -31,6 +31,7 @@ from polisyos.fabric.connectors.base import (
     FetchRequest,
     FetchResult,
     HealthStatus,
+    _ConnectionStateKey,
 )
 from polisyos.fabric.connectors.contracts import make_schema_id
 from polisyos.fabric.connectors.sources.http_base import (
@@ -62,6 +63,24 @@ from polisyos.ir.connectors import (
 _MAX_LIMIT = 100000
 _DEFAULT_TIMEOUT_HINT = 30  # seconds
 _PLACEHOLDER_RE = re.compile(r"\{\{(?:(literal|iri|var):)?([A-Za-z_][A-Za-z0-9_]*)\}\}")
+
+
+def _is_string_to_string_dict(value: object) -> TypeGuard[dict[str, str]]:
+    if not isinstance(value, dict):
+        return False
+    return all(isinstance(key, str) and isinstance(item, str) for key, item in value.items())
+
+
+def _is_optional_string(value: object) -> TypeGuard[str | None]:
+    return value is None or isinstance(value, str)
+
+
+_SPARQL_TEMPLATES_STATE_KEY: _ConnectionStateKey[dict[str, str]] = _ConnectionStateKey(
+    "sparql_templates", _is_string_to_string_dict
+)
+_SPARQL_DEFAULT_GRAPH_STATE_KEY: _ConnectionStateKey[str | None] = _ConnectionStateKey(
+    "sparql_default_graph", _is_optional_string
+)
 
 
 class SPARQLConnector(HTTPConnectorBase[pd.DataFrame]):
@@ -144,8 +163,8 @@ class SPARQLConnector(HTTPConnectorBase[pd.DataFrame]):
 
     async def connect(self, config: ConnectionConfig) -> ConnectionHandle:
         handle = await super().connect(config)
-        handle.set_state("sparql_templates", self._get_query_templates(config))
-        handle.set_state("sparql_default_graph", self._get_default_graph(config))
+        handle._set_typed_state(_SPARQL_TEMPLATES_STATE_KEY, self._get_query_templates(config))
+        handle._set_typed_state(_SPARQL_DEFAULT_GRAPH_STATE_KEY, self._get_default_graph(config))
         return handle
 
     # ------------------------------------------------------------------
@@ -192,7 +211,7 @@ class SPARQLConnector(HTTPConnectorBase[pd.DataFrame]):
         self,
         handle: ConnectionHandle,
     ) -> AsyncIterator[DatasetDescriptor]:
-        templates = handle.get_state("sparql_templates", {})
+        templates = handle._read_typed_state_or_default(_SPARQL_TEMPLATES_STATE_KEY, {})
         for name, query in templates.items():
             yield DatasetDescriptor(
                 dataset_id=name,
@@ -215,7 +234,7 @@ class SPARQLConnector(HTTPConnectorBase[pd.DataFrame]):
 
         query = self._resolve_query(handle, request)
         query = self._apply_guardrails(query)
-        default_graph = handle.get_state("sparql_default_graph")
+        default_graph = handle._read_typed_state_or_default(_SPARQL_DEFAULT_GRAPH_STATE_KEY, None)
 
         started = time.monotonic()
         session = await self._get_session(handle)
@@ -298,7 +317,7 @@ class SPARQLConnector(HTTPConnectorBase[pd.DataFrame]):
 
     @staticmethod
     def _resolve_query(handle: ConnectionHandle, request: FetchRequest) -> str:
-        templates: dict[str, str] = handle.get_state("sparql_templates", {})
+        templates = handle._read_typed_state_or_default(_SPARQL_TEMPLATES_STATE_KEY, {})
         query = templates.get(request.dataset_id)
 
         if query is None:

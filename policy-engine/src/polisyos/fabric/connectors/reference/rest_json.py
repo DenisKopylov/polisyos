@@ -42,15 +42,15 @@ from __future__ import annotations
 
 import asyncio
 import json
+import math
 import time
 from collections.abc import Awaitable, Callable
 from datetime import UTC, datetime
 from enum import Enum
-from typing import TYPE_CHECKING, Any, ClassVar, TypedDict
+from typing import TYPE_CHECKING, Any, ClassVar, TypedDict, TypeGuard
 
 if TYPE_CHECKING:
     from collections.abc import Mapping
-    from typing import TypeGuard
 
     from pydantic import JsonValue
 
@@ -63,6 +63,7 @@ from polisyos.fabric.connectors.base import (
     ConnectionConfig,
     ConnectionHandle,
     HealthStatus,
+    _ConnectionStateKey,
 )
 from polisyos.fabric.connectors.contracts import make_schema_id
 from polisyos.fabric.connectors.http_limits import read_bounded_response_body
@@ -189,6 +190,42 @@ class _RestJsonConfig(TypedDict):
     max_pages: int
 
 
+class _RestJsonRateState(TypedDict):
+    rate_limit_remaining: int | None
+    retry_after: float | None
+
+
+def _is_rest_json_rate_state(value: object) -> TypeGuard[_RestJsonRateState]:
+    if not isinstance(value, dict) or set(value) != {"rate_limit_remaining", "retry_after"}:
+        return False
+    remaining = value.get("rate_limit_remaining")
+    retry_after = value.get("retry_after")
+    return (remaining is None or type(remaining) is int) and (
+        retry_after is None or (type(retry_after) is float and math.isfinite(retry_after))
+    )
+
+
+def _is_optional_client_session(
+    value: object,
+) -> TypeGuard[aiohttp.ClientSession | None]:
+    return value is None or isinstance(value, aiohttp.ClientSession)
+
+
+def _is_asyncio_lock(value: object) -> TypeGuard[asyncio.Lock]:
+    return isinstance(value, asyncio.Lock)
+
+
+_REST_JSON_RATE_STATE_KEY: _ConnectionStateKey[_RestJsonRateState] = _ConnectionStateKey(
+    "rest_json", _is_rest_json_rate_state
+)
+_SESSION_STATE_KEY: _ConnectionStateKey[aiohttp.ClientSession | None] = _ConnectionStateKey(
+    "session", _is_optional_client_session
+)
+_SESSION_LOCK_STATE_KEY: _ConnectionStateKey[asyncio.Lock] = _ConnectionStateKey(
+    "_session_lock", _is_asyncio_lock
+)
+
+
 class _PageResponseEnvelope(TypedDict):
     """Mixed transport and parsed-JSON fields returned by one page request."""
 
@@ -310,35 +347,33 @@ class GenericRESTConnector(BaseConnector[list[dict[str, Any]]]):
                 field="url",
             )
         handle = self._create_handle(config)
-        handle.setdefault_state("rest_json", {})
-        handle.set_state(self._STATE_SESSION_KEY, None)
-        handle.set_state(self._STATE_SESSION_LOCK_KEY, asyncio.Lock())
+        handle._setdefault_typed_state(
+            _REST_JSON_RATE_STATE_KEY,
+            {"rate_limit_remaining": None, "retry_after": None},
+        )
+        handle._set_typed_state(_SESSION_STATE_KEY, None)
+        handle._set_typed_state(_SESSION_LOCK_STATE_KEY, asyncio.Lock())
         return handle
 
     async def disconnect(self, handle: ConnectionHandle) -> None:
         lock = self._session_lock(handle)
         async with lock:
-            session: aiohttp.ClientSession | None = handle.get_state(self._STATE_SESSION_KEY)
+            session = handle._read_typed_state_or_default(_SESSION_STATE_KEY, None)
             if session is not None and not session.closed:
                 await session.close()
-            handle.set_state(self._STATE_SESSION_KEY, None)
+            handle._set_typed_state(_SESSION_STATE_KEY, None)
 
     def _session_lock(self, handle: ConnectionHandle) -> asyncio.Lock:
-        lock = handle.get_state(self._STATE_SESSION_LOCK_KEY)
-        if isinstance(lock, asyncio.Lock):
-            return lock
-        lock = asyncio.Lock()
-        handle.set_state(self._STATE_SESSION_LOCK_KEY, lock)
-        return lock
+        return handle._setdefault_typed_state(_SESSION_LOCK_STATE_KEY, asyncio.Lock())
 
     async def _get_session(self, handle: ConnectionHandle) -> aiohttp.ClientSession:
         lock = self._session_lock(handle)
         async with lock:
-            session: aiohttp.ClientSession | None = handle.get_state(self._STATE_SESSION_KEY)
+            session = handle._read_typed_state_or_default(_SESSION_STATE_KEY, None)
             if session is None or session.closed:
                 timeout = aiohttp.ClientTimeout(total=handle.config.timeout_seconds)
                 session = aiohttp.ClientSession(timeout=timeout)
-                handle.set_state(self._STATE_SESSION_KEY, session)
+                handle._set_typed_state(_SESSION_STATE_KEY, session)
             return session
 
     # ------------------------------------------------------------------
@@ -378,7 +413,10 @@ class GenericRESTConnector(BaseConnector[list[dict[str, Any]]]):
         total_bytes = 0
         payload_chunks: list[bytes] = []
 
-        state = handle.setdefault_state("rest_json", {})
+        state = handle._setdefault_typed_state(
+            _REST_JSON_RATE_STATE_KEY,
+            {"rate_limit_remaining": None, "retry_after": None},
+        )
         state["rate_limit_remaining"] = None
         state["retry_after"] = None
 
@@ -604,7 +642,15 @@ class GenericRESTConnector(BaseConnector[list[dict[str, Any]]]):
             if resp.status == 429:
                 retry_after_header = resp.headers.get("Retry-After")
                 retry_after = parse_retry_after_header(retry_after_header)
-                state = handle.setdefault_state("rest_json", {})
+                if retry_after is not None and not math.isfinite(retry_after):
+                    raise FetchError(
+                        message="Retry-After header is not a finite duration",
+                        connector_id=self.connector_id,
+                    )
+                state = handle._setdefault_typed_state(
+                    _REST_JSON_RATE_STATE_KEY,
+                    {"rate_limit_remaining": None, "retry_after": None},
+                )
                 state["retry_after"] = retry_after
                 rl = resp.headers.get("X-RateLimit-Remaining")
                 if rl is not None:

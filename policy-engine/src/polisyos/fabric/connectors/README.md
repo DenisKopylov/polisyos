@@ -4,7 +4,7 @@
 contract, and resilience layer for fetching external data sources safely and
 deterministically.
 
-Last updated: 2026-10-16.
+Last updated: 2026-10-22.
 
 ## Purpose
 
@@ -90,6 +90,36 @@ Run from the repository root (`policy-engine/`).
 - `uv run pytest tests/unit/fabric/connectors -q`
   Full connector suite. Conceptual in this README refresh; not run in this
   pass.
+
+## Runtime state and HTTP responses
+
+ConnectionHandle.get_state(), set_state(), and setdefault_state() remain
+available for compatibility with connector extensions. Built-in connectors
+use owner-specific typed state keys: a missing key can receive its documented
+default, explicit None is retained only for nullable keys, and a present
+value with the wrong shape raises instead of being silently replaced. The
+existing per-handle lock makes typed setdefault atomic and validates both its
+proposed value and any existing winner.
+
+Shared HTTP readers accept response objects through read-only headers and
+content properties. The chunked reader is adapted at the consumer boundary,
+then checks the returned async stream and each yielded bytes chunk before the
+size limits, classification, and progress callbacks run. The fallback read()
+path and response scan remain in force.
+
+Cached HTTP JSON and SDMX HEAD executors are held by nominal owner adapters.
+Each adapter invokes the stored callable with the runtime arguments, verifies
+that the result is awaitable, and checks the response tuple or header mapping
+before returning it. The public raw-response observer remains a static, synchronous protocol;
+runtime state stores an adapter that checks required calls at their real
+invocation points while optional hooks remain optional. A callback returning an
+awaitable is rejected before later work in that path; native coroutine results
+are closed and Future results cancelled. An exposed close or cancel hook on a
+custom awaitable is called synchronously. Native coroutine results from that
+hook are closed before their body runs, and Future results are cancelled. Other
+hook-returned awaitables are left unawaited rather than recursively traversed:
+the Awaitable protocol has no general disposal operation, so cleanup of opaque
+custom awaitables remains a bounded residual.
 
 ## Acquisition ownership
 

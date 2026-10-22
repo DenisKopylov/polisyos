@@ -9,7 +9,7 @@ import time
 from collections.abc import Awaitable, Callable, Mapping
 from dataclasses import dataclass, field
 from datetime import datetime as _datetime
-from typing import Any, ClassVar, Protocol, TypeVar, cast
+from typing import Any, ClassVar, Protocol, TypeGuard, TypeVar
 
 import aiohttp
 
@@ -18,6 +18,10 @@ from polisyos.fabric.connectors.base import (
     ConnectionConfig,
     ConnectionHandle,
     FetchResult,
+    _ConnectionStateKey,
+    _invoke_runtime_async_callable,
+    _invoke_runtime_callable,
+    _is_runtime_callable,
 )
 from polisyos.fabric.connectors.resilience import (
     CircuitBreakerConfig,
@@ -53,9 +57,106 @@ ResilienceInfo = _ResilienceInfo
 
 # Retain this module alias so get_type_hints resolves postponed method annotations.
 DataT = TypeVar("DataT")
-_JsonRequestResult = tuple[Any, dict[str, str], bytes]
+_JsonRequestResult = tuple[object, dict[str, str], bytes]
 _JsonRequestExecutor = Callable[..., Awaitable[_JsonRequestResult]]
+
+
+def _is_string_header_map(value: object) -> TypeGuard[dict[str, str]]:
+    return isinstance(value, dict) and all(
+        isinstance(key, str) and isinstance(item, str) for key, item in value.items()
+    )
+
+
+class _CheckedJsonRequestExecutor:
+    """Nominal cache owner that validates each executor result at its consumer."""
+
+    __slots__ = ("_executor",)
+
+    def __init__(self, executor: object) -> None:
+        if not _is_runtime_callable(executor):
+            raise TypeError("HTTP JSON request executor must be callable")
+        self._executor = executor
+
+    async def __call__(self, **kwargs: object) -> _JsonRequestResult:
+        result = await _invoke_runtime_async_callable(self._executor, **kwargs)
+        if not isinstance(result, tuple) or len(result) != 3:
+            raise TypeError("HTTP JSON request executor returned an invalid response tuple")
+        body, headers, raw = result
+        if not _is_string_header_map(headers):
+            raise TypeError("HTTP JSON request executor returned invalid string headers")
+        if not isinstance(raw, bytes):
+            raise TypeError("HTTP JSON request executor returned a non-bytes raw body")
+        return body, headers, raw
+
+
+_CacheNumber = int | float
+_ResilienceCacheKey = tuple[
+    int,
+    _CacheNumber,
+    _CacheNumber | None,
+    _CacheNumber,
+    _CacheNumber,
+    _CacheNumber,
+    bool,
+    tuple[int, int, _CacheNumber, int, _CacheNumber, int] | None,
+]
 _RAW_HTTP_RESPONSE_OBSERVER_STATE_KEY = "_raw_http_response_observer"
+
+
+def _is_string(value: object) -> TypeGuard[str]:
+    return isinstance(value, str)
+
+
+def _is_optional_client_session(value: object) -> TypeGuard[aiohttp.ClientSession | None]:
+    return value is None or isinstance(value, aiohttp.ClientSession)
+
+
+def _is_asyncio_lock(value: object) -> TypeGuard[asyncio.Lock]:
+    return isinstance(value, asyncio.Lock)
+
+
+def _is_optional_json_executor(
+    value: object,
+) -> TypeGuard[_CheckedJsonRequestExecutor | None]:
+    return value is None or isinstance(value, _CheckedJsonRequestExecutor)
+
+
+def _is_finite_number(value: object) -> bool:
+    if type(value) is int:
+        return True
+    return type(value) is float and math.isfinite(value)
+
+
+def _is_optional_resilience_cache_key(
+    value: object,
+) -> TypeGuard[_ResilienceCacheKey | None]:
+    return value is None or _is_resilience_cache_key(value)
+
+
+def _is_resilience_cache_key(value: object) -> TypeGuard[_ResilienceCacheKey]:
+    if not isinstance(value, tuple) or len(value) != 8:
+        return False
+    max_retries, retry_delay, rate_limit, backoff, jitter, max_delay, adaptive, breaker = value
+    if type(max_retries) is not int:
+        return False
+    if not all(_is_finite_number(item) for item in (retry_delay, backoff, jitter, max_delay)):
+        return False
+    if rate_limit is not None and not _is_finite_number(rate_limit):
+        return False
+    if type(adaptive) is not bool:
+        return False
+    if breaker is None:
+        return True
+    return (
+        isinstance(breaker, tuple)
+        and len(breaker) == 6
+        and type(breaker[0]) is int
+        and type(breaker[1]) is int
+        and _is_finite_number(breaker[2])
+        and type(breaker[3]) is int
+        and _is_finite_number(breaker[4])
+        and type(breaker[5]) is int
+    )
 
 
 class RawHTTPResponseObserver(Protocol):
@@ -98,11 +199,123 @@ class RawHTTPResponseObserver(Protocol):
         ...
 
 
+class _CheckedRawHTTPResponseObserver:
+    """Adapt an observer and check required calls with their real arguments."""
+
+    __slots__ = ("_observer",)
+
+    def __init__(self, observer: object) -> None:
+        self._observer = observer
+
+    def _required_callback(self, name: str) -> Callable[..., object]:
+        callback = getattr(self._observer, name, None)
+        if not _is_runtime_callable(callback):
+            raise TypeError(f"raw HTTP observer {name} must be callable")
+        return callback
+
+    def optional_callback(self, name: str) -> Callable[..., object] | None:
+        callback = getattr(self._observer, name, None)
+        if not _is_runtime_callable(callback):
+            return None
+        return callback
+
+    def optional_value(self, name: str) -> object:
+        return getattr(self._observer, name, None)
+
+    @staticmethod
+    def _positive_limit(value: object, name: str) -> int:
+        if isinstance(value, bool) or not isinstance(value, int) or value <= 0:
+            raise ValueError(f"raw HTTP observer {name} must be a positive integer")
+        return value
+
+    @property
+    def max_response_bytes(self) -> int:
+        return self._positive_limit(
+            getattr(self._observer, "max_response_bytes", None), "max_response_bytes"
+        )
+
+    @property
+    def max_decompressed_bytes(self) -> int:
+        return self._positive_limit(
+            getattr(self._observer, "max_decompressed_bytes", None), "max_decompressed_bytes"
+        )
+
+    def before_request(
+        self,
+        connector_id: str,
+        url: str,
+        params: Mapping[str, str],
+    ) -> None:
+        _invoke_runtime_callable(
+            self._required_callback("before_request"), connector_id, url, params
+        )
+
+    def on_raw_response(
+        self,
+        connector_id: str,
+        url: str,
+        params: Mapping[str, str],
+        status_code: int,
+        response_headers: Mapping[str, str],
+        body: bytes,
+    ) -> None:
+        _invoke_runtime_callable(
+            self._required_callback("on_raw_response"),
+            connector_id,
+            url,
+            params,
+            status_code,
+            response_headers,
+            body,
+        )
+
+
+def _as_checked_raw_http_response_observer(
+    value: RawHTTPResponseObserver | None,
+) -> _CheckedRawHTTPResponseObserver | None:
+    if value is None:
+        return None
+    if isinstance(value, _CheckedRawHTTPResponseObserver):
+        return value
+    return _CheckedRawHTTPResponseObserver(value)
+
+
+def _is_optional_raw_http_response_observer(
+    value: object,
+) -> TypeGuard[_CheckedRawHTTPResponseObserver | None]:
+    return value is None or isinstance(value, _CheckedRawHTTPResponseObserver)
+
+
+_RAW_HTTP_RESPONSE_OBSERVER_KEY: _ConnectionStateKey[_CheckedRawHTTPResponseObserver | None] = (
+    _ConnectionStateKey(
+        _RAW_HTTP_RESPONSE_OBSERVER_STATE_KEY,
+        _is_optional_raw_http_response_observer,
+    )
+)
+_HTTP_BASE_URL_KEY: _ConnectionStateKey[str] = _ConnectionStateKey("base_url", _is_string)
+_HTTP_SESSION_KEY: _ConnectionStateKey[aiohttp.ClientSession | None] = _ConnectionStateKey(
+    "session", _is_optional_client_session
+)
+_HTTP_SESSION_LOCK_KEY: _ConnectionStateKey[asyncio.Lock] = _ConnectionStateKey(
+    "_session_lock", _is_asyncio_lock
+)
+_HTTP_JSON_EXECUTOR_KEY: _ConnectionStateKey[_CheckedJsonRequestExecutor | None] = (
+    _ConnectionStateKey("_http_json_executor", _is_optional_json_executor)
+)
+_HTTP_JSON_EXECUTOR_CONFIG_KEY: _ConnectionStateKey[_ResilienceCacheKey | None] = (
+    _ConnectionStateKey(
+        "_http_json_executor_config",
+        _is_optional_resilience_cache_key,
+    )
+)
+
+
 def _install_raw_http_response_observer(
     handle: ConnectionHandle,
     observer: RawHTTPResponseObserver,
 ) -> None:
-    handle.set_state(_RAW_HTTP_RESPONSE_OBSERVER_STATE_KEY, observer)
+    checked_observer = _as_checked_raw_http_response_observer(observer)
+    handle._set_typed_state(_RAW_HTTP_RESPONSE_OBSERVER_KEY, checked_observer)
 
 
 def _remove_raw_http_response_observer(handle: ConnectionHandle) -> None:
@@ -111,11 +324,8 @@ def _remove_raw_http_response_observer(handle: ConnectionHandle) -> None:
 
 def _raw_http_response_observer(
     handle: ConnectionHandle,
-) -> RawHTTPResponseObserver | None:
-    observer = handle.get_state(_RAW_HTTP_RESPONSE_OBSERVER_STATE_KEY)
-    if observer is None:
-        return None
-    return cast("RawHTTPResponseObserver", observer)
+) -> _CheckedRawHTTPResponseObserver | None:
+    return handle._read_typed_state_or_default(_RAW_HTTP_RESPONSE_OBSERVER_KEY, None)
 
 
 def _raise_for_http_status(
@@ -142,7 +352,7 @@ def _raise_for_http_status(
         raise error
 
 
-def _observer_byte_limit(observer: RawHTTPResponseObserver, field_name: str) -> int:
+def _observer_byte_limit(observer: _CheckedRawHTTPResponseObserver, field_name: str) -> int:
     value = getattr(observer, field_name, None)
     if isinstance(value, bool) or not isinstance(value, int) or value <= 0:
         raise ValueError(f"raw HTTP observer {field_name} must be a positive integer")
@@ -150,7 +360,7 @@ def _observer_byte_limit(observer: RawHTTPResponseObserver, field_name: str) -> 
 
 
 def _start_waiting_heartbeat(
-    observer: RawHTTPResponseObserver | None,
+    observer: _CheckedRawHTTPResponseObserver | None,
     *,
     connector_id: str,
     url: str,
@@ -160,9 +370,9 @@ def _start_waiting_heartbeat(
 
     if observer is None:
         return None
-    callback = getattr(observer, "on_waiting", None)
-    interval = getattr(observer, "heartbeat_interval_seconds", None)
-    if not callable(callback) or interval is None:
+    callback = observer.optional_callback("on_waiting")
+    interval = observer.optional_value("heartbeat_interval_seconds")
+    if callback is None or interval is None:
         return None
     if (
         isinstance(interval, bool)
@@ -179,7 +389,8 @@ def _start_waiting_heartbeat(
         started_at = time.monotonic()
         while True:
             await asyncio.sleep(float(interval))
-            callback(
+            _invoke_runtime_callable(
+                callback,
                 connector_id,
                 url,
                 dict(normalized_params),
@@ -252,22 +463,22 @@ class HTTPConnectorBase[DataT](BaseConnector[DataT]):
 
     async def connect(self, config: ConnectionConfig) -> ConnectionHandle:
         handle = self._create_handle(config)
-        handle.set_state(self._STATE_BASE_URL_KEY, config.url or self._BASE_URL)
-        handle.set_state(self._STATE_SESSION_KEY, None)
-        handle.set_state(self._STATE_SESSION_LOCK_KEY, asyncio.Lock())
-        handle.set_state(self._STATE_JSON_EXECUTOR_KEY, None)
-        handle.set_state(self._STATE_JSON_EXECUTOR_CONFIG_KEY, None)
+        handle._set_typed_state(_HTTP_BASE_URL_KEY, config.url or self._BASE_URL)
+        handle._set_typed_state(_HTTP_SESSION_KEY, None)
+        handle._set_typed_state(_HTTP_SESSION_LOCK_KEY, asyncio.Lock())
+        handle._set_typed_state(_HTTP_JSON_EXECUTOR_KEY, None)
+        handle._set_typed_state(_HTTP_JSON_EXECUTOR_CONFIG_KEY, None)
         return handle
 
     async def disconnect(self, handle: ConnectionHandle) -> None:
         lock = self._session_lock(handle)
         async with lock:
-            session: aiohttp.ClientSession | None = handle.get_state(self._STATE_SESSION_KEY)
+            session = handle._read_typed_state_or_default(_HTTP_SESSION_KEY, None)
             if session is not None and not session.closed:
                 await session.close()
-            handle.set_state(self._STATE_SESSION_KEY, None)
-        handle.set_state(self._STATE_JSON_EXECUTOR_KEY, None)
-        handle.set_state(self._STATE_JSON_EXECUTOR_CONFIG_KEY, None)
+            handle._set_typed_state(_HTTP_SESSION_KEY, None)
+        handle._set_typed_state(_HTTP_JSON_EXECUTOR_KEY, None)
+        handle._set_typed_state(_HTTP_JSON_EXECUTOR_CONFIG_KEY, None)
 
     @classmethod
     def validate_config(cls, config: ConnectionConfig) -> ValidationResult:
@@ -285,25 +496,20 @@ class HTTPConnectorBase[DataT](BaseConnector[DataT]):
         return ValidationResult.success()
 
     def _base_url(self, handle: ConnectionHandle) -> str:
-        return str(handle.get_state(self._STATE_BASE_URL_KEY) or self._BASE_URL)
+        return handle._read_typed_state_or_default(_HTTP_BASE_URL_KEY, self._BASE_URL)
 
     async def _get_session(self, handle: ConnectionHandle) -> aiohttp.ClientSession:
         lock = self._session_lock(handle)
         async with lock:
-            session: aiohttp.ClientSession | None = handle.get_state(self._STATE_SESSION_KEY)
+            session = handle._read_typed_state_or_default(_HTTP_SESSION_KEY, None)
             if session is None or session.closed:
                 timeout = aiohttp.ClientTimeout(total=handle.config.timeout_seconds)
                 session = aiohttp.ClientSession(timeout=timeout)
-                handle.set_state(self._STATE_SESSION_KEY, session)
+                handle._set_typed_state(_HTTP_SESSION_KEY, session)
             return session
 
     def _session_lock(self, handle: ConnectionHandle) -> asyncio.Lock:
-        lock = handle.get_state(self._STATE_SESSION_LOCK_KEY)
-        if isinstance(lock, asyncio.Lock):
-            return lock
-        lock = asyncio.Lock()
-        handle.set_state(self._STATE_SESSION_LOCK_KEY, lock)
-        return lock
+        return handle._setdefault_typed_state(_HTTP_SESSION_LOCK_KEY, asyncio.Lock())
 
     def _retry_policy(self, handle: ConnectionHandle) -> RetryPolicy:
         profile = self.resilience_profile
@@ -326,10 +532,10 @@ class HTTPConnectorBase[DataT](BaseConnector[DataT]):
             return handle.config.rate_limit_rps
         return self.resilience_profile.rate_limit_rps
 
-    def _resilience_cache_key(self, handle: ConnectionHandle) -> tuple[Any, ...]:
+    def _resilience_cache_key(self, handle: ConnectionHandle) -> _ResilienceCacheKey:
         profile = self.resilience_profile
         cb = profile.circuit_breaker
-        cb_key: tuple[Any, ...] | None = None
+        cb_key: tuple[int, int, _CacheNumber, int, _CacheNumber, int] | None = None
         if cb is not None:
             cb_key = (
                 cb.failure_threshold,
@@ -361,9 +567,9 @@ class HTTPConnectorBase[DataT](BaseConnector[DataT]):
         )
 
     def _json_executor(self, handle: ConnectionHandle) -> _JsonRequestExecutor:
-        cached_key = handle.get_state(self._STATE_JSON_EXECUTOR_CONFIG_KEY)
+        cached_key = handle._read_typed_state_or_default(_HTTP_JSON_EXECUTOR_CONFIG_KEY, None)
         key = self._resilience_cache_key(handle)
-        cached: _JsonRequestExecutor | None = handle.get_state(self._STATE_JSON_EXECUTOR_KEY)
+        cached = handle._read_typed_state_or_default(_HTTP_JSON_EXECUTOR_KEY, None)
         if cached is not None and cached_key == key:
             return cached
 
@@ -391,9 +597,10 @@ class HTTPConnectorBase[DataT](BaseConnector[DataT]):
             _raw_request,
             config=self._resilience_config(handle),
         )
-        handle.set_state(self._STATE_JSON_EXECUTOR_KEY, wrapped)
-        handle.set_state(self._STATE_JSON_EXECUTOR_CONFIG_KEY, key)
-        return wrapped
+        checked = _CheckedJsonRequestExecutor(wrapped)
+        handle._set_typed_state(_HTTP_JSON_EXECUTOR_KEY, checked)
+        handle._set_typed_state(_HTTP_JSON_EXECUTOR_CONFIG_KEY, key)
+        return checked
 
     async def _resilient_request_json(
         self,
@@ -430,23 +637,24 @@ class HTTPConnectorBase[DataT](BaseConnector[DataT]):
         headers: dict[str, str] | None = None,
         raw_http_response_observer: RawHTTPResponseObserver | None = None,
     ) -> tuple[Any, dict[str, str], bytes]:
+        observer = _as_checked_raw_http_response_observer(raw_http_response_observer)
         max_response_bytes = self.resilience_profile.max_response_bytes
         max_decompressed_bytes = self.resilience_profile.max_decompressed_bytes
-        if raw_http_response_observer is not None:
+        if observer is not None:
             max_response_bytes = min(
                 max_response_bytes,
-                _observer_byte_limit(raw_http_response_observer, "max_response_bytes"),
+                _observer_byte_limit(observer, "max_response_bytes"),
             )
             max_decompressed_bytes = min(
                 max_decompressed_bytes,
                 _observer_byte_limit(
-                    raw_http_response_observer,
+                    observer,
                     "max_decompressed_bytes",
                 ),
             )
-            raw_http_response_observer.before_request(connector_id, url, dict(params))
+            observer.before_request(connector_id, url, dict(params))
         waiting_heartbeat = _start_waiting_heartbeat(
-            raw_http_response_observer,
+            observer,
             connector_id=connector_id,
             url=url,
             params=params,
@@ -459,29 +667,23 @@ class HTTPConnectorBase[DataT](BaseConnector[DataT]):
                     waiting_heartbeat = None
                 headers = dict(response.headers)
                 on_progress: Callable[[int], None] | None = None
-                if raw_http_response_observer is not None:
-                    response_headers_observer = getattr(
-                        raw_http_response_observer,
-                        "on_response_headers",
-                        None,
-                    )
-                    if callable(response_headers_observer):
-                        response_headers_observer(
+                if observer is not None:
+                    response_headers_observer = observer.optional_callback("on_response_headers")
+                    if response_headers_observer is not None:
+                        _invoke_runtime_callable(
+                            response_headers_observer,
                             connector_id,
                             url,
                             dict(params),
                             response.status,
                             dict(headers),
                         )
-                    body_progress_observer = getattr(
-                        raw_http_response_observer,
-                        "on_body_progress",
-                        None,
-                    )
-                    if callable(body_progress_observer):
+                    body_progress_observer = observer.optional_callback("on_body_progress")
+                    if body_progress_observer is not None:
 
                         def _report_progress(bytes_read: int) -> None:
-                            body_progress_observer(
+                            _invoke_runtime_callable(
+                                body_progress_observer,
                                 connector_id,
                                 url,
                                 dict(params),
@@ -489,7 +691,7 @@ class HTTPConnectorBase[DataT](BaseConnector[DataT]):
                             )
 
                         on_progress = _report_progress
-                if raw_http_response_observer is None:
+                if observer is None:
                     _raise_for_http_status(
                         connector_id=connector_id,
                         url=url,
@@ -497,10 +699,10 @@ class HTTPConnectorBase[DataT](BaseConnector[DataT]):
                         headers=headers,
                     )
                 before_classification: Callable[[bytes], None] | None = None
-                if raw_http_response_observer is not None:
+                if observer is not None:
 
                     def _persist_raw_before_classification(body: bytes) -> None:
-                        raw_http_response_observer.on_raw_response(
+                        observer.on_raw_response(
                             connector_id,
                             url,
                             dict(params),
@@ -519,7 +721,7 @@ class HTTPConnectorBase[DataT](BaseConnector[DataT]):
                     before_classification=before_classification,
                     on_progress=on_progress,
                 )
-                if raw_http_response_observer is not None:
+                if observer is not None:
                     _raise_for_http_status(
                         connector_id=connector_id,
                         url=url,

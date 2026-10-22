@@ -6,7 +6,7 @@ import asyncio
 import json
 import time
 from datetime import UTC, datetime
-from typing import TYPE_CHECKING, Any, ClassVar
+from typing import TYPE_CHECKING, Any, ClassVar, TypeGuard
 
 if TYPE_CHECKING:
     from collections.abc import Mapping
@@ -19,6 +19,9 @@ from polisyos.fabric.connectors.base import (
     ConnectionConfig,
     ConnectionHandle,
     HealthStatus,
+    _ConnectionStateKey,
+    _DatasetSchemaState,
+    _is_dataset_schema_state,
 )
 from polisyos.fabric.connectors.contracts import infer_schema, make_schema_id
 from polisyos.fabric.connectors.http_limits import read_bounded_response_body
@@ -45,6 +48,27 @@ from polisyos.ir.connectors import (
 _DEFAULT_MAX_RESPONSE_BYTES = 20 * 1024 * 1024
 _DEFAULT_MAX_JSON_BYTES = 10 * 1024 * 1024
 _DEFAULT_MAX_DECOMPRESSED_BYTES = 50 * 1024 * 1024
+_SCHEMA_CACHE_STATE_KEY: _ConnectionStateKey[_DatasetSchemaState] = _ConnectionStateKey(
+    "graphql_api", _is_dataset_schema_state
+)
+
+
+def _is_optional_client_session(
+    value: object,
+) -> TypeGuard[aiohttp.ClientSession | None]:
+    return value is None or isinstance(value, aiohttp.ClientSession)
+
+
+def _is_asyncio_lock(value: object) -> TypeGuard[asyncio.Lock]:
+    return isinstance(value, asyncio.Lock)
+
+
+_SESSION_STATE_KEY: _ConnectionStateKey[aiohttp.ClientSession | None] = _ConnectionStateKey(
+    "graphql_api.http_session", _is_optional_client_session
+)
+_SESSION_LOCK_STATE_KEY: _ConnectionStateKey[asyncio.Lock] = _ConnectionStateKey(
+    "graphql_api.http_session_lock", _is_asyncio_lock
+)
 
 
 def _positive_int_header(headers: Mapping[str, str], header_name: str, default: int) -> int:
@@ -113,35 +137,30 @@ class GraphQLConnector(BaseConnector[Any]):
             issues = "; ".join(issue.message for issue in validation.issues)
             raise ValueError(f"invalid {self.connector_id} config: {issues}")
         handle = self._create_handle(config)
-        handle.set_state(self._STATE_KEY, {"schema_by_dataset": {}})
-        handle.set_state(self._STATE_SESSION_KEY, None)
-        handle.set_state(self._STATE_SESSION_LOCK_KEY, asyncio.Lock())
+        handle._set_typed_state(_SCHEMA_CACHE_STATE_KEY, {"schema_by_dataset": {}})
+        handle._set_typed_state(_SESSION_STATE_KEY, None)
+        handle._set_typed_state(_SESSION_LOCK_STATE_KEY, asyncio.Lock())
         return handle
 
     async def disconnect(self, handle: ConnectionHandle) -> None:
         lock = self._session_lock(handle)
         async with lock:
-            session: aiohttp.ClientSession | None = handle.get_state(self._STATE_SESSION_KEY)
+            session = handle._read_typed_state_or_default(_SESSION_STATE_KEY, None)
             if session is not None and not session.closed:
                 await session.close()
-            handle.set_state(self._STATE_SESSION_KEY, None)
+            handle._set_typed_state(_SESSION_STATE_KEY, None)
 
     def _session_lock(self, handle: ConnectionHandle) -> asyncio.Lock:
-        lock = handle.get_state(self._STATE_SESSION_LOCK_KEY)
-        if isinstance(lock, asyncio.Lock):
-            return lock
-        lock = asyncio.Lock()
-        handle.set_state(self._STATE_SESSION_LOCK_KEY, lock)
-        return lock
+        return handle._setdefault_typed_state(_SESSION_LOCK_STATE_KEY, asyncio.Lock())
 
     async def _get_session(self, handle: ConnectionHandle) -> aiohttp.ClientSession:
         lock = self._session_lock(handle)
         async with lock:
-            session: aiohttp.ClientSession | None = handle.get_state(self._STATE_SESSION_KEY)
+            session = handle._read_typed_state_or_default(_SESSION_STATE_KEY, None)
             if session is None or session.closed:
                 timeout = aiohttp.ClientTimeout(total=handle.config.timeout_seconds)
                 session = aiohttp.ClientSession(timeout=timeout)
-                handle.set_state(self._STATE_SESSION_KEY, session)
+                handle._set_typed_state(_SESSION_STATE_KEY, session)
             return session
 
     async def health_check(self, handle: ConnectionHandle) -> HealthStatus:
@@ -246,8 +265,10 @@ class GraphQLConnector(BaseConnector[Any]):
         fetched_at = datetime.now(UTC)
         schema_id = make_schema_id(self.connector_id, request.dataset_id or "query")
         schema = infer_schema(frame, schema_id=schema_id)
-        state = handle.get_state(self._STATE_KEY) or {}
-        schema_by_dataset = dict(state.get("schema_by_dataset", {}))
+        state = handle._read_typed_state_or_default(
+            _SCHEMA_CACHE_STATE_KEY, {"schema_by_dataset": {}}
+        )
+        schema_by_dataset = dict(state["schema_by_dataset"])
         schema_by_dataset[request.dataset_id or "query"] = {
             "schema_id": schema.schema_id,
             "version": str(schema.version),
@@ -264,7 +285,7 @@ class GraphQLConnector(BaseConnector[Any]):
             "query_document": self._query_document(handle.config),
             "variables": variables,
         }
-        handle.set_state(self._STATE_KEY, {"schema_by_dataset": schema_by_dataset})
+        handle._set_typed_state(_SCHEMA_CACHE_STATE_KEY, {"schema_by_dataset": schema_by_dataset})
 
         payload_hash = "sha256:" + content_hash(raw_body)
         return FetchResult(
@@ -291,13 +312,17 @@ class GraphQLConnector(BaseConnector[Any]):
         handle: ConnectionHandle,
         dataset_id: str,
     ) -> dict[str, Any]:
-        state = handle.get_state(self._STATE_KEY) or {}
-        schema = dict(state.get("schema_by_dataset", {})).get(dataset_id)
+        state = handle._read_typed_state_or_default(
+            _SCHEMA_CACHE_STATE_KEY, {"schema_by_dataset": {}}
+        )
+        schema = dict(state["schema_by_dataset"]).get(dataset_id)
         if schema is not None:
             return dict(schema)
         await self.fetch(handle, FetchRequest(dataset_id=dataset_id))
-        state = handle.get_state(self._STATE_KEY) or {}
-        schema = dict(state.get("schema_by_dataset", {})).get(dataset_id)
+        state = handle._read_typed_state_or_default(
+            _SCHEMA_CACHE_STATE_KEY, {"schema_by_dataset": {}}
+        )
+        schema = dict(state["schema_by_dataset"]).get(dataset_id)
         return dict(schema or {"error": f"schema not available for {dataset_id}"})
 
     @classmethod

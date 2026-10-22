@@ -15,7 +15,7 @@ from __future__ import annotations
 import time
 from collections.abc import AsyncIterator
 from datetime import UTC, datetime
-from typing import Any, ClassVar
+from typing import Any, ClassVar, TypeGuard
 
 import pandas as pd
 
@@ -25,6 +25,8 @@ from polisyos.fabric.connectors.base import (
     FetchRequest,
     FetchResult,
     HealthStatus,
+    _ConnectionStateKey,
+    _is_string_keyed_dict,
 )
 from polisyos.fabric.connectors.contracts import make_schema_id
 from polisyos.fabric.connectors.sources.http_base import (
@@ -52,6 +54,20 @@ from polisyos.ir.connectors import (
 _DEFAULT_LIMIT = 10000
 _MAX_LIMIT = 50000
 _SYSTEM_SOQL_FIELDS = frozenset({":id", ":updated_at"})
+
+
+def _is_schema_field_cache(value: object) -> TypeGuard[dict[str, set[str]]]:
+    if not _is_string_keyed_dict(value):
+        return False
+    return all(
+        isinstance(fields, set) and all(isinstance(field, str) for field in fields)
+        for fields in value.values()
+    )
+
+
+_SCHEMA_FIELDS_STATE_KEY: _ConnectionStateKey[dict[str, set[str]]] = _ConnectionStateKey(
+    "socrata_schema_fields", _is_schema_field_cache
+)
 
 
 class SocrataConnector(HTTPConnectorBase[pd.DataFrame]):
@@ -281,7 +297,7 @@ class SocrataConnector(HTTPConnectorBase[pd.DataFrame]):
         handle: ConnectionHandle,
         dataset_id: str,
     ) -> set[str]:
-        cache = handle.setdefault_state("socrata_schema_fields", {})
+        cache = handle._setdefault_typed_state(_SCHEMA_FIELDS_STATE_KEY, {})
         cached = cache.get(dataset_id)
         if isinstance(cached, set):
             return cached

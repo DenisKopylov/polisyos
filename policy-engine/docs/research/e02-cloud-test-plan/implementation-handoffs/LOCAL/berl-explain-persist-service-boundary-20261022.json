@@ -1,0 +1,310 @@
+{
+  "schema_version": "1.0",
+  "slice": "BERL-owned-persisted-service-bridge",
+  "role": "author closeout proposal; independent G acceptance pending",
+  "source_freeze": false,
+  "input_backend_freeze": false,
+  "source": {
+    "slice_base": "02499dec276f224f29961ece10d0fc23b6fea77a",
+    "candidate": "9f51562112fa5d1c57bf0bff66c05b28dc89efd3",
+    "tree": "26d33bbdb0f9798655ddc8a5574358847cb0da2a",
+    "parents": [
+      "02499dec276f224f29961ece10d0fc23b6fea77a"
+    ],
+    "branch": "codex/e02-unified-local-20261009",
+    "footprint": [
+      {
+        "path": "policy-engine/src/polisyos/berl/service/__init__.py",
+        "sha256": "fed9d155517e13cc28b96d31c119c30d9bc187a1b18e1c304c344e8ee6c294df"
+      },
+      {
+        "path": "policy-engine/src/polisyos/berl/__init__.py",
+        "sha256": "4c3a61a3c804734ef9f71d959281bd505334e74466919eb11fb8b63acf98bd2e"
+      },
+      {
+        "path": "policy-engine/src/polisyos/berl/README.md",
+        "sha256": "bf9c6162343335afbcdd6fca96b95e8314d31dcd59933bd392ce59dbfcb3909b"
+      },
+      {
+        "path": "policy-engine/tests/integration/scientist_berl/test_explanation_persisted_service_bridge.py",
+        "sha256": "d23d18701793ecbceba0511b83e2501d8f0545b9d8bd353edf15acf1b20b3f4a"
+      },
+      {
+        "path": "policy-engine/release-fragments/unreleased/2026-10-22-e02-berl-explain-and-persist.toml",
+        "sha256": "5af932eca0c6a6ec4ccdf39e8298d5c5f3ac20e02bfbd544247c527f22d2bf9c"
+      }
+    ],
+    "commit_readback": {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/root-berl-service-ordinary-boundary-20261022-r1/commit/readback.json",
+      "sha256": "26cfaf819f93f907832b7fec38d4c8bf54ab2a9f62181cbd3caa0ab5b679c9cc",
+      "availability": "retained local ignored RAW; accessible on this host, not Git-delivered output"
+    },
+    "composed_test_frame": {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/root-berl-service-bridge-source-application-20261022-r1/full-composed-source-frame.json",
+      "sha256": "3a5bc4154983c645d6616ecdfcd65e6a9330012e8f7eb8f3dec91633e02b4edb"
+    },
+    "canonical_native_application": {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/root-berl-service-bridge-source-application-20261022-r1/readback.json",
+      "sha256": "7daf606e6cece315e37e749fef0ea1722a935493d30c32057a80b561ace4fc3d",
+      "availability": "retained local ignored RAW; accessible on this host, not Git-delivered output"
+    }
+  },
+  "selected_inputs_profile_backend": {
+    "input": "Controlled bounded explanation request and local deterministic additive model in committed integration test; no production input",
+    "producer": "existing ExplanationOrchestrator.explain",
+    "profile": "existing marginal explanation contracts; conditional request remains diagnostic/refused for Phase 5 promotion",
+    "storage": "real FileSystemCAS and existing BERL persist_explanation_bundle/read_explanation_bundle",
+    "scientific_qualification": "not_established",
+    "production_currentness": "not_established"
+  },
+  "chain": {
+    "entrypoint": "polisyos.berl.explain_and_persist(model, request, store, *, orchestrator=None)",
+    "producer": "existing orchestrator.explain",
+    "artifact": "existing typed ExplanationBundleRef plus existing persisted bundle/result/report graph",
+    "bridge": "new owned service calls the existing persistence writer and returns its exact ref",
+    "consumer": "fresh BERL reader; existing Phase 5 reliability and Runtime quality projection consumers in controlled canonical tests",
+    "surface": "additive Python facade and package README; HTTP/dashboard/production caller not demonstrated",
+    "status": "implemented_but_not_orchestrated for ordinary production caller; generated surface reconciliation pending"
+  },
+  "verification": {
+    "canonical_focused": {
+      "status": "PASS",
+      "test_count": {
+        "tests": 81,
+        "failures": 0,
+        "errors": 0,
+        "skipped": 0
+      },
+      "wall_seconds": 19.949161958880723,
+      "invocation": {
+        "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/root-canonical-berl-quality-wave-20261022-r1/results/invocation.json",
+        "sha256": "62ff8187b6c5efd40c8524205b26dc036c950a3a6ca30a155b86d61e57aabefc",
+        "availability": "retained local ignored RAW; accessible on this host, not Git-delivered output"
+      },
+      "receipt": {
+        "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/root-canonical-berl-quality-wave-20261022-r1/results/receipt.json",
+        "sha256": "364fa5bdb9a4a1d9e59277513644e5ef798dd1ec1a9fc94e971cde84ef0fd8af",
+        "availability": "retained local ignored RAW; accessible on this host, not Git-delivered output"
+      },
+      "complete_stdout": {
+        "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/root-canonical-berl-quality-wave-20261022-r1/results/stdout",
+        "sha256": "3d62d17cda0245ac103dacbc19a54714f32a472955ffa1297184c4315837fbd1",
+        "availability": "retained local ignored RAW; accessible on this host, not Git-delivered output"
+      },
+      "complete_stderr": {
+        "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/root-canonical-berl-quality-wave-20261022-r1/results/stderr",
+        "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+        "availability": "retained local ignored RAW; accessible on this host, not Git-delivered output"
+      },
+      "junit": {
+        "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/root-canonical-berl-quality-wave-20261022-r1/results/junit.xml",
+        "sha256": "58edfaa3a78e0c0e55d836222f947a5bf7908801c84d5c119229dc9fce941d36",
+        "availability": "retained local ignored RAW; accessible on this host, not Git-delivered output"
+      },
+      "qualification": "81 cases exercise four canonical BERL/quality modules on the pinned full working frame, not an isolated five-path HEAD or global E02 replay."
+    },
+    "native_types": {
+      "status": "PASS scoped; 32 warnings retained",
+      "summary": {
+        "filesAnalyzed": 5,
+        "errorCount": 0,
+        "warningCount": 32,
+        "informationCount": 0,
+        "timeInSec": 2.192
+      },
+      "argv": [
+        "/Users/deniskopylov/.codex/worktrees/e02-unified-local-20261009/polisyos/policy-engine/.venv/bin/basedpyright",
+        "--baselinemode",
+        "lock",
+        "--project",
+        "/Users/deniskopylov/.codex/worktrees/e02-unified-local-20261009/polisyos/policy-engine/basedpyright.toml",
+        "--outputjson",
+        "src/polisyos/runtime/quality/explanation_reliability.py",
+        "src/polisyos/runtime/quality/scorecard.py",
+        "src/polisyos/scholar/__init__.py",
+        "src/polisyos/berl/service/__init__.py",
+        "src/polisyos/berl/__init__.py"
+      ],
+      "baseline_before": "8ceca56253ec877284553b09de0ff1295a75583a6a4fc2238ef002cf9518b6af",
+      "baseline_after": "8ceca56253ec877284553b09de0ff1295a75583a6a4fc2238ef002cf9518b6af",
+      "complete_stdout": {
+        "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/root-canonical-berl-quality-wave-20261022-r1/results/basedpyright.stdout",
+        "sha256": "bd9c390f92a1659bc93a33fb4edb6e51c4dc088b6b016f42c08166323e4c15d3",
+        "availability": "retained local ignored RAW; accessible on this host, not Git-delivered output"
+      },
+      "complete_stderr": {
+        "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/root-canonical-berl-quality-wave-20261022-r1/results/basedpyright.stderr",
+        "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+        "availability": "retained local ignored RAW; accessible on this host, not Git-delivered output"
+      }
+    },
+    "ruff": {
+      "status": "PASS canonical eight-path check and format-check after independently reviewed equivalent formatting/import companion",
+      "scope": "Only the eight exact logical Python filenames retained in the new input manifest; no global native-green claim.",
+      "complete_check_output": {
+        "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/root-canonical-berl-quality-wave-20261022-r1/results/ruff-check.stdout",
+        "sha256": "8a286acffa8fa9f5b18147d368fd3c5e0224435294480e0a8c12029979248558",
+        "availability": "retained local ignored RAW; accessible on this host, not Git-delivered output"
+      },
+      "complete_format_output": {
+        "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/root-canonical-berl-quality-wave-20261022-r1/results/ruff-format-check.stdout",
+        "sha256": "3684f22859b68ac4abb7cbd5f98e64f7c024c5580eb2230348d103c84fb8a8f1",
+        "availability": "retained local ignored RAW; accessible on this host, not Git-delivered output"
+      },
+      "historical_status": "FAIL composed eight-path batch; three BERL Python targets clean",
+      "current_receipt": {
+        "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/root-canonical-berl-quality-ruff-20261022-r2/receipt.json",
+        "sha256": "a2bc74f4998d7eae953fca917ffb6a105a023157dba61bd1a2175e1b2e436167",
+        "availability": "retained local ignored RAW; accessible on this host, not Git-delivered output"
+      },
+      "current_check_output": {
+        "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/root-canonical-berl-quality-ruff-20261022-r2/check.stdout",
+        "sha256": "ec55f85ffa74de988d3e00e2178c913a8be0ad38500bc75e2b3f86219541da0d",
+        "availability": "retained local ignored RAW; accessible on this host, not Git-delivered output"
+      },
+      "current_format_output": {
+        "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/root-canonical-berl-quality-ruff-20261022-r2/format-check.stdout",
+        "sha256": "d60e8a693c91b38d7702d4e928f349a7f526bfbd498086a473d5376fd3c6cde2",
+        "availability": "retained local ignored RAW; accessible on this host, not Git-delivered output"
+      },
+      "format_equivalence_review": {
+        "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/la036-quality-canary-native-independent-20261022-r1/quality-format-review-r1/quality-format-independent-review.md",
+        "sha256": "fbe21845239dfd339285dcaf2b25a71a90f3730cad86e6e4cc3dde1250e10a62",
+        "availability": "retained local ignored RAW; accessible on this host, not Git-delivered output"
+      },
+      "application_readback": {
+        "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/root-la036-quality-format-source-application-20261022-r1/readback.json",
+        "sha256": "6dfe7f2159847aae3604430cf7a6a917e74d45da405961246051b0c498a8cdf0",
+        "availability": "retained local ignored RAW; accessible on this host, not Git-delivered output"
+      }
+    },
+    "author_runs": [
+      {
+        "invocation_path": "/Users/deniskopylov/.codex/worktrees/e02-unified-local-20261009/polisyos/policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/berl-persisted-service-bridge-author-20261022-r2/focused-integration-final-r2b/invocation.json",
+        "invocation_sha256": "5494c2336b2fea4b8ffae087efd541332f55177cb4458139647b9771452c9726",
+        "name": "owned-bridge-positive",
+        "profile_path": "/Users/deniskopylov/.codex/worktrees/e02-unified-local-20261009/polisyos/policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/berl-persisted-service-bridge-author-20261022-r2/focused-integration-final-r2b/profile.sb",
+        "profile_sha256": "94ca032f87acc30c08da8ec5d855a42210c93b2340417dbdd08cb4ded85f088f",
+        "receipt_path": "/Users/deniskopylov/.codex/worktrees/e02-unified-local-20261009/polisyos/policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/berl-persisted-service-bridge-author-20261022-r2/focused-integration-final-r2b/receipt.json",
+        "receipt_sha256": "3e7dcb34fc007e12e641d5c8ba29c1ab1a1bcedc538052a79b7c444267660f8d",
+        "sitecustomize": null,
+        "stderr_path": "/Users/deniskopylov/.codex/worktrees/e02-unified-local-20261009/polisyos/policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/berl-persisted-service-bridge-author-20261022-r2/focused-integration-final-r2b/stderr",
+        "stderr_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+        "stdout_path": "/Users/deniskopylov/.codex/worktrees/e02-unified-local-20261009/polisyos/policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/berl-persisted-service-bridge-author-20261022-r2/focused-integration-final-r2b/stdout",
+        "stdout_sha256": "1f3ebe457d7b225b0555f65b769f56e61ef8e108ab0110f5072913f1ce4dbcc1",
+        "summary": "Four real integration tests passed: producer->owned operation->existing BERL writer->fresh BERL reader, Phase 5, and Runtime; in-memory compatibility; writer failure; conditional diagnostic fail-closed."
+      },
+      {
+        "invocation_path": "/Users/deniskopylov/.codex/worktrees/e02-unified-local-20261009/polisyos/policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/berl-persisted-service-bridge-author-20261022-r2/writer-handoff-removal-r2/invocation.json",
+        "invocation_sha256": "901434aec5831bb99da28f2ce3c9c745705f6ca6269b7b5496ceba7c6f09954a",
+        "name": "writer-handoff-removal-negative",
+        "profile_path": "/Users/deniskopylov/.codex/worktrees/e02-unified-local-20261009/polisyos/policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/berl-persisted-service-bridge-author-20261022-r2/writer-handoff-removal-r2/profile.sb",
+        "profile_sha256": "94ca032f87acc30c08da8ec5d855a42210c93b2340417dbdd08cb4ded85f088f",
+        "receipt_path": "/Users/deniskopylov/.codex/worktrees/e02-unified-local-20261009/polisyos/policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/berl-persisted-service-bridge-author-20261022-r2/writer-handoff-removal-r2/receipt.json",
+        "receipt_sha256": "0e5ffcfb7f79d70ebf5ed515a1ebe79d7cf8cb00bc20c41d6f025c317b7fdfaa",
+        "sitecustomize": null,
+        "stderr_path": "/Users/deniskopylov/.codex/worktrees/e02-unified-local-20261009/polisyos/policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/berl-persisted-service-bridge-author-20261022-r2/writer-handoff-removal-r2/stderr",
+        "stderr_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+        "stdout_path": "/Users/deniskopylov/.codex/worktrees/e02-unified-local-20261009/polisyos/policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/berl-persisted-service-bridge-author-20261022-r2/writer-handoff-removal-r2/stdout",
+        "stdout_sha256": "e50d2645ef9c774c7bb10f3c881b160158bb4635f37e799b74beceb10954a0f8",
+        "summary": "Removed only the writer return handoff in a mutant overlay. Real producer still ran and schema/display markers remained; operation returned None; fresh BERL reader rejected it and CAS contained no artifacts."
+      }
+    ],
+    "independent_source_review": {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/berl-persisted-service-bridge-independent-20261022-r1/review.json",
+      "sha256": "1d563206710687c0c48bc1bf6f14f31f528883359393f6fec00193d77a54ce15",
+      "availability": "retained local ignored RAW; accessible on this host, not Git-delivered output"
+    },
+    "independent_source_review_text": {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/berl-persisted-service-bridge-independent-20261022-r1/review-packet.md",
+      "sha256": "e871c9d924bbc3299457809b8a9585cf90d271bbdd44255837a6a2400e404529",
+      "availability": "retained local ignored RAW; accessible on this host, not Git-delivered output"
+    }
+  },
+  "adversarial_controls": [
+    "Writer-removal mutant retains producer and surface markers but returns no ref; fresh reader refuses and CAS is empty. Complete author invocation/output hashes retained above.",
+    "Existing in-memory explain is unchanged; writer failure propagates without a fabricated selected ref.",
+    "Duplicate effective-method aliases remain missing_disagreement_report/diagnostic_only/unbounded; persistence cannot promote them.",
+    "Conditional request remains diagnostic and Phase 5 blocks it; no conditional-law claim is inferred."
+  ],
+  "mandatory_companions": {
+    "delivered_in_source_commit": [
+      "Python facade exports",
+      "package README",
+      "integration tests",
+      "release fragment"
+    ],
+    "pending": [
+      {
+        "paths": [
+          "policy-engine/architecture/public_surface/inventory.json",
+          "policy-engine/docs/reference/public-surface.md"
+        ],
+        "status": "UNRUN authentic successful regeneration; author generator resolution incomplete and baseline drift. No hand-written generated proposal applied.",
+        "proposal": {
+          "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/berl-persisted-service-bridge-author-20261022-r2/public-surface-companion-proposal.patch",
+          "sha256": "e5fd81f7c2333741c762ac7cffc9b693925cf278a8a5fe0bd6f429456168a88b",
+          "availability": "retained local ignored RAW; accessible on this host, not Git-delivered output"
+        }
+      },
+      "Ordinary production caller and selected live/installed consumer witness",
+      "Final whole-source/native/installed freeze and composed replay"
+    ]
+  },
+  "pattern_pass": {
+    "relevant": [
+      "P01",
+      "P02",
+      "P03",
+      "P05",
+      "P14",
+      "P29",
+      "P32",
+      "P37",
+      "P38",
+      "P40",
+      "P41"
+    ],
+    "repair": "Wire existing producer and existing persistence owner through an additive owned operation; preserve diagnostic status through fresh consumers.",
+    "p40": "Same producer-status class, no new profile/authority semantics; generated surface and caller are explicitly bounded residuals.",
+    "p41": "No inherited-red claim; current composed Ruff is red and broader gates are unrun."
+  },
+  "limitations": [
+    "The canonical 81-case run includes other root-owned dirty Runtime quality changes; its exact full source frame is retained. It is not evidence that the isolated five-path commit passes all consumers.",
+    "Generated public facade inventory remains unreconciled until authentic native generator completes.",
+    "No ordinary production invocation, HTTP/browser path, installed-wheel behavior, live currentness, issuer authority or conditional scientific qualification is established.",
+    "Local source and this handoff require own-topic push plus exact remote SHA/tree/bytes verification; no G acceptance is implied."
+  ],
+  "proposal_fields": {
+    "formal_closure_requested": false,
+    "finding_id_proposals": [
+      {
+        "id": "LA-036",
+        "outcome": "limited supporting evidence",
+        "boundary": "owned producer-to-persisted-ref bridge and existing diagnostic consumers on controlled source; whole original property, conditional law, production caller and public-surface regeneration remain open",
+        "next_check": "Complete caller/profile scope, native generated surface and composed frozen consumer/removal replay before any full-property proposal."
+      }
+    ],
+    "claim": "Persisted service bridge committed; no formal closure or global capability claim."
+  },
+  "closure_ids": [],
+  "next_checks": [
+    "Finish blocking scanner/Runtime/Search changes and reconcile generated public-surface outputs; the canonical eight-path Ruff companion checks are now complete.",
+    "Finish blocking scanner/Runtime/Search changes, then freeze source, inputs and backends and run one composed expensive wave.",
+    "Run authentic generated/export and exact installed-wheel/rebuilt-sdist consumers with removals.",
+    "Map new evidence to original ID/occurrence criteria without automatic closures."
+  ],
+  "handoff_claims_audit": {
+    "review": {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/W/berl-service-receipt-claims-independent-20261022-r1/review-r1/review.md",
+      "sha256": "d312d9fee8cb1095bf9114292b3359bec2381589c55275eb1c43a1e24fc78c91",
+      "availability": "retained local ignored RAW; accessible on this host, not Git-delivered output"
+    },
+    "reviewed_receipt": {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/root-berl-service-receipt-boundary-20261022-r1/reviewed-pre-format-receipt.json",
+      "sha256": "0e4f4af9e209e13ec1ea97951c63483721ce0079d6006bdd52e0ed9eaff1e6cb",
+      "availability": "retained local ignored RAW; accessible on this host, not Git-delivered output"
+    },
+    "qualification": "Independent review covered the exact pre-format handoff bytes. Added afterwards only this audit locator and root-recomputed eight-path Ruff/equivalence evidence; no authority or closure expansion."
+  }
+}

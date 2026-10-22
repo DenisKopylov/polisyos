@@ -1,0 +1,35 @@
+id = "2026-10-23-e02-agent-tab-current-attempt"
+title = "Read the selected Core attempt in the agents tab"
+type = "fixed"
+component = "runtime-dashboard"
+owner = "team-frontend"
+summary = "The agents tab consumes the run inspector's resolved Core attempt and shared query, withholding the previous attempt while a method-run alias remaps."
+evidence = [
+  "apps/runtime-dashboard/src/features/runs/routes/tabs/AgentsTab.tsx",
+  "apps/runtime-dashboard/src/features/runs/routes/tabs/AgentsTab.test.tsx",
+  "apps/runtime-dashboard/src/features/runs/routes/runDetailSurfaces.test.tsx",
+]
+compatibility = "The agents tab uses the existing Core-run agents endpoint and its existing tenant checks. Alias navigation now follows the inspector's selected Core identity and query invalidation."
+change_class = "internal"
+surface_classification = "internal: runtime-dashboard Agents tab and shared run-inspector query consumer"
+migration = "No stored-data migration is required; existing run URLs continue through the run inspector."
+api = "The dashboard consumes its existing resolved run identity; the HTTP wire shape and generated clients are unchanged."
+limitations = "The focused mocked-transport test proves current-attempt query/cache/SSE behavior; source currentness and production workload are separate checks."
+generated_client_compatibility = "not_applicable"
+public_surface_inventory_reviewed = false
+migration_docs = []
+runbook_docs = []
+
+[[compatibility_change]]
+id = "dashboard-agents-selected-core-attempt"
+change_class = "internal"
+impact = "internal"
+surface = "internal: runtime-dashboard Agents tab"
+owner = "team-frontend"
+version_owner = "team-frontend"
+deprecation_window = "not_applicable"
+release_note = "The agents tab requests the selected Core attempt and hides old-attempt data during alias remapping."
+generated_client_compatibility = "not_applicable"
+public_surface_inventory_reviewed = false
+migration_docs = []
+runbook_docs = []

@@ -1,0 +1,239 @@
+{
+  "actual_canonical_release_gate": {
+    "input_manifest": {
+      "four_changed_fragment_hashes_match_commit": {
+        "policy-engine/release-fragments/unreleased/2026-10-09-e02-c12-catalog-search-status.toml": "f78dc820026283423e21da7d4abc6bfc93287bb13efe8d65519b5a2d25f0ffec",
+        "policy-engine/release-fragments/unreleased/2026-10-20-e02-selected-objective-score-binding.toml": "68414405682d5bae3d757e446419c52a3c30fc2bc27c725436d305fd9bc1e06f",
+        "policy-engine/release-fragments/unreleased/2026-10-20-e02-shared-method-admission.toml": "5f702f7c5f0935a8e1ba62508ea50f7680478a26d212661a43587670cebaacb6",
+        "policy-engine/release-fragments/unreleased/2026-10-21-e02-legacy-execution-lineage.toml": "066226df7bb17aa37feb442490d2e462042c0d761ae98ece8315bec9737554b7"
+      },
+      "head_at_capture": "54a83954790adbcef9d75a6ccab5f4a897205fb1",
+      "input_paths": 383,
+      "native_gate_scope": "actual canonical full unreleased fragment set; not final freeze",
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/root-metadata-reconciliation-native-gate-20261023-r1/input-manifest.json",
+      "sha256": "1b1c9cf35d115e9dfaa013106c4122c41c2403c16bd12162fb02f44ec1359e93",
+      "unreleased_fragment_files": 378
+    },
+    "invocation": {
+      "command": "python -B tools/ops_runners/release/check_compatibility_release_gates.py --repo-root policy-engine --policy policy-engine/architecture/gates/compatibility_release.toml --fail-on-contract-errors --json-output <pinned report path>",
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/root-metadata-reconciliation-native-gate-20261023-r1/canonical/invocation.json",
+      "sha256": "3c3cd1fadbcbe4b868ce9db6fe3079f1a0fce403887444e5a38d41feb35466f8",
+      "timeout_seconds": 120
+    },
+    "predicate_limitations": {
+      "g_acceptance": "not_established",
+      "inventory_review_owner_identity": "not_established",
+      "native_green": false,
+      "review_marker_semantics": "consumer_asserted",
+      "runtime_export_resolution": "not_established_by_this_checker"
+    },
+    "process_receipt": {
+      "invocation_sha256": "3c3cd1fadbcbe4b868ce9db6fe3079f1a0fce403887444e5a38d41feb35466f8",
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/root-metadata-reconciliation-native-gate-20261023-r1/canonical/receipt.json",
+      "profile": {
+        "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/root-metadata-reconciliation-native-gate-20261023-r1/canonical/profile.sb",
+        "sha256": "c35783b617e7ad972ca5c9c6630f9f1dec3eeb58dbf1754b98e507b5d2d49f54"
+      },
+      "sha256": "355b8a73b71a9440de4ad0307c1beeb155ffe0378ec4fb7ca18d55a5c7f828ad",
+      "source_freeze": false,
+      "stderr": {
+        "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/root-metadata-reconciliation-native-gate-20261023-r1/canonical/stderr",
+        "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+      },
+      "stderr_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "stdout": {
+        "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/root-metadata-reconciliation-native-gate-20261023-r1/canonical/stdout",
+        "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+      },
+      "stdout_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "timed_out": false
+    },
+    "report": {
+      "breaking_classes_checked": [],
+      "contract_errors": 24,
+      "error_checks": [
+        "public-surface-review"
+      ],
+      "findings": 0,
+      "fragment_count": 378,
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/root-metadata-reconciliation-native-gate-20261023-r1/report.json",
+      "process_exit_code": 1,
+      "sha256": "ad5a47635f73d681a3527d611b05b1511a26fce13e479e8486e9729d4d711630",
+      "status": "contract_errors",
+      "structured_compatibility_change_count": 311
+    }
+  },
+  "authoring_and_independent_review": {
+    "author_packet": {
+      "manifest_path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/resume-ir-pass-surface-native-author-r2-20261022/release-metadata-independent-r1/metadata-reconciliation-author-r12/packet/author-manifest.json",
+      "manifest_sha256": "70edcaa80d0694da0b65f9b79bea6f712ac5f251f3e79ba2184a300539c9b1d7",
+      "patch_path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/resume-ir-pass-surface-native-author-r2-20261022/release-metadata-independent-r1/metadata-reconciliation-author-r12/packet/release-metadata-compatibility-reconciliation.patch",
+      "patch_sha256": "91293a4510e45ab7da53bf2c54efd833ec9aa6fde63230b327cba224f70f4457"
+    },
+    "candidate_release_validator": {
+      "contract_errors": 3,
+      "findings": 0,
+      "fragment_count": 4,
+      "interpretation": "Three public-surface review errors remain because the required review markers were correctly left false.",
+      "process_exit_code": 1,
+      "report_path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/resume-ir-pass-surface-native-author-r2-20261022/release-metadata-independent-r1/metadata-reconciliation-author-r12/packet/release-validator-report.json",
+      "report_sha256": "ed3aa156271dbc676e8db0014b2edae62da687d1439531a69797395cb8c4d459",
+      "report_status": "contract_errors",
+      "stderr": {
+        "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/resume-ir-pass-surface-native-author-r2-20261022/release-metadata-independent-r1/metadata-reconciliation-author-r12/packet/release-validator.stderr",
+        "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+      },
+      "stdout": {
+        "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/resume-ir-pass-surface-native-author-r2-20261022/release-metadata-independent-r1/metadata-reconciliation-author-r12/packet/release-validator.stdout",
+        "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+      },
+      "structured_compatibility_change_count": 11
+    },
+    "independent_review": {
+      "authority_limit": "Independent metadata/source review only; not G acceptance, inventory approval, integration publication, or formal adjudication.",
+      "base_head": "8467e140d35432ad8c3817d24c549336ded1fc18",
+      "formal_closures": [],
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/resume-public-export-independent-20261022-r1/release-metadata-reconciliation-r12-independent-r1/review.json",
+      "sha256": "8ff9308447c9d1205ddfed8b727b70448bf365a284c0fdde9a1c1f273bca4caf",
+      "source_freeze": false,
+      "verdict": "GO_BOUNDED_FOR_CANONICAL_APPLICATION"
+    }
+  },
+  "candidate_base": {
+    "branch": "codex/e02-unified-local-20261009",
+    "head": "8467e140d35432ad8c3817d24c549336ded1fc18",
+    "source_freeze": false,
+    "status_entry_count": 2548,
+    "status_sha256": "ec284ce68edd01c5f685e1168d935bf3915ac391d48968408d2d16b997fd0524",
+    "tree": "0c387800c6a3ba17d439562b340c5acd2a7974a1"
+  },
+  "delivered_commit": {
+    "applied_source_frame": {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/root-metadata-reconciliation-code-commit-20261023-r1/full-composed-source-frame.json",
+      "remaining_known_dirty_paths_at_commit": 164,
+      "sha256": "26fed5c226b1ecadf7db4def1c533a98ad9a0f9284c890bb32a64d6f0c6d8bae",
+      "source_freeze": false
+    },
+    "branch": "codex/e02-unified-local-20261009",
+    "commit": "e714b1e55027e5e18748f529fb1d4f685e5ee307",
+    "commit_readback": {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/root-metadata-reconciliation-code-commit-20261023-r1/readback.json",
+      "sha256": "73a966b08e41a8a82ac9c74261a79f790e8f6ccbe2471dd85b5926ac9795246b"
+    },
+    "commit_result": {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/root-metadata-reconciliation-code-commit-20261023-r1/commit-result.json",
+      "sha256": "227b5dbb730823526509d65575b7b1cf3f39f9efa63d421d75e672dd79a63718"
+    },
+    "exact_13_path_footprint": [
+      {
+        "commit_blob_verified": true,
+        "path": "policy-engine/docs/migration/README.md",
+        "postimage_sha256": "2629e39620050f1e69e33536465ba5c14205af6b280931744a2ac516b15665da",
+        "preimage_sha256": "e4b0807c524da0de793f36c963842dd392d02c771f25cffc689e0c4a16b31279"
+      },
+      {
+        "commit_blob_verified": true,
+        "path": "policy-engine/docs/migration/e02-catalog-search-datasets-envelope.md",
+        "postimage_sha256": "9a3be5c8375e7a8e4bb188f4e861d110daaeb7a0de98fbfa49df43e9e4516c38",
+        "preimage_sha256": null
+      },
+      {
+        "commit_blob_verified": true,
+        "path": "policy-engine/docs/migration/e02-scientist-internal-search-and-compute-compatibility.md",
+        "postimage_sha256": "1a6dce31829aca788861cae998b3ceb4256cf44cd1bc14bf1dd37d6699517110",
+        "preimage_sha256": null
+      },
+      {
+        "commit_blob_verified": true,
+        "path": "policy-engine/docs/runbooks/catalog-search-datasets-envelope-rollout.md",
+        "postimage_sha256": "8206dadaf442b89bc93c1941ea7b2e097e515d1a1806a92c4b4be92d07e8c1ee",
+        "preimage_sha256": null
+      },
+      {
+        "commit_blob_verified": true,
+        "path": "policy-engine/docs/runbooks/e02-scientist-search-state-compatibility.md",
+        "postimage_sha256": "4ee70d1321221107dae1306ae4dab6c2692f7fea33702bbe4ba203a4544e64b9",
+        "preimage_sha256": null
+      },
+      {
+        "commit_blob_verified": true,
+        "path": "policy-engine/docs/runbooks/index.md",
+        "postimage_sha256": "5dbb845a95454cc4ee0170314e163528a98fdc9591dac7a38854ae636a7cf084",
+        "preimage_sha256": "df5637e913f4ea14bef80ac808f16e39e0f30a8c8717ffe5525a4887ef08798e"
+      },
+      {
+        "commit_blob_verified": true,
+        "path": "policy-engine/release-fragments/unreleased/2026-10-09-e02-c12-catalog-search-status.toml",
+        "postimage_sha256": "f78dc820026283423e21da7d4abc6bfc93287bb13efe8d65519b5a2d25f0ffec",
+        "preimage_sha256": "646891153961a958767fc018e88ed21fd030419807870f30f851ca5f725df52d"
+      },
+      {
+        "commit_blob_verified": true,
+        "path": "policy-engine/release-fragments/unreleased/2026-10-20-e02-selected-objective-score-binding.toml",
+        "postimage_sha256": "68414405682d5bae3d757e446419c52a3c30fc2bc27c725436d305fd9bc1e06f",
+        "preimage_sha256": "0068fea3c26ce444aff6b592f10253515b9d2409d9d9ea435ab5dc7f725dc63d"
+      },
+      {
+        "commit_blob_verified": true,
+        "path": "policy-engine/release-fragments/unreleased/2026-10-20-e02-shared-method-admission.toml",
+        "postimage_sha256": "5f702f7c5f0935a8e1ba62508ea50f7680478a26d212661a43587670cebaacb6",
+        "preimage_sha256": "089253b3b9fc1577e150ea8f54b6009e19775238b09614c62c2bee9758dbf4cf"
+      },
+      {
+        "commit_blob_verified": true,
+        "path": "policy-engine/release-fragments/unreleased/2026-10-21-e02-legacy-execution-lineage.toml",
+        "postimage_sha256": "066226df7bb17aa37feb442490d2e462042c0d761ae98ece8315bec9737554b7",
+        "preimage_sha256": "6193e2fd90d8936748cdc511cae5e241b125d82bb17ffb6dc5311d4f9ac758e9"
+      },
+      {
+        "commit_blob_verified": true,
+        "path": "policy-engine/src/polisyos/data_forge/domains/catalog/knowledge/README.md",
+        "postimage_sha256": "b2ce9914b5f6687805f9afcd3191a75790f47dd77c7827c26d6d68e3fdfe45e2",
+        "preimage_sha256": "ea6aea88507fea8fa46f96344042212155c788f29d9638a500cbeb81fddbd250"
+      },
+      {
+        "commit_blob_verified": true,
+        "path": "policy-engine/src/polisyos/scientist/compute/README.md",
+        "postimage_sha256": "bbc0064440a6a4d26398fdad16deb3ea63ca024052ef2528c850c485e79d6664",
+        "preimage_sha256": "458ca85308d368a4d9f7cd5d1b290ed88a2293bf1b42252f96e71038fe3f16ec"
+      },
+      {
+        "commit_blob_verified": true,
+        "path": "policy-engine/src/polisyos/scientist/methods/README.md",
+        "postimage_sha256": "5f130726a512bce96bb0bd523a32d669e7b6e9acf85b93b350345ac6b3281522",
+        "preimage_sha256": "c67309e72584e0ffafe2bb8f2cbe43fbe481eab29f1de5daa72e93e84ac36bed"
+      }
+    ],
+    "parents": [
+      "54a83954790adbcef9d75a6ccab5f4a897205fb1"
+    ],
+    "readback_checks": {
+      "all_13_postimages_rehashed_from_current_source": true,
+      "all_other_frame_hashes_preserved": true
+    },
+    "tree": "f742684514b72a0be2055949d0d4606959dc9d33"
+  },
+  "limitations": [
+    "The release metadata/docs commit does not change runtime code or establish runtime behavior.",
+    "The candidate and native release reports are report-only results with unresolved public-surface-review errors; neither is a native-green or G-acceptance receipt.",
+    "The full canonical gate input manifest records HEAD 54a83954790adbcef9d75a6ccab5f4a897205fb1 at capture; the four touched release-fragment byte hashes are verified against commit e714b1e55027e5e18748f529fb1d4f685e5ee307.",
+    "Source is not frozen; the worktree had other known dirty paths at the commit boundary, and no assertion of runtime export resolution or owner identity is made.",
+    "No formal closures are proposed or claimed. Independent G acceptance, integration publication, and formal adjudication remain outside this receipt."
+  ],
+  "path_basis": "All artifact paths are relative to the shared worktree root; product files use the policy-engine/ prefix.",
+  "receipt_status": "draft_for_independent_factual_review",
+  "schema_version": "e02-compact-source-bound-receipt-draft/v1",
+  "scope": {
+    "change_kind": "metadata_and_documentation_only",
+    "formal_g_closures": [],
+    "p41": {
+      "note": "No claim is made that any remaining native-gate errors are inherited or belong to a named owner.",
+      "owner_or_inherited_red_claim": "not_established"
+    },
+    "public_surface_contract_or_inventory_changed": false,
+    "runtime_or_product_behavior_changed": false,
+    "source_freeze": false,
+    "tests_or_product_source_changed": false
+  },
+  "slice": "release metadata and documentation reconciliation"
+}

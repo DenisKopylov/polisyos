@@ -1,0 +1,404 @@
+{
+  "schema": "e02-local-implementation-receipt-v1",
+  "status": "author_receipt_for_independent_G_review",
+  "slice": "Q2 Git-pinned GCP repository archive selection route",
+  "source": {
+    "checkout": "/Users/deniskopylov/.codex/worktrees/e02-unified-local-20261009/polisyos",
+    "branch": "codex/e02-unified-local-20261009",
+    "commit": "781de8007105515f2c8b0140e73cacd6dfc946ae",
+    "tree": "3a2a97155c2786e85522af2ed40bf209a3aab0db",
+    "parents": [
+      "9b684c30760d0412d809371d3901adb13b104430"
+    ],
+    "base": "9b684c30760d0412d809371d3901adb13b104430",
+    "slice_base": "3fa063828daed278b7aa541fd79401b9ab38eea2",
+    "slice_base_tree": "d62ec199a5df7811f1627444150856d6e4304053",
+    "slice_base_evidence": {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/resume-q2-archive-route-independent-20261022-r1/review-625580e7-v2/review.json",
+      "sha256": "2983a658181297bfed3c84e6bdcb8e1378603cbb2eac9660c848606d0460ed32"
+    },
+    "candidate": "781de8007105515f2c8b0140e73cacd6dfc946ae",
+    "candidate_tree": "3a2a97155c2786e85522af2ed40bf209a3aab0db",
+    "execution_heads": [
+      "53f842ad73b627fef3419c3d655e3bdf08fb399c"
+    ],
+    "readback": {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/root-q2-archive-route-code-commit-20261022-r2/readback.json",
+      "sha256": "3ddf9f6f3510a1a5c91b511f0e3110db1349e1a26928c7a717badde46afdc571"
+    },
+    "applied_source_frame": {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/root-q2-archive-route-code-commit-20261022-r2/full-composed-source-frame.json",
+      "sha256": "ebd2eedbdb16b1f89eaf751dfbb26ba5ee920799384ec92e6be29d340cc0c85c"
+    },
+    "code_commit_manifest": {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/root-q2-archive-route-code-commit-manifest-20261022-r2.json",
+      "sha256": "808ee20f4271126f8ac81cd8687bb747c4b885b1669c6bfe48c44df0cbffa8ce"
+    },
+    "changed_paths": [
+      {
+        "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/q2-packaging/raw/run.py",
+        "sha256": "db31868b5b94dbc51482d22ae100b9c7ea3d671464ad33bc4438dd8f2b14fb85"
+      },
+      {
+        "path": "policy-engine/ops/cloud/gcp/package_repo.sh",
+        "sha256": "d0dc7ab065940c5051554ba95fceeb1962695d2d64448a06666ab24debc39462"
+      },
+      {
+        "path": "policy-engine/tests/repo_quality/tools/test_q2_gcp_archive_selector_route.py",
+        "sha256": "5a4e62e12f9e23a512f3a17241f2f8accf5960324ad055b0a485dbe8930161f4"
+      }
+    ],
+    "note": "Slice base 3fa063/d62ec comes from independent review; immediate parent is 9b684c. Candidate fixtures ran at 53f842 before commit. Later commit 781de8 includes intervening source/config; no current-composition test rerun."
+  },
+  "capability": {
+    "contract_and_behavior": [
+      "Packaging route binds source archive to a pinned Git commit/tree and refuses wrong HEAD, dirty source, tampered selector and wrong expected source hash.",
+      "Tests execute real selector and shell route in a committed temporary Git fixture; outputs are fixture archives, not product distributions.",
+      "No installed-consumer capability is demonstrated."
+    ],
+    "chain": "Pinned Git commit/tree -> package_repo.sh -> Q2 selector/runner -> fixture archive -> tests inspect control bytes/hash and refusal behavior; installed-consumer continuation remains unproven.",
+    "surface": "Internal packaging only; actual product build, install, VM and release surfaces are out of scope.",
+    "semantic_controls": [
+      "5/5 real fixture tests pass, including four negative controls.",
+      "Positive checks bind root/source/tree/archive name/control set, fixture source/assets and archive SHA.",
+      "Independent source review is GO_BOUNDED, not G closure."
+    ]
+  },
+  "selected_execution": {
+    "input": "Three candidate postimages: Q2 runner, GCP shell packager and route regression module; no cloud/product package payload.",
+    "backend": {
+      "kind": "existing local product Python environment plus system Bash/Git/tar",
+      "python": "policy-engine/.venv/bin/python",
+      "version": "Python 3.14.3",
+      "environment_copied_or_installed": false,
+      "shell": "/bin/bash"
+    },
+    "config_inputs": [
+      {
+        "path": "policy-engine/architecture/tooling/ruff/workspace_root.toml",
+        "candidate_commit_sha256": "879bfc2fa77909e595e661679fdeb9c771c3d34308a52e7c41971114f6a4ed99",
+        "execution_snapshots": [
+          {
+            "stage": "candidate fixture wave",
+            "commit": "53f842ad73b627fef3419c3d655e3bdf08fb399c",
+            "sha256": "879bfc2fa77909e595e661679fdeb9c771c3d34308a52e7c41971114f6a4ed99"
+          }
+        ]
+      },
+      {
+        "path": "policy-engine/pytest.ini",
+        "candidate_commit_sha256": "61270205a9f573a090b3c051a4b78351e67308a49e21660dbf33e76186d799eb",
+        "execution_snapshots": [
+          {
+            "stage": "candidate fixture wave",
+            "commit": "53f842ad73b627fef3419c3d655e3bdf08fb399c",
+            "sha256": "61270205a9f573a090b3c051a4b78351e67308a49e21660dbf33e76186d799eb"
+          }
+        ]
+      },
+      {
+        "path": "policy-engine/pyproject.toml",
+        "candidate_commit_sha256": "5f65308cb088086b6fc0aa40a5bae6ed852ae3a2e261103bd0d4158d97c1e8f2",
+        "execution_snapshots": [
+          {
+            "stage": "candidate fixture wave",
+            "commit": "53f842ad73b627fef3419c3d655e3bdf08fb399c",
+            "sha256": "9ba07603d14a8d7616be98f268849f9b38b4c06bba441dcc2b40b03d2ffd6827"
+          }
+        ],
+        "candidate_relation": "execution_snapshot_differs_from_candidate"
+      },
+      {
+        "path": "policy-engine/uv.lock",
+        "candidate_commit_sha256": "ccfdca0e741dc77795f5af61871af5d62e73feebf55c7ffb28cd16e55fe207e9",
+        "execution_snapshots": [
+          {
+            "stage": "candidate fixture wave",
+            "commit": "53f842ad73b627fef3419c3d655e3bdf08fb399c",
+            "sha256": "484dfe164235ea48164c8bf1b33190b3a25dd883c667a41e8a25b07bf5c5df3c"
+          }
+        ],
+        "candidate_relation": "execution_snapshot_differs_from_candidate"
+      }
+    ],
+    "manifests": {
+      "ruff_manifest": {
+        "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/root-q2-archive-route-native-wave-20261022-r1/ruff-manifest.json",
+        "sha256": "e641c92f05a5927df0e2f4a496d0bfa636db338f619e45cd68613fe5359b40bc"
+      },
+      "source_manifest": {
+        "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/root-q2-archive-route-native-wave-20261022-r1/manifest.json",
+        "sha256": "45c730f691d1ae71f0f2156b4dd49973b8d13e15404a31e0b775c8d2c6c32b16"
+      },
+      "driver": {
+        "path": "LOCAL/raw/run-pinned-canonical-python-wave-20261022-r3.py",
+        "sha256": "d64cdf77e65db5e7c0df7bb9e3e3390362cabd722f8fa485b8f0291f1321d31f"
+      }
+    },
+    "stages": [
+      {
+        "name": "primary candidate wave",
+        "sandbox": {
+          "profile": {
+            "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/root-q2-archive-route-native-wave-20261022-r1/native-run-r1/profile.sb",
+            "sha256": "feda292eab3df58276bdf6f22fbfd95cfe8a9f4dc967c7fc81188ab294aef09c"
+          },
+          "invocation": {
+            "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/root-q2-archive-route-native-wave-20261022-r1/native-run-r1/invocation.json",
+            "sha256": "ba523c383aa3f26ccab59fad2c725260348794451e5e8891b409e42bd5e645e4"
+          },
+          "runner_receipt": {
+            "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/root-q2-archive-route-native-wave-20261022-r1/native-run-r1/receipt.json",
+            "sha256": "6c56da7730cda5ebbd76bbc4bda73401cedb1999649980a5b1c3e1fbb230b6d6"
+          },
+          "launcher_sha256": "d64cdf77e65db5e7c0df7bb9e3e3390362cabd722f8fa485b8f0291f1321d31f"
+        }
+      }
+    ],
+    "test_targets": [
+      "tests/repo_quality/tools/test_q2_gcp_archive_selector_route.py"
+    ],
+    "supplemental_runs": [
+      {
+        "name": "supplemental run",
+        "profile": {
+          "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/root-q2-archive-route-native-wave-20261022-r1/bash-syntax/profile.sb",
+          "sha256": "feda292eab3df58276bdf6f22fbfd95cfe8a9f4dc967c7fc81188ab294aef09c"
+        },
+        "invocation": {
+          "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/root-q2-archive-route-native-wave-20261022-r1/bash-syntax/invocation.json",
+          "sha256": "15878a8adf8840f11c830b49df30bc55df53d95efe26e30487c7caa9c267160a"
+        },
+        "receipt": {
+          "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/root-q2-archive-route-native-wave-20261022-r1/bash-syntax/receipt.json",
+          "sha256": "eb02e10f240ff660245e4e496a0da70ea2effcbe689265301e311e217150fffb"
+        },
+        "outputs": {
+          "stderr": {
+            "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/root-q2-archive-route-native-wave-20261022-r1/bash-syntax/stderr",
+            "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+          },
+          "stdout": {
+            "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/root-q2-archive-route-native-wave-20261022-r1/bash-syntax/stdout",
+            "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+          }
+        }
+      }
+    ]
+  },
+  "verification": {
+    "wave_receipt": {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/root-q2-archive-route-native-wave-20261022-r1/receipt.json",
+      "sha256": "adf2dd051d7700467095a787b4a1fed50333e21e6a03f298ef983a64f23c4944"
+    },
+    "native_run_receipt": {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/root-q2-archive-route-native-wave-20261022-r1/native-run-r1/receipt.json",
+      "sha256": "6c56da7730cda5ebbd76bbc4bda73401cedb1999649980a5b1c3e1fbb230b6d6"
+    },
+    "source_frame": {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/root-q2-archive-route-application-20261022-r1/full-composed-source-frame.json",
+      "sha256": "59336ab729a94be3c48305563cb5aad84cb5689279eee7f0b81aeabb7139cd12"
+    },
+    "commands": [
+      {
+        "name": "ruff-check",
+        "stage": "root-q2-archive-route-native-wave-20261022-r1",
+        "command_record": {
+          "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/root-q2-archive-route-native-wave-20261022-r1/receipt.json",
+          "sha256": "adf2dd051d7700467095a787b4a1fed50333e21e6a03f298ef983a64f23c4944"
+        },
+        "argv_is_recorded_in_command_receipt": true,
+        "exit_code": 0,
+        "timed_out": false,
+        "outputs": {
+          "stdout": {
+            "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/root-q2-archive-route-native-wave-20261022-r1/ruff-check.stdout",
+            "sha256": "010441ccb381821c544bbb0344ad3ce3bd85839281d9058606fb00f16a8bb840"
+          },
+          "stderr": {
+            "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/root-q2-archive-route-native-wave-20261022-r1/ruff-check.stderr",
+            "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+          }
+        }
+      },
+      {
+        "name": "ruff-format-check",
+        "stage": "root-q2-archive-route-native-wave-20261022-r1",
+        "command_record": {
+          "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/root-q2-archive-route-native-wave-20261022-r1/receipt.json",
+          "sha256": "adf2dd051d7700467095a787b4a1fed50333e21e6a03f298ef983a64f23c4944"
+        },
+        "argv_is_recorded_in_command_receipt": true,
+        "exit_code": 0,
+        "timed_out": false,
+        "outputs": {
+          "stdout": {
+            "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/root-q2-archive-route-native-wave-20261022-r1/ruff-format-check.stdout",
+            "sha256": "4ae071497828928f192c4887ba24a123038d20d1b8d588a5e9d54223d37e34a6"
+          },
+          "stderr": {
+            "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/root-q2-archive-route-native-wave-20261022-r1/ruff-format-check.stderr",
+            "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+          }
+        }
+      },
+      {
+        "name": "pytest",
+        "stage": "root-q2-archive-route-native-wave-20261022-r1",
+        "command_record": {
+          "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/root-q2-archive-route-native-wave-20261022-r1/receipt.json",
+          "sha256": "adf2dd051d7700467095a787b4a1fed50333e21e6a03f298ef983a64f23c4944"
+        },
+        "argv_is_recorded_in_command_receipt": true,
+        "exit_code": 0,
+        "timed_out": false,
+        "outputs": {
+          "stdout": {
+            "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/root-q2-archive-route-native-wave-20261022-r1/pytest.stdout",
+            "sha256": "4d2df7a96ce4a667da3ccf295f2d16c728a65ed0e861a3baa919f7bb469b02b5"
+          },
+          "stderr": {
+            "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/root-q2-archive-route-native-wave-20261022-r1/pytest.stderr",
+            "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+          }
+        }
+      },
+      {
+        "name": "bash-syntax",
+        "stage": "bash-syntax",
+        "command_record": {
+          "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/root-q2-archive-route-native-wave-20261022-r1/bash-syntax/receipt.json",
+          "sha256": "eb02e10f240ff660245e4e496a0da70ea2effcbe689265301e311e217150fffb"
+        },
+        "argv_is_recorded_in_command_receipt": true,
+        "exit_code": 0,
+        "timed_out": false,
+        "outputs": {
+          "stdout": {
+            "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/root-q2-archive-route-native-wave-20261022-r1/bash-syntax/stdout",
+            "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+          },
+          "stderr": {
+            "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/root-q2-archive-route-native-wave-20261022-r1/bash-syntax/stderr",
+            "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+          },
+          "receipt": {
+            "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/root-q2-archive-route-native-wave-20261022-r1/bash-syntax/receipt.json",
+            "sha256": "eb02e10f240ff660245e4e496a0da70ea2effcbe689265301e311e217150fffb"
+          }
+        }
+      }
+    ],
+    "junit": {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/root-q2-archive-route-native-wave-20261022-r1/junit.xml",
+      "sha256": "8c236e2ef9fea573116d6c8b8ed3b98c0a4541ded7431a010b443afbeace2b7b"
+    },
+    "summary": {
+      "pytest": {
+        "tests": 5,
+        "passed": 5,
+        "failed": 0,
+        "errors": 0,
+        "skipped": 0,
+        "status": "PASS"
+      },
+      "ruff_check": "PASS",
+      "ruff_format_check": "PASS",
+      "bash_syntax": "PASS (/bin/bash -n package_repo.sh)",
+      "independent_review": "GO_BOUNDED",
+      "archive_to_sdist_to_wheel_to_installed_consumer": "NOT RUN",
+      "source_freeze": false
+    },
+    "independent_reviews": [
+      {
+        "decision": "GO_BOUNDED; candidate source/fixture review only",
+        "review": {
+          "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/resume-q2-archive-route-independent-20261022-r1/review-625580e7-v2/review.json",
+          "sha256": "2983a658181297bfed3c84e6bdcb8e1378603cbb2eac9660c848606d0460ed32"
+        }
+      }
+    ],
+    "review_scope": {
+      "P40_classification": {
+        "bucket": "SAME_CLASS_DEEPER \u2014 P02 source-to-archive producer/artifact transport bridge.",
+        "mechanism": "The candidate closes the current extracted-product/attached-Git selector mismatch with one pinned route, rather than a per-site path workaround. No new class was found."
+      },
+      "bounded_residual": {
+        "all_member_reconciliation": "The runner directly binds five packaging-control members and downstream resource assets. It does not independently walk and compare every non-resource GCP archive member against Git; those bytes are produced by the exact pinned selector, which constructs entries from `git ls-tree` and streams blobs from `git cat-file` at the pinned commit.",
+        "falsifier": "If a future route admits a caller-supplied archive or changes the selector away from commit-derived Git blob construction, require an adversarial path/member mutation test and complete member-set/content reconciliation at that new boundary.",
+        "finding": "The 5-test route fixture has no explicit malformed traversal archive or post-production corrupted-member negative. The route consumes a Git-generated archive from the selected commit, and generic path/member guards are unchanged; the selector itself creates output members from that commit. This is a test limitation, not a source escape."
+      },
+      "limitations": {
+        "not_claimed": [
+          "native Q2 readiness",
+          "release readiness",
+          "supplier/resource closure",
+          "G closure"
+        ],
+        "not_run": [
+          "native Q2 archive\u2192sdist\u2192wheel\u2192installed-consumer wave",
+          "actual product build or install",
+          "VM run",
+          "C05 supplier denominator or G-only resource semantics"
+        ]
+      }
+    },
+    "semantic_boundary": {
+      "property": "Archive output equals the complete expected member set for its pinned Git tree.",
+      "implementation_and_tests": "Route derives entries from Git; fixtures verify source/tree, control member set/bytes and assets.",
+      "bounded_divergence": "No independent reconciliation of every non-resource GCP member; a missing/substituted non-control member could escape the current test assertions."
+    }
+  },
+  "limitations": [
+    "Fixture wave ran on candidate postimages at 53f842 before committed 781de8; no post-commit composed run is recorded.",
+    "Execution-base pyproject.toml/uv.lock differ from candidate-commit snapshots.",
+    "No archive -> sdist -> wheel -> installed-consumer wave, product build/install, VM, C05 denominator or G-only resource semantics ran.",
+    "Full non-resource member reconciliation and malformed-traversal/post-production corruption negatives are not established.",
+    "No native Q2 readiness, release readiness, supplier/resource closure or G closure is claimed."
+  ],
+  "global_source_freeze": false,
+  "closure_ids": [],
+  "proposal_fields": {
+    "mechanism_proposal": "Retain the committed three-path route as candidate with GO_BOUNDED review and fixture-only limits attached.",
+    "finding_proposals": [],
+    "formal_close_proposal_ids": [],
+    "g_code_acceptance": false,
+    "local_checkpoint_status": "local committed candidate source; author receipt prepared for independent G review; remote publication pending",
+    "next_check": "Run a fresh source-bound archive-to-sdist-to-wheel-to-installed-consumer wave on the committed composition, reconcile all members to the pinned tree, then seek independent review.",
+    "pattern_pass": {
+      "relevant_ids": [
+        "P01",
+        "P02",
+        "P10",
+        "P35",
+        "P38",
+        "P40"
+      ],
+      "existing_anti_patterns": [
+        "P01/P02: installed-consumer bridge is missing.",
+        "P35: no complete non-resource archive member denominator.",
+        "P38: control-member assertions do not prove full member equality."
+      ],
+      "target_pattern": "Run actual package and installed consumers, reconcile the whole Git-derived member set, and adversarially test route boundaries.",
+      "missing_capability_labels": [
+        "verification_missing (distribution/installed consumer wave)",
+        "surface_out_of_scope",
+        "semantic_test_missing (full member reconciliation and malformed/corrupted archive cases)"
+      ],
+      "acceptance_signal": "Source-bound archive -> sdist -> wheel -> installed consumer passes with full member-set reconciliation and refusal controls."
+    }
+  },
+  "root_admission": {
+    "draft": {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/resume-b164-protected-writer-author-20261022-r1/compact-receipts-r2d/q2-gcp-archive-route-committed-mechanism-receipt-draft.json",
+      "sha256": "ef0c8ecec10ef6a2d310ec69baa7864aee8b8f6fa52800b791163b4a0934191b"
+    },
+    "source_commit_footprint_reconciled": 3,
+    "immutable_raw_refs_reconciled": 25,
+    "current_source_frame_at_receipt_preparation": {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/root-ir-reader-receipt-correction-commit-20261022-r1/full-composed-source-frame.json",
+      "sha256": "159bff540ca204a8d51c5fed43ea3de61a615bed099713954a8354d7fa8662d1"
+    },
+    "not_claimed": "Historical source evidence is not a new composed replay or G acceptance. Follow-up implementations retain separate evidence."
+  }
+}

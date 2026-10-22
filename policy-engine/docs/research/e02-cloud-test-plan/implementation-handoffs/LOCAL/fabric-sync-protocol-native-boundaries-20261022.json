@@ -1,0 +1,576 @@
+{
+  "schema": "e02-local-implementation-receipt-v1",
+  "status": "author_receipt_for_independent_G_review",
+  "slice": "F1/F2 fabric connector synchronous callback and resource-disposal guard",
+  "source": {
+    "checkout": "/Users/deniskopylov/.codex/worktrees/e02-unified-local-20261009/polisyos",
+    "branch": "codex/e02-unified-local-20261009",
+    "commit": "9b684c30760d0412d809371d3901adb13b104430",
+    "tree": "c92a39168ecfe335f47ee5093721d2a2dcd1130f",
+    "parents": [
+      "88dc25adc5588b9038cb831cb6e4261b12b1f83d"
+    ],
+    "base": "88dc25adc5588b9038cb831cb6e4261b12b1f83d",
+    "slice_base": "3fa063828daed278b7aa541fd79401b9ab38eea2",
+    "slice_base_tree": "d62ec199a5df7811f1627444150856d6e4304053",
+    "slice_base_evidence": {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/resume-fabric-pass-context-r4-20261022/r6-frozen-packet-final-01.json",
+      "sha256": "2a25ecbf13f87bd87b56317152658af213df9bd8db7ff797a4799f35fab81b93"
+    },
+    "candidate": "9b684c30760d0412d809371d3901adb13b104430",
+    "candidate_tree": "c92a39168ecfe335f47ee5093721d2a2dcd1130f",
+    "execution_heads": [
+      "88dc25adc5588b9038cb831cb6e4261b12b1f83d",
+      "781de8007105515f2c8b0140e73cacd6dfc946ae"
+    ],
+    "readback": {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/root-fabric-sync-code-commit-20261022-r1/readback.json",
+      "sha256": "32639cda070c196ab6920abaddc51fe4814ed5482ed7c2ad7b6c5ba14b8d42b9"
+    },
+    "applied_source_frame": {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/root-fabric-sync-code-commit-20261022-r1/full-composed-source-frame.json",
+      "sha256": "8ce4680fed200241b9ada7066a9a998ee9685ba3c38adb9cc623e349a06ee693"
+    },
+    "code_commit_manifest": {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/root-fabric-sync-code-commit-manifest-20261022-r1.json",
+      "sha256": "801e8ef4ab63d4ac3353d56aed23f6ea2c8eceddb40d2337a39236edf2bd73a7"
+    },
+    "changed_paths": [
+      {
+        "path": "policy-engine/src/polisyos/fabric/connectors/base.py",
+        "sha256": "b4cfb98d45344c030a0dbbaa9eda2d3ec4063fc8f2b19805ef299306767456f3"
+      },
+      {
+        "path": "policy-engine/src/polisyos/fabric/connectors/http_limits.py",
+        "sha256": "0064ef95660dd6cb0d51e6eda2395d0ed6727aa1980a18f10d4d493d6eb2d20d"
+      },
+      {
+        "path": "policy-engine/src/polisyos/fabric/connectors/reference/sdmx.py",
+        "sha256": "4ad9cbd72fd1831e762170a5246a66be1524bfbbab22ef9e1b24325195819f05"
+      },
+      {
+        "path": "policy-engine/src/polisyos/fabric/connectors/sources/sdmx_source.py",
+        "sha256": "7ed7056fe2ca8b9a66ceb0613cec08f5691098554800749db0e8ef4173fc5e37"
+      },
+      {
+        "path": "policy-engine/src/polisyos/fabric/connectors/reference/rest_json.py",
+        "sha256": "048f75ac240082f3039ccd6ae6d698dba56a0c100827c0cc0b53f05ca9e2c9db"
+      },
+      {
+        "path": "policy-engine/src/polisyos/fabric/connectors/sources/graphql_api.py",
+        "sha256": "1bc8fff61cc81a8118933f72093bda4c9b44fe84c9c902b583d54733e22753cc"
+      },
+      {
+        "path": "policy-engine/src/polisyos/fabric/connectors/sources/http_base.py",
+        "sha256": "b31b3a9b5027d1a7d39a897482c4d7533dd898bd0a65b32a3526d2613f747732"
+      },
+      {
+        "path": "policy-engine/src/polisyos/fabric/connectors/reference/static_csv.py",
+        "sha256": "8b3bf0eae30318c538443f984dacd201273a254a541178ae37c0b3040bfec050"
+      },
+      {
+        "path": "policy-engine/src/polisyos/fabric/connectors/sources/file_tabular.py",
+        "sha256": "968291cdc84e6d3fc16ce08a781fe305da760cfe89da41a2a7bc164703b014fd"
+      },
+      {
+        "path": "policy-engine/src/polisyos/fabric/connectors/sources/geojson.py",
+        "sha256": "fc345be7bee2fc943edf35f0f9e14826c4d2a716babbc3743a77a0e1ccc17b7b"
+      },
+      {
+        "path": "policy-engine/src/polisyos/fabric/connectors/sources/event_stream.py",
+        "sha256": "c6ba1d3b4e48b9b1d55fb4c5cc317e2b132ae7e23cf87b02fc7e28eefae054e8"
+      },
+      {
+        "path": "policy-engine/src/polisyos/fabric/connectors/sources/sql_query.py",
+        "sha256": "2e1725d42bacd834495c21658305958aa1d063687a5544298ec67dc14c61064a"
+      },
+      {
+        "path": "policy-engine/src/polisyos/fabric/connectors/sources/sparql.py",
+        "sha256": "57c0777d4f53deada71c63a674513431b6d374645fbd69c8a0c1e686963f26a4"
+      },
+      {
+        "path": "policy-engine/src/polisyos/fabric/connectors/sources/socrata.py",
+        "sha256": "b32acdde911dd4917b6ca31d19f4446b3ee990d59e8fdc8874d07e9cb3aa8f52"
+      },
+      {
+        "path": "policy-engine/src/polisyos/fabric/connectors/sources/opendatasoft.py",
+        "sha256": "751522c91220bc7796ce5ad4153bbb4e977095f80a388d55daf919f9892419ff"
+      },
+      {
+        "path": "policy-engine/src/polisyos/fabric/connectors/README.md",
+        "sha256": "df1589177355868df3a0a8506ebdb63e9733b9c189f9dd6f38011999481f5135"
+      },
+      {
+        "path": "policy-engine/tests/unit/fabric/connectors/README.md",
+        "sha256": "9ca8f6f5c2ba6380ba4487b1d8e9727e12346493e5291b267a22a46323b9c8ed"
+      },
+      {
+        "path": "policy-engine/tests/unit/fabric/connectors/reference/test_rest_json.py",
+        "sha256": "cd04ced1ac96aba8347bd75ecda31ccc88dbda8bf9d61851e0d3853c11aac8f9"
+      },
+      {
+        "path": "policy-engine/tests/unit/fabric/connectors/test_connection_state_contract.py",
+        "sha256": "90fd7ab287710ea7d664c6898638aafdda89ef88ee442f5497d698010583037b"
+      },
+      {
+        "path": "policy-engine/release-fragments/unreleased/2026-10-22-fabric-typed-runtime-state.toml",
+        "sha256": "bd507998a9471147d817407346b18c1d0d12c71416e0213cb587286bb8dc070d"
+      },
+      {
+        "path": "policy-engine/tests/unit/fabric/connectors/sources/test_http_connector_base.py",
+        "sha256": "d3cec250b1c4393323e57a1af95692760838fb96709ccb70919003cb0c7e664c"
+      }
+    ],
+    "note": "Slice base 3fa063/d62ec comes from R6 frozen packet; direct code parent is 88dc25. Candidate test frame at 88dc binds all 21 changed postimages to commit 9b684c. Additional BasedPyright ran after commit at HEAD 781 on the same 15 connector sources. Worktree has other dirty paths; no global freeze."
+  },
+  "capability": {
+    "contract_and_behavior": [
+      "Shared sync HTTP callback guard rejects awaitable results instead of letting sync/async contract violations enter transport.",
+      "Guard covers required before-request/on-raw-response and optional wait/header/body-progress/sync chunk-reader hooks; JSON/HEAD async executor adapters remain separate.",
+      "No persisted domain artifact or public API is introduced."
+    ],
+    "chain": "Connector callback -> shared guard -> awaitable rejection/disposal -> caller; candidate regression tests exercise real paths, then BasedPyright checks 15 canonical modules.",
+    "surface": "Internal connector runtime only; public/audit/API/dashboard surface is out of scope.",
+    "semantic_controls": [
+      "203/203 connector tests, MyPy 15 and Ruff check/format pass.",
+      "R6 delta review is GO with its residuals retained.",
+      "Later BasedPyright fails at five shared-header call sites."
+    ]
+  },
+  "selected_execution": {
+    "input": "21 changed candidate paths plus four unchanged selected test modules; BasedPyright analyzes exactly 15 connector source files.",
+    "backend": {
+      "kind": "existing local product Python environment",
+      "python": "policy-engine/.venv/bin/python",
+      "version": "Python 3.14.3",
+      "environment_copied_or_installed": false,
+      "basedpyright": "policy-engine/.venv/bin/basedpyright"
+    },
+    "config_inputs": [
+      {
+        "path": "policy-engine/architecture/tooling/ruff/workspace_root.toml",
+        "candidate_commit_sha256": "879bfc2fa77909e595e661679fdeb9c771c3d34308a52e7c41971114f6a4ed99",
+        "execution_snapshots": [
+          {
+            "stage": "candidate wave",
+            "commit": "88dc25adc5588b9038cb831cb6e4261b12b1f83d",
+            "sha256": "879bfc2fa77909e595e661679fdeb9c771c3d34308a52e7c41971114f6a4ed99"
+          },
+          {
+            "stage": "BasedPyright follow-up",
+            "commit": "781de8007105515f2c8b0140e73cacd6dfc946ae",
+            "sha256": "879bfc2fa77909e595e661679fdeb9c771c3d34308a52e7c41971114f6a4ed99"
+          }
+        ]
+      },
+      {
+        "path": "policy-engine/architecture/tooling/mypy/generated.ini",
+        "candidate_commit_sha256": "d58da5b568044f6156b50f49c4a08e08a773ff69bfae6d8f1dc2919f99e4b5ef",
+        "execution_snapshots": [
+          {
+            "stage": "candidate wave",
+            "commit": "88dc25adc5588b9038cb831cb6e4261b12b1f83d",
+            "sha256": "d58da5b568044f6156b50f49c4a08e08a773ff69bfae6d8f1dc2919f99e4b5ef"
+          },
+          {
+            "stage": "BasedPyright follow-up",
+            "commit": "781de8007105515f2c8b0140e73cacd6dfc946ae",
+            "sha256": "d58da5b568044f6156b50f49c4a08e08a773ff69bfae6d8f1dc2919f99e4b5ef"
+          }
+        ]
+      },
+      {
+        "path": "policy-engine/pytest.ini",
+        "candidate_commit_sha256": "61270205a9f573a090b3c051a4b78351e67308a49e21660dbf33e76186d799eb",
+        "execution_snapshots": [
+          {
+            "stage": "candidate wave",
+            "commit": "88dc25adc5588b9038cb831cb6e4261b12b1f83d",
+            "sha256": "61270205a9f573a090b3c051a4b78351e67308a49e21660dbf33e76186d799eb"
+          },
+          {
+            "stage": "BasedPyright follow-up",
+            "commit": "781de8007105515f2c8b0140e73cacd6dfc946ae",
+            "sha256": "61270205a9f573a090b3c051a4b78351e67308a49e21660dbf33e76186d799eb"
+          }
+        ]
+      },
+      {
+        "path": "policy-engine/pyproject.toml",
+        "candidate_commit_sha256": "5f65308cb088086b6fc0aa40a5bae6ed852ae3a2e261103bd0d4158d97c1e8f2",
+        "execution_snapshots": [
+          {
+            "stage": "candidate wave",
+            "commit": "88dc25adc5588b9038cb831cb6e4261b12b1f83d",
+            "sha256": "5f65308cb088086b6fc0aa40a5bae6ed852ae3a2e261103bd0d4158d97c1e8f2"
+          },
+          {
+            "stage": "BasedPyright follow-up",
+            "commit": "781de8007105515f2c8b0140e73cacd6dfc946ae",
+            "sha256": "5f65308cb088086b6fc0aa40a5bae6ed852ae3a2e261103bd0d4158d97c1e8f2"
+          }
+        ]
+      },
+      {
+        "path": "policy-engine/basedpyright.toml",
+        "candidate_commit_sha256": "c7921e8bf04131158f84ee1b3b28f9620ba7cc8cfa36c64cabd90478e958f1b2",
+        "execution_snapshots": [
+          {
+            "stage": "candidate wave",
+            "commit": "88dc25adc5588b9038cb831cb6e4261b12b1f83d",
+            "sha256": "c7921e8bf04131158f84ee1b3b28f9620ba7cc8cfa36c64cabd90478e958f1b2"
+          },
+          {
+            "stage": "BasedPyright follow-up",
+            "commit": "781de8007105515f2c8b0140e73cacd6dfc946ae",
+            "sha256": "c7921e8bf04131158f84ee1b3b28f9620ba7cc8cfa36c64cabd90478e958f1b2"
+          }
+        ]
+      },
+      {
+        "path": "policy-engine/architecture/baselines/basedpyright/baseline.json",
+        "candidate_commit_sha256": "8ceca56253ec877284553b09de0ff1295a75583a6a4fc2238ef002cf9518b6af",
+        "execution_snapshots": [
+          {
+            "stage": "candidate wave",
+            "commit": "88dc25adc5588b9038cb831cb6e4261b12b1f83d",
+            "sha256": "8ceca56253ec877284553b09de0ff1295a75583a6a4fc2238ef002cf9518b6af"
+          },
+          {
+            "stage": "BasedPyright follow-up",
+            "commit": "781de8007105515f2c8b0140e73cacd6dfc946ae",
+            "sha256": "8ceca56253ec877284553b09de0ff1295a75583a6a4fc2238ef002cf9518b6af"
+          }
+        ]
+      }
+    ],
+    "manifests": {
+      "ruff_manifest": {
+        "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/root-fabric-sync-native-wave-20261022-r1/ruff-manifest.json",
+        "sha256": "c997b8b36e577edc95335ae41324bdf2308432f455306dca6c3dd4cbd464725f"
+      },
+      "source_manifest": {
+        "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/root-fabric-sync-native-wave-20261022-r1/manifest.json",
+        "sha256": "b6c588722392bf6ed6030ea7ea032d0a5b84836f5ad821d7247056600eebedff"
+      },
+      "driver": {
+        "path": "LOCAL/raw/run-pinned-canonical-python-wave-20261022-r3.py",
+        "sha256": "d64cdf77e65db5e7c0df7bb9e3e3390362cabd722f8fa485b8f0291f1321d31f"
+      }
+    },
+    "stages": [
+      {
+        "name": "primary candidate wave",
+        "sandbox": {
+          "profile": {
+            "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/root-fabric-sync-native-wave-20261022-r1/confined-wave/profile.sb",
+            "sha256": "8081d49807579d0924ba226689683221618bc3033436aef97699bf87126c4469"
+          },
+          "invocation": {
+            "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/root-fabric-sync-native-wave-20261022-r1/confined-wave/invocation.json",
+            "sha256": "36df955c8c68c022b9c29bea08e5bf5c62dbc0b616367eda14dcba4141abe499"
+          },
+          "runner_receipt": {
+            "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/root-fabric-sync-native-wave-20261022-r1/confined-wave/receipt.json",
+            "sha256": "94209fca12099e21c4f24a7c2a227687f48ef6c3f1ce9da409bbaaf2b8fabfaf"
+          },
+          "launcher_sha256": "d64cdf77e65db5e7c0df7bb9e3e3390362cabd722f8fa485b8f0291f1321d31f"
+        }
+      },
+      {
+        "name": "BasedPyright after commit",
+        "head": "781de8007105515f2c8b0140e73cacd6dfc946ae",
+        "manifest": {
+          "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/root-fabric-sync-basedpyright-wave-20261022-r1/manifest.json",
+          "sha256": "c7b1f1bd5ae018e353e16844fa2463d2448ef3bee89b6055d10ae4d9c2ce9655"
+        },
+        "ruff_manifest": {
+          "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/root-fabric-sync-basedpyright-wave-20261022-r1/ruff-manifest.json",
+          "sha256": "c997b8b36e577edc95335ae41324bdf2308432f455306dca6c3dd4cbd464725f"
+        },
+        "profile": {
+          "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/root-fabric-sync-basedpyright-wave-20261022-r1/confined-wave/profile.sb",
+          "sha256": "1f7959f113fc69fb911cc33374832a66bd9c3ba895c26f080d8122b506d01449"
+        },
+        "invocation": {
+          "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/root-fabric-sync-basedpyright-wave-20261022-r1/confined-wave/invocation.json",
+          "sha256": "d8105334e6ae712d9ea552758e8af6827aa286fc877e46e01fb32b48571247c2"
+        },
+        "runner_receipt": {
+          "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/root-fabric-sync-basedpyright-wave-20261022-r1/confined-wave/receipt.json",
+          "sha256": "7ba0c82b1c7d6c1f1ae6395f6ba07bf4c46923e5d5cc1e79a70ba5445082e146"
+        }
+      }
+    ],
+    "supplemental_runs": []
+  },
+  "verification": {
+    "wave_receipt": {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/root-fabric-sync-native-wave-20261022-r1/receipt.json",
+      "sha256": "a85428ebd707496a615a13fc2d51a3848dff2ae4512240c5987668399137615e"
+    },
+    "native_run_receipt": {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/root-fabric-sync-native-wave-20261022-r1/confined-wave/receipt.json",
+      "sha256": "94209fca12099e21c4f24a7c2a227687f48ef6c3f1ce9da409bbaaf2b8fabfaf"
+    },
+    "source_frame": {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/root-fabric-sync-callbacks-application-20261022-r1/full-composed-source-frame.json",
+      "sha256": "7e487407c56f5c45141bbee78e4f332582e75062b79bcb3280112b5103eec111"
+    },
+    "commands": [
+      {
+        "name": "ruff-check",
+        "stage": "root-fabric-sync-native-wave-20261022-r1",
+        "command_record": {
+          "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/root-fabric-sync-native-wave-20261022-r1/receipt.json",
+          "sha256": "a85428ebd707496a615a13fc2d51a3848dff2ae4512240c5987668399137615e"
+        },
+        "argv_is_recorded_in_command_receipt": true,
+        "exit_code": 0,
+        "timed_out": false,
+        "outputs": {
+          "stdout": {
+            "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/root-fabric-sync-native-wave-20261022-r1/ruff-check.stdout",
+            "sha256": "db4448aefe18df05cef601df2889cf1e6eca94c775ed080321bbfe4e4415a140"
+          },
+          "stderr": {
+            "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/root-fabric-sync-native-wave-20261022-r1/ruff-check.stderr",
+            "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+          }
+        }
+      },
+      {
+        "name": "ruff-format-check",
+        "stage": "root-fabric-sync-native-wave-20261022-r1",
+        "command_record": {
+          "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/root-fabric-sync-native-wave-20261022-r1/receipt.json",
+          "sha256": "a85428ebd707496a615a13fc2d51a3848dff2ae4512240c5987668399137615e"
+        },
+        "argv_is_recorded_in_command_receipt": true,
+        "exit_code": 0,
+        "timed_out": false,
+        "outputs": {
+          "stdout": {
+            "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/root-fabric-sync-native-wave-20261022-r1/ruff-format-check.stdout",
+            "sha256": "fd550e96f0fe4a770e820f729734d83a23f83bc27727b68541b2e97ffda96197"
+          },
+          "stderr": {
+            "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/root-fabric-sync-native-wave-20261022-r1/ruff-format-check.stderr",
+            "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+          }
+        }
+      },
+      {
+        "name": "mypy",
+        "stage": "root-fabric-sync-native-wave-20261022-r1",
+        "command_record": {
+          "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/root-fabric-sync-native-wave-20261022-r1/receipt.json",
+          "sha256": "a85428ebd707496a615a13fc2d51a3848dff2ae4512240c5987668399137615e"
+        },
+        "argv_is_recorded_in_command_receipt": true,
+        "exit_code": 0,
+        "timed_out": false,
+        "outputs": {
+          "stdout": {
+            "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/root-fabric-sync-native-wave-20261022-r1/mypy.stdout",
+            "sha256": "fc409d91e6c781eb25a1ec1310b7fcb0086b74ed3aa2c415bcd73f884f23f07a"
+          },
+          "stderr": {
+            "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/root-fabric-sync-native-wave-20261022-r1/mypy.stderr",
+            "sha256": "4f39f906c43e708245f42be3c31ace5e311d1dbafdc04093ad6820dfa6b37a16"
+          }
+        }
+      },
+      {
+        "name": "pytest",
+        "stage": "root-fabric-sync-native-wave-20261022-r1",
+        "command_record": {
+          "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/root-fabric-sync-native-wave-20261022-r1/receipt.json",
+          "sha256": "a85428ebd707496a615a13fc2d51a3848dff2ae4512240c5987668399137615e"
+        },
+        "argv_is_recorded_in_command_receipt": true,
+        "exit_code": 0,
+        "timed_out": false,
+        "outputs": {
+          "stdout": {
+            "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/root-fabric-sync-native-wave-20261022-r1/pytest.stdout",
+            "sha256": "22a580bf3eae5b81637785a52a6b19ddfece4633ab6dc2923175803d5192cd91"
+          },
+          "stderr": {
+            "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/root-fabric-sync-native-wave-20261022-r1/pytest.stderr",
+            "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+          }
+        }
+      },
+      {
+        "name": "ruff-check",
+        "stage": "root-fabric-sync-basedpyright-wave-20261022-r1",
+        "command_record": {
+          "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/root-fabric-sync-basedpyright-wave-20261022-r1/receipt.json",
+          "sha256": "45cd7f032f34e81ad80b8f20eeac0790748e96c925137b65f9e4ace1e6d5dc11"
+        },
+        "argv_is_recorded_in_command_receipt": true,
+        "exit_code": 0,
+        "timed_out": false,
+        "outputs": {
+          "stdout": {
+            "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/root-fabric-sync-basedpyright-wave-20261022-r1/ruff-check.stdout",
+            "sha256": "db4448aefe18df05cef601df2889cf1e6eca94c775ed080321bbfe4e4415a140"
+          },
+          "stderr": {
+            "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/root-fabric-sync-basedpyright-wave-20261022-r1/ruff-check.stderr",
+            "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+          }
+        }
+      },
+      {
+        "name": "ruff-format-check",
+        "stage": "root-fabric-sync-basedpyright-wave-20261022-r1",
+        "command_record": {
+          "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/root-fabric-sync-basedpyright-wave-20261022-r1/receipt.json",
+          "sha256": "45cd7f032f34e81ad80b8f20eeac0790748e96c925137b65f9e4ace1e6d5dc11"
+        },
+        "argv_is_recorded_in_command_receipt": true,
+        "exit_code": 0,
+        "timed_out": false,
+        "outputs": {
+          "stdout": {
+            "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/root-fabric-sync-basedpyright-wave-20261022-r1/ruff-format-check.stdout",
+            "sha256": "fd550e96f0fe4a770e820f729734d83a23f83bc27727b68541b2e97ffda96197"
+          },
+          "stderr": {
+            "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/root-fabric-sync-basedpyright-wave-20261022-r1/ruff-format-check.stderr",
+            "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+          }
+        }
+      },
+      {
+        "name": "basedpyright",
+        "stage": "root-fabric-sync-basedpyright-wave-20261022-r1",
+        "command_record": {
+          "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/root-fabric-sync-basedpyright-wave-20261022-r1/receipt.json",
+          "sha256": "45cd7f032f34e81ad80b8f20eeac0790748e96c925137b65f9e4ace1e6d5dc11"
+        },
+        "argv_is_recorded_in_command_receipt": true,
+        "exit_code": 1,
+        "timed_out": false,
+        "outputs": {
+          "stdout": {
+            "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/root-fabric-sync-basedpyright-wave-20261022-r1/basedpyright.stdout",
+            "sha256": "efa97391f0f01cc3eea04f2bafeeae77ef873aec0cbc5347748f8544292e5207"
+          },
+          "stderr": {
+            "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/root-fabric-sync-basedpyright-wave-20261022-r1/basedpyright.stderr",
+            "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+          }
+        }
+      }
+    ],
+    "junit": {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/root-fabric-sync-native-wave-20261022-r1/junit.xml",
+      "sha256": "4e13e1636cedf64c39383d86185c6b757aec829aa3dcd4130eb7a1061c22e7dc"
+    },
+    "summary": {
+      "pytest": {
+        "tests": 203,
+        "passed": 203,
+        "failed": 0,
+        "errors": 0,
+        "skipped": 0,
+        "status": "PASS"
+      },
+      "ruff_check": "PASS both waves",
+      "ruff_format_check": "PASS both waves",
+      "mypy": "PASS; Success: no issues found in 15 source files; stderr retained/hash-bound.",
+      "basedpyright": "FAIL: 5 errors, 142 warnings, 15 files, 2.116s; cached-property descriptor vs _HTTPHeaders at five callers.",
+      "baseline_sha256_before_after": [
+        "8ceca56253ec877284553b09de0ff1295a75583a6a4fc2238ef002cf9518b6af",
+        "8ceca56253ec877284553b09de0ff1295a75583a6a4fc2238ef002cf9518b6af",
+        "8ceca56253ec877284553b09de0ff1295a75583a6a4fc2238ef002cf9518b6af",
+        "8ceca56253ec877284553b09de0ff1295a75583a6a4fc2238ef002cf9518b6af"
+      ],
+      "source_freeze": false
+    },
+    "independent_reviews": [
+      {
+        "decision": "GO; R6 delta only, not global closure",
+        "review": {
+          "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/resume-fabric-f4-native-review-20261022/r6-final-review-index-20261022/index.json",
+          "sha256": "a1ba3a383fa4c11fea1d7447f603d6595a43ae9dff177815218b14952eaa2060"
+        }
+      },
+      {
+        "decision": "Independent R6 source review",
+        "review": {
+          "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/resume-fabric-f4-native-review-20261022/5ffa94c54d8e74bbda80d3b092c65b3f31d7f789aa5dab82be6bd6a26e6fae26-review-final2/review.json",
+          "sha256": "91b2737eeed77682434082d4d82d88a5418bcc9b5742a38b327d8db8b3970540"
+        }
+      }
+    ],
+    "semantic_boundary": {
+      "property": "Sync hooks reject awaitables without implying that unknown async cleanup is complete.",
+      "implementation_and_tests": "Recognized native coroutine/Future values are closed/cancelled; tests prove rejection does not reopen session.get.",
+      "bounded_divergence": "A custom non-native awaitable returned by a sync close/cancel hook is not recursively traversed or guaranteed cleaned up; async hook bodies are not run."
+    }
+  },
+  "limitations": [
+    "BasedPyright is red (5 errors, 142 warnings over 15 files); no base replay supports an inherited classification.",
+    "Opaque custom awaitables from synchronous cleanup hooks are not awaited/recursively inspected; async cleanup needs a separate typed lifecycle contract.",
+    "No dedicated SDMX HEAD executor regression is recorded.",
+    "Broad backend/full suite and composed/global freeze remain outstanding; prior green lanes do not supersede BasedPyright.",
+    "Public/audit/API/dashboard surface is out of scope."
+  ],
+  "global_source_freeze": false,
+  "closure_ids": [],
+  "proposal_fields": {
+    "mechanism_proposal": "Retain committed guard for independent G review with cleanup residual and current BasedPyright failure attached.",
+    "finding_proposals": [],
+    "formal_close_proposal_ids": [],
+    "g_code_acceptance": false,
+    "local_checkpoint_status": "local committed candidate source; author receipt prepared for independent G review; remote publication pending",
+    "next_check": "Apply the separately authored shared-header repair and run a fresh source-bound BasedPyright/type closure and composed verification; do not rewrite this receipt.",
+    "pattern_pass": {
+      "relevant_ids": [
+        "P02",
+        "P10",
+        "P38",
+        "P40",
+        "P41"
+      ],
+      "existing_anti_patterns": [
+        "P02: sync callback guard does not govern distinct async executor path.",
+        "P38: custom awaitable cleanup differs from a completed-cleanup guarantee.",
+        "P41: new BasedPyright red lacks base replay."
+      ],
+      "target_pattern": "One shared callback guard with explicit cleanup ownership and real caller/sibling tests; unknown async disposal stays bounded.",
+      "missing_capability_labels": [
+        "verification_missing (BasedPyright fails)",
+        "semantic_test_missing (dedicated SDMX HEAD case)",
+        "surface_out_of_scope"
+      ],
+      "acceptance_signal": "Fresh shared-header repair passes source-bound BasedPyright on 15 sources, then composed verification."
+    }
+  },
+  "root_admission": {
+    "draft": {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/resume-b164-protected-writer-author-20261022-r1/compact-receipts-r2d/f1-fabric-sync-committed-mechanism-receipt-draft.json",
+      "sha256": "e52525afe4122e5c8bbd0f3f19e68a1ac298ffd761defcf70e0ebc84771230d0"
+    },
+    "source_commit_footprint_reconciled": 21,
+    "immutable_raw_refs_reconciled": 35,
+    "current_source_frame_at_receipt_preparation": {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/root-ir-reader-receipt-correction-commit-20261022-r1/full-composed-source-frame.json",
+      "sha256": "159bff540ca204a8d51c5fed43ea3de61a615bed099713954a8354d7fa8662d1"
+    },
+    "not_claimed": "Historical source evidence is not a new composed replay or G acceptance. Follow-up implementations retain separate evidence.",
+    "later_independently_reviewed_repair": {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/root-fabric-http-consumption-code-commit-20261022-r1/readback.json",
+      "sha256": "bac5ee485c0ea91fb1a52cd8309aa73aad46bfd49853d5e880d1ca41802f91a1"
+    },
+    "later_native_wave": {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/root-fabric-http-consumption-native-wave-20261022-r1/receipt.json",
+      "sha256": "f7605a453324b4d7b7bdafc4f36baec8756a3060f0de5a397f259d11ad320140"
+    },
+    "historical_basedpyright_failure_retained": true
+  }
+}

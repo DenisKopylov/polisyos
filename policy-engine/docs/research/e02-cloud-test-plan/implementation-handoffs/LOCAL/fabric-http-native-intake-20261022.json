@@ -1,0 +1,296 @@
+{
+  "schema": "e02-local-implementation-receipt-v1",
+  "status": "author_receipt_for_independent_G_review",
+  "slice": "HTTP native primitive and Content-Length intake",
+  "source": {
+    "checkout": "/Users/deniskopylov/.codex/worktrees/e02-unified-local-20261009/polisyos",
+    "branch": "codex/e02-unified-local-20261009",
+    "base": "a9a3f1a4d6c74c64bfbac59ea25d3ceb7ee2266a",
+    "candidate": "44e6804a306e3fb1a2833805fcd0cdd1b191474f",
+    "tree": "90df9c19b1e79359ddb3309e5e00781adcd82654",
+    "parents": [
+      "a9a3f1a4d6c74c64bfbac59ea25d3ceb7ee2266a"
+    ],
+    "changed_paths": [
+      {
+        "path": "policy-engine/src/polisyos/fabric/connectors/http_limits.py",
+        "sha256": "3575f9e43af7abcd1392d2ccb033547151e97f9a0095fa972b9f491a93defc68"
+      },
+      {
+        "path": "policy-engine/tests/unit/fabric/connectors/test_connection_state_contract.py",
+        "sha256": "310f13ce7fbdd9af6a70f7bb70c1a1254a728aae26b3955eaa34abf61bbfe483"
+      },
+      {
+        "path": "policy-engine/src/polisyos/fabric/connectors/README.md",
+        "sha256": "a98af858fdbffaeabd31fca94659c4c960fdfa867ca484d8276989dca0e9a6b7"
+      },
+      {
+        "path": "policy-engine/release-fragments/unreleased/2026-10-22-fabric-typed-runtime-state.toml",
+        "sha256": "bd87e28b52f9c61e4478d8b1f4b0f12690549c363f79bbf4bfd9c89b551e3d87"
+      }
+    ],
+    "readback": {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/root-fabric-http-consumption-code-commit-20261022-r1/readback.json",
+      "sha256": "bac5ee485c0ea91fb1a52cd8309aa73aad46bfd49853d5e880d1ca41802f91a1"
+    },
+    "composed_source_frame": {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/root-fabric-http-consumption-code-commit-20261022-r1/full-composed-source-frame.json",
+      "sha256": "51552f4ba40548dfddf1b24e0399f7368a222c68c0ced7ce57a1f0661aed5ca5"
+    }
+  },
+  "capability": {
+    "chain": "Seven actual production callers share the bounded-response intake; native bytes are normalized before length/PII/callback consumption. Present malformed Content-Length refuses before body reads. No new authority or publication claim.",
+    "surface": "Existing consumer behavior and typed failure paths; README/runbook/release surface. Whole E02 external consumer and publication capability is not established.",
+    "state": "verification_missing"
+  },
+  "selected_execution": {
+    "profile": "Existing locked local Python 3.14.3, canonical Ruff/MyPy/BasedPyright/pytest profiles; numerical threads fixed at one.",
+    "backend": "/Users/deniskopylov/.codex/worktrees/e02-unified-local-20261009/polisyos/policy-engine/.venv/bin/python",
+    "input": "Exact composed local source frame and deterministic test fixtures; production inputs not used.",
+    "configs": [
+      {
+        "path": "policy-engine/architecture/tooling/ruff/workspace_root.toml",
+        "sha256": "879bfc2fa77909e595e661679fdeb9c771c3d34308a52e7c41971114f6a4ed99"
+      },
+      {
+        "path": "policy-engine/architecture/tooling/mypy/generated.ini",
+        "sha256": "d58da5b568044f6156b50f49c4a08e08a773ff69bfae6d8f1dc2919f99e4b5ef"
+      },
+      {
+        "path": "policy-engine/basedpyright.toml",
+        "sha256": "c7921e8bf04131158f84ee1b3b28f9620ba7cc8cfa36c64cabd90478e958f1b2"
+      },
+      {
+        "path": "policy-engine/architecture/baselines/basedpyright/baseline.json",
+        "sha256": "8ceca56253ec877284553b09de0ff1295a75583a6a4fc2238ef002cf9518b6af"
+      },
+      {
+        "path": "policy-engine/pytest.ini",
+        "sha256": "61270205a9f573a090b3c051a4b78351e67308a49e21660dbf33e76186d799eb"
+      }
+    ],
+    "manifest": {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/root-fabric-http-consumption-native-wave-20261022-r1/manifest.json",
+      "sha256": "b35a25447e15070caa212d8ff36c35c925fee5bdf95151513603093387bf0c1d"
+    }
+  },
+  "verification": {
+    "wave": {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/root-fabric-http-consumption-native-wave-20261022-r1/receipt.json",
+      "sha256": "f7605a453324b4d7b7bdafc4f36baec8756a3060f0de5a397f259d11ad320140"
+    },
+    "source_unchanged": true,
+    "commands": [
+      {
+        "name": "ruff-check",
+        "argv": [
+          "/Users/deniskopylov/.codex/worktrees/e02-unified-local-20261009/polisyos/policy-engine/.venv/bin/python",
+          "-B",
+          "-m",
+          "tools.devx.workspace.ruff_sources",
+          "--manifest",
+          "/Users/deniskopylov/.codex/worktrees/e02-unified-local-20261009/polisyos/policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/root-fabric-http-consumption-native-wave-20261022-r1/ruff-manifest.json",
+          "--operation",
+          "check"
+        ],
+        "cwd": "/Users/deniskopylov/.codex/worktrees/e02-unified-local-20261009/polisyos/policy-engine",
+        "timeout_seconds": 90,
+        "exit_code": 0,
+        "timed_out": false,
+        "wall_seconds": 0.9905799159314483,
+        "stdout_sha256": "239d9aafbde51ab3f46581147a25a1bc98cfc0510640cdc7962405773e9d452b",
+        "stderr_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+        "stdout": {
+          "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/root-fabric-http-consumption-native-wave-20261022-r1/ruff-check.stdout",
+          "sha256": "239d9aafbde51ab3f46581147a25a1bc98cfc0510640cdc7962405773e9d452b"
+        },
+        "stderr": {
+          "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/root-fabric-http-consumption-native-wave-20261022-r1/ruff-check.stderr",
+          "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+        }
+      },
+      {
+        "name": "ruff-format-check",
+        "argv": [
+          "/Users/deniskopylov/.codex/worktrees/e02-unified-local-20261009/polisyos/policy-engine/.venv/bin/python",
+          "-B",
+          "-m",
+          "tools.devx.workspace.ruff_sources",
+          "--manifest",
+          "/Users/deniskopylov/.codex/worktrees/e02-unified-local-20261009/polisyos/policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/root-fabric-http-consumption-native-wave-20261022-r1/ruff-manifest.json",
+          "--operation",
+          "format-check"
+        ],
+        "cwd": "/Users/deniskopylov/.codex/worktrees/e02-unified-local-20261009/polisyos/policy-engine",
+        "timeout_seconds": 90,
+        "exit_code": 0,
+        "timed_out": false,
+        "wall_seconds": 0.9498974580783397,
+        "stdout_sha256": "6ecdbd13591cb21b88ffc577657116d35ba441ee64983275a2ad58c0c2a82bd4",
+        "stderr_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+        "stdout": {
+          "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/root-fabric-http-consumption-native-wave-20261022-r1/ruff-format-check.stdout",
+          "sha256": "6ecdbd13591cb21b88ffc577657116d35ba441ee64983275a2ad58c0c2a82bd4"
+        },
+        "stderr": {
+          "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/root-fabric-http-consumption-native-wave-20261022-r1/ruff-format-check.stderr",
+          "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+        }
+      },
+      {
+        "name": "mypy",
+        "argv": [
+          "/Users/deniskopylov/.codex/worktrees/e02-unified-local-20261009/polisyos/policy-engine/.venv/bin/python",
+          "-B",
+          "-m",
+          "mypy",
+          "--config-file",
+          "architecture/tooling/mypy/generated.ini",
+          "--no-incremental",
+          "--cache-dir=/dev/null",
+          "src/polisyos/fabric/connectors/base.py",
+          "src/polisyos/fabric/connectors/http_limits.py",
+          "src/polisyos/fabric/connectors/reference/sdmx.py",
+          "src/polisyos/fabric/connectors/sources/sdmx_source.py",
+          "src/polisyos/fabric/connectors/reference/rest_json.py",
+          "src/polisyos/fabric/connectors/sources/graphql_api.py",
+          "src/polisyos/fabric/connectors/sources/http_base.py",
+          "src/polisyos/fabric/connectors/reference/static_csv.py",
+          "src/polisyos/fabric/connectors/sources/file_tabular.py",
+          "src/polisyos/fabric/connectors/sources/geojson.py",
+          "src/polisyos/fabric/connectors/sources/event_stream.py",
+          "src/polisyos/fabric/connectors/sources/sql_query.py",
+          "src/polisyos/fabric/connectors/sources/sparql.py",
+          "src/polisyos/fabric/connectors/sources/socrata.py",
+          "src/polisyos/fabric/connectors/sources/opendatasoft.py"
+        ],
+        "cwd": "/Users/deniskopylov/.codex/worktrees/e02-unified-local-20261009/polisyos/policy-engine",
+        "timeout_seconds": 180,
+        "exit_code": 0,
+        "timed_out": false,
+        "wall_seconds": 28.922408958896995,
+        "stdout_sha256": "fc409d91e6c781eb25a1ec1310b7fcb0086b74ed3aa2c415bcd73f884f23f07a",
+        "stderr_sha256": "4f39f906c43e708245f42be3c31ace5e311d1dbafdc04093ad6820dfa6b37a16",
+        "stdout": {
+          "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/root-fabric-http-consumption-native-wave-20261022-r1/mypy.stdout",
+          "sha256": "fc409d91e6c781eb25a1ec1310b7fcb0086b74ed3aa2c415bcd73f884f23f07a"
+        },
+        "stderr": {
+          "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/root-fabric-http-consumption-native-wave-20261022-r1/mypy.stderr",
+          "sha256": "4f39f906c43e708245f42be3c31ace5e311d1dbafdc04093ad6820dfa6b37a16"
+        }
+      },
+      {
+        "name": "basedpyright",
+        "argv": [
+          "/Users/deniskopylov/.codex/worktrees/e02-unified-local-20261009/polisyos/policy-engine/.venv/bin/basedpyright",
+          "--baselinemode",
+          "lock",
+          "--project",
+          "/Users/deniskopylov/.codex/worktrees/e02-unified-local-20261009/polisyos/policy-engine/basedpyright.toml",
+          "--outputjson",
+          "src/polisyos/fabric/connectors/base.py",
+          "src/polisyos/fabric/connectors/http_limits.py",
+          "src/polisyos/fabric/connectors/reference/sdmx.py",
+          "src/polisyos/fabric/connectors/sources/sdmx_source.py",
+          "src/polisyos/fabric/connectors/reference/rest_json.py",
+          "src/polisyos/fabric/connectors/sources/graphql_api.py",
+          "src/polisyos/fabric/connectors/sources/http_base.py",
+          "src/polisyos/fabric/connectors/reference/static_csv.py",
+          "src/polisyos/fabric/connectors/sources/file_tabular.py",
+          "src/polisyos/fabric/connectors/sources/geojson.py",
+          "src/polisyos/fabric/connectors/sources/event_stream.py",
+          "src/polisyos/fabric/connectors/sources/sql_query.py",
+          "src/polisyos/fabric/connectors/sources/sparql.py",
+          "src/polisyos/fabric/connectors/sources/socrata.py",
+          "src/polisyos/fabric/connectors/sources/opendatasoft.py"
+        ],
+        "cwd": "/Users/deniskopylov/.codex/worktrees/e02-unified-local-20261009/polisyos/policy-engine",
+        "timeout_seconds": 90,
+        "exit_code": 0,
+        "timed_out": false,
+        "wall_seconds": 2.404123041080311,
+        "stdout_sha256": "ba6fe7873505ca6ad0a79b34f8eb19c171defe8c6e4abcb4795b7149493ce011",
+        "stderr_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+        "stdout": {
+          "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/root-fabric-http-consumption-native-wave-20261022-r1/basedpyright.stdout",
+          "sha256": "ba6fe7873505ca6ad0a79b34f8eb19c171defe8c6e4abcb4795b7149493ce011"
+        },
+        "stderr": {
+          "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/root-fabric-http-consumption-native-wave-20261022-r1/basedpyright.stderr",
+          "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+        }
+      },
+      {
+        "name": "pytest",
+        "argv": [
+          "/Users/deniskopylov/.codex/worktrees/e02-unified-local-20261009/polisyos/policy-engine/.venv/bin/python",
+          "-B",
+          "-m",
+          "pytest",
+          "-q",
+          "-o",
+          "cache_dir=/Users/deniskopylov/.codex/worktrees/e02-unified-local-20261009/polisyos/policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/root-fabric-http-consumption-native-wave-20261022-r1/pytest-cache",
+          "--basetemp=/Users/deniskopylov/.codex/worktrees/e02-unified-local-20261009/polisyos/policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/root-fabric-http-consumption-native-wave-20261022-r1/temp",
+          "--junitxml=/Users/deniskopylov/.codex/worktrees/e02-unified-local-20261009/polisyos/policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/root-fabric-http-consumption-native-wave-20261022-r1/junit.xml",
+          "tests/unit/fabric/connectors/reference/test_rest_json.py",
+          "tests/unit/fabric/connectors/test_connection_state_contract.py",
+          "tests/unit/fabric/connectors/sources/test_http_connector_base.py",
+          "tests/unit/fabric/connectors/reference/test_sdmx.py",
+          "tests/unit/fabric/connectors/sources/test_sdmx_source.py",
+          "tests/unit/fabric/connectors/test_schema_aware_cache.py",
+          "tests/unit/fabric/connectors/test_cache_system.py"
+        ],
+        "cwd": "/Users/deniskopylov/.codex/worktrees/e02-unified-local-20261009/polisyos/policy-engine",
+        "timeout_seconds": 180,
+        "exit_code": 0,
+        "timed_out": false,
+        "wall_seconds": 11.07977820909582,
+        "stdout_sha256": "6cebfcca89b970b4fcea1dc7afc5dfeec894828f68abf2eddb85b0192f3c52f4",
+        "stderr_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+        "stdout": {
+          "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/root-fabric-http-consumption-native-wave-20261022-r1/pytest.stdout",
+          "sha256": "6cebfcca89b970b4fcea1dc7afc5dfeec894828f68abf2eddb85b0192f3c52f4"
+        },
+        "stderr": {
+          "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/root-fabric-http-consumption-native-wave-20261022-r1/pytest.stderr",
+          "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+        }
+      }
+    ],
+    "junit": {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/root-fabric-http-consumption-native-wave-20261022-r1/junit.xml",
+      "sha256": "59c1d845d1b992edc555cd71482953d6113a0cd9f111b3558f18ad6c39ef5f92"
+    },
+    "junit_counts": {
+      "tests": 226,
+      "failures": 0,
+      "errors": 0,
+      "skipped": 0
+    },
+    "independent_reviews": [
+      {
+        "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/fabric-http-consumption-independent-20261022-r1/publish-r8-review-r1/independent-review.json",
+        "sha256": "d99fd2bb12f9b9f9cb65a2f3f2c00fdd735d419c7f5f72062bf8e430cb10b8f4"
+      }
+    ],
+    "adversarial_and_removal_packet": {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/resume-fabric-pass-context-r4-20261022/bp-header-consumption-r7/r8-author-packet-r2/author-packet.json",
+      "sha256": "cc7e9d34c8dea43e1e43d3f6132c0690d3f1ed8d6492eeab5f2836da7a7097b6"
+    },
+    "removal_result": "Exact-base mutant: 14 property failures, 3 valid-value controls pass. Independent candidate: 37 pass."
+  },
+  "limitations": [
+    "Fallback read materializes before actual-size rejection; chunk accumulation checks after append. Peak allocation is not bounded by this proof.",
+    "PII scanning happens after whole-body consumption.",
+    "BasedPyright retains 142 private-use warnings; no warning-free claim.",
+    "Full archive, installed, native SOTA and global E02 verification remain pending."
+  ],
+  "proposal_fields": {
+    "mechanism_proposal": "limited: implementation and focused behavior verified; acceptance and global closeout remain with independent G",
+    "finding_proposals": [],
+    "next_check": "Include exact postimages in final source/input/backend freeze, then run required authentic consumers, native gates and installed distributions."
+  },
+  "global_source_freeze": false,
+  "closure_ids": []
+}

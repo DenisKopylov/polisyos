@@ -1,0 +1,343 @@
+{
+  "schema": "e02-local-implementation-receipt-v1",
+  "status": "author_receipt_for_independent_G_review",
+  "slice": "F10 SourceContract dual schema access and runtime metadata contract",
+  "source": {
+    "checkout": "/Users/deniskopylov/.codex/worktrees/e02-unified-local-20261009/polisyos",
+    "branch": "codex/e02-unified-local-20261009",
+    "commit": "b3cc0d81811037c4bb0a4dd60a3bdec91e04e457",
+    "tree": "62bc7a5046f0fa33d7a255b50aa2978a3a23625a",
+    "parents": [
+      "781de8007105515f2c8b0140e73cacd6dfc946ae"
+    ],
+    "base": "781de8007105515f2c8b0140e73cacd6dfc946ae",
+    "base_tree": "3a2a97155c2786e85522af2ed40bf209a3aab0db",
+    "slice_base": "781de8007105515f2c8b0140e73cacd6dfc946ae",
+    "candidate": "b3cc0d81811037c4bb0a4dd60a3bdec91e04e457",
+    "candidate_tree": "62bc7a5046f0fa33d7a255b50aa2978a3a23625a",
+    "readback": {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/root-f10-source-contract-code-commit-20261022-r1/readback.json",
+      "sha256": "4860934e287220dd00548c230f1c1b3810a82a09e858004c3ffa657b2443fee3"
+    },
+    "composed_source_frame": {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/root-f10-source-contract-code-commit-20261022-r1/full-composed-source-frame.json",
+      "sha256": "9a9be12b789be26b2275ff81a17272200bf97be061d992ab1537100b87ebbfba"
+    },
+    "code_commit_manifest": {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/root-f10-source-contract-code-commit-manifest-20261022-r1.json",
+      "sha256": "4155d7b89ee2b0fb157d339f3d67be2dadd51dbcc4f404cc7aee69612f13c5fd"
+    },
+    "changed_paths": [
+      {
+        "path": "policy-engine/src/polisyos/fabric/connectors/contracts/source_contract.py",
+        "sha256": "1c9ba073eba4788a21cefe269a2838808207aaf37fe79cc8389cc84095cda0fe"
+      },
+      {
+        "path": "policy-engine/tests/unit/fabric/connectors/test_source_contract_v2.py",
+        "sha256": "74c452e397926465cf1f4659f2a1d31b4a1a865d3c29f122dbc994d6b46fdb3d"
+      },
+      {
+        "path": "policy-engine/release-fragments/unreleased/2026-10-22-e02-source-contract-schema-dual-access.toml",
+        "sha256": "9cd0ec255c3396c391d8c6f85a69a78cee159fd7e3eb32819fe5e6a728c85d04"
+      }
+    ],
+    "note": "Three committed path postimages are individually confirmed by git show at b3cc; native wave ran on those exact postimages at parent 781 before commit. The native precommit source frame is separately pinned below; global freeze remains false."
+  },
+  "capability": {
+    "contract_and_behavior": [
+      "SourceContract.schema instance access returns the typed SourceContractSchema descriptor while class access preserves inherited Pydantic schema behavior.",
+      "Factory keeps the established schema wire alias and schema_contract model field; before-field validation rejects unknown decision roles before Literal narrowing.",
+      "R11 removes only the unused TC001 noqa; reviewer independently found AST and non-comment tokens unchanged."
+    ],
+    "chain": "SourceContract contract and factory -> candidate source -> canonical source-contract and consumer tests -> typed/lint verification; no persisted domain artifact/event is added.",
+    "surface": "Internal Python contract and release-fragment description; no external/audit/API/dashboard surface or formal closure is claimed.",
+    "semantic_controls": [
+      "76 focused tests pass across the source-contract and two canonical fabric consumer/import suites.",
+      "Earlier R10 wave RUF100 failure is retained; R11 review is limited to the exact one-line lint correction.",
+      "R10 and R11 independent reviews both say GO within their stated delta scopes; neither grants global freeze or formal closure."
+    ]
+  },
+  "selected_execution": {
+    "input": "Three committed paths plus the two additional pytest targets in the native manifest.",
+    "backend": {
+      "kind": "existing local product Python environment",
+      "python": "policy-engine/.venv/bin/python",
+      "version": "Python 3.14.3",
+      "environment_copied_or_installed": false,
+      "shell": "/bin/bash"
+    },
+    "manifest": {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/root-f10-source-contract-native-wave-20261022-r2/manifest.json",
+      "sha256": "2dc37a269b96f305910530bf7284d8b0dd9eb8f1e5e88d291e7888fd56526b45"
+    },
+    "ruff_manifest": {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/root-f10-source-contract-native-wave-20261022-r2/ruff-manifest.json",
+      "sha256": "df82ac394bca2cfc4083427a47cfc7ea24c33d20f33c2725bbec7ddd035ccd3b"
+    },
+    "driver": {
+      "path": "LOCAL/raw/run-pinned-canonical-python-wave-20261022-r3.py",
+      "sha256": "d64cdf77e65db5e7c0df7bb9e3e3390362cabd722f8fa485b8f0291f1321d31f"
+    },
+    "profile": {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/root-f10-source-contract-native-wave-20261022-r2/confined-wave/profile.sb",
+      "sha256": "53ed5f35e00d8ce447bb71631cf79a2922fb441844878aed2c5ebdb6db6fa014"
+    },
+    "invocation": {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/root-f10-source-contract-native-wave-20261022-r2/confined-wave/invocation.json",
+      "sha256": "e5504347cdd0e94dead822a484e28e677f050c958fe531dac2e61b8b45f91479"
+    },
+    "runner_receipt": {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/root-f10-source-contract-native-wave-20261022-r2/confined-wave/receipt.json",
+      "sha256": "b28661d2dfeed9df541ad3a79125ceb47d6263f175438bd58785d9e512a4f602"
+    },
+    "configs": [
+      {
+        "path": "policy-engine/architecture/tooling/ruff/workspace_root.toml",
+        "candidate_commit_sha256": "879bfc2fa77909e595e661679fdeb9c771c3d34308a52e7c41971114f6a4ed99"
+      },
+      {
+        "path": "policy-engine/architecture/tooling/mypy/generated.ini",
+        "candidate_commit_sha256": "d58da5b568044f6156b50f49c4a08e08a773ff69bfae6d8f1dc2919f99e4b5ef"
+      },
+      {
+        "path": "policy-engine/pytest.ini",
+        "candidate_commit_sha256": "61270205a9f573a090b3c051a4b78351e67308a49e21660dbf33e76186d799eb"
+      },
+      {
+        "path": "policy-engine/basedpyright.toml",
+        "candidate_commit_sha256": "c7921e8bf04131158f84ee1b3b28f9620ba7cc8cfa36c64cabd90478e958f1b2"
+      },
+      {
+        "path": "policy-engine/pyproject.toml",
+        "candidate_commit_sha256": "5f65308cb088086b6fc0aa40a5bae6ed852ae3a2e261103bd0d4158d97c1e8f2"
+      }
+    ],
+    "test_targets": [
+      "tests/unit/fabric/connectors/test_source_contract_v2.py",
+      "tests/unit/fabric/test_decision_data_envelope.py",
+      "tests/unit/fabric/test_semantic_group_imports.py"
+    ]
+  },
+  "verification": {
+    "candidate_wave": {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/root-f10-source-contract-native-wave-20261022-r2/receipt.json",
+      "sha256": "7a15690d58a5c08f915486c66936fd52e85d58d3eb9d7909b16e6620eb089b88"
+    },
+    "runner_receipt": {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/root-f10-source-contract-native-wave-20261022-r2/confined-wave/receipt.json",
+      "sha256": "b28661d2dfeed9df541ad3a79125ceb47d6263f175438bd58785d9e512a4f602"
+    },
+    "native_precommit_source_frame": {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/root-f10-source-contract-r11-application-20261022-r1/full-composed-source-frame.json",
+      "sha256": "10314593e4d6c3e36d820b5bed09ab9c665007b577835b8169c8a59358fb3569"
+    },
+    "committed_source_frame": {
+      "path": {
+        "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/root-f10-source-contract-code-commit-20261022-r1/full-composed-source-frame.json",
+        "sha256": "9a9be12b789be26b2275ff81a17272200bf97be061d992ab1537100b87ebbfba"
+      },
+      "source_commit_readback": {
+        "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/root-f10-source-contract-code-commit-20261022-r1/readback.json",
+        "sha256": "4860934e287220dd00548c230f1c1b3810a82a09e858004c3ffa657b2443fee3"
+      }
+    },
+    "junit": {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/root-f10-source-contract-native-wave-20261022-r2/junit.xml",
+      "sha256": "0e415f2e50012b96b18696a798e47d3eddde9ea94ae556cac1d145395e562deb"
+    },
+    "commands": [
+      {
+        "name": "ruff-check",
+        "command_record": {
+          "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/root-f10-source-contract-native-wave-20261022-r2/receipt.json",
+          "sha256": "7a15690d58a5c08f915486c66936fd52e85d58d3eb9d7909b16e6620eb089b88"
+        },
+        "argv_is_recorded_in_command_receipt": true,
+        "exit_code": 0,
+        "timed_out": false,
+        "outputs": {
+          "stdout": {
+            "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/root-f10-source-contract-native-wave-20261022-r2/ruff-check.stdout",
+            "sha256": "43709748e8023e5a898835bdf2435eca6c9824301b5e44c63d77fd8a4974cda1"
+          },
+          "stderr": {
+            "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/root-f10-source-contract-native-wave-20261022-r2/ruff-check.stderr",
+            "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+          }
+        }
+      },
+      {
+        "name": "ruff-format-check",
+        "command_record": {
+          "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/root-f10-source-contract-native-wave-20261022-r2/receipt.json",
+          "sha256": "7a15690d58a5c08f915486c66936fd52e85d58d3eb9d7909b16e6620eb089b88"
+        },
+        "argv_is_recorded_in_command_receipt": true,
+        "exit_code": 0,
+        "timed_out": false,
+        "outputs": {
+          "stdout": {
+            "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/root-f10-source-contract-native-wave-20261022-r2/ruff-format-check.stdout",
+            "sha256": "544d7b95962ccb1832e51b18cf57370a4e22dd83d67cdf9c5e5e3a0b11b190f3"
+          },
+          "stderr": {
+            "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/root-f10-source-contract-native-wave-20261022-r2/ruff-format-check.stderr",
+            "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+          }
+        }
+      },
+      {
+        "name": "mypy",
+        "command_record": {
+          "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/root-f10-source-contract-native-wave-20261022-r2/receipt.json",
+          "sha256": "7a15690d58a5c08f915486c66936fd52e85d58d3eb9d7909b16e6620eb089b88"
+        },
+        "argv_is_recorded_in_command_receipt": true,
+        "exit_code": 0,
+        "timed_out": false,
+        "outputs": {
+          "stdout": {
+            "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/root-f10-source-contract-native-wave-20261022-r2/mypy.stdout",
+            "sha256": "5d4b6d285b77932e3d08212c3b4974d0a803f98ec60408ac6ccf6a063fa6c19e"
+          },
+          "stderr": {
+            "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/root-f10-source-contract-native-wave-20261022-r2/mypy.stderr",
+            "sha256": "4f39f906c43e708245f42be3c31ace5e311d1dbafdc04093ad6820dfa6b37a16"
+          }
+        }
+      },
+      {
+        "name": "basedpyright",
+        "command_record": {
+          "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/root-f10-source-contract-native-wave-20261022-r2/receipt.json",
+          "sha256": "7a15690d58a5c08f915486c66936fd52e85d58d3eb9d7909b16e6620eb089b88"
+        },
+        "argv_is_recorded_in_command_receipt": true,
+        "exit_code": 0,
+        "timed_out": false,
+        "outputs": {
+          "stdout": {
+            "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/root-f10-source-contract-native-wave-20261022-r2/basedpyright.stdout",
+            "sha256": "7a08683c8f690b86132f9e8fa2cc3b9f5923bf58aaa0f4ef6b2c9a66b96ac03c"
+          },
+          "stderr": {
+            "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/root-f10-source-contract-native-wave-20261022-r2/basedpyright.stderr",
+            "sha256": "e664314bdc5e1dd3cb6000cf2aea3aecde7508671018243af37b61dc66ec8be1"
+          }
+        }
+      },
+      {
+        "name": "pytest",
+        "command_record": {
+          "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/root-f10-source-contract-native-wave-20261022-r2/receipt.json",
+          "sha256": "7a15690d58a5c08f915486c66936fd52e85d58d3eb9d7909b16e6620eb089b88"
+        },
+        "argv_is_recorded_in_command_receipt": true,
+        "exit_code": 0,
+        "timed_out": false,
+        "outputs": {
+          "stdout": {
+            "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/root-f10-source-contract-native-wave-20261022-r2/pytest.stdout",
+            "sha256": "57ea088f392097ba57965e065d3d00d99c2038c2274f551c4d37a9f3111c117b"
+          },
+          "stderr": {
+            "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/root-f10-source-contract-native-wave-20261022-r2/pytest.stderr",
+            "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+          }
+        }
+      }
+    ],
+    "historical_red": {
+      "finding": "R10 native Ruff reported unused TC001 noqa (RUF100) on source line 20 before the one-line R11 correction.",
+      "wave_receipt": {
+        "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/root-f10-source-contract-native-wave-20261022-r1/receipt.json",
+        "sha256": "ad139aaf2840aca294a8e34da870f7c32e5f98304e3e45ff6a0663f74b0c29ec"
+      },
+      "ruff_output": {
+        "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/root-f10-source-contract-native-wave-20261022-r1/ruff-check.stdout",
+        "sha256": "7603095b77e95893420bd3c2cf45e8d354cb4b7bc3dfc4f09f4a7dfb70c71745"
+      },
+      "R11_correction_manifest": {
+        "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/resume-fabric-source-contract-f10-20261022/f10-source-contract-r11-ruff100-correction-r3/manifest.json",
+        "sha256": "5c61f8ab2781eaf9c00828ca0fe1a7fb84d644b0fa32318a67e28074a8692ef2"
+      },
+      "R11_semantic_comparison": {
+        "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/resume-fabric-source-contract-f10-20261022/f10-source-contract-r11-ruff100-correction-r3/semantic-comparison.json",
+        "sha256": "c4de5cfb00ca38ef0330855200de380dfa857a2b456560a83bbf60b84fb48d21"
+      }
+    },
+    "independent_reviews": [
+      {
+        "decision": "GO; exact R10 three-path source/test/release delta only; no global freeze or closure.",
+        "review": {
+          "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/resume-fabric-source-contract-f10-20261022/f10-independent-r10-delta-go-r2/review.json",
+          "sha256": "35e023f514f0f6e52bca66a2159e8a4e25f121d29cc7fc9d749d1f9f90a93b86"
+        }
+      },
+      {
+        "decision": "GO; exact one-line R11 RUF100 correction only; other gates not rerun by that reviewer.",
+        "review": {
+          "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/resume-fabric-source-contract-f10-20261022/f10-independent-r11-ruff100-delta-go-r1/review.json",
+          "sha256": "4e6ddd04527ca106a5080e7983b0cf7e26f72ddddd7ae83d5043862f4fe5bd8a"
+        }
+      }
+    ],
+    "summary": {
+      "pytest": {
+        "tests": 76,
+        "passed": 76,
+        "failed": 0,
+        "errors": 0,
+        "skipped": 0
+      },
+      "ruff_check": "PASS",
+      "ruff_format_check": "PASS",
+      "mypy": "PASS; one canonical source file; stderr retained and hash-bound",
+      "basedpyright": "PASS; one canonical source file",
+      "source_binding": "Native wave at 781 is bound to precommit postimages; readback git-show verifies all three postimages at b3cc."
+    }
+  },
+  "limitations": [
+    "The independent R10 review accepted only the exact three-path source/test/release package; the R11 review accepted only the one-file comment-only RUF100 repair.",
+    "No full Fabric/public-consumer inventory, composed E02 source freeze, formal G closure, package install/export proof, or external surface verification is claimed.",
+    "The native wave receipt records source_freeze=false and closure_ids=[]; positive tests are bounded witnesses."
+  ],
+  "global_source_freeze": false,
+  "closure_ids": [],
+  "proposal_fields": {
+    "mechanism_proposal": "Present the committed three-path SourceContract package for independent G review with prior RUF100 red and limited R10/R11 approvals attached.",
+    "finding_proposals": [],
+    "formal_close_proposal_ids": [],
+    "g_code_acceptance": false,
+    "local_checkpoint_status": "local committed candidate source; author receipt prepared for independent G review; remote publication pending",
+    "pattern_pass": {
+      "relevant_ids": [
+        "P01",
+        "P10",
+        "P38",
+        "P41"
+      ],
+      "target_pattern": "Preserve the typed schema facade, established alias, and real role-validation path under the canonical consumer tests.",
+      "missing_capability_labels": [
+        "global_freeze_pending",
+        "external_surface_out_of_scope",
+        "formal_closure_missing"
+      ],
+      "acceptance_signal": "Complete current-source freeze and independent G review over the committed composition."
+    },
+    "next_check": "Bind the current complete source/test/config inputs, keep negative role and schema-access cases in the composed suite, and obtain independent G review after the broader source freeze."
+  },
+  "root_admission": {
+    "draft": {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/resume-b164-protected-writer-author-20261022-r1/compact-receipts-r2d/f10-source-contract-committed-mechanism-receipt-draft.json",
+      "sha256": "b5d3870fb15d9b357bfa777256074be29088e9df835476531f10bb302a0b591a"
+    },
+    "source_commit_footprint_reconciled": 3,
+    "immutable_raw_refs_reconciled": 28,
+    "current_source_frame_at_receipt_preparation": {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/root-ir-reader-receipt-correction-commit-20261022-r1/full-composed-source-frame.json",
+      "sha256": "159bff540ca204a8d51c5fed43ea3de61a615bed099713954a8354d7fa8662d1"
+    },
+    "not_claimed": "Historical source evidence is not a new composed replay or G acceptance. Follow-up implementations retain separate evidence."
+  }
+}

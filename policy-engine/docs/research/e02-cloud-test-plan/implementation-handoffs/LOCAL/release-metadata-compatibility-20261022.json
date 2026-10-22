@@ -1,0 +1,258 @@
+{
+  "schema": "e02-local-implementation-receipt-v1",
+  "status": "author_receipt_for_independent_G_review",
+  "slice": "E02 release classification and persisted-artifact operator guidance",
+  "source": {
+    "checkout": "/Users/deniskopylov/.codex/worktrees/e02-unified-local-20261009/polisyos",
+    "branch": "codex/e02-unified-local-20261009",
+    "base": "d79195302b77ea542a16f850eacf68f090249936",
+    "candidate": "a9a3f1a4d6c74c64bfbac59ea25d3ceb7ee2266a",
+    "tree": "03e17b079f28d64d962ffe80a3de006bf9ea02e3",
+    "parents": [
+      "d79195302b77ea542a16f850eacf68f090249936"
+    ],
+    "changed_paths": [
+      {
+        "path": "policy-engine/docs/runbooks/migration-release-promotion.md",
+        "sha256": "ad4152ef5996f4a1a9ffd05d3380682201f055f9c330b1d5e6d8f2605266b98a"
+      },
+      {
+        "path": "policy-engine/docs/runbooks/index.md",
+        "sha256": "df5637e913f4ea14bef80ac808f16e39e0f30a8c8717ffe5525a4887ef08798e"
+      },
+      {
+        "path": "policy-engine/docs/runbooks/e02-persisted-artifact-compatibility.md",
+        "sha256": "2b945dcbed59b6321b1b07234b9c37666ba35d142eeb0c1a3bb4cf555ee65060"
+      },
+      {
+        "path": "policy-engine/release-fragments/unreleased/2026-10-07-e02-b53-producer-publication-reconciliation.toml",
+        "sha256": "4c3043ea1819cafe03e8d468b26a623b1d51c67fc55404a265a2ef9048719e90"
+      },
+      {
+        "path": "policy-engine/release-fragments/unreleased/2026-10-12-e02-empirical-predictive-calibration.toml",
+        "sha256": "d8bbc8da017207d752006ad768399911158446a92111c748c82c76925b173f13"
+      },
+      {
+        "path": "policy-engine/release-fragments/unreleased/2026-10-19-e02-n4-outcome-binding.toml",
+        "sha256": "4e18f18b02238648cf9a2682a3b251d4eb405fca6376fe9cbd75caec879e4e52"
+      },
+      {
+        "path": "policy-engine/release-fragments/unreleased/2026-10-20-data-snapshot-owner-lineage.toml",
+        "sha256": "66e653030adeadce50ee1e5dbfc03d3cd2144d5a277e46374cd8c9b012b8b1a1"
+      },
+      {
+        "path": "policy-engine/release-fragments/unreleased/2026-10-20-e02-b200-artifact-aware-aggregation.toml",
+        "sha256": "a7f621136d3e382c7a8dd38260c09b4cfc77501a76b94261d66d22b1a54811fe"
+      },
+      {
+        "path": "policy-engine/release-fragments/unreleased/2026-10-20-e02-nl-profiled-run-intake.toml",
+        "sha256": "a0a25a3353e24961df387e1964a9430466f026b26ce9f7ebce142f438a7b1eeb"
+      },
+      {
+        "path": "policy-engine/release-fragments/unreleased/2026-10-20-e02-selected-objective-score-binding.toml",
+        "sha256": "0068fea3c26ce444aff6b592f10253515b9d2409d9d9ea435ab5dc7f725dc63d"
+      },
+      {
+        "path": "policy-engine/release-fragments/unreleased/2026-10-20-e02-governance-report-currentness.toml",
+        "sha256": "d6df282ba90e5944da1ff3f444772bffa0848ea26dfda856f0baf6126c3c245f"
+      },
+      {
+        "path": "policy-engine/release-fragments/unreleased/2026-10-20-e02-runtime-observational-method-intent.toml",
+        "sha256": "68738628aa963f31ad61aa12a15b4d12d266a6b39d8c3b9fbcff1f41fab46a19"
+      }
+    ],
+    "readback": {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/root-release-metadata-code-commit-20261022-r1/readback.json",
+      "sha256": "f344b5d8822f7b31a4a4789849fd60dde17456d2e3ab5c2c4251121b4b7f9cbf"
+    },
+    "composed_source_frame": {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/root-release-metadata-code-commit-20261022-r1/full-composed-source-frame.json",
+      "sha256": "adfe1db96e0a92fb8e56eb68bb6043b940914a315da9583cd0bf5665195b6a72"
+    }
+  },
+  "capability": {
+    "chain": "Real persisted CAS compatibility and ordinary POST/new-intent, completed replay and fresh GET semantics drive migration guidance; strict native gate consumes every current fragment. Public API review remains separate.",
+    "surface": "Existing consumer behavior and typed failure paths; README/runbook/release surface. Whole E02 external consumer and publication capability is not established.",
+    "state": "verification_missing"
+  },
+  "selected_execution": {
+    "profile": "Existing locked local Python 3.14.3, canonical Ruff/MyPy/BasedPyright/pytest profiles; numerical threads fixed at one.",
+    "backend": "/Users/deniskopylov/.codex/worktrees/e02-unified-local-20261009/polisyos/policy-engine/.venv/bin/python",
+    "input": "Exact composed local source frame and deterministic test fixtures; production inputs not used.",
+    "configs": [
+      {
+        "path": "policy-engine/architecture/tooling/ruff/workspace_root.toml",
+        "sha256": "879bfc2fa77909e595e661679fdeb9c771c3d34308a52e7c41971114f6a4ed99"
+      },
+      {
+        "path": "policy-engine/architecture/tooling/mypy/generated.ini",
+        "sha256": "d58da5b568044f6156b50f49c4a08e08a773ff69bfae6d8f1dc2919f99e4b5ef"
+      },
+      {
+        "path": "policy-engine/basedpyright.toml",
+        "sha256": "c7921e8bf04131158f84ee1b3b28f9620ba7cc8cfa36c64cabd90478e958f1b2"
+      },
+      {
+        "path": "policy-engine/architecture/baselines/basedpyright/baseline.json",
+        "sha256": "8ceca56253ec877284553b09de0ff1295a75583a6a4fc2238ef002cf9518b6af"
+      },
+      {
+        "path": "policy-engine/pytest.ini",
+        "sha256": "61270205a9f573a090b3c051a4b78351e67308a49e21660dbf33e76186d799eb"
+      }
+    ],
+    "manifest": {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/root-release-metadata-native-wave-20261022-r1/manifest.json",
+      "sha256": "c7869a2ea42431ec222ae18912e07bab7aa00f6745262c8dfe772c4c501bdcab"
+    }
+  },
+  "verification": {
+    "wave": {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/root-release-metadata-native-wave-20261022-r1/receipt.json",
+      "sha256": "f72da50ae2a0efe268fda6202c03c7cde61ec9f4237cb58b785748835447c206"
+    },
+    "source_unchanged": true,
+    "commands": [
+      {
+        "name": "ruff-check",
+        "argv": [
+          "/Users/deniskopylov/.codex/worktrees/e02-unified-local-20261009/polisyos/policy-engine/.venv/bin/python",
+          "-B",
+          "-m",
+          "tools.devx.workspace.ruff_sources",
+          "--manifest",
+          "/Users/deniskopylov/.codex/worktrees/e02-unified-local-20261009/polisyos/policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/root-release-metadata-native-wave-20261022-r1/ruff-manifest.json",
+          "--operation",
+          "check"
+        ],
+        "cwd": "/Users/deniskopylov/.codex/worktrees/e02-unified-local-20261009/polisyos/policy-engine",
+        "timeout_seconds": 90,
+        "exit_code": 0,
+        "timed_out": false,
+        "wall_seconds": 0.24114475003443658,
+        "stdout_sha256": "3da2f5b857c9530611c274470a1b00be6c236b8141f9782f7b867a63c1f11f29",
+        "stderr_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+        "stdout": {
+          "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/root-release-metadata-native-wave-20261022-r1/ruff-check.stdout",
+          "sha256": "3da2f5b857c9530611c274470a1b00be6c236b8141f9782f7b867a63c1f11f29"
+        },
+        "stderr": {
+          "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/root-release-metadata-native-wave-20261022-r1/ruff-check.stderr",
+          "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+        }
+      },
+      {
+        "name": "ruff-format-check",
+        "argv": [
+          "/Users/deniskopylov/.codex/worktrees/e02-unified-local-20261009/polisyos/policy-engine/.venv/bin/python",
+          "-B",
+          "-m",
+          "tools.devx.workspace.ruff_sources",
+          "--manifest",
+          "/Users/deniskopylov/.codex/worktrees/e02-unified-local-20261009/polisyos/policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/root-release-metadata-native-wave-20261022-r1/ruff-manifest.json",
+          "--operation",
+          "format-check"
+        ],
+        "cwd": "/Users/deniskopylov/.codex/worktrees/e02-unified-local-20261009/polisyos/policy-engine",
+        "timeout_seconds": 90,
+        "exit_code": 0,
+        "timed_out": false,
+        "wall_seconds": 0.18695108406245708,
+        "stdout_sha256": "2980d98bfccd92476c9bd378676a71f511442c92aee1daf6c1ef26142900983c",
+        "stderr_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+        "stdout": {
+          "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/root-release-metadata-native-wave-20261022-r1/ruff-format-check.stdout",
+          "sha256": "2980d98bfccd92476c9bd378676a71f511442c92aee1daf6c1ef26142900983c"
+        },
+        "stderr": {
+          "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/root-release-metadata-native-wave-20261022-r1/ruff-format-check.stderr",
+          "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+        }
+      },
+      {
+        "name": "pytest",
+        "argv": [
+          "/Users/deniskopylov/.codex/worktrees/e02-unified-local-20261009/polisyos/policy-engine/.venv/bin/python",
+          "-B",
+          "-m",
+          "pytest",
+          "-q",
+          "-o",
+          "cache_dir=/Users/deniskopylov/.codex/worktrees/e02-unified-local-20261009/polisyos/policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/root-release-metadata-native-wave-20261022-r1/pytest-cache",
+          "--basetemp=/Users/deniskopylov/.codex/worktrees/e02-unified-local-20261009/polisyos/policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/root-release-metadata-native-wave-20261022-r1/temp",
+          "--junitxml=/Users/deniskopylov/.codex/worktrees/e02-unified-local-20261009/polisyos/policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/root-release-metadata-native-wave-20261022-r1/junit.xml",
+          "tests/repo_quality/architecture/test_repository_best_in_class_phase5_10_compatibility_release_gates.py"
+        ],
+        "cwd": "/Users/deniskopylov/.codex/worktrees/e02-unified-local-20261009/polisyos/policy-engine",
+        "timeout_seconds": 180,
+        "exit_code": 0,
+        "timed_out": false,
+        "wall_seconds": 50.21533079096116,
+        "stdout_sha256": "51e313688c5e7bfd380316362ed54e7261ec924e6081d9f79446a3f8b94c6120",
+        "stderr_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+        "stdout": {
+          "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/root-release-metadata-native-wave-20261022-r1/pytest.stdout",
+          "sha256": "51e313688c5e7bfd380316362ed54e7261ec924e6081d9f79446a3f8b94c6120"
+        },
+        "stderr": {
+          "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/root-release-metadata-native-wave-20261022-r1/pytest.stderr",
+          "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+        }
+      }
+    ],
+    "junit": {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/root-release-metadata-native-wave-20261022-r1/junit.xml",
+      "sha256": "a8b5782e15e6d765828065e3e0ca7204b9bdc8425885219e38195bfbfc981de3"
+    },
+    "junit_counts": {
+      "tests": 103,
+      "failures": 0,
+      "errors": 0,
+      "skipped": 0
+    },
+    "independent_reviews": [
+      {
+        "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/resume-ir-pass-surface-native-author-r2-20261022/release-metadata-independent-r1/r6-final-review-20261022/review.json",
+        "sha256": "6475b940a24edacaa690a5eb703a046876aef7b95affb07339c6bf57a48eda8d"
+      },
+      {
+        "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/resume-ir-pass-surface-native-author-r2-20261022/release-metadata-independent-r1/r7-final-review-20261022-r2/review.json",
+        "sha256": "105aa7415de778cc14c5a12202d37c55279a36855fb75bf79faa0f2801cf6acd"
+      }
+    ],
+    "strict_gate": {
+      "receipt": {
+        "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/root-release-metadata-strict-gate-20261022-r1/gate/receipt.json",
+        "sha256": "9d452dffa5685c660588148771edf6194e143ca22862b4779e34ef301183b979"
+      },
+      "stdout": {
+        "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/root-release-metadata-strict-gate-20261022-r1/gate/stdout",
+        "sha256": "4c3785d26eda6740d2f38e5231fdd9b4935135dae3d28c2593160556ccbf615d"
+      },
+      "stderr": {
+        "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/root-release-metadata-strict-gate-20261022-r1/gate/stderr",
+        "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+      },
+      "source_binding": {
+        "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/root-release-metadata-strict-gate-20261022-r1/source-binding.json",
+        "sha256": "0d57ebcdfe402959d38c1e895b6746614025698086b5f343e6173534c331ae23"
+      },
+      "exit_code": 1,
+      "errors": 31,
+      "error_class": "public-surface-review"
+    }
+  },
+  "limitations": [
+    "Strict release gate remains FAIL: all 31 errors require actual public-surface review. Markers remain false.",
+    "Retry test counts the first event before retry; no second event is established by the producer early-return before its sole append callback.",
+    "No production or authority input is established by documentation or test success.",
+    "Global source/input/backend freeze and integration acceptance remain pending."
+  ],
+  "proposal_fields": {
+    "mechanism_proposal": "limited: implementation and focused behavior verified; acceptance and global closeout remain with independent G",
+    "finding_proposals": [],
+    "next_check": "Include exact postimages in final source/input/backend freeze, then run required authentic consumers, native gates and installed distributions."
+  },
+  "global_source_freeze": false,
+  "closure_ids": []
+}

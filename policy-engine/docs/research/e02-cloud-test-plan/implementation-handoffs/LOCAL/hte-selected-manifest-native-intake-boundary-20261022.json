@@ -221,9 +221,113 @@
       }
     ],
     "first_native_iteration": "The first canonical run failed before the new consumer assertions because instance monkeypatching a frozen adapter was invalid. The reviewed R5 fixture repair resolves this; that failed output remains retained.",
-    "removal_control": "Pending a source-bound mutation probe; negative input tests above are not relabeled as a removal run.",
+    "removal_control": "Completed for the selected model_dump Mapping-shape/narrowing property by the source-bound r4 mutation probe; authorial evidence only, no finding closure. See removal_control_history and removal_control_r4 for prior state and bounded result.",
     "native_whole_gate_status": "UNRUN: full architecture/native/backend/CI parity, SOTA rows, generated/installed wheel/sdist and composed Runtime consumers remain required.",
-    "commit_hooks": "Ordinary pre-commit ran. Frontend checks skipped by staged-path selection; those skips are not Python/native evidence."
+    "commit_hooks": "Ordinary pre-commit ran. Frontend checks skipped by staged-path selection; those skips are not Python/native evidence.",
+    "removal_control_history": [
+      {
+        "status": "superseded historical state",
+        "text": "Pending a source-bound mutation probe; negative input tests above are not relabeled as a removal run.",
+        "preserved_before_update": true
+      }
+    ],
+    "removal_control_r4": {
+      "status": "expected mutant failure; probe completed",
+      "classification": "authorial probe; no formal closure",
+      "evidence_kind": "source-bound behavioral removal control",
+      "property": "A present selected HTE manifest whose model_dump returns a non-Mapping must fail closed as hte_manifest_invalid rather than reach Mapping access or become absence/default.",
+      "mutation": {
+        "base_source": {
+          "head": "f22f5f7af6349d3706cb64f564fe068ce14ba587",
+          "tree": "a8594fe9b10f7e58c14142449e8c3a985f7c5130",
+          "path": "policy-engine/src/polisyos/ir/analytics/hte.py",
+          "sha256": "3e6c014da11c7179d829ed862928829210e942112f33552c85a3c9b4657401b2"
+        },
+        "mutant_path": "mutant/polisyos/ir/analytics/hte.py",
+        "mutant_sha256": "db00869b93cb9556bc06343a2ae4df0637b8a5ca24aa99b1f37e10b82e756b3a",
+        "patch_path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/resume-hte-native-mapping-20261022-r1/proposal-removal-control-20261022-r4/mutation.patch",
+        "patch_sha256": "d0c161c4268cc7aae82c7df0e041f459bcc66c3e088c875bef4989e7ad0ed21e",
+        "change": "Removed only model_dump Mapping guard and dict narrowing by setting payload = dumped. Kept separate manifest-not-mapping else/refusal branch and unchanged tests."
+      },
+      "test_source": {
+        "path": "policy-engine/tests/unit/ir/test_hte_outcome_contract.py",
+        "sha256": "80f6c96eb36dc639622c8e310463f80d4b2f2f23a2a272ba3821eb99acd05096"
+      },
+      "command": {
+        "argv": [
+          "/Users/deniskopylov/.codex/worktrees/e02-unified-local-20261009/polisyos/policy-engine/.venv/bin/python",
+          "-B",
+          "/Users/deniskopylov/.codex/worktrees/e02-unified-local-20261009/polisyos/policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/resume-hte-native-mapping-20261022-r1/proposal-removal-control-20261022-r4/commands/run_removal_control.py"
+        ],
+        "cwd": "/Users/deniskopylov/.codex/worktrees/e02-unified-local-20261009/polisyos/policy-engine",
+        "driver": "commands/run_removal_control.py",
+        "driver_process_exit_code": 0,
+        "driver_sha256": "cc49e18a81dff7dbc24ecdb5796516bdf15231817018391169efb6a40d72b602",
+        "pytest_exit_code_expected": 1,
+        "pytest_exit_code_from_driver": 1,
+        "test_node_ids": [
+          "tests/unit/ir/test_hte_outcome_contract.py::test_hte_manifest_mapping_path_still_checks_selected_identity",
+          "tests/unit/ir/test_hte_outcome_contract.py::test_hte_manifest_rejects_non_mapping_model_dump"
+        ],
+        "timeout_seconds": 25
+      },
+      "runner": {
+        "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/resume-hte-native-mapping-20261022-r1/proposal-removal-control-20261022-r4/commands/run_removal_control.py",
+        "sha256": "cc49e18a81dff7dbc24ecdb5796516bdf15231817018391169efb6a40d72b602"
+      },
+      "binding": {
+        "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/resume-hte-native-mapping-20261022-r1/proposal-removal-control-20261022-r4/module-bindings.json",
+        "sha256": "9b6900b37ab83f42aafeb3e1f76ee433c64368038040a16b75cfdbfa174c7d18",
+        "loaded_core_cas_module_count": 29,
+        "outside_canonical_source_root": []
+      },
+      "result": {
+        "direct_mapping_control": "PASS",
+        "failure_message": "AttributeError: 'list' object has no attribute 'get'",
+        "junit_cases": 2,
+        "junit_errors": 0,
+        "junit_failed": 1,
+        "junit_passed": 1,
+        "malformed_present_model_dump_removal_control": "FAILS as expected: AttributeError at payload.get('schema'), instead of ValueError hte_manifest_invalid"
+      },
+      "wrapper_receipt": {
+        "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/resume-hte-native-mapping-20261022-r1/proposal-removal-control-20261022-r4/receipt.json",
+        "sha256": "b8caa5a3bde1f096fc7311d90ccb29fcfe05a1eb9fbc16b0de693e0e5112794b",
+        "exit_code": 0,
+        "timed_out": false
+      },
+      "complete_outputs": [
+        {
+          "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/resume-hte-native-mapping-20261022-r1/proposal-removal-control-20261022-r4/stdout",
+          "sha256": "40bf448226271e0e0d1572bbf6597754f2946a1dea91c0635c123b2feab80e7d"
+        },
+        {
+          "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/resume-hte-native-mapping-20261022-r1/proposal-removal-control-20261022-r4/stderr",
+          "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+        },
+        {
+          "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/resume-hte-native-mapping-20261022-r1/proposal-removal-control-20261022-r4/commands/pytest.stdout",
+          "sha256": "049ede138bd6d0f6f8b35b22a793f864978c7d98c8f15522321419a4960714a6"
+        },
+        {
+          "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/resume-hte-native-mapping-20261022-r1/proposal-removal-control-20261022-r4/commands/pytest.stderr",
+          "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+        },
+        {
+          "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/resume-hte-native-mapping-20261022-r1/proposal-removal-control-20261022-r4/junit.xml",
+          "sha256": "0fa115af8d4360a8c21ed14875a134ed64effb7c967c26584b8ebeea1c2afb7a"
+        },
+        {
+          "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/resume-hte-native-mapping-20261022-r1/proposal-removal-control-20261022-r4/invocation.json",
+          "sha256": "9af246b6c1d7431dc57661b3abd532fefa4a7fbdb53b5a62b5516182a63939ff"
+        }
+      ],
+      "scope_limit": "The direct raw-Mapping identity control remains PASS because mutation removed only the model_dump Mapping guard. The malformed model_dump control fails with AttributeError at payload.get instead of hte_manifest_invalid, proving the selected guard is necessary. This does not establish broader producer, Runtime, Search/GP, production-currentness, or formal closure.",
+      "control_manifest": {
+        "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/resume-hte-native-mapping-20261022-r1/proposal-removal-control-20261022-r4/control-manifest.json",
+        "sha256": "40c9dda662c37e08a82181e2c99cf1e5a35de4925e392b6db4bedf327d1db499"
+      }
+    }
   },
   "limitations": [
     "The one BasedPyright private-usage warning is retained; no warning-free claim.",
@@ -235,7 +339,7 @@
     "mechanism_proposal": "limited: implemented and focused native behavior verified on the declared composition.",
     "finding_proposals": [],
     "formal_close_proposal_ids": [],
-    "next_check": "Retain the mutation probe, compose Runtime/Search/GP and other selected producer contracts, freeze exact source/profile/backend inputs, then run composed native and installed consumers."
+    "next_check": "Retain bounded r4 mutation evidence; compose the selected producer contract with Runtime/Search/GP consumers, freeze exact source/profile/backend inputs, and run the composed native and installed consumers. No finding closure is proposed by this update."
   },
   "decision_pointers": [
     "G architecture 798bd1ab9646378f49fd127b3f04ebe71aca67d2: retain point when interval is unavailable; explicit conditional native interval scope; refuse unsupported fallback interval claims."

@@ -1,0 +1,482 @@
+{
+  "schema": "e02-local-implementation-receipt-v1",
+  "status": "author_receipt_for_independent_G_review",
+  "slice": "Core ArtifactID native-text validation; IR artifact-reference normalization; typed pass and lineage reader boundaries",
+  "source": {
+    "checkout": "/Users/deniskopylov/.codex/worktrees/e02-unified-local-20261009/polisyos",
+    "branch": "codex/e02-unified-local-20261009",
+    "commit": "dccea950845cda5b38f026e7770c07819d31f4d9",
+    "tree": "2eb62018fcea2156834fa73cf7bc83adec5996e0",
+    "parents": [
+      "f22f5f7af6349d3706cb64f564fe068ce14ba587"
+    ],
+    "readback": {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/root-ir-artifact-reader-code-commit-20261022-r1/readback.json",
+      "sha256": "0d46f5ba1ed840c611e103f266522cdde56adf3bb66dd0dcaf0d871001e613ba"
+    },
+    "applied_source_frame": {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/root-ir-artifact-reader-code-commit-20261022-r1/full-composed-source-frame.json",
+      "sha256": "6b36026badfd832e3f18f2415f18f9218f309f4eddbff8667c65375b5ee7ee0d"
+    },
+    "changed_paths": [
+      {
+        "path": "policy-engine/src/polisyos/core/artifacts/ids.py",
+        "sha256": "e46213eeae53c59cf2f2b307851242d547e4c069aa08d8e30c5092c864be76c3"
+      },
+      {
+        "path": "policy-engine/src/polisyos/ir/artifacts/contracts.py",
+        "sha256": "95070123cdfeca860fc99a5d7f7eab93fd8dfd7128eef21bdaee6156079f4798"
+      },
+      {
+        "path": "policy-engine/src/polisyos/ir/artifacts/lineage.py",
+        "sha256": "51c4450db9790ee5385103a2c3ae61feead37de7ce87d446a204e8d6086b85ca"
+      },
+      {
+        "path": "policy-engine/src/polisyos/ir/passes/base.py",
+        "sha256": "c56ba17af85b7bb088682a62e0e97749ee1609c30eb3221f2fbb1b95c78fa619"
+      },
+      {
+        "path": "policy-engine/src/polisyos/ir/passes/core.py",
+        "sha256": "f38967a443657fd14a423d518f8bf90b2373c7d0ba090193269786042d444197"
+      },
+      {
+        "path": "policy-engine/tests/unit/core/artifacts/test_artifact_id_native_string_validation.py",
+        "sha256": "2780f84957fa960d68bd5aaff590051eb0657e20a550553c7651c129ed6a36dc"
+      },
+      {
+        "path": "policy-engine/tests/unit/ir/artifacts/test_artifact_id_native_string_validation.py",
+        "sha256": "1a5620eb310b62b9899ca7c25140f830ca3e1afd89247846f0a60e8285e59a76"
+      },
+      {
+        "path": "policy-engine/tests/unit/core/artifacts/test_artifact_id_serialization_contract.py",
+        "sha256": "46ed362c16d86e2c62adc3c16f7bac6d424f0047ca84ce0ea4e42b743f967ca1"
+      },
+      {
+        "path": "policy-engine/tests/unit/ir/registry/test_refs.py",
+        "sha256": "e0b777f25c7aaa83714c76fc7bf58a89b7cefb9fac484618575d276ae04ab2fc"
+      },
+      {
+        "path": "policy-engine/tests/unit/ir/test_phase2_passes.py",
+        "sha256": "5e0477b30cb3736f7e4ef7ddefe73891a15da8c704347593dfea26a790ba0bd5"
+      }
+    ],
+    "note": "The focused composed wave ran at parent HEAD f22f5f7 but its candidate path hashes match all 10 postimages later read back from dccea950. This is source-hash-bound evidence, not a post-commit rerun or whole-source freeze.",
+    "base": "f22f5f7af6349d3706cb64f564fe068ce14ba587",
+    "candidate": "dccea950845cda5b38f026e7770c07819d31f4d9"
+  },
+  "capability": {
+    "contract_and_behavior": [
+      "Core and IR ArtifactID boundaries normalize native str payloads before subclass-overridable string operations can falsify canonical ID text, preserving established non-string callback behavior and malformed-input refusal.",
+      "IR artifact-ref normalization preserves all supplied Mapping/model_dump keys for strict InputRef validation; malformed dataclass metadata or supplied fields absent from the persisted projection refuse instead of becoming legacy absence.",
+      "PassContext.require_as checks consumed runtime values; lineage validates IDs/task bindings, needs only callable get_manifest for explicit-ID analysis, and leaves iter_artifact_ids optional when IDs are supplied."
+    ],
+    "chain": "Existing Core CAS/manifest reader and IR artifact-ref, lineage, and pass consumers; no new authority producer or external claim.",
+    "surface": "Existing Core/IR APIs and facades retained; no public export or DTO schema changes. Full E02 Runtime/Search/GP and installed-package consumers are outside this slice.",
+    "semantic_controls": [
+      "Hostile str subclass dispatch cannot change normalized prefix/text; derived-prefix and non-string callback observability/refusal controls remain.",
+      "Mapping items() omission, model_dump omission, duplicate/non-string keys, and enumerated key without a value are refused through one strict normalization seam.",
+      "Actual dataclass instance vs class marker/faux metadata, ClassVar/InitVar, metadata coherence, unknown public fields, inheritance, and slots have explicit controls.",
+      "Existing selected CAS identity/tenant and foreign Core/IR ArtifactID serialization controls remain in the 54-test composed run.",
+      "Typed pass values and malformed falsey root inputs refuse; valid empty roots preserve fallback; explicit roots change lineage output and optional enumeration remains optional."
+    ]
+  },
+  "selected_execution": {
+    "input": "10 committed source/test path postimages plus local generated unit fixtures; no production payload or external authority input.",
+    "backend": {
+      "kind": "existing locked local product Python environment",
+      "python": "/Users/deniskopylov/.codex/worktrees/e02-unified-local-20261009/polisyos/policy-engine/.venv/bin/python",
+      "version": "Python 3.14.3",
+      "environment_copied_or_installed": false
+    },
+    "sandbox_profile": {
+      "profile": {
+        "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/root-ir-reader-artifact-native-composed-wave-20261022-r1/native-run-r1/profile.sb",
+        "sha256": "08e0fe81db3e3bb34c1ec05e3d0bdbc995edfcaffcf07917085ee0c9fc4c5790"
+      },
+      "invocation": {
+        "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/root-ir-reader-artifact-native-composed-wave-20261022-r1/native-run-r1/invocation.json",
+        "sha256": "0c8cb6a4f1a3189569f9a3ebc06183096fda9d9debe525eaa6ad5503fa215209"
+      },
+      "argv": [
+        "/usr/bin/sandbox-exec",
+        "-f",
+        "/Users/deniskopylov/.codex/worktrees/e02-unified-local-20261009/polisyos/policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/root-ir-reader-artifact-native-composed-wave-20261022-r1/native-run-r1/profile.sb",
+        "/Users/deniskopylov/.codex/worktrees/e02-unified-local-20261009/polisyos/policy-engine/.venv/bin/python",
+        "-B",
+        "/Users/deniskopylov/.codex/worktrees/e02-unified-local-20261009/polisyos/LOCAL/raw/run-pinned-canonical-python-wave-20261022-r2.py",
+        "/Users/deniskopylov/.codex/worktrees/e02-unified-local-20261009/polisyos/policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/root-ir-reader-artifact-native-composed-wave-20261022-r1/manifest.json"
+      ],
+      "launcher_sha256": "ad6b54ae6986190c44fcaa1996fb807c66624c0cf76535bb162aecb558cad61d"
+    },
+    "config_inputs": [
+      {
+        "path": "policy-engine/architecture/tooling/ruff/workspace_root.toml",
+        "sha256": "879bfc2fa77909e595e661679fdeb9c771c3d34308a52e7c41971114f6a4ed99"
+      },
+      {
+        "path": "policy-engine/architecture/tooling/mypy/generated.ini",
+        "sha256": "d58da5b568044f6156b50f49c4a08e08a773ff69bfae6d8f1dc2919f99e4b5ef"
+      },
+      {
+        "path": "policy-engine/basedpyright.toml",
+        "sha256": "c7921e8bf04131158f84ee1b3b28f9620ba7cc8cfa36c64cabd90478e958f1b2"
+      },
+      {
+        "path": "policy-engine/architecture/baselines/basedpyright/baseline.json",
+        "sha256": "8ceca56253ec877284553b09de0ff1295a75583a6a4fc2238ef002cf9518b6af"
+      },
+      {
+        "path": "policy-engine/pytest.ini",
+        "sha256": "61270205a9f573a090b3c051a4b78351e67308a49e21660dbf33e76186d799eb"
+      }
+    ],
+    "ruff_manifest": {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/root-ir-reader-artifact-native-composed-wave-20261022-r1/ruff-manifest.json",
+      "sha256": "930c57d01a5db69e2344efe6c4bda5319935e4ac2e36f24748afc086811b6def"
+    },
+    "source_manifest": {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/root-ir-reader-artifact-native-composed-wave-20261022-r1/manifest.json",
+      "sha256": "af4447955e0329717393639255e4a6a1e1785038fc84840805064767be1f659c"
+    },
+    "driver": {
+      "path": "LOCAL/raw/run-pinned-canonical-python-wave-20261022-r2.py",
+      "sha256": "d034db96c674aad864c8f140e65f242b1a8bb51f83b2136cae3b096c8dc9f2b6"
+    }
+  },
+  "verification": {
+    "wave_receipt": {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/root-ir-reader-artifact-native-composed-wave-20261022-r1/receipt.json",
+      "sha256": "8b90183af2eee33afbf8ca5ccbbe49d41a81148f9a6977552c167d74d3633a7b"
+    },
+    "native_run_receipt": {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/root-ir-reader-artifact-native-composed-wave-20261022-r1/native-run-r1/receipt.json",
+      "sha256": "e58b55ae16202108bb000fc828cb8bed0ecfae839d8e153fa5ba6a48bf911ee4"
+    },
+    "source_frame": {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/root-ir-reader-artifact-admission-source-application-20261022-r1/full-composed-source-frame.json",
+      "sha256": "b9861b5fdf9cc99a7bc31cd61fbc38b8d7e1eb8611cd89ac5619becdc19ddce5"
+    },
+    "command_rows": [
+      {
+        "name": "ruff-check",
+        "argv": [
+          "/Users/deniskopylov/.codex/worktrees/e02-unified-local-20261009/polisyos/policy-engine/.venv/bin/python",
+          "-B",
+          "-m",
+          "tools.devx.workspace.ruff_sources",
+          "--manifest",
+          "/Users/deniskopylov/.codex/worktrees/e02-unified-local-20261009/polisyos/policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/root-ir-reader-artifact-native-composed-wave-20261022-r1/ruff-manifest.json",
+          "--operation",
+          "check"
+        ],
+        "cwd": "/Users/deniskopylov/.codex/worktrees/e02-unified-local-20261009/polisyos/policy-engine",
+        "timeout_seconds": 90,
+        "exit_code": 0,
+        "timed_out": false,
+        "wall_seconds": 0.5554323750548065,
+        "outputs": {
+          "stdout": {
+            "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/root-ir-reader-artifact-native-composed-wave-20261022-r1/ruff-check.stdout",
+            "sha256": "1609ad7aa0ce89046663e7831feb8984a781a73a233094fbf8c222b9314cf0ac"
+          },
+          "stderr": {
+            "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/root-ir-reader-artifact-native-composed-wave-20261022-r1/ruff-check.stderr",
+            "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+          }
+        }
+      },
+      {
+        "name": "ruff-format-check",
+        "argv": [
+          "/Users/deniskopylov/.codex/worktrees/e02-unified-local-20261009/polisyos/policy-engine/.venv/bin/python",
+          "-B",
+          "-m",
+          "tools.devx.workspace.ruff_sources",
+          "--manifest",
+          "/Users/deniskopylov/.codex/worktrees/e02-unified-local-20261009/polisyos/policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/root-ir-reader-artifact-native-composed-wave-20261022-r1/ruff-manifest.json",
+          "--operation",
+          "format-check"
+        ],
+        "cwd": "/Users/deniskopylov/.codex/worktrees/e02-unified-local-20261009/polisyos/policy-engine",
+        "timeout_seconds": 90,
+        "exit_code": 0,
+        "timed_out": false,
+        "wall_seconds": 0.4962662919424474,
+        "outputs": {
+          "stdout": {
+            "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/root-ir-reader-artifact-native-composed-wave-20261022-r1/ruff-format-check.stdout",
+            "sha256": "42821a4a88ab97e44a0d5dcafe28eb2f36402fca22998eb34013770a3c0b8a96"
+          },
+          "stderr": {
+            "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/root-ir-reader-artifact-native-composed-wave-20261022-r1/ruff-format-check.stderr",
+            "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+          }
+        }
+      },
+      {
+        "name": "mypy",
+        "argv": [
+          "/Users/deniskopylov/.codex/worktrees/e02-unified-local-20261009/polisyos/policy-engine/.venv/bin/python",
+          "-B",
+          "-m",
+          "mypy",
+          "--config-file",
+          "architecture/tooling/mypy/generated.ini",
+          "--no-incremental",
+          "--cache-dir=/dev/null",
+          "src/polisyos/core/artifacts/ids.py",
+          "src/polisyos/ir/artifacts/contracts.py",
+          "src/polisyos/ir/artifacts/lineage.py",
+          "src/polisyos/ir/passes/base.py",
+          "src/polisyos/ir/passes/core.py",
+          "tests/unit/ir/test_phase2_passes.py"
+        ],
+        "cwd": "/Users/deniskopylov/.codex/worktrees/e02-unified-local-20261009/polisyos/policy-engine",
+        "timeout_seconds": 180,
+        "exit_code": 0,
+        "timed_out": false,
+        "wall_seconds": 36.51840137504041,
+        "outputs": {
+          "stdout": {
+            "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/root-ir-reader-artifact-native-composed-wave-20261022-r1/mypy.stdout",
+            "sha256": "ab35ee42183d4d6d3ba483825ab037d18a5a15622d03be01d82220b1564851ff"
+          },
+          "stderr": {
+            "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/root-ir-reader-artifact-native-composed-wave-20261022-r1/mypy.stderr",
+            "sha256": "4f39f906c43e708245f42be3c31ace5e311d1dbafdc04093ad6820dfa6b37a16"
+          }
+        }
+      },
+      {
+        "name": "basedpyright",
+        "argv": [
+          "/Users/deniskopylov/.codex/worktrees/e02-unified-local-20261009/polisyos/policy-engine/.venv/bin/basedpyright",
+          "--baselinemode",
+          "lock",
+          "--project",
+          "/Users/deniskopylov/.codex/worktrees/e02-unified-local-20261009/polisyos/policy-engine/basedpyright.toml",
+          "--outputjson",
+          "src/polisyos/core/artifacts/ids.py",
+          "src/polisyos/ir/artifacts/contracts.py",
+          "src/polisyos/ir/artifacts/lineage.py",
+          "src/polisyos/ir/passes/base.py",
+          "src/polisyos/ir/passes/core.py"
+        ],
+        "cwd": "/Users/deniskopylov/.codex/worktrees/e02-unified-local-20261009/polisyos/policy-engine",
+        "timeout_seconds": 90,
+        "exit_code": 0,
+        "timed_out": false,
+        "wall_seconds": 1.4017992920707911,
+        "outputs": {
+          "stdout": {
+            "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/root-ir-reader-artifact-native-composed-wave-20261022-r1/basedpyright.stdout",
+            "sha256": "0b319e7cce7387218cd90e8f0df7e7510910313eade03ed0b00d00db484c54bb"
+          },
+          "stderr": {
+            "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/root-ir-reader-artifact-native-composed-wave-20261022-r1/basedpyright.stderr",
+            "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+          }
+        }
+      },
+      {
+        "name": "pytest",
+        "argv": [
+          "/Users/deniskopylov/.codex/worktrees/e02-unified-local-20261009/polisyos/policy-engine/.venv/bin/python",
+          "-B",
+          "-m",
+          "pytest",
+          "-q",
+          "-o",
+          "cache_dir=/Users/deniskopylov/.codex/worktrees/e02-unified-local-20261009/polisyos/policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/root-ir-reader-artifact-native-composed-wave-20261022-r1/pytest-cache",
+          "--basetemp=/Users/deniskopylov/.codex/worktrees/e02-unified-local-20261009/polisyos/policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/root-ir-reader-artifact-native-composed-wave-20261022-r1/temp",
+          "--junitxml=/Users/deniskopylov/.codex/worktrees/e02-unified-local-20261009/polisyos/policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/root-ir-reader-artifact-native-composed-wave-20261022-r1/junit.xml",
+          "tests/unit/core/artifacts/test_artifact_id_native_string_validation.py",
+          "tests/unit/ir/artifacts/test_artifact_id_native_string_validation.py",
+          "tests/unit/core/artifacts/test_artifact_id_serialization_contract.py",
+          "tests/unit/ir/registry/test_refs.py",
+          "tests/unit/ir/test_phase2_passes.py"
+        ],
+        "cwd": "/Users/deniskopylov/.codex/worktrees/e02-unified-local-20261009/polisyos/policy-engine",
+        "timeout_seconds": 180,
+        "exit_code": 0,
+        "timed_out": false,
+        "wall_seconds": 15.070777209009975,
+        "outputs": {
+          "stdout": {
+            "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/root-ir-reader-artifact-native-composed-wave-20261022-r1/pytest.stdout",
+            "sha256": "3a105b429c566a6ab228658f80ae3094d2be8b3cd71c1dc02ddbcc5dceba360f"
+          },
+          "stderr": {
+            "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/root-ir-reader-artifact-native-composed-wave-20261022-r1/pytest.stderr",
+            "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+          },
+          "junit": {
+            "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/root-ir-reader-artifact-native-composed-wave-20261022-r1/junit.xml",
+            "sha256": "3b4dbf698315f92de321f828518f30e0da0d8cf2b9e4301fc2491b49eabcd800"
+          }
+        }
+      }
+    ],
+    "complete_outer_outputs": [
+      {
+        "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/root-ir-reader-artifact-native-composed-wave-20261022-r1/native-run-r1/stdout",
+        "sha256": "2528fefe0678149eb6fb72414e8bdfd3296fb85c8d7cd38798a47c3490a37870"
+      },
+      {
+        "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/root-ir-reader-artifact-native-composed-wave-20261022-r1/native-run-r1/stderr",
+        "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+      }
+    ],
+    "summary": {
+      "pytest": {
+        "tests": 54,
+        "passed": 54,
+        "failed": 0,
+        "errors": 0,
+        "skipped": 0
+      },
+      "ruff_check": "PASS, 10 manifest-pinned paths",
+      "ruff_format_check": "PASS, 10 manifest-pinned paths",
+      "mypy": "PASS, no issues in 6 files; generated-config unused-section warnings remain in stderr",
+      "basedpyright": "0 errors in 5 files, 1 private-usage warning in ir/passes/core.py; baseline unchanged",
+      "baseline_sha256_before_after": [
+        "8ceca56253ec877284553b09de0ff1295a75583a6a4fc2238ef002cf9518b6af",
+        "8ceca56253ec877284553b09de0ff1295a75583a6a4fc2238ef002cf9518b6af"
+      ],
+      "source_freeze": false
+    },
+    "r6_mapping_removal_control": {
+      "packet": {
+        "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/resume-artifact-native-companion-r3-20261022/r5-final-net-20261022/artifactid-native-normalization-net-r6-corrected-review.json",
+        "sha256": "04df4989b117f591ce04e9fdaee2c45bc358b02ade0f1157314cece46982ee9b"
+      },
+      "source_review": {
+        "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/resume-artifact-combined-independent-20261022-r1/r5-independent-finalb-20261022/review.md",
+        "sha256": "9da6c3865dcb05ffa3ff12a6a60ba9e0080ad91d976ecc7bf27ba285e604e3d4"
+      },
+      "R6_metadata_review": {
+        "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/resume-artifact-combined-independent-20261022-r1/r6-metadata-review-final-20261022/review.md",
+        "sha256": "718b795034f7001f148f5702dd4101377934e4fb4a0de65f10ab432b6ba98eee"
+      },
+      "decision": "R5 code GO with bounded Mapping stable-input limitation; R6 metadata-only correction GO_BOUNDED; neither is G acceptance.",
+      "mutant_source": {
+        "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/resume-artifact-native-companion-r3-20261022/r4/candidate/postimage/policy-engine/src/polisyos/ir/artifacts/contracts.py",
+        "sha256": "2427e68422fd4944044918c5fb84d4559218ba6205a85108c5e410039a38fb17"
+      },
+      "executed_test_source": {
+        "path": "policy-engine/tests/unit/ir/registry/test_refs.py",
+        "sha256": "e0b777f25c7aaa83714c76fc7bf58a89b7cefb9fac484618575d276ae04ab2fc"
+      },
+      "receipt": {
+        "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/resume-artifact-native-companion-r3-20261022/r5-final-net-20261022/r5-removal-control-r4-source-r2/receipt.json",
+        "sha256": "be738cc9be3e73f07efe0b9af30a07243a7d4addb98c521b6093b80ed6eb2df7"
+      },
+      "outputs": [
+        {
+          "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/resume-artifact-native-companion-r3-20261022/r5-final-net-20261022/r5-removal-control-r4-source-r2/stdout",
+          "sha256": "a9036e73ee94c7e7aa908d2226ff423b3a539c945eb4bf6095f8cb8932a9c66d"
+        },
+        {
+          "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/resume-artifact-native-companion-r3-20261022/r5-final-net-20261022/r5-removal-control-r4-source-r2/stderr",
+          "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+        },
+        {
+          "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/resume-artifact-native-companion-r3-20261022/r5-final-net-20261022/candidate/runs/r5-removal-control-r4-source-r2/junit.xml",
+          "sha256": "97146ce6d2e3f85dd447d4f54dbe6f735f83f7f06d1e6657508bdb838e8a5d5d"
+        }
+      ],
+      "result": "With the R4 items()-based normalization restored and tests retained, 25 pass and the three new discriminators fail as expected: direct Mapping omission, model_dump omission, and enumerated key with KeyError. The mutant run exits 1 by design.",
+      "bounded_residual": "Generic Mapping has no atomic snapshot across enumeration and lookup; concurrent/side-effecting mutation is outside the stable-input claim. Falsifier: mutate between key enumeration and lookup.",
+      "runner": {
+        "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/resume-artifact-native-companion-r3-20261022/r5-final-net-20261022/candidate/run_pytest_r5.py",
+        "sha256": "7f088543308340b825611181d4274115949b1e2b6905508dbff608c412ff4cb0"
+      },
+      "invocation": {
+        "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/resume-artifact-native-companion-r3-20261022/r5-final-net-20261022/r5-removal-control-r4-source-r2/invocation.json",
+        "sha256": "9b2fd9761a38b5a2da24e77fb73a10c77412e7b4a3c5af165a6a1ab0843b5aed"
+      },
+      "junit_summary": {
+        "tests": "28",
+        "failures": "3",
+        "errors": "0",
+        "skipped": "0"
+      },
+      "observed": "28 tests: 25 pass and the three new semantic controls fail as expected; 0 errors/skips. The mutant subprocess exit 1 is expected and bounded to this probe."
+    },
+    "ir_r17_packet": {
+      "handoff": {
+        "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/resume-ir-pass-surface-native-author-r2-20261022/final-handoff-author-r17.json",
+        "sha256": "c9738089641e3ad4a8932867a30143c3618f995f814dbac87cd3ccd577cb3fd1"
+      },
+      "slice_id": "ir-pass-surface-native-author-r2-20261022-r17",
+      "review_status": "author patch and focused gates frozen; independent delta review pending",
+      "focused_result": "5/5 pass in author packet; root wave reran test_phase2_passes.py within the 54-test suite.",
+      "outputs": [
+        {
+          "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/resume-ir-pass-surface-native-author-r2-20261022/native-pytest-r17/receipt.json",
+          "sha256": "49eef203e50f2e1683827b41b5bd8aad6c0e9ec1940d16afc72ae01a7348edb1"
+        },
+        {
+          "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/resume-ir-pass-surface-native-author-r2-20261022/native-pytest-r17/stdout",
+          "sha256": "4d2df7a96ce4a667da3ccf295f2d16c728a65ed0e861a3baa919f7bb469b02b5"
+        },
+        {
+          "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/resume-ir-pass-surface-native-author-r2-20261022/native-pytest-r17/stderr",
+          "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+        },
+        {
+          "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/resume-ir-pass-surface-native-author-r2-20261022/pytest-junit-r17.xml",
+          "sha256": "fd63a89065a71a487e6f0aaa89ab1cf4fe21d1754d69de5b0facc28bcbada1f7"
+        }
+      ],
+      "negative_controls": [
+        "wrong-typed consumed values refuse",
+        "malformed falsey roots refuse",
+        "explicit artifact IDs work with get_manifest-only reader and no enumerator"
+      ],
+      "removal_control": "No source-mutation/removal control appears in the R17 handoff; negative runtime tests are not relabeled as removal evidence."
+    },
+    "independent_reviews": [
+      {
+        "decision": "GO, IR native normalization relative to HEAD",
+        "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/resume-artifact-combined-independent-20261022-r1/artifactid-net-head-review-20261022/review.md",
+        "sha256": "cf4a5ef6848db2f72c4ad71f4237022b5b78bff13e105e0ef624732612745ea4"
+      },
+      {
+        "decision": "GO, Core native-string companion",
+        "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/resume-artifact-combined-independent-20261022-r1/artifactid-core-head-review-20261022/review.md",
+        "sha256": "68e8fa3f1e32823a174faae96931c976fbadefbf085bea043adc6d6c9e933293"
+      },
+      {
+        "decision": "GO with bounded mapping limitation",
+        "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/resume-artifact-combined-independent-20261022-r1/r5-independent-finalb-20261022/review.md",
+        "sha256": "9da6c3865dcb05ffa3ff12a6a60ba9e0080ad91d976ecc7bf27ba285e604e3d4"
+      },
+      {
+        "decision": "GO_BOUNDED, metadata correction only",
+        "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/resume-artifact-combined-independent-20261022-r1/r6-metadata-review-final-20261022/review.md",
+        "sha256": "718b795034f7001f148f5702dd4101377934e4fb4a0de65f10ab432b6ba98eee"
+      },
+      {
+        "decision": "R17 independent static GO; review and focused author gates verified; not G acceptance",
+        "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/resume-fabric-f4-native-review-20261022/8ee35adbb6ce7307b7cb4b8200e0a36ea51331afd209d5b9c3d38d9e214315c5/review.json",
+        "sha256": "3bd747d103b706b2f204126bfe147259ed0e48297df48efdd33a342dcf3dcf3f"
+      }
+    ]
+  },
+  "limitations": [
+    "Focused source-bound replay only; global E02 source/input/backend freeze remains false.",
+    "Architecture/native/backend/CI parity, generated/installed wheel/sdist replay, and whole Runtime/Search/GP chain remain unrun by this wave.",
+    "Mypy generated.ini unused-section warnings and one BasedPyright private-use warning are retained; no warning-free claim.",
+    "The R17 author handoff historically marked independent review pending; the independently verified GO is recorded here. G acceptance remains separate.",
+    "No production currentness, law/issuer/custody permission, empirical causal calibration, or finding-specific formal adjudication. Historical B198 unchanged."
+  ],
+  "global_source_freeze": false,
+  "closure_ids": [],
+  "proposal_fields": {
+    "mechanism_proposal": "limited: committed source identity and focused typed-reader behavior passed the composed native wave.",
+    "finding_proposals": [],
+    "formal_close_proposal_ids": [],
+    "next_check": "Include these exact postimages in the frozen E02 source/input/backend composition; run remaining native, architecture, backend/CI, installed wheel/sdist and actual composed consumer checks, then independent G acceptance. Mapping stable-input limits and empty closure_ids remain."
+  }
+}

@@ -1,0 +1,271 @@
+{
+  "capability": {
+    "chain": "Owner source-registry selector -> synthetic catalog fixture/readiness -> real catalog HTTP route and fresh catalog reader; the route output is exercised through the test consumer, without a production empirical artifact claim.",
+    "production_claims": {
+      "empirical_external_evidence": false,
+      "full_publish_ready": false,
+      "production_currentness": false,
+      "scope": "Synthetic external fixture outcomes are test controls only; no production readiness or empirical source is admitted."
+    },
+    "semantic_controls": [
+      "The owner selector is load_source_registry(...).enabled_sources(run_profile=\"preflight_core\"); the pinned registry had 12 enabled publish-blocking empirical rows plus 4 enabled seed_from ancestors (16 total).",
+      "The mutation control adds a valid 17th blocking source and requires refusal before producer work; the snapshot-drift control changes the captured bytes between selection and write and requires refusal with no fixture registry output.",
+      "The native seven-test JUnit includes fresh-reader behavior after stage-state removal, absent/conflicting/malformed selection refusal, unversioned private profile-input refusal, and three canonical retrieval-service consumer tests."
+    ],
+    "surface": "The exercised surface is the internal catalog HTTP test route over synthetic external-source fixtures. It does not establish production publisher currentness, real empirical inputs, or full_publish_ready.",
+    "typed_state": "verification_missing"
+  },
+  "closure_ids": [],
+  "global_source_freeze": false,
+  "limitations": [
+    "This is a bounded synthetic fixture and consumer witness. The registry pipeline SHA is the local WIP pin listed above; this is not production currentness or empirical evidence, and full_publish_ready is not established.",
+    "R3b is a bounded source-snapshot/coverage review, not formal G acceptance. R1/R2 holds are retained as history; the later seven-test pass does not turn the earlier inconclusive run into a pass.",
+    "The native wave and code readback both keep source_freeze=false and closure_ids empty. The full composed E02 source freeze and production evidence chain remain outstanding."
+  ],
+  "proposal_fields": {
+    "finding_proposals": [],
+    "formal_close_proposal_ids": [],
+    "g_code_acceptance": false,
+    "local_checkpoint_status": "Prepared for ordinary receipt-only commit on the local candidate branch; remote publication and G acceptance remain unasserted.",
+    "mechanism_proposal": "Submit this exact test-only source-selection and HTTP consumer evidence for independent G review as bounded C05 support.",
+    "next_check": "Root should bind the next producer wave to a full current source frame, retain the actual command outputs, and obtain independent G review; keep production empirical/currentness and full_publish_ready false unless their real inputs and receipt chain are admitted.",
+    "pattern_pass": {
+      "acceptance_signal": "Independent review accepts only the bounded test/source snapshot; production empirical/currentness and full composed freeze are separately established before any broader claim.",
+      "missing_capability_labels": [
+        "verification_missing"
+      ],
+      "relevant_ids": [
+        "P01",
+        "P29",
+        "P38",
+        "P40",
+        "P41"
+      ],
+      "target_pattern": "Derive the blocker set from the owner selector over one captured source snapshot, bind that snapshot to the writer, and exercise real route behavior plus refusal controls."
+    }
+  },
+  "schema": "e02-local-implementation-receipt-v1",
+  "selected_execution": {
+    "backend": {
+      "environment_copied_or_installed": false,
+      "kind": "existing local product Python environment",
+      "python": "policy-engine/.venv/bin/python",
+      "version": "3.14.3"
+    },
+    "configs": [
+      {
+        "binding": "base commit b3c62a tree",
+        "path": "policy-engine/pyproject.toml",
+        "sha256": "5f65308cb088086b6fc0aa40a5bae6ed852ae3a2e261103bd0d4158d97c1e8f2"
+      },
+      {
+        "binding": "base commit b3c62a tree",
+        "path": "policy-engine/pytest.ini",
+        "sha256": "61270205a9f573a090b3c051a4b78351e67308a49e21660dbf33e76186d799eb"
+      },
+      {
+        "binding": "base commit b3c62a tree; explicit mypy --config-file",
+        "path": "policy-engine/architecture/tooling/mypy/generated.ini",
+        "sha256": "d58da5b568044f6156b50f49c4a08e08a773ff69bfae6d8f1dc2919f99e4b5ef"
+      },
+      {
+        "binding": "base commit b3c62a tree; ruff_sources workspace config",
+        "path": "policy-engine/architecture/tooling/ruff/workspace_root.toml",
+        "sha256": "879bfc2fa77909e595e661679fdeb9c771c3d34308a52e7c41971114f6a4ed99"
+      }
+    ],
+    "driver": {
+      "path": "LOCAL/raw/run-pinned-canonical-python-wave-20261022-r4.py",
+      "sha256": "f2ad10c395252605655839ee0415f83ff104115c8ed05336fd78908d46fe95d2"
+    },
+    "input": {
+      "candidate_targets": 2,
+      "context_targets": 8,
+      "manifest": {
+        "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/root-catalog-producer-fixture-native-wave-20261022-r1/manifest.json",
+        "sha256": "537fd8e0bd2eb92179d3caaff15a8368c9e4bc25e9ac4e33fa55ad7958291db5"
+      },
+      "pipeline_path": "policy-engine/src/polisyos/data_forge/domains/catalog/batch/pipeline.py",
+      "pipeline_sha256": "979f24af1b2f54e30b5c9ffcf5df28860a99a923613567c68f81b3cf3ded3866",
+      "registry_sha256": "2389b15dbbc0ec66c20cf2b247569100a341387eb5e0611220766b8c6cbb4789"
+    },
+    "invocation": {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/root-catalog-producer-fixture-native-wave-20261022-r1/native-run-r1/invocation.json",
+      "sha256": "575ad9c86dce7f456cd94a4c367b342a4dd22008339db7b2c23f2f4fb311620b"
+    },
+    "profile": {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/root-catalog-producer-fixture-native-wave-20261022-r1/native-run-r1/profile.sb",
+      "sha256": "e54edc9335986a299ad1a8b20aa0ffd1eb12ae39144d319690a1d20d22b893af"
+    },
+    "ruff_manifest": {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/root-catalog-producer-fixture-native-wave-20261022-r1/ruff-manifest.json",
+      "sha256": "06bebbd17e171535ea5da2772230c05772a84c315e0cc85c8425e8ad43b710ff"
+    },
+    "runner_receipt": {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/root-catalog-producer-fixture-native-wave-20261022-r1/native-run-r1/receipt.json",
+      "sha256": "0ee38324b87f4c2a8cb200a4d77301a9e88b31f840eb8c4e071b38b33a735e35"
+    }
+  },
+  "slice": "C05 catalog producer fixture source coverage and HTTP consumer witness",
+  "source": {
+    "base": {
+      "commit": "b3c62a7993710bc4b4506b2a01986cbf63791391",
+      "tree": "07a4626f704f59239a880d0d7563610e5fe04855"
+    },
+    "branch": "codex/e02-unified-local-20261009",
+    "candidate": {
+      "commit": "557b925ba86928b77f736673a5ecf49e5979ce15",
+      "parents": [
+        "b3c62a7993710bc4b4506b2a01986cbf63791391"
+      ],
+      "tree": "2ac899710b439eeb79d8a64c516eb9e6dea7dc85"
+    },
+    "checkout": "/Users/deniskopylov/.codex/worktrees/e02-unified-local-20261009/polisyos",
+    "native_wave_source_frame": {
+      "base": "b3c62a7993710bc4b4506b2a01986cbf63791391",
+      "mismatches": [],
+      "ref": {
+        "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/root-catalog-producer-fixture-application-20261022-r1/full-composed-source-frame.json",
+        "sha256": "01dfc0468b47e6b52439a0141978ad29cee2fa07aca84933fb408f28cbed1e53"
+      },
+      "selected_paths": 464,
+      "selected_python_files": 365,
+      "source_freeze": false
+    },
+    "note": "The committed delta is two test-only paths. The native wave was run on their exact content hashes at base b3c62a; the producer pipeline is a pinned local WIP input, not a production-current source.",
+    "readback": {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/root-catalog-producer-fixture-code-commit-20261022-r1/readback.json",
+      "sha256": "bd9c1b41190b41009a25f1d857ead7721e0288ed9baf8eb144bc4489c8bf1ee1"
+    }
+  },
+  "status": "author_receipt_for_independent_G_review",
+  "verification": {
+    "candidate_wave": {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/root-catalog-producer-fixture-native-wave-20261022-r1/receipt.json",
+      "sha256": "e6a16481a8ddca7174e9fbc7a132337c1d00f3976012f629b1623ca3661645af"
+    },
+    "command_record": "Exact per-command argv is recorded in candidate_wave receipt; complete output files remain path@SHA in commands.",
+    "commands": [
+      {
+        "complete_outputs": {
+          "stderr": {
+            "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/root-catalog-producer-fixture-native-wave-20261022-r1/ruff-check.stderr",
+            "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+          },
+          "stdout": {
+            "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/root-catalog-producer-fixture-native-wave-20261022-r1/ruff-check.stdout",
+            "sha256": "8beec1a9afd0b10b027d77a823bd064334677c7e5c289b1d778d2f1e2e0fe9b4"
+          }
+        },
+        "exit_code": 0,
+        "name": "ruff-check",
+        "timed_out": false
+      },
+      {
+        "complete_outputs": {
+          "stderr": {
+            "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/root-catalog-producer-fixture-native-wave-20261022-r1/ruff-format-check.stderr",
+            "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+          },
+          "stdout": {
+            "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/root-catalog-producer-fixture-native-wave-20261022-r1/ruff-format-check.stdout",
+            "sha256": "a27df77660187789dd5fb40268aff76bae270d0d097a882c46888e3efc30a8cc"
+          }
+        },
+        "exit_code": 0,
+        "name": "ruff-format-check",
+        "timed_out": false
+      },
+      {
+        "complete_outputs": {
+          "stderr": {
+            "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/root-catalog-producer-fixture-native-wave-20261022-r1/mypy.stderr",
+            "sha256": "3d728ffbd22ad1a41f415146c493d9137bd0229d89cc492b0c1e04bab4486296"
+          },
+          "stdout": {
+            "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/root-catalog-producer-fixture-native-wave-20261022-r1/mypy.stdout",
+            "sha256": "5d4b6d285b77932e3d08212c3b4974d0a803f98ec60408ac6ccf6a063fa6c19e"
+          }
+        },
+        "exit_code": 0,
+        "name": "mypy",
+        "timed_out": false
+      },
+      {
+        "complete_outputs": {
+          "junit": {
+            "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/root-catalog-producer-fixture-native-wave-20261022-r1/junit.xml",
+            "sha256": "21e161b1f95e27f9ef0629d6d4ba4fa2915cd93de572228e406190048bc2735b"
+          },
+          "stderr": {
+            "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/root-catalog-producer-fixture-native-wave-20261022-r1/pytest.stderr",
+            "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+          },
+          "stdout": {
+            "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/root-catalog-producer-fixture-native-wave-20261022-r1/pytest.stdout",
+            "sha256": "83a1593c5b5783693fe3006d1f6597bcb4f3a5968f23b59481ee09a0477f910a"
+          }
+        },
+        "exit_code": 0,
+        "name": "pytest",
+        "timed_out": false
+      }
+    ],
+    "history": [
+      {
+        "evidence": {
+          "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/resume-c12-serving-current-audit-20261022-r1/catalog-producer-fixture-r2/verification-summary.json",
+          "sha256": "578083e71277eb2cdaec09242fef4a106ec292efbcd502631eb80af10c3064b6"
+        },
+        "phase": "initial six-target run was explicitly inconclusive: exit code and complete outputs unavailable"
+      },
+      {
+        "evidence": {
+          "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/catalog-producer-fixture-independent-20261022-r1/review-r1/review.json",
+          "sha256": "46b743f1f08803840d68a6b08cb0c5dca5765692c847a1ac8010462532066b7f"
+        },
+        "phase": "independent R1 accepted only a bounded registry snapshot and held final acceptance"
+      },
+      {
+        "evidence": {
+          "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/catalog-producer-fixture-independent-20261022-r1/review-r2-addendum/review-r2-addendum.json",
+          "sha256": "39c3720b56cd92fd680e1e934f1e3b977bdd6e9e12bda16d3bd4e66c7cc60844"
+        },
+        "phase": "R2 held the delta until one captured owner selection was bound through the writer"
+      },
+      {
+        "evidence": {
+          "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/catalog-producer-fixture-independent-20261022-r1/review-r3b/review.json",
+          "sha256": "d6ed6cf7592f30e672c60fb5a7da5c3a952f99ce443dcdabd827d641d28a9edf"
+        },
+        "phase": "R3b approved the immutable snapshot/owner-selection guard only; parent producer wave remained pending",
+        "reviewed_packet": {
+          "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/resume-c12-serving-current-audit-20261022-r1/catalog-producer-fixture-r2/source-coverage-snapshot-review-r3.json",
+          "sha256": "53fd2c239e992cbe11871853eade3eace539c0665695053e15c5654a452f6647"
+        }
+      },
+      {
+        "evidence": {
+          "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/root-catalog-producer-fixture-native-wave-20261022-r1/receipt.json",
+          "sha256": "e6a16481a8ddca7174e9fbc7a132337c1d00f3976012f629b1623ca3661645af"
+        },
+        "phase": "parent native wave then ran the exact committed two-test postimage plus three canonical consumer selectors"
+      }
+    ]
+  },
+  "root_promotion": {
+    "review": {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/fabric-http-consumption-independent-20261022-r1/c05-b148-fact-review-r1/review.json",
+      "sha256": "087f09b4ee40f9247ab41c87f37c4760cc7f83f11d48cd7b2ae65bf8371c830a"
+    },
+    "author_draft": {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/resume-b164-protected-writer-author-20261022-r1/compact-c05-b148-r1c/c05-catalog-producer-fixture-receipt-draft.json",
+      "sha256": "c01f635e83a6eeef6ac4a2107684bc275b294ca00ab65de15e62fa7f8c836498"
+    },
+    "historical_author_status": "unpublished local receipt draft; root owns promotion",
+    "admission_head": "15ae3f0aa47ece6409caf74017bd0595de133d57",
+    "test_replayed_during_promotion": false,
+    "source_freeze": false,
+    "closure_ids": []
+  }
+}

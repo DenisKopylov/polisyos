@@ -1,0 +1,234 @@
+{
+  "capability": {
+    "chain": "Existing FileSystemCAS/core artifact import path -> exact pinned pytest selectors -> stored/imported CAS view and tenant readback observations. This is an internal artifact-import witness, not a full external publication surface.",
+    "property_under_test": "The actual bound-import claimed-admission guard blocks a foreign owner from reclaiming an existing selected view; deleting that runtime guard must make the property tests fail.",
+    "semantic_controls": [
+      "Baseline selectors pass 32 tests with no errors/skips.",
+      "The property-removal run disables the actual bound-import claimed-admission guard. All six expected negative-control cases fail (archive, directory, exact x cell-a, none); each observation records four changed paths and one returned ref, with prior tenant A and selected tenant B readbacks verified.",
+      "The negative probe is behavioral: it removes the actual guard and the assertion failures track the resulting changed import/readback state, rather than checking marker strings."
+    ],
+    "surface": "Internal core artifact-import/CAS and readback tests. No criterion-wide API/export/dashboard review or formal G closure is included.",
+    "typed_state": "verification_missing"
+  },
+  "closure_ids": [],
+  "global_source_freeze": false,
+  "limitations": [
+    "The six removal failures are the expected result of the falsifier; they are not failures in the 32-test baseline.",
+    "This is a bounded witness for one actual admission guard and selected import paths. It does not close every B148 acceptance condition or every import/publication surface; criterion-wide review remains required.",
+    "The 115-record snapshot explicitly records one missing candidate input path, policy-engine/src/polisyos/core/observability.py; relevant importer, tests, support, and config inputs are otherwise captured. The missing path is not silently treated as a verified source.",
+    "Source freeze is false, there is no implementation candidate from this run, and no formal closure is claimed."
+  ],
+  "proposal_fields": {
+    "finding_proposals": [
+      {
+        "basis": "32-test baseline plus a matched six-case actual-guard removal falsifier; bounded to pinned source snapshot.",
+        "finding": "B148",
+        "proposed_disposition": "limited"
+      }
+    ],
+    "formal_close_proposal_ids": [],
+    "g_code_acceptance": false,
+    "local_checkpoint_status": "Prepared for ordinary receipt-only commit on the local candidate branch; remote publication and G acceptance remain unasserted.",
+    "mechanism_proposal": "Present the B148 bounded behavioral witness for independent G review; propose only a limited disposition unless the whole criterion is independently shown.",
+    "next_check": "Review the complete B148 import route and remaining acceptance controls against this pinned run; retain the historical 59/44/15 baseline as separate OLD evidence, and do not attribute it to this 32/6 wave.",
+    "pattern_pass": {
+      "acceptance_signal": "Independent G review reconciles this bounded witness to all B148 acceptance clauses and the current complete source frame before any closure.",
+      "missing_capability_labels": [
+        "verification_missing"
+      ],
+      "relevant_ids": [
+        "P29",
+        "P38",
+        "P41"
+      ],
+      "target_pattern": "Exercise the real import/admission route and remove the actual guard while holding source/test inputs fixed; distinguish expected removal failures from the passing baseline."
+    }
+  },
+  "schema": "e02-local-implementation-receipt-v1",
+  "selected_execution": {
+    "backend": {
+      "environment_copied_or_installed": false,
+      "kind": "existing product Python environment",
+      "platform": "macOS sandbox-exec",
+      "python": "policy-engine/.venv/bin/python",
+      "resolved_python": "/Users/deniskopylov/.local/share/uv/python/cpython-3.14.3-macos-aarch64-none/bin/python3.14",
+      "version": "3.14.3"
+    },
+    "driver_invocation": {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/W/e02-remaining-queue-current-oracle-20261022-r1/b148-cas02-baseline-removal-20261022-r1/invocation.json",
+      "sha256": "6e638f49d111ae0d797f354498066da800992e2b9ea031ab5b5c68d88ac9e4c8"
+    },
+    "environment_controls": {
+      "HYPOTHESIS_PROFILE": null,
+      "PYTEST_ADDOPTS": null,
+      "PYTHONPATH": null
+    },
+    "input": {
+      "after": {
+        "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/W/e02-remaining-queue-current-oracle-20261022-r1/b148-cas02-baseline-removal-20261022-r1/inputs-after.json",
+        "sha256": "9ea3d71f0a78cc3f815cedbbf9d28734a79c16e27bbb94ab67ab38cca2623e0a"
+      },
+      "before": {
+        "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/W/e02-remaining-queue-current-oracle-20261022-r1/b148-cas02-baseline-removal-20261022-r1/inputs-before.json",
+        "sha256": "9ea3d71f0a78cc3f815cedbbf9d28734a79c16e27bbb94ab67ab38cca2623e0a"
+      },
+      "count": 115
+    },
+    "runner_receipt": {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/W/e02-remaining-queue-current-oracle-20261022-r1/b148-cas02-baseline-removal-20261022-r1/receipt.json",
+      "sha256": "fd55dc3717b6c296c121f0b900ba7c6bb0e5511421b86dcccc4aa9ae37cf8dcc"
+    },
+    "runtime_and_test_pins": {
+      "binding": "Exact 115 path/hash records are in the identical before/after snapshots; selected paths above name the importer/test/config surface without duplicating the full manifest.",
+      "config_paths": [
+        "policy-engine/pytest.ini",
+        "policy-engine/pyproject.toml",
+        "policy-engine/uv.lock",
+        "policy-engine/tests/quarantine.toml"
+      ],
+      "runtime_source": {
+        "path": "policy-engine/src/polisyos/core/artifacts/_transfer_ops.py",
+        "sha256": "ce8004a1ab0ea0ad94e71b3ed99c104247eb0ad5c576a8d14bef33b3613d4df1"
+      },
+      "tests_and_support": [
+        "policy-engine/tests/unit/core/artifacts/test_import_admission_noop.py",
+        "policy-engine/tests/unit/core/artifacts/test_bound_import_preservation.py",
+        "policy-engine/tests/unit/remediation/test_cas_02.py",
+        "policy-engine/tests/conftest.py",
+        "policy-engine/tests/unit/core/conftest.py",
+        "policy-engine/tests/_helpers/artifacts.py",
+        "policy-engine/tests/_helpers/observability.py"
+      ]
+    },
+    "sandbox_profile": {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/W/e02-remaining-queue-current-oracle-20261022-r1/b148-cas02-baseline-removal-20261022-r1/profile.sb",
+      "sha256": "8e373f584bcd777ffb8404b6ace23fe432a046d58e7cb6786e58909eb1b07cda"
+    }
+  },
+  "slice": "B148 #63 current-source read-only baseline and actual admission-guard removal falsifier",
+  "source": {
+    "base_source_snapshot": {
+      "commit": "b3c62a7993710bc4b4506b2a01986cbf63791391",
+      "parents": [
+        "44e6804a306e3fb1a2833805fcd0cdd1b191474f"
+      ],
+      "tree": "07a4626f704f59239a880d0d7563610e5fe04855"
+    },
+    "branch_at_run": "refs/heads/codex/e02-unified-local-20261009",
+    "checkout": "/Users/deniskopylov/.codex/worktrees/e02-unified-local-20261009/polisyos",
+    "criterion": {
+      "finding": "B148",
+      "lines": "3917-3927",
+      "property": "Import must verify the complete incoming set before publication and preserve the previously readable object on corruption, interruption, manifest/owner conflict, or competing publication.",
+      "ref": {
+        "path": "policy-engine/docs/plans/active/agent-packages/PolicyOS_E02_Combined_Agent_Package/source/B_r19_original.md",
+        "sha256": "9c98584cbfa72996b058abf127f6c689f919a3421cdd563a82c84a7324ab39b5"
+      }
+    },
+    "implementation_candidate_created_by_this_run": false,
+    "note": "This is a read-only test receipt against pre-existing code at b3c62a; it contains no source implementation commit or source mutation.",
+    "source_frame": {
+      "base": "b3c62a7993710bc4b4506b2a01986cbf63791391",
+      "mismatches": [],
+      "ref": {
+        "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/root-catalog-producer-fixture-application-20261022-r1/full-composed-source-frame.json",
+        "sha256": "01dfc0468b47e6b52439a0141978ad29cee2fa07aca84933fb408f28cbed1e53"
+      },
+      "selected_paths": 464,
+      "selected_python_files": 365,
+      "source_freeze": false
+    }
+  },
+  "status": "author_receipt_for_independent_G_review",
+  "verification": {
+    "commands": {
+      "actual_guard_removal_control": {
+        "argv_recorded_in": "driver_invocation",
+        "exit_code": 1,
+        "expected_negative_control": true,
+        "junit_counts": {
+          "errors": 0,
+          "failures": 6,
+          "skipped": 0,
+          "tests": 6
+        },
+        "outputs": {
+          "junit": {
+            "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/W/e02-remaining-queue-current-oracle-20261022-r1/b148-cas02-baseline-removal-20261022-r1/removal.junit.xml",
+            "sha256": "f7504bae35f68498d7ec1e25609e1135f1a3922a9a4fe3182a599a5dc793747f"
+          },
+          "stderr": {
+            "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/W/e02-remaining-queue-current-oracle-20261022-r1/b148-cas02-baseline-removal-20261022-r1/removal.stderr",
+            "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+          },
+          "stdout": {
+            "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/W/e02-remaining-queue-current-oracle-20261022-r1/b148-cas02-baseline-removal-20261022-r1/removal.stdout",
+            "sha256": "bc07305afb5cbb778c7b3100d0e37905073c777ead8a07022c54f344fd16fae4"
+          }
+        },
+        "selection": "One parametrized test selector, test_matching_bound_import_cannot_reclaim_an_existing_foreign_owner; E02_B_PROPERTY_REMOVAL=bound-import-claimed-admission; six cases across archive/directory/exact and cell-a/none. Exact argv/environment are in invocation.json."
+      },
+      "baseline": {
+        "argv_recorded_in": "driver_invocation",
+        "exit_code": 0,
+        "junit_counts": {
+          "errors": 0,
+          "failures": 0,
+          "skipped": 0,
+          "tests": 32
+        },
+        "outputs": {
+          "junit": {
+            "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/W/e02-remaining-queue-current-oracle-20261022-r1/b148-cas02-baseline-removal-20261022-r1/baseline.junit.xml",
+            "sha256": "46acb542f223a53f27a472bb6b5041a036f67c031de6d11d14fd8bf70858d733"
+          },
+          "stderr": {
+            "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/W/e02-remaining-queue-current-oracle-20261022-r1/b148-cas02-baseline-removal-20261022-r1/baseline.stderr",
+            "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+          },
+          "stdout": {
+            "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/W/e02-remaining-queue-current-oracle-20261022-r1/b148-cas02-baseline-removal-20261022-r1/baseline.stdout",
+            "sha256": "d01221f93aad25865bf1616a70297cf16507274f02e8fd18bdb6e1aeaf965be9"
+          }
+        },
+        "selection": "Exact seven pytest selectors are recorded in invocation.json: three test_import_admission_noop cases, two test_bound_import_preservation cases, and one test_cas_02 case, all named in the invocation."
+      }
+    },
+    "commands_note": "The driver_invocation contains the full inline command, selector list, and environment controls; group_result plus per-command stdout/stderr/JUnit refs carry complete decisions.",
+    "group_result": {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/W/e02-remaining-queue-current-oracle-20261022-r1/b148-cas02-baseline-removal-20261022-r1/group-result.json",
+      "sha256": "f5fe60428897a8ed0c6f86428110827e8fea720270204343d4bd4be2256cd24a"
+    },
+    "historical_baseline_separate": {
+      "failures": 15,
+      "meaning": "Separate older prepared-B baseline record; it explicitly remains historical, is not a current replay, and is not the evidence for this B148 32-pass/6-fail-control run.",
+      "passes": 44,
+      "reference": {
+        "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/prepared-b-contract-recipe-reconciliation-20261022-r1/reconciliation.json",
+        "sha256": "416fbf9c1b63ee6ce7662453155928b26f898f638cad4b0a756a576c916c67c0"
+      },
+      "tests": 59
+    }
+  },
+  "root_promotion": {
+    "review": {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/fabric-http-consumption-independent-20261022-r1/c05-b148-fact-review-r1/review.json",
+      "sha256": "087f09b4ee40f9247ab41c87f37c4760cc7f83f11d48cd7b2ae65bf8371c830a"
+    },
+    "author_draft": {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/resume-b164-protected-writer-author-20261022-r1/compact-c05-b148-r1c/b148-current-source-removal-falsifier-receipt-draft.json",
+      "sha256": "20aa14f8c6b7d788e7ba0bec61143a02341ee85ebee5dc95dc0e49f53057f1f3"
+    },
+    "historical_author_status": "unpublished local receipt draft; root owns promotion",
+    "admission_head": "15ae3f0aa47ece6409caf74017bd0595de133d57",
+    "test_replayed_during_promotion": false,
+    "source_freeze": false,
+    "closure_ids": [],
+    "later_input_delta": {
+      "path": "policy-engine/src/polisyos/core/contracts/runtime.py",
+      "captured_sha256": "e459e2a99229114372d83cbbf83975171f94c5f12877cbada023b9411cc7d25d",
+      "sha256_at_promotion": "75a74fb0280ad2671c955dc3001483d086bb448a5a0320f0435a3c73bb98ca92",
+      "meaning": "Historical captured-snapshot evidence only; current composed replay is required."
+    }
+  }
+}

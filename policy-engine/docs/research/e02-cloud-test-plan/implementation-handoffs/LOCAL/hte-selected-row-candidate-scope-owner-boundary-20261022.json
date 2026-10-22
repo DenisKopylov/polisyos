@@ -1,0 +1,229 @@
+{
+  "schema_version": "1.0",
+  "slice": "HTE-selected-row-candidate-scope-owner",
+  "role": "author bounded source/verification handoff; independent G acceptance pending",
+  "source_freeze": false,
+  "input_backend_freeze": false,
+  "source": {
+    "slice_base": "15b89f6b3260555b88889c31dc1c53e6cd9057fb",
+    "candidate": "c50e5b42b1b2d45df8702bc8e27a9b283d0b0aa1",
+    "tree": "853b07ca491897cf739d9776886d5f4db0a4aac2",
+    "parents": [
+      "15b89f6b3260555b88889c31dc1c53e6cd9057fb"
+    ],
+    "branch": "codex/e02-unified-local-20261009",
+    "footprint": [
+      {
+        "path": "policy-engine/src/polisyos/foundry/data_plane/selected_row_candidate_scope.py",
+        "sha256": "036851cdcb3431be38e39f92dc384cdc4f4f4077d9da2a0758b384edf41e8835"
+      },
+      {
+        "path": "policy-engine/tests/unit/foundry/data_plane/test_selected_row_candidate_scope.py",
+        "sha256": "6546a68887bf7f0793b9ec303f1c164bb0e4feda980a0e01cd4403f78ae0130d"
+      },
+      {
+        "path": "policy-engine/src/polisyos/foundry/README.md",
+        "sha256": "dbda4ba46b8fa5fbea7548a4f48839f369f26e17f8911b77d2406e256b283447"
+      }
+    ],
+    "commit_readback": {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/root-selected-row-owner-ordinary-boundary-20261022-r1/commit/readback.json",
+      "sha256": "0de6b53e1a68716852ae22a3fcc3d671afb1404aa5db2ce07f2792166a6a7619",
+      "availability": "retained local ignored RAW on this host; not Git-delivered output"
+    },
+    "tested_working_frame": {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/root-selected-row-native-r3-source-application-20261022-r1/full-composed-source-frame.json",
+      "sha256": "bf762da9f430d8f1916131f16521136c67d352b6bba1f7fe879cdcf72905e351"
+    },
+    "qualification": "The deciding run used the retained full working composition before the source commit. No isolated three-path HEAD replay or full E02 freeze is asserted."
+  },
+  "selected_inputs_profile_backend": {
+    "input": "Controlled forty-row HTE observational input; OwnedHTERequestContextV1 constructed directly with explicit selectors in committed tests; real FileSystemCAS with fresh readers",
+    "backend": "Physical input preparation plus directly imported catalog method class DoubleMachineLearningV2 and its actual signature/profile supplied by the test. Runtime/registry selection and estimator fitting are not exercised.",
+    "request": "mean_effect_over_selected_x / selected_evaluation_rows, explicit outcome/treatment identifiers and contrast; immutable request intent is not modified",
+    "profile": "Existing Core selected-profile bounded JSON read/write and actual HTE physical materialization binding",
+    "scientific_qualification": "not_established",
+    "production_currentness": "not_established"
+  },
+  "chain": {
+    "producer": "build_hte_selected_row_candidate_scope",
+    "artifacts": "One selected-row binding and quantity, treatment_contrast, population, outcome role artifacts; typed selected refs with exact kind/media/schema and producer lineage",
+    "bridge": "Existing physical materialization binding to the selected source; Runtime/ordinary Search lifecycle bridge remains bridge_missing",
+    "consumer": "load_hte_selected_row_candidate_scope reopens physical input and recomputes rows, shapes, values, method profile and all role projections",
+    "surface": "Internal Python module and Foundry README; no data_plane facade export, HTTP/GET/browser or installed-package witness"
+  },
+  "predicate_classification": {
+    "row_order_array_values_shape_dtype_arm_presence": "recomputed",
+    "method_signature_profile_consistency": "recomputed against the actual supplied selected class; caller selection provenance remains consumer_asserted",
+    "request_variable_id_to_physical_slot_meaning": "consumer_asserted",
+    "requested_estimand_target_scope": "declared candidate intent; computed semantic alignment not_established",
+    "units": "unknown",
+    "population_context_law_currentness_causal_identification": "not_established"
+  },
+  "verification": {
+    "canonical_focused": {
+      "status": "PASS scoped",
+      "counts": {
+        "tests": 16,
+        "failures": 0,
+        "errors": 0,
+        "skipped": 0
+      },
+      "wall_seconds": 7.535444582812488,
+      "invocation": {
+        "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/root-canonical-selected-row-scope-wave-20261022-r2/results/invocation.json",
+        "sha256": "555fd12f9faf463d527831ec3672b2b1a9ac2ebd93587bbd860d9d61abc47bf7",
+        "availability": "retained local ignored RAW on this host; not Git-delivered output"
+      },
+      "receipt": {
+        "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/root-canonical-selected-row-scope-wave-20261022-r2/results/receipt.json",
+        "sha256": "9b6f0fc27a4f731478457b23a9a1db44b265d915348f270da951dbdc8c555545",
+        "availability": "retained local ignored RAW on this host; not Git-delivered output"
+      },
+      "complete_stdout": {
+        "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/root-canonical-selected-row-scope-wave-20261022-r2/results/stdout",
+        "sha256": "ecf57d762b443151696ef4727347520d0d5715719bac1e0cd93caddf627ffa61",
+        "availability": "retained local ignored RAW on this host; not Git-delivered output"
+      },
+      "complete_stderr": {
+        "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/root-canonical-selected-row-scope-wave-20261022-r2/results/stderr",
+        "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+        "availability": "retained local ignored RAW on this host; not Git-delivered output"
+      },
+      "junit": {
+        "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/root-canonical-selected-row-scope-wave-20261022-r2/results/junit.xml",
+        "sha256": "c059924e9759799b44acc82eb4b74f9f2986be93574aba3bf0cc6944cb77e7d6",
+        "availability": "retained local ignored RAW on this host; not Git-delivered output"
+      }
+    },
+    "native_types": {
+      "status": "PASS one source file, zero errors and warnings",
+      "argv": [
+        "/Users/deniskopylov/.codex/worktrees/e02-unified-local-20261009/polisyos/policy-engine/.venv/bin/basedpyright",
+        "--baselinemode",
+        "lock",
+        "--project",
+        "/Users/deniskopylov/.codex/worktrees/e02-unified-local-20261009/polisyos/policy-engine/basedpyright.toml",
+        "--outputjson",
+        "src/polisyos/foundry/data_plane/selected_row_candidate_scope.py"
+      ],
+      "summary": {
+        "filesAnalyzed": 1,
+        "errorCount": 0,
+        "warningCount": 0,
+        "informationCount": 0,
+        "timeInSec": 0.9
+      },
+      "baseline_before": "8ceca56253ec877284553b09de0ff1295a75583a6a4fc2238ef002cf9518b6af",
+      "baseline_after": "8ceca56253ec877284553b09de0ff1295a75583a6a4fc2238ef002cf9518b6af",
+      "complete_stdout": {
+        "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/root-canonical-selected-row-scope-wave-20261022-r2/results/basedpyright.stdout",
+        "sha256": "20ecfcb407e4d621c6aa4c8399e14f4c117ea62d38bb32318c2d2c63d3f73064",
+        "availability": "retained local ignored RAW on this host; not Git-delivered output"
+      },
+      "complete_stderr": {
+        "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/root-canonical-selected-row-scope-wave-20261022-r2/results/basedpyright.stderr",
+        "sha256": "e664314bdc5e1dd3cb6000cf2aea3aecde7508671018243af37b61dc66ec8be1",
+        "availability": "retained local ignored RAW on this host; not Git-delivered output"
+      },
+      "stderr_qualification": "Lock-mode informational message says baselined errors went down by 1136 in this partial source invocation. This is not evidence that 1136 whole-repository errors were removed; the baseline is unchanged."
+    },
+    "ruff": {
+      "status": "PASS check and format-check for the two exact canonical logical Python filenames",
+      "manifest": {
+        "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/root-canonical-selected-row-scope-wave-20261022-r2/results/ruff-manifest.json",
+        "sha256": "e2eb61c1f9cfd38aaf05dbcb5cf7ccd057f09a4f00984f05bde832e0af0a9520",
+        "availability": "retained local ignored RAW on this host; not Git-delivered output"
+      },
+      "complete_check": {
+        "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/root-canonical-selected-row-scope-wave-20261022-r2/results/ruff-check.stdout",
+        "sha256": "3bf7b65a4a4813ee4225254878c2105bd41b87b1827070d7590a7c4e3769a4b0",
+        "availability": "retained local ignored RAW on this host; not Git-delivered output"
+      },
+      "complete_format_check": {
+        "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/root-canonical-selected-row-scope-wave-20261022-r2/results/ruff-format-check.stdout",
+        "sha256": "bc9963b5b06d14abf1857e74a582e0114a7c4a3027d10d8496f417c62715571b",
+        "availability": "retained local ignored RAW on this host; not Git-delivered output"
+      }
+    },
+    "reviews": [
+      {
+        "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/search-selected-row-scope-independent-20261022-r1/native-companion-r3-independent-review-r2/review.md",
+        "sha256": "23e7e2d0a33745c0dcc4e35cd703c77c74166238f20001f6ed927c5225ee8eb6",
+        "availability": "retained local ignored RAW on this host; not Git-delivered output"
+      },
+      {
+        "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/search-selected-row-scope-independent-20261022-r1/selected-row-owner-readme-review-r2/review.md",
+        "sha256": "cdb690af7244ca72510bdc04cbca48a03a784fd397ccaba180a01943387350c5",
+        "availability": "retained local ignored RAW on this host; not Git-delivered output"
+      }
+    ],
+    "author_final_packet": {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/search-selected-row-scope-native-companion-author-20261022-r2/final-r3/prepost-manifest.json",
+      "sha256": "a5b780ecf198534b8d017869aa4014f033f9da076723a1e4ae8481a807e05b5e",
+      "availability": "retained local ignored RAW on this host; not Git-delivered output"
+    },
+    "removal_packet": {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/search-selected-row-scope-native-companion-author-20261022-r2/final-r2/prepost-manifest.json",
+      "sha256": "ff9f4f775c0851daef85f149ad5226b02dd983d95541a71c2aa0f9b549ad709d",
+      "availability": "retained local ignored RAW on this host; not Git-delivered output"
+    }
+  },
+  "adversarial_controls": [
+    "Source-row recomputation removal: persisted fake arm counts retain recomputed markers, correct source values and complete three-edge lineage; the exact targeted test fails with DID NOT RAISE only after the recomputation is bypassed.",
+    "Schema predicate removal: a role under an alternate manifest schema keeps correct payload/profile/lineage; the exact targeted test fails with DID NOT RAISE only after manifest schema equality is removed.",
+    "Missing/sibling physical binding and changed request/method/source/role inputs are refused by actual fresh reads.",
+    "Both selected reference models preserve fixed defaults and JSON Schema const values while runtime validators reject wrong kind/media, null and invalid types; fresh read rejects model_copy bypasses."
+  ],
+  "patterns": {
+    "relevant": [
+      "P01",
+      "P02",
+      "P05",
+      "P07",
+      "P29",
+      "P32",
+      "P37",
+      "P38",
+      "P40",
+      "P41"
+    ],
+    "p40": "Same source-bound input/scope owner class; native type refinement and schema/default companions preserve the whole fixed owner invariant. No authority or whole capability closure follows.",
+    "p41": "No inherited-red claim. Broader native/generated/installed and lifecycle checks remain UNRUN or explicitly limited."
+  },
+  "limitations": [
+    "The original raw owner and native companion were verified as a bounded internal mechanism; the Runtime anchor/GET/dashboard and ordinary Search consumers are not yet wired.",
+    "Declared semantic variable mapping is not independently grounded by physical equality. Unknown units, context, population meaning and scientific law are carried explicitly.",
+    "Author removal evidence pins the R2 guard implementation; R3 changes only fixed ref default/schema declarations and an additional test. Complete matched controls on the final composed freeze remain required.",
+    "No private production payload, new institutional permission or production qualifying workload was supplied or inferred.",
+    "Implementation and this receipt are local; own-topic remote publication/readback and independent G acceptance remain pending."
+  ],
+  "decision_pointers": [
+    "Existing G AD03 immutable HTE request/context boundary applies.",
+    "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/search-normal-policy-task-ingress-G-choice-20261022.json is a separate pending ordinary-task ingress choice; it is not implemented or accepted by this owner."
+  ],
+  "proposal_fields": {
+    "formal_closure_requested": false,
+    "finding_id_proposals": [],
+    "claim": "Bounded selected-row producer/artifact/fresh-reader owner with semantic negative controls; supporting evidence to be joined individually to original findings after actual lifecycle/consumer replay."
+  },
+  "closure_ids": [],
+  "next_checks": [
+    "After the pending R6 whole JSON-wire fix, wire the owner at the actual HTE preparation slot and carry its root/four roles through a versioned Core anchor and existing Run Details/GET/dashboard surfaces.",
+    "Consume the same selected artifacts in Search only when the genuine producer supplies them; preserve unknown absent-profile history and never invent admission refs or modify request intent.",
+    "Freeze the complete source/input/profile/backend composition, then run composed consumers, matched removals, native generated/installed checks and the full ID/occurrence proposal audit."
+  ],
+  "handoff_claims_audit": {
+    "review": {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/root-selected-row-handoff-claims-audit-20261022-r1/claims-audit/review.json",
+      "sha256": "b85f8b16416e75123840814d430663dc0abf059489f3a29c8fad6cd3e1159a26",
+      "availability": "retained local ignored RAW on this host; not Git-delivered output"
+    },
+    "reviewed_receipt": {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/root-selected-row-owner-receipt-boundary-20261022-r1/reviewed-pre-wording-receipt.json",
+      "sha256": "ac8675cd1dd62ca314a8a125df6fc027d38471f9eee4a4a0045209786f5a7834",
+      "availability": "retained local ignored RAW on this host; not Git-delivered output"
+    },
+    "disposition": "GO after requested provenance wording clarification. Added only this audit locator and narrowed two input/backend descriptions to state that typed request context and imported class are supplied directly; no Runtime/registry selection claim."
+  }
+}

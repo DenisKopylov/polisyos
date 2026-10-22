@@ -1,0 +1,256 @@
+{
+  "schema": "policyos.e02.local_decision_handoff.v1",
+  "id": "E02-LOCAL-SEARCH-NORMAL-INGRESS-20261022",
+  "status": "proposal_not_adjudicated",
+  "decision_authority": "G; author requests only the new normal-policy intake boundary choice, not code acceptance or closure",
+  "question": "Разрешить ли обычному policy workflow с data_source принимать отдельный optional candidate-grade HTE Search task, сохранив direct observational_input отдельным и взаимно исключающим путём?",
+  "recommendation": "Да: добавить один строгий versioned carrier (рабочее имя policy_search_task), сохранять immutable candidate request и создавать unassessed Search task до вызова выбранного метода через существующих owners. Не дублировать source/method selection и не выводить estimand из PolicyCandidate.",
+  "why_new_choice": "AD03 фиксирует direct atomic observational_input, запрещающий data_source и обходящий blueprint. AD06 уже фиксирует same-basis unassessed→assessed; новый вопрос только о наличии явного HTE task request в обычном policy intake. Поле, DTO composition, internal adapter и wiring после этого решения — работа исполнителя.",
+  "original_criterion": {
+    "finding_id": "B161",
+    "occurrence_key": "B161#1:B_r19:FUN-03:f08fecf0caf482a9f2d93c1f808ea16daa2232de161e5eeb98a7995fa2d41e0a",
+    "source_document": "B_r19",
+    "criterion_lines": [
+      4165,
+      4176
+    ],
+    "criterion_span_sha256": "f08fecf0caf482a9f2d93c1f808ea16daa2232de161e5eeb98a7995fa2d41e0a",
+    "task": "S1",
+    "proposal": "No closure proposed by this design packet."
+  },
+  "observed_existing_chain": [
+    "Control WorkflowRunRequest intentionally rejects data_source beside observational_input; lifecycle takes separate direct-method route.",
+    "Ordinary policy_design invokes run_causal_evaluation before run_policy_blueprint_runtime; causal input/method/params/seed exist before dispatch, but current Search owner context is made only in the later blueprint funnel.",
+    "Search admission DTOs, producer, persistence, ticket binding and current reader already exist. The normal-policy context leaves explicit HTE request/scope and selected method slices not_established. This is not global Search producer absence."
+  ],
+  "alternatives": [
+    {
+      "option": "Reuse direct observational_input unchanged",
+      "effect": "Keep current direct method capability; cannot compose ordinary data_source policy workflow through that atomic route.",
+      "selection": "insufficient for normal policy ingress"
+    },
+    {
+      "option": "Put selectors in general params or only later PolicyRuntimeRequest",
+      "effect": "Untyped params or late request do not establish explicit pre-method task intent.",
+      "selection": "reject"
+    },
+    {
+      "option": "Add one explicit optional normal-policy task carrier",
+      "effect": "Reuse selected input/method owners and existing Search persistence; preserve omitted-field behavior and direct request boundary.",
+      "selection": "recommended"
+    },
+    {
+      "option": "No new normal-policy task ingress",
+      "effect": "Keep current conservative not_established path; restrict any B161/normal-policy claim to its genuinely implemented boundary.",
+      "selection": "valid G product-boundary alternative"
+    },
+    {
+      "option": "Build a second Search engine or scientific ontology",
+      "effect": "Duplicates owners and cannot create source-variable identity.",
+      "selection": "reject"
+    }
+  ],
+  "migration_and_contract": {
+    "omit": "Existing ordinary data_source behavior unchanged.",
+    "present": "Strict non-null versioned task; reject extra fields and observational_input coexistence. Reuse Core V2 HTE selector semantics and project into Search without Core importing Scientist.",
+    "selection": "Resolve source, method version/ABI/effective params/seed/profile/attempt from existing owners; never copy late benchmark policy selection as HTE method evidence.",
+    "resource_order": "POST persists small immutable refs/intent. Bounded source decode/physical binding/task admission occur inside the existing admitted physical worker before method dispatch, not as heavy work in POST.",
+    "history": "Retain historical tasks/unknown obligations, same-basis first assessment and contested alternatives. No arbitrary risk lowering or rewritten history.",
+    "public_footprint": "Core request/schema/DTO; Runtime intake/state and existing causal node; Search owner adapter; fresh API/client/browser companions where the new public field is consumed; generated references from canonical recipes. One writer per shared carrier."
+  },
+  "authority_and_time": {
+    "candidate": "Requested estimand/variable mapping are declarations; physical slot bytes/row order can be recomputed. Declared mapping must retain consumer_asserted provenance and explicit limitations.",
+    "protected": "No world-variable identity, population transport, causal identification, unit law, issuer permission, live currentness or publication authority follows from the task.",
+    "timing": "Persist unassessed task before method call; later actual result binds the exact same basis and owned attempt. Read-time permission/currentness remain distinct.",
+    "decision_needed_for": "Normal policy public task ingress; no G reopening of AD03 direct input, AD04 native point/interval or AD06 first-assessment semantics."
+  },
+  "internal_work_continues": [
+    "Search current-reader/whole-point invariants and typed Runtime selector companions are implemented in the working composition; qualified assessed-route verification remains missing.",
+    "Repair canonical post-composition type errors without baselines/ignores.",
+    "Extend existing physical-source and explicit Runtime request owners for a limited selected-row candidate scope, with role-content verification; independent audit says this does not require a new G choice.",
+    "Finish lifecycle producer→artifact→owned-selection→consumer replay and independent review."
+  ],
+  "engineering_boundaries": [
+    "No variable-ID-to-source-slot proof is invented from matching names, shapes, hashes or generic refs.",
+    "Decode/normalize and physical binding stay inside admitted compute scope.",
+    "Candidate-only selected-row scope may carry unknown unit and declared mapping; stronger claims require their actual evidence owners."
+  ],
+  "acceptance_and_falsifier": {
+    "prototype_status": "Read-only source/API trace only; no new carrier prototype or runtime capability is claimed.",
+    "positive": "Ordinary data_source request with explicit task → durable candidate intent → actual source/method/profile reconciliation → persisted unassessed task BEFORE method invocation → same-attempt result → fresh Search/API consumer.",
+    "negatives": [
+      "Independent selector/source-profile/effective-default changes alter or refuse the basis.",
+      "Profile-valid unrelated artifact in any scope role fails content/role checks even with coherent graph refs.",
+      "Remove request→pre-dispatch admission while retaining DTO markers: no valid task binding may survive.",
+      "Omission preserves old route; null/extra fields and direct observational_input coexistence refuse."
+    ],
+    "verification_state": "UNRUN for proposed normal intake. Existing source reviews do not establish capability."
+  },
+  "source_snapshot": {
+    "head": "af627f84448f072cc3a141f24769aceb210c0506",
+    "tree": "7e658f75262776aa7737dba7f521e739e2b757cd",
+    "branch": "codex/e02-unified-local-20261009",
+    "dirty": true,
+    "working_frame": {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/root-search-r8-source-composition-application-20261022-r1/full-composed-source-frame.json",
+      "sha256": "fba1b94d0579bfd2d4243dfc9777bb4270ce710f47bf25af575ca4c272b65b36"
+    },
+    "source_freeze": false,
+    "head_tree_is_not_working_source": true,
+    "source_pins": [
+      {
+        "path": "policy-engine/src/polisyos/core/contracts/control.py",
+        "sha256": "b60cba7680a215bf543d62a0ee2cd242ff1ddc71c5a1bb8c352bc6eaa20d234c",
+        "anchors": "ObservationalHTERequestV1/V2 445–523; ObservationalRunInput 532–598; WorkflowRunRequest 600–660"
+      },
+      {
+        "path": "policy-engine/src/polisyos/runtime/http/routes/control.py",
+        "sha256": "fe819293c062288e9f78960b57e1de8490a33f9ba538ab07ec5a28442f6f9ed9",
+        "anchors": "launch_run route split 321–344"
+      },
+      {
+        "path": "policy-engine/src/polisyos/runtime/http/services/control/run_lifecycle.py",
+        "sha256": "ff2e8f55572ff42d755601fc0469426ba2e9b2545382ef9493c03c54627f5cbf",
+        "anchors": "normal payload 9718–9790; direct HTE 5698–5950; branch 9740–9756; completed owner injection 10305"
+      },
+      {
+        "path": "policy-engine/src/polisyos/scientist/orchestration/workflows/policy_design.py",
+        "sha256": "08fb5983e97846e1a89f4e4d24cc481f476587db784ace9e6b02616a3ccd22e7",
+        "anchors": "causal evaluation before policy blueprint 188–244"
+      },
+      {
+        "path": "policy-engine/src/polisyos/scientist/nodes/builtins/simulate/run_causal_evaluation.py",
+        "sha256": "1a58d1736ca2d16b11cf2c6792bf0e4742dd73f57960aa045e55d05b9a7062d6",
+        "anchors": "inputs 129–166; predispatch method JobSpec 1121–1200; HTE persistence 1500–1630"
+      },
+      {
+        "path": "policy-engine/src/polisyos/scientist/nodes/builtins/decide/policy_blueprint_runtime_engine.py",
+        "sha256": "4770758213add5d84766aa3dc9ca705030f49b981ac58f2add407c586e988e79",
+        "anchors": "Search context 236–390; policy-selection ref 548–603"
+      },
+      {
+        "path": "policy-engine/src/polisyos/scientist/nodes/builtins/decide/policy_runtime_request.py",
+        "sha256": "5b3b400ec51b78d14166e22714fbba18b94c27fc87d21306cde44e53cc4bfa4b",
+        "anchors": "typed PolicyRuntimeRequest 58–79"
+      },
+      {
+        "path": "policy-engine/src/polisyos/scientist/methods/search/uncertainty.py",
+        "sha256": "521255e0de682586e2506ca7e5ef87a7326a8334adba37c80b2d95b897b9d97a",
+        "anchors": "scope/request/context 1531–1745; generic ref validation 2951–2995 and 3133–3235; admission/binding 3671+, 4313+"
+      },
+      {
+        "path": "policy-engine/src/polisyos/scientist/orchestration/engine/context.py",
+        "sha256": "213e1b1e271db18e6561f58366facc01c7b793b9b3f8fb9c3ca37eee6bce5f3f",
+        "anchors": "completed HTE reader protocol 198–210"
+      },
+      {
+        "path": "policy-engine/src/polisyos/scientist/nodes/builtins/decide/decision_packet/builder.py",
+        "sha256": "59b59851442e4045ddc9c4e3db8f80c75a39ebe865e416b4b6eb8d7c2b796e8e",
+        "anchors": "completed HTE association validation 283–365"
+      },
+      {
+        "path": "policy-engine/src/polisyos/scientist/policy_design/schema.py",
+        "sha256": "0b083c154e5f92805467f9bd3441c59d34803ce90f00fea8c10152a06bfa27d9",
+        "anchors": "candidate target/intervention/metric fields 39,125–195"
+      },
+      {
+        "path": "policy-engine/src/polisyos/foundry/methods/catalog/causal/protocols.py",
+        "sha256": "ece93225711e7702b9dace607ab6cf9ab4941baa56bc847e19b3f35c7e8ca44b",
+        "anchors": "HTE data slots, no stable variable-ID mapping 207–305"
+      },
+      {
+        "path": "policy-engine/src/polisyos/ir/analytics/causal.py",
+        "sha256": "a5bb067e56e2106432dca58b31cf9851dba6b5c3a3188e113a6ece1923a7fea7",
+        "anchors": "numerical success not causal identification 521–625"
+      },
+      {
+        "path": "policy-engine/src/polisyos/core/contracts/runtime.py",
+        "sha256": "e459e2a99229114372d83cbbf83975171f94c5f12877cbada023b9411cc7d25d",
+        "anchors": "CompletedMethodHTESource 5534–5554"
+      }
+    ],
+    "delta_after_independent_review": {
+      "changed_pinned_sources": [
+        {
+          "path": "policy-engine/src/polisyos/scientist/nodes/builtins/decide/policy_blueprint_runtime_engine.py",
+          "audited_sha256": "4568a29e4851b53128ed987a3f111c1c05167c4dc05eaf7f81427860370a43ec",
+          "current_sha256": "4770758213add5d84766aa3dc9ca705030f49b981ac58f2add407c586e988e79"
+        },
+        {
+          "path": "policy-engine/src/polisyos/scientist/methods/search/uncertainty.py",
+          "audited_sha256": "05a83ff0aa934bd18b31ccd3bcdd21613898ed18063327e18df27daaedc025c0",
+          "current_sha256": "521255e0de682586e2506ca7e5ef87a7326a8334adba37c80b2d95b897b9d97a"
+        }
+      ],
+      "root_reconciliation": "R8 changes current reader/type and callback-selector companions; current normal workflow still lacks typed pre-dispatch task ingress. The question is not source acceptance."
+    }
+  },
+  "governing_decisions": [
+    {
+      "commit": "b7adafe89423bc6906a5fb86c38e579a381ad2ee",
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/integration/architecture-decisions-2026-10-20/06-final-decisions-and-solo-review.md",
+      "sha256": "4eb1e7e966194f424d0cc1ab57e91fd664a1534367bf776d07895741b5d8939b",
+      "anchors": "AD03 strict atomic request 77–108; ordinary engineering/G boundary and external inputs 124–126"
+    },
+    {
+      "commit": "b7adafe89423bc6906a5fb86c38e579a381ad2ee",
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/integration/architecture-decisions-2026-10-20/04-implementation-and-verification.md",
+      "sha256": "3e011756d4fee22a8f59ba57ed89fe15c74b7ed3755b42db4c3725bd0f635de1",
+      "anchors": "HTE and metric slices remain separate 9–22; ordinary HTTP acceptance 34–36"
+    },
+    {
+      "commit": "798bd1ab9646378f49fd127b3f04ebe71aca67d2",
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/integration/architecture-decisions-2026-10-21/04-hte-point-and-inference.md",
+      "sha256": "c1de3c28491d9f64934072e09713eb613e9f8e0c495b2e73ecacb09209c74e5e",
+      "anchors": "candidate point vs causal/coverage claims 1–11; target and selection semantics 27–34"
+    },
+    {
+      "commit": "798bd1ab9646378f49fd127b3f04ebe71aca67d2",
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/integration/architecture-decisions-2026-10-21/06-current-scoped-uncertainty.md",
+      "sha256": "d11342cb05f1351b79ed8773de61d700f832e7795633a8b861fbafbb6c3a7900",
+      "anchors": "reuse Search/Runtime 13–17; scope and task admission 19–34"
+    },
+    {
+      "commit": "798bd1ab9646378f49fd127b3f04ebe71aca67d2",
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/integration/architecture-decisions-2026-10-21/07-implementation-handoff.md",
+      "sha256": "bb4bd6e5e92d009d28707a9530188189ef0c29da48fafaa0b865134a795026af",
+      "anchors": "routine implementation vs G choice 20–24, 49–53; ordinary vertical route 29–33"
+    }
+  ],
+  "reviews_and_research": [
+    {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/search-owner-production-source-audit-20261022-r1/final-decision/decision.json",
+      "sha256": "5b6b162a28db790aaa890270cb74027d6cdc704f25ab9d6dd14510452fb8d748",
+      "availability": "retained local ignored RAW"
+    },
+    {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/search-owner-G-choice-independent-20261022-r1/independent-review.md",
+      "sha256": "5da4bd3f02e56754b0e7090d281827482f714fb2420ea8fa75c4e8ffb54f4fd3",
+      "availability": "retained local ignored RAW"
+    },
+    {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/search-owner-role-content-reuse-audit-20261022-r1/source-role-packet-r1/decision.md",
+      "sha256": "495fd001bbd3bdbf8b010edf6ac4eb18b17994b2878bdad67447e719903eaf20",
+      "availability": "retained local ignored RAW"
+    }
+  ],
+  "pattern_pass": {
+    "patterns": [
+      "P01",
+      "P02",
+      "P05",
+      "P29",
+      "P32",
+      "P35",
+      "P37",
+      "P38",
+      "P40",
+      "P41"
+    ],
+    "P40": "SAME_CLASS_DEEPER: complete explicit task→pre-dispatch owner→same-attempt consumer relation, not one missing field per repair.",
+    "P41": "No inherited-red claim; this packet carries no gate PASS."
+  },
+  "closure_ids": [],
+  "G_acceptance": false,
+  "publication": "local tracked candidate packet; remote publication and exact remote SHA/tree verification pending"
+}

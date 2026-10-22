@@ -21,7 +21,11 @@ from polisyos.berl.persistence import (
     load_explanation_bundle,
     persist_explanation_bundle,
 )
-from polisyos.berl.service import ExplanationOrchestrator, ExplanationRequest
+from polisyos.berl.service import (
+    ExplanationOrchestrator,
+    ExplanationRequest,
+    explain_and_persist,
+)
 
 __all__ = [
     "EmpiricalBoundResult",
@@ -33,6 +37,7 @@ __all__ = [
     "ValidationThresholds",
     "empirical_bernstein_upper_bound",
     "estimate_local_infidelity",
+    "explain_and_persist",
     "hoeffding_upper_bound",
     "load_explanation_bundle",
     "persist_explanation_bundle",

@@ -74,6 +74,10 @@ from polisyos.berl.perturbations import (
 if TYPE_CHECKING:
     from collections.abc import Mapping, Sequence
 
+    from polisyos.core.artifacts import ArtifactStore as CoreArtifactStore
+    from polisyos.ir import ArtifactStore as IRArtifactStore
+    from polisyos.ir import ExplanationBundleRef
+
 from polisyos.berl.service.cache_identity import (
     _adapter_cache_identity as _adapter_cache_identity,
 )
@@ -481,6 +485,36 @@ class ExplanationOrchestrator:
             redundancy_adjusted_conflicts=redundancy_adjusted_conflicts,
             flags=list(dict.fromkeys(flags)),
         )
+
+
+def explain_and_persist(
+    model: ScalarModel,
+    request: ExplanationRequest,
+    store: CoreArtifactStore | IRArtifactStore,
+    *,
+    orchestrator: ExplanationOrchestrator | None = None,
+) -> ExplanationBundleRef:
+    """Produce an explanation bundle and persist its exact selected CAS view.
+
+    Args:
+        model: Scalar model to explain.
+        request: Request describing the prediction and explanation methods.
+        store: Existing Core or IR artifact store receiving the produced bundle.
+        orchestrator: Configured BERL producer; defaults to the standard registry.
+
+    Returns:
+        ExplanationBundleRef: Exact selected-view ref returned by the CAS write.
+
+    Raises:
+        ValueError: If the produced bundle or selected ref violates the BERL contract.
+        NotImplementedError: If the store cannot return the profile selected by its write.
+        OSError: If the store reports an operating-system write failure.
+    """
+    from polisyos.berl.persistence import persist_explanation_bundle
+
+    producer = orchestrator if orchestrator is not None else ExplanationOrchestrator()
+    bundle = producer.explain(model, request)
+    return persist_explanation_bundle(store, bundle)
 
 
 def default_adapters() -> dict[str, _AdapterRoute]:

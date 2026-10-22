@@ -1,6 +1,6 @@
 # polisyos.berl
 
-- Last updated: 2026-10-11
+- Last updated: 2026-10-22
 
 Bounded Explanation Reliability Layer package for explanation bundles,
 validation thresholds, empirical reliability bounds, and local infidelity
@@ -24,6 +24,7 @@ warrant-reliability validation, which revalidate explanation-reliability evidenc
 - `ExplanationBundle`
 - `ExplanationOrchestrator`
 - `ExplanationRequest`
+- `explain_and_persist`
 - `ExplanationBundleStoreReadError`
 - `persist_explanation_bundle`
 - `load_explanation_bundle`
@@ -65,17 +66,23 @@ contract.
 
 `persist_explanation_bundle` writes an `ExplanationBundle` through the IR CAS boundary and returns an `ExplanationBundleRef` with the exact selected manifest view. It uses the existing generated schema identifier and `EXPLANATION_BUNDLE_SCHEMA_VERSION`, and fixes the artifact kind to `scientist.explanation_bundle` with `application/json` media. `load_explanation_bundle` requires that typed ref, resolves its selected manifest, checks kind, media, schema name, schema version, and required wire fields, then validates the bundle. It does not infer a feature law from refs or bundle declarations.
 
-`ExplanationOrchestrator.explain` remains an in-memory producer; it does not automatically persist.
-The controlled integration witness demonstrates producer → same-write selected-profile CAS ref →
-fresh Phase-5 and Runtime readers. Historical valid profileless default refs remain readable when
-the default manifest satisfies the fixed BERL contract; newly persisted refs always preserve the
-profile selected by their own write. The public `build_quality_scorecard` function belongs to
-Runtime quality, not BERL. Known source-snapshot uses include `tools/ops_runners/runtime/canary_evidence.py`
-and `tests/_helpers/hds_quality.py` at source snapshot
-`bafca83bff9ff49eef1466bc491a8420b5cd1dbb`; those uses do not establish an orchestrated BERL
-scorecard capability. This BERL witness is not a production caller or currentness assertion.
-Conditional-law evidence remains `producer_missing`; a self-declared artifact ref does not admit a
-conditional profile.
+`ExplanationOrchestrator.explain` remains an in-memory producer and keeps returning an
+`ExplanationBundle`. The additive `explain_and_persist` operation accepts the same model and request
+plus an existing Core or IR artifact store, runs the standard or supplied orchestrator, and passes
+that produced bundle to `persist_explanation_bundle`. It returns the exact selected-view
+`ExplanationBundleRef` from the writer. Store write failures propagate without a ref; a request
+without an admitted conditional law remains a persisted diagnostic.
+
+The service integration witness exercises `explain_and_persist` through a selected-profile CAS ref
+and fresh BERL, Phase-5, and Runtime readers. Historical valid profileless default refs remain
+readable when the default manifest satisfies the fixed BERL contract; newly persisted refs always
+preserve the profile selected by their own write. The public `build_quality_scorecard` function
+belongs to Runtime quality, not BERL. Known source-snapshot uses include
+`tools/ops_runners/runtime/canary_evidence.py` and `tests/_helpers/hds_quality.py` at source
+snapshot `bafca83bff9ff49eef1466bc491a8420b5cd1dbb`; those uses do not establish an orchestrated
+BERL scorecard capability. The integration fixture does not establish a first-party production
+caller, production store availability, or currentness. Conditional-law evidence remains
+`producer_missing`; a self-declared artifact ref does not admit a conditional profile.
 
 ## Persisted Consumer Validation
 

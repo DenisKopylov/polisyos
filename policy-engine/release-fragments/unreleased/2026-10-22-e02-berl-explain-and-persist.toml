@@ -1,0 +1,21 @@
+id = "2026-10-22-e02-berl-explain-and-persist"
+title = "Expose an explicit BERL produce-and-persist operation"
+type = "added"
+component = "berl"
+owner = "team-scientist"
+summary = "BERL exposes explain_and_persist as an additive service operation that runs the existing explanation producer, persists its bundle through the existing selected-view CAS writer, and returns the exact typed ExplanationBundleRef."
+evidence = [
+  "src/polisyos/berl/service/__init__.py",
+  "src/polisyos/berl/__init__.py",
+  "tests/integration/scientist_berl/test_explanation_persisted_service_bridge.py",
+]
+compatibility = "ExplanationOrchestrator.explain keeps its in-memory return behavior. The new operation composes the existing producer and writer without changing the persisted bundle schema or conditional-law semantics."
+change_class = "python-public-api"
+surface_classification = "public_experimental: polisyos.berl"
+migration = "Call explain_and_persist(model, request, store) when the caller needs the produced bundle durably stored. Continue to call ExplanationOrchestrator.explain when an in-memory ExplanationBundle is sufficient."
+api = "The package facade exports explain_and_persist. It can use the standard producer or a supplied ExplanationOrchestrator, then returns the selected ref from persist_explanation_bundle. Existing BERL, Phase-5, and Runtime readers resolve and validate the exact CAS view. Unsupported conditional requests remain persisted diagnostics."
+limitations = "This API addition does not establish a first-party production caller, a verified conditional-law producer, runtime authority, currentness, or policy acceptance."
+generated_client_compatibility = "not_applicable"
+public_surface_inventory_reviewed = true
+migration_docs = ["src/polisyos/berl/README.md"]
+runbook_docs = []

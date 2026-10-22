@@ -484,6 +484,51 @@ def test_hte_result_v1_round_trips_as_the_native_interval_carrier(tmp_path) -> N
     assert ref.manifest_profile_sha256 is not None
 
 
+def test_hte_manifest_mapping_path_still_checks_selected_identity(tmp_path, monkeypatch) -> None:
+    """A direct Mapping remains admitted only when its selected identity matches."""
+    store = ensure_ir_artifact_store(FileSystemCAS(tmp_path))
+    basis = _valid_native_basis()
+    ref = persist_ate_inference_basis(store, basis)
+    manifest = store.get_manifest(ref.artifact_id)
+    payload: dict[str, object] = manifest.model_dump(mode="json", by_alias=True, exclude_none=True)
+
+    original_get_manifest = type(store).get_manifest
+
+    def mapping_manifest_for_target(_store: object, artifact_id: object) -> object:
+        if artifact_id == ref.artifact_id:
+            return payload
+        return original_get_manifest(_store, artifact_id)
+
+    monkeypatch.setattr(type(store), "get_manifest", mapping_manifest_for_target)
+    assert load_ate_inference_basis(store, ref) == basis
+
+    payload["kind"] = "ir.forged_inference_basis"
+    with pytest.raises(ValueError, match="hte_selected_manifest_identity_mismatch"):
+        load_ate_inference_basis(store, ref)
+
+
+def test_hte_manifest_rejects_non_mapping_model_dump(tmp_path, monkeypatch) -> None:
+    """A present manifest with a malformed dump fails closed instead of defaulting."""
+    store = ensure_ir_artifact_store(FileSystemCAS(tmp_path))
+    basis = _valid_native_basis()
+    ref = persist_ate_inference_basis(store, basis)
+
+    class MalformedManifest:
+        def model_dump(self, **_kwargs: object) -> object:
+            return ["schema", "not", "a", "mapping"]
+
+    original_get_manifest = type(store).get_manifest
+
+    def malformed_manifest_for_target(_store: object, artifact_id: object) -> object:
+        if artifact_id == ref.artifact_id:
+            return MalformedManifest()
+        return original_get_manifest(_store, artifact_id)
+
+    monkeypatch.setattr(type(store), "get_manifest", malformed_manifest_for_target)
+    with pytest.raises(ValueError, match="hte_manifest_invalid"):
+        load_ate_inference_basis(store, ref)
+
+
 def test_hte_result_v1_still_rejects_an_interval_that_excludes_its_point() -> None:
     """The new native producer cannot bypass legacy HTEResult's interval law."""
     with pytest.raises(ValidationError, match="ate must lie inside ate_ci"):

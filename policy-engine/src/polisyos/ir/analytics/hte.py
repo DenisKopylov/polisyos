@@ -34,6 +34,7 @@ from polisyos.ir.registry.refs import (
     OwnedAttemptAnchorRef,
     PolicyRecommendationRef,
     SearchUncertaintyTaskBindingRef,
+    _ProfiledArtifactRef,
 )
 
 if TYPE_CHECKING:
@@ -226,13 +227,6 @@ class HTEResult(BaseModel):
         for metric_name, metric_value in self.model_fit_metrics.items():
             ensure_finite_numeric(metric_value, field_name=f"model_fit_metrics.{metric_name}")
         return self
-
-
-class _ProfiledArtifactRef(ArtifactRefModel):
-    """Require the exact manifest profile selected by the producing write."""
-
-    model_config = ConfigDict(extra="forbid", frozen=True, strict=True)
-    manifest_profile_sha256: str = Field(pattern=r"^sha256:[0-9a-f]{64}$")
 
 
 _HTE_V2_METHOD_PROFILES: dict[str, str] = {
@@ -477,15 +471,13 @@ class HTETargetRelationV1(BaseModel):
         else:
             expected_guarantee = "requested_claim_not_satisfied"
 
-        semantic_basis_bound = self.contrast_status == "recomputed"
+        # This schema fixes estimand_status to not_established, so a matching
+        # scope and guarantee cannot satisfy the overall request. Preserve a
+        # known request mismatch; otherwise keep the overall result limited.
         expected_overall = (
             "requested_claim_not_satisfied"
             if "requested_claim_not_satisfied" in {expected_scope, expected_guarantee}
             else "not_established"
-            if not semantic_basis_bound
-            or self.estimand_status != "recomputed"
-            or "not_established" in {expected_scope, expected_guarantee}
-            else "satisfied"
         )
         if (
             self.scope_disposition != expected_scope
@@ -1673,7 +1665,10 @@ def _assert_hte_artifact_manifest(
     manifest = store.get_manifest(ref.artifact_id)
     dump = getattr(manifest, "model_dump", None)
     if callable(dump):
-        payload = dump(mode="json", by_alias=True, exclude_none=True)
+        dumped = dump(mode="json", by_alias=True, exclude_none=True)
+        if not isinstance(dumped, Mapping):
+            raise ValueError("hte_manifest_invalid")
+        payload = dict(dumped)
     elif isinstance(manifest, Mapping):
         payload = dict(manifest)
     else:

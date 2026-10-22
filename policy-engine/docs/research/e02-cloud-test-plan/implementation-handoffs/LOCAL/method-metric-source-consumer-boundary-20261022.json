@@ -1,0 +1,206 @@
+{
+  "schema": "policyos.e02.local_slice_handoff.v1",
+  "slice": "AD01 bounded method-metric source admission and returned-value consistency",
+  "author_role": "candidate author; G independent acceptance and formal adjudication reserved",
+  "state": "source implementation committed; focused composed verification passed; complete capability replay pending",
+  "slice_base": "640fe02fabf8672013f0cb5c11fd42f88f2023b1",
+  "candidate": "24d0e2ba7d49c256c90926f11999f4af080e454a",
+  "tree": "29c8c6ce63ec780c762fd3691f975bcd87379d50",
+  "parents": [
+    "640fe02fabf8672013f0cb5c11fd42f88f2023b1"
+  ],
+  "branch": "codex/e02-unified-local-20261009",
+  "footprint": [
+    {
+      "path": "policy-engine/src/polisyos/scientist/nodes/builtins/decide/policy_runtime_method_metrics.py",
+      "sha256": "09b1eda4cd9458951de4af0a6b7c3ff96ab0b744e33a65b41755dfa7df5a33ad"
+    },
+    {
+      "path": "policy-engine/tests/unit/scientist/nodes/builtins/decide/test_policy_runtime_method_metrics.py",
+      "sha256": "1b20fd4cda0d6d959d538e3ebfcf78db36c0d36de5d205652c982cbb9d812ac1"
+    }
+  ],
+  "config_or_schema_changes": [],
+  "source_freeze": false,
+  "input_backend_freeze": false,
+  "selected_inputs": {
+    "profile": "existing isolation-local Python environment; exact literal executable and numeric thread settings in deciding invocation",
+    "interpreter": "/Users/deniskopylov/.codex/worktrees/e02-unified-local-20261009/polisyos/policy-engine/.venv/bin/python",
+    "uv_lock": {
+      "path": "policy-engine/uv.lock",
+      "sha256": "484dfe164235ea48164c8bf1b33190b3a25dd883c667a41e8a25b07bf5c5df3c"
+    },
+    "venv_config": {
+      "path": "policy-engine/.venv/pyvenv.cfg",
+      "sha256": "1eaa0e4e4be4b02929ffdec9fc56fea39faecd1c3d04bf1edad29a62549c5046"
+    },
+    "fixture": "Existing ExAnteSimulationEstimator actual graph producer; baseline [10,20,40], scenario [11,18,44], float64, seed 41; profiled controlled CAS and current owner-selection fixtures. Individual cases and complete inputs are in the committed test module.",
+    "production_inputs_used": [],
+    "ruff_profile": {
+      "path": "policy-engine/architecture/tooling/ruff/workspace_root.toml",
+      "sha256": "879bfc2fa77909e595e661679fdeb9c771c3d34308a52e7c41971114f6a4ed99"
+    }
+  },
+  "real_chain": [
+    "Existing compiled selected binding and actual Ex-Ante graph execution persist selected output/returned-slot inventory, execution bundle and SimulationResult.",
+    "Fresh bounded source reader reconciles selected manifests and input edges; a binary state child is admitted only through its exact typed selected snapshot parent.",
+    "Projection admission reconciles captured runtime value type with selected scalar or structured numeric value and registered law/unit semantics.",
+    "Existing persisted PolicyEvaluationVector projection is consumed through both configured Search metric consumers; forged returned-slot type becomes unavailable rather than a qualified score."
+  ],
+  "verification": {
+    "canonical_focused_tests": {
+      "command": [
+        "/Users/deniskopylov/.codex/worktrees/e02-unified-local-20261009/polisyos/policy-engine/.venv/bin/python",
+        "-B",
+        "-m",
+        "pytest",
+        "-q",
+        "-o",
+        "cache_dir=/Users/deniskopylov/.codex/worktrees/e02-unified-local-20261009/polisyos/policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/root-canonical-metric-companion-check-20261022-r2/pytest-cache",
+        "--basetemp=/Users/deniskopylov/.codex/worktrees/e02-unified-local-20261009/polisyos/policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/root-canonical-metric-companion-check-20261022-r2/temp",
+        "--junitxml=/Users/deniskopylov/.codex/worktrees/e02-unified-local-20261009/polisyos/policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/root-canonical-metric-companion-check-20261022-r2/junit.xml",
+        "tests/unit/scientist/nodes/builtins/decide/test_policy_runtime_method_metrics.py"
+      ],
+      "cwd": "/Users/deniskopylov/.codex/worktrees/e02-unified-local-20261009/polisyos/policy-engine",
+      "timeout_seconds": 120,
+      "numeric_threads": {
+        "OMP_NUM_THREADS": "1",
+        "OPENBLAS_NUM_THREADS": "1",
+        "MKL_NUM_THREADS": "1",
+        "NUMBA_NUM_THREADS": "1",
+        "NUMEXPR_NUM_THREADS": "1",
+        "ARROW_NUM_THREADS": "1",
+        "BLIS_NUM_THREADS": "1",
+        "POLARS_MAX_THREADS": "1",
+        "TF_NUM_INTEROP_THREADS": "1",
+        "TF_NUM_INTRAOP_THREADS": "1",
+        "VECLIB_MAXIMUM_THREADS": "1",
+        "SCIENTIST_TORCH_NUM_INTEROP_THREADS": "1",
+        "SCIENTIST_TORCH_NUM_THREADS": "1"
+      },
+      "result": {
+        "tests": 80,
+        "failures": 0,
+        "errors": 0,
+        "skipped": 0
+      },
+      "exit_code": 0,
+      "wall_seconds": 34.103024541866034,
+      "source_state_unchanged": true,
+      "source_bound_at": "43db279dff4cbb61e81f0de7c48fac12846c5174",
+      "source_frame": {
+        "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/root-method-metric-malformed-fixture-r2-application-20261022-r1/full-composed-source-frame.json",
+        "sha256": "d8ae6e6513050922a15a43abd61e41f7d56e76f80104b4600731a6ad5e461fbf"
+      },
+      "byte_identity_to_committed_slice": "Both tested target hashes read back from candidate Git commit; the commit changes exactly these two paths. The command ran on the earlier declared composed working frame, not an isolated replay of this two-path commit."
+    },
+    "outputs": [
+      {
+        "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/root-canonical-metric-companion-check-20261022-r2/invocation.json",
+        "sha256": "204bb2c5485a902a7594c8ab7be819c7ea4b47ae91da3324d897951ef85df18a",
+        "availability": "retained local ignored RAW; not a Git-delivered output"
+      },
+      {
+        "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/root-canonical-metric-companion-check-20261022-r2/receipt.json",
+        "sha256": "0bc9f55815006ff68c43ef259f76886616fc3fc70b021ee5f7288d3f3334474a",
+        "availability": "retained local ignored RAW; not a Git-delivered output"
+      },
+      {
+        "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/root-canonical-metric-companion-check-20261022-r2/stdout",
+        "sha256": "88c7212651663976ec9b7622e387e9bafe54d205bd9d2af063cbf9bddb86b845",
+        "availability": "retained local ignored RAW; not a Git-delivered output"
+      },
+      {
+        "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/root-canonical-metric-companion-check-20261022-r2/stderr",
+        "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+        "availability": "retained local ignored RAW; not a Git-delivered output"
+      },
+      {
+        "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/root-canonical-metric-companion-check-20261022-r2/junit.xml",
+        "sha256": "470bf249ad7939b80d1143099491b2fdb858e3ab5acf92c74da6066971a23ab4",
+        "availability": "retained local ignored RAW; not a Git-delivered output"
+      },
+      {
+        "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/root-canonical-metric-r2-ruff-20261022-r1/receipt.json",
+        "sha256": "4bacaee1aa81ce711185aebae66231d200f406d3f8b866242d01ee7c5818ed6f",
+        "availability": "retained local ignored RAW; not a Git-delivered output"
+      },
+      {
+        "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/root-canonical-metric-r2-ruff-20261022-r1/check.stdout",
+        "sha256": "586b72bbb6d811fbe1e15c95836437fd11744d79aed4d0aae5f8210f248d5538",
+        "availability": "retained local ignored RAW; not a Git-delivered output"
+      },
+      {
+        "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/root-canonical-metric-r2-ruff-20261022-r1/format-check.stdout",
+        "sha256": "ce7d4f5a0f312b55c4fb0c9f743929a48ceb7759dcab9e856a6cd3b7470bc9e1",
+        "availability": "retained local ignored RAW; not a Git-delivered output"
+      },
+      {
+        "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/method-metric-native-types-author-20261022-r2/basedpyright-r2-final.command.txt",
+        "sha256": "b3ab75b41d6b1da4ce0e4709933d1e7034e224c296d14c59595d590bb39eb34d",
+        "availability": "retained local ignored RAW; not a Git-delivered output"
+      },
+      {
+        "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/method-metric-native-types-author-20261022-r2/basedpyright-r2-final.stdout",
+        "sha256": "c3d6635ee99dd08824d81f1f307de232e55535a16a5bf49c23a99c70c170e9a9",
+        "availability": "retained local ignored RAW; not a Git-delivered output"
+      },
+      {
+        "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/method-metric-native-types-author-20261022-r2/basedpyright-r2-final.stderr",
+        "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+        "availability": "retained local ignored RAW; not a Git-delivered output"
+      }
+    ],
+    "source_reviews": [
+      {
+        "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/method-metric-native-types-independent-20261022-r2/review.md",
+        "sha256": "99449ff9e32bb4e60010036bc7967e3ca310530265d145f864fbcdd60ab129b0",
+        "availability": "retained local ignored RAW; not a Git-delivered output"
+      },
+      {
+        "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/metric-projection-commit-boundary-independent-20261022-r1/review.json",
+        "sha256": "69f681018c2967e97c3c4420d44f44edb4c838c183ed10a13221dafe1b2c7212",
+        "availability": "retained local ignored RAW; not a Git-delivered output"
+      }
+    ],
+    "negative_controls": [
+      "Persisted returned runtime_type mismatch is rehashed through bundle/result and rejected at both Search consumers.",
+      "Scalar runtime type must match the actual selected typed value; structured selected numeric member must agree with the persisted outer returned-slot contract.",
+      "Malformed present canon, wrong selected snapshot parent/profile, missing bounded transfer receipt, and manifest-cap exhaustion retain their distinct refusal/unknown meanings."
+    ],
+    "removal_control_status": "The referenced independent R2 review records the persisted scalar/structured invariant falsifier. This handoff adds no new runtime mutation/removal run; complete composed matched removals remain required.",
+    "typing_scope": "Author raw candidate for this exact source hash: one file, 0 errors and 8 private-usage warnings with baselinemode lock. This is not canonical full native type green.",
+    "ruff_scope": "Both targets have check and format-check exit 0. The later complete 71-file owned-path batch has check/format failures on other named paths and is not globally green."
+  },
+  "consumer_surface": "Existing internal objective/Search metric consumer and persisted observation reader; no live HTTP/browser, production currentness, installed-package or publication claim.",
+  "patterns": [
+    "P29 persisted real graph and semantic consumer assertions",
+    "P32/P37/P38 selected bytes, exact parent edge and runtime value rather than ref/label presence",
+    "P40 shared returned-value and bounded source join, same class deeper",
+    "P41 no inherited-red claim; broader checks remain unrun or not_established"
+  ],
+  "limitations": [
+    "The 80-test command ran at ancestor HEAD 43db279dff4cbb61e81f0de7c48fac12846c5174 on its complete declared working frame. No isolated two-path HEAD replay was performed.",
+    "Independent exact-base dependency review found all required contracts at slice base; broader Runtime/Foundry owner changes remain separate ongoing work.",
+    "Controlled producer/source and arithmetic consistency do not establish causal identification, fiscal law, external permission or production workload/currentness.",
+    "The full source/input/backend freeze, native row-by-row gates, generated/installed consumers and independent G acceptance remain pending.",
+    "Implementation and this handoff are local; remote publication and remote SHA/tree confirmation remain pending."
+  ],
+  "next_checks": [
+    "Finish and independently review remaining blocking Runtime/Search/scanner companions, then freeze the complete composition and selected inputs/backends.",
+    "Run composed owner\u2192projection\u2192consumer and matched removal/retry/history controls on the complete freeze, then required native/generated/installed consumers.",
+    "Map resulting receipts individually to original criteria and occurrences; never infer closure from this module PASS."
+  ],
+  "proposal_fields": {
+    "formal_closure_requested": false,
+    "finding_id_proposals": [],
+    "claim": "Bounded source/returned-value consumer repair is committed with focused evidence; it is supporting evidence for full-property proposals, not an E02 closure."
+  },
+  "closure_ids": [],
+  "handoff_claims_audit": {
+    "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/metric-projection-commit-boundary-independent-20261022-r1/receipt-claims-audit-20261022-r1/review.md",
+    "sha256": "0d33c5a7dcedd0eb1e2dc831fdcbf93c65af2021862e88d17ba11bd259958a49",
+    "reviewed_receipt_sha256": "c6686c1c132e3af0c5c0e2bb2315a96ec28872e4afb78a8212cfe1ab52458c0f",
+    "disposition": "GO candidate handoff; added only this audit locator after the reviewed bytes. Not G acceptance."
+  }
+}

@@ -87,16 +87,16 @@ class InterventionSpec(KernelModel):
     schedule: ScheduleSpec = Field(..., description="Timing of intervention")
     params: dict[str, ParamValue] = Field(default_factory=dict, description="Mechanism parameters")
     priority: Annotated[int, Field(ge=0)] | None = Field(
-        None, description="Execution priority (lower = earlier)"
+        default=None, description="Execution priority (lower = earlier)"
     )
-    enabled: bool = Field(True, description="Whether intervention is active")
+    enabled: bool = Field(default=True, description="Whether intervention is active")
     lex_provision_ref: str | None = Field(
-        None,
+        default=None,
         max_length=200,
         description="Reference to the legal provision or lex artifact driving the intervention.",
     )
     target_population_type: str | None = Field(
-        None,
+        default=None,
         max_length=120,
         description="Population semantics used for policy targeting and evaluation.",
     )
@@ -228,14 +228,14 @@ class PolicySpec(KernelModel):
         global_schedule: Optional schedule override shared by all interventions.
     """
 
-    schema_version: str = Field("1.0", pattern=SCHEMA_VERSION_PATTERN)
+    schema_version: str = Field(default="1.0", pattern=SCHEMA_VERSION_PATTERN)
 
     # Identity
     policy_id: str = Field(..., pattern=ID_PATTERN, description="Unique policy identifier")
 
     # Reference to ProblemFrame (links "What" to "Why")
     problem_frame_ref: str | None = Field(
-        None,
+        default=None,
         pattern=ARTIFACT_ID_PATTERN,
         description="Reference to ProblemFrame artifact this policy addresses",
     )
@@ -265,24 +265,24 @@ class PolicySpec(KernelModel):
         description="Temporal compliance/consistency constraints for the policy",
     )
     composition: PolicyCompositionPlan | None = Field(
-        None,
+        default=None,
         description="Optional multi-level override/composition metadata",
     )
     mechanism_design: MechanismDesignSpec | None = Field(
-        None,
+        default=None,
         description="Optional strategic/mechanism-design contract for the policy",
     )
 
     # Global Schedule (optional, for policy-level timing)
     global_schedule: ScheduleSpec | None = Field(
-        None, description="Global policy schedule (overrides individual if set)"
+        default=None, description="Global policy schedule (overrides individual if set)"
     )
 
     # Metadata
-    name: TranslatableString | None = Field(None, description="Human-readable policy name")
-    description: str | None = Field(None, max_length=2000)
+    name: TranslatableString | None = Field(default=None, description="Human-readable policy name")
+    description: str | None = Field(default=None, max_length=2000)
     labels: list[str] = Field(default_factory=list, max_length=20)
-    version_tag: str | None = Field(None, max_length=50, description="Semantic version tag")
+    version_tag: str | None = Field(default=None, max_length=50, description="Semantic version tag")
     notes: list[str] = Field(default_factory=list, max_length=50)
 
     @model_validator(mode="after")

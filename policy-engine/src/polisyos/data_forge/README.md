@@ -10,12 +10,15 @@ data preparation and governed artifact publication.
 - `polisyos.data_forge`
 - `polisyos.data_forge.read_api`
 - `polisyos.data_forge.read_api.legal`
+- `polisyos.data_forge.read_api.ukraine`
 
 The public __version__ value is owned by the package root and tested against
 the installed policy-engine distribution metadata; no private version module
 is part of the supported import surface.
 
 `polisyos.data_forge.read_api` exposes the pure byte-derived `GenerationBasis` producer and `build_generation_basis()` alongside the existing legal read contracts. It hashes caller-provided member bytes to produce a deterministic basis digest; it performs no file access and does not assert persisted-basis currentness. `polisyos.data_forge.read_api.legal.ThresholdAtom` remains candidate evidence.
+
+The Ukraine read API owns the strict candidate payload types, contract-to-model registry, and role map for the three D4 source JSON contracts (governance request, identity-resolution cohort, and selected calibration splits). The same DataForge-owned model registry is used by the D4 producer and C5b source reader. `read_ukraine_json_snapshot()` still controls whether a payload is a conformant typed candidate, profileless raw snapshot candidate, or raw-only unknown profile; these types establish no producer authority, currentness, or promotion eligibility. The D3/S1 source group remains a separate complete group in Scientist orchestration.
 
 The top-level package lazily exports build-time contracts for asset identity,
 `ArtifactRef` governance, schema registry access, snapshot transactions,

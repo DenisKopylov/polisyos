@@ -315,7 +315,7 @@ class ProblemFrame(KernelModel):
         narrative: Human-readable problem statement preserved alongside the schema.
     """
 
-    schema_version: str = Field("1.0", pattern=SCHEMA_VERSION_PATTERN)
+    schema_version: str = Field(default="1.0", pattern=SCHEMA_VERSION_PATTERN)
 
     # Identity
     problem_id: str = Field(..., pattern=ID_PATTERN, description="Unique problem identifier")
@@ -363,7 +363,7 @@ class ProblemFrame(KernelModel):
 
     # Metadata
     narrative: str | None = Field(
-        None,
+        default=None,
         max_length=5000,
         description="Human-readable problem description",
     )

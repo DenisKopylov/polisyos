@@ -1,5 +1,6 @@
 from __future__ import annotations
 
+import hashlib
 import json
 
 import pandas as pd
@@ -8,7 +9,16 @@ import pytest
 from polisyos.core.artifacts.manifest import ArtifactRef, InputRef
 from polisyos.core.artifacts.store import FileSystemCAS, PutOptions
 from polisyos.core.canon import CanonSpec
-from polisyos.ir.analytics.distributional import TailRiskDeltaEntry, TailRiskDeltaSummary
+from polisyos.data_forge.read_api.ukraine import (
+    UKRAINE_D4_SOURCE_JSON_SNAPSHOT_ROLE_BY_CONTRACT,
+    UkraineD4GovernanceRequest,
+    UkraineIdentityResolutionCohort,
+    UkraineIdentityResolutionCohortRow,
+)
+from polisyos.ir.analytics.distributional import (
+    TailRiskDeltaEntry,
+    TailRiskDeltaSummary,
+)
 from polisyos.ir.analytics.fairness import CausalFairnessReport, FairnessDecomposition
 from polisyos.ir.analytics.interference import (
     ExposureMappingType,
@@ -17,7 +27,10 @@ from polisyos.ir.analytics.interference import (
     InterferenceMethod,
     NetworkInterferenceReport,
 )
-from polisyos.ir.observation.bundles import BacktestPlanBundle, ContractCompatibilityTarget
+from polisyos.ir.observation.bundles import (
+    BacktestPlanBundle,
+    ContractCompatibilityTarget,
+)
 from polisyos.ir.observation.contract_compilers import SpecificationCurveInput
 from polisyos.scientist.governance.accountability import GovernanceAccountabilityInput
 from polisyos.scientist.governance.backtest_matrix import BacktestKind
@@ -37,13 +50,17 @@ from polisyos.scientist.governance.calibration_validation import (
     CalibrationValidationRunnerInput,
     load_calibration_validation_bundle,
 )
-from polisyos.scientist.methods.backtesting.plan import HistoricalValidationPlan, PredictionSource
+from polisyos.scientist.methods.backtesting.plan import (
+    HistoricalValidationPlan,
+    PredictionSource,
+)
 from polisyos.scientist.methods.discovery.utility_judge import (
     DownstreamUtilityReport,
     HypothesisUtilityScore,
 )
 from polisyos.scientist.methods.search.lessons import (
     LessonCard,
+    LessonKind,
     LessonQuery,
     LessonRegistry,
     load_lesson_card,
@@ -185,7 +202,12 @@ def _governance_report() -> CalibrationGovernanceReport:
     )
 
 
-def _plan_bundle(tmp_path, kind: BacktestKind) -> BacktestPlanBundle:
+def _plan_bundle(
+    tmp_path,
+    kind: BacktestKind,
+    *,
+    exact_predictions: bool = False,
+) -> BacktestPlanBundle:
     path = tmp_path / f"{kind.value}.json"
     path.write_text(json.dumps({"metric": [1.0, 1.0, 1.0]}), encoding="utf-8")
     return BacktestPlanBundle(
@@ -205,7 +227,7 @@ def _plan_bundle(tmp_path, kind: BacktestKind) -> BacktestPlanBundle:
                 ground_truth_outcomes={"metric": [1.0, 1.0]},
                 target_metrics=["metric"],
                 prediction_source=PredictionSource.PROVIDED,
-                predicted_outcomes={"metric": [0.98, 1.02]},
+                predicted_outcomes={"metric": [1.0, 1.0] if exact_predictions else [0.98, 1.02]},
                 selected_training_role="fixture_training",
                 selected_validation_role="fixture_validation",
                 selected_holdout_role="fixture_holdout",
@@ -218,6 +240,85 @@ def _plan_bundle(tmp_path, kind: BacktestKind) -> BacktestPlanBundle:
         ],
         historical_payloads={"metric": {"values": [1.0, 1.0, 1.0]}},
     )
+
+
+def _d4_source_json_profile_inputs(
+    store: FileSystemCAS,
+) -> tuple[dict[str, object], list[InputRef]]:
+    """Persist and re-read the exact three typed D4 JSON source contracts."""
+    from polisyos.data_forge.read_api.ukraine import read_ukraine_json_snapshot
+
+    values_and_types = {
+        "scientist.d4.governance_request": (
+            UkraineD4GovernanceRequest(
+                schema_version="policyos.data_forge.ukraine.d4_governance_request.v1",
+                authority_purpose="producer_governance_handoff",
+                may_not_use_for=["governance_admissibility"],
+                required_stage_manifests={
+                    "d0_p0": "build_run_d0_p0.json",
+                    "d2": "build_run_d2.json",
+                    "d3": "build_run_d3.json",
+                },
+            ),
+            UkraineD4GovernanceRequest,
+        ),
+        "scientist.d4.identity_resolution_cohort": (
+            UkraineIdentityResolutionCohort(
+                schema_version="policyos.data_forge.ukraine.identity_resolution_cohort.v1",
+                rows=[
+                    UkraineIdentityResolutionCohortRow(
+                        cohort="spending",
+                        raw_identity="controlled-spending-1",
+                    ),
+                    UkraineIdentityResolutionCohortRow(
+                        cohort="procurement",
+                        raw_identity="controlled-procurement-1",
+                    ),
+                ],
+            ),
+            UkraineIdentityResolutionCohort,
+        ),
+        "scientist.d4.calibration_splits": (
+            {
+                "fixture_training": {"start": "2023-01-01", "end": "2023-12-31"},
+                "fixture_validation": {"start": "2024-01-01", "end": "2024-12-31"},
+                "fixture_holdout": {"start": "2025-01-01", "end": "2025-12-31"},
+            },
+            dict[str, dict[str, str]],
+        ),
+    }
+    reads: dict[str, object] = {}
+    input_refs: list[InputRef] = []
+    for contract, (value, model_type) in values_and_types.items():
+        ref = store.put_json(
+            value,
+            PutOptions(
+                kind="data_forge.ukraine.stage_output_snapshot",
+                media_type="application/json",
+            ),
+            canon_spec=CanonSpec(),
+            return_selected_profile=True,
+        )
+        raw = store.get_bytes(ref)
+        read = read_ukraine_json_snapshot(
+            store,
+            ref,
+            raw_payload_bytes=raw,
+            expected_sha256=hashlib.sha256(raw).hexdigest(),
+            expected_size_bytes=len(raw),
+            expected_kind="data_forge.ukraine.stage_output_snapshot",
+            consumer_contract=contract,
+            model_type=model_type,
+        )
+        reads[contract] = read.provenance
+        input_refs.append(
+            InputRef(
+                artifact_id=read.provenance.artifact_ref.artifact_id,
+                role=UKRAINE_D4_SOURCE_JSON_SNAPSHOT_ROLE_BY_CONTRACT[contract],
+                manifest_profile_sha256=read.provenance.selected_manifest_profile_sha256,
+            )
+        )
+    return reads, input_refs
 
 
 def _utility_report() -> DownstreamUtilityReport:
@@ -268,7 +369,16 @@ def _accountability_input() -> GovernanceAccountabilityInput:
         observed_outcomes=[1.0, 1.0, 0.0, 0.0, 1.0, 0.0, 0.0, 0.0],
         protected_attributes={
             "gender": ["F", "F", "F", "F", "M", "M", "M", "M"],
-            "region": ["urban", "urban", "rural", "rural", "urban", "urban", "rural", "rural"],
+            "region": [
+                "urban",
+                "urban",
+                "rural",
+                "rural",
+                "urban",
+                "urban",
+                "rural",
+                "rural",
+            ],
         },
         causal_fairness_report=CausalFairnessReport(
             decomposition=FairnessDecomposition(
@@ -323,7 +433,9 @@ def test_calibration_validation_runner_executes_backtest_stress_leaderboard_and_
             candidate_ref=candidate_ref,
             governance_report=_governance_report(),
             calibration_fit_score=0.91,
-            backtest_plan_bundles={kind: _plan_bundle(tmp_path, kind) for kind in BacktestKind},
+            backtest_plan_bundles={
+                kind: _plan_bundle(tmp_path, kind, exact_predictions=True) for kind in BacktestKind
+            },
             specification_curve_input=SpecificationCurveInput(
                 specification_ids=["s1", "s2", "s3"],
                 estimates=[0.3, 0.28, 0.32],
@@ -338,7 +450,10 @@ def test_calibration_validation_runner_executes_backtest_stress_leaderboard_and_
             ),
             strategic_summary={
                 "fallback_mode": "exact_equilibrium",
-                "closure_summary": {"mode": "exact_equilibrium", "equilibrium_count": 1},
+                "closure_summary": {
+                    "mode": "exact_equilibrium",
+                    "equilibrium_count": 1,
+                },
                 "multiplicity_note": "disclosed",
             },
             baseline_metrics={"policy_value": 100.0, "coverage": 0.9},
@@ -352,7 +467,8 @@ def test_calibration_validation_runner_executes_backtest_stress_leaderboard_and_
     assert result.bundle_ref.manifest_profile_sha256 is not None
     assert (
         cas_store.get_manifest_by_profile(
-            str(result.bundle_ref.artifact_id), result.bundle_ref.manifest_profile_sha256
+            str(result.bundle_ref.artifact_id),
+            result.bundle_ref.manifest_profile_sha256,
         ).artifact_id
         == result.bundle_ref.artifact_id
     )
@@ -401,6 +517,10 @@ def test_calibration_validation_runner_executes_backtest_stress_leaderboard_and_
     assert readout["backtest_report_status"] == "available"
     assert readout["backtest_metric_diagnostics_status"] == "computed"
     assert readout["backtest_metric_diagnostics"]
+    assert result.bundle.leaderboard_entry.metrics.eligible_for_promotion is True
+    assert readout["source_json_snapshot_binding_status"] == "not_established"
+    assert readout["source_json_snapshot_profile_status"] == "not_established"
+    assert readout["source_json_snapshot_profile_provenance"] == "not_established"
     assert readout["eligible_for_promotion"] is False
     assert readout["composite_score"] is not None
     assert stored.readout_summary()["accountability_ref"] is not None
@@ -411,6 +531,7 @@ def test_calibration_validation_runner_executes_backtest_stress_leaderboard_and_
     card = load_lesson_card(cas_store, result.bundle.lesson_card_ref)
     assert card.stage_name == "calibration_validation"
     assert card.domain == "general"
+    assert card.kind == LessonKind.FAILURE
 
     declared_target = TransferContext(task_family="policy", domain="general", run_id="R_c5b_full")
     for supplied_domain in ("finance", ""):
@@ -421,6 +542,153 @@ def test_calibration_validation_runner_executes_backtest_stress_leaderboard_and_
     fresh_registry = LessonRegistry(root=lesson_root, store=cas_store)
     hits = fresh_registry.query(LessonQuery(domain="general", source_run_id="R_c5b_full", limit=5))
     assert any(hit.lesson_id == card.lesson_id and hit.domain == "general" for hit in hits)
+
+
+def test_calibration_validation_promotion_requires_recomputed_d4_profiles(
+    tmp_path,
+    cas_store: FileSystemCAS,
+) -> None:
+    """A real exact backtest is eligible only with recomputed, bound D4 profiles."""
+    from polisyos.data_forge.read_api.ukraine import (
+        UkraineJSONSnapshotRefusalError,
+        read_ukraine_json_snapshot,
+    )
+    from polisyos.scientist.governance.calibration_validation import (
+        _source_json_snapshot_model_type,
+        persist_calibration_validation_bundle,
+    )
+
+    source_reads, source_inputs = _d4_source_json_profile_inputs(cas_store)
+    candidate_ref = _persist_calibration_candidate(cas_store)
+    lesson_registry = _CountingLessonRegistry(
+        LessonRegistry(root=tmp_path / "profile-eligible-lessons", store=cas_store)
+    )
+    result = CalibrationValidationRunner(cas_store).run(
+        CalibrationValidationRunnerInput(
+            run_id="R_c5b_profile_bound_positive",
+            candidate_ref=candidate_ref,
+            governance_report=_governance_report(),
+            calibration_fit_score=0.91,
+            backtest_plan_bundles={
+                kind: _plan_bundle(tmp_path, kind, exact_predictions=True) for kind in BacktestKind
+            },
+            specification_curve_input=SpecificationCurveInput(
+                specification_ids=["s1", "s2", "s3"],
+                estimates=[0.3, 0.28, 0.32],
+                standard_errors=[0.1, 0.1, 0.1],
+            ),
+            downstream_utility_report=_utility_report(),
+            network_interference_report=_interference_report(),
+            interference_certificate=InterferenceCertificate(
+                supported_query_family="spillover",
+                fallback_mode="pairwise",
+                reduction_error_bound=0.05,
+            ),
+            strategic_summary={
+                "fallback_mode": "exact_equilibrium",
+                "closure_summary": {
+                    "mode": "exact_equilibrium",
+                    "equilibrium_count": 1,
+                },
+                "multiplicity_note": "disclosed",
+            },
+            baseline_metrics={"policy_value": 100.0, "coverage": 0.9},
+            lesson_registry=lesson_registry,
+            input_refs=source_inputs,
+            source_json_snapshot_reads=source_reads,
+        )
+    )
+
+    assert result.bundle.leaderboard_entry is not None
+    assert result.bundle.leaderboard_entry.metrics.eligible_for_promotion is True
+    summary = result.bundle.readout_summary()
+    assert summary["source_json_snapshot_binding_status"] == "available"
+    assert summary["source_json_snapshot_profile_status"] == "declared_bytes_conformant"
+    assert summary["source_json_snapshot_profile_provenance"] == "recomputed"
+    assert summary["eligible_for_promotion"] is True
+    assert summary["backtest_trust_status"] == "recomputed"
+    assert lesson_registry.calls == 1 and result.bundle.lesson_card_ref is not None
+    lesson = load_lesson_card(cas_store, result.bundle.lesson_card_ref)
+    assert lesson.kind == LessonKind.SUCCESS
+
+    # The historical 1.0 reader stays compatible while refusing an unbound
+    # source-profile promotion claim over the exact same qualifying backtest.
+    legacy_bundle = result.bundle.model_copy(
+        update={
+            "run_id": "R_c5b_profileless_legacy_history",
+            "schema_version": "1.0",
+            "source_json_snapshot_reads": {},
+        }
+    )
+    legacy_ref = persist_calibration_validation_bundle(
+        cas_store,
+        legacy_bundle,
+        inputs=[
+            InputRef(
+                artifact_id=candidate_ref.artifact_id,
+                role="candidate",
+                manifest_profile_sha256=candidate_ref.manifest_profile_sha256,
+            ),
+            *source_inputs,
+        ],
+    )
+    legacy = load_calibration_validation_bundle(cas_store, legacy_ref)
+    legacy_summary = legacy.readout_summary()
+    assert legacy.schema_version == "1.0"
+    assert legacy_summary["source_json_snapshot_binding_status"] == "not_established"
+    assert legacy_summary["source_json_snapshot_binding_reason"] == (
+        "source_json_snapshot_reads_absent"
+    )
+    assert legacy.leaderboard_entry is not None
+    assert legacy.leaderboard_entry.metrics.eligible_for_promotion is True
+    assert legacy_summary["eligible_for_promotion"] is False
+
+    # A sibling source ID cannot satisfy the exact profile-to-input binding.
+    mismatched_inputs = list(source_inputs)
+    mismatched_inputs[0] = InputRef(
+        artifact_id=source_inputs[1].artifact_id,
+        role=source_inputs[0].role,
+        manifest_profile_sha256=source_inputs[1].manifest_profile_sha256,
+    )
+    with pytest.raises(ValueError, match="source JSON profile read is not bound"):
+        CalibrationValidationRunnerInput(
+            run_id="R_c5b_sibling_source_mismatch",
+            candidate_ref=candidate_ref,
+            governance_report=_governance_report(),
+            input_refs=mismatched_inputs,
+            source_json_snapshot_reads=source_reads,
+        )
+
+    # A present malformed manifest profile remains a refusal, never profile absence.
+    contract = "scientist.d4.governance_request"
+    provenance = result.bundle.source_json_snapshot_reads[contract]
+    raw_payload_bytes = cas_store.get_bytes(provenance.artifact_ref)
+    selected_manifest_path = cas_store._manifest_path_for_ref(
+        provenance.artifact_ref.artifact_id,
+        provenance.artifact_ref.manifest_profile_sha256,
+    )
+    selected_manifest = json.loads(selected_manifest_path.read_bytes())
+    selected_manifest["canon"]["max_depth"] = "not-an-integer"
+    selected_manifest_path.write_text(
+        json.dumps(selected_manifest, separators=(",", ":")),
+        encoding="utf-8",
+    )
+    with pytest.raises(UkraineJSONSnapshotRefusalError):
+        read_ukraine_json_snapshot(
+            cas_store,
+            provenance.artifact_ref,
+            raw_payload_bytes=raw_payload_bytes,
+            expected_sha256=provenance.content_sha256,
+            expected_size_bytes=provenance.content_size_bytes,
+            expected_kind=provenance.artifact_kind,
+            consumer_contract=contract,
+            model_type=_source_json_snapshot_model_type(contract),
+        )
+    malformed = load_calibration_validation_bundle(cas_store, result.bundle_ref)
+    malformed_summary = malformed.readout_summary()
+    assert malformed_summary["source_json_snapshot_binding_status"] == "unavailable"
+    assert malformed_summary["source_json_snapshot_profile_status"] == "unavailable"
+    assert malformed_summary["eligible_for_promotion"] is False
 
 
 @pytest.mark.parametrize(
@@ -496,7 +764,9 @@ def test_calibration_validation_runner_blocks_eligibility_on_missing_transport_a
 def test_s1_candidate_diagnostic_is_never_promotable_and_binds_inputs(tmp_path, cas_store) -> None:
     import hashlib
 
-    from polisyos.data_forge.domains.ukraine.manifests import HouseholdDiagnosticPanelBasis
+    from polisyos.data_forge.domains.ukraine.manifests import (
+        HouseholdDiagnosticPanelBasis,
+    )
     from polisyos.data_forge.read_api.ukraine import read_ukraine_json_snapshot
 
     source_roles = (
@@ -662,3 +932,177 @@ def test_calibration_validation_runner_input_rejects_reserved_candidate_source_r
                 )
             ],
         )
+
+
+def test_promotion_fresh_reader_rejects_valid_report_with_sibling_source_edges(
+    tmp_path,
+    cas_store: FileSystemCAS,
+) -> None:
+    """Fresh C5b loading binds the nested report to the exact selected source edges."""
+    from collections import Counter
+
+    from polisyos.core.artifacts import ensure_ir_artifact_store
+    from polisyos.ir import load_backtest_report
+    from polisyos.ir.analytics.backtest import persist_backtest_report
+    from polisyos.scientist.governance.calibration_validation import (
+        CalibrationValidationLessonPublisher,
+        persist_calibration_validation_bundle,
+    )
+
+    source_reads, source_inputs = _d4_source_json_profile_inputs(cas_store)
+    candidate_ref = _persist_calibration_candidate(cas_store)
+    lesson_registry = _CountingLessonRegistry(
+        LessonRegistry(root=tmp_path / "report-edge-lessons", store=cas_store)
+    )
+    runner_input = CalibrationValidationRunnerInput(
+        run_id="R_c5b_report_edge_binding_positive",
+        candidate_ref=candidate_ref,
+        governance_report=_governance_report(),
+        calibration_fit_score=0.91,
+        backtest_plan_bundles={
+            kind: _plan_bundle(tmp_path, kind, exact_predictions=True) for kind in BacktestKind
+        },
+        specification_curve_input=SpecificationCurveInput(
+            specification_ids=["s1", "s2", "s3"],
+            estimates=[0.3, 0.28, 0.32],
+            standard_errors=[0.1, 0.1, 0.1],
+        ),
+        downstream_utility_report=_utility_report(),
+        network_interference_report=_interference_report(),
+        interference_certificate=InterferenceCertificate(
+            supported_query_family="spillover",
+            fallback_mode="pairwise",
+            reduction_error_bound=0.05,
+        ),
+        strategic_summary={
+            "fallback_mode": "exact_equilibrium",
+            "closure_summary": {
+                "mode": "exact_equilibrium",
+                "equilibrium_count": 1,
+            },
+            "multiplicity_note": "disclosed",
+        },
+        baseline_metrics={"policy_value": 100.0, "coverage": 0.9},
+        lesson_registry=lesson_registry,
+        input_refs=source_inputs,
+        source_json_snapshot_reads=source_reads,
+    )
+    result = CalibrationValidationRunner(cas_store).run(runner_input)
+
+    positive = result.bundle.readout_summary()
+    assert positive["source_json_snapshot_binding_status"] == "available"
+    assert positive["eligible_for_promotion"] is True
+    assert result.bundle.backtest_report_ref is not None
+    assert result.bundle.leaderboard_entry is not None
+    assert result.bundle.leaderboard_entry.metrics.eligible_for_promotion is True
+    assert result.bundle.lesson_card_ref is not None
+    assert load_lesson_card(cas_store, result.bundle.lesson_card_ref).kind is LessonKind.SUCCESS
+
+    # This is a distinct, valid profile with the same registered JSON contract.
+    # The C5b bundle keeps its original typed refs and source edges.
+    sibling_source_ref = cas_store.put_json(
+        UkraineIdentityResolutionCohort(
+            schema_version=("policyos.data_forge.ukraine.identity_resolution_cohort.v1"),
+            rows=[
+                UkraineIdentityResolutionCohortRow(
+                    cohort="spending", raw_identity="sibling-spending-source"
+                ),
+                UkraineIdentityResolutionCohortRow(
+                    cohort="procurement", raw_identity="sibling-procurement-source"
+                ),
+            ],
+        ),
+        PutOptions(
+            kind="data_forge.ukraine.stage_output_snapshot",
+            media_type="application/json",
+        ),
+        canon_spec=CanonSpec(),
+        return_selected_profile=True,
+    )
+    sibling_edge = InputRef(
+        artifact_id=sibling_source_ref.artifact_id,
+        role="identity_resolution_cohort",
+        manifest_profile_sha256=sibling_source_ref.manifest_profile_sha256,
+    )
+
+    original_report_ref = result.bundle.backtest_report_ref
+    report_manifest = cas_store.get_manifest(
+        ArtifactRef.model_validate(original_report_ref.model_dump(mode="python"))
+    )
+    report = load_backtest_report(cas_store, original_report_ref)
+    report_schema = report_manifest.artifact_schema
+    assert report_schema is not None
+    sibling_report_inputs = [
+        sibling_edge if edge.role == sibling_edge.role else edge for edge in report_manifest.inputs
+    ]
+    assert len([edge for edge in sibling_report_inputs if edge.role == sibling_edge.role]) == 1
+    sibling_report_ref = persist_backtest_report(
+        ensure_ir_artifact_store(cas_store),
+        report,
+        inputs=sibling_report_inputs,
+        schema_name=report_schema.name,
+        schema_version=report_schema.version,
+    )
+
+    bundle_with_sibling_report = result.bundle.model_copy(
+        update={
+            "run_id": "R_c5b_report_edge_binding_negative",
+            "backtest_matrix": result.bundle.backtest_matrix.model_copy(
+                update={"backtest_report_ref": sibling_report_ref}
+            ),
+            "lesson_card_ref": None,
+        }
+    )
+    expected_bundle_inputs = [
+        InputRef(
+            artifact_id=candidate_ref.artifact_id,
+            role="candidate",
+            manifest_profile_sha256=candidate_ref.manifest_profile_sha256,
+        ),
+        *source_inputs,
+    ]
+    sibling_bundle_ref = persist_calibration_validation_bundle(
+        cas_store,
+        bundle_with_sibling_report,
+        inputs=expected_bundle_inputs,
+    )
+
+    persisted_bundle_manifest = cas_store.get_manifest(sibling_bundle_ref)
+    persisted_source_edges = [
+        edge for edge in persisted_bundle_manifest.inputs if edge.role != "backtest_report"
+    ]
+
+    def edge_identity(edge: InputRef) -> tuple[str, str, str | None]:
+        return (
+            edge.role,
+            str(edge.artifact_id),
+            edge.manifest_profile_sha256,
+        )
+
+    assert Counter(map(edge_identity, persisted_source_edges)) == Counter(
+        map(edge_identity, expected_bundle_inputs)
+    )
+    sibling_report_manifest = cas_store.get_manifest(
+        ArtifactRef.model_validate(sibling_report_ref.model_dump(mode="python"))
+    )
+    assert Counter(map(edge_identity, sibling_report_manifest.inputs)) != Counter(
+        map(edge_identity, expected_bundle_inputs)
+    )
+
+    fresh = load_calibration_validation_bundle(cas_store, sibling_bundle_ref)
+    negative = fresh.readout_summary()
+    assert negative["source_json_snapshot_binding_status"] == "unavailable"
+    assert negative["eligible_for_promotion"] is False
+    assert fresh.leaderboard_entry is not None
+    assert fresh.leaderboard_entry.metrics.eligible_for_promotion is True
+
+    consumer_input = runner_input.model_copy(
+        update={"run_id": "R_c5b_report_edge_binding_negative"}
+    )
+    failure_lesson_ref = CalibrationValidationLessonPublisher().publish(
+        consumer_input,
+        fresh,
+        record_local=lesson_registry.registry.record_local,
+    )
+    assert failure_lesson_ref is not None
+    assert load_lesson_card(cas_store, failure_lesson_ref).kind is LessonKind.FAILURE

@@ -1,0 +1,37 @@
+id = "2026-10-22-e02-ukraine-d4-source-snapshot-contracts"
+title = "Expose DataForge-owned Ukraine D4 source snapshot contracts"
+type = "changed"
+component = "data_forge"
+owner = "team-data-forge"
+summary = "Move the D4 governance-request and identity-cohort payload types, model registry, and contract-role map to the Ukraine read API so the producer and C5b reader share DataForge-owned contracts."
+evidence = [
+  "src/polisyos/data_forge/read_api/ukraine.py",
+  "src/polisyos/data_forge/read_api/__init__.py",
+  "src/polisyos/data_forge/read_api/surface_routes.py",
+  "src/polisyos/data_forge/README.md",
+  "tests/unit/data_forge/read_api/test_ukraine_json_snapshot.py",
+]
+change_class = "python-public-api"
+surface_classification = "public_experimental: polisyos.data_forge.read_api and polisyos.data_forge.read_api.ukraine typed D4 source snapshot contracts"
+compatibility = "The change exports the exact already-consumed D4 request and identity-cohort payload shapes from the DataForge Ukraine read API and keeps their existing field validation and default values. D3/S1 source contracts remain separately grouped. The generic JSON snapshot reader retains its existing profile, byte-binding, unknown-profile, and candidate semantics."
+migration = "No persisted artifact migration is required. Consumers may import the shared payload types and source-role mapping from polisyos.data_forge.read_api or polisyos.data_forge.read_api.ukraine instead of duplicating the D4 shapes in Scientist code."
+api = "The additive exports are UKRAINE_D4_SOURCE_JSON_SNAPSHOT_ROLE_BY_CONTRACT, UkraineD4GovernanceRequest, UkraineIdentityResolutionCohort, UkraineIdentityResolutionCohortRow, and ukraine_d4_json_snapshot_model_type. They identify candidate payload contracts only; profile admission remains the responsibility of read_ukraine_json_snapshot and downstream recomputation."
+limitations = "The types establish only strict payload shape. They do not establish source authority, producer attestation, currentness, calibration validity, promotion eligibility, or publication permission. The generated public-surface inventory records source declarations with their existing proof limits; it does not attest native export completeness or any external authority."
+generated_client_compatibility = "not_applicable"
+public_surface_inventory_reviewed = true
+migration_docs = []
+runbook_docs = []
+
+[[compatibility_change]]
+id = "ukraine-d4-owned-source-contracts"
+change_class = "python-public-api"
+impact = "additive"
+surface = "public_experimental: polisyos.data_forge.read_api typed D4 source snapshot contracts"
+owner = "team-data-forge"
+version_owner = "team-data-forge"
+deprecation_window = "not_applicable"
+release_note = "Expose the existing D4 request/cohort contracts and role mapping from their DataForge owner without changing persisted shapes or profile admission."
+generated_client_compatibility = "not_applicable"
+public_surface_inventory_reviewed = true
+migration_docs = []
+runbook_docs = []

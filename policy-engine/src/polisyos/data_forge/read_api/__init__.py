@@ -34,8 +34,50 @@ if TYPE_CHECKING:
     from polisyos.data_forge.read_api.provenance import (
         OfficialSnapshotAnswer as OfficialSnapshotAnswer,
     )
+    from polisyos.data_forge.read_api.ukraine import (
+        UKRAINE_D4_SOURCE_JSON_SNAPSHOT_ROLE_BY_CONTRACT,
+    )
+    from polisyos.data_forge.read_api.ukraine import (
+        UkraineD4GovernanceRequest as UkraineD4GovernanceRequest,
+    )
+    from polisyos.data_forge.read_api.ukraine import (
+        UkraineIdentityResolutionCohort as UkraineIdentityResolutionCohort,
+    )
+    from polisyos.data_forge.read_api.ukraine import (
+        UkraineIdentityResolutionCohortRow as UkraineIdentityResolutionCohortRow,
+    )
+    from polisyos.data_forge.read_api.ukraine import (
+        ukraine_d4_json_snapshot_model_type as ukraine_d4_json_snapshot_model_type,
+    )
+
+    from . import academic as academic
+    from . import catalog as catalog
+    from . import compliance as compliance
+    from . import legal as legal
+    from . import provenance as provenance
+    from . import ukraine as ukraine
 
 _EXPORTS = {
+    "UKRAINE_D4_SOURCE_JSON_SNAPSHOT_ROLE_BY_CONTRACT": (
+        "polisyos.data_forge.read_api.ukraine",
+        "UKRAINE_D4_SOURCE_JSON_SNAPSHOT_ROLE_BY_CONTRACT",
+    ),
+    "UkraineD4GovernanceRequest": (
+        "polisyos.data_forge.read_api.ukraine",
+        "UkraineD4GovernanceRequest",
+    ),
+    "UkraineIdentityResolutionCohort": (
+        "polisyos.data_forge.read_api.ukraine",
+        "UkraineIdentityResolutionCohort",
+    ),
+    "UkraineIdentityResolutionCohortRow": (
+        "polisyos.data_forge.read_api.ukraine",
+        "UkraineIdentityResolutionCohortRow",
+    ),
+    "ukraine_d4_json_snapshot_model_type": (
+        "polisyos.data_forge.read_api.ukraine",
+        "ukraine_d4_json_snapshot_model_type",
+    ),
     "OfficialSnapshotAnswer": (
         "polisyos.data_forge.read_api.provenance",
         "OfficialSnapshotAnswer",
@@ -108,9 +150,13 @@ def pipeline_binding_surface(pipeline: str) -> tuple[str, str] | None:
 
 __all__ = [
     "READ_API_SURFACES",
+    "UKRAINE_D4_SOURCE_JSON_SNAPSHOT_ROLE_BY_CONTRACT",
     "GenerationBasis",
     "OfficialSnapshotAnswer",
     "ReadApiSurface",
+    "UkraineD4GovernanceRequest",
+    "UkraineIdentityResolutionCohort",
+    "UkraineIdentityResolutionCohortRow",
     "academic",
     "available_surfaces",
     "build_generation_basis",
@@ -127,5 +173,6 @@ __all__ = [
     "surface_module",
     "surfaces",
     "ukraine",
+    "ukraine_d4_json_snapshot_model_type",
     "write_publish_manifest",
 ]

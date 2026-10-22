@@ -1,4 +1,4 @@
-"""Runtime-safe read API for Ukraine demographic static-aging artifacts."""
+"""Runtime-safe read API for Ukraine source snapshots and demographic artifacts."""
 
 from __future__ import annotations
 
@@ -17,7 +17,7 @@ from pydantic import (
     TypeAdapter,
     model_validator,
 )
-from typing_extensions import TypeForm  # noqa: TC002
+from typing_extensions import TypeForm
 
 from polisyos.core import artifacts as core_artifacts
 from polisyos.data_forge._ukraine_release_contracts import (
@@ -260,6 +260,61 @@ UkraineJSONSnapshotStatus = Literal[
     "profile_absent_raw_snapshot_candidate",
     "declared_unknown_candidate",
 ]
+
+
+UKRAINE_D4_SOURCE_JSON_SNAPSHOT_ROLE_BY_CONTRACT: dict[str, str] = {
+    "scientist.d4.governance_request": "d4_governance_request",
+    "scientist.d4.identity_resolution_cohort": "identity_resolution_cohort",
+    "scientist.d4.calibration_splits": "selected_split_manifest",
+}
+
+
+class UkraineD4GovernanceRequest(BaseModel):
+    """Strict candidate payload shape for a D4 governance request snapshot."""
+
+    model_config = ConfigDict(extra="forbid")
+
+    schema_version: str
+    authority_purpose: str
+    may_not_use_for: list[str]
+    required_stage_manifests: dict[str, str]
+
+
+class UkraineIdentityResolutionCohortRow(BaseModel):
+    """One source-owned identity-resolution cohort record."""
+
+    model_config = ConfigDict(extra="forbid")
+
+    cohort: str = Field(pattern="^(spending|procurement)$")
+    raw_identity: str = Field(min_length=1)
+
+
+class UkraineIdentityResolutionCohort(BaseModel):
+    """Strict candidate payload shape for identity-resolution source snapshots."""
+
+    model_config = ConfigDict(extra="forbid")
+
+    schema_version: str
+    rows: list[UkraineIdentityResolutionCohortRow] = Field(default_factory=list)
+
+
+_UkraineD4JSONSnapshotModel = (
+    TypeForm[UkraineD4GovernanceRequest]
+    | TypeForm[UkraineIdentityResolutionCohort]
+    | TypeForm[dict[str, dict[str, str]]]
+)
+_UKRAINE_D4_JSON_SNAPSHOT_MODEL_BY_CONTRACT: dict[str, _UkraineD4JSONSnapshotModel] = {
+    "scientist.d4.governance_request": UkraineD4GovernanceRequest,
+    "scientist.d4.identity_resolution_cohort": UkraineIdentityResolutionCohort,
+    "scientist.d4.calibration_splits": dict[str, dict[str, str]],
+}
+
+
+def ukraine_d4_json_snapshot_model_type(
+    consumer_contract: str,
+) -> _UkraineD4JSONSnapshotModel | None:
+    """Resolve the Data Forge-owned candidate model for one D4 JSON contract."""
+    return _UKRAINE_D4_JSON_SNAPSHOT_MODEL_BY_CONTRACT.get(consumer_contract)
 
 
 class UkraineJSONSnapshotRefusalError(UkraineStageArtifactVerificationError):
@@ -1376,28 +1431,79 @@ def build_static_aging_state(
     )
 
 
-__all__ = sorted(
-    (
-        *_EXPORTS,
-        "REAL_BACKTEST_BUNDLE_CONTRACT_FQN",
-        "UkraineStageArtifactVerificationError",
-        "UkraineJSONSnapshotProvenance",
-        "UkraineJSONSnapshotRead",
-        "UkraineJSONSnapshotRefusalError",
-        "VerifiedUkraineReleaseArtifact",
-        "VerifiedUkraineReleaseArtifacts",
-        "VerifiedUkraineStageArtifact",
-        "VerifiedUkraineStageArtifacts",
-        "build_static_aging_state",
-        "load_verified_stage_output_bytes",
-        "load_verified_stage_artifacts",
-        "load_verified_stage_json_output",
-        "load_verified_stage_manifest_json",
-        "load_verified_release_manifest_json",
-        "load_verified_release_json_artifact",
-        "read_ukraine_json_snapshot",
-        "load_demography_candidate_artifacts",
-        "load_verified_release_artifact_bytes",
-        "load_verified_release_artifacts",
-    )
-)
+# Preserve the previous case-sensitive sorted order of this public sequence.
+__all__ = [  # noqa: RUF022
+    "ArtifactRecord",
+    "CalibrationBundleManifest",
+    "D5ReleaseHandoffRequest",
+    "DemographyRoleProjection",
+    "DemographySourceEvidence",
+    "DemographySourceRequest",
+    "HistoricalLayoutRequest",
+    "HouseholdDiagnosticPanelBasis",
+    "InventorySourceRequest",
+    "NormalizedArtifactManifest",
+    "REAL_BACKTEST_BUNDLE_CONTRACT_FQN",
+    "RealBacktestBundleContract",
+    "ReleaseManifest",
+    "SourceResolutionRefusalError",
+    "SourceSnapshotManifest",
+    "UKRAINE_ASSET_GROUP",
+    "UKRAINE_D4_SOURCE_JSON_SNAPSHOT_ROLE_BY_CONTRACT",
+    "UKRAINE_DEMOGRAPHY_DONOR_POOL_KEY",
+    "UKRAINE_DEMOGRAPHY_PRIORS_KEY",
+    "UKRAINE_DEMOGRAPHY_SOURCE_INVENTORY_KEY",
+    "UKRAINE_DEMOGRAPHY_TARGETS_KEY",
+    "UKRAINE_NORMALIZED_SOURCES_KEY",
+    "UKRAINE_RAW_SOURCES_KEY",
+    "UKRAINE_READINESS_KEY",
+    "UKRAINE_SOURCE_CONFIG_KEY",
+    "UKRAINE_STATIC_AGING_INPUTS_KEY",
+    "UkraineD4GovernanceRequest",
+    "UkraineDemographyArtifacts",
+    "UkraineIdentityResolutionCohort",
+    "UkraineIdentityResolutionCohortRow",
+    "UkraineJSONSnapshotProvenance",
+    "UkraineJSONSnapshotRead",
+    "UkraineJSONSnapshotRefusalError",
+    "UkraineLexPreShardDiff",
+    "UkraineLexPreShardSummary",
+    "UkraineLexShardEntry",
+    "UkraineLexShardPassSummary",
+    "UkraineReadinessSummary",
+    "UkraineShadowArtifact",
+    "UkraineShadowBundle",
+    "UkraineShadowDiff",
+    "UkraineSourceSummary",
+    "UkraineStageArtifactVerificationError",
+    "VerifiedUkraineReleaseArtifact",
+    "VerifiedUkraineReleaseArtifacts",
+    "VerifiedUkraineStageArtifact",
+    "VerifiedUkraineStageArtifacts",
+    "build_household_diagnostic_panel",
+    "build_static_aging_state",
+    "compare_lex_pre_shard_summaries",
+    "compare_ukraine_shadow_bundles",
+    "directory_tree_entries",
+    "infer_lex_snapshot_label",
+    "lex_pre_shard_index",
+    "lex_pre_shard_pass_name",
+    "load_demography_artifacts",
+    "load_demography_candidate_artifacts",
+    "load_donor_pool",
+    "load_lex_pre_shard_summary",
+    "load_manifest",
+    "load_reconciled_targets",
+    "load_transition_priors",
+    "load_ukraine_shadow_bundle",
+    "load_verified_release_artifact_bytes",
+    "load_verified_release_artifacts",
+    "load_verified_release_json_artifact",
+    "load_verified_release_manifest_json",
+    "load_verified_stage_artifacts",
+    "load_verified_stage_json_output",
+    "load_verified_stage_manifest_json",
+    "load_verified_stage_output_bytes",
+    "read_ukraine_json_snapshot",
+    "ukraine_d4_json_snapshot_model_type",
+]

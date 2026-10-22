@@ -222,8 +222,6 @@ to_canonical_bytes
 
 #### `polisyos.common.canonical_profile`
 
-`CanonicalProfileRead.reader_policy_id` records the fixed decoder policy chosen by the contextual Core or IR owner. It is produced by the reader, is not persisted in historical manifests, and does not attest the producer, schema, authority, or currentness.
-
 - Source: `src/polisyos/common/canonical_profile.py`
 - Facade: `unresolved_exports`
 - Summary: Shared strict profile-conformance mechanics for persisted JSON.
@@ -484,7 +482,7 @@ security
 - Candidate scope: `Names in a finite source declaration before effect audit; not proved native exports, not included in known_export_count and not a completeness verdict.`
 - Source evidence: 3 measured source reads; full path, byte-length, and SHA-256 receipts are in the companion inventory JSON.
 
-<details><summary>Source-declared candidates (101; native exports unproved)</summary>
+<details><summary>Source-declared candidates (127; native exports unproved)</summary>
 
 ```text
 AUTHORITY_ENVELOPE_ARTIFACT_KIND
@@ -493,13 +491,18 @@ AUTHORITY_ENVELOPE_SCHEMA_VERSION
 OWNERSHIP_INDEX_FORMAT_POINTER_GENERATION_V1
 OWNERSHIP_INDEX_SCHEMA_VERSION
 ArtifactAuthorityInfo
+ArtifactBoundedManifestRead
+ArtifactBoundedManifestReadError
 ArtifactGovernanceInfo
 ArtifactID
 ArtifactIntegrityError
 ArtifactManifest
+ArtifactMemberReadBoundsError
+ArtifactMemberReadIntegrityError
 ArtifactMemberReceipt
 ArtifactOwnershipError
 ArtifactOwnershipIndex
+ArtifactReadBoundsError
 ArtifactReadOnlyUnavailableError
 ArtifactReader
 ArtifactRef
@@ -508,6 +511,7 @@ ArtifactSigner
 ArtifactSigningResult
 ArtifactStore
 ArtifactStoreConfig
+ArtifactStoreReadUsage
 ArtifactTenantContextInfo
 ArtifactVerifier
 ArtifactWriteOptions
@@ -516,12 +520,27 @@ AsyncArtifactStoreAdapter
 AsyncFileSystemArtifactStore
 AsyncRawManifestBytesReader
 AtomicFileDurabilityError
+BatchAuthorizationLossSignal
 BulkSigningReport
 BulkVerificationReport
 CASIntegrityReport
 CanonInfo
 CoreArtifactOwnerProfile
+CoreJSONArtifactBoundedInputManifestReader
+CoreJSONArtifactBoundedInputManifestReceiptReader
+CoreJSONArtifactBoundedManifestReader
+CoreJSONArtifactBoundedManifestReceiptReader
+CoreJSONArtifactBoundedMemberAttempt
+CoreJSONArtifactBoundedMemberReader
+CoreJSONArtifactBoundedMemberStream
+CoreJSONArtifactMemberStream
+CoreJSONArtifactProfileReader
 CoreJSONArtifactStore
+CoreJSONArtifactStreamingReader
+CoreJsonArtifactBoundedRead
+CoreJsonManifestBoundedRead
+CoreJsonReadBoundsRefusalError
+CoreJsonReadLimits
 CoreOwnedModelRead
 CoreToIRArtifactStoreAdapter
 DependencyEdge
@@ -577,17 +596,22 @@ matches_artifact_store_protocol
 matches_runtime_protocol
 matches_runtime_protocol_definition
 profile_bound_ref
+read_core_input_manifest_profile_bounded
 read_core_json_artifact
+read_core_json_artifact_bounded
 read_core_json_artifact_bytes
 read_core_manifest_profile
+read_core_manifest_profile_bounded
 require_return_selected_profile_writer
 resolve_authority_envelope_ref
 resolve_dependency_graph
 resolve_manifest_by_profile
+validate_core_model_bounded_read
 validate_core_model_json_artifact
 validate_owned_core_model_json_artifact
 validate_return_selected_profile
 with_ambient_ownership_enforcement_if_supported
+write_bytes_once
 ```
 
 </details>
@@ -1063,7 +1087,7 @@ Export total is unknown; the static reader cannot resolve the extension.
 - Candidate scope: `Names in a finite source declaration before effect audit; not proved native exports, not included in known_export_count and not a completeness verdict.`
 - Source evidence: 2 measured source reads; full path, byte-length, and SHA-256 receipts are in the companion inventory JSON.
 
-<details><summary>Source-declared candidates (493; native exports unproved)</summary>
+<details><summary>Source-declared candidates (526; native exports unproved)</summary>
 
 ```text
 GATE_REQUEST_SCHEMA_VERSION
@@ -1073,6 +1097,8 @@ ABMBifurcationReport
 ABMIdentifiabilityCertificate
 ABMResult
 ABMResultRef
+ATEInferenceBasis
+ATEInferenceBasisRef
 AbstractionCertificateRef
 AccessTier
 AdministrativeMissingnessClass
@@ -1237,7 +1263,23 @@ GovernancePassAliasStatus
 GovernancePassMappingBundle
 GovernancePassMappingRegistry
 GraphArtifacts
+HTEInputSourceRef
+HTEIntervalOutcome
+HTEOutcome
+HTEOutcomeRef
+HTEPhysicalSourceMaterializationBindingRef
+HTEPointEstimate
+HTEPointOutcome
+HTEPointResult
+HTEPointResultRef
+HTERefusalDiagnostic
+HTERefusalDiagnosticRef
+HTERefusalOutcome
+HTEResourceExecutionEvidenceV1
+HTEResourcePolicyRef
 HTEResult
+HTEResultEvidenceRef
+HTETargetRelationV1
 HardConstraintAuditEntry
 HorizonInterval
 HorizonPolicySpec
@@ -1284,6 +1326,8 @@ MechanismDesignFamily
 MechanismFamily
 MechanismFamilySpec
 MechanismSource
+MethodExecutionEvidenceRef
+MethodResultEvidenceRef
 MetricBiasDiagnostic
 MetricUnit
 MicrosimCalibrationReport
@@ -1336,6 +1380,7 @@ OrdinalPovertyReport
 OrdinalPovertyReportRef
 OutcomeComparison
 OuterObjectiveResult
+OwnedAttemptAnchorRef
 PAGIdentificationPolicy
 PanelEconometricBundleManifest
 ParameterSpec
@@ -1389,6 +1434,7 @@ SNodeOrigin
 SchemaChangepoint
 SchemaRegimeRegistry
 SchemaRegimeSpec
+SearchUncertaintyTaskBindingRef
 SelectionDiagram
 SensitivityAnalysisBundle
 SensitivityAnalysisBundleRef
@@ -1482,6 +1528,7 @@ inspect_ir_schema
 list_ir_types
 load_abm_alignment_report
 load_abstraction_certificate
+load_ate_inference_basis
 load_backtest_report
 load_bounds_bundle
 load_causal_capability_contract
@@ -1498,7 +1545,11 @@ load_distributional_effect_bundle
 load_distributional_report
 load_forecasting_uncertainty_bundle
 load_ge_uncertainty_bundle
+load_hte_outcome
+load_hte_point_result
+load_hte_refusal_diagnostic
 load_hte_result
+load_hte_result_v2
 load_kernel_estimator_spec
 load_mean_field_equilibrium_certificate
 load_mean_field_macro_simulation_config
@@ -1513,6 +1564,7 @@ load_policy_recommendation
 load_post_adaptation_policy_value_summary
 load_posterior_summary
 load_sensitivity_result
+load_simulation_result_subject_uncertainty_projection
 load_simulation_result_uncertainty_admission
 load_strategic_decomposition_failure_card
 load_strategic_response_bundle
@@ -1521,6 +1573,7 @@ load_uncertainty_envelope
 load_welfare_bundle
 load_welfare_sample_bundle
 normalize_artifact_ref
+persist_ate_inference_basis
 persist_backtest_report
 persist_causal_assumption_card
 persist_causal_capability_contract
@@ -1534,6 +1587,10 @@ persist_distributional_proof_artifact
 persist_estimand_ast
 persist_forecasting_uncertainty_bundle
 persist_ge_uncertainty_bundle
+persist_hte_outcome
+persist_hte_point_result
+persist_hte_refusal_diagnostic
+persist_hte_result_v2
 persist_ncm_spec_selected_view
 persist_negative_certificate
 persist_ordinal_poverty_report
@@ -1573,13 +1630,15 @@ transportability_proof_review_grade
 - Candidate scope: `Names in a finite source declaration before effect audit; not proved native exports, not included in known_export_count and not a completeness verdict.`
 - Source evidence: 4 measured source reads; full path, byte-length, and SHA-256 receipts are in the companion inventory JSON.
 
-<details><summary>Source-declared candidates (288; native exports unproved)</summary>
+<details><summary>Source-declared candidates (320; native exports unproved)</summary>
 
 ```text
 ABMBifurcationReport
 ABMIdentifiabilityCertificate
 ABMResult
 ABMResultRef
+ATEInferenceBasis
+ATEInferenceBasisRef
 AccessTier
 AdministrativeMissingnessClass
 AdministrativeMissingnessDirection
@@ -1680,7 +1739,23 @@ GEUncertaintyBundle
 GEUncertaintyBundleRef
 GEUncertaintyRepresentation
 GraphType
+HTEInputSourceRef
+HTEIntervalOutcome
+HTEOutcome
+HTEOutcomeRef
+HTEPhysicalSourceMaterializationBindingRef
+HTEPointEstimate
+HTEPointOutcome
+HTEPointResult
+HTEPointResultRef
+HTERefusalDiagnostic
+HTERefusalDiagnosticRef
+HTERefusalOutcome
+HTEResourceExecutionEvidenceV1
+HTEResourcePolicyRef
 HTEResult
+HTEResultEvidenceRef
+HTETargetRelationV1
 HorizonInterval
 HorizonPolicySpec
 ImpactDirection
@@ -1716,6 +1791,8 @@ MeanFieldMacroSimulationConfig
 MeanFieldPerturbationSpec
 MechanismFamily
 MechanismSource
+MethodExecutionEvidenceRef
+MethodResultEvidenceRef
 MetricBiasDiagnostic
 MetricUnit
 MetricValidationReport
@@ -1735,6 +1812,7 @@ OperatingCharacteristicKey
 OperatingCharacteristicLibrary
 OperatingCharacteristicRecord
 OutcomeComparison
+OwnedAttemptAnchorRef
 PAGIdentificationPolicy
 PerformativeInstabilityReason
 PerformativeLoopAnalysisScope
@@ -1786,6 +1864,7 @@ RepresentationLearningResult
 RepresentationModelFamily
 RiskOfBias
 ScalarEstimandEstimate
+SearchUncertaintyTaskBindingRef
 SensitivityAnalysisBundle
 SensitivityAnalysisBundleRef
 SensitivityAnalysisIndex
@@ -1851,11 +1930,21 @@ WinnersLosersEntry
 WinnersLosersTable
 adapt_legacy_claim_occurrence_as_v2_absence
 extract_truthfulness_receipt
+load_ate_inference_basis
 load_dependent_sensitivity_result
+load_hte_outcome
+load_hte_point_result
+load_hte_refusal_diagnostic
+load_hte_result_v2
 parse_truthfulness_scope
 parse_truthfulness_status
 parse_truthfulness_tier
+persist_ate_inference_basis
 persist_dependent_sensitivity_result
+persist_hte_outcome
+persist_hte_point_result
+persist_hte_refusal_diagnostic
+persist_hte_result_v2
 reconcile_truthfulness_tiers
 to_causalnex_graph_bridge
 to_dowhy_graph_bridge
@@ -2239,6 +2328,65 @@ write_parquet_rows
 - Candidate scope: `Names in a finite source declaration before effect audit; not proved native exports, not included in known_export_count and not a completeness verdict.`
 - Source evidence: 3 measured source reads; full path, byte-length, and SHA-256 receipts are in the companion inventory JSON.
 
+<details><summary>Source-declared candidates (52; native exports unproved)</summary>
+
+```text
+UTC
+Any
+BaseModel
+CapabilitySet
+ClassVar
+ConfigDict
+ConnectorCapability
+ConnectorDocumentationSpec
+ConnectorGovernanceProfile
+ConnectorIdentitySpec
+ConnectorMetadataSpec
+ConnectorOperationalProfile
+ConnectorQualityGovernanceSpec
+ConnectorSLASpec
+ConnectorSchemaGovernanceSpec
+ConnectorSourceSpec
+DataT
+DataVersion
+Enum
+EvidenceBundleRef
+FetchPaginationEnvelope
+FetchProvenanceEnvelope
+FetchQualityEnvelope
+FetchRequest
+FetchResult
+FetchSchemaDescriptor
+FetchTransferEnvelope
+Field
+Flag
+IntEnum
+PIIDetectedEntity
+PIIScanSummary
+PrivateAttr
+Protocol
+QualityTier
+ResilienceInfo
+TrustLevel
+TypeVar
+VersionStrategy
+annotations
+auto
+cached_property
+capabilities_from_flags
+content_hash
+dataclass
+datetime
+field
+field_validator
+flags_from_capabilities
+model_validator
+overload
+to_canonical_bytes
+```
+
+</details>
+
 #### `polisyos.ir.kernel`
 
 - Source: `src/polisyos/ir/kernel/__init__.py`
@@ -2249,7 +2397,7 @@ write_parquet_rows
 - Candidate scope: `Names in a finite source declaration before effect audit; not proved native exports, not included in known_export_count and not a completeness verdict.`
 - Source evidence: 4 measured source reads; full path, byte-length, and SHA-256 receipts are in the companion inventory JSON.
 
-<details><summary>Source-declared candidates (53; native exports unproved)</summary>
+<details><summary>Source-declared candidates (81; native exports unproved)</summary>
 
 ```text
 ConflictResolution
@@ -2272,6 +2420,12 @@ DurationValue
 GenericUnit
 ID_PATTERN
 KernelModel
+METHOD_METRIC_DIRECT_OUTPUT_LAW_ID
+METHOD_METRIC_DIRECT_OUTPUT_LAW_VERSION
+METHOD_METRIC_EX_ANTE_MEAN_CHANGE_LAW_ID
+METHOD_METRIC_EX_ANTE_MEAN_CHANGE_LAW_VERSION
+METHOD_METRIC_UNIT_ADAPTER_ID
+METHOD_METRIC_UNIT_ADAPTER_VERSION
 MechanismTypeRegistry
 MechanismTypeSpec
 MergeOverride
@@ -2279,6 +2433,16 @@ MergeRuleKind
 MergeRuleRef
 MergeRuleRegistry
 MergeRuleSpec
+MethodMetricBackendAttempt
+MethodMetricCapturedInputArray
+MethodMetricExecutionContext
+MethodMetricInputContext
+MethodMetricInputRole
+MethodMetricInputRoleContext
+MethodMetricParameterContext
+MethodMetricPredicateEvidence
+MethodMetricSemanticContract
+MethodMetricSourceUnit
 MetricRegistry
 MetricSpec
 MoneyUnit
@@ -2290,6 +2454,9 @@ ParamValue
 PositiveDecimal
 RateUnit
 RateValue
+RegisteredMethodMetricLawResult
+RegisteredMethodMetricUnitAdapter
+RegisteredMethodMetricUnitResult
 SLOT_ID_PATTERN
 SelectorFieldRegistry
 SelectorFieldSpec
@@ -2305,6 +2472,15 @@ UnitKind
 UnitRef
 UnitSpecType
 UnitsRegistry
+apply_registered_direct_output_law
+apply_registered_ex_ante_mean_change_law
+apply_registered_method_metric_unit_adapter
+registered_method_metric_input_unit_contract
+registered_method_metric_law_metadata
+registered_method_metric_law_metadata_for
+registered_method_metric_semantics_match
+registered_method_metric_unit_adapter_metadata
+resolve_registered_method_metric_unit_adapter
 ```
 
 </details>
@@ -2371,11 +2547,12 @@ TranslatableString
 - Candidate scope: `Names in a finite source declaration before effect audit; not proved native exports, not included in known_export_count and not a completeness verdict.`
 - Source evidence: 4 measured source reads; full path, byte-length, and SHA-256 receipts are in the companion inventory JSON.
 
-<details><summary>Source-declared candidates (118; native exports unproved)</summary>
+<details><summary>Source-declared candidates (130; native exports unproved)</summary>
 
 ```text
 ABMAlignmentReportRef
 ABMResultRef
+ATEInferenceBasisRef
 AbstractionCertificateRef
 AlignmentReportRef
 ArtifactRefModel
@@ -2426,6 +2603,13 @@ ForecastInterventionQueryRef
 ForecastingUncertaintyBundleRef
 FrontierSketchRef
 GEUncertaintyBundleRef
+HTEInputSourceRef
+HTEOutcomeRef
+HTEPhysicalSourceMaterializationBindingRef
+HTEPointResultRef
+HTERefusalDiagnosticRef
+HTEResourcePolicyRef
+HTEResultEvidenceRef
 HTEResultRef
 IncentiveCompatibilityCertificateRef
 InteractionComplexRef
@@ -2446,6 +2630,8 @@ MeanFieldMacroSimulationConfigRef
 MeanFieldPerturbationSpecRef
 MechanismFamilySpecRef
 MechanismWelfareLossBoundRef
+MethodExecutionEvidenceRef
+MethodResultEvidenceRef
 MetricValidationReportRef
 MicrosimCalibrationReportRef
 MobilityReportRef
@@ -2457,6 +2643,7 @@ OptimalRecourseInterventionBundleRef
 OptimalRecourseInterventionQueryRef
 OptimizationAmbiguityCertificateRef
 OrdinalPovertyReportRef
+OwnedAttemptAnchorRef
 PolicyRecommendationRef
 PrivacyAwareTransportCertificateRef
 ProofBundleRef
@@ -2470,6 +2657,7 @@ RegimeShiftForecastBundleRef
 RegimeShiftIdentificationCertificateRef
 RoughPathInterventionCertificateRef
 SCMFragmentRef
+SearchUncertaintyTaskBindingRef
 SensitivityAnalysisBundleRef
 ShiftDiagnosticReportRef
 SimulationCalibrationReceiptRef
@@ -3040,7 +3228,7 @@ world
 - Candidate scope: `Names in a finite source declaration before effect audit; not proved native exports, not included in known_export_count and not a completeness verdict.`
 - Source evidence: 3 measured source reads; full path, byte-length, and SHA-256 receipts are in the companion inventory JSON.
 
-<details><summary>Source-declared candidates (133; native exports unproved)</summary>
+<details><summary>Source-declared candidates (134; native exports unproved)</summary>
 
 ```text
 API_PROTOCOL_CONNECTOR_CONTRACT
@@ -3064,6 +3252,7 @@ CacheStats
 CachedFetchResult
 CachingConnectorProxy
 CapabilityError
+CatalogRegistrySchemaError
 CircuitBreaker
 CircuitBreakerConfig
 CircuitOpenError
@@ -3582,29 +3771,61 @@ persist_continuation_branch
 - Candidate scope: `Names in a finite source declaration before effect audit; not proved native exports, not included in known_export_count and not a completeness verdict.`
 - Source evidence: 3 measured source reads; full path, byte-length, and SHA-256 receipts are in the companion inventory JSON.
 
-<details><summary>Source-declared candidates (69; native exports unproved)</summary>
+<details><summary>Source-declared candidates (87; native exports unproved)</summary>
 
 ```text
+affine_bijector
+aggregate_moment_summary
+attach_abm_identifiability_certificate_ref
+attach_identifiability_diagnostic_ref
 AuxLossComponent
+build_robust_set_spec_from_samples
+calibrate_discrete_ci
+calibrate_kernel_ci
+calibration_report_series_sha256
+calibration_report_time_axis_sha256
+CALIBRATION_RUNTIME_INPUT_CONTRACT
+CALIBRATION_RUNTIME_INPUT_NAMES
+CalibrationCoordinateProjection
+CalibrationExecutionInputBasis
+CalibrationFitMetrics
+CalibrationFitQuality
+CalibrationParameterUnitIdentity
+CalibrationReport
+CalibrationResolvedParameterInput
+CalibrationRuntimeInputBinding
+CalibrationSeriesComparison
+CalibrationTargetBundle
+CalibrationTargetBundleManifest
+CalibrationTargetInputIdentity
+CalibrationUncertainty
+Calibrator
+CalibratorInputs
+canonical_input_sha256
+chain_bijector
 CIFPRInflationBound
 CISampleSizeRequirement
 CITestCalibration
 CITestThresholdPolicy
 CITestThresholdPolicySet
-CalibrationFitMetrics
-CalibrationFitQuality
-CalibrationCoordinateProjection
-CalibrationReport
-CalibrationSeriesComparison
-CalibrationTargetBundle
-CalibrationTargetBundleManifest
-CalibrationUncertainty
-Calibrator
-CalibratorInputs
-DPContext
+coerce_dp_context
+compile_program
+compute_effective_weight
+compute_hessian
 DefaultMeasurementAwareLossAdapter
+diagnose_identifiability
+DPContext
+effective_privacy_xi
+envelope_from_calibration_param
+envelopes_from_calibration
+ExecuteResponseBasisCandidate
+ExecuteResponseSourceIdentity
+fabric_calibration_context_from_decision_data
+fabric_calibration_context_from_evidence_paths
 FabricCalibrationContext
+gaussian_parametric_radius
 HessianResult
+identifiability_diagnostic
 IdentifiabilityDiagnosticConfig
 IdentifiabilityDiagnosticResult
 IdentifiabilityDiagnosticStatus
@@ -3612,48 +3833,34 @@ IdentifiabilityMomentClass
 IdentifiabilityReport
 IdentifiabilityStatus
 InterferenceLossComponent
+inverse_bijector
+load_calibration_execution_input_basis
+load_execute_response_basis_candidate
+load_identifiability_diagnostic_result
+log_bijector
+logit_bijector
 MeasurementAwareLossAdapter
 MeasurementAwareLossConfig
 MeasurementAwareTarget
 MultiStartResult
 ParamIdentifiability
-RobustSetCalibrator
-SetSizeSelector
-SingleRunResult
-StaticBundle
-aggregate_moment_summary
-attach_abm_identifiability_certificate_ref
-attach_identifiability_diagnostic_ref
-affine_bijector
-build_robust_set_spec_from_samples
-calibrate_discrete_ci
-calibrate_kernel_ci
-chain_bijector
-coerce_dp_context
-compile_program
-compute_effective_weight
-compute_hessian
-diagnose_identifiability
-effective_privacy_xi
-envelope_from_calibration_param
-envelopes_from_calibration
-fabric_calibration_context_from_decision_data
-fabric_calibration_context_from_evidence_paths
-gaussian_parametric_radius
-identifiability_diagnostic
-inverse_bijector
-load_identifiability_diagnostic_result
-log_bijector
-logit_bijector
-put_calibration_config
-put_calibration_report
 persist_posterior_summary_from_method_evidence
+put_calibration_config
+put_calibration_execution_input_basis
+put_calibration_report
+reconcile_selected_runtime_input
 required_n_chi2
 required_n_kernel
 resolve_ci_threshold_policy
+RobustSetCalibrator
 run_pure_scan
+RUNTIME_REGISTRY_MEMBER_CONTRACT
+RUNTIME_REGISTRY_MEMBER_INPUT_NAMES
 select_robust_set_size
+SetSizeSelector
+SingleRunResult
 softplus_bijector
+StaticBundle
 ```
 
 </details>
@@ -3668,18 +3875,27 @@ softplus_bijector
 - Candidate scope: `Names in a finite source declaration before effect audit; not proved native exports, not included in known_export_count and not a completeness verdict.`
 - Source evidence: 3 measured source reads; full path, byte-length, and SHA-256 receipts are in the companion inventory JSON.
 
-<details><summary>Source-declared candidates (10; native exports unproved)</summary>
+<details><summary>Source-declared candidates (19; native exports unproved)</summary>
 
 ```text
+HTE_PHYSICAL_SOURCE_BINDING_KIND
+HTE_PHYSICAL_SOURCE_BINDING_SCHEMA
+HTEInputLimits
+HTEInputPreparationRefusal
+HTEPhysicalArraySlotBinding
+HTEPhysicalSourceMaterializationBinding
 InputBindingsBuildResult
+PreparedHTEObservationalInput
 UkraineFoundryIntakeResult
 build_input_bindings
 extract_feedback_diagnostics
 extract_feedback_state
 inject_feedback_state
 load_input_bindings
+load_hte_physical_source_materialization_binding
 load_ukraine_foundry_intake
 materialize_method_contract
+prepare_hte_observational_input
 resolve_bound_state_snapshot_ref
 ```
 
@@ -3695,17 +3911,25 @@ resolve_bound_state_snapshot_ref
 - Candidate scope: `Names in a finite source declaration before effect audit; not proved native exports, not included in known_export_count and not a completeness verdict.`
 - Source evidence: 3 measured source reads; full path, byte-length, and SHA-256 receipts are in the companion inventory JSON.
 
-<details><summary>Source-declared candidates (9; native exports unproved)</summary>
+<details><summary>Source-declared candidates (17; native exports unproved)</summary>
 
 ```text
+BoundedStateSnapshotInputs
 ExecutionSourceAdmission
 ExecutionSourceAdmissionRefusal
+BoundedExecutionSourceReader
+ExecutionSourceBoundedReadRefusal
 ResolvedExecutionPosture
+SnapshotStateInputReadRefusal
+StateSnapshotInputReadUsage
+StateSnapshotInputReadRefusal
 SnapshotStateLayoutError
 admit_execution_source
+admit_execution_source_bounded
 execute
 get_state_path
 load_state_snapshot
+read_state_snapshot_inputs_bounded
 resolve_execution_posture
 ```
 
@@ -4013,7 +4237,7 @@ validated_bound_to_envelopes
 - Candidate scope: `Names in a finite source declaration before effect audit; not proved native exports, not included in known_export_count and not a completeness verdict.`
 - Source evidence: 3 measured source reads; full path, byte-length, and SHA-256 receipts are in the companion inventory JSON.
 
-<details><summary>Source-declared candidates (27; native exports unproved)</summary>
+<details><summary>Source-declared candidates (30; native exports unproved)</summary>
 
 ```text
 CALIBRATION_COVARIANCE_RECONCILIATION_ATOL_V1
@@ -4040,6 +4264,9 @@ PosteriorPushforwardOutputSummary
 PosteriorPushforwardResult
 QuasiMCSampler
 aggregate_envelopes
+aggregate_persisted_envelope_views
+load_aggregated_envelope_fresh
+persist_aggregated_envelope
 compute_first_order_indices
 extract_std
 fabric_uncertainty_context_from_decision_data
@@ -4595,7 +4822,7 @@ verify_replay
 - Candidate scope: `Names in a finite source declaration before effect audit; not proved native exports, not included in known_export_count and not a completeness verdict.`
 - Source evidence: 4 measured source reads; full path, byte-length, and SHA-256 receipts are in the companion inventory JSON.
 
-<details><summary>Source-declared candidates (23; native exports unproved)</summary>
+<details><summary>Source-declared candidates (28; native exports unproved)</summary>
 
 ```text
 LegalCandidatePack
@@ -4621,6 +4848,11 @@ persist_policy_option_set
 persist_policy_request_frame
 persist_source_verification_report
 persist_verified_policy_report
+VERIFIED_POLICY_REPORT_SOURCE_BASIS_ID
+VERIFIED_POLICY_REPORT_SOURCE_READ_PATHS
+VerifiedPolicyReportAdmission
+VerifiedPolicyReportCurrentness
+resolve_current_verified_policy_report
 ```
 
 </details>
@@ -4754,7 +4986,7 @@ register_worker_tool
 - Candidate scope: `Names in a finite source declaration before effect audit; not proved native exports, not included in known_export_count and not a completeness verdict.`
 - Source evidence: 3 measured source reads; full path, byte-length, and SHA-256 receipts are in the companion inventory JSON.
 
-<details><summary>Source-declared candidates (101; native exports unproved)</summary>
+<details><summary>Source-declared candidates (105; native exports unproved)</summary>
 
 ```text
 AdversarialScenarioBundle
@@ -4797,6 +5029,9 @@ InMemoryHypothesisLedger
 LLMFormulator
 LLMFormulatorInput
 LLMFormulatorOutput
+MethodMetricObservation
+MethodMetricPredicateEvidence
+MethodMetricSourceUnit
 MonitoringSignalSpec
 MultiCriticEnsemble
 NarrativeVariant
@@ -4827,6 +5062,7 @@ RolloutStep
 ScenarioAdversaryConfig
 ScenarioAdversaryWorker
 ScenarioAttackSurface
+SelectedMethodMetricArtifactRef
 StructureCandidate
 SubgroupImpactReport
 TargetPopulationSpec
@@ -6172,7 +6408,7 @@ Export total is unknown; the static reader cannot resolve the extension.
 - Owner: `team-data-forge`
 - README: `src/polisyos/data_forge/README.md`
 - Reference doc: `docs/reference/public-surface.md`
-- Notes: Experimental asset-centric build-time Data Forge facade. The top-level package lazily exports build-time artifact, asset, schema, snapshot, provenance, quality, and migration-test contracts; read_api is the only runtime import surface and includes the explicit Legal runtime-material and Ukraine demographic reader facades.
+- Notes: Experimental asset-centric build-time Data Forge facade. The top-level package lazily exports build-time artifact, asset, schema, snapshot, provenance, quality, and migration-test contracts; read_api is the only runtime import surface and includes the explicit Legal runtime-material and Ukraine source-snapshot and demographic reader facades.
 - Summary: Data Forge public facade for build-time artifact contracts and read APIs.
 
 ### Resolved supported entrypoints
@@ -6262,13 +6498,17 @@ write_snapshot_provenance_manifest
 - Candidate scope: `Names in a finite source declaration before effect audit; not proved native exports, not included in known_export_count and not a completeness verdict.`
 - Source evidence: 3 measured source reads; full path, byte-length, and SHA-256 receipts are in the companion inventory JSON.
 
-<details><summary>Source-declared candidates (21; native exports unproved)</summary>
+<details><summary>Source-declared candidates (26; native exports unproved)</summary>
 
 ```text
 READ_API_SURFACES
+UKRAINE_D4_SOURCE_JSON_SNAPSHOT_ROLE_BY_CONTRACT
 GenerationBasis
 OfficialSnapshotAnswer
 ReadApiSurface
+UkraineD4GovernanceRequest
+UkraineIdentityResolutionCohort
+UkraineIdentityResolutionCohortRow
 academic
 available_surfaces
 build_generation_basis
@@ -6285,6 +6525,7 @@ provenance
 surface_module
 surfaces
 ukraine
+ukraine_d4_json_snapshot_model_type
 write_publish_manifest
 ```
 
@@ -6300,7 +6541,7 @@ write_publish_manifest
 - Candidate scope: `Names in a finite source declaration before effect audit; not proved native exports, not included in known_export_count and not a completeness verdict.`
 - Source evidence: 4 measured source reads; full path, byte-length, and SHA-256 receipts are in the companion inventory JSON.
 
-<details><summary>Source-declared candidates (101; native exports unproved)</summary>
+<details><summary>Source-declared candidates (110; native exports unproved)</summary>
 
 ```text
 ACADEMIC_ASSET_GROUP
@@ -6361,6 +6602,13 @@ PreparedSKGRead
 PreparedSKGReadReceipt
 RUNTIME_CANONICAL_REGISTRY
 RUNTIME_CANONICAL_REGISTRY_VERSION
+RetainedSKGSnapshot
+RetainedSKGSnapshotChunk
+RetainedSKGSnapshotError
+RetainedSKGSnapshotRecord
+RetainedSKGSnapshotV10
+RetainedSKGSnapshotV11
+RetainedSKGSourceBinding
 SKGQuery
 STRONG_DESIGN_FAMILIES
 ScholarKnowledgeGraph
@@ -6387,6 +6635,7 @@ load_academic_readiness_package
 load_academic_shadow_bundle
 load_academic_skg_summary
 load_causal_claim_results_v2
+load_retained_skg_snapshot
 materialize_claim_adjudication_result
 metric_is_improved
 plan_academic_batch_stages
@@ -6396,6 +6645,7 @@ read_claim_promotion_predecessor
 read_source_reference_population
 replay_source_identity_bundle
 require_selected_artifact_ref
+retained_skg_source_binding
 run_edge_synthesize
 runtime_approved_synonyms
 runtime_canonical_entries
@@ -6432,11 +6682,91 @@ validate_claim_adjudication_input_batch
 
 - Source: `src/polisyos/data_forge/read_api/ukraine.py`
 - Facade: `unresolved_exports`
-- Summary: Runtime-safe read API for Ukraine demographic static-aging artifacts.
-- Export resolution incomplete: `Unresolved export expansion: src/polisyos/data_forge/read_api/ukraine.py`.
+- Summary: Runtime-safe read API for Ukraine source snapshots and demographic artifacts.
+- Export resolution incomplete: `Unresolved import-time ImportFrom outside pure-declaration grammar: src/polisyos/data_forge/__init__.py:from importlib import import_module`.
 - Export scope: `no names proven by the bounded parser; not an empty runtime namespace`
 - Candidate scope: `Names in a finite source declaration before effect audit; not proved native exports, not included in known_export_count and not a completeness verdict.`
 - Source evidence: 4 measured source reads; full path, byte-length, and SHA-256 receipts are in the companion inventory JSON.
+
+<details><summary>Source-declared candidates (73; native exports unproved)</summary>
+
+```text
+ArtifactRecord
+CalibrationBundleManifest
+D5ReleaseHandoffRequest
+DemographyRoleProjection
+DemographySourceEvidence
+DemographySourceRequest
+HistoricalLayoutRequest
+HouseholdDiagnosticPanelBasis
+InventorySourceRequest
+NormalizedArtifactManifest
+REAL_BACKTEST_BUNDLE_CONTRACT_FQN
+RealBacktestBundleContract
+ReleaseManifest
+SourceResolutionRefusalError
+SourceSnapshotManifest
+UKRAINE_ASSET_GROUP
+UKRAINE_D4_SOURCE_JSON_SNAPSHOT_ROLE_BY_CONTRACT
+UKRAINE_DEMOGRAPHY_DONOR_POOL_KEY
+UKRAINE_DEMOGRAPHY_PRIORS_KEY
+UKRAINE_DEMOGRAPHY_SOURCE_INVENTORY_KEY
+UKRAINE_DEMOGRAPHY_TARGETS_KEY
+UKRAINE_NORMALIZED_SOURCES_KEY
+UKRAINE_RAW_SOURCES_KEY
+UKRAINE_READINESS_KEY
+UKRAINE_SOURCE_CONFIG_KEY
+UKRAINE_STATIC_AGING_INPUTS_KEY
+UkraineD4GovernanceRequest
+UkraineDemographyArtifacts
+UkraineIdentityResolutionCohort
+UkraineIdentityResolutionCohortRow
+UkraineJSONSnapshotProvenance
+UkraineJSONSnapshotRead
+UkraineJSONSnapshotRefusalError
+UkraineLexPreShardDiff
+UkraineLexPreShardSummary
+UkraineLexShardEntry
+UkraineLexShardPassSummary
+UkraineReadinessSummary
+UkraineShadowArtifact
+UkraineShadowBundle
+UkraineShadowDiff
+UkraineSourceSummary
+UkraineStageArtifactVerificationError
+VerifiedUkraineReleaseArtifact
+VerifiedUkraineReleaseArtifacts
+VerifiedUkraineStageArtifact
+VerifiedUkraineStageArtifacts
+build_household_diagnostic_panel
+build_static_aging_state
+compare_lex_pre_shard_summaries
+compare_ukraine_shadow_bundles
+directory_tree_entries
+infer_lex_snapshot_label
+lex_pre_shard_index
+lex_pre_shard_pass_name
+load_demography_artifacts
+load_demography_candidate_artifacts
+load_donor_pool
+load_lex_pre_shard_summary
+load_manifest
+load_reconciled_targets
+load_transition_priors
+load_ukraine_shadow_bundle
+load_verified_release_artifact_bytes
+load_verified_release_artifacts
+load_verified_release_json_artifact
+load_verified_release_manifest_json
+load_verified_stage_artifacts
+load_verified_stage_json_output
+load_verified_stage_manifest_json
+load_verified_stage_output_bytes
+read_ukraine_json_snapshot
+ukraine_d4_json_snapshot_model_type
+```
+
+</details>
 Export total is unknown; the static reader cannot resolve the extension.
 
 ## `polisyos.berl`
@@ -6486,7 +6816,7 @@ Unresolved import-time ClassDef outside pure-declaration grammar: src/polisyos/b
 - Candidate scope: `Names in a finite source declaration before effect audit; not proved native exports, not included in known_export_count and not a completeness verdict.`
 - Source evidence: 4 measured source reads; full path, byte-length, and SHA-256 receipts are in the companion inventory JSON.
 
-<details><summary>Source-declared candidates (15; native exports unproved)</summary>
+<details><summary>Source-declared candidates (16; native exports unproved)</summary>
 
 ```text
 EmpiricalBoundResult
@@ -6498,6 +6828,7 @@ ExplanationValidationResult
 ValidationThresholds
 empirical_bernstein_upper_bound
 estimate_local_infidelity
+explain_and_persist
 hoeffding_upper_bound
 load_explanation_bundle
 persist_explanation_bundle

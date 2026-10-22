@@ -13,5 +13,5 @@ READ_API_SURFACE_SUMMARIES: dict[str, str] = {
     "academic": "Academic artifact, readiness, and shadow-diff readers.",
     "catalog": "Dataset catalog artifact, source-module, readiness, and shadow-diff readers.",
     "legal": "Read-only Lex shadow artifact and differential readers.",
-    "ukraine": "Ukraine non-Lex artifact and demographic static-aging readers.",
+    "ukraine": "Ukraine D4 source-snapshot contracts, non-Lex artifacts, and demographic readers.",
 }

@@ -638,7 +638,7 @@ class AbstractionCertificate(BaseModel):
 
     model_config = ConfigDict(extra="forbid", frozen=True)
 
-    schema_version: str = Field("1.0", pattern=r"^\d+\.\d+$")
+    schema_version: str = Field(default="1.0", pattern=r"^\d+\.\d+$")
     micro_graph_ref: ArtifactRefModel
     macro_graph_ref: ArtifactRefModel
     abstraction_map_ref: FiniteStateAbstractionMapRef

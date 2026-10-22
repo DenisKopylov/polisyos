@@ -377,7 +377,7 @@ class CausalPanelBundleManifest(KernelModel):
 class BacktestPlanBundle(KernelModel):
     """Bundle of neutral historical-validation payloads and frozen observations."""
 
-    schema_version: str = Field("1.0", pattern=SCHEMA_VERSION_PATTERN)
+    schema_version: str = Field(default="1.0", pattern=SCHEMA_VERSION_PATTERN)
     artifact_name: Literal["backtest_plan_bundle.json"] = "backtest_plan_bundle.json"
     contract_target: ContractCompatibilityTarget
     required_fields: list[str] = Field(..., min_length=1)

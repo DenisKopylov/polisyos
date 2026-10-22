@@ -77,13 +77,15 @@ class AssumptionSpec(KernelModel):
     assumption_type: AssumptionType
     description: str = Field(..., max_length=500)
     value: DecimalValue | str | bool | None = Field(
-        None, description="Quantified assumption value if applicable"
+        default=None, description="Quantified assumption value if applicable"
     )
     confidence: UnitIntervalValue | None = Field(
-        None, description="Confidence in this assumption (0-1)"
+        default=None, description="Confidence in this assumption (0-1)"
     )
-    source: str | None = Field(None, max_length=200, description="Source/citation")
-    sensitivity_flag: bool = Field(False, description="Flag for sensitivity analysis priority")
+    source: str | None = Field(default=None, max_length=200, description="Source/citation")
+    sensitivity_flag: bool = Field(
+        default=False, description="Flag for sensitivity analysis priority"
+    )
     notes: list[str] = Field(default_factory=list, max_length=5)
 
 
@@ -101,13 +103,13 @@ class AgentTypeConfig(KernelModel):
     name: TranslatableString | None = None
 
     # Population
-    population_count: int | None = Field(None, ge=0)
+    population_count: int | None = Field(default=None, ge=0)
     population_share: UnitIntervalValue | None = None
-    max_population: int | None = Field(None, ge=0)
+    max_population: int | None = Field(default=None, ge=0)
 
     # Behavioral parameters
     utility_function: str | None = Field(
-        None, pattern=ID_PATTERN, description="Reference to utility function"
+        default=None, pattern=ID_PATTERN, description="Reference to utility function"
     )
     risk_aversion: DecimalValue | None = None
     discount_rate: DecimalValue | None = None
@@ -118,8 +120,8 @@ class AgentTypeConfig(KernelModel):
     )
 
     # Adaptation
-    adaptive: bool = Field(False, description="Whether agents use learned policies")
-    policy_model: str | None = Field(None, description="RL policy model type if adaptive")
+    adaptive: bool = Field(default=False, description="Whether agents use learned policies")
+    policy_model: str | None = Field(default=None, description="RL policy model type if adaptive")
 
     notes: list[str] = Field(default_factory=list, max_length=5)
 
@@ -136,13 +138,13 @@ class AgentConfig(KernelModel):
         max_length=MAX_AGENT_TYPES,
         description="Agent type configurations",
     )
-    total_agents: int | None = Field(None, ge=0, description="Total agent population")
-    max_agents: int | None = Field(None, ge=0, description="Maximum agent capacity")
+    total_agents: int | None = Field(default=None, ge=0, description="Total agent population")
+    max_agents: int | None = Field(default=None, ge=0, description="Maximum agent capacity")
     interaction_topology: Literal["random", "lattice", "network", "spatial"] | None = Field(
-        None, description="Agent interaction topology"
+        default=None, description="Agent interaction topology"
     )
     network_graph_ref: str | None = Field(
-        None, pattern=ARTIFACT_ID_PATTERN, description="Reference to network graph artifact"
+        default=None, pattern=ARTIFACT_ID_PATTERN, description="Reference to network graph artifact"
     )
 
 
@@ -155,11 +157,11 @@ class EnvironmentParam(KernelModel):
 
     param_id: str = Field(..., pattern=ID_PATTERN)
     value: DecimalValue | str | bool
-    unit_id: str | None = Field(None, pattern=ID_PATTERN)
-    description: str | None = Field(None, max_length=200)
-    time_varying: bool = Field(False, description="Whether value changes over time")
+    unit_id: str | None = Field(default=None, pattern=ID_PATTERN)
+    description: str | None = Field(default=None, max_length=200)
+    time_varying: bool = Field(default=False, description="Whether value changes over time")
     time_series_ref: str | None = Field(
-        None, pattern=ARTIFACT_ID_PATTERN, description="Reference to time series data"
+        default=None, pattern=ARTIFACT_ID_PATTERN, description="Reference to time series data"
     )
 
 
@@ -171,9 +173,9 @@ class EnvironmentConfig(KernelModel):
         max_length=MAX_ENVIRONMENT_PARAMS,
         description="Environment parameters",
     )
-    random_seed: int | None = Field(None, description="RNG seed for reproducibility")
-    stochastic: bool = Field(True, description="Whether simulation is stochastic")
-    parallel_worlds: int = Field(1, ge=1, description="Number of parallel simulations")
+    random_seed: int | None = Field(default=None, description="RNG seed for reproducibility")
+    stochastic: bool = Field(default=True, description="Whether simulation is stochastic")
+    parallel_worlds: int = Field(default=1, ge=1, description="Number of parallel simulations")
 
 
 class ModelSpec(KernelModel):
@@ -200,7 +202,7 @@ class ModelSpec(KernelModel):
         calibration_ref: Optional reference to persisted calibration outputs.
     """
 
-    schema_version: str = Field("1.0", pattern=SCHEMA_VERSION_PATTERN)
+    schema_version: str = Field(default="1.0", pattern=SCHEMA_VERSION_PATTERN)
 
     # Identity
     model_id: str = Field(..., pattern=ID_PATTERN, description="Unique model identifier")
@@ -212,14 +214,14 @@ class ModelSpec(KernelModel):
         description="Reference to DataSnapshot artifact (initial world state)",
     )
     registry_bundle_ref: str | None = Field(
-        None,
+        default=None,
         pattern=ARTIFACT_ID_PATTERN,
         description="Reference to RegistryBundle for mechanisms/units",
     )
 
     # Time Configuration
     time_semantics: TimeSemantics | None = Field(
-        None, description="Temporal configuration (step duration, discounting)"
+        default=None, description="Temporal configuration (step duration, discounting)"
     )
 
     # Agent Configuration
@@ -248,16 +250,16 @@ class ModelSpec(KernelModel):
     )
 
     # Calibration State
-    calibrated: bool = Field(False, description="Whether model has been calibrated")
+    calibrated: bool = Field(default=False, description="Whether model has been calibrated")
     calibration_ref: str | None = Field(
-        None, pattern=ARTIFACT_ID_PATTERN, description="Reference to calibration results"
+        default=None, pattern=ARTIFACT_ID_PATTERN, description="Reference to calibration results"
     )
 
     # Metadata
-    name: TranslatableString | None = Field(None, description="Human-readable model name")
-    description: str | None = Field(None, max_length=2000)
+    name: TranslatableString | None = Field(default=None, description="Human-readable model name")
+    description: str | None = Field(default=None, max_length=2000)
     labels: list[str] = Field(default_factory=list, max_length=20)
-    version_tag: str | None = Field(None, max_length=50, description="Semantic version tag")
+    version_tag: str | None = Field(default=None, max_length=50, description="Semantic version tag")
     notes: list[str] = Field(default_factory=list, max_length=50)
 
     @model_validator(mode="after")

@@ -22,7 +22,10 @@ from polisyos.data_forge.domains.ukraine.manifests import (
     ValidationFinding,
     write_manifest,
 )
-from polisyos.data_forge.domains.ukraine.models import StageId, build_default_pipeline_config
+from polisyos.data_forge.domains.ukraine.models import (
+    StageId,
+    build_default_pipeline_config,
+)
 from polisyos.data_forge.read_api.ukraine import UkraineStageArtifactVerificationError
 from polisyos.ir.governance.gate import GateDecision, GateVerdict
 from polisyos.scientist.governance import blueprint_release
@@ -99,7 +102,10 @@ def _verified_bridge_fixture(tmp_path):
     _write_completed_stage_manifest(
         config,
         stage_id=StageId.D0_P0,
-        outputs=[ArtifactRecord.from_path(cohort_path), ArtifactRecord.from_path(registry_path)],
+        outputs=[
+            ArtifactRecord.from_path(cohort_path),
+            ArtifactRecord.from_path(registry_path),
+        ],
     )
 
     periods = ["2023-01-01", "2024-01-01", "2025-01-01"]
@@ -147,7 +153,10 @@ def _verified_bridge_fixture(tmp_path):
     _write_completed_stage_manifest(
         config,
         stage_id=StageId.D2,
-        outputs=[ArtifactRecord.from_path(observation_path), ArtifactRecord.from_path(splits_path)],
+        outputs=[
+            ArtifactRecord.from_path(observation_path),
+            ArtifactRecord.from_path(splits_path),
+        ],
     )
 
     household_path = d3_dir / "calibrated_household_cells.parquet"
@@ -173,7 +182,10 @@ def _verified_bridge_fixture(tmp_path):
     _write_completed_stage_manifest(
         config,
         stage_id=StageId.D3,
-        outputs=[ArtifactRecord.from_path(household_path), ArtifactRecord.from_path(labor_path)],
+        outputs=[
+            ArtifactRecord.from_path(household_path),
+            ArtifactRecord.from_path(labor_path),
+        ],
     )
 
     d4_result = build_d4_stage(config)
@@ -662,7 +674,151 @@ def _rewrite_release_compression(
     write_manifest(manifest_path, manifest)
 
 
-def test_verified_ukraine_d4_bridge_requires_recomputable_d0_coverage_evidence(tmp_path) -> None:
+def test_verified_ukraine_d4_bridge_persists_all_typed_source_json_reads(
+    tmp_path,
+    monkeypatch: pytest.MonkeyPatch,
+) -> None:
+    """Exercise D4 read lineage while the fixture stays non-admissible.
+
+    The fixture has no verifier-grade household coverage, so omit only that
+    final-signoff family in this test to reach the bridge. The produced C5b
+    artifact must still label profileless reads candidate-only and ineligible.
+    """
+    config, d4_manifest_path, _ = _verified_bridge_fixture(tmp_path)
+    store = blueprint_release.FileSystemCAS(config.build_root.resolved_cas_root)
+    monkeypatch.setattr(
+        blueprint_release,
+        "REQUIRED_SIGNOFF_FAMILIES",
+        tuple(
+            family
+            for family in blueprint_release.REQUIRED_SIGNOFF_FAMILIES
+            if family.value != "household_distribution"
+        ),
+    )
+    result = run_verified_ukraine_d4_governance(
+        build_root=config.build_root.root,
+        d4_manifest_path=d4_manifest_path,
+        cas_root=config.build_root.resolved_cas_root,
+    )
+    fresh = load_calibration_validation_bundle(store, result.bundle_ref)
+    manifest = store.get_manifest(result.bundle_ref)
+    expected_roles = {
+        "scientist.d4.governance_request": "d4_governance_request",
+        "scientist.d4.identity_resolution_cohort": "identity_resolution_cohort",
+        "scientist.d4.calibration_splits": "selected_split_manifest",
+    }
+
+    assert fresh.schema_version == "1.1"
+    assert set(fresh.source_json_snapshot_reads) == set(expected_roles)
+    assert fresh.readout_summary()["source_json_snapshot_binding_status"] == "available"
+    assert fresh.readout_summary()["source_json_snapshot_profile_status"] == "candidate_only"
+    assert fresh.readout_summary()["eligible_for_promotion"] is False
+    for contract, role in expected_roles.items():
+        provenance = fresh.source_json_snapshot_reads[contract]
+        assert provenance.profile_status == "profile_absent_raw_snapshot_candidate"
+        assert provenance.schema_validation_provenance == "recomputed"
+        assert provenance.producer_attestation_status == "not_established"
+        edges = [item for item in manifest.inputs if item.role == role]
+        assert len(edges) == 1
+        assert edges[0].artifact_id == provenance.artifact_ref.artifact_id
+        assert edges[0].manifest_profile_sha256 == provenance.selected_manifest_profile_sha256
+
+    from polisyos.core.artifacts import ensure_ir_artifact_store
+    from polisyos.core.artifacts.manifest import ArtifactRef, InputRef
+    from polisyos.ir.analytics.backtest import (
+        load_backtest_report,
+        persist_backtest_report,
+    )
+
+    candidate_ref = fresh.candidate_ref
+    assert candidate_ref.manifest_profile_sha256 is not None
+    report_ref = fresh.backtest_report_ref
+    assert report_ref is not None
+    report_manifest = store.get_manifest(
+        ArtifactRef.model_validate(report_ref.model_dump(mode="python"))
+    )
+    report_schema = report_manifest.artifact_schema
+    assert report_schema is not None
+    report = load_backtest_report(ensure_ir_artifact_store(store), report_ref)
+
+    profileless_candidate_ref = candidate_ref.model_copy(update={"manifest_profile_sha256": None})
+    profileless_candidate_edge = InputRef(
+        artifact_id=profileless_candidate_ref.artifact_id,
+        role="candidate",
+        manifest_profile_sha256=None,
+    )
+    report_inputs = [
+        profileless_candidate_edge if edge.role == "candidate" else edge
+        for edge in report_manifest.inputs
+    ]
+    assert len([edge for edge in report_inputs if edge.role == "candidate"]) == 1
+    profileless_report_ref = persist_backtest_report(
+        ensure_ir_artifact_store(store),
+        report,
+        inputs=report_inputs,
+        schema_name=report_schema.name,
+        schema_version=report_schema.version,
+    )
+    persisted_report_candidate_edges = [
+        edge
+        for edge in store.get_manifest(profileless_report_ref).inputs
+        if edge.role == "candidate"
+    ]
+    assert len(persisted_report_candidate_edges) == 1
+    assert persisted_report_candidate_edges[0].manifest_profile_sha256 is None
+    assert fresh.backtest_matrix is not None
+    assert fresh.leaderboard_entry is not None
+    profileless_bundle = fresh.model_copy(
+        update={
+            "run_id": "ukraine-d4-profileless-candidate-control",
+            "candidate_ref": profileless_candidate_ref,
+            "backtest_matrix": fresh.backtest_matrix.model_copy(
+                update={"backtest_report_ref": profileless_report_ref}
+            ),
+            "leaderboard_entry": fresh.leaderboard_entry.model_copy(
+                update={"candidate_ref": profileless_candidate_ref}
+            ),
+        }
+    )
+    bundle_inputs = [
+        profileless_candidate_edge if edge.role == "candidate" else edge
+        for edge in manifest.inputs
+        if edge.role != "backtest_report"
+    ]
+    assert len([edge for edge in bundle_inputs if edge.role == "candidate"]) == 1
+    profileless_bundle_ref = persist_calibration_validation_bundle(
+        store, profileless_bundle, inputs=bundle_inputs
+    )
+    persisted_bundle_manifest = store.get_manifest(profileless_bundle_ref)
+    persisted_candidate_edges = [
+        edge for edge in persisted_bundle_manifest.inputs if edge.role == "candidate"
+    ]
+    persisted_report_candidate_edges = [
+        edge
+        for edge in store.get_manifest(profileless_report_ref).inputs
+        if edge.role == "candidate"
+    ]
+    assert len(persisted_candidate_edges) == len(persisted_report_candidate_edges) == 1
+    assert (
+        persisted_candidate_edges[0].manifest_profile_sha256
+        == persisted_report_candidate_edges[0].manifest_profile_sha256
+        is None
+    )
+
+    negative = load_calibration_validation_bundle(store, profileless_bundle_ref)
+    negative_summary = negative.readout_summary()
+    assert negative_summary["source_json_snapshot_binding_status"] == "not_established"
+    assert (
+        negative_summary["source_json_snapshot_binding_reason"]
+        == "candidate_source_manifest_profile_not_selected:candidate"
+    )
+    assert negative_summary["backtest_report_status"] == "available"
+    assert negative_summary["eligible_for_promotion"] is False
+
+
+def test_verified_ukraine_d4_bridge_requires_recomputable_d0_coverage_evidence(
+    tmp_path,
+) -> None:
     """A completed D0 manifest without row evidence cannot make D4 governance run."""
 
     config = build_default_pipeline_config(root=tmp_path / "ukraine")
@@ -839,7 +995,9 @@ def test_household_projection_carries_declared_unknown_instead_of_coverage() -> 
     assert blueprint_release._UKRAINE_D4_COVERAGE_THRESHOLD == 0.95
 
 
-def test_verified_ukraine_d4_bridge_rejects_content_drift_before_governance(tmp_path) -> None:
+def test_verified_ukraine_d4_bridge_rejects_content_drift_before_governance(
+    tmp_path,
+) -> None:
     """A mutated D2 output cannot create a Scientist governance artifact."""
 
     config, d4_manifest_path, observation_path = _verified_bridge_fixture(tmp_path)
@@ -1040,6 +1198,41 @@ def test_verified_ukraine_d5_release_blocks_manifest_with_error_finding(
     assert "producer_manifest_contains_errors" not in predicates["reasons"]
 
 
+def test_verified_ukraine_d5_release_keeps_compression_unestablished_when_manifest_read_fails(
+    tmp_path: Path,
+    monkeypatch: pytest.MonkeyPatch,
+) -> None:
+    build_root, manifest_path, runtime_dir, method_dir = _d5_release_fixture(tmp_path)
+    _install_admissible_d4_result(monkeypatch, build_root=build_root)
+
+    def _unavailable_manifest(*args, **kwargs):
+        raise ValueError("injected verified manifest read failure")
+
+    monkeypatch.setattr(
+        blueprint_release, "load_verified_release_manifest_json", _unavailable_manifest
+    )
+    report = run_verified_ukraine_d5_release(
+        build_root=build_root,
+        release_manifest_path=manifest_path,
+        runtime_bundle_dir=runtime_dir,
+        method_contract_bundle_dir=method_dir,
+        cas_root=build_root / "cas",
+    )
+
+    assert report.passed is False
+    assert report.release_admissibility_status == "blocked"
+    predicates = json.loads(
+        blueprint_release.FileSystemCAS(build_root / "cas").get_bytes(report.predicate_receipt_ref)
+    )
+    assert predicates["manifest_snapshot_profile_status"] == "not_established"
+    assert (
+        predicates["compression_snapshot_profile_status"] == "profile_absent_raw_snapshot_candidate"
+    )
+    assert predicates["compression_predicate_provenance"] == "not_established"
+    assert predicates["compression_status"] == "not_established"
+    assert "compression_predicate_not_established" in predicates["reasons"]
+
+
 def test_verified_ukraine_d5_release_blocks_compression_aggregate_mismatch(
     tmp_path: Path,
     monkeypatch: pytest.MonkeyPatch,
@@ -1114,6 +1307,12 @@ def test_verified_ukraine_d5_release_blocks_when_d4_is_not_established(
     predicates = json.loads(store.get_bytes(report.predicate_receipt_ref))
     assert predicates["d4_status"] == "not_established"
     assert predicates["d4_predicate_provenance"] == "not_established"
+    assert (
+        predicates["d4_source_json_snapshot_profile_statuses"][
+            "scientist.d5.d4_governance_request_evidence"
+        ]
+        == "profile_absent_raw_snapshot_candidate"
+    )
 
 
 def test_release_receipt_cas_check_rehashes_manifest_bytes(tmp_path: Path) -> None:
@@ -1373,6 +1572,7 @@ def _s1_controlled_candidate_fixture(
     ("time_index", "intervention_date"),
     [
         ([], "2020-01-01"),
+        (["not-a-date"], "not-a-date"),
         (["2020-01-01", "2021-01-01", "2021-01-01"], "2021-01-01"),
         (["2020-01-01", "2022-01-01", "2021-01-01"], "2021-01-01"),
         (["2020-01-01", "2021-01-01"], "2022-01-01"),
@@ -1381,14 +1581,16 @@ def _s1_controlled_candidate_fixture(
 def test_backtest_intervention_step_refuses_ambiguous_time_axes(
     time_index: list[str], intervention_date: str
 ) -> None:
-    """A cutoff is only derivable from a complete, unique, ordered date axis."""
+    """A cutoff needs a complete, parseable, unique, ordered date axis."""
 
     assert (
         blueprint_release._resolve_backtest_intervention_step(time_index, intervention_date) is None
     )
 
 
-def test_required_backtest_bundle_masks_from_full_sorted_time_axis(tmp_path: Path) -> None:
+def test_required_backtest_bundle_masks_from_full_sorted_time_axis(
+    tmp_path: Path,
+) -> None:
     """The persisted intervention cutoff is the date's index in the full history."""
     from polisyos.ir.observation.contracts import ObservationFamily
     from polisyos.scientist.methods.backtesting.masking import (
@@ -1546,7 +1748,8 @@ def test_s1_b172_b173_test_owned_d4_diagnostic_backtest_cas_fresh_read(
     legacy_schema_payload = fresh.model_dump(mode="json")
     legacy_schema_payload["schema_version"] = "1.0"
     with pytest.raises(
-        ValidationError, match="source JSON snapshot provenance requires bundle schema 1.1"
+        ValidationError,
+        match="source JSON snapshot provenance requires bundle schema 1.1",
     ):
         CalibrationValidationBundle.model_validate(legacy_schema_payload)
     assert summary["source_json_snapshot_binding_status"] == "available", summary[
@@ -1679,7 +1882,6 @@ def test_s1_candidate_diagnostic_refuses_present_nonconformant_or_unknown_json_p
     from polisyos.data_forge.read_api.ukraine import UkraineJSONSnapshotRefusalError
 
     config, _ = _s1_controlled_candidate_fixture(tmp_path, [90.0, 90.0, 90.0])
-    store = blueprint_release.FileSystemCAS(config.build_root.resolved_cas_root)
     original_load = blueprint_release.load_verified_stage_artifacts
 
     def load_with_present_profile(

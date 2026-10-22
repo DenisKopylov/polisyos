@@ -36,12 +36,15 @@ from polisyos.core.canon import CanonSpec
 from polisyos.core.governance.profiles import ValidationProfile
 from polisyos.data_forge.read_api.ukraine import (
     REAL_BACKTEST_BUNDLE_CONTRACT_FQN,
+    UKRAINE_D4_SOURCE_JSON_SNAPSHOT_ROLE_BY_CONTRACT,
     ArtifactRecord,
     D5ReleaseHandoffRequest,
     HouseholdDiagnosticPanelBasis,
     NormalizedArtifactManifest,
     ReleaseManifest,
     SourceSnapshotManifest,
+    UkraineD4GovernanceRequest,
+    UkraineIdentityResolutionCohort,
     UkraineJSONSnapshotRefusalError,
     UkraineJSONSnapshotStatus,
     UkraineStageArtifactVerificationError,
@@ -117,17 +120,18 @@ from polisyos.scientist.governance.calibration import (
     CalibrationGovernanceReport,
     CalibrationGovernanceRunner,
 )
-from polisyos.scientist.governance.calibration_validation import (
-    CalibrationValidationRunner,
-    CalibrationValidationRunnerInput,
-    CalibrationValidationRunnerResult,
-    load_calibration_validation_bundle,
-)
 from polisyos.scientist.governance.postflight import postflight_checks
 from polisyos.scientist.methods.backtesting.plan import PredictionSource
 from polisyos.scientist.methods.discovery.utility_judge import (
     DownstreamUtilityReport,
     HypothesisUtilityScore,
+)
+
+from .calibration_validation import (
+    CalibrationValidationRunner,
+    CalibrationValidationRunnerInput,
+    CalibrationValidationRunnerResult,
+    load_calibration_validation_bundle,
 )
 
 REQUIRED_SIGNOFF_FAMILIES: tuple[ObservationFamily, ...] = (
@@ -179,24 +183,16 @@ _VERIFIED_STAGE_RECEIPT_OWNER = CoreArtifactOwnerProfile(
     ),
     payload_schema_version_by_manifest=(
         (
-            (_VERIFIED_STAGE_RECEIPT_SCHEMA_NAME, _VERIFIED_STAGE_RECEIPT_SCHEMA_VERSION),
+            (
+                _VERIFIED_STAGE_RECEIPT_SCHEMA_NAME,
+                _VERIFIED_STAGE_RECEIPT_SCHEMA_VERSION,
+            ),
             _VERIFIED_STAGE_RECEIPT_PAYLOAD_SCHEMA_VERSION,
         ),
     ),
 )
 _AGENT_REGISTRY_RUNTIME_OUTPUT = "agent_registry_runtime.parquet"
 _UKRAINE_D4_COVERAGE_THRESHOLD = 0.95
-
-
-class _UkraineD4GovernanceRequest(BaseModel):
-    """Purpose-limited producer request consumed by the Scientist D4 bridge."""
-
-    model_config = ConfigDict(extra="forbid")
-
-    schema_version: str
-    authority_purpose: str
-    may_not_use_for: list[str]
-    required_stage_manifests: dict[str, str]
 
 
 class _ScientistReleasePostflightReceipt(BaseModel):
@@ -332,7 +328,9 @@ class _ScientistReleasePredicateReceipt(BaseModel):
     manifest_snapshot_profile_status: UkraineJSONSnapshotStatus | Literal["not_established"]
     compression_snapshot_profile_status: UkraineJSONSnapshotStatus | Literal["not_established"]
     handoff_snapshot_profile_status: UkraineJSONSnapshotStatus | Literal["not_established"]
-    d4_source_json_snapshot_profile_statuses: dict[str, UkraineJSONSnapshotStatus]
+    d4_source_json_snapshot_profile_statuses: dict[
+        str, UkraineJSONSnapshotStatus | Literal["not_established"]
+    ]
     manifest_ref: str = Field(pattern=r"^sha256:[0-9a-f]{64}$")
     graph_compression_ref: str = Field(pattern=r"^sha256:[0-9a-f]{64}$")
     manifest_findings_provenance: Literal["institutionally_supplied"] = "institutionally_supplied"
@@ -466,33 +464,6 @@ class ReleaseDecisionPacket(BaseModel):
         return self
 
 
-class _IdentityResolutionCohortRow(BaseModel):
-    """One identity-resolution cohort record whose aggregate is recomputed upstream."""
-
-    model_config = ConfigDict(extra="forbid")
-
-    cohort: str = Field(pattern="^(spending|procurement)$")
-    raw_identity: str = Field(min_length=1)
-
-
-class _IdentityResolutionCohort(BaseModel):
-    """Strict D0 evidence shape required for governance coverage recomputation.
-
-    Expected producer JSON shape::
-
-        {"schema_version": "policyos.data_forge.ukraine.identity_resolution_cohort.v1",
-         "rows": [{"cohort": "spending", "raw_identity": "..."}]}
-
-    The bridge resolves these raw identities against a separately admitted
-    runtime registry rather than trusting producer-authored resolution flags.
-    """
-
-    model_config = ConfigDict(extra="forbid")
-
-    schema_version: str
-    rows: list[_IdentityResolutionCohortRow] = Field(default_factory=list)
-
-
 def _series_correlation(left: pd.Series, right: pd.Series) -> float:
     """Return a finite Pearson correlation for the verified labor predicate."""
 
@@ -593,13 +564,13 @@ def _ensure_datetime_series(frame: pd.DataFrame, column: str) -> pd.Series:
 
 
 def _resolve_backtest_intervention_step(
-    time_index: Sequence[object], intervention_date: str
+    time_index: Sequence[str], intervention_date: str
 ) -> int | None:
     """Return the unique ordered history index for an exact intervention date."""
     if not time_index or any(not isinstance(value, str) or not value for value in time_index):
         return None
     parsed = pd.to_datetime(list(time_index), errors="coerce", utc=False)
-    if parsed.isna().any() or parsed.has_duplicates or not parsed.is_monotonic_increasing:
+    if any(parsed.isna()) or parsed.has_duplicates or not parsed.is_monotonic_increasing:
         return None
     matches = [index for index, value in enumerate(time_index) if value == intervention_date]
     return matches[0] if len(matches) == 1 else None
@@ -1645,15 +1616,15 @@ def _persist_verified_stage_receipt(
 
 
 def _load_d4_governance_request(
-    payload: bytes | _UkraineD4GovernanceRequest,
-) -> _UkraineD4GovernanceRequest:
+    payload: bytes | UkraineD4GovernanceRequest,
+) -> UkraineD4GovernanceRequest:
     """Load the producer request without treating it as a governance verdict."""
 
     try:
         request = (
             payload
-            if isinstance(payload, _UkraineD4GovernanceRequest)
-            else _UkraineD4GovernanceRequest.model_validate_json(payload)
+            if isinstance(payload, UkraineD4GovernanceRequest)
+            else UkraineD4GovernanceRequest.model_validate_json(payload)
         )
     except ValidationError as exc:
         raise UkraineStageArtifactVerificationError(
@@ -1679,17 +1650,15 @@ def _load_d4_governance_request(
     return request
 
 
-def _normalize_identity_key(value: object) -> str:
-    """Normalize a registry identity without accepting a producer verdict."""
+def _normalize_identity_key(value: str) -> str:
+    """Normalize one validated registry identity without accepting a verdict."""
 
-    if pd.isna(value):
-        return ""
-    text = str(value).strip().lower()
+    text = value.strip().lower()
     return "".join(character for character in text if character.isalnum())
 
 
 def _recompute_identity_resolution_coverage(
-    cohort_payload: bytes | _IdentityResolutionCohort,
+    cohort_payload: bytes | UkraineIdentityResolutionCohort,
     registry_payload: bytes,
 ) -> tuple[float, float]:
     """Recompute D0 cohort coverage against independently admitted registry bytes."""
@@ -1697,8 +1666,8 @@ def _recompute_identity_resolution_coverage(
     try:
         cohort = (
             cohort_payload
-            if isinstance(cohort_payload, _IdentityResolutionCohort)
-            else _IdentityResolutionCohort.model_validate_json(cohort_payload)
+            if isinstance(cohort_payload, UkraineIdentityResolutionCohort)
+            else UkraineIdentityResolutionCohort.model_validate_json(cohort_payload)
         )
     except ValidationError as exc:
         raise UkraineStageArtifactVerificationError(
@@ -1721,7 +1690,11 @@ def _recompute_identity_resolution_coverage(
     admitted_identities = {
         normalized
         for column in sorted(identity_columns)
-        for normalized in registry[column].map(_normalize_identity_key).tolist()
+        for normalized in registry[column]
+        .astype("string")
+        .fillna("")
+        .map(_normalize_identity_key)
+        .tolist()
         if normalized
     }
     coverage: dict[str, float] = {}
@@ -1846,7 +1819,7 @@ def run_verified_ukraine_d4_governance(
         store,
         d4_receipt,
         _UKRAINE_D4_REQUEST_OUTPUT,
-        model_type=_UkraineD4GovernanceRequest,
+        model_type=UkraineD4GovernanceRequest,
         consumer_contract="scientist.d4.governance_request",
     )
     request = _load_d4_governance_request(d4_request_read.value_for_candidate())
@@ -1885,7 +1858,7 @@ def run_verified_ukraine_d4_governance(
         store,
         d0_receipt,
         _IDENTITY_RESOLUTION_COHORT_OUTPUT,
-        model_type=_IdentityResolutionCohort,
+        model_type=UkraineIdentityResolutionCohort,
         consumer_contract="scientist.d4.identity_resolution_cohort",
     )
     splits_read = load_verified_stage_json_output(
@@ -1937,11 +1910,18 @@ def run_verified_ukraine_d4_governance(
         )
     )
     splits = splits_read.value_for_candidate()
-    source_json_snapshot_reads = (
-        d4_request_read.provenance,
-        cohort_read.provenance,
-        splits_read.provenance,
-    )
+    source_json_snapshot_reads = {
+        read.provenance.consumer_contract: read.provenance
+        for read in (d4_request_read, cohort_read, splits_read)
+    }
+    source_json_snapshot_input_refs = [
+        InputRef(
+            artifact_id=provenance.artifact_ref.artifact_id,
+            role=UKRAINE_D4_SOURCE_JSON_SNAPSHOT_ROLE_BY_CONTRACT[contract],
+            manifest_profile_sha256=provenance.selected_manifest_profile_sha256,
+        )
+        for contract, provenance in source_json_snapshot_reads.items()
+    ]
 
     receipts = {
         "d0_p0": d0_receipt,
@@ -1970,6 +1950,10 @@ def run_verified_ukraine_d4_governance(
     interference_report, interference_certificate = build_interference_evidence(
         observation_panel, eligibility_registry=eligibility
     )
+    if interference_report.status != "success" or interference_report.effects is None:
+        raise UkraineStageArtifactVerificationError(
+            "D4 interference report lacks successful recomputed effects"
+        )
     calibration_run = CalibrationRunRunner().run(
         observation_panel,
         eligibility_registry=eligibility,
@@ -1997,6 +1981,7 @@ def run_verified_ukraine_d4_governance(
                 ],
             ),
             canon_spec=CanonSpec(forbid_floats=False),
+            return_selected_profile=True,
         )
     )
     holdout_scores = HoldoutScoresManifest(
@@ -2058,6 +2043,8 @@ def run_verified_ukraine_d4_governance(
                 ),
                 0.1,
             ),
+            input_refs=source_json_snapshot_input_refs,
+            source_json_snapshot_reads=source_json_snapshot_reads,
             accountability_input=GovernanceAccountabilityInput(
                 candidate_id=champion.candidate_id,
                 model_name="ukraine_d4_calibration_candidate",
@@ -2079,7 +2066,8 @@ def run_verified_ukraine_d4_governance(
                 "producer_receipt_may_not_use_for": list(d4_receipt.may_not_use_for),
                 "labor_proxy_promotion_recomputed": labor_promoted,
                 "ukraine_json_snapshot_profile_reads": [
-                    read.model_dump(mode="json") for read in source_json_snapshot_reads
+                    provenance.model_dump(mode="json")
+                    for provenance in source_json_snapshot_reads.values()
                 ],
             },
         )
@@ -2599,12 +2587,12 @@ def _run_d4_release_predicate(
             "d4": (
                 "scientist.d4.governance_request",
                 _UKRAINE_D4_REQUEST_OUTPUT,
-                _UkraineD4GovernanceRequest,
+                UkraineD4GovernanceRequest,
             ),
             "d0_p0": (
                 "scientist.d4.identity_resolution_cohort",
                 _IDENTITY_RESOLUTION_COHORT_OUTPUT,
-                _IdentityResolutionCohort,
+                UkraineIdentityResolutionCohort,
             ),
             "d2": (
                 "scientist.d4.calibration_splits",
@@ -2746,6 +2734,7 @@ def _evaluate_release_predicates(
         "not_established"
     )
     manifest_no_errors = False
+    manifest: ReleaseManifest | None = None
     try:
         manifest_read = load_verified_release_manifest_json(
             store,
@@ -2774,7 +2763,7 @@ def _evaluate_release_predicates(
         d4_evidence_read = load_verified_release_json_artifact(
             store,
             admission.evidence["d4_governance_request"],
-            model_type=_UkraineD4GovernanceRequest,
+            model_type=UkraineD4GovernanceRequest,
             consumer_contract="scientist.d5.d4_governance_request_evidence",
             raw_payload_bytes=(selected_snapshot_bytes or {}).get("evidence:d4_governance_request"),
         )
@@ -2783,7 +2772,9 @@ def _evaluate_release_predicates(
             d4_evidence_read.value_for_candidate()
     except Exception:
         reasons.append("d4_release_evidence_profile_or_payload_not_established")
-    d4_snapshot_profile_statuses = dict(d4_context.json_snapshot_profile_statuses)
+    d4_snapshot_profile_statuses: dict[
+        str, UkraineJSONSnapshotStatus | Literal["not_established"]
+    ] = dict(d4_context.json_snapshot_profile_statuses)
     d4_snapshot_profile_statuses["scientist.d5.d4_governance_request_evidence"] = d4_evidence_status
     handoff_profile_status: UkraineJSONSnapshotStatus | Literal["not_established"] = (
         "not_established"
@@ -2846,6 +2837,8 @@ def _evaluate_release_predicates(
             math.fsum(layer.neighborhood_overlap_stability for layer in compression.layers)
             / compression_layer_count
         )
+        if manifest is None:
+            raise ValueError("release manifest compression metrics are not established")
         declared_values = (
             compression.fidelity_metrics.degree_preservation_score,
             compression.fidelity_metrics.edge_weight_reconstruction_error,

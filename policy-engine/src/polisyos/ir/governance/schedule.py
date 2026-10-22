@@ -12,7 +12,7 @@ class ScheduleSpec(KernelModel):
     """Describe when an intervention or task is active in step-indexed Trinity schedules."""
 
     start_step: int = Field(..., ge=0)
-    end_step: int | None = Field(None, ge=0)
+    end_step: int | None = Field(default=None, ge=0)
     duration_steps: int | None = Field(None, ge=1)
 
     @model_validator(mode="after")

@@ -24,6 +24,57 @@ from polisyos.data_forge.read_api.ukraine import (
 )
 
 
+def test_public_d4_snapshot_contract_registry_is_source_owned() -> None:
+    from polisyos.data_forge import read_api
+    from polisyos.data_forge.read_api import (
+        UKRAINE_D4_SOURCE_JSON_SNAPSHOT_ROLE_BY_CONTRACT,
+        UkraineD4GovernanceRequest,
+        UkraineIdentityResolutionCohort,
+        UkraineIdentityResolutionCohortRow,
+        ukraine,
+        ukraine_d4_json_snapshot_model_type,
+    )
+
+    assert read_api.UkraineD4GovernanceRequest is UkraineD4GovernanceRequest
+    assert ukraine.UkraineIdentityResolutionCohortRow is UkraineIdentityResolutionCohortRow
+    assert UKRAINE_D4_SOURCE_JSON_SNAPSHOT_ROLE_BY_CONTRACT == {
+        "scientist.d4.governance_request": "d4_governance_request",
+        "scientist.d4.identity_resolution_cohort": "identity_resolution_cohort",
+        "scientist.d4.calibration_splits": "selected_split_manifest",
+    }
+    assert (
+        ukraine_d4_json_snapshot_model_type("scientist.d4.governance_request")
+        is UkraineD4GovernanceRequest
+    )
+    assert (
+        ukraine_d4_json_snapshot_model_type("scientist.d4.identity_resolution_cohort")
+        is UkraineIdentityResolutionCohort
+    )
+    assert (
+        ukraine_d4_json_snapshot_model_type("scientist.d4.calibration_splits")
+        == dict[str, dict[str, str]]
+    )
+    assert ukraine_d4_json_snapshot_model_type("scientist.s1.unknown") is None
+    with pytest.raises(ValidationError):
+        UkraineD4GovernanceRequest.model_validate(
+            {
+                "schema_version": "1",
+                "authority_purpose": "candidate",
+                "may_not_use_for": [],
+                "required_stage_manifests": {},
+                "unexpected": True,
+            }
+        )
+    with pytest.raises(ValidationError):
+        UkraineIdentityResolutionCohort.model_validate(
+            {
+                "schema_version": "1",
+                "rows": [{"cohort": "spending", "raw_identity": "x"}],
+                "unexpected": True,
+            }
+        )
+
+
 class _StatePayload(BaseModel):
     model_config = ConfigDict(extra="forbid", frozen=True, strict=True)
 

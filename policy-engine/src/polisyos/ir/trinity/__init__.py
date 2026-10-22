@@ -34,7 +34,9 @@ class TrinityBundle(KernelModel):
     ARTIFACT_KIND: ClassVar[Literal["ir.trinity_bundle"]] = "ir.trinity_bundle"
     ARTIFACT_MEDIA_TYPE: ClassVar[Literal["application/json"]] = "application/json"
 
-    schema_version: str = Field(TRINITY_BUNDLE_SCHEMA_VERSION, pattern=SCHEMA_VERSION_PATTERN)
+    schema_version: str = Field(
+        default=TRINITY_BUNDLE_SCHEMA_VERSION, pattern=SCHEMA_VERSION_PATTERN
+    )
     problem_frame: ProblemFrame
     policy_spec: PolicySpec
     model_spec: ModelSpec

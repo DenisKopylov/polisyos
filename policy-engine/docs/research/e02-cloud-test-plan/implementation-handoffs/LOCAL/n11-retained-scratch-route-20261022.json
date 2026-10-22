@@ -1,0 +1,172 @@
+{
+  "schema": "policyos.e02.local_slice_handoff.v1",
+  "slice": "N11 explicit retained scratch through CLI, worker, owner cache and N10 role contexts",
+  "author_role": "candidate author; G independent acceptance and formal adjudication reserved",
+  "state": "implemented; focused canonical verification passed; authentic owner generation unrun",
+  "slice_base": "88a085af4aa86c1c0a8b46e680319dbf74d69531",
+  "candidate": "43db279dff4cbb61e81f0de7c48fac12846c5174",
+  "tree": "35d635273ee8e7ba35124ab12957e1fb1565d67e",
+  "parents": [
+    "88a085af4aa86c1c0a8b46e680319dbf74d69531"
+  ],
+  "branch": "codex/e02-unified-local-20261009",
+  "footprint": [
+    {
+      "path": "policy-engine/tests/repo_quality/tools/test_layer3_gy_confidence_ledger_contract.py",
+      "sha256": "2dac04a8ad3b5feb2edb31be74359114fe8716d1bf996426d91d2f19dd729cd8"
+    },
+    {
+      "path": "policy-engine/tools/quality/validation/check_layer3_gy_confidence_ledger.py",
+      "sha256": "27627ecb1821f3aca5d364cc472a08e9c74afa3ad385c55b28fd2a34bb063424"
+    },
+    {
+      "path": "policy-engine/tools/quality/validation/check_layer3_gy_depth_n_universality_contract.py",
+      "sha256": "93c29e90ec444c55eaee4ccb7801362f0711593128403439bff280fde0cc5647"
+    },
+    {
+      "path": "policy-engine/tools/quality/validation/layer3_gy_confidence_ledger_contract.py",
+      "sha256": "815905f24e6cd60a20aedd6f704c3a8cc619a5e77349a9a9528747de354cca87"
+    }
+  ],
+  "config_or_schema_changes": [],
+  "source_freeze": false,
+  "input_backend_freeze": false,
+  "selected_inputs": {
+    "actual_runtime_replay": "controlled temporary fixtures in the four named repository tests",
+    "production_inputs_used": [],
+    "profile": "existing isolation-local .venv; Python 3.14.3; original default scratch lifecycle remains unchanged unless retained root explicitly supplied",
+    "ruff_profile": {
+      "path": "policy-engine/architecture/tooling/ruff/workspace_root.toml",
+      "sha256": "879bfc2fa77909e595e661679fdeb9c771c3d34308a52e7c41971114f6a4ed99"
+    }
+  },
+  "real_chain": [
+    "CLI creates explicit new retained scratch root",
+    "profile/spawn worker receives the selected root",
+    "both accounting pass contexts and owner-bundle cache bind the same root",
+    "cached N10 replay passes it to all three N10 roles",
+    "workspace admission rejects an invalid scratch context before creating role directories"
+  ],
+  "verification": {
+    "canonical_focused_tests": {
+      "command": [
+        "/Users/deniskopylov/.codex/worktrees/e02-unified-local-20261009/polisyos/policy-engine/.venv/bin/python",
+        "-B",
+        "-m",
+        "pytest",
+        "-q",
+        "-o",
+        "cache_dir=/Users/deniskopylov/.codex/worktrees/e02-unified-local-20261009/polisyos/policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/root-canonical-n11-companion-check-20261022-r1/pytest-cache",
+        "--basetemp=/Users/deniskopylov/.codex/worktrees/e02-unified-local-20261009/polisyos/policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/root-canonical-n11-companion-check-20261022-r1/temp",
+        "--junitxml=/Users/deniskopylov/.codex/worktrees/e02-unified-local-20261009/polisyos/policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/root-canonical-n11-companion-check-20261022-r1/junit.xml",
+        "tests/repo_quality/tools/test_layer3_gy_confidence_ledger_contract.py::test_explicit_retained_scratch_contexts_survive_and_default_contexts_clean",
+        "tests/repo_quality/tools/test_layer3_gy_confidence_ledger_contract.py::test_n10_retained_scratch_root_is_admitted_before_directory_creation",
+        "tests/repo_quality/tools/test_layer3_gy_confidence_ledger_contract.py::test_cached_n10_replay_passes_retained_root_to_every_role",
+        "tests/repo_quality/tools/test_layer3_gy_confidence_ledger_contract.py::test_retained_root_is_bound_to_owner_bundle_cache_key"
+      ],
+      "cwd": "/Users/deniskopylov/.codex/worktrees/e02-unified-local-20261009/polisyos/policy-engine",
+      "timeout_seconds": 60,
+      "result": {
+        "tests": 4,
+        "failures": 0,
+        "errors": 0,
+        "skipped": 0
+      },
+      "exit_code": 0,
+      "wall_seconds": 14.675545291043818,
+      "source_state_unchanged": true,
+      "source_bound_at": "88a085af4aa86c1c0a8b46e680319dbf74d69531",
+      "byte_identity_to_committed_slice": "All four tested target hashes read back from candidate Git commit; commit changed only these four paths. Other declared source-frame bytes preserved. This is no full-source freeze."
+    },
+    "outputs": [
+      {
+        "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/root-canonical-n11-companion-check-20261022-r1/invocation.json",
+        "sha256": "d8898e8533ac5bd15459bb755d03863a47304c688f43c4c70d23432b6840e9c6",
+        "availability": "local retained ignored RAW; not a Git-delivered output"
+      },
+      {
+        "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/root-canonical-n11-companion-check-20261022-r1/receipt.json",
+        "sha256": "4ebeea5b1620079dca8e0913374117050e84bec1ff6040600f0217ecd0783b84",
+        "availability": "local retained ignored RAW; not a Git-delivered output"
+      },
+      {
+        "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/root-canonical-n11-companion-check-20261022-r1/stdout",
+        "sha256": "c4b808d34f4db00b333696dec1f3a43a2887d8bfe0cb7af07a3cb98ff43a7830",
+        "availability": "local retained ignored RAW; not a Git-delivered output"
+      },
+      {
+        "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/root-canonical-n11-companion-check-20261022-r1/stderr",
+        "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+        "availability": "local retained ignored RAW; not a Git-delivered output"
+      },
+      {
+        "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/root-canonical-n11-companion-check-20261022-r1/junit.xml",
+        "sha256": "d9306c5604a1be6d3c1e803699cb250e7a54ce8e3ce40514b1a67a9908c6eec5",
+        "availability": "local retained ignored RAW; not a Git-delivered output"
+      },
+      {
+        "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/root-canonical-n11-ruff-20261022-r1/receipt.json",
+        "sha256": "22cf92a54315754135e77be70f469850f7536aef904a7039061234957c77ca62",
+        "availability": "local retained ignored RAW; not a Git-delivered output"
+      },
+      {
+        "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/root-canonical-n11-ruff-20261022-r1/check.stdout",
+        "sha256": "9ad585a49ae95d749b9ae5eb760669be7c27d52d8198c9417af217b57d7f8a46",
+        "availability": "local retained ignored RAW; not a Git-delivered output"
+      },
+      {
+        "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/root-canonical-n11-ruff-20261022-r1/format-check.stdout",
+        "sha256": "837f688de188c75e87be03c01b3c7523b336886c6e5af5d163dd45de3dfcfefb",
+        "availability": "local retained ignored RAW; not a Git-delivered output"
+      }
+    ],
+    "source_review": [
+      {
+        "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/n11-retained-closeout-scratch-independent-20261022-r1/review.md",
+        "sha256": "5f4439feef81bd3c8c1a201a754e0ebf1f66f503b55893f89ce6adbb81deaae3"
+      },
+      {
+        "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/n11-retained-closeout-scratch-independent-20261022-r1/review-r6-addendum.md",
+        "sha256": "bf8230f055860d3938689d536e92bbb05ad9ce89f674b42326e05f3a19985418"
+      }
+    ],
+    "negative_controls": [
+      "relative/missing/invalid retained-root contexts are refused",
+      "invalid N10 workspace reaches no scratch directory creation",
+      "default temporary contexts clean; explicit retained contexts survive",
+      "retained-root context is forwarded to the cached callable; actual lru_cache keys bind that argument in source"
+    ],
+    "removal_control_status": "Existing behavioral companion assertions cover omission of root propagation and cache binding. No new runtime source-mutation removal execution in this slice."
+  },
+  "consumer_surface": "N11 tooling CLI and native source-bound regeneration route; no product/public authority claim added",
+  "patterns": [
+    "P29 actual behavioral contexts, not marker presence",
+    "P37 workspace admission before allocation",
+    "P40 shared CLI-to-owner-to-role propagation; no role-specific allowlist",
+    "P41 no inherited-red claim"
+  ],
+  "limitations": [
+    "Four focused tests do not prove actual N11 owner generation or exact regenerated bytes.",
+    "Authentic N11 two-accounting-pass generation, owner validation, corrupt-field drift and --check remain unrun on the final complete composition.",
+    "Existing OpenAPI DS17 semantic projection/current scope drift remains unresolved until authentic producer recomputation and validation.",
+    "No full native gates, installed-wheel consumer, real production currentness or E02 whole-property closure follows from this tooling slice.",
+    "Implementation commit is local; remote publication and remote SHA/tree confirmation are pending.",
+    "The focused cache-key test stubs the cached callable; it proves root forwarding, not authentic live-cache hit/miss behavior. Actual cache behavior remains part of owner generation."
+  ],
+  "next_checks": [
+    "Freeze the complete source/input/backend composition after remaining blocking companion fixes and independent reviews.",
+    "Run official N11 producer with a new retained RAW scratch root and RAW output using minimal paired read-only inputs; retain full deciding outputs and honest failure states.",
+    "Check two-pass byte equality, owner admission and corrupt-field behavior before adopting generated bytes and regenerating OpenAPI/client consumers."
+  ],
+  "proposal_fields": {
+    "formal_closure_requested": false,
+    "finding_id_proposals": [],
+    "claim": "N11 scratch retention wiring is available for honest generation replay; generation and affected E02 criteria remain verification_missing."
+  },
+  "closure_ids": [],
+  "handoff_claims_audit": {
+    "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/n11-retained-scratch-handoff-claims-independent-20261022-r1/review.md",
+    "sha256": "86cf75010ad0a491b99ce59f7296e844fe608d1b898c7201c993af5a94693663",
+    "disposition": "GO candidate handoff; cache-forwarding wording narrowed per audit. Not G acceptance."
+  }
+}

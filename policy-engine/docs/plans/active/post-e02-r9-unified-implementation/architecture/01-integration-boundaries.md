@@ -21,7 +21,7 @@ flowchart LR
   U --> V
 ```
 
-Every arrow is a deliverable with a persisted identity and consumer. Discovery cannot promote; CAS cannot grant rights; authentication cannot establish scientific support; Atlas cannot calculate authority. Preseed and runtime capture share the same lifecycle. Reuse resolves exact retained bytes and obtains a new use decision where the purpose, audience, rule or rights change. Unavailable bytes are not an empty dataset.
+Every claimed workflow handoff has a content-bound identity or lawful receipt and an actual consumer. This does not require persisting prohibited raw payload or every in-process intermediate. Query-only/ephemeral paths retain only permitted minimized evidence; missing replayable bytes remain an explicit replay limitation. Persisting a hash is not permission to retain raw content, nor proof that an unavailable body can be replayed. Discovery cannot promote; CAS cannot grant rights; authentication cannot establish scientific support; Atlas cannot calculate authority. Preseed and runtime capture share the same lifecycle. Reuse resolves exact retained bytes and obtains a new use decision where the purpose, audience, rule or rights change. Unavailable bytes are not an empty dataset.
 
 ## Allocation that prevents duplicate implementation
 
@@ -70,7 +70,7 @@ C03 remains an optional unratified SDD clarification. No task in this plan depen
 
 Use expand → compatible read/write → semantic validation → dependent consumer migration → retirement. Preserve immutable history and original source time. Do not backfill rights, legal authority, independence, completeness or currentness from a URL, signature, digest or default. Directional reader/writer compatibility is measured by actual needed semantics; unknown optional facets may remain inert, but unsupported required semantics refuse the affected use.
 
-Cutover requires one representative old record, one new record and one incompatible record through the real producer and fresh consumer; the old route must be demonstrably retired where the plan claims strangling. Rollback preserves newer revocations and correction history. Reversion of application/configuration is operational recovery, not a decision that old authority has become valid again.
+Cutover derives its compatibility classes from the complete affected retained schema/rule versions, supported readers/writers, required semantic facets and selected backends. Cover every distinct supported old→new/new→old direction and each unsupported required-semantics refusal that is claimed; equivalent classes may share a witness only with an explicit equivalence argument. One old/new/incompatible example is a minimum diagnostic, not a sufficient universal acceptance set. Preserve unknown/absent/null/malformed distinctions where native contracts distinguish them. Exercise real producer and fresh consumer; the old route must be demonstrably retired where the plan claims strangling. Rollback preserves newer revocations and correction history. Reversion of application/configuration is operational recovery, not a decision that old authority has become valid again.
 
 ## Scope of verification
 

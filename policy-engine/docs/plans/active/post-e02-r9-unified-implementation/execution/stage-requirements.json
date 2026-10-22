@@ -1,6 +1,11 @@
 {
   "kind": "planning_stage_requirements_not_product_schema",
   "implementation_gate": "actual_E02_G_acceptance",
+  "supplier_stage_invariants": {"P0-ACCEPT": "actual_E02_G_acceptance", "P0-REBIND": "complete_program_reconciliation"},
+  "edge_stage_resolution": "Supplier invariant, then consumer dependency_stage_overrides[supplier], then consumer dependency_stage. Overrides must name an existing depends_on edge. Missing required interface/producer/permit remains a real wait.",
+  "interface_agreement": "Scoped source rebind + native producer and consumer owner agreement on exact version, schema/rule, typed refusals, time/authority meanings, migration and distinguishing oracle. This can precede supplier implementation. It permits isolated construction only; it is neither an emitted artifact nor owner readiness or acceptance.",
+  "scoped_rebind": "execution/07-scoped-readiness.md: complete affected owner/consumer/companion closure before writes; global original-set reconciliation before FINAL-FREEZE.",
+  "deciding_wave_receipt": "Complete source/input/backend-qualified deciding output from the named executed wave, with PASS/FAIL/ERROR/SKIP/UNRUN preserved. Receipt existence alone is not a positive or a release decision.",
   "default": {
     "owner_readiness": "Reviewed native internal output + claim-scoped local positive/adversarial/removal proof, versioned interface and complete companions; a fixture never establishes real external authority. Original authentic/composed criteria not locally provable remain named open.",
     "composition": "Actual persisted producer outputs and fresh consumers on the final bound source/input/backend; resolve acceptance_dependencies and all selected conditional requirements.",
@@ -12,6 +17,11 @@
     "original_disposition": "Exact original Done when and full deciding output govern closure."
   },
   "overrides": {
+    "FINAL-REPLAY": {
+      "owner_readiness": "Execution coordinator, not a pre-freeze mechanism task. Starting is allowed after final reviewed identity; completion requires all selected wave obligations accounted for by actual outputs.",
+      "composition": "Join LIF-09, GYD-16–22 and every other selected frozen matrix output by exact source/input/backend. Parallel shards have no conflicting active write/resource leases; shared-capacity tickets must fit the actual common budget. PASS requires the original predicates, not merely completed commands.",
+      "original_disposition": "Diagnostics can finish with ERROR/FAIL/UNRUN; accepted programme replay and FINAL-USE remain unavailable while required predicates are unresolved."
+    },
     "GYD-01": {
       "owner_readiness": "Native N9/admission mechanism and all internal suppliers implemented/reviewed with scoped real-path local proofs. Preserve distinct PR1a/PR1b signals and original authentic near-miss debt.",
       "composition": "Actual qualified inputs and true production-lane refused attempted field-pilot request receipt where the original criterion requires it; never run a harmful pilot or label fixtures authentic.",

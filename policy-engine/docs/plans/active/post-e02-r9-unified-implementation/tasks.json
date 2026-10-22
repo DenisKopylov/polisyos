@@ -1,11 +1,11 @@
 {
-  "schema": "policyos.post_e02_execution_plan.v1",
+  "schema": "policyos.post_e02_execution_plan.v2",
   "kind": "planning_schema_not_product_contract",
   "implementation_gate": "actual_E02_G_acceptance",
   "source_observation": "dccea950845cda5b38f026e7770c07819d31f4d9",
   "product_execution": "UNRUN",
   "ownership": "root admits all agents and integrates; runtime-permitted root-to-lead-to-leaf only; max100 non-root agents globally; direct-only fallback",
-  "dispatch_semantics": "depends_on consumes the dependency_stage defined by execution/stage-requirements.json. Owner readiness, selected composition, execution permits and original closure differ. Materialize conditional_acceptance_requirements/execution_requirements for selected cases/profiles before dispatch; never union witness edges into the build DAG. Leases further serialize.",
+  "dispatch_semantics": "Resolve each edge by execution/stage-requirements.json supplier-stage invariant, then dependency_stage_overrides, then dependency_stage. Scoped rebind and leases are mandatory dispatch predicates. Interface agreement permits isolated preparation only; actual producers remain composition dependencies. Do not union acceptance/execution edges into an untyped build DAG. See execution/07-scoped-readiness.md.",
   "tasks": [
     {
       "id": "CAP-01",
@@ -45,9 +45,9 @@
       "product_verification": "UNRUN",
       "source_code_observation": "dccea950845cda5b38f026e7770c07819d31f4d9",
       "depends_on": [
-        "P0-REBIND"
+        "P0-ACCEPT"
       ],
-      "dispatch_condition": "Actual E02 acceptance; accepted upstream outputs; interface versions pinned; exact non-overlapping write lease and resource ticket.",
+      "dispatch_condition": "Actual E02 acceptance; completed task-scoped accepted-source rebind under execution/07-scoped-readiness.md; exact required upstream stage/interface pins; non-overlapping write lease and phase-specific resource permit. Global P0 completion is not required for a reconciled independent scope.",
       "acceptance_steps": [
         "Resolve original criterion and accepted E02 source; trace current producer and full consumer/companion footprint.",
         "Pin expected property and independent oracle where needed; reproduce a distinguishing baseline negative.",
@@ -128,7 +128,7 @@
         "existing: core/artifacts/manifest.py; core/artifacts/store.py::FileSystemCAS",
         "proposed: extend selected connector/cursor owner after A0"
       ],
-      "deliverable": "Safe transport/representation capture and exact reuse, consuming LIF-03 conditional frontier commit. No second cursor writer. Keep single-response first-route scope; activate pagination/range separately. Also accept the explicitly selected second-source producer sub-slice required by LIF-08. First-route completion does not cover a new page/range/parser behavior; root allocates that delta before second-source composition.",
+      "deliverable": "Safe transport/representation capture and exact reuse, consuming LIF-03 conditional frontier commit when the selected protocol advances resumable/page/partition progress. A bounded single-response route proves its own complete durable root and more-pages refusal without waiting for the full cursor mechanism. No second cursor writer. Keep single-response first-route scope; activate pagination/range separately. Also accept the explicitly selected second-source producer sub-slice required by LIF-08. First-route completion does not cover a new page/range/parser behavior; root allocates that delta before second-source composition.",
       "positive": "Allowed capture persists immutable root/receipt; second run resolves same exact body/profile without fetching; consumer verifies completeness and hash.",
       "adversarial": "Crash/partial/unreadable child, mismatch/oversize, 304 without body, invalid range, changed ETag, stale writer, disallowed redirect/private IP/credential hop and changed pagination scope yield partial/unavailable/deny.",
       "removal": "Remove body binding or head fence but keep markers; probe must fail.",
@@ -146,11 +146,10 @@
       "product_verification": "UNRUN",
       "source_code_observation": "dccea950845cda5b38f026e7770c07819d31f4d9",
       "depends_on": [
-        "P0-REBIND",
-        "CAP-01",
-        "LIF-03"
+        "P0-ACCEPT",
+        "CAP-01"
       ],
-      "dispatch_condition": "Actual E02 acceptance; accepted upstream outputs; interface versions pinned; exact non-overlapping write lease and resource ticket.",
+      "dispatch_condition": "Actual E02 acceptance; completed task-scoped accepted-source rebind under execution/07-scoped-readiness.md; exact required upstream stage/interface pins; non-overlapping write lease and phase-specific resource permit. Global P0 completion is not required for a reconciled independent scope.",
       "acceptance_steps": [
         "Resolve original criterion and accepted E02 source; trace current producer and full consumer/companion footprint.",
         "Pin expected property and independent oracle where needed; reproduce a distinguishing baseline negative.",
@@ -204,7 +203,17 @@
         "CAP-01"
       ],
       "dependency_stage": "owner_readiness",
-      "completion_contract_ref": "execution/stage-requirements.json#default"
+      "completion_contract_ref": "execution/stage-requirements.json#default",
+      "conditional_acceptance_requirements": [
+        {
+          "when": "The selected protocol claims pagination, resumable/range progress, partition frontier, or competing progress writers",
+          "suppliers": [
+            "LIF-03"
+          ],
+          "output": "Actual receipt-before-frontier and expected-head/attempt fence, including recovery and stale-writer negatives",
+          "consumer": "CAP-02 selected protocol; required before enabling that protocol, not deferred to programme closeout"
+        }
+      ]
     },
     {
       "id": "CAP-03",
@@ -249,12 +258,12 @@
       "product_verification": "UNRUN",
       "source_code_observation": "dccea950845cda5b38f026e7770c07819d31f4d9",
       "depends_on": [
-        "P0-REBIND",
+        "P0-ACCEPT",
         "CAP-02",
         "LIF-01",
         "LIF-05"
       ],
-      "dispatch_condition": "Actual E02 acceptance; accepted upstream outputs; interface versions pinned; exact non-overlapping write lease and resource ticket.",
+      "dispatch_condition": "Actual E02 acceptance; completed task-scoped accepted-source rebind under execution/07-scoped-readiness.md; exact required upstream stage/interface pins; non-overlapping write lease and phase-specific resource permit. Global P0 completion is not required for a reconciled independent scope.",
       "acceptance_steps": [
         "Resolve original criterion and accepted E02 source; trace current producer and full consumer/companion footprint.",
         "Pin expected property and independent oracle where needed; reproduce a distinguishing baseline negative.",
@@ -373,11 +382,11 @@
       "product_verification": "UNRUN",
       "source_code_observation": "dccea950845cda5b38f026e7770c07819d31f4d9",
       "depends_on": [
-        "P0-REBIND",
+        "P0-ACCEPT",
         "CAP-03",
         "LIF-02"
       ],
-      "dispatch_condition": "Actual E02 acceptance; accepted upstream outputs; interface versions pinned; exact non-overlapping write lease and resource ticket.",
+      "dispatch_condition": "Actual E02 acceptance; completed task-scoped accepted-source rebind under execution/07-scoped-readiness.md; exact required upstream stage/interface pins; non-overlapping write lease and phase-specific resource permit. Global P0 completion is not required for a reconciled independent scope.",
       "acceptance_steps": [
         "Resolve original criterion and accepted E02 source; trace current producer and full consumer/companion footprint.",
         "Pin expected property and independent oracle where needed; reproduce a distinguishing baseline negative.",
@@ -480,12 +489,11 @@
       "product_verification": "UNRUN",
       "source_code_observation": "dccea950845cda5b38f026e7770c07819d31f4d9",
       "depends_on": [
-        "P0-REBIND",
+        "P0-ACCEPT",
         "CAP-02",
-        "CAP-03",
-        "CAP-04"
+        "CAP-03"
       ],
-      "dispatch_condition": "Actual E02 acceptance; accepted upstream outputs; interface versions pinned; exact non-overlapping write lease and resource ticket.",
+      "dispatch_condition": "Actual E02 acceptance; completed task-scoped accepted-source rebind under execution/07-scoped-readiness.md; exact required upstream stage/interface pins; non-overlapping write lease and phase-specific resource permit. Global P0 completion is not required for a reconciled independent scope.",
       "acceptance_steps": [
         "Resolve original criterion and accepted E02 source; trace current producer and full consumer/companion footprint.",
         "Pin expected property and independent oracle where needed; reproduce a distinguishing baseline negative.",
@@ -539,7 +547,17 @@
         }
       ],
       "dependency_stage": "owner_readiness",
-      "completion_contract_ref": "execution/stage-requirements.json#default"
+      "completion_contract_ref": "execution/stage-requirements.json#default",
+      "acceptance_dependencies": [
+        "CAP-02",
+        "CAP-03",
+        "CAP-04"
+      ],
+      "dependency_stage_overrides": {
+        "CAP-02": "interface_agreement",
+        "CAP-03": "interface_agreement"
+      },
+      "interface_agreement_scope_ref": "execution/07-scoped-readiness.md#edge-decisions"
     },
     {
       "id": "CAP-06",
@@ -581,14 +599,13 @@
       "product_verification": "UNRUN",
       "source_code_observation": "dccea950845cda5b38f026e7770c07819d31f4d9",
       "depends_on": [
-        "P0-REBIND",
+        "P0-ACCEPT",
         "CAP-02",
         "CAP-03",
-        "CAP-04",
         "LIF-04",
         "LIF-05"
       ],
-      "dispatch_condition": "Actual E02 acceptance; accepted upstream outputs; interface versions pinned; exact non-overlapping write lease and resource ticket.",
+      "dispatch_condition": "Actual E02 acceptance; completed task-scoped accepted-source rebind under execution/07-scoped-readiness.md; exact required upstream stage/interface pins; non-overlapping write lease and phase-specific resource permit. Global P0 completion is not required for a reconciled independent scope.",
       "acceptance_steps": [
         "Resolve original criterion and accepted E02 source; trace current producer and full consumer/companion footprint.",
         "Pin expected property and independent oracle where needed; reproduce a distinguishing baseline negative.",
@@ -624,7 +641,30 @@
         "original_obligation_disposition: canonical owner decision; history preserved"
       ],
       "dependency_stage": "owner_readiness",
-      "completion_contract_ref": "execution/stage-requirements.json#default"
+      "completion_contract_ref": "execution/stage-requirements.json#default",
+      "acceptance_dependencies": [
+        "CAP-02",
+        "CAP-03",
+        "LIF-04",
+        "LIF-05"
+      ],
+      "conditional_acceptance_requirements": [
+        {
+          "when": "The selected restricted-source profile claims ongoing source change/revocation event handling",
+          "suppliers": [
+            "CAP-04"
+          ],
+          "output": "Real source-specific event/lookup output consumed through the existing LIF-02 currentness fence",
+          "consumer": "CAP-06 selected source custody; absence blocks this claim, not independent controlled-query preparation"
+        }
+      ],
+      "dependency_stage_overrides": {
+        "CAP-02": "interface_agreement",
+        "CAP-03": "interface_agreement",
+        "LIF-04": "interface_agreement",
+        "LIF-05": "interface_agreement"
+      },
+      "interface_agreement_scope_ref": "execution/07-scoped-readiness.md#edge-decisions"
     },
     {
       "id": "LIF-01",
@@ -704,9 +744,9 @@
       "product_verification": "UNRUN",
       "source_code_observation": "dccea950845cda5b38f026e7770c07819d31f4d9",
       "depends_on": [
-        "P0-REBIND"
+        "P0-ACCEPT"
       ],
-      "dispatch_condition": "Actual E02 acceptance; accepted upstream outputs; interface versions pinned; exact non-overlapping write lease and resource ticket.",
+      "dispatch_condition": "Actual E02 acceptance; completed task-scoped accepted-source rebind under execution/07-scoped-readiness.md; exact required upstream stage/interface pins; non-overlapping write lease and phase-specific resource permit. Global P0 completion is not required for a reconciled independent scope.",
       "acceptance_steps": [
         "Resolve original criterion and accepted E02 source; trace current producer and full consumer/companion footprint.",
         "Pin expected property and independent oracle where needed; reproduce a distinguishing baseline negative.",
@@ -836,10 +876,10 @@
       "product_verification": "UNRUN",
       "source_code_observation": "dccea950845cda5b38f026e7770c07819d31f4d9",
       "depends_on": [
-        "P0-REBIND",
+        "P0-ACCEPT",
         "LIF-01"
       ],
-      "dispatch_condition": "Actual E02 acceptance; accepted upstream outputs; interface versions pinned; exact non-overlapping write lease and resource ticket.",
+      "dispatch_condition": "Actual E02 acceptance; completed task-scoped accepted-source rebind under execution/07-scoped-readiness.md; exact required upstream stage/interface pins; non-overlapping write lease and phase-specific resource permit. Global P0 completion is not required for a reconciled independent scope.",
       "acceptance_steps": [
         "Resolve original criterion and accepted E02 source; trace current producer and full consumer/companion footprint.",
         "Pin expected property and independent oracle where needed; reproduce a distinguishing baseline negative.",
@@ -971,9 +1011,9 @@
       "product_verification": "UNRUN",
       "source_code_observation": "dccea950845cda5b38f026e7770c07819d31f4d9",
       "depends_on": [
-        "P0-REBIND"
+        "P0-ACCEPT"
       ],
-      "dispatch_condition": "Actual E02 acceptance; accepted upstream outputs; interface versions pinned; exact non-overlapping write lease and resource ticket.",
+      "dispatch_condition": "Actual E02 acceptance; completed task-scoped accepted-source rebind under execution/07-scoped-readiness.md; exact required upstream stage/interface pins; non-overlapping write lease and phase-specific resource permit. Global P0 completion is not required for a reconciled independent scope.",
       "acceptance_steps": [
         "Resolve original criterion and accepted E02 source; trace current producer and full consumer/companion footprint.",
         "Pin expected property and independent oracle where needed; reproduce a distinguishing baseline negative.",
@@ -1103,10 +1143,10 @@
       "product_verification": "UNRUN",
       "source_code_observation": "dccea950845cda5b38f026e7770c07819d31f4d9",
       "depends_on": [
-        "P0-REBIND",
+        "P0-ACCEPT",
         "LIF-02"
       ],
-      "dispatch_condition": "Actual E02 acceptance; accepted upstream outputs; interface versions pinned; exact non-overlapping write lease and resource ticket.",
+      "dispatch_condition": "Actual E02 acceptance; completed task-scoped accepted-source rebind under execution/07-scoped-readiness.md; exact required upstream stage/interface pins; non-overlapping write lease and phase-specific resource permit. Global P0 completion is not required for a reconciled independent scope.",
       "acceptance_steps": [
         "Resolve original criterion and accepted E02 source; trace current producer and full consumer/companion footprint.",
         "Pin expected property and independent oracle where needed; reproduce a distinguishing baseline negative.",
@@ -1236,11 +1276,11 @@
       "product_verification": "UNRUN",
       "source_code_observation": "dccea950845cda5b38f026e7770c07819d31f4d9",
       "depends_on": [
-        "P0-REBIND",
+        "P0-ACCEPT",
         "LIF-01",
         "LIF-02"
       ],
-      "dispatch_condition": "Actual E02 acceptance; accepted upstream outputs; interface versions pinned; exact non-overlapping write lease and resource ticket.",
+      "dispatch_condition": "Actual E02 acceptance; completed task-scoped accepted-source rebind under execution/07-scoped-readiness.md; exact required upstream stage/interface pins; non-overlapping write lease and phase-specific resource permit. Global P0 completion is not required for a reconciled independent scope.",
       "acceptance_steps": [
         "Resolve original criterion and accepted E02 source; trace current producer and full consumer/companion footprint.",
         "Pin expected property and independent oracle where needed; reproduce a distinguishing baseline negative.",
@@ -1361,10 +1401,10 @@
       "product_verification": "UNRUN",
       "source_code_observation": "dccea950845cda5b38f026e7770c07819d31f4d9",
       "depends_on": [
-        "P0-REBIND",
+        "P0-ACCEPT",
         "LIF-04"
       ],
-      "dispatch_condition": "Actual E02 acceptance; accepted upstream outputs; interface versions pinned; exact non-overlapping write lease and resource ticket.",
+      "dispatch_condition": "Actual E02 acceptance; completed task-scoped accepted-source rebind under execution/07-scoped-readiness.md; exact required upstream stage/interface pins; non-overlapping write lease and phase-specific resource permit. Global P0 completion is not required for a reconciled independent scope.",
       "acceptance_steps": [
         "Resolve original criterion and accepted E02 source; trace current producer and full consumer/companion footprint.",
         "Pin expected property and independent oracle where needed; reproduce a distinguishing baseline negative.",
@@ -1472,12 +1512,12 @@
       "product_verification": "UNRUN",
       "source_code_observation": "dccea950845cda5b38f026e7770c07819d31f4d9",
       "depends_on": [
-        "P0-REBIND",
+        "P0-ACCEPT",
         "LIF-01",
         "LIF-02",
         "LIF-05"
       ],
-      "dispatch_condition": "Actual E02 acceptance; accepted upstream outputs; interface versions pinned; exact non-overlapping write lease and resource ticket.",
+      "dispatch_condition": "Actual E02 acceptance; completed task-scoped accepted-source rebind under execution/07-scoped-readiness.md; exact required upstream stage/interface pins; non-overlapping write lease and phase-specific resource permit. Global P0 completion is not required for a reconciled independent scope.",
       "acceptance_steps": [
         "Resolve original criterion and accepted E02 source; trace current producer and full consumer/companion footprint.",
         "Pin expected property and independent oracle where needed; reproduce a distinguishing baseline negative.",
@@ -1585,12 +1625,12 @@
       "product_verification": "UNRUN",
       "source_code_observation": "dccea950845cda5b38f026e7770c07819d31f4d9",
       "depends_on": [
-        "P0-REBIND",
+        "P0-ACCEPT",
         "LIF-03",
         "CAP-03",
         "CAP-02"
       ],
-      "dispatch_condition": "Actual E02 acceptance; accepted upstream outputs; interface versions pinned; exact non-overlapping write lease and resource ticket.",
+      "dispatch_condition": "Actual E02 acceptance; completed task-scoped accepted-source rebind under execution/07-scoped-readiness.md; exact required upstream stage/interface pins; non-overlapping write lease and phase-specific resource permit. Global P0 completion is not required for a reconciled independent scope.",
       "acceptance_steps": [
         "Resolve original criterion and accepted E02 source; trace current producer and full consumer/companion footprint.",
         "Pin expected property and independent oracle where needed; reproduce a distinguishing baseline negative.",
@@ -1694,7 +1734,7 @@
       "product_verification": "UNRUN",
       "source_code_observation": "dccea950845cda5b38f026e7770c07819d31f4d9",
       "depends_on": [
-        "P0-REBIND",
+        "P0-ACCEPT",
         "LIF-01",
         "LIF-02",
         "LIF-03",
@@ -1707,7 +1747,7 @@
         "CAP-06",
         "FINAL-REVIEW"
       ],
-      "dispatch_condition": "Actual E02 acceptance; accepted upstream outputs; interface versions pinned; exact non-overlapping write lease and resource ticket.",
+      "dispatch_condition": "Actual E02 acceptance; completed task-scoped accepted-source rebind under execution/07-scoped-readiness.md; exact required upstream stage/interface pins; non-overlapping write lease and phase-specific resource permit. Global P0 completion is not required for a reconciled independent scope.",
       "acceptance_steps": [
         "Resolve original criterion and accepted E02 source; trace current producer and full consumer/companion footprint.",
         "Pin expected property and independent oracle where needed; reproduce a distinguishing baseline negative.",
@@ -1734,8 +1774,11 @@
         "composed_acceptance: actual emitted dependencies and fresh consumer on bound source",
         "original_obligation_disposition: canonical owner decision; history preserved"
       ],
-      "dependency_stage": "final_reviewed_replay_identity",
-      "completion_contract_ref": "execution/stage-requirements.json#default"
+      "dependency_stage": "owner_readiness",
+      "completion_contract_ref": "execution/stage-requirements.json#default",
+      "dependency_stage_overrides": {
+        "FINAL-REVIEW": "final_reviewed_replay_identity"
+      }
     },
     {
       "id": "GYD-01",
@@ -1778,9 +1821,9 @@
       "product_verification": "UNRUN",
       "source_code_observation": "dccea950845cda5b38f026e7770c07819d31f4d9",
       "depends_on": [
-        "P0-REBIND"
+        "P0-ACCEPT"
       ],
-      "dispatch_condition": "Actual E02 acceptance; accepted upstream outputs; interface versions pinned; exact non-overlapping write lease and resource ticket.",
+      "dispatch_condition": "Actual E02 acceptance; completed task-scoped accepted-source rebind under execution/07-scoped-readiness.md; exact required upstream stage/interface pins; non-overlapping write lease and phase-specific resource permit. Global P0 completion is not required for a reconciled independent scope.",
       "acceptance_steps": [
         "Resolve original criterion and accepted E02 source; trace current producer and full consumer/companion footprint.",
         "Pin expected property and independent oracle where needed; reproduce a distinguishing baseline negative.",
@@ -1886,9 +1929,9 @@
       "product_verification": "UNRUN",
       "source_code_observation": "dccea950845cda5b38f026e7770c07819d31f4d9",
       "depends_on": [
-        "P0-REBIND"
+        "P0-ACCEPT"
       ],
-      "dispatch_condition": "Actual E02 acceptance; accepted upstream outputs; interface versions pinned; exact non-overlapping write lease and resource ticket.",
+      "dispatch_condition": "Actual E02 acceptance; completed task-scoped accepted-source rebind under execution/07-scoped-readiness.md; exact required upstream stage/interface pins; non-overlapping write lease and phase-specific resource permit. Global P0 completion is not required for a reconciled independent scope.",
       "acceptance_steps": [
         "Resolve original criterion and accepted E02 source; trace current producer and full consumer/companion footprint.",
         "Pin expected property and independent oracle where needed; reproduce a distinguishing baseline negative.",
@@ -1947,9 +1990,9 @@
       "product_verification": "UNRUN",
       "source_code_observation": "dccea950845cda5b38f026e7770c07819d31f4d9",
       "depends_on": [
-        "P0-REBIND"
+        "P0-ACCEPT"
       ],
-      "dispatch_condition": "Actual E02 acceptance; accepted upstream outputs; interface versions pinned; exact non-overlapping write lease and resource ticket.",
+      "dispatch_condition": "Actual E02 acceptance; completed task-scoped accepted-source rebind under execution/07-scoped-readiness.md; exact required upstream stage/interface pins; non-overlapping write lease and phase-specific resource permit. Global P0 completion is not required for a reconciled independent scope.",
       "acceptance_steps": [
         "Resolve original criterion and accepted E02 source; trace current producer and full consumer/companion footprint.",
         "Pin expected property and independent oracle where needed; reproduce a distinguishing baseline negative.",
@@ -2010,9 +2053,9 @@
       "product_verification": "UNRUN",
       "source_code_observation": "dccea950845cda5b38f026e7770c07819d31f4d9",
       "depends_on": [
-        "P0-REBIND"
+        "P0-ACCEPT"
       ],
-      "dispatch_condition": "Actual E02 acceptance; accepted upstream outputs; interface versions pinned; exact non-overlapping write lease and resource ticket.",
+      "dispatch_condition": "Actual E02 acceptance; completed task-scoped accepted-source rebind under execution/07-scoped-readiness.md; exact required upstream stage/interface pins; non-overlapping write lease and phase-specific resource permit. Global P0 completion is not required for a reconciled independent scope.",
       "acceptance_steps": [
         "Resolve original criterion and accepted E02 source; trace current producer and full consumer/companion footprint.",
         "Pin expected property and independent oracle where needed; reproduce a distinguishing baseline negative.",
@@ -2083,9 +2126,9 @@
       "product_verification": "UNRUN",
       "source_code_observation": "dccea950845cda5b38f026e7770c07819d31f4d9",
       "depends_on": [
-        "P0-REBIND"
+        "P0-ACCEPT"
       ],
-      "dispatch_condition": "Actual E02 acceptance; accepted upstream outputs; interface versions pinned; exact non-overlapping write lease and resource ticket.",
+      "dispatch_condition": "Actual E02 acceptance; completed task-scoped accepted-source rebind under execution/07-scoped-readiness.md; exact required upstream stage/interface pins; non-overlapping write lease and phase-specific resource permit. Global P0 completion is not required for a reconciled independent scope.",
       "acceptance_steps": [
         "Resolve original criterion and accepted E02 source; trace current producer and full consumer/companion footprint.",
         "Pin expected property and independent oracle where needed; reproduce a distinguishing baseline negative.",
@@ -2157,9 +2200,9 @@
       "product_verification": "UNRUN",
       "source_code_observation": "dccea950845cda5b38f026e7770c07819d31f4d9",
       "depends_on": [
-        "P0-REBIND"
+        "P0-ACCEPT"
       ],
-      "dispatch_condition": "Actual E02 acceptance; accepted upstream outputs; interface versions pinned; exact non-overlapping write lease and resource ticket.",
+      "dispatch_condition": "Actual E02 acceptance; completed task-scoped accepted-source rebind under execution/07-scoped-readiness.md; exact required upstream stage/interface pins; non-overlapping write lease and phase-specific resource permit. Global P0 completion is not required for a reconciled independent scope.",
       "acceptance_steps": [
         "Resolve original criterion and accepted E02 source; trace current producer and full consumer/companion footprint.",
         "Pin expected property and independent oracle where needed; reproduce a distinguishing baseline negative.",
@@ -2225,9 +2268,9 @@
       "product_verification": "UNRUN",
       "source_code_observation": "dccea950845cda5b38f026e7770c07819d31f4d9",
       "depends_on": [
-        "P0-REBIND"
+        "P0-ACCEPT"
       ],
-      "dispatch_condition": "Actual E02 acceptance; accepted upstream outputs; interface versions pinned; exact non-overlapping write lease and resource ticket.",
+      "dispatch_condition": "Actual E02 acceptance; completed task-scoped accepted-source rebind under execution/07-scoped-readiness.md; exact required upstream stage/interface pins; non-overlapping write lease and phase-specific resource permit. Global P0 completion is not required for a reconciled independent scope.",
       "acceptance_steps": [
         "Resolve original criterion and accepted E02 source; trace current producer and full consumer/companion footprint.",
         "Pin expected property and independent oracle where needed; reproduce a distinguishing baseline negative.",
@@ -2286,9 +2329,9 @@
       "product_verification": "UNRUN",
       "source_code_observation": "dccea950845cda5b38f026e7770c07819d31f4d9",
       "depends_on": [
-        "P0-REBIND"
+        "P0-ACCEPT"
       ],
-      "dispatch_condition": "Actual E02 acceptance; accepted upstream outputs; interface versions pinned; exact non-overlapping write lease and resource ticket.",
+      "dispatch_condition": "Actual E02 acceptance; completed task-scoped accepted-source rebind under execution/07-scoped-readiness.md; exact required upstream stage/interface pins; non-overlapping write lease and phase-specific resource permit. Global P0 completion is not required for a reconciled independent scope.",
       "acceptance_steps": [
         "Resolve original criterion and accepted E02 source; trace current producer and full consumer/companion footprint.",
         "Pin expected property and independent oracle where needed; reproduce a distinguishing baseline negative.",
@@ -2350,10 +2393,10 @@
       "product_verification": "UNRUN",
       "source_code_observation": "dccea950845cda5b38f026e7770c07819d31f4d9",
       "depends_on": [
-        "P0-REBIND",
+        "P0-ACCEPT",
         "GYD-08"
       ],
-      "dispatch_condition": "Actual E02 acceptance; accepted upstream outputs; interface versions pinned; exact non-overlapping write lease and resource ticket.",
+      "dispatch_condition": "Actual E02 acceptance; completed task-scoped accepted-source rebind under execution/07-scoped-readiness.md; exact required upstream stage/interface pins; non-overlapping write lease and phase-specific resource permit. Global P0 completion is not required for a reconciled independent scope.",
       "acceptance_steps": [
         "Resolve original criterion and accepted E02 source; trace current producer and full consumer/companion footprint.",
         "Pin expected property and independent oracle where needed; reproduce a distinguishing baseline negative.",
@@ -2416,9 +2459,9 @@
       "product_verification": "UNRUN",
       "source_code_observation": "dccea950845cda5b38f026e7770c07819d31f4d9",
       "depends_on": [
-        "P0-REBIND"
+        "P0-ACCEPT"
       ],
-      "dispatch_condition": "Actual E02 acceptance; accepted upstream outputs; interface versions pinned; exact non-overlapping write lease and resource ticket.",
+      "dispatch_condition": "Actual E02 acceptance; completed task-scoped accepted-source rebind under execution/07-scoped-readiness.md; exact required upstream stage/interface pins; non-overlapping write lease and phase-specific resource permit. Global P0 completion is not required for a reconciled independent scope.",
       "acceptance_steps": [
         "Resolve original criterion and accepted E02 source; trace current producer and full consumer/companion footprint.",
         "Pin expected property and independent oracle where needed; reproduce a distinguishing baseline negative.",
@@ -2479,9 +2522,9 @@
       "product_verification": "UNRUN",
       "source_code_observation": "dccea950845cda5b38f026e7770c07819d31f4d9",
       "depends_on": [
-        "P0-REBIND"
+        "P0-ACCEPT"
       ],
-      "dispatch_condition": "Actual E02 acceptance; accepted upstream outputs; interface versions pinned; exact non-overlapping write lease and resource ticket.",
+      "dispatch_condition": "Actual E02 acceptance; completed task-scoped accepted-source rebind under execution/07-scoped-readiness.md; exact required upstream stage/interface pins; non-overlapping write lease and phase-specific resource permit. Global P0 completion is not required for a reconciled independent scope.",
       "acceptance_steps": [
         "Resolve original criterion and accepted E02 source; trace current producer and full consumer/companion footprint.",
         "Pin expected property and independent oracle where needed; reproduce a distinguishing baseline negative.",
@@ -2541,11 +2584,11 @@
       "product_verification": "UNRUN",
       "source_code_observation": "dccea950845cda5b38f026e7770c07819d31f4d9",
       "depends_on": [
-        "P0-REBIND",
+        "P0-ACCEPT",
         "GYD-09",
         "GYD-11"
       ],
-      "dispatch_condition": "Actual E02 acceptance; accepted upstream outputs; interface versions pinned; exact non-overlapping write lease and resource ticket.",
+      "dispatch_condition": "Actual E02 acceptance; completed task-scoped accepted-source rebind under execution/07-scoped-readiness.md; exact required upstream stage/interface pins; non-overlapping write lease and phase-specific resource permit. Global P0 completion is not required for a reconciled independent scope.",
       "acceptance_steps": [
         "Resolve original criterion and accepted E02 source; trace current producer and full consumer/companion footprint.",
         "Pin expected property and independent oracle where needed; reproduce a distinguishing baseline negative.",
@@ -2611,9 +2654,9 @@
       "product_verification": "UNRUN",
       "source_code_observation": "dccea950845cda5b38f026e7770c07819d31f4d9",
       "depends_on": [
-        "P0-REBIND"
+        "P0-ACCEPT"
       ],
-      "dispatch_condition": "Actual E02 acceptance; accepted upstream outputs; interface versions pinned; exact non-overlapping write lease and resource ticket.",
+      "dispatch_condition": "Actual E02 acceptance; completed task-scoped accepted-source rebind under execution/07-scoped-readiness.md; exact required upstream stage/interface pins; non-overlapping write lease and phase-specific resource permit. Global P0 completion is not required for a reconciled independent scope.",
       "acceptance_steps": [
         "Resolve original criterion and accepted E02 source; trace current producer and full consumer/companion footprint.",
         "Pin expected property and independent oracle where needed; reproduce a distinguishing baseline negative.",
@@ -2680,9 +2723,9 @@
       "product_verification": "UNRUN",
       "source_code_observation": "dccea950845cda5b38f026e7770c07819d31f4d9",
       "depends_on": [
-        "P0-REBIND"
+        "P0-ACCEPT"
       ],
-      "dispatch_condition": "Actual E02 acceptance; accepted upstream outputs; interface versions pinned; exact non-overlapping write lease and resource ticket.",
+      "dispatch_condition": "Actual E02 acceptance; completed task-scoped accepted-source rebind under execution/07-scoped-readiness.md; exact required upstream stage/interface pins; non-overlapping write lease and phase-specific resource permit. Global P0 completion is not required for a reconciled independent scope.",
       "acceptance_steps": [
         "Resolve original criterion and accepted E02 source; trace current producer and full consumer/companion footprint.",
         "Pin expected property and independent oracle where needed; reproduce a distinguishing baseline negative.",
@@ -2749,9 +2792,9 @@
       "product_verification": "UNRUN",
       "source_code_observation": "dccea950845cda5b38f026e7770c07819d31f4d9",
       "depends_on": [
-        "P0-REBIND"
+        "P0-ACCEPT"
       ],
-      "dispatch_condition": "Actual E02 acceptance; accepted upstream outputs; interface versions pinned; exact non-overlapping write lease and resource ticket.",
+      "dispatch_condition": "Actual E02 acceptance; completed task-scoped accepted-source rebind under execution/07-scoped-readiness.md; exact required upstream stage/interface pins; non-overlapping write lease and phase-specific resource permit. Global P0 completion is not required for a reconciled independent scope.",
       "acceptance_steps": [
         "Resolve original criterion and accepted E02 source; trace current producer and full consumer/companion footprint.",
         "Pin expected property and independent oracle where needed; reproduce a distinguishing baseline negative.",
@@ -2815,9 +2858,9 @@
       "product_verification": "UNRUN",
       "source_code_observation": "dccea950845cda5b38f026e7770c07819d31f4d9",
       "depends_on": [
-        "P0-REBIND"
+        "P0-ACCEPT"
       ],
-      "dispatch_condition": "Actual E02 acceptance; accepted upstream outputs; interface versions pinned; exact non-overlapping write lease and resource ticket.",
+      "dispatch_condition": "Actual E02 acceptance; completed task-scoped accepted-source rebind under execution/07-scoped-readiness.md; exact required upstream stage/interface pins; non-overlapping write lease and phase-specific resource permit. Global P0 completion is not required for a reconciled independent scope.",
       "acceptance_steps": [
         "Resolve original criterion and accepted E02 source; trace current producer and full consumer/companion footprint.",
         "Pin expected property and independent oracle where needed; reproduce a distinguishing baseline negative.",
@@ -2887,9 +2930,9 @@
       "product_verification": "UNRUN",
       "source_code_observation": "dccea950845cda5b38f026e7770c07819d31f4d9",
       "depends_on": [
-        "P0-REBIND"
+        "P0-ACCEPT"
       ],
-      "dispatch_condition": "Actual E02 acceptance; accepted upstream outputs; interface versions pinned; exact non-overlapping write lease and resource ticket.",
+      "dispatch_condition": "Actual E02 acceptance; completed task-scoped accepted-source rebind under execution/07-scoped-readiness.md; exact required upstream stage/interface pins; non-overlapping write lease and phase-specific resource permit. Global P0 completion is not required for a reconciled independent scope.",
       "acceptance_steps": [
         "Resolve original criterion and accepted E02 source; trace current producer and full consumer/companion footprint.",
         "Pin expected property and independent oracle where needed; reproduce a distinguishing baseline negative.",
@@ -2957,10 +3000,10 @@
       "product_verification": "UNRUN",
       "source_code_observation": "dccea950845cda5b38f026e7770c07819d31f4d9",
       "depends_on": [
-        "P0-REBIND",
+        "P0-ACCEPT",
         "GYD-17"
       ],
-      "dispatch_condition": "Actual E02 acceptance; accepted upstream outputs; interface versions pinned; exact non-overlapping write lease and resource ticket.",
+      "dispatch_condition": "Actual E02 acceptance; completed task-scoped accepted-source rebind under execution/07-scoped-readiness.md; exact required upstream stage/interface pins; non-overlapping write lease and phase-specific resource permit. Global P0 completion is not required for a reconciled independent scope.",
       "acceptance_steps": [
         "Resolve original criterion and accepted E02 source; trace current producer and full consumer/companion footprint.",
         "Pin expected property and independent oracle where needed; reproduce a distinguishing baseline negative.",
@@ -2990,14 +3033,19 @@
       "final_execution_property": "Record per-domain terminal/evidence/decision-grade/rung distributions across local, recursive, non-panel and unseen-third cases.",
       "execute_during": "FINAL-REPLAY",
       "acceptance_dependencies": [
-        "FINAL-REVIEW"
+        "FINAL-REVIEW",
+        "GYD-17"
       ],
       "completion_rule": "Owner preparation may complete before freeze; original V obligation closes only on its named post-review execution receipt.",
       "dependency_stage": "owner_readiness",
       "completion_contract_ref": "execution/stage-requirements.json#verification_preparation",
       "acceptance_evidence_requirements": [
         "actual frozen source/input/backend profile"
-      ]
+      ],
+      "dependency_stage_overrides": {
+        "GYD-17": "interface_agreement"
+      },
+      "interface_agreement_scope_ref": "execution/07-scoped-readiness.md#edge-decisions"
     },
     {
       "id": "GYD-19",
@@ -3028,9 +3076,9 @@
       "product_verification": "UNRUN",
       "source_code_observation": "dccea950845cda5b38f026e7770c07819d31f4d9",
       "depends_on": [
-        "P0-REBIND"
+        "P0-ACCEPT"
       ],
-      "dispatch_condition": "Actual E02 acceptance; accepted upstream outputs; interface versions pinned; exact non-overlapping write lease and resource ticket.",
+      "dispatch_condition": "Actual E02 acceptance; completed task-scoped accepted-source rebind under execution/07-scoped-readiness.md; exact required upstream stage/interface pins; non-overlapping write lease and phase-specific resource permit. Global P0 completion is not required for a reconciled independent scope.",
       "acceptance_steps": [
         "Resolve original criterion and accepted E02 source; trace current producer and full consumer/companion footprint.",
         "Pin expected property and independent oracle where needed; reproduce a distinguishing baseline negative.",
@@ -3098,10 +3146,10 @@
       "product_verification": "UNRUN",
       "source_code_observation": "dccea950845cda5b38f026e7770c07819d31f4d9",
       "depends_on": [
-        "P0-REBIND",
+        "P0-ACCEPT",
         "GYD-17"
       ],
-      "dispatch_condition": "Actual E02 acceptance; accepted upstream outputs; interface versions pinned; exact non-overlapping write lease and resource ticket.",
+      "dispatch_condition": "Actual E02 acceptance; completed task-scoped accepted-source rebind under execution/07-scoped-readiness.md; exact required upstream stage/interface pins; non-overlapping write lease and phase-specific resource permit. Global P0 completion is not required for a reconciled independent scope.",
       "acceptance_steps": [
         "Resolve original criterion and accepted E02 source; trace current producer and full consumer/companion footprint.",
         "Pin expected property and independent oracle where needed; reproduce a distinguishing baseline negative.",
@@ -3131,14 +3179,19 @@
       "final_execution_property": "Show byte-identical deterministic replay, reconstructable agent trace, promoted-artifact revalidation, time-invariant hashes.  Bind deterministic input hashes, parameter hashes, seed and container digest. Re-run and compare named output_hash across time. Agentic trace replay and promoted-artifact revalidation remain separate levels.",
       "execute_during": "FINAL-REPLAY",
       "acceptance_dependencies": [
-        "FINAL-REVIEW"
+        "FINAL-REVIEW",
+        "GYD-17"
       ],
       "completion_rule": "Owner preparation may complete before freeze; original V obligation closes only on its named post-review execution receipt.",
       "dependency_stage": "owner_readiness",
       "completion_contract_ref": "execution/stage-requirements.json#verification_preparation",
       "acceptance_evidence_requirements": [
         "actual frozen source/input/backend profile"
-      ]
+      ],
+      "dependency_stage_overrides": {
+        "GYD-17": "interface_agreement"
+      },
+      "interface_agreement_scope_ref": "execution/07-scoped-readiness.md#edge-decisions"
     },
     {
       "id": "GYD-21",
@@ -3172,9 +3225,9 @@
       "product_verification": "UNRUN",
       "source_code_observation": "dccea950845cda5b38f026e7770c07819d31f4d9",
       "depends_on": [
-        "P0-REBIND"
+        "P0-ACCEPT"
       ],
-      "dispatch_condition": "Actual E02 acceptance; accepted upstream outputs; interface versions pinned; exact non-overlapping write lease and resource ticket.",
+      "dispatch_condition": "Actual E02 acceptance; completed task-scoped accepted-source rebind under execution/07-scoped-readiness.md; exact required upstream stage/interface pins; non-overlapping write lease and phase-specific resource permit. Global P0 completion is not required for a reconciled independent scope.",
       "acceptance_steps": [
         "Resolve original criterion and accepted E02 source; trace current producer and full consumer/companion footprint.",
         "Pin expected property and independent oracle where needed; reproduce a distinguishing baseline negative.",
@@ -3242,11 +3295,11 @@
       "product_verification": "UNRUN",
       "source_code_observation": "dccea950845cda5b38f026e7770c07819d31f4d9",
       "depends_on": [
-        "P0-REBIND",
+        "P0-ACCEPT",
         "GYD-17",
         "GYD-18"
       ],
-      "dispatch_condition": "Actual E02 acceptance; accepted upstream outputs; interface versions pinned; exact non-overlapping write lease and resource ticket.",
+      "dispatch_condition": "Actual E02 acceptance; completed task-scoped accepted-source rebind under execution/07-scoped-readiness.md; exact required upstream stage/interface pins; non-overlapping write lease and phase-specific resource permit. Global P0 completion is not required for a reconciled independent scope.",
       "acceptance_steps": [
         "Resolve original criterion and accepted E02 source; trace current producer and full consumer/companion footprint.",
         "Pin expected property and independent oracle where needed; reproduce a distinguishing baseline negative.",
@@ -3276,14 +3329,21 @@
       "final_execution_property": "Measure envelope expansion, semantic loss, governance throughput, demand-pull/abstention, search recall/index staleness.",
       "execute_during": "FINAL-REPLAY",
       "acceptance_dependencies": [
-        "FINAL-REVIEW"
+        "FINAL-REVIEW",
+        "GYD-17",
+        "GYD-18"
       ],
       "completion_rule": "Owner preparation may complete before freeze; original V obligation closes only on its named post-review execution receipt.",
       "dependency_stage": "owner_readiness",
       "completion_contract_ref": "execution/stage-requirements.json#verification_preparation",
       "acceptance_evidence_requirements": [
         "actual frozen source/input/backend profile"
-      ]
+      ],
+      "dependency_stage_overrides": {
+        "GYD-17": "interface_agreement",
+        "GYD-18": "interface_agreement"
+      },
+      "interface_agreement_scope_ref": "execution/07-scoped-readiness.md#edge-decisions"
     },
     {
       "id": "GYD-23",
@@ -3315,9 +3375,9 @@
       "product_verification": "UNRUN",
       "source_code_observation": "dccea950845cda5b38f026e7770c07819d31f4d9",
       "depends_on": [
-        "P0-REBIND"
+        "P0-ACCEPT"
       ],
-      "dispatch_condition": "Actual E02 acceptance; accepted upstream outputs; interface versions pinned; exact non-overlapping write lease and resource ticket.",
+      "dispatch_condition": "Actual E02 acceptance; completed task-scoped accepted-source rebind under execution/07-scoped-readiness.md; exact required upstream stage/interface pins; non-overlapping write lease and phase-specific resource permit. Global P0 completion is not required for a reconciled independent scope.",
       "acceptance_steps": [
         "Resolve original criterion and accepted E02 source; trace current producer and full consumer/companion footprint.",
         "Pin expected property and independent oracle where needed; reproduce a distinguishing baseline negative.",
@@ -3376,9 +3436,9 @@
       "product_verification": "UNRUN",
       "source_code_observation": "dccea950845cda5b38f026e7770c07819d31f4d9",
       "depends_on": [
-        "P0-REBIND"
+        "P0-ACCEPT"
       ],
-      "dispatch_condition": "Actual E02 acceptance; accepted upstream outputs; interface versions pinned; exact non-overlapping write lease and resource ticket.",
+      "dispatch_condition": "Actual E02 acceptance; completed task-scoped accepted-source rebind under execution/07-scoped-readiness.md; exact required upstream stage/interface pins; non-overlapping write lease and phase-specific resource permit. Global P0 completion is not required for a reconciled independent scope.",
       "acceptance_steps": [
         "Resolve original criterion and accepted E02 source; trace current producer and full consumer/companion footprint.",
         "Pin expected property and independent oracle where needed; reproduce a distinguishing baseline negative.",
@@ -3436,9 +3496,9 @@
       "product_verification": "UNRUN",
       "source_code_observation": "dccea950845cda5b38f026e7770c07819d31f4d9",
       "depends_on": [
-        "P0-REBIND"
+        "P0-ACCEPT"
       ],
-      "dispatch_condition": "Actual E02 acceptance; accepted upstream outputs; interface versions pinned; exact non-overlapping write lease and resource ticket.",
+      "dispatch_condition": "Actual E02 acceptance; completed task-scoped accepted-source rebind under execution/07-scoped-readiness.md; exact required upstream stage/interface pins; non-overlapping write lease and phase-specific resource permit. Global P0 completion is not required for a reconciled independent scope.",
       "acceptance_steps": [
         "Resolve original criterion and accepted E02 source; trace current producer and full consumer/companion footprint.",
         "Pin expected property and independent oracle where needed; reproduce a distinguishing baseline negative.",
@@ -3495,9 +3555,9 @@
       "product_verification": "UNRUN",
       "source_code_observation": "dccea950845cda5b38f026e7770c07819d31f4d9",
       "depends_on": [
-        "P0-REBIND"
+        "P0-ACCEPT"
       ],
-      "dispatch_condition": "Actual E02 acceptance; accepted upstream outputs; interface versions pinned; exact non-overlapping write lease and resource ticket.",
+      "dispatch_condition": "Actual E02 acceptance; completed task-scoped accepted-source rebind under execution/07-scoped-readiness.md; exact required upstream stage/interface pins; non-overlapping write lease and phase-specific resource permit. Global P0 completion is not required for a reconciled independent scope.",
       "acceptance_steps": [
         "Resolve original criterion and accepted E02 source; trace current producer and full consumer/companion footprint.",
         "Pin expected property and independent oracle where needed; reproduce a distinguishing baseline negative.",
@@ -3554,9 +3614,9 @@
       "product_verification": "UNRUN",
       "source_code_observation": "dccea950845cda5b38f026e7770c07819d31f4d9",
       "depends_on": [
-        "P0-REBIND"
+        "P0-ACCEPT"
       ],
-      "dispatch_condition": "Actual E02 acceptance; accepted upstream outputs; interface versions pinned; exact non-overlapping write lease and resource ticket.",
+      "dispatch_condition": "Actual E02 acceptance; completed task-scoped accepted-source rebind under execution/07-scoped-readiness.md; exact required upstream stage/interface pins; non-overlapping write lease and phase-specific resource permit. Global P0 completion is not required for a reconciled independent scope.",
       "acceptance_steps": [
         "Resolve original criterion and accepted E02 source; trace current producer and full consumer/companion footprint.",
         "Pin expected property and independent oracle where needed; reproduce a distinguishing baseline negative.",
@@ -3613,9 +3673,9 @@
       "product_verification": "UNRUN",
       "source_code_observation": "dccea950845cda5b38f026e7770c07819d31f4d9",
       "depends_on": [
-        "P0-REBIND"
+        "P0-ACCEPT"
       ],
-      "dispatch_condition": "Actual E02 acceptance; accepted upstream outputs; interface versions pinned; exact non-overlapping write lease and resource ticket.",
+      "dispatch_condition": "Actual E02 acceptance; completed task-scoped accepted-source rebind under execution/07-scoped-readiness.md; exact required upstream stage/interface pins; non-overlapping write lease and phase-specific resource permit. Global P0 completion is not required for a reconciled independent scope.",
       "acceptance_steps": [
         "Resolve original criterion and accepted E02 source; trace current producer and full consumer/companion footprint.",
         "Pin expected property and independent oracle where needed; reproduce a distinguishing baseline negative.",
@@ -3671,9 +3731,9 @@
       "product_verification": "UNRUN",
       "source_code_observation": "dccea950845cda5b38f026e7770c07819d31f4d9",
       "depends_on": [
-        "P0-REBIND"
+        "P0-ACCEPT"
       ],
-      "dispatch_condition": "Actual E02 acceptance; accepted upstream outputs; interface versions pinned; exact non-overlapping write lease and resource ticket.",
+      "dispatch_condition": "Actual E02 acceptance; completed task-scoped accepted-source rebind under execution/07-scoped-readiness.md; exact required upstream stage/interface pins; non-overlapping write lease and phase-specific resource permit. Global P0 completion is not required for a reconciled independent scope.",
       "acceptance_steps": [
         "Resolve original criterion and accepted E02 source; trace current producer and full consumer/companion footprint.",
         "Pin expected property and independent oracle where needed; reproduce a distinguishing baseline negative.",
@@ -3733,9 +3793,9 @@
       "product_verification": "UNRUN",
       "source_code_observation": "dccea950845cda5b38f026e7770c07819d31f4d9",
       "depends_on": [
-        "P0-REBIND"
+        "P0-ACCEPT"
       ],
-      "dispatch_condition": "Actual E02 acceptance; accepted upstream outputs; interface versions pinned; exact non-overlapping write lease and resource ticket.",
+      "dispatch_condition": "Actual E02 acceptance; completed task-scoped accepted-source rebind under execution/07-scoped-readiness.md; exact required upstream stage/interface pins; non-overlapping write lease and phase-specific resource permit. Global P0 completion is not required for a reconciled independent scope.",
       "acceptance_steps": [
         "Resolve original criterion and accepted E02 source; trace current producer and full consumer/companion footprint.",
         "Pin expected property and independent oracle where needed; reproduce a distinguishing baseline negative.",
@@ -3805,9 +3865,9 @@
       "product_verification": "UNRUN",
       "source_code_observation": "dccea950845cda5b38f026e7770c07819d31f4d9",
       "depends_on": [
-        "P0-REBIND"
+        "P0-ACCEPT"
       ],
-      "dispatch_condition": "Actual E02 acceptance; accepted upstream outputs; interface versions pinned; exact non-overlapping write lease and resource ticket.",
+      "dispatch_condition": "Actual E02 acceptance; completed task-scoped accepted-source rebind under execution/07-scoped-readiness.md; exact required upstream stage/interface pins; non-overlapping write lease and phase-specific resource permit. Global P0 completion is not required for a reconciled independent scope.",
       "acceptance_steps": [
         "Resolve original criterion and accepted E02 source; trace current producer and full consumer/companion footprint.",
         "Pin expected property and independent oracle where needed; reproduce a distinguishing baseline negative.",
@@ -3867,9 +3927,9 @@
       "product_verification": "UNRUN",
       "source_code_observation": "dccea950845cda5b38f026e7770c07819d31f4d9",
       "depends_on": [
-        "P0-REBIND"
+        "P0-ACCEPT"
       ],
-      "dispatch_condition": "Actual E02 acceptance; accepted upstream outputs; interface versions pinned; exact non-overlapping write lease and resource ticket.",
+      "dispatch_condition": "Actual E02 acceptance; completed task-scoped accepted-source rebind under execution/07-scoped-readiness.md; exact required upstream stage/interface pins; non-overlapping write lease and phase-specific resource permit. Global P0 completion is not required for a reconciled independent scope.",
       "acceptance_steps": [
         "Resolve original criterion and accepted E02 source; trace current producer and full consumer/companion footprint.",
         "Pin expected property and independent oracle where needed; reproduce a distinguishing baseline negative.",
@@ -3927,9 +3987,9 @@
       "product_verification": "UNRUN",
       "source_code_observation": "dccea950845cda5b38f026e7770c07819d31f4d9",
       "depends_on": [
-        "P0-REBIND"
+        "P0-ACCEPT"
       ],
-      "dispatch_condition": "Actual E02 acceptance; accepted upstream outputs; interface versions pinned; exact non-overlapping write lease and resource ticket.",
+      "dispatch_condition": "Actual E02 acceptance; completed task-scoped accepted-source rebind under execution/07-scoped-readiness.md; exact required upstream stage/interface pins; non-overlapping write lease and phase-specific resource permit. Global P0 completion is not required for a reconciled independent scope.",
       "acceptance_steps": [
         "Resolve original criterion and accepted E02 source; trace current producer and full consumer/companion footprint.",
         "Pin expected property and independent oracle where needed; reproduce a distinguishing baseline negative.",
@@ -4013,9 +4073,9 @@
       "product_verification": "UNRUN",
       "source_code_observation": "dccea950845cda5b38f026e7770c07819d31f4d9",
       "depends_on": [
-        "P0-REBIND"
+        "P0-ACCEPT"
       ],
-      "dispatch_condition": "Actual E02 acceptance; accepted upstream outputs; interface versions pinned; exact non-overlapping write lease and resource ticket.",
+      "dispatch_condition": "Actual E02 acceptance; completed task-scoped accepted-source rebind under execution/07-scoped-readiness.md; exact required upstream stage/interface pins; non-overlapping write lease and phase-specific resource permit. Global P0 completion is not required for a reconciled independent scope.",
       "acceptance_steps": [
         "Resolve original criterion and accepted E02 source; trace current producer and full consumer/companion footprint.",
         "Pin expected property and independent oracle where needed; reproduce a distinguishing baseline negative.",
@@ -4115,10 +4175,10 @@
       "product_verification": "UNRUN",
       "source_code_observation": "dccea950845cda5b38f026e7770c07819d31f4d9",
       "depends_on": [
-        "P0-REBIND",
+        "P0-ACCEPT",
         "LIF-02"
       ],
-      "dispatch_condition": "Actual E02 acceptance; accepted upstream outputs; interface versions pinned; exact non-overlapping write lease and resource ticket.",
+      "dispatch_condition": "Actual E02 acceptance; completed task-scoped accepted-source rebind under execution/07-scoped-readiness.md; exact required upstream stage/interface pins; non-overlapping write lease and phase-specific resource permit. Global P0 completion is not required for a reconciled independent scope.",
       "acceptance_steps": [
         "Resolve original criterion and accepted E02 source; trace current producer and full consumer/companion footprint.",
         "Pin expected property and independent oracle where needed; reproduce a distinguishing baseline negative.",
@@ -4213,10 +4273,10 @@
       "product_verification": "UNRUN",
       "source_code_observation": "dccea950845cda5b38f026e7770c07819d31f4d9",
       "depends_on": [
-        "P0-REBIND",
+        "P0-ACCEPT",
         "UI-02"
       ],
-      "dispatch_condition": "Actual E02 acceptance; accepted upstream outputs; interface versions pinned; exact non-overlapping write lease and resource ticket.",
+      "dispatch_condition": "Actual E02 acceptance; completed task-scoped accepted-source rebind under execution/07-scoped-readiness.md; exact required upstream stage/interface pins; non-overlapping write lease and phase-specific resource permit. Global P0 completion is not required for a reconciled independent scope.",
       "acceptance_steps": [
         "Resolve original criterion and accepted E02 source; trace current producer and full consumer/companion footprint.",
         "Pin expected property and independent oracle where needed; reproduce a distinguishing baseline negative.",
@@ -4257,7 +4317,14 @@
         }
       ],
       "dependency_stage": "owner_readiness",
-      "completion_contract_ref": "execution/stage-requirements.json#default"
+      "completion_contract_ref": "execution/stage-requirements.json#default",
+      "dependency_stage_overrides": {
+        "UI-02": "interface_agreement"
+      },
+      "acceptance_dependencies": [
+        "UI-02"
+      ],
+      "interface_agreement_scope_ref": "execution/07-scoped-readiness.md#edge-decisions"
     },
     {
       "id": "UI-04",
@@ -4307,11 +4374,11 @@
       "product_verification": "UNRUN",
       "source_code_observation": "dccea950845cda5b38f026e7770c07819d31f4d9",
       "depends_on": [
-        "P0-REBIND",
+        "P0-ACCEPT",
         "UI-03",
         "LIF-02"
       ],
-      "dispatch_condition": "Actual E02 acceptance; accepted upstream outputs; interface versions pinned; exact non-overlapping write lease and resource ticket.",
+      "dispatch_condition": "Actual E02 acceptance; completed task-scoped accepted-source rebind under execution/07-scoped-readiness.md; exact required upstream stage/interface pins; non-overlapping write lease and phase-specific resource permit. Global P0 completion is not required for a reconciled independent scope.",
       "acceptance_steps": [
         "Resolve original criterion and accepted E02 source; trace current producer and full consumer/companion footprint.",
         "Pin expected property and independent oracle where needed; reproduce a distinguishing baseline negative.",
@@ -4369,7 +4436,16 @@
         "governing_contract": "Atlas D4-A1 (2026-08-19): en authored primary, uk translation, ru legacy_continuity_frozen; no automatic reactivation of Russian UI.",
         "required_action": "Bind audience/jurisdiction and exact currently admitted locale. Preserve formal-register acceptance where applicable within that contract. If the commissioned use truly requires active Russian presentation, record that conflicting requirement and seek competent locale-contract amendment or a source-qualified external translated evidence integration; do not silently waive the requirement, activate ru, or block unrelated admitted locales.",
         "authority": "External moderation/appeal/dispute decisions remain institutional; these are PolicyOS projection/accessibility obligations."
-      }
+      },
+      "dependency_stage_overrides": {
+        "UI-03": "interface_agreement",
+        "LIF-02": "interface_agreement"
+      },
+      "acceptance_dependencies": [
+        "UI-03",
+        "LIF-02"
+      ],
+      "interface_agreement_scope_ref": "execution/07-scoped-readiness.md#edge-decisions"
     },
     {
       "id": "UI-05",
@@ -4421,9 +4497,9 @@
       "product_verification": "UNRUN",
       "source_code_observation": "dccea950845cda5b38f026e7770c07819d31f4d9",
       "depends_on": [
-        "P0-REBIND"
+        "P0-ACCEPT"
       ],
-      "dispatch_condition": "Actual E02 acceptance; accepted upstream outputs; interface versions pinned; exact non-overlapping write lease and resource ticket.",
+      "dispatch_condition": "Actual E02 acceptance; completed task-scoped accepted-source rebind under execution/07-scoped-readiness.md; exact required upstream stage/interface pins; non-overlapping write lease and phase-specific resource permit. Global P0 completion is not required for a reconciled independent scope.",
       "acceptance_steps": [
         "Resolve original criterion and accepted E02 source; trace current producer and full consumer/companion footprint.",
         "Pin expected property and independent oracle where needed; reproduce a distinguishing baseline negative.",
@@ -4531,9 +4607,9 @@
       "product_verification": "UNRUN",
       "source_code_observation": "dccea950845cda5b38f026e7770c07819d31f4d9",
       "depends_on": [
-        "P0-REBIND"
+        "P0-ACCEPT"
       ],
-      "dispatch_condition": "Actual E02 acceptance; accepted upstream outputs; interface versions pinned; exact non-overlapping write lease and resource ticket.",
+      "dispatch_condition": "Actual E02 acceptance; completed task-scoped accepted-source rebind under execution/07-scoped-readiness.md; exact required upstream stage/interface pins; non-overlapping write lease and phase-specific resource permit. Global P0 completion is not required for a reconciled independent scope.",
       "acceptance_steps": [
         "Resolve original criterion and accepted E02 source; trace current producer and full consumer/companion footprint.",
         "Pin expected property and independent oracle where needed; reproduce a distinguishing baseline negative.",
@@ -4641,11 +4717,11 @@
       "product_verification": "UNRUN",
       "source_code_observation": "dccea950845cda5b38f026e7770c07819d31f4d9",
       "depends_on": [
-        "P0-REBIND",
+        "P0-ACCEPT",
         "UI-06",
         "LIF-07"
       ],
-      "dispatch_condition": "Actual E02 acceptance; accepted upstream outputs; interface versions pinned; exact non-overlapping write lease and resource ticket.",
+      "dispatch_condition": "Actual E02 acceptance; completed task-scoped accepted-source rebind under execution/07-scoped-readiness.md; exact required upstream stage/interface pins; non-overlapping write lease and phase-specific resource permit. Global P0 completion is not required for a reconciled independent scope.",
       "acceptance_steps": [
         "Resolve original criterion and accepted E02 source; trace current producer and full consumer/companion footprint.",
         "Pin expected property and independent oracle where needed; reproduce a distinguishing baseline negative.",
@@ -4724,11 +4800,11 @@
       "product_verification": "UNRUN",
       "source_code_observation": "dccea950845cda5b38f026e7770c07819d31f4d9",
       "depends_on": [
-        "P0-REBIND",
+        "P0-ACCEPT",
         "GYD-09",
         "GYD-12"
       ],
-      "dispatch_condition": "Actual E02 acceptance; accepted upstream outputs; interface versions pinned; exact non-overlapping write lease and resource ticket.",
+      "dispatch_condition": "Actual E02 acceptance; completed task-scoped accepted-source rebind under execution/07-scoped-readiness.md; exact required upstream stage/interface pins; non-overlapping write lease and phase-specific resource permit. Global P0 completion is not required for a reconciled independent scope.",
       "acceptance_steps": [
         "Resolve original criterion and accepted E02 source; trace current producer and full consumer/companion footprint.",
         "Pin expected property and independent oracle where needed; reproduce a distinguishing baseline negative.",
@@ -4756,7 +4832,16 @@
         "original_obligation_disposition: canonical owner decision; history preserved"
       ],
       "dependency_stage": "owner_readiness",
-      "completion_contract_ref": "execution/stage-requirements.json#default"
+      "completion_contract_ref": "execution/stage-requirements.json#default",
+      "dependency_stage_overrides": {
+        "GYD-09": "interface_agreement",
+        "GYD-12": "interface_agreement"
+      },
+      "acceptance_dependencies": [
+        "GYD-09",
+        "GYD-12"
+      ],
+      "interface_agreement_scope_ref": "execution/07-scoped-readiness.md#edge-decisions"
     },
     {
       "id": "UI-09",
@@ -4799,9 +4884,9 @@
       "product_verification": "UNRUN",
       "source_code_observation": "dccea950845cda5b38f026e7770c07819d31f4d9",
       "depends_on": [
-        "P0-REBIND"
+        "P0-ACCEPT"
       ],
-      "dispatch_condition": "Actual E02 acceptance; accepted upstream outputs; interface versions pinned; exact non-overlapping write lease and resource ticket.",
+      "dispatch_condition": "Actual E02 acceptance; completed task-scoped accepted-source rebind under execution/07-scoped-readiness.md; exact required upstream stage/interface pins; non-overlapping write lease and phase-specific resource permit. Global P0 completion is not required for a reconciled independent scope.",
       "acceptance_steps": [
         "Resolve original criterion and accepted E02 source; trace current producer and full consumer/companion footprint.",
         "Pin expected property and independent oracle where needed; reproduce a distinguishing baseline negative.",
@@ -4882,9 +4967,9 @@
       "product_verification": "UNRUN",
       "source_code_observation": "dccea950845cda5b38f026e7770c07819d31f4d9",
       "depends_on": [
-        "P0-REBIND"
+        "P0-ACCEPT"
       ],
-      "dispatch_condition": "Actual E02 acceptance; accepted upstream outputs; interface versions pinned; exact non-overlapping write lease and resource ticket.",
+      "dispatch_condition": "Actual E02 acceptance; completed task-scoped accepted-source rebind under execution/07-scoped-readiness.md; exact required upstream stage/interface pins; non-overlapping write lease and phase-specific resource permit. Global P0 completion is not required for a reconciled independent scope.",
       "acceptance_steps": [
         "Resolve original criterion and accepted E02 source; trace current producer and full consumer/companion footprint.",
         "Pin expected property and independent oracle where needed; reproduce a distinguishing baseline negative.",
@@ -4958,9 +5043,9 @@
       "product_verification": "UNRUN",
       "source_code_observation": "dccea950845cda5b38f026e7770c07819d31f4d9",
       "depends_on": [
-        "P0-REBIND"
+        "P0-ACCEPT"
       ],
-      "dispatch_condition": "Actual E02 acceptance; accepted upstream outputs; interface versions pinned; exact non-overlapping write lease and resource ticket.",
+      "dispatch_condition": "Actual E02 acceptance; completed task-scoped accepted-source rebind under execution/07-scoped-readiness.md; exact required upstream stage/interface pins; non-overlapping write lease and phase-specific resource permit. Global P0 completion is not required for a reconciled independent scope.",
       "acceptance_steps": [
         "Resolve original criterion and accepted E02 source; trace current producer and full consumer/companion footprint.",
         "Pin expected property and independent oracle where needed; reproduce a distinguishing baseline negative.",
@@ -5042,9 +5127,9 @@
       "product_verification": "UNRUN",
       "source_code_observation": "dccea950845cda5b38f026e7770c07819d31f4d9",
       "depends_on": [
-        "P0-REBIND"
+        "P0-ACCEPT"
       ],
-      "dispatch_condition": "Actual E02 acceptance; accepted upstream outputs; interface versions pinned; exact non-overlapping write lease and resource ticket.",
+      "dispatch_condition": "Actual E02 acceptance; completed task-scoped accepted-source rebind under execution/07-scoped-readiness.md; exact required upstream stage/interface pins; non-overlapping write lease and phase-specific resource permit. Global P0 completion is not required for a reconciled independent scope.",
       "acceptance_steps": [
         "Resolve original criterion and accepted E02 source; trace current producer and full consumer/companion footprint.",
         "Pin expected property and independent oracle where needed; reproduce a distinguishing baseline negative.",
@@ -5129,9 +5214,9 @@
       "product_verification": "UNRUN",
       "source_code_observation": "dccea950845cda5b38f026e7770c07819d31f4d9",
       "depends_on": [
-        "P0-REBIND"
+        "P0-ACCEPT"
       ],
-      "dispatch_condition": "Actual E02 acceptance; accepted upstream outputs; interface versions pinned; exact non-overlapping write lease and resource ticket.",
+      "dispatch_condition": "Actual E02 acceptance; completed task-scoped accepted-source rebind under execution/07-scoped-readiness.md; exact required upstream stage/interface pins; non-overlapping write lease and phase-specific resource permit. Global P0 completion is not required for a reconciled independent scope.",
       "acceptance_steps": [
         "Resolve original criterion and accepted E02 source; trace current producer and full consumer/companion footprint.",
         "Pin expected property and independent oracle where needed; reproduce a distinguishing baseline negative.",
@@ -5212,9 +5297,9 @@
       "product_verification": "UNRUN",
       "source_code_observation": "dccea950845cda5b38f026e7770c07819d31f4d9",
       "depends_on": [
-        "P0-REBIND"
+        "P0-ACCEPT"
       ],
-      "dispatch_condition": "Actual E02 acceptance; accepted upstream outputs; interface versions pinned; exact non-overlapping write lease and resource ticket.",
+      "dispatch_condition": "Actual E02 acceptance; completed task-scoped accepted-source rebind under execution/07-scoped-readiness.md; exact required upstream stage/interface pins; non-overlapping write lease and phase-specific resource permit. Global P0 completion is not required for a reconciled independent scope.",
       "acceptance_steps": [
         "Resolve original criterion and accepted E02 source; trace current producer and full consumer/companion footprint.",
         "Pin expected property and independent oracle where needed; reproduce a distinguishing baseline negative.",
@@ -5301,9 +5386,9 @@
       "product_verification": "UNRUN",
       "source_code_observation": "dccea950845cda5b38f026e7770c07819d31f4d9",
       "depends_on": [
-        "P0-REBIND"
+        "P0-ACCEPT"
       ],
-      "dispatch_condition": "Actual E02 acceptance; accepted upstream outputs; interface versions pinned; exact non-overlapping write lease and resource ticket.",
+      "dispatch_condition": "Actual E02 acceptance; completed task-scoped accepted-source rebind under execution/07-scoped-readiness.md; exact required upstream stage/interface pins; non-overlapping write lease and phase-specific resource permit. Global P0 completion is not required for a reconciled independent scope.",
       "acceptance_steps": [
         "Resolve original criterion and accepted E02 source; trace current producer and full consumer/companion footprint.",
         "Pin expected property and independent oracle where needed; reproduce a distinguishing baseline negative.",
@@ -5387,9 +5472,9 @@
       "product_verification": "UNRUN",
       "source_code_observation": "dccea950845cda5b38f026e7770c07819d31f4d9",
       "depends_on": [
-        "P0-REBIND"
+        "P0-ACCEPT"
       ],
-      "dispatch_condition": "Actual E02 acceptance; accepted upstream outputs; interface versions pinned; exact non-overlapping write lease and resource ticket.",
+      "dispatch_condition": "Actual E02 acceptance; completed task-scoped accepted-source rebind under execution/07-scoped-readiness.md; exact required upstream stage/interface pins; non-overlapping write lease and phase-specific resource permit. Global P0 completion is not required for a reconciled independent scope.",
       "acceptance_steps": [
         "Resolve original criterion and accepted E02 source; trace current producer and full consumer/companion footprint.",
         "Pin expected property and independent oracle where needed; reproduce a distinguishing baseline negative.",
@@ -5480,11 +5565,11 @@
       "product_verification": "UNRUN",
       "source_code_observation": "dccea950845cda5b38f026e7770c07819d31f4d9",
       "depends_on": [
-        "P0-REBIND",
+        "P0-ACCEPT",
         "CAP-03",
         "CAP-04"
       ],
-      "dispatch_condition": "Actual E02 acceptance; accepted upstream outputs; interface versions pinned; exact non-overlapping write lease and resource ticket.",
+      "dispatch_condition": "Actual E02 acceptance; completed task-scoped accepted-source rebind under execution/07-scoped-readiness.md; exact required upstream stage/interface pins; non-overlapping write lease and phase-specific resource permit. Global P0 completion is not required for a reconciled independent scope.",
       "acceptance_steps": [
         "Resolve original criterion and accepted E02 source; trace current producer and full consumer/companion footprint.",
         "Pin expected property and independent oracle where needed; reproduce a distinguishing baseline negative.",
@@ -5549,7 +5634,19 @@
         }
       ],
       "dependency_stage": "owner_readiness",
-      "completion_contract_ref": "execution/stage-requirements.json#default"
+      "completion_contract_ref": "execution/stage-requirements.json#default",
+      "dependency_stage_overrides": {
+        "CAP-03": "interface_agreement",
+        "CAP-04": "interface_agreement"
+      },
+      "acceptance_dependencies": [
+        "CAP-03",
+        "CAP-04"
+      ],
+      "interface_agreement_scope_ref": "execution/07-scoped-readiness.md#edge-decisions",
+      "acceptance_evidence_requirements": [
+        "When numeric VOI is claimed, consume DEB-13 actual metric/ranking evidence in the shared composed witness; acquisition-cost admission alone is insufficient. Refusal-only UI preparation does not wait for this positive."
+      ]
     },
     {
       "id": "UI-18",
@@ -5603,9 +5700,9 @@
       "product_verification": "UNRUN",
       "source_code_observation": "dccea950845cda5b38f026e7770c07819d31f4d9",
       "depends_on": [
-        "P0-REBIND"
+        "P0-ACCEPT"
       ],
-      "dispatch_condition": "Actual E02 acceptance; accepted upstream outputs; interface versions pinned; exact non-overlapping write lease and resource ticket.",
+      "dispatch_condition": "Actual E02 acceptance; completed task-scoped accepted-source rebind under execution/07-scoped-readiness.md; exact required upstream stage/interface pins; non-overlapping write lease and phase-specific resource permit. Global P0 completion is not required for a reconciled independent scope.",
       "acceptance_steps": [
         "Resolve original criterion and accepted E02 source; trace current producer and full consumer/companion footprint.",
         "Pin expected property and independent oracle where needed; reproduce a distinguishing baseline negative.",
@@ -5716,10 +5813,10 @@
       "product_verification": "UNRUN",
       "source_code_observation": "dccea950845cda5b38f026e7770c07819d31f4d9",
       "depends_on": [
-        "P0-REBIND",
+        "P0-ACCEPT",
         "LIF-02"
       ],
-      "dispatch_condition": "Actual E02 acceptance; accepted upstream outputs; interface versions pinned; exact non-overlapping write lease and resource ticket.",
+      "dispatch_condition": "Actual E02 acceptance; completed task-scoped accepted-source rebind under execution/07-scoped-readiness.md; exact required upstream stage/interface pins; non-overlapping write lease and phase-specific resource permit. Global P0 completion is not required for a reconciled independent scope.",
       "acceptance_steps": [
         "Resolve original criterion and accepted E02 source; trace current producer and full consumer/companion footprint.",
         "Pin expected property and independent oracle where needed; reproduce a distinguishing baseline negative.",
@@ -5864,9 +5961,9 @@
       "product_verification": "UNRUN",
       "source_code_observation": "dccea950845cda5b38f026e7770c07819d31f4d9",
       "depends_on": [
-        "P0-REBIND"
+        "P0-ACCEPT"
       ],
-      "dispatch_condition": "Actual E02 acceptance; accepted upstream outputs; interface versions pinned; exact non-overlapping write lease and resource ticket.",
+      "dispatch_condition": "Actual E02 acceptance; completed task-scoped accepted-source rebind under execution/07-scoped-readiness.md; exact required upstream stage/interface pins; non-overlapping write lease and phase-specific resource permit. Global P0 completion is not required for a reconciled independent scope.",
       "acceptance_steps": [
         "Resolve original criterion and accepted E02 source; trace current producer and full consumer/companion footprint.",
         "Pin expected property and independent oracle where needed; reproduce a distinguishing baseline negative.",
@@ -5972,10 +6069,10 @@
       "product_verification": "UNRUN",
       "source_code_observation": "dccea950845cda5b38f026e7770c07819d31f4d9",
       "depends_on": [
-        "P0-REBIND",
+        "P0-ACCEPT",
         "CNT-01"
       ],
-      "dispatch_condition": "Actual E02 acceptance; accepted upstream outputs; interface versions pinned; exact non-overlapping write lease and resource ticket.",
+      "dispatch_condition": "Actual E02 acceptance; completed task-scoped accepted-source rebind under execution/07-scoped-readiness.md; exact required upstream stage/interface pins; non-overlapping write lease and phase-specific resource permit. Global P0 completion is not required for a reconciled independent scope.",
       "acceptance_steps": [
         "Resolve original criterion and accepted E02 source; trace current producer and full consumer/companion footprint.",
         "Pin expected property and independent oracle where needed; reproduce a distinguishing baseline negative.",
@@ -6082,12 +6179,12 @@
       "product_verification": "UNRUN",
       "source_code_observation": "dccea950845cda5b38f026e7770c07819d31f4d9",
       "depends_on": [
-        "P0-REBIND",
+        "P0-ACCEPT",
         "CNT-01",
         "CNT-02",
         "CAP-03"
       ],
-      "dispatch_condition": "Actual E02 acceptance; accepted upstream outputs; interface versions pinned; exact non-overlapping write lease and resource ticket.",
+      "dispatch_condition": "Actual E02 acceptance; completed task-scoped accepted-source rebind under execution/07-scoped-readiness.md; exact required upstream stage/interface pins; non-overlapping write lease and phase-specific resource permit. Global P0 completion is not required for a reconciled independent scope.",
       "acceptance_steps": [
         "Resolve original criterion and accepted E02 source; trace current producer and full consumer/companion footprint.",
         "Pin expected property and independent oracle where needed; reproduce a distinguishing baseline negative.",
@@ -6208,11 +6305,11 @@
       "product_verification": "UNRUN",
       "source_code_observation": "dccea950845cda5b38f026e7770c07819d31f4d9",
       "depends_on": [
-        "P0-REBIND",
+        "P0-ACCEPT",
         "CNT-01",
         "CNT-02"
       ],
-      "dispatch_condition": "Actual E02 acceptance; accepted upstream outputs; interface versions pinned; exact non-overlapping write lease and resource ticket.",
+      "dispatch_condition": "Actual E02 acceptance; completed task-scoped accepted-source rebind under execution/07-scoped-readiness.md; exact required upstream stage/interface pins; non-overlapping write lease and phase-specific resource permit. Global P0 completion is not required for a reconciled independent scope.",
       "acceptance_steps": [
         "Resolve original criterion and accepted E02 source; trace current producer and full consumer/companion footprint.",
         "Pin expected property and independent oracle where needed; reproduce a distinguishing baseline negative.",
@@ -6230,7 +6327,8 @@
       ],
       "write_scope_rule": "Task evidence and owner-local data/config only by default. CAP/LIF/GYD/UI own mechanism changes; request their boundary lease rather than duplicating services.",
       "acceptance_dependencies": [
-        "CNT-03"
+        "CNT-03",
+        "CNT-02"
       ],
       "read_only_mechanism_anchors": {
         "verified_existing": [
@@ -6287,7 +6385,11 @@
       "acceptance_evidence_requirements": [
         "relevant native method/permission verifier only"
       ],
-      "acceptance_owner_binding": "Before composed acceptance, root resolves the relevant native verifier/use owner on the selected exact method/permission profile; bind actual verifier provenance and output. No generic method marker or empty task-ID list discharges this required evidence."
+      "acceptance_owner_binding": "Before composed acceptance, root resolves the relevant native verifier/use owner on the selected exact method/permission profile; bind actual verifier provenance and output. No generic method marker or empty task-ID list discharges this required evidence.",
+      "dependency_stage_overrides": {
+        "CNT-02": "interface_agreement"
+      },
+      "interface_agreement_scope_ref": "execution/07-scoped-readiness.md#edge-decisions"
     },
     {
       "id": "CNT-05",
@@ -6350,11 +6452,11 @@
       "product_verification": "UNRUN",
       "source_code_observation": "dccea950845cda5b38f026e7770c07819d31f4d9",
       "depends_on": [
-        "P0-REBIND",
+        "P0-ACCEPT",
         "CNT-01",
         "CNT-02"
       ],
-      "dispatch_condition": "Actual E02 acceptance; accepted upstream outputs; interface versions pinned; exact non-overlapping write lease and resource ticket.",
+      "dispatch_condition": "Actual E02 acceptance; completed task-scoped accepted-source rebind under execution/07-scoped-readiness.md; exact required upstream stage/interface pins; non-overlapping write lease and phase-specific resource permit. Global P0 completion is not required for a reconciled independent scope.",
       "acceptance_steps": [
         "Resolve original criterion and accepted E02 source; trace current producer and full consumer/companion footprint.",
         "Pin expected property and independent oracle where needed; reproduce a distinguishing baseline negative.",
@@ -6372,7 +6474,8 @@
       ],
       "write_scope_rule": "Task evidence and owner-local data/config only by default. CAP/LIF/GYD/UI own mechanism changes; request their boundary lease rather than duplicating services.",
       "acceptance_dependencies": [
-        "CNT-03"
+        "CNT-03",
+        "CNT-02"
       ],
       "read_only_mechanism_anchors": {
         "verified_existing": [
@@ -6408,7 +6511,11 @@
       "acceptance_evidence_requirements": [
         "relevant native method/permission verifier only"
       ],
-      "acceptance_owner_binding": "Before composed acceptance, root resolves the relevant native verifier/use owner on the selected exact method/permission profile; bind actual verifier provenance and output. No generic method marker or empty task-ID list discharges this required evidence."
+      "acceptance_owner_binding": "Before composed acceptance, root resolves the relevant native verifier/use owner on the selected exact method/permission profile; bind actual verifier provenance and output. No generic method marker or empty task-ID list discharges this required evidence.",
+      "dependency_stage_overrides": {
+        "CNT-02": "interface_agreement"
+      },
+      "interface_agreement_scope_ref": "execution/07-scoped-readiness.md#edge-decisions"
     },
     {
       "id": "CNT-06",
@@ -6474,11 +6581,11 @@
       "product_verification": "UNRUN",
       "source_code_observation": "dccea950845cda5b38f026e7770c07819d31f4d9",
       "depends_on": [
-        "P0-REBIND",
+        "P0-ACCEPT",
         "CNT-01",
         "CNT-02"
       ],
-      "dispatch_condition": "Actual E02 acceptance; accepted upstream outputs; interface versions pinned; exact non-overlapping write lease and resource ticket.",
+      "dispatch_condition": "Actual E02 acceptance; completed task-scoped accepted-source rebind under execution/07-scoped-readiness.md; exact required upstream stage/interface pins; non-overlapping write lease and phase-specific resource permit. Global P0 completion is not required for a reconciled independent scope.",
       "acceptance_steps": [
         "Resolve original criterion and accepted E02 source; trace current producer and full consumer/companion footprint.",
         "Pin expected property and independent oracle where needed; reproduce a distinguishing baseline negative.",
@@ -6496,7 +6603,8 @@
       ],
       "write_scope_rule": "Task evidence and owner-local data/config only by default. CAP/LIF/GYD/UI own mechanism changes; request their boundary lease rather than duplicating services.",
       "acceptance_dependencies": [
-        "CNT-03"
+        "CNT-03",
+        "CNT-02"
       ],
       "read_only_mechanism_anchors": {
         "verified_existing": [
@@ -6540,7 +6648,11 @@
       "acceptance_evidence_requirements": [
         "relevant native method/permission verifier only"
       ],
-      "acceptance_owner_binding": "Before composed acceptance, root resolves the relevant native verifier/use owner on the selected exact method/permission profile; bind actual verifier provenance and output. No generic method marker or empty task-ID list discharges this required evidence."
+      "acceptance_owner_binding": "Before composed acceptance, root resolves the relevant native verifier/use owner on the selected exact method/permission profile; bind actual verifier provenance and output. No generic method marker or empty task-ID list discharges this required evidence.",
+      "dependency_stage_overrides": {
+        "CNT-02": "interface_agreement"
+      },
+      "interface_agreement_scope_ref": "execution/07-scoped-readiness.md#edge-decisions"
     },
     {
       "id": "CNT-07",
@@ -6602,11 +6714,11 @@
       "product_verification": "UNRUN",
       "source_code_observation": "dccea950845cda5b38f026e7770c07819d31f4d9",
       "depends_on": [
-        "P0-REBIND",
+        "P0-ACCEPT",
         "CNT-01",
         "CNT-02"
       ],
-      "dispatch_condition": "Actual E02 acceptance; accepted upstream outputs; interface versions pinned; exact non-overlapping write lease and resource ticket.",
+      "dispatch_condition": "Actual E02 acceptance; completed task-scoped accepted-source rebind under execution/07-scoped-readiness.md; exact required upstream stage/interface pins; non-overlapping write lease and phase-specific resource permit. Global P0 completion is not required for a reconciled independent scope.",
       "acceptance_steps": [
         "Resolve original criterion and accepted E02 source; trace current producer and full consumer/companion footprint.",
         "Pin expected property and independent oracle where needed; reproduce a distinguishing baseline negative.",
@@ -6624,7 +6736,8 @@
       ],
       "write_scope_rule": "Task evidence and owner-local data/config only by default. CAP/LIF/GYD/UI own mechanism changes; request their boundary lease rather than duplicating services.",
       "acceptance_dependencies": [
-        "CNT-03"
+        "CNT-03",
+        "CNT-02"
       ],
       "read_only_mechanism_anchors": {
         "verified_existing": [
@@ -6661,7 +6774,11 @@
       "acceptance_evidence_requirements": [
         "relevant native method/permission verifier only"
       ],
-      "acceptance_owner_binding": "Before composed acceptance, root resolves the relevant native verifier/use owner on the selected exact method/permission profile; bind actual verifier provenance and output. No generic method marker or empty task-ID list discharges this required evidence."
+      "acceptance_owner_binding": "Before composed acceptance, root resolves the relevant native verifier/use owner on the selected exact method/permission profile; bind actual verifier provenance and output. No generic method marker or empty task-ID list discharges this required evidence.",
+      "dependency_stage_overrides": {
+        "CNT-02": "interface_agreement"
+      },
+      "interface_agreement_scope_ref": "execution/07-scoped-readiness.md#edge-decisions"
     },
     {
       "id": "CNT-08",
@@ -6737,12 +6854,12 @@
       "product_verification": "UNRUN",
       "source_code_observation": "dccea950845cda5b38f026e7770c07819d31f4d9",
       "depends_on": [
-        "P0-REBIND",
+        "P0-ACCEPT",
         "CNT-05",
         "CNT-06",
         "LIF-07"
       ],
-      "dispatch_condition": "Actual E02 acceptance; accepted upstream outputs; interface versions pinned; exact non-overlapping write lease and resource ticket.",
+      "dispatch_condition": "Actual E02 acceptance; completed task-scoped accepted-source rebind under execution/07-scoped-readiness.md; exact required upstream stage/interface pins; non-overlapping write lease and phase-specific resource permit. Global P0 completion is not required for a reconciled independent scope.",
       "acceptance_steps": [
         "Resolve original criterion and accepted E02 source; trace current producer and full consumer/companion footprint.",
         "Pin expected property and independent oracle where needed; reproduce a distinguishing baseline negative.",
@@ -6901,11 +7018,11 @@
       "product_verification": "UNRUN",
       "source_code_observation": "dccea950845cda5b38f026e7770c07819d31f4d9",
       "depends_on": [
-        "P0-REBIND",
+        "P0-ACCEPT",
         "CNT-03",
         "CNT-08"
       ],
-      "dispatch_condition": "Actual E02 acceptance; accepted upstream outputs; interface versions pinned; exact non-overlapping write lease and resource ticket.",
+      "dispatch_condition": "Actual E02 acceptance; completed task-scoped accepted-source rebind under execution/07-scoped-readiness.md; exact required upstream stage/interface pins; non-overlapping write lease and phase-specific resource permit. Global P0 completion is not required for a reconciled independent scope.",
       "acceptance_steps": [
         "Resolve original criterion and accepted E02 source; trace current producer and full consumer/companion footprint.",
         "Pin expected property and independent oracle where needed; reproduce a distinguishing baseline negative.",
@@ -7036,9 +7153,9 @@
       "product_verification": "UNRUN",
       "source_code_observation": "dccea950845cda5b38f026e7770c07819d31f4d9",
       "depends_on": [
-        "P0-REBIND"
+        "P0-ACCEPT"
       ],
-      "dispatch_condition": "Actual E02 acceptance; accepted upstream outputs; interface versions pinned; exact non-overlapping write lease and resource ticket.",
+      "dispatch_condition": "Actual E02 acceptance; completed task-scoped accepted-source rebind under execution/07-scoped-readiness.md; exact required upstream stage/interface pins; non-overlapping write lease and phase-specific resource permit. Global P0 completion is not required for a reconciled independent scope.",
       "acceptance_steps": [
         "Resolve original criterion and accepted E02 source; trace current producer and full consumer/companion footprint.",
         "Pin expected property and independent oracle where needed; reproduce a distinguishing baseline negative.",
@@ -7116,10 +7233,10 @@
       "product_verification": "UNRUN",
       "source_code_observation": "dccea950845cda5b38f026e7770c07819d31f4d9",
       "depends_on": [
-        "P0-REBIND",
+        "P0-ACCEPT",
         "OPS-01"
       ],
-      "dispatch_condition": "Actual E02 acceptance; accepted upstream outputs; interface versions pinned; exact non-overlapping write lease and resource ticket.",
+      "dispatch_condition": "Actual E02 acceptance; completed task-scoped accepted-source rebind under execution/07-scoped-readiness.md; exact required upstream stage/interface pins; non-overlapping write lease and phase-specific resource permit. Global P0 completion is not required for a reconciled independent scope.",
       "acceptance_steps": [
         "Resolve original criterion and accepted E02 source; trace current producer and full consumer/companion footprint.",
         "Pin expected property and independent oracle where needed; reproduce a distinguishing baseline negative.",
@@ -7215,10 +7332,10 @@
       "product_verification": "UNRUN",
       "source_code_observation": "dccea950845cda5b38f026e7770c07819d31f4d9",
       "depends_on": [
-        "P0-REBIND",
+        "P0-ACCEPT",
         "OPS-01"
       ],
-      "dispatch_condition": "Actual E02 acceptance; accepted upstream outputs; interface versions pinned; exact non-overlapping write lease and resource ticket.",
+      "dispatch_condition": "Actual E02 acceptance; completed task-scoped accepted-source rebind under execution/07-scoped-readiness.md; exact required upstream stage/interface pins; non-overlapping write lease and phase-specific resource permit. Global P0 completion is not required for a reconciled independent scope.",
       "acceptance_steps": [
         "Resolve original criterion and accepted E02 source; trace current producer and full consumer/companion footprint.",
         "Pin expected property and independent oracle where needed; reproduce a distinguishing baseline negative.",
@@ -7292,12 +7409,12 @@
       "product_verification": "UNRUN",
       "source_code_observation": "dccea950845cda5b38f026e7770c07819d31f4d9",
       "depends_on": [
-        "P0-REBIND",
+        "P0-ACCEPT",
         "OPS-01",
         "OPS-03",
         "LIF-04"
       ],
-      "dispatch_condition": "Actual E02 acceptance; accepted upstream outputs; interface versions pinned; exact non-overlapping write lease and resource ticket.",
+      "dispatch_condition": "Actual E02 acceptance; completed task-scoped accepted-source rebind under execution/07-scoped-readiness.md; exact required upstream stage/interface pins; non-overlapping write lease and phase-specific resource permit. Global P0 completion is not required for a reconciled independent scope.",
       "acceptance_steps": [
         "Resolve original criterion and accepted E02 source; trace current producer and full consumer/companion footprint.",
         "Pin expected property and independent oracle where needed; reproduce a distinguishing baseline negative.",
@@ -7383,12 +7500,12 @@
       "product_verification": "UNRUN",
       "source_code_observation": "dccea950845cda5b38f026e7770c07819d31f4d9",
       "depends_on": [
-        "P0-REBIND",
+        "P0-ACCEPT",
         "OPS-03",
         "OPS-04",
         "LIF-05"
       ],
-      "dispatch_condition": "Actual E02 acceptance; accepted upstream outputs; interface versions pinned; exact non-overlapping write lease and resource ticket.",
+      "dispatch_condition": "Actual E02 acceptance; completed task-scoped accepted-source rebind under execution/07-scoped-readiness.md; exact required upstream stage/interface pins; non-overlapping write lease and phase-specific resource permit. Global P0 completion is not required for a reconciled independent scope.",
       "acceptance_steps": [
         "Resolve original criterion and accepted E02 source; trace current producer and full consumer/companion footprint.",
         "Pin expected property and independent oracle where needed; reproduce a distinguishing baseline negative.",
@@ -7472,11 +7589,11 @@
       "product_verification": "UNRUN",
       "source_code_observation": "dccea950845cda5b38f026e7770c07819d31f4d9",
       "depends_on": [
-        "P0-REBIND",
+        "P0-ACCEPT",
         "OPS-01",
         "OPS-03"
       ],
-      "dispatch_condition": "Actual E02 acceptance; accepted upstream outputs; interface versions pinned; exact non-overlapping write lease and resource ticket.",
+      "dispatch_condition": "Actual E02 acceptance; completed task-scoped accepted-source rebind under execution/07-scoped-readiness.md; exact required upstream stage/interface pins; non-overlapping write lease and phase-specific resource permit. Global P0 completion is not required for a reconciled independent scope.",
       "acceptance_steps": [
         "Resolve original criterion and accepted E02 source; trace current producer and full consumer/companion footprint.",
         "Pin expected property and independent oracle where needed; reproduce a distinguishing baseline negative.",
@@ -7553,12 +7670,12 @@
       "product_verification": "UNRUN",
       "source_code_observation": "dccea950845cda5b38f026e7770c07819d31f4d9",
       "depends_on": [
-        "P0-REBIND",
+        "P0-ACCEPT",
         "OPS-04",
         "OPS-06",
         "LIF-04"
       ],
-      "dispatch_condition": "Actual E02 acceptance; accepted upstream outputs; interface versions pinned; exact non-overlapping write lease and resource ticket.",
+      "dispatch_condition": "Actual E02 acceptance; completed task-scoped accepted-source rebind under execution/07-scoped-readiness.md; exact required upstream stage/interface pins; non-overlapping write lease and phase-specific resource permit. Global P0 completion is not required for a reconciled independent scope.",
       "acceptance_steps": [
         "Resolve original criterion and accepted E02 source; trace current producer and full consumer/companion footprint.",
         "Pin expected property and independent oracle where needed; reproduce a distinguishing baseline negative.",
@@ -7635,11 +7752,11 @@
       "product_verification": "UNRUN",
       "source_code_observation": "dccea950845cda5b38f026e7770c07819d31f4d9",
       "depends_on": [
-        "P0-REBIND",
+        "P0-ACCEPT",
         "OPS-04",
         "LIF-06"
       ],
-      "dispatch_condition": "Actual E02 acceptance; accepted upstream outputs; interface versions pinned; exact non-overlapping write lease and resource ticket.",
+      "dispatch_condition": "Actual E02 acceptance; completed task-scoped accepted-source rebind under execution/07-scoped-readiness.md; exact required upstream stage/interface pins; non-overlapping write lease and phase-specific resource permit. Global P0 completion is not required for a reconciled independent scope.",
       "acceptance_steps": [
         "Resolve original criterion and accepted E02 source; trace current producer and full consumer/companion footprint.",
         "Pin expected property and independent oracle where needed; reproduce a distinguishing baseline negative.",
@@ -7722,7 +7839,7 @@
       "product_verification": "UNRUN",
       "source_code_observation": "dccea950845cda5b38f026e7770c07819d31f4d9",
       "depends_on": [
-        "P0-REBIND",
+        "P0-ACCEPT",
         "OPS-04",
         "OPS-05",
         "OPS-06",
@@ -7730,7 +7847,7 @@
         "OPS-08",
         "CAP-06"
       ],
-      "dispatch_condition": "Actual E02 acceptance; accepted upstream outputs; interface versions pinned; exact non-overlapping write lease and resource ticket.",
+      "dispatch_condition": "Actual E02 acceptance; completed task-scoped accepted-source rebind under execution/07-scoped-readiness.md; exact required upstream stage/interface pins; non-overlapping write lease and phase-specific resource permit. Global P0 completion is not required for a reconciled independent scope.",
       "acceptance_steps": [
         "Resolve original criterion and accepted E02 source; trace current producer and full consumer/companion footprint.",
         "Pin expected property and independent oracle where needed; reproduce a distinguishing baseline negative.",
@@ -7810,14 +7927,14 @@
       "product_verification": "UNRUN",
       "source_code_observation": "dccea950845cda5b38f026e7770c07819d31f4d9",
       "depends_on": [
-        "P0-REBIND",
+        "P0-ACCEPT",
         "OPS-03",
         "OPS-04",
         "OPS-05",
         "OPS-06",
         "OPS-08"
       ],
-      "dispatch_condition": "Actual E02 acceptance; accepted upstream outputs; interface versions pinned; exact non-overlapping write lease and resource ticket.",
+      "dispatch_condition": "Actual E02 acceptance; completed task-scoped accepted-source rebind under execution/07-scoped-readiness.md; exact required upstream stage/interface pins; non-overlapping write lease and phase-specific resource permit. Global P0 completion is not required for a reconciled independent scope.",
       "acceptance_steps": [
         "Resolve original criterion and accepted E02 source; trace current producer and full consumer/companion footprint.",
         "Pin expected property and independent oracle where needed; reproduce a distinguishing baseline negative.",
@@ -7893,7 +8010,7 @@
       "product_verification": "UNRUN",
       "source_code_observation": "dccea950845cda5b38f026e7770c07819d31f4d9",
       "depends_on": [
-        "P0-REBIND",
+        "P0-ACCEPT",
         "OPS-01",
         "OPS-03",
         "OPS-05",
@@ -7901,7 +8018,7 @@
         "LIF-04",
         "LIF-02"
       ],
-      "dispatch_condition": "Actual E02 acceptance; accepted upstream outputs; interface versions pinned; exact non-overlapping write lease and resource ticket.",
+      "dispatch_condition": "Actual E02 acceptance; completed task-scoped accepted-source rebind under execution/07-scoped-readiness.md; exact required upstream stage/interface pins; non-overlapping write lease and phase-specific resource permit. Global P0 completion is not required for a reconciled independent scope.",
       "acceptance_steps": [
         "Resolve original criterion and accepted E02 source; trace current producer and full consumer/companion footprint.",
         "Pin expected property and independent oracle where needed; reproduce a distinguishing baseline negative.",
@@ -7980,12 +8097,12 @@
       "product_verification": "UNRUN",
       "source_code_observation": "dccea950845cda5b38f026e7770c07819d31f4d9",
       "depends_on": [
-        "P0-REBIND",
+        "P0-ACCEPT",
         "OPS-05",
         "OPS-06",
         "OPS-11"
       ],
-      "dispatch_condition": "Actual E02 acceptance; accepted upstream outputs; interface versions pinned; exact non-overlapping write lease and resource ticket.",
+      "dispatch_condition": "Actual E02 acceptance; completed task-scoped accepted-source rebind under execution/07-scoped-readiness.md; exact required upstream stage/interface pins; non-overlapping write lease and phase-specific resource permit. Global P0 completion is not required for a reconciled independent scope.",
       "acceptance_steps": [
         "Resolve original criterion and accepted E02 source; trace current producer and full consumer/companion footprint.",
         "Pin expected property and independent oracle where needed; reproduce a distinguishing baseline negative.",
@@ -8080,7 +8197,7 @@
       "owner_paths": [
         "Program task manifest and original source owners"
       ],
-      "deliverable": "Rebind every scheduled owner, criterion, closed mechanism and residual against accepted E02; resolve exact read/write/API families. Reconciliation itself uses parallel read-only owner mappers. Mechanism dispatch starts after this bounded complete checkpoint, not after a partial unmarked reconciliation. Explicitly reconcile the original scope-acquisition signals of the two DS8 rows without substituting publication success; resolve Trust/Docs Atlas-versus-marketing routing and DS5 remaining promotion-union allocation. A pending decision keeps affected implementation unleased; it does not silently close an obligation.",
+      "deliverable": "Rebind the complete original obligation set and accepted-E02 delta, with exact native owners and code/test/consumer/generated footprints. Release fully reconciled task/owner closures progressively under execution/07-scoped-readiness.md; unresolved cross-boundary ownership blocks that closure, not unrelated tasks. Retain a complete global inventory and pending map; whole-program reconciliation is required before FINAL-FREEZE. Explicitly reconcile DS8 scope-acquisition signals, Trust/Docs routing and the DS5 promotion-union allocation. No pending scope decision is silently closed.",
       "positive": "All original inventories have explicit routes; shared mechanisms have one writer.",
       "adversarial": "Stale count/duplicate owner/omitted nonclosed row blocks dispatch of affected task.",
       "removal": "Remove the decisive native binding while retaining declarations; the unchanged consumer/gate must fail its exact property. For documentary reconciliation, dropping a source obligation must be detected.",
@@ -8156,7 +8273,7 @@
       "implementation_status": "planned_after_E02_acceptance",
       "product_verification": "UNRUN",
       "depends_on": [
-        "P0-REBIND"
+        "P0-ACCEPT"
       ],
       "source_ids": [
         "DEBT:instruments-report-absence-without-declaring-what-they-read",
@@ -8225,7 +8342,8 @@
         }
       ],
       "dependency_stage": "owner_readiness",
-      "completion_contract_ref": "execution/stage-requirements.json#default"
+      "completion_contract_ref": "execution/stage-requirements.json#default",
+      "dispatch_condition": "Actual E02 acceptance; completed task-scoped accepted-source rebind under execution/07-scoped-readiness.md; exact required upstream stage/interface pins; non-overlapping write lease and phase-specific resource permit. Global P0 completion is not required for a reconciled independent scope."
     },
     {
       "id": "DEB-02",
@@ -8235,7 +8353,7 @@
       "implementation_status": "planned_after_E02_acceptance",
       "product_verification": "UNRUN",
       "depends_on": [
-        "P0-REBIND"
+        "P0-ACCEPT"
       ],
       "source_ids": [
         "DEBT:pyproject-size-gate-is-satisfied-by-relocation",
@@ -8281,7 +8399,8 @@
         }
       ],
       "dependency_stage": "owner_readiness",
-      "completion_contract_ref": "execution/stage-requirements.json#default"
+      "completion_contract_ref": "execution/stage-requirements.json#default",
+      "dispatch_condition": "Actual E02 acceptance; completed task-scoped accepted-source rebind under execution/07-scoped-readiness.md; exact required upstream stage/interface pins; non-overlapping write lease and phase-specific resource permit. Global P0 completion is not required for a reconciled independent scope."
     },
     {
       "id": "DEB-03",
@@ -8291,7 +8410,7 @@
       "implementation_status": "planned_after_E02_acceptance",
       "product_verification": "UNRUN",
       "depends_on": [
-        "P0-REBIND"
+        "P0-ACCEPT"
       ],
       "source_ids": [
         "DEBT:cross-module-private-names-reached-from-src",
@@ -8337,7 +8456,8 @@
         }
       ],
       "dependency_stage": "owner_readiness",
-      "completion_contract_ref": "execution/stage-requirements.json#default"
+      "completion_contract_ref": "execution/stage-requirements.json#default",
+      "dispatch_condition": "Actual E02 acceptance; completed task-scoped accepted-source rebind under execution/07-scoped-readiness.md; exact required upstream stage/interface pins; non-overlapping write lease and phase-specific resource permit. Global P0 completion is not required for a reconciled independent scope."
     },
     {
       "id": "DEB-04",
@@ -8347,7 +8467,7 @@
       "implementation_status": "planned_after_E02_acceptance",
       "product_verification": "UNRUN",
       "depends_on": [
-        "P0-REBIND"
+        "P0-ACCEPT"
       ],
       "source_ids": [
         "DEBT:education-importer-provenance-neither-inherited-nor-excluded",
@@ -8410,7 +8530,8 @@
         }
       ],
       "dependency_stage": "owner_readiness",
-      "completion_contract_ref": "execution/stage-requirements.json#default"
+      "completion_contract_ref": "execution/stage-requirements.json#default",
+      "dispatch_condition": "Actual E02 acceptance; completed task-scoped accepted-source rebind under execution/07-scoped-readiness.md; exact required upstream stage/interface pins; non-overlapping write lease and phase-specific resource permit. Global P0 completion is not required for a reconciled independent scope."
     },
     {
       "id": "DEB-05",
@@ -8420,7 +8541,7 @@
       "implementation_status": "planned_after_E02_acceptance",
       "product_verification": "UNRUN",
       "depends_on": [
-        "P0-REBIND"
+        "P0-ACCEPT"
       ],
       "source_ids": [
         "DEBT:udf-retained-source-schema-is-malformed-and-stays-ambiguous",
@@ -8472,7 +8593,8 @@
         }
       ],
       "dependency_stage": "owner_readiness",
-      "completion_contract_ref": "execution/stage-requirements.json#default"
+      "completion_contract_ref": "execution/stage-requirements.json#default",
+      "dispatch_condition": "Actual E02 acceptance; completed task-scoped accepted-source rebind under execution/07-scoped-readiness.md; exact required upstream stage/interface pins; non-overlapping write lease and phase-specific resource permit. Global P0 completion is not required for a reconciled independent scope."
     },
     {
       "id": "DEB-06",
@@ -8482,7 +8604,7 @@
       "implementation_status": "planned_after_E02_acceptance",
       "product_verification": "UNRUN",
       "depends_on": [
-        "P0-REBIND",
+        "P0-ACCEPT",
         "LIF-02"
       ],
       "source_ids": [
@@ -8547,7 +8669,8 @@
         }
       ],
       "dependency_stage": "owner_readiness",
-      "completion_contract_ref": "execution/stage-requirements.json#default"
+      "completion_contract_ref": "execution/stage-requirements.json#default",
+      "dispatch_condition": "Actual E02 acceptance; completed task-scoped accepted-source rebind under execution/07-scoped-readiness.md; exact required upstream stage/interface pins; non-overlapping write lease and phase-specific resource permit. Global P0 completion is not required for a reconciled independent scope."
     },
     {
       "id": "DEB-07",
@@ -8557,7 +8680,7 @@
       "implementation_status": "planned_after_E02_acceptance",
       "product_verification": "UNRUN",
       "depends_on": [
-        "P0-REBIND"
+        "P0-ACCEPT"
       ],
       "source_ids": [
         "DEBT:corr-wave-unowned-destinations",
@@ -8639,7 +8762,8 @@
         }
       ],
       "dependency_stage": "owner_readiness",
-      "completion_contract_ref": "execution/stage-requirements.json#default"
+      "completion_contract_ref": "execution/stage-requirements.json#default",
+      "dispatch_condition": "Actual E02 acceptance; completed task-scoped accepted-source rebind under execution/07-scoped-readiness.md; exact required upstream stage/interface pins; non-overlapping write lease and phase-specific resource permit. Global P0 completion is not required for a reconciled independent scope."
     },
     {
       "id": "DEB-08",
@@ -8649,7 +8773,7 @@
       "implementation_status": "planned_after_E02_acceptance",
       "product_verification": "UNRUN",
       "depends_on": [
-        "P0-REBIND"
+        "P0-ACCEPT"
       ],
       "source_ids": [
         "DEBT:GY-GAP2",
@@ -8714,7 +8838,8 @@
         }
       ],
       "dependency_stage": "owner_readiness",
-      "completion_contract_ref": "execution/stage-requirements.json#default"
+      "completion_contract_ref": "execution/stage-requirements.json#default",
+      "dispatch_condition": "Actual E02 acceptance; completed task-scoped accepted-source rebind under execution/07-scoped-readiness.md; exact required upstream stage/interface pins; non-overlapping write lease and phase-specific resource permit. Global P0 completion is not required for a reconciled independent scope."
     },
     {
       "id": "DEB-09",
@@ -8724,7 +8849,7 @@
       "implementation_status": "planned_after_E02_acceptance",
       "product_verification": "UNRUN",
       "depends_on": [
-        "P0-REBIND",
+        "P0-ACCEPT",
         "LIF-01"
       ],
       "source_ids": [
@@ -8828,7 +8953,8 @@
       "completion_contract_ref": "execution/stage-requirements.json#overrides/DEB-09",
       "original_specific_obligations": {
         "GY-DEF22": "Obtain the exact appointed Foundry catalog/discovery owner acceptance of all six bounded claims with content-bound readback. This is separate from FA1 mechanisms and from P41 attribution of the two-host digest mismatch. Neither acceptance nor provenance finding closes the other."
-      }
+      },
+      "dispatch_condition": "Actual E02 acceptance; completed task-scoped accepted-source rebind under execution/07-scoped-readiness.md; exact required upstream stage/interface pins; non-overlapping write lease and phase-specific resource permit. Global P0 completion is not required for a reconciled independent scope."
     },
     {
       "id": "DEB-10",
@@ -8838,7 +8964,7 @@
       "implementation_status": "planned_after_E02_acceptance",
       "product_verification": "UNRUN",
       "depends_on": [
-        "P0-REBIND"
+        "P0-ACCEPT"
       ],
       "source_ids": [
         "DEBT:DS11-EXTERNAL-A11Y-COUNTERSIGN",
@@ -8889,7 +9015,8 @@
         }
       ],
       "dependency_stage": "owner_readiness",
-      "completion_contract_ref": "execution/stage-requirements.json#default"
+      "completion_contract_ref": "execution/stage-requirements.json#default",
+      "dispatch_condition": "Actual E02 acceptance; completed task-scoped accepted-source rebind under execution/07-scoped-readiness.md; exact required upstream stage/interface pins; non-overlapping write lease and phase-specific resource permit. Global P0 completion is not required for a reconciled independent scope."
     },
     {
       "id": "DEB-11",
@@ -8899,7 +9026,7 @@
       "implementation_status": "planned_after_E02_acceptance",
       "product_verification": "UNRUN",
       "depends_on": [
-        "P0-REBIND"
+        "P0-ACCEPT"
       ],
       "source_ids": [
         "DEBT:aiohttp Fabric connector cleanup",
@@ -8948,7 +9075,8 @@
         "policy-engine/docs/plans/active/POLICYOS_ATLAS_SURFACE_IMPLEMENTATION_MASTER_PLAN.md:726 (fresh-worktree toolchain baseline; DS1/DS19 non-receipts)"
       ],
       "dependency_stage": "owner_readiness",
-      "completion_contract_ref": "execution/stage-requirements.json#default"
+      "completion_contract_ref": "execution/stage-requirements.json#default",
+      "dispatch_condition": "Actual E02 acceptance; completed task-scoped accepted-source rebind under execution/07-scoped-readiness.md; exact required upstream stage/interface pins; non-overlapping write lease and phase-specific resource permit. Global P0 completion is not required for a reconciled independent scope."
     },
     {
       "id": "DEB-12",
@@ -8958,7 +9086,7 @@
       "implementation_status": "planned_after_E02_acceptance",
       "product_verification": "UNRUN",
       "depends_on": [
-        "P0-REBIND"
+        "P0-ACCEPT"
       ],
       "source_ids": [
         "DEBT:foundry-requirements-flat-manifest-consumer-unmeasured"
@@ -8996,7 +9124,8 @@
         }
       ],
       "dependency_stage": "owner_readiness",
-      "completion_contract_ref": "execution/stage-requirements.json#default"
+      "completion_contract_ref": "execution/stage-requirements.json#default",
+      "dispatch_condition": "Actual E02 acceptance; completed task-scoped accepted-source rebind under execution/07-scoped-readiness.md; exact required upstream stage/interface pins; non-overlapping write lease and phase-specific resource permit. Global P0 completion is not required for a reconciled independent scope."
     },
     {
       "id": "FINAL-FREEZE",
@@ -9107,7 +9236,8 @@
         "DEB-12",
         "DEB-13",
         "DEB-14",
-        "UI-20"
+        "UI-20",
+        "P0-REBIND"
       ],
       "source_ids": [],
       "owner_paths": [
@@ -9187,14 +9317,13 @@
       "implementation_status": "planned_after_E02_acceptance",
       "product_verification": "UNRUN",
       "depends_on": [
-        "FINAL-REVIEW",
-        "LIF-09"
+        "FINAL-REVIEW"
       ],
       "source_ids": [],
       "owner_paths": [
         "Isolated accepted source and permitted inputs"
       ],
-      "deliverable": "Execute selected full GY/Atlas/R9/operational matrix once on frozen source; retain complete outputs.",
+      "deliverable": "After FINAL-REVIEW, dispatch independent selected GY/Atlas/R9/operational verification shards under actual resource leases. LIF-09 supplies the lifecycle shard in the same wave; it is a completion join, not a prerequisite to start other shards. Account for every frozen matrix obligation and complete deciding output before declaring the wave complete; complete execution with failures or missing required inputs is not accepted replay.",
       "positive": "Fresh consumer and deployed profile exercise all claimed chains.",
       "adversarial": "Removed property, foreign audience, stale restore and false authority fail.",
       "removal": "Remove the decisive native binding while retaining declarations; the unchanged consumer/gate must fail its exact property. For documentary reconciliation, dropping a source obligation must be detected.",
@@ -9217,7 +9346,21 @@
         "original_obligation_disposition: canonical owner decision; history preserved"
       ],
       "dependency_stage": "final_reviewed_replay_identity",
-      "completion_contract_ref": "execution/stage-requirements.json#default"
+      "completion_contract_ref": "execution/stage-requirements.json#overrides/FINAL-REPLAY",
+      "acceptance_dependencies": [
+        "LIF-09",
+        "GYD-16",
+        "GYD-17",
+        "GYD-18",
+        "GYD-19",
+        "GYD-20",
+        "GYD-21",
+        "GYD-22"
+      ],
+      "acceptance_evidence_requirements": [
+        "Complete selected frozen verification matrix, including every required GY, Atlas/browser/MACHINE/a11y, R9 acquisition/lifecycle and operational row. One source/input/backend identity per compatible shard; no omitted or substituted row.",
+        "Actual LIF-09 and GYD-16–22 deciding outputs plus all matrix-bound Atlas/operational outputs; preserve failures, interruptions, skipped backends and genuine unavailable inputs. No product acceptance from receipt count."
+      ]
     },
     {
       "id": "FINAL-USE",
@@ -9255,7 +9398,7 @@
         "composed_acceptance: actual emitted dependencies and fresh consumer on bound source",
         "original_obligation_disposition: canonical owner decision; history preserved"
       ],
-      "dependency_stage": "composed_verification_and_original_dispositions",
+      "dependency_stage": "deciding_wave_receipt",
       "completion_contract_ref": "execution/stage-requirements.json#default",
       "required_original_dispositions": {
         "source_sets": [
@@ -9277,7 +9420,7 @@
       "implementation_status": "planned_after_E02_acceptance",
       "product_verification": "UNRUN",
       "depends_on": [
-        "P0-REBIND"
+        "P0-ACCEPT"
       ],
       "source_ids": [
         "DEBT:ds15-numeric-voi-metric-residual-granularity"
@@ -9324,7 +9467,8 @@
       ],
       "dependency_stage": "owner_readiness",
       "completion_contract_ref": "execution/stage-requirements.json#default",
-      "owner_paths_role": "Metric definition/producer owns this new residual. GYD-23 consumes the selected lawful result where relevant; core SearchLedger retains its native writer. No duplicate VOI budget owner."
+      "owner_paths_role": "Metric definition/producer owns this new residual. GYD-23 consumes the selected lawful result where relevant; core SearchLedger retains its native writer. No duplicate VOI budget owner.",
+      "dispatch_condition": "Actual E02 acceptance; completed task-scoped accepted-source rebind under execution/07-scoped-readiness.md; exact required upstream stage/interface pins; non-overlapping write lease and phase-specific resource permit. Global P0 completion is not required for a reconciled independent scope."
     },
     {
       "id": "DEB-14",
@@ -9334,7 +9478,7 @@
       "implementation_status": "planned_after_E02_acceptance",
       "product_verification": "UNRUN",
       "depends_on": [
-        "P0-REBIND",
+        "P0-ACCEPT",
         "LIF-01",
         "LIF-02"
       ],
@@ -9386,7 +9530,8 @@
       "owner_paths_role": "Producer/resolver adapter owns its leased files. Common head_index/lifecycle/publisher mutations are delivered by LIF-02 canonical writer under the same reviewed feature handoff; UI-19 owns projection. No concurrent writes from DEB-14 to shared lifecycle owner.",
       "canonical_write_candidates": [
         "Existing scope-adjudication producer/resolver adapter exact accepted-source paths; no head_index.py ownership transfer"
-      ]
+      ],
+      "dispatch_condition": "Actual E02 acceptance; completed task-scoped accepted-source rebind under execution/07-scoped-readiness.md; exact required upstream stage/interface pins; non-overlapping write lease and phase-specific resource permit. Global P0 completion is not required for a reconciled independent scope."
     },
     {
       "id": "UI-20",
@@ -9396,7 +9541,7 @@
       "implementation_status": "planned_after_E02_acceptance",
       "product_verification": "UNRUN",
       "depends_on": [
-        "P0-REBIND"
+        "P0-ACCEPT"
       ],
       "source_ids": [
         "DS5 enforcement-waist promotion candidate status",
@@ -9443,7 +9588,8 @@
       ],
       "dependency_stage": "owner_readiness",
       "completion_contract_ref": "execution/stage-requirements.json#default",
-      "issuer_semantics": "Private issuer means internal exhaustive/branded presentation constructor, not external institutional signer. Actual promotion authority remains typed owner evidence; no self-appointment."
+      "issuer_semantics": "Private issuer means internal exhaustive/branded presentation constructor, not external institutional signer. Actual promotion authority remains typed owner evidence; no self-appointment.",
+      "dispatch_condition": "Actual E02 acceptance; completed task-scoped accepted-source rebind under execution/07-scoped-readiness.md; exact required upstream stage/interface pins; non-overlapping write lease and phase-specific resource permit. Global P0 completion is not required for a reconciled independent scope."
     }
   ]
 }

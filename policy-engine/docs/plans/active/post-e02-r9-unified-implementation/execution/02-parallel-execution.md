@@ -147,3 +147,5 @@ Independent review is assigned outside the authoring lead's subtree, with access
 Future procedure challenges: deny depth3, runtime-disallowed creation, per-lead quota multiplication, out-of-lease writes, parent-failure reassignment before confirmed stop, and sibling-leaf independent review. Preserve a permitted two-level assignment and its evidence chain. These are future execution checks, not runtime results from this documentation task.
 
 The [source-reviewed conflict registry](conflict-groups.json) and [dispatch procedure](06-conflicts-and-dispatch.md) distinguish confirmed write collisions from references whose role remains to be assigned. Absence of a collision in this bounded registry is not a disjointness certificate.
+
+The [scoped-readiness correction](07-scoped-readiness.md) governs early task release, per-edge interface agreements, completion joins and lease lifetime. A lead cannot use it to bypass unresolved shared ownership or protected-action permissions. Collapsed task-ID levels are not dispatch waves. A reviewer of a pinned candidate does not hold its author’s mutation lease.

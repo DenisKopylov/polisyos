@@ -1,0 +1,218 @@
+{
+  "checks": {
+    "debt": {
+      "files": 1,
+      "source": "policy-engine/docs/plans/active/DEBT-REGISTER.md",
+      "rows": 277,
+      "statuses": {
+        "closed": 191,
+        "blocked": 32,
+        "open": 44,
+        "folded": 4,
+        "foreign": 6
+      },
+      "full_id_status_match": true,
+      "recoveries": [
+        "extraction-ask-offers-six-of-ten-evidence-classes",
+        "register-cells-may-contain-pipes-and-shift-every-column"
+      ],
+      "branch_records_excluded": [
+        "codex/gy-def6-e11",
+        "codex/ds17-confidence-ledger-risk-spend-plan"
+      ]
+    },
+    "GY": {
+      "source": "policy-engine/docs/plans/active/layer3-slices/GY-engine-subordination.md",
+      "files": 1,
+      "rows": 77,
+      "statuses": {
+        "executed": 55,
+        "not_started": 15,
+        "blocked": 5,
+        "not_executed": 2
+      },
+      "full_id_status_match": true
+    },
+    "Atlas": {
+      "source": "policy-engine/docs/plans/active/POLICYOS_ATLAS_SURFACE_IMPLEMENTATION_MASTER_PLAN.md",
+      "files": 1,
+      "DS_rows": 22,
+      "inventory_mixed_rows": 68,
+      "full_DS_match": true
+    },
+    "R9_arrays": {
+      "families": 26,
+      "grounds": 103,
+      "sources": 197
+    },
+    "graph": {
+      "tasks": 109,
+      "by_stream": {
+        "CAP": 6,
+        "LIF": 9,
+        "GYD": 33,
+        "UI": 20,
+        "CNT": 9,
+        "OPS": 12,
+        "P0": 2,
+        "DEB": 14,
+        "FINAL": 4
+      },
+      "hard_edges": 318,
+      "levels": 12,
+      "max_logical_width": 58,
+      "cyclic": false,
+      "debt_nonclosed_bidirectional_routes": 86,
+      "GY_nonexecuted_routes": 22,
+      "R9_trace_rows": 115
+    },
+    "links": {
+      "local_file_links": 140,
+      "broken": []
+    },
+    "json_files": 12,
+    "standing": "Document-only checks. No product tests/imports/builds/installations/production reads.",
+    "Atlas_estate": {
+      "entries": 261,
+      "disposition": {
+        "rebind_pending": 179,
+        "deleted": 19,
+        "use_as_is": 22,
+        "retire_disposition": 25,
+        "wire_disposition": 16
+      },
+      "strangle_status": {
+        "pending": 138,
+        "strangled": 60,
+        "not_applicable": 63
+      },
+      "auxiliary_rows": 85,
+      "by_array": {
+        "subunits": 2,
+        "supplemental_findings": 60,
+        "seeded_negative_lifecycle": 23
+      },
+      "exact_id_index_source_state_match": true
+    },
+    "Atlas_reference_arrays": {
+      "ds2_unbound": 60,
+      "full_ID_match": true,
+      "DS2_ledger": "policy-engine/architecture/atlas_surfaces/atlas-v15-adoption-ledger.json",
+      "adoption_verdicts": {
+        "admit_after_refactor": 24,
+        "defer": 26,
+        "reject": 10
+      },
+      "reference_censuses": 10,
+      "all_census_unit_ids_resolve": true,
+      "standing": "Closed DS2 adjudication/revisit only; these references add no automatic implementation tasks."
+    },
+    "stages_conflicts": {
+      "stage_refs_resolve": true,
+      "task_dependency_stages": {
+        "owner_readiness": 106,
+        "frozen_review_candidate": 1,
+        "final_reviewed_replay_identity": 1,
+        "deciding_wave_receipt": 1
+      },
+      "conflict_groups": 22,
+      "classifications": {
+        "confirmed_write_overlap": 2,
+        "mixed_reference_roles": 13,
+        "generated_family": 1,
+        "semantic_owner": 6
+      },
+      "conditional_supplier_refs_resolve": true,
+      "actual_runnable_concurrency": "not_established",
+      "product_verification": "UNRUN"
+    },
+    "source_bindings": [
+      {
+        "path": "policy-engine/architecture/atlas_surfaces/frontend-disposition-register.json",
+        "sha256": "6998e9d58ace363a12e0b3740b8abd5575b422f9d5d491ad0f5c8146d8112189"
+      },
+      {
+        "path": "policy-engine/architecture/atlas_surfaces/atlas-v15-adoption-ledger.json",
+        "sha256": "8e253a971d87119c7685efdf64895a364ffb253d19694dbc743dd697b4057545"
+      }
+    ],
+    "R12": {
+      "self_review_only": true,
+      "subagents": 0,
+      "interface_stage_edges": 21,
+      "scoped_rebind_entry_checks": true,
+      "global_rebind_before_freeze": true,
+      "conditional_cursor_and_source_events_preserved": true,
+      "final_wave_completion_joins_preserved": true,
+      "required_original_dispositions_preserved": true,
+      "unchanged_inventory_files": 10,
+      "full_inventory_bytes_match_baseline": true,
+      "selected_runtime_stage_graph": "not_established_until_accepted_E02_rebind",
+      "heavy_processes": "UNRUN",
+      "product_verification": "UNRUN"
+    }
+  },
+  "errors": [],
+  "format": "post_e02_documentary_self_review_r12_v1",
+  "date": "2026-10-22",
+  "outcome": "DOCUMENTARY_CHECKS_PASS_SELF_REVIEW_ONLY",
+  "reviewed_plan_commit": "62dfc9ff9cabb4cca742c592d7affdfb40acbeb2",
+  "prior_receipt": "assurance/document-validation.json@62dfc9ff9cabb4cca742c592d7affdfb40acbeb2",
+  "review_scope": "Root-only source-grounded dependency, completeness and contract-wording review; no new independent agent review; unchanged source inventories retained.",
+  "subagents": 0,
+  "G_acceptance": false,
+  "closure_ids": [],
+  "accepted_E02_source": "not_established_by_this_documentation",
+  "product_checks": "UNRUN: no product tests/imports/builds/installations/generators/production reads",
+  "hook_scope": {
+    "precommit": "run applicable documentation hooks; contrast and reduced-motion omitted under explicit no-heavy-process constraint",
+    "prepush": "typecheck omitted under explicit no-heavy-process constraint; no hook config modified"
+  },
+  "PDF": {
+    "path": "executive/summary.pdf",
+    "pages": 10,
+    "bytes": 112434,
+    "sha256": "993731bb8f5504cec7f04fbc4ee09d4c497e2784567b7991a64fb0601a8126d8",
+    "visual_review": "All 10 pages inspected in contact render; changed page 7 inspected at readable resolution; no overflow."
+  },
+  "validator": {
+    "path": "policy-engine/_build/post-e02-r9-self-review-20261022/validate_docs.py",
+    "sha256": "0af0ceb6f7eb91acef3463b719780e125125bc6e0ad51e8952de53bad9942f82",
+    "scope": "stdlib document parsing, full source-inventory comparisons, graph/reference/edge-condition assertions; no repository product imports"
+  },
+  "deciding_output": {
+    "path": "policy-engine/_build/post-e02-r9-self-review-20261022/validation-full.txt",
+    "sha256": "cd37c0dcfc8d3948bb120770fad1a9392c272febc8da20bdfe79263760f6c0b8",
+    "standing": "Full document-check output only; substantive self-review is assurance/self-review-r12.md."
+  },
+  "artifact_bindings": [
+    {
+      "path": "tasks.json",
+      "sha256": "2f0871076c345d6132b998edf633a9fab9de57378c60eb914767a5814bf4aff1"
+    },
+    {
+      "path": "execution/stage-requirements.json",
+      "sha256": "faed11eb931e41eacd345aa0fba225b6c60d6441a0846bdf42455b85b2e434c7"
+    },
+    {
+      "path": "execution/dependency-levels.json",
+      "sha256": "8e720b45b8f046fddcf398fad9a5fcb532f120f996852d16bc8f8d4bd3647780"
+    },
+    {
+      "path": "execution/07-scoped-readiness.md",
+      "sha256": "af746276e94b71fa25e8bb4e4e7862b5fe1a51caa45f0a9022d6b88fdaa42f84"
+    },
+    {
+      "path": "assurance/self-review-r12.md",
+      "sha256": "eb80a246032245429857655567d57b239b3f152426d2dc9f7fdba606c705c24a"
+    },
+    {
+      "path": "executive/summary.md",
+      "sha256": "5130af3fa7e8060eb48d5d8b89763287fb728b897a8c3516eedb951d5d607945"
+    },
+    {
+      "path": "executive/summary.pdf",
+      "sha256": "993731bb8f5504cec7f04fbc4ee09d4c497e2784567b7991a64fb0601a8126d8"
+    }
+  ]
+}

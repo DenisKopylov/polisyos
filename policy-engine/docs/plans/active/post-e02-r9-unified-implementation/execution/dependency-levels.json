@@ -1,13 +1,10 @@
 {
-  "meaning": "Logical stage-qualified prerequisite DAG only; selected conditional witness/execution edges and actual leases still require materialization. No durations or runnable-writer claim.",
+  "meaning": "Collapsed task-ID projection of stage-qualified prerequisite edges, not a dispatch or completion schedule. Interface agreements may precede supplier completion; scoped rebind, selected composition/execution and exact leases further constrain work. No runnable width or speedup claim.",
   "tasks": 109,
-  "hard_edges": 321,
+  "hard_edges": 318,
   "levels": [
     [
       "P0-ACCEPT"
-    ],
-    [
-      "P0-REBIND"
     ],
     [
       "CAP-01",
@@ -54,6 +51,7 @@
       "LIF-01",
       "LIF-03",
       "OPS-01",
+      "P0-REBIND",
       "UI-01",
       "UI-05",
       "UI-06",
@@ -104,6 +102,8 @@
     ],
     [
       "CAP-04",
+      "CAP-05",
+      "CAP-06",
       "CNT-03",
       "CNT-08",
       "LIF-08",
@@ -114,15 +114,13 @@
       "UI-07"
     ],
     [
-      "CAP-05",
-      "CAP-06",
       "CNT-09",
+      "OPS-09",
       "OPS-10",
       "OPS-11",
       "UI-17"
     ],
     [
-      "OPS-09",
       "OPS-12"
     ],
     [
@@ -132,14 +130,12 @@
       "FINAL-REVIEW"
     ],
     [
+      "FINAL-REPLAY",
       "LIF-09"
-    ],
-    [
-      "FINAL-REPLAY"
     ],
     [
       "FINAL-USE"
     ]
   ],
-  "max_logical_width": 57
+  "max_logical_width": 58
 }

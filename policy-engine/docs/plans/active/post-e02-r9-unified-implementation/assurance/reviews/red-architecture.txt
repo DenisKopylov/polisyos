@@ -1,0 +1,138 @@
+# Red architecture review — post-E02 R9 program
+
+**Disposition:** do not dispatch owner-writing implementation slices yet. The integration-boundaries document states the right single-writer rules, but the workstream manifests still assign overlapping mechanisms and leave the selected public consumer unresolved. Preserve the explicit gate: implementation starts only after G records actual E02 acceptance and W0 rebinds the accepted tree, source/input/backend scope, and owner paths. This review is a planning correction, not E02 acceptance or capability evidence.
+
+## Review boundary
+
+Read-only review at G `d40bca270ef5c456e8233196e4d8d65e099777a7`; bounded static source checks only against unaccepted CodeC `dccea950845cda5b38f026e7770c07819d31f4d9`. I ran no tests, builds, imports, installs, or production/runtime probes and made no Git mutations. I did write this ignored report. No repository-wide absence claim is made.
+
+## Findings
+
+### 1. One mechanism has multiple writer assignments
+
+The integration table says CAP-02 owns capture protocol while LIF-03 alone owns cursor/frontier fencing; CAP-04 emits source-specific change events while LIF-02 owns dependency enrollment, replay, and publication fencing; CAP-03 wires admission to LIF-01; OPS owns deployment/backend topology; LIF-05 owns rights-sensitive copy and restore behavior (`architecture/01-integration-boundaries.md`, rows at lines 31–35).
+
+The work packages contradict those allocations:
+
+- CAP-02 proposes the expected-head cursor fence and includes `cursor_store.py` as a writer path; LIF-03 proposes `compare_and_commit_partition_state` in that same owner and calls CAP receipt consumption read-only. This is a direct duplicate cursor writer.
+- CAP-04 is titled and scoped as enrollment plus fresh projection, and lists the same Claim Ledger, Decision Validity, cascade, and publisher paths as LIF-02. Its deliverable includes the event-to-fenced-projection bridge, while the integration table reserves enrollment/currentness/publication to LIF-02.
+- CNT-03 independently owns exact capture and purpose-bounded reuse through `acquisition_executor.py`, `acquisition_planner.py`, `acquisition_epoch_admission.py`, tenant CAS, lineage, access control, and retention. Those overlap CAP-02/CAP-03’s shared capture/admission chain; the integration table says CNT supplies case evidence and CAP owns the acquisition bridge.
+- CAP-06 proposes a “scoped backend owner,” while OPS proposes adapter-specific S3/GCS tenant/cell ownership and LIF-05 owns copy placement/restore. The integration table assigns CAP-06 wiring only and OPS deployment/backup topology.
+
+**Required correction:** assign one canonical writer per mechanism in the task manifests, not only in the architecture prose. Keep CAP-02 on transport/representation protocol and have it call the cursor owner; LIF-03 alone writes the frontier fence. CAP-04 emits source-specific events; LIF-02 alone enrolls dependencies, replays, fences and publishes. CNT-03 should supply selected-case definitions, grants and consumer evidence to CAP’s interface, not modify shared acquisition owners. CAP-06 should own provider request/receipt semantics only; OPS/backend owners own adapter parity and LIF-05 owns governed copies/restore. Give the shared artifacts canonical lock IDs so the scheduler cannot mistake aliases for disjoint resources.
+
+**Pattern:** P27/P02. **Capability state until repaired:** `implemented_but_not_orchestrated` is not a task-allocation answer; the conflicting planned writer is `not_established` at W0.
+
+### 2. The CAP-04/LIF-02 handoff can become a cross-workstream cycle
+
+The explicit local dependency lists in the three task manifests appear acyclic. The cross-workstream responsibilities are not. LIF-02 consumes admitted source events and owns the fresh currentness fence. CAP-04’s current scope requires that same enrollment and fenced projection for its own source-update capability to pass. Thus CAP-04 can wait for LIF-02’s projection, while LIF-02’s integration proof waits for the CAP-04 event producer. The integration table already describes the intended one-way edge—CAP emits, LIF consumes—but the acquisition memo and CAP-04 row do not preserve that boundary.
+
+**Required correction:** make the handoff directional and explicit: CAP-04 can finish its producer-side contract/receipt against a selected fixture; LIF-02 consumes that event and owns enrollment/replay/currentness/publication; LIF-09 (or the selected vertical’s final acceptance task) proves the composed path. Do not make either local owner wait for the other’s whole capability closure. Record this as a cross-workstream edge in the authoritative task graph.
+
+**Pattern:** P01/P02/P27/P38. This is an ownership/readiness cycle, not a cycle in the local `depends_on_local` edges.
+
+### 3. Two CodeC owner inventories need correction before dispatch
+
+**CNT-02 points at the wrong source-catalog owners.** `semantic-grounds-tasks.json` labels `fabric/catalog/registry.py` and `fabric/catalog/search.py` as verified existing owners for source-library metadata. Bounded `git show C` checks find `DataContractRegistry` in the former and `MetricSearcher` in the latter. The relevant CodeC source-catalog owners are `fabric/catalog/discovery.py::SemanticDatasetCatalog` and `data_forge/domains/catalog/registry.py::CatalogSourceRegistryEntry` (also named by the acquisition memo). Replace the CNT-02 owner list with those exact source owners, or explain a distinct responsibility for the two other modules; do not use their current “verified_existing” label as evidence of a source registry/search owner.
+
+**The acquisition caller is located, though the full generic reuse chain remains a separate question.** The acquisition memo says W0/A0 must locate the actual caller after its proposed `runtime/quality/acquisition_action_service.py` path did not resolve. `runtime/http/services/acquisition_action_service.py` is already listed in CNT-01/CNT-09 and exists at CodeC: its `AcquisitionActionService` builds the production WDI execution port, resolves the route closure, requires the production bridge, enqueues the job, and invokes `port.execute`; the port calls `execute_live_catalog_acquisition` (CodeC symbols in lines 314–364, 452–538, 546–553, 726–753; `acquisition_surface_execution.py` lines 334, 430–476). Narrow the unresolved claim to whatever is still unproven—e.g. the generic planner closed-loop caller or a second-use exact-body consumer. Do not schedule a broad “find the caller” task or describe the caller as absent. This bounded check proves only the CodeC route; rebind it after E02 acceptance as required.
+
+**Pattern:** P27/P35/P41. The path/name mismatch is a source-inventory defect, not proof that the complete capability is closed.
+
+### 4. The real downstream/public consumer is still unassigned
+
+The runtime diagram ends in generic “Policy / scientific consumer” and “Atlas and MACHINE projection.” CAP-01/CAP-03/CAP-04 surfaces say “user/audit/API” or “Audit/API.” CNT-09 lists existing backend paths but its proposed deliverable still says to join the result to the “selected Atlas/API/UI owner”; the integration table likewise says “Assigned UI owner” without naming one. No task currently binds the chosen receipt/status to an exact public/API route, DTO/OpenAPI/client, browser/MACHINE projection, or declares that surface out of scope.
+
+**Required correction:** at W0 name the selected consumer by path and symbol, the actual API/client/UI/MACHINE surface owner, audience gate, and the negative behavior that surface must show. If the pilot has no permitted public projection, state `surface_out_of_scope` with owner, reason and trigger. Until then mark the selected vertical `consumer_missing` / `surface_missing`; generic audit/API wording is not an acceptance target.
+
+**Pattern:** P01/P03/P05/P29/P32. This is a bounded plan omission; it is not a claim that no consumer exists anywhere in the repository.
+
+### 5. The 100-direct-agent schedule is not yet executable and serializes independent work
+
+README line 32 states up to 100 direct helpers, one orchestrator, and no child agents. At this reviewed snapshot, it links to `execution/02-parallel-execution.md` and `execution/03-waves.md`, but those files are absent from the plan directory; only execution/01 and execution/04 are present. The semantic-grounds prose says W1–W4 can proceed in parallel after W0, but the task graph serializes CNT-04 and CNT-05 behind CNT-03, CNT-06 behind CNT-05, and CNT-07 behind CNT-03/04/05. Some of those are valid composed-proof prerequisites, but the manifest does not distinguish them from prerequisites to begin owner-local work.
+
+**Required correction:** restore the two linked schedule documents or remove the links, and publish an executable direct-agent assignment/lease plan. Separate `owner-local implementation readiness` from `vertical/composed acceptance readiness`: after E02 acceptance and W0 rebind, independent legal, measurement, causal, testimony, API and review/oracle work can proceed on named owner paths with fixtures while acquisition is in flight; only end-to-end acceptance waits for the real receipt and all required owner outputs. Keep one writer per canonical owner and serialize only shared resources. The orchestration level remains one root with at most 100 direct agents; no lane lead should create descendants. Keep CNT-09/LIF-09 as composition gates, not global gates on unrelated owner work.
+
+**Pattern:** P02/P13/P27/P39. The E02 acceptance gate itself remains in force; do not use parallelism to bypass it.
+
+### 6. Resource locks are not canonical, and rollback can retain prohibited bytes
+
+The same contention domains have different lock labels: CAP-02 uses “CAS/root” and “cursor head/lease”; LIF-03 uses “CursorStore partition head” and “Artifact manifest/root publication”; CNT-03 uses “Same source/CAS generation.” With 100 direct agents, a lease checker matching these task-level strings can schedule concurrent writers to the same CAS root/cursor/source generation. Normalize resource identities (for example source/profile generation, tenant/cell CAS root, connector/partition cursor head, control outbox/effect inbox) and require exact lock-key acquisition at dispatch.
+
+Separately, CAP-02’s rollback says “retain bytes, journals and receipts,” and CAP-03 says to preserve bytes/history when promotion is disabled. That is unconditional even when a right is revoked or its retention basis excludes recovery copies. LIF-05 correctly requires actual copy inventory and rights-aware restore/delete outcomes; OPS requires reconciling post-backup revocations. Retain the audit event/receipt separately from the raw payload. Quarantine first; retain raw bytes only when the applicable grant explicitly covers recovery/retention, otherwise route deletion/backup reconciliation through LIF-05’s actual copy owner and report its bounded outcome. Also define the predicate behind LIF-05’s “restore prior authorized head if safe” so operational rollback cannot restore an older authority head over a newer right/revocation event; OPS already says never restore older decision/history over a newer revocation.
+
+**Pattern:** P05/P07/P08/P37/P38. Before claiming a hard resource cap, keep the OPS/LIF-06 state `absent/unallocated` until a selected owner, canonical lock/reservation mechanism, and measured enforcement exist.
+
+## Parallelization and gate summary
+
+There is no reason to weaken actual E02 acceptance or W0 source/owner rebind. After those gates, do not serialize all implementation behind a single end-to-end data path. Allocate direct agents to independent owner-local work, source/case evidence, negative-oracle design, and distinct consumer surfaces; give each a non-overlapping path lease and canonical resource locks. Hold shared semantic owners to one writer. Run selected vertical acceptance only when its actual producer, persisted receipt, bridge and consumer are all available. Any external-input absence should block only the affected claim/use and remain a typed limitation, consistent with the charter.
+
+## Pattern pass
+
+Relevant IDs: P01/P02/P03, P05/P07/P08, P10/P13/P14/P15, P27/P29/P31/P32, P35/P37/P38/P39/P41. Existing anti-patterns found: plan-by-plan duplicate mechanism ownership; a cross-workstream producer/consumer readiness loop; source-owner paths mislabeled as verified; generic surface placeholder; over-serial task prerequisites; noncanonical resource locks; and rollback wording that does not condition payload retention on rights. Target pattern: one canonical owner per mechanism, directional persisted handoffs, exact selected consumer, one-level direct dispatch with owner/resource leases, and rights-aware rollback that preserves audit history without assuming payload retention. Missing capability labels at this snapshot: selected public `consumer_missing` / `surface_missing`; CAP-04→LIF-02 `bridge_missing` until the producer/consumer contract is directional; resource enforcement `absent/unallocated` until W0 identifies an existing enforcing owner.
+
+## Pinned reviewed inputs
+
+Hashes below pin the contents used for this review; any later draft edit requires a delta review against these pins.
+
+| Input | SHA-256 |
+|---|---|
+| `AGENTS.md` | `35b1e1bf610b8a19b417cb35d6f0c7afca341c4c8c9bbc1574400c38f24b7d50` |
+| `policy-engine/architecture/AGENTS.md` | `218d4eed0e4cee3951f667e246c8186350ddb6e2f0996f5bf458ed0bf95d1c29` |
+| `policy-engine/docs/reference/policy-design-case-failure-patterns.md` | `a64956e284b411276a16a612afffb1fb42daf03ffef8f7ef1c3f3f9bc25d0349` |
+| `policy-engine/docs/plans/active/post-e02-r9-unified-implementation/README.md` | `e03870555728043ba6e920ef38aebcd28160627a2de5b9d981048288294c2bd5` |
+| `policy-engine/docs/plans/active/post-e02-r9-unified-implementation/architecture/01-integration-boundaries.md` | `9cbc0d8c6ead84fcd88c3b730a6bad4cd1080e5b5c3e222525034f65e5efb9aa` |
+| `policy-engine/docs/plans/active/post-e02-r9-unified-implementation/execution/01-charter-and-entry.md` | `6a97062ebde1048707b9f29f5fd3a4518e33f1e19f95349127eeac79ed4083b7` |
+| `policy-engine/docs/plans/active/post-e02-r9-unified-implementation/execution/04-change-and-rebind.md` | `ba1451a85718f5859d2587c999e7bd2cd791cb886f97c20cc257619ca9c28a2e` |
+| `policy-engine/docs/plans/active/post-e02-r9-unified-implementation/inventory/sources.json` | `434d17d1a1e22170ffe65c8225d0e572031deea6444e8e4d0bbb0f042bd8082a` |
+| `policy-engine/_build/post-e02-r9-program-20261022/r9-acquisition.md` | `1ca2cf298347d96a2885d0fd28a06e6a98ee1603fae2c1848b9e7d9788099e83` |
+| `policy-engine/_build/post-e02-r9-program-20261022/r9-acquisition-tasks.json` | `44528f04aa6e4f2f704c8cde3ee6f83a49b3e42ed01f5679268ce821a484fb1e` |
+| `policy-engine/_build/post-e02-r9-program-20261022/r9-lifecycle.md` | `feab8e935335d59fd403723cda9335c986b4408422537857c46cea4e39e434bf` |
+| `policy-engine/_build/post-e02-r9-program-20261022/r9-lifecycle-tasks.json` | `3830c02f18b32c884d9603c0376f55d0f7c0f9d96da536aa69c2ab0411ebb4dd` |
+| `policy-engine/_build/post-e02-r9-program-20261022/ops-deployment.md` | `0b4b705eb09a2daf34b645949616a98bcbd0e7c7728313654931c59be313f657` |
+| `policy-engine/_build/post-e02-r9-program-20261022/semantic-grounds.md` | `3eaf502495e9bec639926d5f057126c7314176627d70086eb168531c78af4b79` |
+| `policy-engine/_build/post-e02-r9-program-20261022/semantic-grounds-tasks.json` | `10e53d0c1f988d0329e988e7261ba08839cdecd55fe1c6b8465a1eecb0ff72c6` |
+
+The report path is ignored by `policy-engine/.gitignore` (`_build/`). It is a review artifact only; no tracked file was edited.
+
+## Delta review — final manifest and execution notes
+
+Reviewed the updated `tasks.json`, architecture boundary, execution waves and workstream notes at the same G/C pins. The earlier allocation findings are addressed in this draft: canonical write candidates are distinguished from read-only anchors; CNT-02 names the CodeC source-catalog owners; CAP-04 hands source events to LIF-02; LIF-02's real-event check is a later composition dependency rather than a dispatch edge; UI-17 is bound to the existing acquisition route/projection, client, dashboard and audit/MACHINE surface; leases require exact path/key-instance resolution before dispatch; rollback conditions raw-byte retention on rights and preserves newer revocation; and the reviewed rollback passages now state that authority cannot be restored over newer revocation/correction. I found one blocking release-gate contradiction still open.
+
+### B1. The selected vertical's first-use gate still requires the whole program
+
+`tasks.json` makes `FINAL-FREEZE` depend on every listed CAP, LIF, GYD, UI, CNT, OPS and DEB task (lines 8601–8700); `FINAL-USE` then requires every original nonclosed GY/Atlas/debt/R9 obligation to be completed or formally closed before first use (lines 8811–8819). `execution/03-waves.md` restates that all original open obligations must close before the default first-use gate (line 41). This is broader than a selected vertical's applicability: `workstreams/05-substantive-foundations.md` says the selected packet exercises relevant facets only, leaves other families/source work open, and missing inputs block only dependent claims (line 84); CNT-09 repeats that all other family work stays open (`tasks.json`, line 6594). These statements cannot all hold if the first-use gate is gated by every open obligation.
+
+**Required correction:** split limited first-use admission from full-program completion. The selected vertical should wait on its own required producer, persisted result, bridge, consumer/surface and selected authority/rights/deployment gates; unrelated or unselected obligations should remain source-qualified and tracked without blocking that use. Keep a separate `PROGRAM-COMPLETE`/full-disposition checkpoint for all original obligations. If a binding source criterion truly makes an unrelated obligation a first-use prerequisite, cite that criterion and remove the contrary “only dependent claims”/later-backlog promise.
+
+This is a blocking governance-gravity / generic-gate issue (`P13`, with capability-chain implications `P01/P02`): it prevents the plan from admitting the explicitly bounded first vertical while unrelated program work remains open. It is not an objection to preserving every original obligation in the program ledger.
+
+### Delta input pins
+
+| Reviewed input | SHA-256 |
+|---|---|
+| `policy-engine/docs/plans/active/post-e02-r9-unified-implementation/tasks.json` | `bef6ef4b067a5ab7721c64ba887c51f1f7045e7b9b57394c9486cee27d2a49cf` |
+| `policy-engine/docs/plans/active/post-e02-r9-unified-implementation/architecture/01-integration-boundaries.md` | `9cbc0d8c6ead84fcd88c3b730a6bad4cd1080e5b5c3e222525034f65e5efb9aa` |
+| `policy-engine/docs/plans/active/post-e02-r9-unified-implementation/execution/03-waves.md` | `276c2ff381a95dd18f6b5149c26d459dd4b10b92fdc493865a402dc8348892c4` |
+| `policy-engine/docs/plans/active/post-e02-r9-unified-implementation/execution/02-parallel-execution.md` | `fd04ab5f625062edc9e1baad4f3666e3f3a535c41b38edc962a3688ac31cd7dd` |
+| `policy-engine/docs/plans/active/post-e02-r9-unified-implementation/execution/dependency-levels.json` | `6c6cec6cf3f5e6dee7a82396886381b003ddba7ccdae25c0fc064dd5a7802439` |
+| `policy-engine/docs/plans/active/post-e02-r9-unified-implementation/workstreams/01-acquisition.md` | `7796aef759386d579052222f9130972d7a0493dfe7b8f1d5f562a02cf4c12294` |
+| `policy-engine/docs/plans/active/post-e02-r9-unified-implementation/workstreams/02-lifecycle.md` | `a3be258d5eafb26aa1efc29a384b895c94989e0a57095933724cafe3dd3a2ee9` |
+| `policy-engine/docs/plans/active/post-e02-r9-unified-implementation/workstreams/03-gy.md` | `eb5f6ccf5cf9668cde6a541a9d5d2076b787ce0def8a42de936ac285711d8ae7` |
+| `policy-engine/docs/plans/active/post-e02-r9-unified-implementation/workstreams/04-atlas.md` | `40a12fc20ff4d40a6f47441fa73f3f9b3deb582194afd257a948bf2e17de5787` |
+| `policy-engine/docs/plans/active/post-e02-r9-unified-implementation/workstreams/05-substantive-foundations.md` | `f51f45f2fd9adb57f8833079299736846cb81acf29b57737f1abfa300c9604a6` |
+| `policy-engine/docs/plans/active/post-e02-r9-unified-implementation/workstreams/06-debt-and-specialist-work.md` | `0d93effe44902f34250e39515dc888aa3bc8442b1e92ce4b01629ce132caec57` |
+| `policy-engine/docs/plans/active/post-e02-r9-unified-implementation/workstreams/README.md` | `cbbb762ca59cb9cf08d963b85fce40797f4e71a00642be685e275462426f78ae` |
+
+## Delta review — finite programme scope clarification
+
+The earlier B1 **blocking** disposition is resolved by the new scope language. `operations/02-practical-use.md` lines 5–9 explicitly records full completion before first use as the user's release order, distinguishes it from a universal runtime gate, and separates finite engineering obligations from future external facts and optional tiers. `workstreams/05-substantive-foundations.md` line 99 makes the boundary concrete: the current programme requires shared grammar/routes/limits for all 26 families and evidence for claimed classes, but does not require harvesting all 197 source entries or completing an open-ended future catalog. It says future case-specific source population can remain unadmitted without deferring any concrete obligation in the current programme. This matches the release gate in `execution/03-waves.md`; I withdraw the claim that that finite full-program gate itself is an unresolved blocker.
+
+One small manifest wording consistency remains: `tasks.json` CNT-09 still says “all other family work stays open” (line 6594). Read alongside the clarification, this means future case-specific source population; read alone, it can be mistaken to include the current finite family-grammar/routes/limits obligations. I classify this as a **non-blocking editorial ambiguity** because the new operations and workstream sections state the controlling distinction. For a single unambiguous machine handoff, tighten that task phrase to “unselected future case-specific source populations stay unadmitted; all concrete current-program obligations remain in scope.”
+
+| Delta input | SHA-256 |
+|---|---|
+| `policy-engine/docs/plans/active/post-e02-r9-unified-implementation/tasks.json` | `bef6ef4b067a5ab7721c64ba887c51f1f7045e7b9b57394c9486cee27d2a49cf` |
+| `policy-engine/docs/plans/active/post-e02-r9-unified-implementation/execution/03-waves.md` | `276c2ff381a95dd18f6b5149c26d459dd4b10b92fdc493865a402dc8348892c4` |
+| `policy-engine/docs/plans/active/post-e02-r9-unified-implementation/workstreams/05-substantive-foundations.md` | `ebc3cbd9c743cd5dfaa1e7e0c022ea6d28b48f93236aefecd70916f956ac890d` |
+| `policy-engine/docs/plans/active/post-e02-r9-unified-implementation/operations/02-practical-use.md` | `f99dc6f4b235af267b19e77cefa320367169a0f28d811c4ecee108e0479d443a` |

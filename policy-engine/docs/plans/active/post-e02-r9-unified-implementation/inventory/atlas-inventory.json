@@ -1,0 +1,776 @@
+{
+  "inventory_id": "post-e02-r9-atlas-inventory",
+  "basis": {
+    "repository": "polisyos",
+    "worktree": "/Users/deniskopylov/.codex/worktrees/e02-integration-6971/polisyos",
+    "branch": "codex/e02-integration",
+    "pinned_commit": "d40bca270ef5c456e8233196e4d8d65e099777a7",
+    "canonical_atlas_master_blob": "21002cfb2805f718ef7e906e8df1c4ecb30c015d",
+    "status_kind": "source-reported documentary inventory only; no fresh runtime proof",
+    "scope": "Complete Atlas DS0–DS21 set plus current GY standing dependencies, INT-R9, scoped frontend/readiness evidence, and debt-row reconciliations.",
+    "limitations": [
+      "No tests, builds, repository/product imports, installs, production actions, network mutations, code changes, or tracked-file edits were performed.",
+      "No SDD or implementation scope is authorized by these artifacts; future implementation starts only after E02 is accepted.",
+      "Source snapshots have different dates. Later row-specific debt evidence is kept separate from Atlas slice closure standing."
+    ],
+    "complete_denominators": [
+      {
+        "source": "policy-engine/docs/plans/active/POLICYOS_ATLAS_SURFACE_IMPLEMENTATION_MASTER_PLAN.md",
+        "file_type": "Markdown",
+        "source_interval": "Slice Sequence table, lines 640-661",
+        "count": 22,
+        "identities": "DS0 through DS21 exactly once; scan also records plan order DS0, DS1, DS2, DS3, DS19, DS4, DS20, DS5, DS6, DS7, DS8, DS9, DS10, DS15, DS16, DS17, DS18, DS11, DS12, DS13, DS14, DS21"
+      },
+      {
+        "source": "policy-engine/docs/plans/active/layer3-slices/GY-engine-subordination.md",
+        "file_type": "Markdown",
+        "source_interval": "authoritative §8.5 task-standing table, lines 1738-1814",
+        "count": 77,
+        "status_distribution": {
+          "executed": 55,
+          "not_started": 15,
+          "blocked": 5,
+          "not_executed": 2
+        }
+      },
+      {
+        "source": "policy-engine/architecture/atlas_surfaces/frontend-disposition-register.json",
+        "file_type": "JSON",
+        "source_interval": "complete register entries array",
+        "count": 261,
+        "authority": "frontend disposition/strangle only; not a readiness or maturity verdict"
+      },
+      {
+        "source": "policy-engine/docs/reference/frontend/atlas-surface-readiness-reconciliation.md",
+        "file_type": "Markdown",
+        "source_interval": "full-schema ledger census summarized in source lines 71 onward",
+        "count": 261,
+        "authority": "row-level readiness claim-basis audit; no aggregate verdict"
+      }
+    ]
+  },
+  "source_precedence": [
+    {
+      "rank": 1,
+      "source": "Ratified identity/custody decisions and Universal Policy Design constitution; the Atlas surface constitution is a proposed derived design input",
+      "authority": "Ratified custody and authority semantics control. The proposed Atlas surface constitution itself says the Universal Policy Design constitution wins when they conflict.",
+      "limit": "Does not assign an Atlas slice execution status; proposed surface design text does not override ratified rules."
+    },
+    {
+      "rank": 2,
+      "source": "POLICYOS_ATLAS_SURFACE_IMPLEMENTATION_MASTER_PLAN.md at the pinned canonical blob",
+      "authority": "Atlas execution master and DS status; later specific revision/subsection supersedes earlier in-document sequence/gate text.",
+      "limit": "DS closure does not close each debt row or claim end-to-end capability outside the declared boundary."
+    },
+    {
+      "rank": 3,
+      "source": "GY-engine-subordination.md §8.5",
+      "authority": "Single authority for current GY task status; task rows, not revision log.",
+      "limit": "Executed presence is third-rank evidence and does not discharge every Done-when conjunct."
+    },
+    {
+      "rank": 4,
+      "source": "Slice plan/journal and DEBT-REGISTER row",
+      "authority": "Slice-specific closure criteria/nonclosures; current row-specific debt standing.",
+      "limit": "A debt closure/status cannot silently change the Atlas master DS state; conflicting dated source text is surfaced for reconciliation."
+    },
+    {
+      "rank": 5,
+      "source": "DS19 frontend-disposition register and DS6 readiness reconciliation",
+      "authority": "Each narrow authority stated by its owner document.",
+      "limit": "Neither upgrades readiness/maturity or authorizes deletion beyond its declared scope."
+    },
+    {
+      "rank": 6,
+      "source": "POLICYOS_ATLAS_PRODUCT_MARKETING_CLIENT_SURFACES_MASTER_PLAN.md",
+      "authority": "Historical/material input retained only for DS11–DS13.",
+      "limit": "Not execution authority; do not reimport W0–W10 or advanced-design tracks as duplicate Atlas tasks."
+    }
+  ],
+  "rows": [
+    {
+      "id": "DS0",
+      "source_ref": "policy-engine/docs/plans/active/POLICYOS_ATLAS_SURFACE_IMPLEMENTATION_MASTER_PLAN.md#L640-L661; detail #L917-L964",
+      "source_status": "closed (Phase A; merged with DS1/DS2; phase map names ed74537e8)",
+      "remaining_obligation": "The freeze and governing decisions are complete; DS0 did not itself audit, adjudicate, or ship product. Those were the separate DS1/DS2 obligations.",
+      "evidence_basis": "Atlas sequence table and DS0 section define this as a source-of-truth freeze, not an implementation surface.",
+      "route_hint": "closed_compact; do not reopen as generic design work",
+      "program_tasks": []
+    },
+    {
+      "id": "DS1",
+      "source_ref": "policy-engine/docs/plans/active/POLICYOS_ATLAS_SURFACE_IMPLEMENTATION_MASTER_PLAN.md#L640-L661; policy-engine/docs/reference/frontend/atlas-live-application-audit.md",
+      "source_status": "closed (merged; DS1 live application audit)",
+      "remaining_obligation": "No remaining DS1 audit task reported by the Atlas master. Its 261-root evidence remains the source basis for DS19; it does not establish current implementation or maturity by itself.",
+      "evidence_basis": "Atlas sequence and DS19 register source binding identify the DS1 ledger as the 261-root input.",
+      "route_hint": "closed_compact; readiness claims remain governed by DS6 reconciliation",
+      "program_tasks": []
+    },
+    {
+      "id": "DS2",
+      "source_ref": "policy-engine/docs/plans/active/POLICYOS_ATLAS_SURFACE_IMPLEMENTATION_MASTER_PLAN.md#L640-L661; policy-engine/docs/reference/frontend/atlas-v15-adjudication.md",
+      "source_status": "closed (merged; Atlas v15 adjudication)",
+      "remaining_obligation": "No remaining DS2 adjudication task reported by the Atlas master. The 233-unit verdicts remain adoption evidence, not automatic implementation assignments.",
+      "evidence_basis": "Atlas plan names the DS2 adoption ledger as the only door for v15 material; DS19 register explicitly may not rewrite DS2 verdicts.",
+      "route_hint": "closed_compact; do not recategorize from frontend disposition",
+      "program_tasks": []
+    },
+    {
+      "id": "DS3",
+      "source_ref": "policy-engine/docs/plans/active/POLICYOS_ATLAS_SURFACE_IMPLEMENTATION_MASTER_PLAN.md#L640-L661; detail #L1005-L1035",
+      "source_status": "closed and merged e451cec56",
+      "remaining_obligation": "Its bounded producer/export infrastructure is complete (13 typed producers, cache law, replay binder, channel registry, canonical client twin). Later surface slices still owe their own connected consumers.",
+      "evidence_basis": "Atlas sequence records DS3 closure and describes it as infrastructure, not full-stack closure of every consuming surface.",
+      "route_hint": "closed_compact; downstream consumer/API surfaces remain assigned to their slices",
+      "program_tasks": []
+    },
+    {
+      "id": "DS4",
+      "source_ref": "policy-engine/docs/plans/active/POLICYOS_ATLAS_SURFACE_IMPLEMENTATION_MASTER_PLAN.md#L640-L661; detail #L1036-L1062",
+      "source_status": "closed and merged 7f450eb7b",
+      "remaining_obligation": "The status grammar rebinding/harness closure is complete at its declared denominator. Value-grammar body is deferred to DS16; evidence instrumentation is DS6; do not treat DS4 as closing those consumers.",
+      "evidence_basis": "Atlas sequence records 89 component dispositions, lint/architecture/status-retirement closures, and named follow-on slices.",
+      "route_hint": "closed_compact; use DS16/DS6 for their owned successor work",
+      "program_tasks": [
+        "UI-06",
+        "UI-10"
+      ]
+    },
+    {
+      "id": "DS5",
+      "source_ref": "policy-engine/docs/plans/active/POLICYOS_ATLAS_SURFACE_IMPLEMENTATION_MASTER_PLAN.md#L640-L661; policy-engine/docs/plans/active/POLICYOS_ATLAS_SURFACE_IMPLEMENTATION_MASTER_PLAN.md#L1790-L1804; policy-engine/docs/plans/active/DEBT-REGISTER.md#L482",
+      "source_status": "closed and merged c77888b7c; one debt row remains blocked at the narrower residual",
+      "remaining_obligation": "Most enforcement-waist successor groups were assigned to DS12 (three) and DS14 (one). The current debt register says the surviving unallocated property is DS15 generated promotion-union/private-issuer behavior; do not repeat the older broad claim that all four successors are unscoped.",
+      "evidence_basis": "Canonical DS12/DS14 scope acts are dated 2026-09-01; DEBT-REGISTER row 482 narrows the earlier 27-row/58-site concern to a remaining DS15 property.",
+      "route_hint": "closed_compact; carry only ds5-waist-successors-routed-to-unscoped-slices residual and reconcile its DS15 owner",
+      "program_tasks": [
+        "UI-10"
+      ]
+    },
+    {
+      "id": "DS6",
+      "source_ref": "policy-engine/docs/plans/active/POLICYOS_ATLAS_SURFACE_IMPLEMENTATION_MASTER_PLAN.md#L640-L661; policy-engine/docs/reference/frontend/atlas-surface-readiness-reconciliation.md#L1-L74",
+      "source_status": "closed and merged 176276ef0; readiness reconciliation is non-aggregate",
+      "remaining_obligation": "The reconciliation enumerates 261 readiness entries, five implemented claims and zero stable claims; it does not issue aggregate readiness/maturity. The bounded transitive-runner-closure-unbound residual remains owner absent/unallocated. Carry forward the inherited C13 print-receipt issue only at its own debt status.",
+      "evidence_basis": "DS6-C10-R2 limits authority to per-row claim-basis audit; full-schema ledger counts are source-reported and no stable observer is registered.",
+      "route_hint": "closed_compact; never promote readiness/maturity from this ledger",
+      "program_tasks": []
+    },
+    {
+      "id": "DS7",
+      "source_ref": "policy-engine/docs/plans/active/POLICYOS_ATLAS_SURFACE_IMPLEMENTATION_MASTER_PLAN.md#L640-L661; detail #L1380-L1464",
+      "source_status": "closed and merged 74f26ca2d",
+      "remaining_obligation": "Cycle Board hero is on the static composed-v2 seam. GY-V7 is a later system-health projection extension; no live-loop or production-effect proof follows from the static surface.",
+      "evidence_basis": "Atlas sequence explicitly bounds the hero to a static seam.",
+      "route_hint": "closed_compact; GY-V7 route is an extension, not a reopened DS7 build",
+      "program_tasks": [
+        "UI-06"
+      ]
+    },
+    {
+      "id": "DS8",
+      "source_ref": "policy-engine/docs/plans/active/POLICYOS_ATLAS_SURFACE_IMPLEMENTATION_MASTER_PLAN.md#L640-L661; detail #L1465-L1627; policy-engine/docs/plans/active/atlas-slices/DS8-case-evidence-workspace.md#L497",
+      "source_status": "closed and merged c8fff1e0b; production emits typed unavailable and family_complete=false",
+      "remaining_obligation": "Six declared nonclosures remain outside DS8: public record/certificate and signed-public-decision surface to DS12; global case-index producer to DS12 and consumer to DS13; local reviewer notes and missing run-bound DesignRecord remain separately owned/unallocated; Lex/Clerk split to DS10/DS14; science-depth production to DS16. No claim that the full legacy-family migration or approval authority is complete.",
+      "evidence_basis": "Atlas overview plus DS8 explicit nonclosures; scope closure is an honest unavailable arm, not capability completion.",
+      "route_hint": "closed_compact; preserve owner split; no second case-index store",
+      "program_tasks": []
+    },
+    {
+      "id": "DS9",
+      "source_ref": "policy-engine/docs/plans/active/POLICYOS_ATLAS_SURFACE_IMPLEMENTATION_MASTER_PLAN.md#L640-L661; detail #L1628-L1654; policy-engine/docs/plans/active/DEBT-REGISTER.md#L591",
+      "source_status": "closed and merged fd243d1ad; 24/24 closure contract; 14 declared nonclosures at slice close",
+      "remaining_obligation": "DEBT-REGISTER now marks ds9-postgres-reservation-proof closed, while the Atlas sequence still describes the PostgreSQL property as an unproven merge-time residual. Preserve this dated status delta; other DS9 nonclosures remain per its slice plan.",
+      "evidence_basis": "Master sequence gives the merge snapshot; current debt row records a later closure disposition and explicitly distinguishes SQLite/PostgreSQL and other proof lanes.",
+      "route_hint": "closed_compact; do not carry the merge-time PostgreSQL red as current without reconciling the register",
+      "program_tasks": [
+        "UI-05",
+        "UI-12",
+        "UI-13"
+      ]
+    },
+    {
+      "id": "DS10",
+      "source_ref": "policy-engine/docs/plans/active/POLICYOS_ATLAS_SURFACE_IMPLEMENTATION_MASTER_PLAN.md#L640-L661; detail #L1655-L1682; policy-engine/docs/plans/active/DEBT-REGISTER.md#L417-L420",
+      "source_status": "closed and merged f935e0c2e; 22/22 closure items; 12 owned deep-import edges closed",
+      "remaining_obligation": "Public decision rendering remains a DS12 obligation (debt row blocked even though later producer/bridge work is reported); global case-index allocation remains blocked, but the producer-missing row itself is later marked closed. Lex capability discovery and Lex pipeline mutation have distinct owners; no public rendering or case store is implied by DS10 closure.",
+      "evidence_basis": "Atlas overview and current debt rows separate internal discovery from public record projection and separate case-index producer existence from slice ownership/consumption.",
+      "route_hint": "closed_compact; route public record to DS12, case-index consumption to DS13",
+      "program_tasks": []
+    },
+    {
+      "id": "DS11",
+      "source_ref": "policy-engine/docs/plans/active/POLICYOS_ATLAS_SURFACE_IMPLEMENTATION_MASTER_PLAN.md#L640-L661; detail #L1683-L1709; policy-engine/docs/plans/active/DEBT-REGISTER.md#L464-L469",
+      "source_status": "closed and merged 4ff11db52; closure contract 24/24; ten nonclosures at merge",
+      "remaining_obligation": "Current debt rows still report DS11-PUBLIC-SIGNATURE-POPULATION open, DS11-GROUNDED-PERFORMANCE blocked on substantive promoted-design evidence, and DS11-FULL-TRUST-CENTER-AND-DOCS-IA blocked on scope/owner resolution. The 343-claim MACHINE artifact (341 blocked, 1 planned, 1 supported) does not mean all public posture is supported. Inherited page-a11y failures and DS6 C13 print receipt were carried at merge.",
+      "evidence_basis": "Atlas merge snapshot plus current debt rows; publication/custody presence is not performance evidence and is not an accessibility countersign.",
+      "route_hint": "closed_compact; retain these specific residuals; don't reopen unrelated DS11 mechanism paths",
+      "program_tasks": [
+        "UI-15",
+        "UI-16"
+      ]
+    },
+    {
+      "id": "DS12",
+      "source_ref": "policy-engine/docs/plans/active/POLICYOS_ATLAS_SURFACE_IMPLEMENTATION_MASTER_PLAN.md#L658-L659; detail #L1710-L1930; policy-engine/docs/plans/active/DEBT-REGISTER.md#L464-L490",
+      "source_status": "planned; master gate is first governed promotion through N9 with N11 accounting and N12 validity plus DS11; GY-PR1 remains blocked",
+      "remaining_obligation": "Finish the governed public record end-to-end: issue/source-bind a promoted record, public consumer and verification, no-tracker/privacy posture, browser/citizen rendering, regenerated clients, MACHINE twin, accessibility evidence and semantic forged-packet negatives. Current debts split the work: DS11 population remains open; DS8 publication/signed surface and DS10 rendering remain blocked; public badge debt is marked closed by the debt register although the master still calls it a live defect; global index producer-missing is marked closed but case-index allocation/consumption rows remain blocked. Institutional signers/holder gate an actual signature/record, not the ability to build the publication mechanism.",
+      "evidence_basis": "The later DS12 gate adjudication separates capability from authority. Debt rows report partial 2026-09-13 governed-record bridge work but preserve open/blocked row-specific closure signals; do not convert that into a closed DS12 slice.",
+      "route_hint": "planned; address GY-PR1 engineering and per-row debt; build capability while typed signer/holder slots remain empty",
+      "program_tasks": [
+        "UI-01",
+        "UI-02",
+        "UI-03",
+        "UI-16"
+      ]
+    },
+    {
+      "id": "DS13",
+      "source_ref": "policy-engine/docs/plans/active/POLICYOS_ATLAS_SURFACE_IMPLEMENTATION_MASTER_PLAN.md#L659-L660; detail #L1931-L1955; policy-engine/docs/plans/active/DEBT-REGISTER.md#L601",
+      "source_status": "planned; gate DS12",
+      "remaining_obligation": "Build the consumer over DS12's canonical global case index: browse, dispute/consultation ledgers, response-to-comment, supersession/revocation/learning history and transparency feed with MACHINE twins and behavioral negatives. No automated dispute resolution; humans decide. Do not build a second case index/store.",
+      "evidence_basis": "Atlas explicitly assigns producer to DS12 and consumption/history to DS13; ds8-global-case-index remains blocked in DEBT-REGISTER.",
+      "route_hint": "planned; consumer_missing and surface_missing until real read paths land",
+      "program_tasks": [
+        "UI-03",
+        "UI-04"
+      ]
+    },
+    {
+      "id": "DS14",
+      "source_ref": "policy-engine/docs/plans/active/POLICYOS_ATLAS_SURFACE_IMPLEMENTATION_MASTER_PLAN.md#L660-L661; detail #L1956-L2026; policy-engine/docs/plans/active/layer3-slices/GY-engine-subordination.md#L1785; Atlas master #L1646-L1652,#L1988-L2015",
+      "source_status": "planned; corrected gate is GY-I plus DS9 (both marked met in Atlas); not blocked by Phase-6 O tasks",
+      "remaining_obligation": "Own the agent-session and orchestration-audit producer/bridge over GY-I contracts, schema/client regeneration, grounded candidate/refusal UX, GY-PA2 delegation packet as a pre-action gate, GY-PA3 compression-loss/authority-delta projection and re-grounding the existing Clerk interface; keep outputs REVIEWER/EXPERT, never PUBLIC. Lex source-document equivalence is a separate open question. GY-I is `executed` in the standing table, but the same row says full Done-when remains not_measured; preserve that evidence limitation.",
+      "evidence_basis": "Atlas Revision 3.39 correction supersedes the earlier O-block gate. DS14 is planned surface work, not a completed capability because GY-I's contract exists; its scope also includes PA2 pre-action delegation/contestability and PA3 compression-loss rendering.",
+      "route_hint": "planned; GY-I task status is not a substitute for producer, bridge, consumer, generated API and semantic tests",
+      "program_tasks": [
+        "UI-05"
+      ]
+    },
+    {
+      "id": "DS15",
+      "source_ref": "policy-engine/docs/plans/active/POLICYOS_ATLAS_SURFACE_IMPLEMENTATION_MASTER_PLAN.md#L653; detail #L2059-L2112; policy-engine/docs/plans/active/atlas-slices/DS15-acquisition-routes.md#L2049-L2078; policy-engine/docs/plans/active/DEBT-REGISTER.md#L613",
+      "source_status": "closed and merged 2c8e1c03c; bounded closure 42/42 mechanisms, 11/11 widening rounds, 25/25 criteria; eight nonclosures",
+      "remaining_obligation": "Do not claim unrestricted positive production growth. The DS15 plan snapshot says fresh_positive_production_route is absent/unallocated with N13b 0 admitted/0 epochs; the later DEBT-REGISTER row remains blocked but says a positive route now exists after Groups 4-6, with cost basis, native policy, exact route/cutoff/facet scope still remaining. Other named nonclosures include actionable cost, typed non-data gap union, semantic-epoch qualification, authority/mandate inputs, numeric VOI, and no offline/automatic acquisition.",
+      "evidence_basis": "N13a/N13b tasks are executed in GY standing, but the source documents are differently dated and the debt row's later narrative narrows the old nonclosure without closing its status.",
+      "route_hint": "closed_compact; reconcile DS15 residual against the later debt row; no production-growth claim until debt closure",
+      "program_tasks": [
+        "UI-17"
+      ]
+    },
+    {
+      "id": "DS16",
+      "source_ref": "policy-engine/docs/plans/active/POLICYOS_ATLAS_SURFACE_IMPLEMENTATION_MASTER_PLAN.md#L654; detail #L2113-L2197; policy-engine/docs/plans/active/layer3-slices/GY-engine-subordination.md#L1800",
+      "source_status": "authority half landed 1f03d2cda; value/uncertainty grammar body deferred to successor gated on DS7 (closed)",
+      "remaining_obligation": "Integrate the deferred value/uncertainty grammar and GY-AQ1's eight ceiling algebras without scalarizing unknown/incomparable or minting values. DS4-C23 authority binding resolves all 11 inventory families through generated fields or typed refusals, but all 11 are refusals because runtime producers do not supply values. No transform planner; single-transform provenance only.",
+      "evidence_basis": "Atlas explicitly separates DS16 authority half from grammar body; GY-AQ1 executed and is routed as an extension.",
+      "route_hint": "successor slice after DS7; producer_missing for real values is an honest refusal, not grounds to synthesize",
+      "program_tasks": [
+        "UI-06",
+        "UI-07"
+      ]
+    },
+    {
+      "id": "DS17",
+      "source_ref": "policy-engine/docs/plans/active/POLICYOS_ATLAS_SURFACE_IMPLEMENTATION_MASTER_PLAN.md#L655; detail #L2198-L2239; policy-engine/docs/plans/active/atlas-slices/DS17-confidence-ledger-risk-spend.md#L2215-L2235",
+      "source_status": "closed and merged 6fe152c5c; negative accounting surface demonstrated",
+      "remaining_obligation": "Positive coverage/certificate and live deployment-wide enumeration remain non-closed. INT-R1 bounded_complete issuer is absent; positive promotion certificate producer missing; no global live-scope index; N12 persisted semantic receipt/projection artifacts missing; public delta claims are out of scope until DS12/13. Bayesian-without-coverage and over-spend real-artifact E2E witnesses remain GY-N11 residuals. INT-R9 Option B forbids a first-positive/sequence/family-wise probability claim.",
+      "evidence_basis": "DS17 closure demonstrates honest negative state; its explicit nonclosure section and the R9 ratified protocol distinguish local ledger receipts from an unimplemented multi-scope family.",
+      "route_hint": "closed_compact; preserve local risk scopes; no second ledger or numeric family claim",
+      "program_tasks": [
+        "UI-18"
+      ]
+    },
+    {
+      "id": "DS18",
+      "source_ref": "policy-engine/docs/plans/active/POLICYOS_ATLAS_SURFACE_IMPLEMENTATION_MASTER_PLAN.md#L656; detail #L2240-L2271; policy-engine/docs/plans/active/DEBT-REGISTER.md#L474-L475,#L497,#L608; GY plan #L1812",
+      "source_status": "closed and merged 6b8ab3455; later repairs closed additional findings; current debt rows have mixed states",
+      "remaining_obligation": "The denominator reconciliation row is closed, but positive epoch-transition verification producer remains open and the pre-N9 lineage carrier remains blocked/absent-unallocated. DEBT-REGISTER says production-unorchestrated is closed, while the GY-CR4 row still describes the opt-in reconciliation reader as unconfigured and production on the legacy branch; reconcile this date/status split before claiming positive transition end-to-end. Institutional epoch signers/independent holders remain unappointed.",
+      "evidence_basis": "Atlas closure is for chrome and bounded owner rows; current debt/GY detail separates implemented transition mechanisms from production orchestration, verification, and institutional authority.",
+      "route_hint": "closed_compact; carry exact open/blocked positive-path debts, not a blanket DS18 reopen",
+      "program_tasks": [
+        "UI-19"
+      ]
+    },
+    {
+      "id": "DS19",
+      "source_ref": "policy-engine/docs/plans/active/POLICYOS_ATLAS_SURFACE_IMPLEMENTATION_MASTER_PLAN.md#L644; detail #L2272-L2301; policy-engine/architecture/atlas_surfaces/frontend-disposition-register.json#L1-L45",
+      "source_status": "closed and merged f9f69e807; initial false-substrate strangle wave and disposition authority landed",
+      "remaining_obligation": "The register is not a 261-item completion claim: its 261 rows include 179 rebind_pending, 19 deleted, 22 use_as_is, 25 retire_disposition and 16 wire_disposition; strangle states include 138 pending, 60 strangled and 63 not_applicable. The register cannot promote DS1 readiness/DS2 verdicts, claim pending rebind/retirement implemented, or authorize server endpoint deletion.",
+      "evidence_basis": "Counts enumerate the full JSON entry array (261 rows); register authority is explicitly narrow and dated 2026-08-09.",
+      "route_hint": "closed_compact; treat outstanding dispositions as their named owner slice work",
+      "program_tasks": [
+        "UI-09"
+      ]
+    },
+    {
+      "id": "DS20",
+      "source_ref": "policy-engine/docs/plans/active/POLICYOS_ATLAS_SURFACE_IMPLEMENTATION_MASTER_PLAN.md#L646,#L730-L734; detail #L2302-L2338",
+      "source_status": "closed and merged 03ebc1ce8; 29/29 mutating operations plus DS20-B B1/B2/B4 closure",
+      "remaining_obligation": "Declared residuals: B3 promotion authorization/mutation still needs a public Fabric revision-CAS primitive and consumer wiring; B5 PostgreSQL linearizability proof is environment-blocked; scorecard producer provenance routes to DS9; Helm policy mirror to ops/deploy. These do not reopen the closed authz floor.",
+      "evidence_basis": "Atlas overview and DS20-B residual table state the remaining owners and proof boundaries.",
+      "route_hint": "closed_compact; route only the named residuals to Fabric/DS9/cloud verification/deploy",
+      "program_tasks": [
+        "UI-10",
+        "UI-11",
+        "UI-12",
+        "UI-13",
+        "UI-14"
+      ]
+    },
+    {
+      "id": "DS21",
+      "source_ref": "policy-engine/docs/plans/active/POLICYOS_ATLAS_SURFACE_IMPLEMENTATION_MASTER_PLAN.md#L2027-L2058; GY plan #L1765-L1767",
+      "source_status": "new/planned in Atlas Revision 4; gate GY-O1 and GY-O3 not_started; GY-O2 may follow",
+      "remaining_obligation": "Build one deployed-effect/world-growth readout for confirmatory posterior updates, candidate_unverified FDR anomalies, and versioned WorldModelRecord branches. Preserve cause class; only prediction_error updates effects; protective response is never causal confirmation. No deployment control, rollback affordance, or recommendation to change policy.",
+      "evidence_basis": "DS21 is the explicit successor surface for the Phase-6 learning loop; GY-O1/O3 are task-level technical gates, not institutional appointment requirements.",
+      "route_hint": "new slice after GY-O1/O3; no SDD or implementation authority until E02 accepted",
+      "program_tasks": [
+        "UI-08"
+      ]
+    },
+    {
+      "id": "GY-O1",
+      "source_ref": "policy-engine/docs/plans/active/layer3-slices/GY-engine-subordination.md#L1765",
+      "source_status": "source-reported not_started",
+      "remaining_obligation": "One package-wide confirmatory deployed-effect answer, retaining cause-class typing and the contradictory-answer falsifier; DS21 gate.",
+      "evidence_basis": "Status is from authoritative GY §8.5 task-standing row; not re-executed by this inventory. Atlas routing in Revision 4 is applied where relevant.",
+      "route_hint": "DS21",
+      "program_tasks": [
+        "UI-08"
+      ]
+    },
+    {
+      "id": "GY-O2",
+      "source_ref": "policy-engine/docs/plans/active/layer3-slices/GY-engine-subordination.md#L1766",
+      "source_status": "source-reported not_started",
+      "remaining_obligation": "FDR-controlled anomaly discovery remains candidate_unverified; Atlas says it may follow O1/O3.",
+      "evidence_basis": "Status is from authoritative GY §8.5 task-standing row; not re-executed by this inventory. Atlas routing in Revision 4 is applied where relevant.",
+      "route_hint": "DS21 optional follow-on",
+      "program_tasks": [
+        "UI-08"
+      ]
+    },
+    {
+      "id": "GY-O3",
+      "source_ref": "policy-engine/docs/plans/active/layer3-slices/GY-engine-subordination.md#L1767",
+      "source_status": "source-reported not_started",
+      "remaining_obligation": "Versioned WorldModelRecord writeback/world-growth readout; DS21 gate.",
+      "evidence_basis": "Status is from authoritative GY §8.5 task-standing row; not re-executed by this inventory. Atlas routing in Revision 4 is applied where relevant.",
+      "route_hint": "DS21",
+      "program_tasks": [
+        "UI-08"
+      ]
+    },
+    {
+      "id": "GY-V1",
+      "source_ref": "policy-engine/docs/plans/active/layer3-slices/GY-engine-subordination.md#L1768",
+      "source_status": "source-reported not_started",
+      "remaining_obligation": "Coverage-matrix closure; verification machinery, Atlas verdict none.",
+      "evidence_basis": "Status is from authoritative GY §8.5 task-standing row; not re-executed by this inventory. Atlas routing in Revision 4 is applied where relevant.",
+      "route_hint": "No human surface",
+      "program_tasks": []
+    },
+    {
+      "id": "GY-V2",
+      "source_ref": "policy-engine/docs/plans/active/layer3-slices/GY-engine-subordination.md#L1769",
+      "source_status": "source-reported not_started",
+      "remaining_obligation": "Reproducible real-input end-to-end loop proof; verification machinery, Atlas verdict none.",
+      "evidence_basis": "Status is from authoritative GY §8.5 task-standing row; not re-executed by this inventory. Atlas routing in Revision 4 is applied where relevant.",
+      "route_hint": "No human surface",
+      "program_tasks": []
+    },
+    {
+      "id": "GY-V3",
+      "source_ref": "policy-engine/docs/plans/active/layer3-slices/GY-engine-subordination.md#L1770",
+      "source_status": "source-reported not_started",
+      "remaining_obligation": "Multi-case generalization and scale battery; verification machinery, Atlas verdict none.",
+      "evidence_basis": "Status is from authoritative GY §8.5 task-standing row; not re-executed by this inventory. Atlas routing in Revision 4 is applied where relevant.",
+      "route_hint": "No human surface",
+      "program_tasks": []
+    },
+    {
+      "id": "GY-V4",
+      "source_ref": "policy-engine/docs/plans/active/layer3-slices/GY-engine-subordination.md#L1771",
+      "source_status": "source-reported not_started",
+      "remaining_obligation": "Adversarial-against-A battery; verification machinery, Atlas verdict none.",
+      "evidence_basis": "Status is from authoritative GY §8.5 task-standing row; not re-executed by this inventory. Atlas routing in Revision 4 is applied where relevant.",
+      "route_hint": "No human surface",
+      "program_tasks": []
+    },
+    {
+      "id": "GY-V5",
+      "source_ref": "policy-engine/docs/plans/active/layer3-slices/GY-engine-subordination.md#L1772",
+      "source_status": "source-reported not_started",
+      "remaining_obligation": "Replay/determinism/reproducibility audit; verification machinery, Atlas verdict none.",
+      "evidence_basis": "Status is from authoritative GY §8.5 task-standing row; not re-executed by this inventory. Atlas routing in Revision 4 is applied where relevant.",
+      "route_hint": "No human surface",
+      "program_tasks": []
+    },
+    {
+      "id": "GY-V6",
+      "source_ref": "policy-engine/docs/plans/active/layer3-slices/GY-engine-subordination.md#L1773",
+      "source_status": "source-reported not_started",
+      "remaining_obligation": "GX validator and full audit suite over GY artifacts; verification machinery, Atlas verdict none.",
+      "evidence_basis": "Status is from authoritative GY §8.5 task-standing row; not re-executed by this inventory. Atlas routing in Revision 4 is applied where relevant.",
+      "route_hint": "No human surface",
+      "program_tasks": []
+    },
+    {
+      "id": "GY-V7",
+      "source_ref": "policy-engine/docs/plans/active/layer3-slices/GY-engine-subordination.md#L1774",
+      "source_status": "source-reported not_started",
+      "remaining_obligation": "Five system-health signals extend the Cycle Board (DS7); distinguish system-health T1/T6/T7 from Atlas plan tension IDs.",
+      "evidence_basis": "Status is from authoritative GY §8.5 task-standing row; not re-executed by this inventory. Atlas routing in Revision 4 is applied where relevant.",
+      "route_hint": "DS7 extension",
+      "program_tasks": []
+    },
+    {
+      "id": "GY-AS2",
+      "source_ref": "policy-engine/docs/plans/active/layer3-slices/GY-engine-subordination.md#L1802",
+      "source_status": "source-reported not_started",
+      "remaining_obligation": "Sealed diagnosis holdout and risk-coverage; deferred until WP-09/WP-10 adoption with measure/population/horizon/assumptions/authority.",
+      "evidence_basis": "Status is from authoritative GY §8.5 task-standing row; not re-executed by this inventory. Atlas routing in Revision 4 is applied where relevant.",
+      "route_hint": "Deferred; no numeric surface now",
+      "program_tasks": []
+    },
+    {
+      "id": "GY-AS3",
+      "source_ref": "policy-engine/docs/plans/active/layer3-slices/GY-engine-subordination.md#L1803",
+      "source_status": "source-reported not_started",
+      "remaining_obligation": "24-packet diagnosis corpus and five independent O3 mutations; Atlas verdict none (verification machinery).",
+      "evidence_basis": "Status is from authoritative GY §8.5 task-standing row; not re-executed by this inventory. Atlas routing in Revision 4 is applied where relevant.",
+      "route_hint": "No human surface; prerequisite evidence for O3",
+      "program_tasks": []
+    },
+    {
+      "id": "GY-CB2",
+      "source_ref": "policy-engine/docs/plans/active/layer3-slices/GY-engine-subordination.md#L1807",
+      "source_status": "source-reported not_started",
+      "remaining_obligation": "Production consumer for CB1 instrument: invoke on real run, persist and read back receipt, register discoverable command; no comprehension claim without institutional operator study.",
+      "evidence_basis": "Status is from authoritative GY §8.5 task-standing row; not re-executed by this inventory. Atlas routing in Revision 4 is applied where relevant.",
+      "route_hint": "DS12 producer extension; human claim remains false/planned",
+      "program_tasks": []
+    },
+    {
+      "id": "GY-ML2",
+      "source_ref": "policy-engine/docs/plans/active/layer3-slices/GY-engine-subordination.md#L1808",
+      "source_status": "source-reported not_started",
+      "remaining_obligation": "Production consumer for ML1: real renditions, persisted receipt and denominator enforcement; no legal equivalence certificate without institutional trust roots.",
+      "evidence_basis": "Status is from authoritative GY §8.5 task-standing row; not re-executed by this inventory. Atlas routing in Revision 4 is applied where relevant.",
+      "route_hint": "DS12 extension/open Lex source-document question",
+      "program_tasks": []
+    },
+    {
+      "id": "GY-FA1",
+      "source_ref": "policy-engine/docs/plans/active/layer3-slices/GY-engine-subordination.md#L1814",
+      "source_status": "source-reported not_started",
+      "remaining_obligation": "Four authority capabilities remain absent/unallocated: owner-enforced subtree cutoff, owner-resolved receipt store, platform toolchain admission, production-data trust policy; maintain refusal posture.",
+      "evidence_basis": "Status is from authoritative GY §8.5 task-standing row; not re-executed by this inventory. Atlas routing in Revision 4 is applied where relevant.",
+      "route_hint": "Foundry/runtime lane; no candidate observation may carry authority",
+      "program_tasks": []
+    },
+    {
+      "id": "GY-D1",
+      "source_ref": "policy-engine/docs/plans/active/layer3-slices/GY-engine-subordination.md#L1778",
+      "source_status": "source-reported blocked",
+      "remaining_obligation": "DataForge must reissue four executable catalog bindings whose resource IDs disagree with their distributions; repaired owner refuses them. The source reports this as external to GY-D1 engineering.",
+      "evidence_basis": "Status is from authoritative GY §8.5 task-standing row; not re-executed by this inventory. Atlas routing in Revision 4 is applied where relevant.",
+      "route_hint": "Fabric/DataForge; do not infer DS15 positive route from N13a",
+      "program_tasks": []
+    },
+    {
+      "id": "GY-C3",
+      "source_ref": "policy-engine/docs/plans/active/layer3-slices/GY-engine-subordination.md#L1784",
+      "source_status": "source-reported blocked",
+      "remaining_obligation": "External DataForge failed D0/staged intake plus independently admitted EvalSafety evidence/context remain unmet.",
+      "evidence_basis": "Status is from authoritative GY §8.5 task-standing row; not re-executed by this inventory. Atlas routing in Revision 4 is applied where relevant.",
+      "route_hint": "Foundry/DataForge external evidence dependency",
+      "program_tasks": []
+    },
+    {
+      "id": "GY-K",
+      "source_ref": "policy-engine/docs/plans/active/layer3-slices/GY-engine-subordination.md#L1792",
+      "source_status": "source-reported blocked",
+      "remaining_obligation": "Engineering half measures extractor and withholds positive accuracy as present-and-null; adjudicator appointment under correspondence-acceptance-standing-rule is required for a positive accuracy number.",
+      "evidence_basis": "Status is from authoritative GY §8.5 task-standing row; not re-executed by this inventory. Atlas routing in Revision 4 is applied where relevant.",
+      "route_hint": "Institutional adjudication for claim; candidate ingestion stays non-authoritative",
+      "program_tasks": []
+    },
+    {
+      "id": "GY-S3",
+      "source_ref": "policy-engine/docs/plans/active/layer3-slices/GY-engine-subordination.md#L1798",
+      "source_status": "source-reported blocked",
+      "remaining_obligation": "Phase-5 row remains blocked on its measured scientific-acceptance conjunct; common relation-gold/acceptance decision is routed to CG2 rather than cured by a signature.",
+      "evidence_basis": "Status is from authoritative GY §8.5 task-standing row; not re-executed by this inventory. Atlas routing in Revision 4 is applied where relevant.",
+      "route_hint": "External independent evidence and acceptance rule; no Atlas surface promotion",
+      "program_tasks": []
+    },
+    {
+      "id": "GY-PR1",
+      "source_ref": "policy-engine/docs/plans/active/layer3-slices/GY-engine-subordination.md#L1799",
+      "source_status": "source-reported blocked",
+      "remaining_obligation": "First-promotion engineering remains blocked: no canonical promotable receipt or joint protected field-pilot event with near_miss=true. Current row reports authentic N4 source and protected admission upstream; own C2 work is recorded on an unmerged branch, not as main-accepted. PR1a data-only needs no appointment; PR1b field-pilot EvalSafety authority does.",
+      "evidence_basis": "Status is from authoritative GY §8.5 task-standing row; not re-executed by this inventory. Atlas routing in Revision 4 is applied where relevant.",
+      "route_hint": "DS12 dependency; keep engineering source/bridge gaps distinct from PR1b institutional authority",
+      "program_tasks": [
+        "UI-02",
+        "UI-16"
+      ]
+    },
+    {
+      "id": "GY-J",
+      "source_ref": "policy-engine/docs/plans/active/layer3-slices/GY-engine-subordination.md#L1791",
+      "source_status": "source-reported not_executed",
+      "remaining_obligation": "Macro-credit evidence does not establish requested MSME claims; production returns typed a_spec_gap and no rate credit.",
+      "evidence_basis": "Status is from authoritative GY §8.5 task-standing row; not re-executed by this inventory. Atlas routing in Revision 4 is applied where relevant.",
+      "route_hint": "Do not promote the refusal to a positive outcome",
+      "program_tasks": []
+    },
+    {
+      "id": "GY-L",
+      "source_ref": "policy-engine/docs/plans/active/layer3-slices/GY-engine-subordination.md#L1793",
+      "source_status": "source-reported not_executed",
+      "remaining_obligation": "Actual post-output GX remains expected_red with 38 findings owned elsewhere; typed a_spec_gap is an allowed blocker, not a false green.",
+      "evidence_basis": "Status is from authoritative GY §8.5 task-standing row; not re-executed by this inventory. Atlas routing in Revision 4 is applied where relevant.",
+      "route_hint": "Owner the GX findings; GY-L positive conjunct remains unmet",
+      "program_tasks": []
+    },
+    {
+      "id": "GY-N11",
+      "source_ref": "policy-engine/docs/plans/active/layer3-slices/GY-engine-subordination.md#L1753; policy-engine/docs/plans/active/atlas-slices/DS17-confidence-ledger-risk-spend.md#L2215-L2235",
+      "source_status": "executed",
+      "remaining_obligation": "DS17 may show the honest negative/local-ledger state. Positive coverage-bound certificate producer, live global scope index, real over-spend artifact and Bayesian-without-coverage bridge remain nonclosed.",
+      "evidence_basis": "GY task standing says executed; DS17 explicit nonclosure and Atlas merge summary retain the owner limitations.",
+      "route_hint": "DS17 residual; no first-positive or family-wise risk number",
+      "program_tasks": [
+        "UI-18"
+      ]
+    },
+    {
+      "id": "GY-N12",
+      "source_ref": "policy-engine/docs/plans/active/layer3-slices/GY-engine-subordination.md#L1754; policy-engine/docs/plans/active/DEBT-REGISTER.md#L474-L475,#L608",
+      "source_status": "executed",
+      "remaining_obligation": "Epoch validity task is executed, but persisted semantic receipt/consumer and lineage carrier have separate debt rows; positive transition verification producer remains open.",
+      "evidence_basis": "GY task standing and current debt rows separate task standing from deployed producer/consumer coverage.",
+      "route_hint": "DS18 exact positive-path rows",
+      "program_tasks": [
+        "UI-19"
+      ]
+    },
+    {
+      "id": "GY-N13a/GY-N13b",
+      "source_ref": "policy-engine/docs/plans/active/layer3-slices/GY-engine-subordination.md#L1755-L1756; policy-engine/docs/plans/active/DEBT-REGISTER.md#L613",
+      "source_status": "both executed",
+      "remaining_obligation": "The DS15 bounded slice closed; positive production route debt remains blocked with later debt narrative naming remaining cost basis, native policy and exact route/cutoff/facet scope.",
+      "evidence_basis": "Task standing and debt status are distinct; no fresh N13 route was executed here.",
+      "route_hint": "DS15 residual reconciliation",
+      "program_tasks": []
+    },
+    {
+      "id": "GY-PA1",
+      "source_ref": "policy-engine/docs/plans/active/layer3-slices/GY-engine-subordination.md#L1757; policy-engine/docs/plans/active/POLICYOS_ATLAS_SURFACE_IMPLEMENTATION_MASTER_PLAN.md#L228",
+      "source_status": "executed; Atlas surface verdict none as a separate task",
+      "remaining_obligation": "No duplicate PA1 work item. Any live first-promotion producer/evaluator/consumer work is GY-PR1a/PR1, routed to DS12.",
+      "evidence_basis": "GY §8.5 current standing supersedes older not_executable history; Atlas Rev4 says PA1 is none as a surface task.",
+      "route_hint": "fold into GY-PR1/DS12, do not doublecount",
+      "program_tasks": []
+    },
+    {
+      "id": "GY-I",
+      "source_ref": "policy-engine/docs/plans/active/layer3-slices/GY-engine-subordination.md#L1785; policy-engine/docs/plans/active/POLICYOS_ATLAS_SURFACE_IMPLEMENTATION_MASTER_PLAN.md#L1970-L1986",
+      "source_status": "executed in §8.5; full Done-when still marked not_measured in the same row",
+      "remaining_obligation": "Atlas uses GY-I as the corrected DS14 gate, but preserve the task row's measurement limit; DS14 still owes its own producer, bridge, consumer, API/client, and semantic surface.",
+      "evidence_basis": "The task's standing label and its unmeasured full-conjunction note are both source-reported; execution is not full-stack DS14 closure.",
+      "route_hint": "DS14 gate nuance",
+      "program_tasks": [
+        "UI-05"
+      ]
+    },
+    {
+      "id": "GY-PA2/GY-PA3",
+      "source_ref": "policy-engine/docs/plans/active/layer3-slices/GY-engine-subordination.md#L1758-L1759; policy-engine/docs/plans/active/POLICYOS_ATLAS_SURFACE_IMPLEMENTATION_MASTER_PLAN.md#L1646-L1652,#L1988-L2015",
+      "source_status": "both executed in GY §8.5",
+      "remaining_obligation": "DS9/Atlas consumers still owe the PA2 delegation packet as a pre-action gate with wrong-role/expired-TTL negatives and contestability; DS14 owes PA3 authority-delta and CompressionLossReceipt rendering plus cross-projection disclosure-budget negatives. These are not closed by the GY mechanism status.",
+      "evidence_basis": "GY status table marks both tasks executed; Atlas assigns the consumer/rendering obligations to the human decision flow and DS14, with Clerk remaining re-grounded on the existing interface.",
+      "route_hint": "DS9 approval flow plus DS14 agent-session/Clerk surface",
+      "program_tasks": []
+    },
+    {
+      "id": "GY-AQ1",
+      "source_ref": "policy-engine/docs/plans/active/layer3-slices/GY-engine-subordination.md#L1800; policy-engine/docs/plans/active/POLICYOS_ATLAS_SURFACE_IMPLEMENTATION_MASTER_PLAN.md#L214-L218",
+      "source_status": "executed",
+      "remaining_obligation": "Atlas routes its eight ceiling algebras to DS16's deferred grammar successor; surface must refuse on missing mandate/licence/authority and more rows cannot create those objects.",
+      "evidence_basis": "GY-AQ1 owner runtime is executed, but Atlas consumer/rendering work remains a DS16 extension.",
+      "route_hint": "DS16 extension",
+      "program_tasks": [
+        "UI-06"
+      ]
+    },
+    {
+      "id": "GY-VC1",
+      "source_ref": "policy-engine/docs/plans/active/layer3-slices/GY-engine-subordination.md#L1804; policy-engine/docs/plans/active/POLICYOS_ATLAS_SURFACE_IMPLEMENTATION_MASTER_PLAN.md#L219",
+      "source_status": "executed",
+      "remaining_obligation": "Crosswalk is delivered; DS12 must render blocking loss as refusal, never nearest-neighbour degradation, and DS15 consumes typed non-data-gap routing without inventing the gap union.",
+      "evidence_basis": "Task standing gives the crosswalk artifact/checker; surface routing is separately specified by Atlas.",
+      "route_hint": "DS12/DS15 consumer extension",
+      "program_tasks": [
+        "UI-17"
+      ]
+    },
+    {
+      "id": "GY-CB1",
+      "source_ref": "policy-engine/docs/plans/active/layer3-slices/GY-engine-subordination.md#L1805; policy-engine/docs/plans/active/POLICYOS_ATLAS_SURFACE_IMPLEMENTATION_MASTER_PLAN.md#L220",
+      "source_status": "executed",
+      "remaining_obligation": "Instrument and schema-2 corpus execute, but human_comprehension_established stays false/planned; CB2 production consumer is not_started and WP-09 public bounds remain empty.",
+      "evidence_basis": "GY source explicitly separates instrument conformance from human-comprehension authority.",
+      "route_hint": "DS11 trust-claim row and DS12 producer semantics",
+      "program_tasks": []
+    },
+    {
+      "id": "GY-ML1",
+      "source_ref": "policy-engine/docs/plans/active/layer3-slices/GY-engine-subordination.md#L1806; policy-engine/docs/plans/active/POLICYOS_ATLAS_SURFACE_IMPLEMENTATION_MASTER_PLAN.md#L221",
+      "source_status": "executed",
+      "remaining_obligation": "Candidate MAEP machinery is built, but no signed legal-equivalence claim or RTL authority admission; ML2 production consumer is not_started and signer/holder/trust roots remain empty.",
+      "evidence_basis": "GY standing explicitly retains institutional and consumer limits; Atlas routes rendering negatives and records the Lex source-document question.",
+      "route_hint": "DS12/ML2; no authority claim",
+      "program_tasks": []
+    },
+    {
+      "id": "GY-CR1",
+      "source_ref": "policy-engine/docs/plans/active/layer3-slices/GY-engine-subordination.md#L1809; policy-engine/docs/plans/active/POLICYOS_ATLAS_SURFACE_IMPLEMENTATION_MASTER_PLAN.md#L222",
+      "source_status": "executed",
+      "remaining_obligation": "Atlas may project honest failed_safe custody state with missing role; action/response families remain withheld under WP-04–WP-08, with signer/substitute slots empty.",
+      "evidence_basis": "Task closure is for durable state/recovery; it does not authorize external execution or approval.",
+      "route_hint": "custody-state projection only; offer no action",
+      "program_tasks": []
+    },
+    {
+      "id": "GY-AS1",
+      "source_ref": "policy-engine/docs/plans/active/layer3-slices/GY-engine-subordination.md#L1801; policy-engine/docs/plans/active/POLICYOS_ATLAS_SURFACE_IMPLEMENTATION_MASTER_PLAN.md#L217",
+      "source_status": "executed",
+      "remaining_obligation": "Verification battery is machinery; Atlas verdict none. Its result does not authorize human-facing assurance beyond AQ1's ceiling vocabulary.",
+      "evidence_basis": "Atlas Rev4 says AS1/AS3 are verification machinery, not human-readable surface.",
+      "route_hint": "no Atlas surface",
+      "program_tasks": []
+    },
+    {
+      "id": "GY-CR2/CR3/CR4",
+      "source_ref": "policy-engine/docs/plans/active/layer3-slices/GY-engine-subordination.md#L1810-L1812; #L1812",
+      "source_status": "executed",
+      "remaining_obligation": "Atlas surface verdict none; the custody engine/corpus are not public action surfaces. For CR4, GY row says reconciliation exists but reader remains opt-in/unconfigured while debt row 474 calls production-unorchestrated closed; resolve before asserting production transition composition.",
+      "evidence_basis": "Current task standing plus Atlas `none` ruling; no new Atlas status is added by CR2/3/4.",
+      "route_hint": "no separate Atlas surface; reconcile CR4/debt contradiction",
+      "program_tasks": []
+    },
+    {
+      "id": "INT-R9",
+      "source_ref": "policy-engine/docs/research/policy-operations/int-r9-first-promotion-evaluation-protocol.md#L1-L95; policy-engine/docs/plans/active/atlas-slices/DS17-confidence-ledger-risk-spend.md#L367-L369",
+      "source_status": "delivered; accepted_narrow_scope; current execution readiness blocked",
+      "remaining_obligation": "Option B keeps result-informed repair as adaptive continuation and withdraws every sequence-level numeric false-promotion claim. Current corpus is public/answer-bearing, no sealed decisive/adjacent unseen case exists, reviewer identities are placeholders, and S0-GAP-02 oracle/evaluator custody is not delivered. No production implementation, schema, owner assignment, authority grant, capability claim, or promise of a positive follows from the research result.",
+      "evidence_basis": "INT-R9 frontmatter explicitly defines its authority and may_not_use_for; executive finding names blocked execution readiness and no family probability. DS17 retains local receipts only.",
+      "route_hint": "Protocol constraint to DS12/DS17/GY-PR1; do not create a second ledger or numeric first-positive claim",
+      "program_tasks": [
+        "UI-02",
+        "UI-17",
+        "UI-18"
+      ]
+    },
+    {
+      "id": "GY-§8.5-complete-task-denominator",
+      "source_ref": "policy-engine/docs/plans/active/layer3-slices/GY-engine-subordination.md#L1548-L1628,#L1738-L1814",
+      "source_status": "complete standing table census: 77 GY task rows; 55 executed, 15 not_started, 5 blocked, 2 not_executed",
+      "remaining_obligation": "The 22 non-executed rows are listed individually in this inventory; selected executed surface dependencies PA1/PA2/PA3/I/N11/N12/N13/AQ1/VC1/CB1/ML1/CR1 are called out separately. The status table is the GY task authority; its revision log is history. The table says delivered-artifact evidence proves presence, not every Done-when clause.",
+      "evidence_basis": "Complete scan of all GY task rows in the delimited §8.5 table in the single GY markdown file; task-table line interval 1738–1814.",
+      "route_hint": "Use current row status and stated conjunct, not revision-log narrative or presence-only inference",
+      "program_tasks": []
+    },
+    {
+      "id": "DS19-disposition-population",
+      "source_ref": "policy-engine/architecture/atlas_surfaces/frontend-disposition-register.json#L1-L45",
+      "source_status": "261-row register; source snapshot as_of 2026-08-09T11:35:00+03:00",
+      "remaining_obligation": "Counts are dispositions, not closure: 179 rebind_pending, 19 deleted, 22 use_as_is, 25 retire_disposition, 16 wire_disposition; strangle states 138 pending, 60 strangled, 63 not_applicable. Register cannot upgrade DS1/DS2 or authorize server endpoint removal.",
+      "evidence_basis": "Full JSON row denominator 261; register authority and exclusions are explicit in metadata.",
+      "route_hint": "DS19 ledger/owner slices; recensus before any later deletion/rebind assertion",
+      "program_tasks": [
+        "UI-09"
+      ]
+    },
+    {
+      "id": "DS6-readiness-reconciliation",
+      "source_ref": "policy-engine/docs/reference/frontend/atlas-surface-readiness-reconciliation.md#L1-L74",
+      "source_status": "freshness 2026-08-18; 261 rows, 5 implemented, 0 stable; no aggregate verdict",
+      "remaining_obligation": "Transitive Vite/Vitest runner module closure remains unbound; owner absent/unallocated. Stable observer absent; downstream release execution not established. Do not infer readiness/maturity or promote an aggregate.",
+      "evidence_basis": "The source limits CAS projection to per-row claim-basis audit and explicitly states counts are recomputed over the full-schema ledger.",
+      "route_hint": "DS6 evidence basis only; fail closed on stable or aggregate claim",
+      "program_tasks": []
+    },
+    {
+      "id": "old-marketing-plan-material-only",
+      "source_ref": "policy-engine/docs/plans/active/POLICYOS_ATLAS_SURFACE_IMPLEMENTATION_MASTER_PLAN.md#L10-L27; policy-engine/docs/plans/active/POLICYOS_ATLAS_PRODUCT_MARKETING_CLIENT_SURFACES_MASTER_PLAN.md#L10,#L151-L200,#L2257,#L2373",
+      "source_status": "material source retained for DS11–DS13; superseded as execution master",
+      "remaining_obligation": "Route only unique retained material: DS11 Trust Center/docs IA (Phase 2.11/2.15 debt is still blocked/routing unresolved), DS12 governed public record and publication semantics, DS13 transparency/contestability/history. Other old W0–W10 phases and advanced-design tracks are not additional Atlas tasks; do not double-count them.",
+      "evidence_basis": "Canonical Atlas frontmatter declares the old plan superseded as execution authority and retained only as DS11–DS13 material.",
+      "route_hint": "material-only; require an Atlas DS11–DS13 owner row before carrying unique work",
+      "program_tasks": [
+        "UI-15"
+      ]
+    },
+    {
+      "id": "DEBT:ds8-public-case-publication",
+      "source_ref": "policy-engine/docs/plans/active/DEBT-REGISTER.md#L480; Atlas master #L1780-L1792",
+      "source_status": "DEBT-REGISTER blocked; Atlas DS12 scope act says it owns the work; later governed-record note says scope/signal mismatch remains architect-owned",
+      "remaining_obligation": "Do not mark closed by scope allocation or by the partial governed-record bridge. Reconcile the debt row's original allocation signal with the later publication requirement, then close only on its own accepted evidence.",
+      "evidence_basis": "Debt row's 2026-09-13 note says the row was not adjudicable by building and that the architect must reconcile the scope act; Atlas earlier states allocation, not closure.",
+      "route_hint": "DS12 architect scope reconciliation plus exact closure signal",
+      "program_tasks": []
+    },
+    {
+      "id": "DEBT:global-case-index",
+      "source_ref": "policy-engine/docs/plans/active/DEBT-REGISTER.md#L420,#L489,#L601; Atlas master #L1788-L1795,#L1940-L1952",
+      "source_status": "global-case-index-producer-missing closed; ds10-global-case-index-producer-allocation blocked; ds8-global-case-index blocked",
+      "remaining_obligation": "Producer existence was source-verified at global_case_index.py and the default provider; remaining issue is allocation/installation and DS13 consumption/history over one canonical index. Do not double-count a second DS10/DS13 case store or claim the downstream consumer is closed.",
+      "evidence_basis": "Three debt rows carry distinct signals and explicitly state they do not close one another; latest producer row says verification closed without production-source edits.",
+      "route_hint": "DS12 owns canonical producer; DS13 owns browse/contest/history consumer",
+      "program_tasks": []
+    },
+    {
+      "id": "DEBT:public-decision-badge",
+      "source_ref": "policy-engine/docs/plans/active/DEBT-REGISTER.md#L490; Atlas master #L1798-L1801",
+      "source_status": "DEBT-REGISTER closed; Atlas DS12 text dated 2026-09-01 still calls the client-computed badge a live defect",
+      "remaining_obligation": "Preserve the source conflict until the canonical DS12 text is reconciled against the later debt closure receipt; do not assign a duplicate badge fix if the closed row's forged-packet negative is accepted.",
+      "evidence_basis": "Current debt status is closed and describes route-level forged-packet refusal; older Atlas paragraph explicitly calls it a live defect.",
+      "route_hint": "documentation/status reconciliation; no duplicate task",
+      "program_tasks": []
+    },
+    {
+      "id": "DEBT:ds15-positive-production-route",
+      "source_ref": "policy-engine/docs/plans/active/DEBT-REGISTER.md#L613; policy-engine/docs/plans/active/atlas-slices/DS15-acquisition-routes.md#L2049-L2078",
+      "source_status": "blocked in current debt row; DS15 plan's earlier verified snapshot says absent/unallocated",
+      "remaining_obligation": "Debt update says a positive route exists after Groups 4–6 but still lacks cost basis, native policy, and exact route/cutoff/facet scope. Keep the row blocked and production-growth claim withheld until its exact signal closes.",
+      "evidence_basis": "Later debt narrative narrows the earlier plan residual; this inventory did not execute a route or verify production state.",
+      "route_hint": "reconcile DS15 closure evidence against current debt row",
+      "program_tasks": []
+    },
+    {
+      "id": "DEBT:ds9-postgres-reservation-proof",
+      "source_ref": "policy-engine/docs/plans/active/DEBT-REGISTER.md#L591; Atlas master #L651",
+      "source_status": "DEBT-REGISTER closed; Atlas DS9 merge summary retains unproven PostgreSQL residual",
+      "remaining_obligation": "Update/reconcile the merge-time Atlas summary before using this as an active blocker; the inventory accepts only the later debt-row status as source-reported standing.",
+      "evidence_basis": "Different status dates: sequence records DS9 merge snapshot, debt row has later closure disposition with distinct SQLite/PostgreSQL proof details.",
+      "route_hint": "source-date reconciliation",
+      "program_tasks": []
+    },
+    {
+      "id": "DEBT:ds18-transition",
+      "source_ref": "policy-engine/docs/plans/active/DEBT-REGISTER.md#L474-L475,#L497,#L608; GY plan #L1812",
+      "source_status": "denominator reconciliation closed; production-unorchestrated row closed; positive verification producer open; epoch-current lineage carrier blocked",
+      "remaining_obligation": "GY-CR4 describes a built but unconfigured opt-in reader while DEBT says production-unorchestrated closed. Reconcile what closure the later row actually proves; keep the independently open producer and blocked lineage carrier visible.",
+      "evidence_basis": "Task standing, debt rows and closure signals measure different conjuncts; no new runtime proof was produced in this inventory.",
+      "route_hint": "DS18/GY-CR4 owner reconciliation",
+      "program_tasks": [
+        "UI-19"
+      ]
+    }
+  ]
+}

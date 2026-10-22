@@ -1,0 +1,1637 @@
+{
+  "kind": "planning_traceability_not_product_schema",
+  "canonical_R9_status": "final_documentary_revision_runtime_unrun",
+  "rows": [
+    {
+      "id": "R01",
+      "kind": "conditional_adversarial_scenario",
+      "source": "policy-engine/docs/research/universal-policy-design/external-foundations/lifecycle/06-delivery-and-review.md",
+      "source_line": 15,
+      "source_row_sha256": "46e8b1a37a53d2d84706707a809c806fe9d42f490741215a7c641bbabfb4fc50",
+      "program_tasks": [
+        "LIF-03",
+        "CAP-02"
+      ],
+      "applicability": "Preserve canonical row scope. Always review; execute whenever its supported mechanism/profile is claimed. Unsupported conditional backend has explicit non-claim and owner disposition, not PASS.",
+      "execution": "UNRUN",
+      "composed_wave": "FINAL-REPLAY; LIF-09 owns lifecycle portion",
+      "discriminator": "Use full original row and its protocol references; retained markers with removed property must not pass. Distinct assertions/authority planes remain separate."
+    },
+    {
+      "id": "R02",
+      "kind": "conditional_adversarial_scenario",
+      "source": "policy-engine/docs/research/universal-policy-design/external-foundations/lifecycle/06-delivery-and-review.md",
+      "source_line": 16,
+      "source_row_sha256": "574e66642ee814ab128feb8cc98f37343b466461fa53bd73ef8aaea41084114d",
+      "program_tasks": [
+        "LIF-02",
+        "LIF-07"
+      ],
+      "applicability": "Preserve canonical row scope. Always review; execute whenever its supported mechanism/profile is claimed. Unsupported conditional backend has explicit non-claim and owner disposition, not PASS.",
+      "execution": "UNRUN",
+      "composed_wave": "FINAL-REPLAY; LIF-09 owns lifecycle portion",
+      "discriminator": "Use full original row and its protocol references; retained markers with removed property must not pass. Distinct assertions/authority planes remain separate."
+    },
+    {
+      "id": "R03",
+      "kind": "conditional_adversarial_scenario",
+      "source": "policy-engine/docs/research/universal-policy-design/external-foundations/lifecycle/06-delivery-and-review.md",
+      "source_line": 17,
+      "source_row_sha256": "4b512df6835400a21140ea11e685198c01c11edec4fea7a19b4a6dcdb72e65ad",
+      "program_tasks": [
+        "LIF-02"
+      ],
+      "applicability": "Preserve canonical row scope. Always review; execute whenever its supported mechanism/profile is claimed. Unsupported conditional backend has explicit non-claim and owner disposition, not PASS.",
+      "execution": "UNRUN",
+      "composed_wave": "FINAL-REPLAY; LIF-09 owns lifecycle portion",
+      "discriminator": "Use full original row and its protocol references; retained markers with removed property must not pass. Distinct assertions/authority planes remain separate."
+    },
+    {
+      "id": "R04",
+      "kind": "conditional_adversarial_scenario",
+      "source": "policy-engine/docs/research/universal-policy-design/external-foundations/lifecycle/06-delivery-and-review.md",
+      "source_line": 18,
+      "source_row_sha256": "fbb8ea7829d468b133711bbd03853df8c1140eefd7602f29e92270dab784a8d8",
+      "program_tasks": [
+        "LIF-02",
+        "UI-19"
+      ],
+      "applicability": "Preserve canonical row scope. Always review; execute whenever its supported mechanism/profile is claimed. Unsupported conditional backend has explicit non-claim and owner disposition, not PASS.",
+      "execution": "UNRUN",
+      "composed_wave": "FINAL-REPLAY; LIF-09 owns lifecycle portion",
+      "discriminator": "Use full original row and its protocol references; retained markers with removed property must not pass. Distinct assertions/authority planes remain separate."
+    },
+    {
+      "id": "R05",
+      "kind": "conditional_adversarial_scenario",
+      "source": "policy-engine/docs/research/universal-policy-design/external-foundations/lifecycle/06-delivery-and-review.md",
+      "source_line": 19,
+      "source_row_sha256": "dbe839d566ff69b54075512275c98fa43787717626d6eadc9407cfa5dd1bbf19",
+      "program_tasks": [
+        "LIF-01",
+        "CAP-03"
+      ],
+      "applicability": "Preserve canonical row scope. Always review; execute whenever its supported mechanism/profile is claimed. Unsupported conditional backend has explicit non-claim and owner disposition, not PASS.",
+      "execution": "UNRUN",
+      "composed_wave": "FINAL-REPLAY; LIF-09 owns lifecycle portion",
+      "discriminator": "Use full original row and its protocol references; retained markers with removed property must not pass. Distinct assertions/authority planes remain separate."
+    },
+    {
+      "id": "R06",
+      "kind": "conditional_adversarial_scenario",
+      "source": "policy-engine/docs/research/universal-policy-design/external-foundations/lifecycle/06-delivery-and-review.md",
+      "source_line": 20,
+      "source_row_sha256": "481f1899a76f1c74ff0f514527e7b6448c53ec44f074025924306807c77ed66c",
+      "program_tasks": [
+        "LIF-01",
+        "LIF-07",
+        "CNT-06"
+      ],
+      "applicability": "Preserve canonical row scope. Always review; execute whenever its supported mechanism/profile is claimed. Unsupported conditional backend has explicit non-claim and owner disposition, not PASS.",
+      "execution": "UNRUN",
+      "composed_wave": "FINAL-REPLAY; LIF-09 owns lifecycle portion",
+      "discriminator": "Use full original row and its protocol references; retained markers with removed property must not pass. Distinct assertions/authority planes remain separate."
+    },
+    {
+      "id": "R07",
+      "kind": "conditional_adversarial_scenario",
+      "source": "policy-engine/docs/research/universal-policy-design/external-foundations/lifecycle/06-delivery-and-review.md",
+      "source_line": 21,
+      "source_row_sha256": "3582397b1e87b7c3a50d9b5fe6be158f9b025be002c449bb5c628996483c1a59",
+      "program_tasks": [
+        "LIF-05",
+        "CAP-05",
+        "CNT-04"
+      ],
+      "applicability": "Preserve canonical row scope. Always review; execute whenever its supported mechanism/profile is claimed. Unsupported conditional backend has explicit non-claim and owner disposition, not PASS.",
+      "execution": "UNRUN",
+      "composed_wave": "FINAL-REPLAY; LIF-09 owns lifecycle portion",
+      "discriminator": "Use full original row and its protocol references; retained markers with removed property must not pass. Distinct assertions/authority planes remain separate."
+    },
+    {
+      "id": "R08",
+      "kind": "conditional_adversarial_scenario",
+      "source": "policy-engine/docs/research/universal-policy-design/external-foundations/lifecycle/06-delivery-and-review.md",
+      "source_line": 22,
+      "source_row_sha256": "947c55a7dd7912bd824904fbc6ad3d2b10c149a148e64b6ca710b394e9c8db82",
+      "program_tasks": [
+        "LIF-05",
+        "OPS-05"
+      ],
+      "applicability": "Preserve canonical row scope. Always review; execute whenever its supported mechanism/profile is claimed. Unsupported conditional backend has explicit non-claim and owner disposition, not PASS.",
+      "execution": "UNRUN",
+      "composed_wave": "FINAL-REPLAY; LIF-09 owns lifecycle portion",
+      "discriminator": "Use full original row and its protocol references; retained markers with removed property must not pass. Distinct assertions/authority planes remain separate."
+    },
+    {
+      "id": "R09",
+      "kind": "conditional_adversarial_scenario",
+      "source": "policy-engine/docs/research/universal-policy-design/external-foundations/lifecycle/06-delivery-and-review.md",
+      "source_line": 23,
+      "source_row_sha256": "622329e9568223aef407b59bf310fbbf59422d4c101cb0e77b8e0d30a213fa9e",
+      "program_tasks": [
+        "LIF-05",
+        "OPS-10"
+      ],
+      "applicability": "Preserve canonical row scope. Always review; execute whenever its supported mechanism/profile is claimed. Unsupported conditional backend has explicit non-claim and owner disposition, not PASS.",
+      "execution": "UNRUN",
+      "composed_wave": "FINAL-REPLAY; LIF-09 owns lifecycle portion",
+      "discriminator": "Use full original row and its protocol references; retained markers with removed property must not pass. Distinct assertions/authority planes remain separate."
+    },
+    {
+      "id": "R10",
+      "kind": "conditional_adversarial_scenario",
+      "source": "policy-engine/docs/research/universal-policy-design/external-foundations/lifecycle/06-delivery-and-review.md",
+      "source_line": 24,
+      "source_row_sha256": "7a11e87581f20c3a133a94fab64175435ee71673f71046510914b974562b2176",
+      "program_tasks": [
+        "LIF-04",
+        "CAP-06"
+      ],
+      "applicability": "Preserve canonical row scope. Always review; execute whenever its supported mechanism/profile is claimed. Unsupported conditional backend has explicit non-claim and owner disposition, not PASS.",
+      "execution": "UNRUN",
+      "composed_wave": "FINAL-REPLAY; LIF-09 owns lifecycle portion",
+      "discriminator": "Use full original row and its protocol references; retained markers with removed property must not pass. Distinct assertions/authority planes remain separate."
+    },
+    {
+      "id": "R11",
+      "kind": "conditional_adversarial_scenario",
+      "source": "policy-engine/docs/research/universal-policy-design/external-foundations/lifecycle/06-delivery-and-review.md",
+      "source_line": 25,
+      "source_row_sha256": "0fe6ce5248733f5c6068d05820c6d83d2259fbfe5ac6c448f4acd6aa994f0348",
+      "program_tasks": [
+        "LIF-08",
+        "LIF-05"
+      ],
+      "applicability": "Preserve canonical row scope. Always review; execute whenever its supported mechanism/profile is claimed. Unsupported conditional backend has explicit non-claim and owner disposition, not PASS.",
+      "execution": "UNRUN",
+      "composed_wave": "FINAL-REPLAY; LIF-09 owns lifecycle portion",
+      "discriminator": "Use full original row and its protocol references; retained markers with removed property must not pass. Distinct assertions/authority planes remain separate."
+    },
+    {
+      "id": "R12",
+      "kind": "conditional_adversarial_scenario",
+      "source": "policy-engine/docs/research/universal-policy-design/external-foundations/lifecycle/06-delivery-and-review.md",
+      "source_line": 26,
+      "source_row_sha256": "073a6061076672591723b12b5c23705af042564cbeaca966427c8460fb0eb8b1",
+      "program_tasks": [
+        "P0-REBIND",
+        "LIF-01"
+      ],
+      "applicability": "Preserve canonical row scope. Always review; execute whenever its supported mechanism/profile is claimed. Unsupported conditional backend has explicit non-claim and owner disposition, not PASS.",
+      "execution": "UNRUN",
+      "composed_wave": "FINAL-REPLAY; LIF-09 owns lifecycle portion",
+      "discriminator": "Use full original row and its protocol references; retained markers with removed property must not pass. Distinct assertions/authority planes remain separate."
+    },
+    {
+      "id": "T01",
+      "kind": "conditional_adversarial_scenario",
+      "source": "policy-engine/docs/research/universal-policy-design/external-foundations/lifecycle/06-delivery-and-review.md",
+      "source_line": 105,
+      "source_row_sha256": "cab570094850d0467bb5bde2861519880577f7f71df0b3daff6889c6ffdad5d9",
+      "program_tasks": [
+        "LIF-03",
+        "CAP-02"
+      ],
+      "applicability": "Preserve canonical row scope. Always review; execute whenever its supported mechanism/profile is claimed. Unsupported conditional backend has explicit non-claim and owner disposition, not PASS.",
+      "execution": "UNRUN",
+      "composed_wave": "FINAL-REPLAY; LIF-09 owns lifecycle portion",
+      "discriminator": "Use full original row and its protocol references; retained markers with removed property must not pass. Distinct assertions/authority planes remain separate."
+    },
+    {
+      "id": "T02",
+      "kind": "conditional_adversarial_scenario",
+      "source": "policy-engine/docs/research/universal-policy-design/external-foundations/lifecycle/06-delivery-and-review.md",
+      "source_line": 106,
+      "source_row_sha256": "034783e2b8036bc3f4e5d01828797ca6114d23e23f7bb0fe55c5ff857c570bcf",
+      "program_tasks": [
+        "LIF-03"
+      ],
+      "applicability": "Preserve canonical row scope. Always review; execute whenever its supported mechanism/profile is claimed. Unsupported conditional backend has explicit non-claim and owner disposition, not PASS.",
+      "execution": "UNRUN",
+      "composed_wave": "FINAL-REPLAY; LIF-09 owns lifecycle portion",
+      "discriminator": "Use full original row and its protocol references; retained markers with removed property must not pass. Distinct assertions/authority planes remain separate."
+    },
+    {
+      "id": "T03",
+      "kind": "conditional_adversarial_scenario",
+      "source": "policy-engine/docs/research/universal-policy-design/external-foundations/lifecycle/06-delivery-and-review.md",
+      "source_line": 107,
+      "source_row_sha256": "995c0adb1d897810843f48bbc659f6702c172d3f61a3a53711e53efb9b07ef52",
+      "program_tasks": [
+        "LIF-03",
+        "CAP-02"
+      ],
+      "applicability": "Preserve canonical row scope. Always review; execute whenever its supported mechanism/profile is claimed. Unsupported conditional backend has explicit non-claim and owner disposition, not PASS.",
+      "execution": "UNRUN",
+      "composed_wave": "FINAL-REPLAY; LIF-09 owns lifecycle portion",
+      "discriminator": "Use full original row and its protocol references; retained markers with removed property must not pass. Distinct assertions/authority planes remain separate."
+    },
+    {
+      "id": "T04",
+      "kind": "conditional_adversarial_scenario",
+      "source": "policy-engine/docs/research/universal-policy-design/external-foundations/lifecycle/06-delivery-and-review.md",
+      "source_line": 108,
+      "source_row_sha256": "229e3ee98a51ccc96faf26dab6b1eafa9f1772add03f0aec3bb4344dfe213fbd",
+      "program_tasks": [
+        "LIF-03",
+        "CAP-02"
+      ],
+      "applicability": "Preserve canonical row scope. Always review; execute whenever its supported mechanism/profile is claimed. Unsupported conditional backend has explicit non-claim and owner disposition, not PASS.",
+      "execution": "UNRUN",
+      "composed_wave": "FINAL-REPLAY; LIF-09 owns lifecycle portion",
+      "discriminator": "Use full original row and its protocol references; retained markers with removed property must not pass. Distinct assertions/authority planes remain separate."
+    },
+    {
+      "id": "T05",
+      "kind": "conditional_adversarial_scenario",
+      "source": "policy-engine/docs/research/universal-policy-design/external-foundations/lifecycle/06-delivery-and-review.md",
+      "source_line": 109,
+      "source_row_sha256": "69430744d8a0f732d7b2cbbe71ea235e8fff685c75ee6933d9e3a683abb4128e",
+      "program_tasks": [
+        "LIF-02"
+      ],
+      "applicability": "Preserve canonical row scope. Always review; execute whenever its supported mechanism/profile is claimed. Unsupported conditional backend has explicit non-claim and owner disposition, not PASS.",
+      "execution": "UNRUN",
+      "composed_wave": "FINAL-REPLAY; LIF-09 owns lifecycle portion",
+      "discriminator": "Use full original row and its protocol references; retained markers with removed property must not pass. Distinct assertions/authority planes remain separate."
+    },
+    {
+      "id": "T06",
+      "kind": "conditional_adversarial_scenario",
+      "source": "policy-engine/docs/research/universal-policy-design/external-foundations/lifecycle/06-delivery-and-review.md",
+      "source_line": 110,
+      "source_row_sha256": "b95e42da71ae79b7814682be17ebccbd036da4024d67a58dfab3aca3423090b2",
+      "program_tasks": [
+        "LIF-02",
+        "UI-19"
+      ],
+      "applicability": "Preserve canonical row scope. Always review; execute whenever its supported mechanism/profile is claimed. Unsupported conditional backend has explicit non-claim and owner disposition, not PASS.",
+      "execution": "UNRUN",
+      "composed_wave": "FINAL-REPLAY; LIF-09 owns lifecycle portion",
+      "discriminator": "Use full original row and its protocol references; retained markers with removed property must not pass. Distinct assertions/authority planes remain separate."
+    },
+    {
+      "id": "T07",
+      "kind": "conditional_adversarial_scenario",
+      "source": "policy-engine/docs/research/universal-policy-design/external-foundations/lifecycle/06-delivery-and-review.md",
+      "source_line": 111,
+      "source_row_sha256": "e92edff33ed4d8d472b85022c648734e0356272b86039c8818759daa236dc1a4",
+      "program_tasks": [
+        "LIF-02",
+        "UI-19",
+        "OPS-04"
+      ],
+      "applicability": "Preserve canonical row scope. Always review; execute whenever its supported mechanism/profile is claimed. Unsupported conditional backend has explicit non-claim and owner disposition, not PASS.",
+      "execution": "UNRUN",
+      "composed_wave": "FINAL-REPLAY; LIF-09 owns lifecycle portion",
+      "discriminator": "Use full original row and its protocol references; retained markers with removed property must not pass. Distinct assertions/authority planes remain separate."
+    },
+    {
+      "id": "T08",
+      "kind": "conditional_adversarial_scenario",
+      "source": "policy-engine/docs/research/universal-policy-design/external-foundations/lifecycle/06-delivery-and-review.md",
+      "source_line": 112,
+      "source_row_sha256": "3bf1cfe24a7aa8dec67ed3d2a27b0ca650de257ed3b068064f1976b3de19b575",
+      "program_tasks": [
+        "LIF-02",
+        "LIF-07"
+      ],
+      "applicability": "Preserve canonical row scope. Always review; execute whenever its supported mechanism/profile is claimed. Unsupported conditional backend has explicit non-claim and owner disposition, not PASS.",
+      "execution": "UNRUN",
+      "composed_wave": "FINAL-REPLAY; LIF-09 owns lifecycle portion",
+      "discriminator": "Use full original row and its protocol references; retained markers with removed property must not pass. Distinct assertions/authority planes remain separate."
+    },
+    {
+      "id": "T09",
+      "kind": "conditional_adversarial_scenario",
+      "source": "policy-engine/docs/research/universal-policy-design/external-foundations/lifecycle/06-delivery-and-review.md",
+      "source_line": 113,
+      "source_row_sha256": "ae6be7ce3ccfbb4ca94e65f1ad4ae6a6f98049a3050a308e07ab1f8dbdc5344c",
+      "program_tasks": [
+        "LIF-01",
+        "CNT-03",
+        "CNT-04",
+        "CNT-05"
+      ],
+      "applicability": "Preserve canonical row scope. Always review; execute whenever its supported mechanism/profile is claimed. Unsupported conditional backend has explicit non-claim and owner disposition, not PASS.",
+      "execution": "UNRUN",
+      "composed_wave": "FINAL-REPLAY; LIF-09 owns lifecycle portion",
+      "discriminator": "Use full original row and its protocol references; retained markers with removed property must not pass. Distinct assertions/authority planes remain separate."
+    },
+    {
+      "id": "T10",
+      "kind": "conditional_adversarial_scenario",
+      "source": "policy-engine/docs/research/universal-policy-design/external-foundations/lifecycle/06-delivery-and-review.md",
+      "source_line": 114,
+      "source_row_sha256": "efe54cdf2811b084d45f1a26b6d12a598e12369b47d5684a19865f7ee772413b",
+      "program_tasks": [
+        "LIF-07",
+        "CNT-06",
+        "GYD-10"
+      ],
+      "applicability": "Preserve canonical row scope. Always review; execute whenever its supported mechanism/profile is claimed. Unsupported conditional backend has explicit non-claim and owner disposition, not PASS.",
+      "execution": "UNRUN",
+      "composed_wave": "FINAL-REPLAY; LIF-09 owns lifecycle portion",
+      "discriminator": "Use full original row and its protocol references; retained markers with removed property must not pass. Distinct assertions/authority planes remain separate."
+    },
+    {
+      "id": "T11",
+      "kind": "conditional_adversarial_scenario",
+      "source": "policy-engine/docs/research/universal-policy-design/external-foundations/lifecycle/06-delivery-and-review.md",
+      "source_line": 115,
+      "source_row_sha256": "9b03b9107e8bb3d3d1216d4e8b610a75ba48ff3ddd8d83b952242e222ee7e891",
+      "program_tasks": [
+        "LIF-05",
+        "CAP-05"
+      ],
+      "applicability": "Preserve canonical row scope. Always review; execute whenever its supported mechanism/profile is claimed. Unsupported conditional backend has explicit non-claim and owner disposition, not PASS.",
+      "execution": "UNRUN",
+      "composed_wave": "FINAL-REPLAY; LIF-09 owns lifecycle portion",
+      "discriminator": "Use full original row and its protocol references; retained markers with removed property must not pass. Distinct assertions/authority planes remain separate."
+    },
+    {
+      "id": "T12",
+      "kind": "conditional_adversarial_scenario",
+      "source": "policy-engine/docs/research/universal-policy-design/external-foundations/lifecycle/06-delivery-and-review.md",
+      "source_line": 116,
+      "source_row_sha256": "7f49a955b1cabec985f362874ef9d9f0e49943bdef20d145e5e487fc2dc68cbe",
+      "program_tasks": [
+        "LIF-05",
+        "CAP-06"
+      ],
+      "applicability": "Preserve canonical row scope. Always review; execute whenever its supported mechanism/profile is claimed. Unsupported conditional backend has explicit non-claim and owner disposition, not PASS.",
+      "execution": "UNRUN",
+      "composed_wave": "FINAL-REPLAY; LIF-09 owns lifecycle portion",
+      "discriminator": "Use full original row and its protocol references; retained markers with removed property must not pass. Distinct assertions/authority planes remain separate."
+    },
+    {
+      "id": "T13",
+      "kind": "conditional_adversarial_scenario",
+      "source": "policy-engine/docs/research/universal-policy-design/external-foundations/lifecycle/06-delivery-and-review.md",
+      "source_line": 117,
+      "source_row_sha256": "c68ac2ca0e94e9c2fcee02dc5fd3351b947f650c27fbe34ebe1720ef82f8ecf9",
+      "program_tasks": [
+        "LIF-05",
+        "OPS-05"
+      ],
+      "applicability": "Preserve canonical row scope. Always review; execute whenever its supported mechanism/profile is claimed. Unsupported conditional backend has explicit non-claim and owner disposition, not PASS.",
+      "execution": "UNRUN",
+      "composed_wave": "FINAL-REPLAY; LIF-09 owns lifecycle portion",
+      "discriminator": "Use full original row and its protocol references; retained markers with removed property must not pass. Distinct assertions/authority planes remain separate."
+    },
+    {
+      "id": "T14",
+      "kind": "conditional_adversarial_scenario",
+      "source": "policy-engine/docs/research/universal-policy-design/external-foundations/lifecycle/06-delivery-and-review.md",
+      "source_line": 118,
+      "source_row_sha256": "f80d4f4b6409e87decac9125937a12409e5bae2b2d23727ae48a738fbc37c9fa",
+      "program_tasks": [
+        "LIF-05",
+        "OPS-10"
+      ],
+      "applicability": "Preserve canonical row scope. Always review; execute whenever its supported mechanism/profile is claimed. Unsupported conditional backend has explicit non-claim and owner disposition, not PASS.",
+      "execution": "UNRUN",
+      "composed_wave": "FINAL-REPLAY; LIF-09 owns lifecycle portion",
+      "discriminator": "Use full original row and its protocol references; retained markers with removed property must not pass. Distinct assertions/authority planes remain separate."
+    },
+    {
+      "id": "T15",
+      "kind": "conditional_adversarial_scenario",
+      "source": "policy-engine/docs/research/universal-policy-design/external-foundations/lifecycle/06-delivery-and-review.md",
+      "source_line": 119,
+      "source_row_sha256": "f9d57b7aeeae57ac2ffa02e341d2f31c7b7fab7d011fb17c6cdfddabafe54109",
+      "program_tasks": [
+        "LIF-04",
+        "CAP-06"
+      ],
+      "applicability": "Preserve canonical row scope. Always review; execute whenever its supported mechanism/profile is claimed. Unsupported conditional backend has explicit non-claim and owner disposition, not PASS.",
+      "execution": "UNRUN",
+      "composed_wave": "FINAL-REPLAY; LIF-09 owns lifecycle portion",
+      "discriminator": "Use full original row and its protocol references; retained markers with removed property must not pass. Distinct assertions/authority planes remain separate."
+    },
+    {
+      "id": "T16",
+      "kind": "conditional_adversarial_scenario",
+      "source": "policy-engine/docs/research/universal-policy-design/external-foundations/lifecycle/06-delivery-and-review.md",
+      "source_line": 120,
+      "source_row_sha256": "5f91f11bbf5c8416aec53e1988f7f54b83857c50722f17cdb65f7acd2ee99e1b",
+      "program_tasks": [
+        "LIF-04"
+      ],
+      "applicability": "Preserve canonical row scope. Always review; execute whenever its supported mechanism/profile is claimed. Unsupported conditional backend has explicit non-claim and owner disposition, not PASS.",
+      "execution": "UNRUN",
+      "composed_wave": "FINAL-REPLAY; LIF-09 owns lifecycle portion",
+      "discriminator": "Use full original row and its protocol references; retained markers with removed property must not pass. Distinct assertions/authority planes remain separate."
+    },
+    {
+      "id": "T17",
+      "kind": "conditional_adversarial_scenario",
+      "source": "policy-engine/docs/research/universal-policy-design/external-foundations/lifecycle/06-delivery-and-review.md",
+      "source_line": 121,
+      "source_row_sha256": "20e4e2d519277742633a6c8261496b3a08f53a8067565a9f24f33d41c2061739",
+      "program_tasks": [
+        "LIF-04",
+        "OPS-04"
+      ],
+      "applicability": "Preserve canonical row scope. Always review; execute whenever its supported mechanism/profile is claimed. Unsupported conditional backend has explicit non-claim and owner disposition, not PASS.",
+      "execution": "UNRUN",
+      "composed_wave": "FINAL-REPLAY; LIF-09 owns lifecycle portion",
+      "discriminator": "Use full original row and its protocol references; retained markers with removed property must not pass. Distinct assertions/authority planes remain separate."
+    },
+    {
+      "id": "T18",
+      "kind": "conditional_adversarial_scenario",
+      "source": "policy-engine/docs/research/universal-policy-design/external-foundations/lifecycle/06-delivery-and-review.md",
+      "source_line": 122,
+      "source_row_sha256": "17395a8e758f6e0c6ccf6158a6e673bd917ba02c1b22b1264d67d872da25dfb7",
+      "program_tasks": [
+        "LIF-02",
+        "LIF-07"
+      ],
+      "applicability": "Preserve canonical row scope. Always review; execute whenever its supported mechanism/profile is claimed. Unsupported conditional backend has explicit non-claim and owner disposition, not PASS.",
+      "execution": "UNRUN",
+      "composed_wave": "FINAL-REPLAY; LIF-09 owns lifecycle portion",
+      "discriminator": "Use full original row and its protocol references; retained markers with removed property must not pass. Distinct assertions/authority planes remain separate."
+    },
+    {
+      "id": "T19",
+      "kind": "conditional_adversarial_scenario",
+      "source": "policy-engine/docs/research/universal-policy-design/external-foundations/lifecycle/06-delivery-and-review.md",
+      "source_line": 123,
+      "source_row_sha256": "2293917eebd5347c777fc0a9c8c6d62541f44f6c6a63be44d1c56813407baacb",
+      "program_tasks": [
+        "LIF-08",
+        "CAP-01"
+      ],
+      "applicability": "Preserve canonical row scope. Always review; execute whenever its supported mechanism/profile is claimed. Unsupported conditional backend has explicit non-claim and owner disposition, not PASS.",
+      "execution": "UNRUN",
+      "composed_wave": "FINAL-REPLAY; LIF-09 owns lifecycle portion",
+      "discriminator": "Use full original row and its protocol references; retained markers with removed property must not pass. Distinct assertions/authority planes remain separate."
+    },
+    {
+      "id": "T20",
+      "kind": "conditional_adversarial_scenario",
+      "source": "policy-engine/docs/research/universal-policy-design/external-foundations/lifecycle/06-delivery-and-review.md",
+      "source_line": 124,
+      "source_row_sha256": "c7d203ea15727c298aa1ce91ae62b15be540c82f9750719c2fbf3b20cc2eca7d",
+      "program_tasks": [
+        "LIF-06",
+        "LIF-05",
+        "OPS-08"
+      ],
+      "applicability": "Preserve canonical row scope. Always review; execute whenever its supported mechanism/profile is claimed. Unsupported conditional backend has explicit non-claim and owner disposition, not PASS.",
+      "execution": "UNRUN",
+      "composed_wave": "FINAL-REPLAY; LIF-09 owns lifecycle portion",
+      "discriminator": "Use full original row and its protocol references; retained markers with removed property must not pass. Distinct assertions/authority planes remain separate."
+    },
+    {
+      "id": "A0",
+      "kind": "delivery_step",
+      "source": "policy-engine/docs/research/universal-policy-design/external-foundations/acquisition/05-implementation-and-review.md",
+      "source_line": 9,
+      "source_row_sha256": "e45c4b00c8b75f9b6fd9c0780240ca2cc4e4464e77caaf29a5634de4efb614e9",
+      "program_tasks": [
+        "P0-REBIND"
+      ],
+      "applicability": "Preserve canonical row scope. Always review; execute whenever its supported mechanism/profile is claimed. Unsupported conditional backend has explicit non-claim and owner disposition, not PASS.",
+      "execution": "UNRUN",
+      "composed_wave": "FINAL-REPLAY; LIF-09 owns lifecycle portion",
+      "discriminator": "Use full original row and its protocol references; retained markers with removed property must not pass. Distinct assertions/authority planes remain separate."
+    },
+    {
+      "id": "A1",
+      "kind": "delivery_step",
+      "source": "policy-engine/docs/research/universal-policy-design/external-foundations/acquisition/05-implementation-and-review.md",
+      "source_line": 10,
+      "source_row_sha256": "ebdfaa2599082a74af0fec4d5de20633734bf607a0eb47106b47c5b64f226c6a",
+      "program_tasks": [
+        "CAP-02",
+        "LIF-03"
+      ],
+      "applicability": "Preserve canonical row scope. Always review; execute whenever its supported mechanism/profile is claimed. Unsupported conditional backend has explicit non-claim and owner disposition, not PASS.",
+      "execution": "UNRUN",
+      "composed_wave": "FINAL-REPLAY; LIF-09 owns lifecycle portion",
+      "discriminator": "Use full original row and its protocol references; retained markers with removed property must not pass. Distinct assertions/authority planes remain separate."
+    },
+    {
+      "id": "A2",
+      "kind": "delivery_step",
+      "source": "policy-engine/docs/research/universal-policy-design/external-foundations/acquisition/05-implementation-and-review.md",
+      "source_line": 11,
+      "source_row_sha256": "859cac37127d9edc7a5db1f32625d4a69894db8896f7bac9706a7b30b7f508e6",
+      "program_tasks": [
+        "CAP-01",
+        "CAP-02",
+        "CAP-03"
+      ],
+      "applicability": "Preserve canonical row scope. Always review; execute whenever its supported mechanism/profile is claimed. Unsupported conditional backend has explicit non-claim and owner disposition, not PASS.",
+      "execution": "UNRUN",
+      "composed_wave": "FINAL-REPLAY; LIF-09 owns lifecycle portion",
+      "discriminator": "Use full original row and its protocol references; retained markers with removed property must not pass. Distinct assertions/authority planes remain separate."
+    },
+    {
+      "id": "A3",
+      "kind": "delivery_step",
+      "source": "policy-engine/docs/research/universal-policy-design/external-foundations/acquisition/05-implementation-and-review.md",
+      "source_line": 12,
+      "source_row_sha256": "46c43d93aba266492d5ca2e6e7d1d2342fe572fc4a369204bee4fa56c5fafe6e",
+      "program_tasks": [
+        "CAP-05",
+        "CNT-04"
+      ],
+      "applicability": "Preserve canonical row scope. Always review; execute whenever its supported mechanism/profile is claimed. Unsupported conditional backend has explicit non-claim and owner disposition, not PASS.",
+      "execution": "UNRUN",
+      "composed_wave": "FINAL-REPLAY; LIF-09 owns lifecycle portion",
+      "discriminator": "Use full original row and its protocol references; retained markers with removed property must not pass. Distinct assertions/authority planes remain separate."
+    },
+    {
+      "id": "A4",
+      "kind": "delivery_step",
+      "source": "policy-engine/docs/research/universal-policy-design/external-foundations/acquisition/05-implementation-and-review.md",
+      "source_line": 13,
+      "source_row_sha256": "aceb13f678ee1c851f88d01315f406a8515f015ebe43b6c8597116f29dead643",
+      "program_tasks": [
+        "CAP-06",
+        "LIF-05"
+      ],
+      "applicability": "Preserve canonical row scope. Always review; execute whenever its supported mechanism/profile is claimed. Unsupported conditional backend has explicit non-claim and owner disposition, not PASS.",
+      "execution": "UNRUN",
+      "composed_wave": "FINAL-REPLAY; LIF-09 owns lifecycle portion",
+      "discriminator": "Use full original row and its protocol references; retained markers with removed property must not pass. Distinct assertions/authority planes remain separate."
+    },
+    {
+      "id": "A5",
+      "kind": "delivery_step",
+      "source": "policy-engine/docs/research/universal-policy-design/external-foundations/acquisition/05-implementation-and-review.md",
+      "source_line": 14,
+      "source_row_sha256": "ac475a52cf5e2e7fde1228b6ba9152b2ee056e0ffe6fea06b0576d63b18a0fa5",
+      "program_tasks": [
+        "OPS-01",
+        "OPS-04",
+        "OPS-06"
+      ],
+      "applicability": "Preserve canonical row scope. Always review; execute whenever its supported mechanism/profile is claimed. Unsupported conditional backend has explicit non-claim and owner disposition, not PASS.",
+      "execution": "UNRUN",
+      "composed_wave": "FINAL-REPLAY; LIF-09 owns lifecycle portion",
+      "discriminator": "Use full original row and its protocol references; retained markers with removed property must not pass. Distinct assertions/authority planes remain separate."
+    },
+    {
+      "id": "A6",
+      "kind": "delivery_step",
+      "source": "policy-engine/docs/research/universal-policy-design/external-foundations/acquisition/05-implementation-and-review.md",
+      "source_line": 15,
+      "source_row_sha256": "b6a032e04bf1353d1e0218f6eae8017f91f47900a6c57ca14a6a38fb0ef7d9f1",
+      "program_tasks": [
+        "OPS-08",
+        "OPS-10"
+      ],
+      "applicability": "Preserve canonical row scope. Always review; execute whenever its supported mechanism/profile is claimed. Unsupported conditional backend has explicit non-claim and owner disposition, not PASS.",
+      "execution": "UNRUN",
+      "composed_wave": "FINAL-REPLAY; LIF-09 owns lifecycle portion",
+      "discriminator": "Use full original row and its protocol references; retained markers with removed property must not pass. Distinct assertions/authority planes remain separate."
+    },
+    {
+      "id": "A7",
+      "kind": "delivery_step",
+      "source": "policy-engine/docs/research/universal-policy-design/external-foundations/acquisition/05-implementation-and-review.md",
+      "source_line": 16,
+      "source_row_sha256": "62f89f8f07b667ba34f11d6016553db6a479c6c09299854000e3cad356596afb",
+      "program_tasks": [
+        "CNT-07",
+        "DEB-09"
+      ],
+      "applicability": "Preserve canonical row scope. Always review; execute whenever its supported mechanism/profile is claimed. Unsupported conditional backend has explicit non-claim and owner disposition, not PASS.",
+      "execution": "UNRUN",
+      "composed_wave": "FINAL-REPLAY; LIF-09 owns lifecycle portion",
+      "discriminator": "Use full original row and its protocol references; retained markers with removed property must not pass. Distinct assertions/authority planes remain separate."
+    },
+    {
+      "id": "AP01",
+      "kind": "conditional_adversarial_scenario",
+      "source": "policy-engine/docs/research/universal-policy-design/external-foundations/acquisition/05-implementation-and-review.md",
+      "source_line": 56,
+      "source_row_sha256": "bf430828ef6e1a713cfd279edfd54efa2ec9c6e47578eedae938f8ad1a1ff3f1",
+      "program_tasks": [
+        "CAP-02",
+        "LIF-03"
+      ],
+      "applicability": "Preserve canonical row scope. Always review; execute whenever its supported mechanism/profile is claimed. Unsupported conditional backend has explicit non-claim and owner disposition, not PASS.",
+      "execution": "UNRUN",
+      "composed_wave": "FINAL-REPLAY; LIF-09 owns lifecycle portion",
+      "discriminator": "Use full original row and its protocol references; retained markers with removed property must not pass. Distinct assertions/authority planes remain separate."
+    },
+    {
+      "id": "AP02",
+      "kind": "conditional_adversarial_scenario",
+      "source": "policy-engine/docs/research/universal-policy-design/external-foundations/acquisition/05-implementation-and-review.md",
+      "source_line": 57,
+      "source_row_sha256": "5d9e34ab05aaff300be84fe1b09f6c20e78bd5956a83e0db10d3077113e5fbd4",
+      "program_tasks": [
+        "CAP-02",
+        "CAP-03",
+        "LIF-01",
+        "LIF-05"
+      ],
+      "applicability": "Preserve canonical row scope. Always review; execute whenever its supported mechanism/profile is claimed. Unsupported conditional backend has explicit non-claim and owner disposition, not PASS.",
+      "execution": "UNRUN",
+      "composed_wave": "FINAL-REPLAY; LIF-09 owns lifecycle portion",
+      "discriminator": "Use full original row and its protocol references; retained markers with removed property must not pass. Distinct assertions/authority planes remain separate."
+    },
+    {
+      "id": "AP03",
+      "kind": "conditional_adversarial_scenario",
+      "source": "policy-engine/docs/research/universal-policy-design/external-foundations/acquisition/05-implementation-and-review.md",
+      "source_line": 58,
+      "source_row_sha256": "99a98e4681b382868a36ca6f83f815711cf740eabe8d8f4ae972cd80044577a9",
+      "program_tasks": [
+        "CAP-02",
+        "LIF-03"
+      ],
+      "applicability": "Preserve canonical row scope. Always review; execute whenever its supported mechanism/profile is claimed. Unsupported conditional backend has explicit non-claim and owner disposition, not PASS.",
+      "execution": "UNRUN",
+      "composed_wave": "FINAL-REPLAY; LIF-09 owns lifecycle portion",
+      "discriminator": "Use full original row and its protocol references; retained markers with removed property must not pass. Distinct assertions/authority planes remain separate."
+    },
+    {
+      "id": "AP04",
+      "kind": "conditional_adversarial_scenario",
+      "source": "policy-engine/docs/research/universal-policy-design/external-foundations/acquisition/05-implementation-and-review.md",
+      "source_line": 59,
+      "source_row_sha256": "20f08c1cc4c81ccbf140293dcd9bc4929bdd472ef275d57b224f4e98f1b91ed7",
+      "program_tasks": [
+        "CAP-02",
+        "LIF-03"
+      ],
+      "applicability": "Preserve canonical row scope. Always review; execute whenever its supported mechanism/profile is claimed. Unsupported conditional backend has explicit non-claim and owner disposition, not PASS.",
+      "execution": "UNRUN",
+      "composed_wave": "FINAL-REPLAY; LIF-09 owns lifecycle portion",
+      "discriminator": "Use full original row and its protocol references; retained markers with removed property must not pass. Distinct assertions/authority planes remain separate."
+    },
+    {
+      "id": "AP05",
+      "kind": "conditional_adversarial_scenario",
+      "source": "policy-engine/docs/research/universal-policy-design/external-foundations/acquisition/05-implementation-and-review.md",
+      "source_line": 60,
+      "source_row_sha256": "b55939215aaed20af00807015daee7fd56f1566836657696f8f71f85733c3442",
+      "program_tasks": [
+        "CAP-02",
+        "CAP-01"
+      ],
+      "applicability": "Preserve canonical row scope. Always review; execute whenever its supported mechanism/profile is claimed. Unsupported conditional backend has explicit non-claim and owner disposition, not PASS.",
+      "execution": "UNRUN",
+      "composed_wave": "FINAL-REPLAY; LIF-09 owns lifecycle portion",
+      "discriminator": "Use full original row and its protocol references; retained markers with removed property must not pass. Distinct assertions/authority planes remain separate."
+    },
+    {
+      "id": "AP06",
+      "kind": "conditional_adversarial_scenario",
+      "source": "policy-engine/docs/research/universal-policy-design/external-foundations/acquisition/05-implementation-and-review.md",
+      "source_line": 61,
+      "source_row_sha256": "2890dddbe86dcf52aea4d92139353b94b2d8ac47aac2b21530be89b04019d981",
+      "program_tasks": [
+        "CAP-05",
+        "CNT-04"
+      ],
+      "applicability": "Preserve canonical row scope. Always review; execute whenever its supported mechanism/profile is claimed. Unsupported conditional backend has explicit non-claim and owner disposition, not PASS.",
+      "execution": "UNRUN",
+      "composed_wave": "FINAL-REPLAY; LIF-09 owns lifecycle portion",
+      "discriminator": "Use full original row and its protocol references; retained markers with removed property must not pass. Distinct assertions/authority planes remain separate."
+    },
+    {
+      "id": "AP07",
+      "kind": "conditional_adversarial_scenario",
+      "source": "policy-engine/docs/research/universal-policy-design/external-foundations/acquisition/05-implementation-and-review.md",
+      "source_line": 62,
+      "source_row_sha256": "988dc88308c5ca007279ca2d507bb777cf0d57fc0afd9696e6cf741b4bcbe120",
+      "program_tasks": [
+        "LIF-05",
+        "CAP-06"
+      ],
+      "applicability": "Preserve canonical row scope. Always review; execute whenever its supported mechanism/profile is claimed. Unsupported conditional backend has explicit non-claim and owner disposition, not PASS.",
+      "execution": "UNRUN",
+      "composed_wave": "FINAL-REPLAY; LIF-09 owns lifecycle portion",
+      "discriminator": "Use full original row and its protocol references; retained markers with removed property must not pass. Distinct assertions/authority planes remain separate."
+    },
+    {
+      "id": "AP08",
+      "kind": "conditional_adversarial_scenario",
+      "source": "policy-engine/docs/research/universal-policy-design/external-foundations/acquisition/05-implementation-and-review.md",
+      "source_line": 63,
+      "source_row_sha256": "6af17b13dbea34ee94abec15fe2a6c4b98ed1fbd112e8302fbfeb70a4b0b5ddb",
+      "program_tasks": [
+        "CAP-06",
+        "LIF-04"
+      ],
+      "applicability": "Preserve canonical row scope. Always review; execute whenever its supported mechanism/profile is claimed. Unsupported conditional backend has explicit non-claim and owner disposition, not PASS.",
+      "execution": "UNRUN",
+      "composed_wave": "FINAL-REPLAY; LIF-09 owns lifecycle portion",
+      "discriminator": "Use full original row and its protocol references; retained markers with removed property must not pass. Distinct assertions/authority planes remain separate."
+    },
+    {
+      "id": "AP09",
+      "kind": "conditional_adversarial_scenario",
+      "source": "policy-engine/docs/research/universal-policy-design/external-foundations/acquisition/05-implementation-and-review.md",
+      "source_line": 64,
+      "source_row_sha256": "f2417e440ba5e74671d35bcd521da802412e7dc5e6857a04aa9ac5eb267e04ec",
+      "program_tasks": [
+        "OPS-06",
+        "UI-17",
+        "LIF-05"
+      ],
+      "applicability": "Preserve canonical row scope. Always review; execute whenever its supported mechanism/profile is claimed. Unsupported conditional backend has explicit non-claim and owner disposition, not PASS.",
+      "execution": "UNRUN",
+      "composed_wave": "FINAL-REPLAY; LIF-09 owns lifecycle portion",
+      "discriminator": "Use full original row and its protocol references; retained markers with removed property must not pass. Distinct assertions/authority planes remain separate."
+    },
+    {
+      "id": "AP10",
+      "kind": "conditional_adversarial_scenario",
+      "source": "policy-engine/docs/research/universal-policy-design/external-foundations/acquisition/05-implementation-and-review.md",
+      "source_line": 65,
+      "source_row_sha256": "6f370fae4efd416846e2548bdce765a9e22e8323e404c599a24cc82f5355045a",
+      "program_tasks": [
+        "LIF-06",
+        "OPS-08"
+      ],
+      "applicability": "Preserve canonical row scope. Always review; execute whenever its supported mechanism/profile is claimed. Unsupported conditional backend has explicit non-claim and owner disposition, not PASS.",
+      "execution": "UNRUN",
+      "composed_wave": "FINAL-REPLAY; LIF-09 owns lifecycle portion",
+      "discriminator": "Use full original row and its protocol references; retained markers with removed property must not pass. Distinct assertions/authority planes remain separate."
+    },
+    {
+      "id": "AP11",
+      "kind": "conditional_adversarial_scenario",
+      "source": "policy-engine/docs/research/universal-policy-design/external-foundations/acquisition/05-implementation-and-review.md",
+      "source_line": 66,
+      "source_row_sha256": "21c2b1cd25f51b18cf68e65f3aa1dd77e315715e855bcd7595a2ac84bce7dab7",
+      "program_tasks": [
+        "OPS-05",
+        "OPS-10",
+        "LIF-05"
+      ],
+      "applicability": "Preserve canonical row scope. Always review; execute whenever its supported mechanism/profile is claimed. Unsupported conditional backend has explicit non-claim and owner disposition, not PASS.",
+      "execution": "UNRUN",
+      "composed_wave": "FINAL-REPLAY; LIF-09 owns lifecycle portion",
+      "discriminator": "Use full original row and its protocol references; retained markers with removed property must not pass. Distinct assertions/authority planes remain separate."
+    },
+    {
+      "id": "AP12",
+      "kind": "conditional_adversarial_scenario",
+      "source": "policy-engine/docs/research/universal-policy-design/external-foundations/acquisition/05-implementation-and-review.md",
+      "source_line": 67,
+      "source_row_sha256": "842ec065e127eeb0cf7ecae6848274a4538e494f590fa1bc7b225eb946ecd5ab",
+      "program_tasks": [
+        "LIF-08",
+        "CNT-02"
+      ],
+      "applicability": "Preserve canonical row scope. Always review; execute whenever its supported mechanism/profile is claimed. Unsupported conditional backend has explicit non-claim and owner disposition, not PASS.",
+      "execution": "UNRUN",
+      "composed_wave": "FINAL-REPLAY; LIF-09 owns lifecycle portion",
+      "discriminator": "Use full original row and its protocol references; retained markers with removed property must not pass. Distinct assertions/authority planes remain separate."
+    },
+    {
+      "id": "AP13",
+      "kind": "conditional_adversarial_scenario",
+      "source": "policy-engine/docs/research/universal-policy-design/external-foundations/acquisition/05-implementation-and-review.md",
+      "source_line": 68,
+      "source_row_sha256": "1ac684d88410a79de933c9fe195871ec15d3d214f1f381a8d4f6bcad798a854d",
+      "program_tasks": [
+        "CNT-07",
+        "DEB-09"
+      ],
+      "applicability": "Preserve canonical row scope. Always review; execute whenever its supported mechanism/profile is claimed. Unsupported conditional backend has explicit non-claim and owner disposition, not PASS.",
+      "execution": "UNRUN",
+      "composed_wave": "FINAL-REPLAY; LIF-09 owns lifecycle portion",
+      "discriminator": "Use full original row and its protocol references; retained markers with removed property must not pass. Distinct assertions/authority planes remain separate."
+    },
+    {
+      "id": "AP14",
+      "kind": "conditional_adversarial_scenario",
+      "source": "policy-engine/docs/research/universal-policy-design/external-foundations/acquisition/05-implementation-and-review.md",
+      "source_line": 69,
+      "source_row_sha256": "d0f6e8180835ba7001d6bd3efd769c825be14bef24878d9555255f83db89d328",
+      "program_tasks": [
+        "LIF-05",
+        "LIF-07",
+        "CNT-06"
+      ],
+      "applicability": "Preserve canonical row scope. Always review; execute whenever its supported mechanism/profile is claimed. Unsupported conditional backend has explicit non-claim and owner disposition, not PASS.",
+      "execution": "UNRUN",
+      "composed_wave": "FINAL-REPLAY; LIF-09 owns lifecycle portion",
+      "discriminator": "Use full original row and its protocol references; retained markers with removed property must not pass. Distinct assertions/authority planes remain separate."
+    },
+    {
+      "id": "AP15",
+      "kind": "conditional_adversarial_scenario",
+      "source": "policy-engine/docs/research/universal-policy-design/external-foundations/acquisition/05-implementation-and-review.md",
+      "source_line": 70,
+      "source_row_sha256": "6a268ac326a330aa4b72fa1fc993ad1b77c10d473dccd83210a4569671602e19",
+      "program_tasks": [
+        "LIF-07",
+        "OPS-07"
+      ],
+      "applicability": "Preserve canonical row scope. Always review; execute whenever its supported mechanism/profile is claimed. Unsupported conditional backend has explicit non-claim and owner disposition, not PASS.",
+      "execution": "UNRUN",
+      "composed_wave": "FINAL-REPLAY; LIF-09 owns lifecycle portion",
+      "discriminator": "Use full original row and its protocol references; retained markers with removed property must not pass. Distinct assertions/authority planes remain separate."
+    },
+    {
+      "id": "AP16",
+      "kind": "conditional_adversarial_scenario",
+      "source": "policy-engine/docs/research/universal-policy-design/external-foundations/acquisition/05-implementation-and-review.md",
+      "source_line": 71,
+      "source_row_sha256": "8e735b5c0e61b5abb05847b0ab059babd33fa424c0ad7939b5bd6f2e2b695baa",
+      "program_tasks": [
+        "OPS-03",
+        "LIF-01",
+        "DEB-09"
+      ],
+      "applicability": "Preserve canonical row scope. Always review; execute whenever its supported mechanism/profile is claimed. Unsupported conditional backend has explicit non-claim and owner disposition, not PASS.",
+      "execution": "UNRUN",
+      "composed_wave": "FINAL-REPLAY; LIF-09 owns lifecycle portion",
+      "discriminator": "Use full original row and its protocol references; retained markers with removed property must not pass. Distinct assertions/authority planes remain separate."
+    },
+    {
+      "id": "AP17",
+      "kind": "conditional_adversarial_scenario",
+      "source": "policy-engine/docs/research/universal-policy-design/external-foundations/acquisition/05-implementation-and-review.md",
+      "source_line": 72,
+      "source_row_sha256": "21f60dc61b2548562da842b5479254550ec7e67d985523d64a094adfcf5eb2a7",
+      "program_tasks": [
+        "OPS-11",
+        "OPS-12",
+        "LIF-04"
+      ],
+      "applicability": "Preserve canonical row scope. Always review; execute whenever its supported mechanism/profile is claimed. Unsupported conditional backend has explicit non-claim and owner disposition, not PASS.",
+      "execution": "UNRUN",
+      "composed_wave": "FINAL-REPLAY; LIF-09 owns lifecycle portion",
+      "discriminator": "Use full original row and its protocol references; retained markers with removed property must not pass. Distinct assertions/authority planes remain separate."
+    },
+    {
+      "id": "AP18",
+      "kind": "conditional_adversarial_scenario",
+      "source": "policy-engine/docs/research/universal-policy-design/external-foundations/acquisition/05-implementation-and-review.md",
+      "source_line": 73,
+      "source_row_sha256": "e2137c33ac979e01a1c310068f4a3414c18a80fc2bb61955002739708bc0350c",
+      "program_tasks": [
+        "LIF-07",
+        "GYD-09",
+        "GYD-10",
+        "CNT-06"
+      ],
+      "applicability": "Preserve canonical row scope. Always review; execute whenever its supported mechanism/profile is claimed. Unsupported conditional backend has explicit non-claim and owner disposition, not PASS.",
+      "execution": "UNRUN",
+      "composed_wave": "FINAL-REPLAY; LIF-09 owns lifecycle portion",
+      "discriminator": "Use full original row and its protocol references; retained markers with removed property must not pass. Distinct assertions/authority planes remain separate."
+    },
+    {
+      "id": "AP19",
+      "kind": "conditional_adversarial_scenario",
+      "source": "policy-engine/docs/research/universal-policy-design/external-foundations/acquisition/05-implementation-and-review.md",
+      "source_line": 74,
+      "source_row_sha256": "380a5e51e3c43cf10bdf82a48f99a20ce51253a9e2aed20e4000e31b384ec767",
+      "program_tasks": [
+        "CNT-07",
+        "LIF-02"
+      ],
+      "applicability": "Preserve canonical row scope. Always review; execute whenever its supported mechanism/profile is claimed. Unsupported conditional backend has explicit non-claim and owner disposition, not PASS.",
+      "execution": "UNRUN",
+      "composed_wave": "FINAL-REPLAY; LIF-09 owns lifecycle portion",
+      "discriminator": "Use full original row and its protocol references; retained markers with removed property must not pass. Distinct assertions/authority planes remain separate."
+    },
+    {
+      "id": "E01",
+      "kind": "conditional_adversarial_scenario",
+      "source": "policy-engine/docs/research/universal-policy-design/external-foundations/lifecycle/10-adversarial-review-and-delivery.md",
+      "source_line": 13,
+      "source_row_sha256": "c551b0a1f1bc6a013e7cf073d5997b1530746bf7c5c89d6ae56e38a3e1721d70",
+      "program_tasks": [
+        "LIF-06",
+        "OPS-08"
+      ],
+      "applicability": "Preserve canonical row scope. Always review; execute whenever its supported mechanism/profile is claimed. Unsupported conditional backend has explicit non-claim and owner disposition, not PASS.",
+      "execution": "UNRUN",
+      "composed_wave": "FINAL-REPLAY; LIF-09 owns lifecycle portion",
+      "discriminator": "Use full original row and its protocol references; retained markers with removed property must not pass. Distinct assertions/authority planes remain separate."
+    },
+    {
+      "id": "E02",
+      "kind": "conditional_adversarial_scenario",
+      "source": "policy-engine/docs/research/universal-policy-design/external-foundations/lifecycle/10-adversarial-review-and-delivery.md",
+      "source_line": 14,
+      "source_row_sha256": "be6be6dd612b063836163c00f228eef14500a064b4ebab518c3b250fad43cd81",
+      "program_tasks": [
+        "LIF-06"
+      ],
+      "applicability": "Preserve canonical row scope. Always review; execute whenever its supported mechanism/profile is claimed. Unsupported conditional backend has explicit non-claim and owner disposition, not PASS.",
+      "execution": "UNRUN",
+      "composed_wave": "FINAL-REPLAY; LIF-09 owns lifecycle portion",
+      "discriminator": "Use full original row and its protocol references; retained markers with removed property must not pass. Distinct assertions/authority planes remain separate."
+    },
+    {
+      "id": "E03",
+      "kind": "conditional_adversarial_scenario",
+      "source": "policy-engine/docs/research/universal-policy-design/external-foundations/lifecycle/10-adversarial-review-and-delivery.md",
+      "source_line": 15,
+      "source_row_sha256": "a53bf846e2c9f9d6c5d352dccbfd7cd840cc84a5845436f7928ec047423ab6df",
+      "program_tasks": [
+        "LIF-04",
+        "LIF-05"
+      ],
+      "applicability": "Preserve canonical row scope. Always review; execute whenever its supported mechanism/profile is claimed. Unsupported conditional backend has explicit non-claim and owner disposition, not PASS.",
+      "execution": "UNRUN",
+      "composed_wave": "FINAL-REPLAY; LIF-09 owns lifecycle portion",
+      "discriminator": "Use full original row and its protocol references; retained markers with removed property must not pass. Distinct assertions/authority planes remain separate."
+    },
+    {
+      "id": "E04",
+      "kind": "conditional_adversarial_scenario",
+      "source": "policy-engine/docs/research/universal-policy-design/external-foundations/lifecycle/10-adversarial-review-and-delivery.md",
+      "source_line": 16,
+      "source_row_sha256": "35e680dc855f11230bc86f189de81a30cb44b935c50ae2fa3b21c88d404184f3",
+      "program_tasks": [
+        "LIF-03",
+        "LIF-02"
+      ],
+      "applicability": "Preserve canonical row scope. Always review; execute whenever its supported mechanism/profile is claimed. Unsupported conditional backend has explicit non-claim and owner disposition, not PASS.",
+      "execution": "UNRUN",
+      "composed_wave": "FINAL-REPLAY; LIF-09 owns lifecycle portion",
+      "discriminator": "Use full original row and its protocol references; retained markers with removed property must not pass. Distinct assertions/authority planes remain separate."
+    },
+    {
+      "id": "E05",
+      "kind": "conditional_adversarial_scenario",
+      "source": "policy-engine/docs/research/universal-policy-design/external-foundations/lifecycle/10-adversarial-review-and-delivery.md",
+      "source_line": 17,
+      "source_row_sha256": "29045f392d3891e8e935378e5ee2333d6acc8c95325d94fdef7fff8546b102a3",
+      "program_tasks": [
+        "LIF-05"
+      ],
+      "applicability": "Preserve canonical row scope. Always review; execute whenever its supported mechanism/profile is claimed. Unsupported conditional backend has explicit non-claim and owner disposition, not PASS.",
+      "execution": "UNRUN",
+      "composed_wave": "FINAL-REPLAY; LIF-09 owns lifecycle portion",
+      "discriminator": "Use full original row and its protocol references; retained markers with removed property must not pass. Distinct assertions/authority planes remain separate."
+    },
+    {
+      "id": "E06",
+      "kind": "conditional_adversarial_scenario",
+      "source": "policy-engine/docs/research/universal-policy-design/external-foundations/lifecycle/10-adversarial-review-and-delivery.md",
+      "source_line": 18,
+      "source_row_sha256": "06823eee762e25c8ffc6f4103dc4f945d4645534276e369ae9cd4599fda038d3",
+      "program_tasks": [
+        "OPS-05",
+        "LIF-05",
+        "LIF-02"
+      ],
+      "applicability": "Preserve canonical row scope. Always review; execute whenever its supported mechanism/profile is claimed. Unsupported conditional backend has explicit non-claim and owner disposition, not PASS.",
+      "execution": "UNRUN",
+      "composed_wave": "FINAL-REPLAY; LIF-09 owns lifecycle portion",
+      "discriminator": "Use full original row and its protocol references; retained markers with removed property must not pass. Distinct assertions/authority planes remain separate."
+    },
+    {
+      "id": "E07",
+      "kind": "conditional_adversarial_scenario",
+      "source": "policy-engine/docs/research/universal-policy-design/external-foundations/lifecycle/10-adversarial-review-and-delivery.md",
+      "source_line": 19,
+      "source_row_sha256": "976da76954c3ba86394ab02c171c4c41a6be28b38c0873d2ae9acd2572b358aa",
+      "program_tasks": [
+        "LIF-02",
+        "LIF-04"
+      ],
+      "applicability": "Preserve canonical row scope. Always review; execute whenever its supported mechanism/profile is claimed. Unsupported conditional backend has explicit non-claim and owner disposition, not PASS.",
+      "execution": "UNRUN",
+      "composed_wave": "FINAL-REPLAY; LIF-09 owns lifecycle portion",
+      "discriminator": "Use full original row and its protocol references; retained markers with removed property must not pass. Distinct assertions/authority planes remain separate."
+    },
+    {
+      "id": "E08",
+      "kind": "conditional_adversarial_scenario",
+      "source": "policy-engine/docs/research/universal-policy-design/external-foundations/lifecycle/10-adversarial-review-and-delivery.md",
+      "source_line": 20,
+      "source_row_sha256": "c9f603c523310571ec2bd9fba4b5f327bd0263a9d8917cc36dffb9431808509d",
+      "program_tasks": [
+        "LIF-05",
+        "LIF-06"
+      ],
+      "applicability": "Preserve canonical row scope. Always review; execute whenever its supported mechanism/profile is claimed. Unsupported conditional backend has explicit non-claim and owner disposition, not PASS.",
+      "execution": "UNRUN",
+      "composed_wave": "FINAL-REPLAY; LIF-09 owns lifecycle portion",
+      "discriminator": "Use full original row and its protocol references; retained markers with removed property must not pass. Distinct assertions/authority planes remain separate."
+    },
+    {
+      "id": "E09",
+      "kind": "conditional_adversarial_scenario",
+      "source": "policy-engine/docs/research/universal-policy-design/external-foundations/lifecycle/10-adversarial-review-and-delivery.md",
+      "source_line": 21,
+      "source_row_sha256": "efacd8c2272aa766c395ee29e2eec97ad3b08db81487005dd83313ffe179cdaf",
+      "program_tasks": [
+        "CAP-02",
+        "LIF-05"
+      ],
+      "applicability": "Preserve canonical row scope. Always review; execute whenever its supported mechanism/profile is claimed. Unsupported conditional backend has explicit non-claim and owner disposition, not PASS.",
+      "execution": "UNRUN",
+      "composed_wave": "FINAL-REPLAY; LIF-09 owns lifecycle portion",
+      "discriminator": "Use full original row and its protocol references; retained markers with removed property must not pass. Distinct assertions/authority planes remain separate."
+    },
+    {
+      "id": "E10",
+      "kind": "conditional_adversarial_scenario",
+      "source": "policy-engine/docs/research/universal-policy-design/external-foundations/lifecycle/10-adversarial-review-and-delivery.md",
+      "source_line": 22,
+      "source_row_sha256": "48af939face4ad4db47b5895bc1a9627fb0c38c91aad90d335eb50f966962772",
+      "program_tasks": [
+        "LIF-04",
+        "CAP-06"
+      ],
+      "applicability": "Preserve canonical row scope. Always review; execute whenever its supported mechanism/profile is claimed. Unsupported conditional backend has explicit non-claim and owner disposition, not PASS.",
+      "execution": "UNRUN",
+      "composed_wave": "FINAL-REPLAY; LIF-09 owns lifecycle portion",
+      "discriminator": "Use full original row and its protocol references; retained markers with removed property must not pass. Distinct assertions/authority planes remain separate."
+    },
+    {
+      "id": "E11",
+      "kind": "conditional_adversarial_scenario",
+      "source": "policy-engine/docs/research/universal-policy-design/external-foundations/lifecycle/10-adversarial-review-and-delivery.md",
+      "source_line": 23,
+      "source_row_sha256": "4400cb8988b8b69de2bf67027ec8d869bfd278c9837b7103ff2daba641555b89",
+      "program_tasks": [
+        "LIF-07",
+        "CNT-06"
+      ],
+      "applicability": "Preserve canonical row scope. Always review; execute whenever its supported mechanism/profile is claimed. Unsupported conditional backend has explicit non-claim and owner disposition, not PASS.",
+      "execution": "UNRUN",
+      "composed_wave": "FINAL-REPLAY; LIF-09 owns lifecycle portion",
+      "discriminator": "Use full original row and its protocol references; retained markers with removed property must not pass. Distinct assertions/authority planes remain separate."
+    },
+    {
+      "id": "E12",
+      "kind": "conditional_adversarial_scenario",
+      "source": "policy-engine/docs/research/universal-policy-design/external-foundations/lifecycle/10-adversarial-review-and-delivery.md",
+      "source_line": 24,
+      "source_row_sha256": "0496ff406e03f560eee25bfb78d76c9a4c4abf9bd75a320deb40d1343c34cce9",
+      "program_tasks": [
+        "LIF-07",
+        "CNT-08"
+      ],
+      "applicability": "Preserve canonical row scope. Always review; execute whenever its supported mechanism/profile is claimed. Unsupported conditional backend has explicit non-claim and owner disposition, not PASS.",
+      "execution": "UNRUN",
+      "composed_wave": "FINAL-REPLAY; LIF-09 owns lifecycle portion",
+      "discriminator": "Use full original row and its protocol references; retained markers with removed property must not pass. Distinct assertions/authority planes remain separate."
+    },
+    {
+      "id": "E13",
+      "kind": "conditional_adversarial_scenario",
+      "source": "policy-engine/docs/research/universal-policy-design/external-foundations/lifecycle/10-adversarial-review-and-delivery.md",
+      "source_line": 25,
+      "source_row_sha256": "7eaa72e2c3c3e85f7db9522b3f5ff04245212e69388b3d498751954c14b7f1e7",
+      "program_tasks": [
+        "LIF-08"
+      ],
+      "applicability": "Preserve canonical row scope. Always review; execute whenever its supported mechanism/profile is claimed. Unsupported conditional backend has explicit non-claim and owner disposition, not PASS.",
+      "execution": "UNRUN",
+      "composed_wave": "FINAL-REPLAY; LIF-09 owns lifecycle portion",
+      "discriminator": "Use full original row and its protocol references; retained markers with removed property must not pass. Distinct assertions/authority planes remain separate."
+    },
+    {
+      "id": "E14",
+      "kind": "conditional_adversarial_scenario",
+      "source": "policy-engine/docs/research/universal-policy-design/external-foundations/lifecycle/10-adversarial-review-and-delivery.md",
+      "source_line": 26,
+      "source_row_sha256": "68d62902347cd162d95d2420bad8e8af83e36c1e279193b4f89e672ffc9e8af1",
+      "program_tasks": [
+        "LIF-08",
+        "LIF-02"
+      ],
+      "applicability": "Preserve canonical row scope. Always review; execute whenever its supported mechanism/profile is claimed. Unsupported conditional backend has explicit non-claim and owner disposition, not PASS.",
+      "execution": "UNRUN",
+      "composed_wave": "FINAL-REPLAY; LIF-09 owns lifecycle portion",
+      "discriminator": "Use full original row and its protocol references; retained markers with removed property must not pass. Distinct assertions/authority planes remain separate."
+    },
+    {
+      "id": "E15",
+      "kind": "conditional_adversarial_scenario",
+      "source": "policy-engine/docs/research/universal-policy-design/external-foundations/lifecycle/10-adversarial-review-and-delivery.md",
+      "source_line": 27,
+      "source_row_sha256": "9bb3c4a4df6789689956e2c5835551d65fe9bbc6c8019e88a45dc0568e79019a",
+      "program_tasks": [
+        "OPS-04",
+        "OPS-05",
+        "UI-19"
+      ],
+      "applicability": "Preserve canonical row scope. Always review; execute whenever its supported mechanism/profile is claimed. Unsupported conditional backend has explicit non-claim and owner disposition, not PASS.",
+      "execution": "UNRUN",
+      "composed_wave": "FINAL-REPLAY; LIF-09 owns lifecycle portion",
+      "discriminator": "Use full original row and its protocol references; retained markers with removed property must not pass. Distinct assertions/authority planes remain separate."
+    },
+    {
+      "id": "X01",
+      "kind": "conditional_adversarial_scenario",
+      "source": "policy-engine/docs/research/universal-policy-design/external-foundations/lifecycle/08-incidents-and-edge-cases.md",
+      "source_line": 25,
+      "source_row_sha256": "56bb3fcf5778813a0a162ae9cf25e7a5154728ee460cf1a1c6afe802a07d599a",
+      "program_tasks": [
+        "LIF-03",
+        "OPS-05"
+      ],
+      "applicability": "Preserve canonical row scope. Always review; execute whenever its supported mechanism/profile is claimed. Unsupported conditional backend has explicit non-claim and owner disposition, not PASS.",
+      "execution": "UNRUN",
+      "composed_wave": "FINAL-REPLAY; LIF-09 owns lifecycle portion",
+      "discriminator": "Use full original row and its protocol references; retained markers with removed property must not pass. Distinct assertions/authority planes remain separate."
+    },
+    {
+      "id": "X02",
+      "kind": "conditional_adversarial_scenario",
+      "source": "policy-engine/docs/research/universal-policy-design/external-foundations/lifecycle/08-incidents-and-edge-cases.md",
+      "source_line": 26,
+      "source_row_sha256": "11c0953ad175eb73dd65ad4450707a91098f7398b594811ce0d9dbdd357bf4c9",
+      "program_tasks": [
+        "LIF-02",
+        "LIF-07"
+      ],
+      "applicability": "Preserve canonical row scope. Always review; execute whenever its supported mechanism/profile is claimed. Unsupported conditional backend has explicit non-claim and owner disposition, not PASS.",
+      "execution": "UNRUN",
+      "composed_wave": "FINAL-REPLAY; LIF-09 owns lifecycle portion",
+      "discriminator": "Use full original row and its protocol references; retained markers with removed property must not pass. Distinct assertions/authority planes remain separate."
+    },
+    {
+      "id": "X03",
+      "kind": "conditional_adversarial_scenario",
+      "source": "policy-engine/docs/research/universal-policy-design/external-foundations/lifecycle/08-incidents-and-edge-cases.md",
+      "source_line": 27,
+      "source_row_sha256": "07096c0904192061ceace39dda432546f4bd7f15165d8b3566f8b26908a57ca7",
+      "program_tasks": [
+        "LIF-02",
+        "LIF-04"
+      ],
+      "applicability": "Preserve canonical row scope. Always review; execute whenever its supported mechanism/profile is claimed. Unsupported conditional backend has explicit non-claim and owner disposition, not PASS.",
+      "execution": "UNRUN",
+      "composed_wave": "FINAL-REPLAY; LIF-09 owns lifecycle portion",
+      "discriminator": "Use full original row and its protocol references; retained markers with removed property must not pass. Distinct assertions/authority planes remain separate."
+    },
+    {
+      "id": "X04",
+      "kind": "conditional_adversarial_scenario",
+      "source": "policy-engine/docs/research/universal-policy-design/external-foundations/lifecycle/08-incidents-and-edge-cases.md",
+      "source_line": 28,
+      "source_row_sha256": "71b016d8f87573e21a9b28579a6289e138ed85ea22a92c960cfd964c41ff2296",
+      "program_tasks": [
+        "LIF-06",
+        "LIF-04"
+      ],
+      "applicability": "Preserve canonical row scope. Always review; execute whenever its supported mechanism/profile is claimed. Unsupported conditional backend has explicit non-claim and owner disposition, not PASS.",
+      "execution": "UNRUN",
+      "composed_wave": "FINAL-REPLAY; LIF-09 owns lifecycle portion",
+      "discriminator": "Use full original row and its protocol references; retained markers with removed property must not pass. Distinct assertions/authority planes remain separate."
+    },
+    {
+      "id": "X05",
+      "kind": "conditional_adversarial_scenario",
+      "source": "policy-engine/docs/research/universal-policy-design/external-foundations/lifecycle/08-incidents-and-edge-cases.md",
+      "source_line": 29,
+      "source_row_sha256": "ef760c8b30ee3dd48713e5d15e28e7474bd167119e2bd827f00f72db978ec5a3",
+      "program_tasks": [
+        "LIF-05",
+        "LIF-06"
+      ],
+      "applicability": "Preserve canonical row scope. Always review; execute whenever its supported mechanism/profile is claimed. Unsupported conditional backend has explicit non-claim and owner disposition, not PASS.",
+      "execution": "UNRUN",
+      "composed_wave": "FINAL-REPLAY; LIF-09 owns lifecycle portion",
+      "discriminator": "Use full original row and its protocol references; retained markers with removed property must not pass. Distinct assertions/authority planes remain separate."
+    },
+    {
+      "id": "X06",
+      "kind": "conditional_adversarial_scenario",
+      "source": "policy-engine/docs/research/universal-policy-design/external-foundations/lifecycle/08-incidents-and-edge-cases.md",
+      "source_line": 30,
+      "source_row_sha256": "46cfb7d951f1b2e9b596cab18d05efa30cd88b9afcdf1bb58e2d336205cbc75d",
+      "program_tasks": [
+        "LIF-01",
+        "LIF-07"
+      ],
+      "applicability": "Preserve canonical row scope. Always review; execute whenever its supported mechanism/profile is claimed. Unsupported conditional backend has explicit non-claim and owner disposition, not PASS.",
+      "execution": "UNRUN",
+      "composed_wave": "FINAL-REPLAY; LIF-09 owns lifecycle portion",
+      "discriminator": "Use full original row and its protocol references; retained markers with removed property must not pass. Distinct assertions/authority planes remain separate."
+    },
+    {
+      "id": "X07",
+      "kind": "conditional_adversarial_scenario",
+      "source": "policy-engine/docs/research/universal-policy-design/external-foundations/lifecycle/08-incidents-and-edge-cases.md",
+      "source_line": 31,
+      "source_row_sha256": "a8eaf11089aefe22315d1ccc7e9ea0fe7275320ddce991f4dfd8d5a373d0e46b",
+      "program_tasks": [
+        "LIF-02",
+        "OPS-05"
+      ],
+      "applicability": "Preserve canonical row scope. Always review; execute whenever its supported mechanism/profile is claimed. Unsupported conditional backend has explicit non-claim and owner disposition, not PASS.",
+      "execution": "UNRUN",
+      "composed_wave": "FINAL-REPLAY; LIF-09 owns lifecycle portion",
+      "discriminator": "Use full original row and its protocol references; retained markers with removed property must not pass. Distinct assertions/authority planes remain separate."
+    },
+    {
+      "id": "X08",
+      "kind": "conditional_adversarial_scenario",
+      "source": "policy-engine/docs/research/universal-policy-design/external-foundations/lifecycle/08-incidents-and-edge-cases.md",
+      "source_line": 32,
+      "source_row_sha256": "ad2e51cf7cadbe1735068b31c4df2a5088d8da010b31845a09adcfb35afc7866",
+      "program_tasks": [
+        "OPS-05",
+        "OPS-08",
+        "LIF-04"
+      ],
+      "applicability": "Preserve canonical row scope. Always review; execute whenever its supported mechanism/profile is claimed. Unsupported conditional backend has explicit non-claim and owner disposition, not PASS.",
+      "execution": "UNRUN",
+      "composed_wave": "FINAL-REPLAY; LIF-09 owns lifecycle portion",
+      "discriminator": "Use full original row and its protocol references; retained markers with removed property must not pass. Distinct assertions/authority planes remain separate."
+    },
+    {
+      "id": "W0",
+      "kind": "lifecycle_delivery_wave",
+      "source": "policy-engine/docs/research/universal-policy-design/external-foundations/lifecycle/06-delivery-and-review.md",
+      "program_tasks": [
+        "P0-REBIND"
+      ],
+      "execution": "UNRUN",
+      "scope": "Canonical delivery-wave requirements; not a separate scheduler or extra implementation copy."
+    },
+    {
+      "id": "W1",
+      "kind": "lifecycle_delivery_wave",
+      "source": "policy-engine/docs/research/universal-policy-design/external-foundations/lifecycle/06-delivery-and-review.md",
+      "program_tasks": [
+        "LIF-03",
+        "CAP-02"
+      ],
+      "execution": "UNRUN",
+      "scope": "Canonical delivery-wave requirements; not a separate scheduler or extra implementation copy."
+    },
+    {
+      "id": "W2",
+      "kind": "lifecycle_delivery_wave",
+      "source": "policy-engine/docs/research/universal-policy-design/external-foundations/lifecycle/06-delivery-and-review.md",
+      "program_tasks": [
+        "LIF-01",
+        "CAP-03"
+      ],
+      "execution": "UNRUN",
+      "scope": "Canonical delivery-wave requirements; not a separate scheduler or extra implementation copy."
+    },
+    {
+      "id": "W3",
+      "kind": "lifecycle_delivery_wave",
+      "source": "policy-engine/docs/research/universal-policy-design/external-foundations/lifecycle/06-delivery-and-review.md",
+      "program_tasks": [
+        "LIF-02",
+        "CAP-04"
+      ],
+      "execution": "UNRUN",
+      "scope": "Canonical delivery-wave requirements; not a separate scheduler or extra implementation copy."
+    },
+    {
+      "id": "W4",
+      "kind": "lifecycle_delivery_wave",
+      "source": "policy-engine/docs/research/universal-policy-design/external-foundations/lifecycle/06-delivery-and-review.md",
+      "program_tasks": [
+        "LIF-05"
+      ],
+      "execution": "UNRUN",
+      "scope": "Canonical delivery-wave requirements; not a separate scheduler or extra implementation copy."
+    },
+    {
+      "id": "W5",
+      "kind": "lifecycle_delivery_wave",
+      "source": "policy-engine/docs/research/universal-policy-design/external-foundations/lifecycle/06-delivery-and-review.md",
+      "program_tasks": [
+        "LIF-04",
+        "LIF-06"
+      ],
+      "execution": "UNRUN",
+      "scope": "Canonical delivery-wave requirements; not a separate scheduler or extra implementation copy."
+    },
+    {
+      "id": "W6",
+      "kind": "lifecycle_delivery_wave",
+      "source": "policy-engine/docs/research/universal-policy-design/external-foundations/lifecycle/06-delivery-and-review.md",
+      "program_tasks": [
+        "LIF-08",
+        "LIF-09"
+      ],
+      "execution": "UNRUN",
+      "scope": "Canonical delivery-wave requirements; not a separate scheduler or extra implementation copy."
+    },
+    {
+      "id": "EF-01",
+      "kind": "foundation_family",
+      "source": "policy-engine/docs/research/universal-policy-design/external-foundations/families.json",
+      "program_tasks": [
+        "CNT-01",
+        "CNT-02",
+        "CNT-09"
+      ],
+      "detail": "Use family-specific route in acquisition/02 and workstreams/05. Method/law/institution/testimony/content tasks activate on the actual case requirements; all families remain part of the extension grammar, not a fixed switch.",
+      "execution": "UNRUN"
+    },
+    {
+      "id": "EF-02",
+      "kind": "foundation_family",
+      "source": "policy-engine/docs/research/universal-policy-design/external-foundations/families.json",
+      "program_tasks": [
+        "CNT-01",
+        "CNT-02",
+        "CNT-09"
+      ],
+      "detail": "Use family-specific route in acquisition/02 and workstreams/05. Method/law/institution/testimony/content tasks activate on the actual case requirements; all families remain part of the extension grammar, not a fixed switch.",
+      "execution": "UNRUN"
+    },
+    {
+      "id": "EF-03",
+      "kind": "foundation_family",
+      "source": "policy-engine/docs/research/universal-policy-design/external-foundations/families.json",
+      "program_tasks": [
+        "CNT-01",
+        "CNT-02",
+        "CNT-09"
+      ],
+      "detail": "Use family-specific route in acquisition/02 and workstreams/05. Method/law/institution/testimony/content tasks activate on the actual case requirements; all families remain part of the extension grammar, not a fixed switch.",
+      "execution": "UNRUN"
+    },
+    {
+      "id": "EF-04",
+      "kind": "foundation_family",
+      "source": "policy-engine/docs/research/universal-policy-design/external-foundations/families.json",
+      "program_tasks": [
+        "CNT-01",
+        "CNT-02",
+        "CNT-09"
+      ],
+      "detail": "Use family-specific route in acquisition/02 and workstreams/05. Method/law/institution/testimony/content tasks activate on the actual case requirements; all families remain part of the extension grammar, not a fixed switch.",
+      "execution": "UNRUN"
+    },
+    {
+      "id": "EF-05",
+      "kind": "foundation_family",
+      "source": "policy-engine/docs/research/universal-policy-design/external-foundations/families.json",
+      "program_tasks": [
+        "CNT-01",
+        "CNT-02",
+        "CNT-09"
+      ],
+      "detail": "Use family-specific route in acquisition/02 and workstreams/05. Method/law/institution/testimony/content tasks activate on the actual case requirements; all families remain part of the extension grammar, not a fixed switch.",
+      "execution": "UNRUN"
+    },
+    {
+      "id": "EF-06",
+      "kind": "foundation_family",
+      "source": "policy-engine/docs/research/universal-policy-design/external-foundations/families.json",
+      "program_tasks": [
+        "CNT-01",
+        "CNT-02",
+        "CNT-09"
+      ],
+      "detail": "Use family-specific route in acquisition/02 and workstreams/05. Method/law/institution/testimony/content tasks activate on the actual case requirements; all families remain part of the extension grammar, not a fixed switch.",
+      "execution": "UNRUN"
+    },
+    {
+      "id": "EF-07",
+      "kind": "foundation_family",
+      "source": "policy-engine/docs/research/universal-policy-design/external-foundations/families.json",
+      "program_tasks": [
+        "CNT-01",
+        "CNT-02",
+        "CNT-09"
+      ],
+      "detail": "Use family-specific route in acquisition/02 and workstreams/05. Method/law/institution/testimony/content tasks activate on the actual case requirements; all families remain part of the extension grammar, not a fixed switch.",
+      "execution": "UNRUN"
+    },
+    {
+      "id": "EF-08",
+      "kind": "foundation_family",
+      "source": "policy-engine/docs/research/universal-policy-design/external-foundations/families.json",
+      "program_tasks": [
+        "CNT-01",
+        "CNT-02",
+        "CNT-09"
+      ],
+      "detail": "Use family-specific route in acquisition/02 and workstreams/05. Method/law/institution/testimony/content tasks activate on the actual case requirements; all families remain part of the extension grammar, not a fixed switch.",
+      "execution": "UNRUN"
+    },
+    {
+      "id": "EF-09",
+      "kind": "foundation_family",
+      "source": "policy-engine/docs/research/universal-policy-design/external-foundations/families.json",
+      "program_tasks": [
+        "CNT-01",
+        "CNT-02",
+        "CNT-09"
+      ],
+      "detail": "Use family-specific route in acquisition/02 and workstreams/05. Method/law/institution/testimony/content tasks activate on the actual case requirements; all families remain part of the extension grammar, not a fixed switch.",
+      "execution": "UNRUN"
+    },
+    {
+      "id": "EF-10",
+      "kind": "foundation_family",
+      "source": "policy-engine/docs/research/universal-policy-design/external-foundations/families.json",
+      "program_tasks": [
+        "CNT-01",
+        "CNT-02",
+        "CNT-09"
+      ],
+      "detail": "Use family-specific route in acquisition/02 and workstreams/05. Method/law/institution/testimony/content tasks activate on the actual case requirements; all families remain part of the extension grammar, not a fixed switch.",
+      "execution": "UNRUN"
+    },
+    {
+      "id": "EF-11",
+      "kind": "foundation_family",
+      "source": "policy-engine/docs/research/universal-policy-design/external-foundations/families.json",
+      "program_tasks": [
+        "CNT-01",
+        "CNT-02",
+        "CNT-09"
+      ],
+      "detail": "Use family-specific route in acquisition/02 and workstreams/05. Method/law/institution/testimony/content tasks activate on the actual case requirements; all families remain part of the extension grammar, not a fixed switch.",
+      "execution": "UNRUN"
+    },
+    {
+      "id": "EF-12",
+      "kind": "foundation_family",
+      "source": "policy-engine/docs/research/universal-policy-design/external-foundations/families.json",
+      "program_tasks": [
+        "CNT-01",
+        "CNT-02",
+        "CNT-09"
+      ],
+      "detail": "Use family-specific route in acquisition/02 and workstreams/05. Method/law/institution/testimony/content tasks activate on the actual case requirements; all families remain part of the extension grammar, not a fixed switch.",
+      "execution": "UNRUN"
+    },
+    {
+      "id": "EF-13",
+      "kind": "foundation_family",
+      "source": "policy-engine/docs/research/universal-policy-design/external-foundations/families.json",
+      "program_tasks": [
+        "CNT-01",
+        "CNT-02",
+        "CNT-09"
+      ],
+      "detail": "Use family-specific route in acquisition/02 and workstreams/05. Method/law/institution/testimony/content tasks activate on the actual case requirements; all families remain part of the extension grammar, not a fixed switch.",
+      "execution": "UNRUN"
+    },
+    {
+      "id": "EF-14",
+      "kind": "foundation_family",
+      "source": "policy-engine/docs/research/universal-policy-design/external-foundations/families.json",
+      "program_tasks": [
+        "CNT-01",
+        "CNT-02",
+        "CNT-09"
+      ],
+      "detail": "Use family-specific route in acquisition/02 and workstreams/05. Method/law/institution/testimony/content tasks activate on the actual case requirements; all families remain part of the extension grammar, not a fixed switch.",
+      "execution": "UNRUN"
+    },
+    {
+      "id": "EF-15",
+      "kind": "foundation_family",
+      "source": "policy-engine/docs/research/universal-policy-design/external-foundations/families.json",
+      "program_tasks": [
+        "CNT-01",
+        "CNT-02",
+        "CNT-09"
+      ],
+      "detail": "Use family-specific route in acquisition/02 and workstreams/05. Method/law/institution/testimony/content tasks activate on the actual case requirements; all families remain part of the extension grammar, not a fixed switch.",
+      "execution": "UNRUN"
+    },
+    {
+      "id": "EF-16",
+      "kind": "foundation_family",
+      "source": "policy-engine/docs/research/universal-policy-design/external-foundations/families.json",
+      "program_tasks": [
+        "CNT-01",
+        "CNT-02",
+        "CNT-09"
+      ],
+      "detail": "Use family-specific route in acquisition/02 and workstreams/05. Method/law/institution/testimony/content tasks activate on the actual case requirements; all families remain part of the extension grammar, not a fixed switch.",
+      "execution": "UNRUN"
+    },
+    {
+      "id": "EF-17",
+      "kind": "foundation_family",
+      "source": "policy-engine/docs/research/universal-policy-design/external-foundations/families.json",
+      "program_tasks": [
+        "CNT-01",
+        "CNT-02",
+        "CNT-09"
+      ],
+      "detail": "Use family-specific route in acquisition/02 and workstreams/05. Method/law/institution/testimony/content tasks activate on the actual case requirements; all families remain part of the extension grammar, not a fixed switch.",
+      "execution": "UNRUN"
+    },
+    {
+      "id": "EF-18",
+      "kind": "foundation_family",
+      "source": "policy-engine/docs/research/universal-policy-design/external-foundations/families.json",
+      "program_tasks": [
+        "CNT-01",
+        "CNT-02",
+        "CNT-09"
+      ],
+      "detail": "Use family-specific route in acquisition/02 and workstreams/05. Method/law/institution/testimony/content tasks activate on the actual case requirements; all families remain part of the extension grammar, not a fixed switch.",
+      "execution": "UNRUN"
+    },
+    {
+      "id": "EF-19",
+      "kind": "foundation_family",
+      "source": "policy-engine/docs/research/universal-policy-design/external-foundations/families.json",
+      "program_tasks": [
+        "CNT-01",
+        "CNT-02",
+        "CNT-09"
+      ],
+      "detail": "Use family-specific route in acquisition/02 and workstreams/05. Method/law/institution/testimony/content tasks activate on the actual case requirements; all families remain part of the extension grammar, not a fixed switch.",
+      "execution": "UNRUN"
+    },
+    {
+      "id": "EF-20",
+      "kind": "foundation_family",
+      "source": "policy-engine/docs/research/universal-policy-design/external-foundations/families.json",
+      "program_tasks": [
+        "CNT-01",
+        "CNT-02",
+        "CNT-09"
+      ],
+      "detail": "Use family-specific route in acquisition/02 and workstreams/05. Method/law/institution/testimony/content tasks activate on the actual case requirements; all families remain part of the extension grammar, not a fixed switch.",
+      "execution": "UNRUN"
+    },
+    {
+      "id": "EF-21",
+      "kind": "foundation_family",
+      "source": "policy-engine/docs/research/universal-policy-design/external-foundations/families.json",
+      "program_tasks": [
+        "CNT-01",
+        "CNT-02",
+        "CNT-09"
+      ],
+      "detail": "Use family-specific route in acquisition/02 and workstreams/05. Method/law/institution/testimony/content tasks activate on the actual case requirements; all families remain part of the extension grammar, not a fixed switch.",
+      "execution": "UNRUN"
+    },
+    {
+      "id": "EF-22",
+      "kind": "foundation_family",
+      "source": "policy-engine/docs/research/universal-policy-design/external-foundations/families.json",
+      "program_tasks": [
+        "CNT-01",
+        "CNT-02",
+        "CNT-09"
+      ],
+      "detail": "Use family-specific route in acquisition/02 and workstreams/05. Method/law/institution/testimony/content tasks activate on the actual case requirements; all families remain part of the extension grammar, not a fixed switch.",
+      "execution": "UNRUN"
+    },
+    {
+      "id": "EF-23",
+      "kind": "foundation_family",
+      "source": "policy-engine/docs/research/universal-policy-design/external-foundations/families.json",
+      "program_tasks": [
+        "CNT-01",
+        "CNT-02",
+        "CNT-09"
+      ],
+      "detail": "Use family-specific route in acquisition/02 and workstreams/05. Method/law/institution/testimony/content tasks activate on the actual case requirements; all families remain part of the extension grammar, not a fixed switch.",
+      "execution": "UNRUN"
+    },
+    {
+      "id": "EF-24",
+      "kind": "foundation_family",
+      "source": "policy-engine/docs/research/universal-policy-design/external-foundations/families.json",
+      "program_tasks": [
+        "CNT-01",
+        "CNT-02",
+        "CNT-09"
+      ],
+      "detail": "Use family-specific route in acquisition/02 and workstreams/05. Method/law/institution/testimony/content tasks activate on the actual case requirements; all families remain part of the extension grammar, not a fixed switch.",
+      "execution": "UNRUN"
+    },
+    {
+      "id": "EF-25",
+      "kind": "foundation_family",
+      "source": "policy-engine/docs/research/universal-policy-design/external-foundations/families.json",
+      "program_tasks": [
+        "CNT-01",
+        "CNT-02",
+        "CNT-09"
+      ],
+      "detail": "Use family-specific route in acquisition/02 and workstreams/05. Method/law/institution/testimony/content tasks activate on the actual case requirements; all families remain part of the extension grammar, not a fixed switch.",
+      "execution": "UNRUN"
+    },
+    {
+      "id": "EF-26",
+      "kind": "foundation_family",
+      "source": "policy-engine/docs/research/universal-policy-design/external-foundations/families.json",
+      "program_tasks": [
+        "CNT-01",
+        "CNT-02",
+        "CNT-09"
+      ],
+      "detail": "Use family-specific route in acquisition/02 and workstreams/05. Method/law/institution/testimony/content tasks activate on the actual case requirements; all families remain part of the extension grammar, not a fixed switch.",
+      "execution": "UNRUN"
+    }
+  ],
+  "scope": "Complete explicit named R9 delivery/scenario/family sets. Numeric total is traceability, not test count or independent defects. Ground/source records remain canonical referenced inputs, not copied."
+}

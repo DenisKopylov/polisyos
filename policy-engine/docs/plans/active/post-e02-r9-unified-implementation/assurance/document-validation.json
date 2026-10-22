@@ -1,0 +1,156 @@
+{
+  "checks": {
+    "debt": {
+      "files": 1,
+      "source": "policy-engine/docs/plans/active/DEBT-REGISTER.md",
+      "rows": 277,
+      "statuses": {
+        "closed": 191,
+        "blocked": 32,
+        "open": 44,
+        "folded": 4,
+        "foreign": 6
+      },
+      "full_id_status_match": true,
+      "recoveries": [
+        "extraction-ask-offers-six-of-ten-evidence-classes",
+        "register-cells-may-contain-pipes-and-shift-every-column"
+      ],
+      "branch_records_excluded": [
+        "codex/gy-def6-e11",
+        "codex/ds17-confidence-ledger-risk-spend-plan"
+      ]
+    },
+    "GY": {
+      "source": "policy-engine/docs/plans/active/layer3-slices/GY-engine-subordination.md",
+      "files": 1,
+      "rows": 77,
+      "statuses": {
+        "executed": 55,
+        "not_started": 15,
+        "blocked": 5,
+        "not_executed": 2
+      },
+      "full_id_status_match": true
+    },
+    "Atlas": {
+      "source": "policy-engine/docs/plans/active/POLICYOS_ATLAS_SURFACE_IMPLEMENTATION_MASTER_PLAN.md",
+      "files": 1,
+      "DS_rows": 22,
+      "inventory_mixed_rows": 68,
+      "full_DS_match": true
+    },
+    "R9_arrays": {
+      "families": 26,
+      "grounds": 103,
+      "sources": 197
+    },
+    "graph": {
+      "tasks": 106,
+      "by_stream": {
+        "CAP": 6,
+        "LIF": 9,
+        "GYD": 33,
+        "UI": 19,
+        "CNT": 9,
+        "OPS": 12,
+        "P0": 2,
+        "DEB": 12,
+        "FINAL": 4
+      },
+      "hard_edges": 311,
+      "levels": 14,
+      "max_logical_width": 55,
+      "cyclic": false,
+      "debt_nonclosed_bidirectional_routes": 86,
+      "GY_nonexecuted_routes": 22,
+      "R9_trace_rows": 115
+    },
+    "links": {
+      "local_file_links": 98,
+      "broken": []
+    },
+    "json_files": 8,
+    "standing": "Document-only checks. No product tests/imports/builds/installations/production reads.",
+    "frontend_estate": {
+      "source": "policy-engine/architecture/atlas_surfaces/frontend-disposition-register.json",
+      "entries": 261,
+      "disposition": {
+        "rebind_pending": 179,
+        "deleted": 19,
+        "use_as_is": 22,
+        "retire_disposition": 25,
+        "wire_disposition": 16
+      },
+      "strangle_status": {
+        "pending": 138,
+        "strangled": 60,
+        "not_applicable": 63
+      },
+      "dimensions_overlap": true
+    }
+  },
+  "errors": [],
+  "format": "documentary-validation-receipt-v1",
+  "date": "2026-10-22",
+  "outcome": "PASS",
+  "source_G": "d40bca270ef5c456e8233196e4d8d65e099777a7",
+  "implementation_E02": "not_accepted_by_this_document",
+  "accepted_E02_source": null,
+  "G_acceptance": false,
+  "closure_ids": [],
+  "research_agents": 18,
+  "delegation": "direct only; root sole tracked writer",
+  "PDF": {
+    "pages": 10,
+    "visual_inspection": "All10page contact sheet and page10 inspected; no clipping/overlap/glyph failure observed.",
+    "bytes": 110887
+  },
+  "review_scope": "Complete original-document sets; independent inventory/authority/architecture/schedule reviews; root35paraphrase and finalsemantic corrections. Source claims are static/documentary, not fresh runtime evidence.",
+  "product_checks": "UNRUN by explicit user instruction: no tests/builds/imports/installations/provisioning/production scans.",
+  "hook_scope": "Documentation-only commit: omit unconditional dashboard contrast/reduced-motion and push typecheck to preserve user no-heavy-process constraint. Hook files unchanged; these are not PASS receipts.",
+  "correction_input": {
+    "path": "policy-engine/_build/post-e02-r9-program-20261022/corrected-rows.json",
+    "sha256": "9146c3fb6b176ad9309d8ed8a13b3d8c6f0ec7cb00bed18e8cf67b392f597f5e",
+    "rows_applied": 35
+  },
+  "validator": {
+    "path": "policy-engine/_build/post-e02-r9-program-20261022/validate_docs.py",
+    "sha256": "9e1cf963b86e7378d0a24094e4d809470d66a63797f3307996eebde21ef32adf",
+    "method": "Independent standard-library full text/JSON walks; no product module imports. All98local file links resolve. Existing source anchors/qualified evidence are not runtime executions."
+  },
+  "artifact_bindings": [
+    {
+      "path": "tasks.json",
+      "sha256": "47576936534e9dd2b237610435065e3d8b165bd25998bb119fcfcd119a0bf50b"
+    },
+    {
+      "path": "executive/summary.md",
+      "sha256": "5e25019211093e56c19007760959b1564c5ba9c297e5738ff8dbab1e09cd32fd"
+    },
+    {
+      "path": "executive/summary.pdf",
+      "sha256": "4bc9957a92094fb71816e7a17b99f2b9510c8408aa9a37c074bc42adc3522955"
+    },
+    {
+      "path": "inventory/debt-inventory.json",
+      "sha256": "ee1eb44faf3784a606766d5b37f243f1e95327801eadc8ef27448d5c51c63137"
+    },
+    {
+      "path": "assurance/reviews/red-architecture.txt",
+      "sha256": "bd3f4656d7dcb06ad158231fdd39ea5595df6592e39f65fe53384644cb8db121"
+    },
+    {
+      "path": "assurance/reviews/red-authority.txt",
+      "sha256": "a5476fbf1c34a7633a83f4c8721751decbe1358420728ed352feced9bd10489f"
+    },
+    {
+      "path": "assurance/reviews/red-inventory.txt",
+      "sha256": "6948b6e992442e60be62c6480d6d2bc43e246fa12d9c93bfa0f7411b93dbf9d0"
+    },
+    {
+      "path": "assurance/reviews/red-schedule.txt",
+      "sha256": "892593524c9625fefaaf6113d0a1faacaf17fdcadc3c23c06ac83d2d2caccfae"
+    }
+  ]
+}

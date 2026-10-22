@@ -1,0 +1,9 @@
+# Организация исследования и документации
+
+Документы разделены на источник обязательства, архитектурную границу, work package, execution dependency, доказательство и operation. Это позволяет менять расписание без переписывания смысла исходного критерия. Гранулярность packet определяется законченным owner invariant и полным consumer/companion footprint, а не лимитом строк или файлов.
+
+Использованы первичные engineering references: [Google small changes](https://google.github.io/eng-practices/review/developer/small-cls.html) — небольшие законченные изменения легче независимо проверить; [Google review dimensions](https://google.github.io/eng-practices/review/reviewer/looking-for.html) — design, functionality и tests проверяются вместе; [arc42 overview](https://arc42.org/overview/) — context, runtime, deployment, cross-cutting concepts и risks имеют отдельные адреса; [Google SRE production readiness](https://sre.google/sre-book/evolving-sre-engagement-model/) — эксплуатационная готовность требует согласования архитектуры и реальной работы сервиса. Это организационные ориентиры, не новые правила authority PolicyOS.
+
+Исследование использовало прямых специалистов по полным GY/Atlas/debt inventory, конституции, пересечениям, acquisition/lifecycle/content, GY/Atlas design, deployment, assurance и schedule; затем независимые критические разрезы inventory, authority, architecture и scheduling. Root сопоставляет расхождения и является единственным tracked writer. Проверки документации не импортируют продукт и не исполняют его тесты. Полные результаты решающих review сохранены рядом; source snapshots цитируются, а не копируются.
+
+Неизвестная производительность не заменяется обещанием ускорения в 100 раз. Неизвестный runtime outcome не становится PASS после статического чтения. При изменении принятого E02 source первыми обновляются затронутые binding/owner claims, затем связанные задачи и проверки.

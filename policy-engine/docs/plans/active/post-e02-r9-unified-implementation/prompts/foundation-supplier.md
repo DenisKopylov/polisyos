@@ -1,0 +1,9 @@
+# Prompt: substantive foundation supplier
+
+Supply `{missing_predicate}` for `{case/claim/estimand/population/period/audience}` using family/facets `{EF_refs}`, native owner `{owner}`, intake route `{CAP/LIF}` and allowed sources/rights `{scope}`. No children. Read the substantive workstream and exact source cards; cards and URLs are discovery inputs, not admitted evidence.
+
+Research primary sources and competing grounds. Deliver actual accessible content or its permitted exact reference, capture/version/provenance, original language/span, scope and time roles, method/rule and limits, related countergrounds and dependence, operation-specific rights, native verification path and intended consumer. Do not choose a metric after observing the favorable answer. For inequality/poverty preserve formula, unit, population, weights, equivalization, aversion parameter and zero/negative-value policy; expose rank reversals and which normative premise drives them.
+
+For law separate official text, legal effect/applicability, competence and actual institutional act. For causal evidence distinguish prediction, identification, calibration and transport. For testimony preserve consent/context/translation/challenge without invented identity or representativeness. For study synthesis preserve cohort/report ancestry and selection history; more copies are not more independent evidence.
+
+Use approved capture/query-at-custodian mechanisms; keep restricted raw bytes out of cloud and LLM context when not allowed. A lawful reusable representation still needs a fresh purpose/audience admission. If the fact is unavailable, state exact search/source/channel, what remains unknown, why a substitute cannot establish the claim, feasible alternatives and next supplier. Never label an internal research/bridge task “external” simply because another agent has not supplied it.

@@ -1,0 +1,143 @@
+{
+  "format": "planning-source-register-v1",
+  "date": "2026-10-22",
+  "standing": "documentation planning only; implementation awaits actual E02 acceptance",
+  "G_documentation_source": "d40bca270ef5c456e8233196e4d8d65e099777a7",
+  "main_observation": "c40d4acae1ce58b597267255026d9356565828fd",
+  "E02_candidate_observation": "dccea950845cda5b38f026e7770c07819d31f4d9",
+  "E02_accepted_source": null,
+  "planning_assumption": "E02 will be fully accepted; no candidate runtime result is promoted to acceptance by this plan",
+  "inputs": [
+    {
+      "path": "policy-engine/docs/plans/active/layer3-slices/GY-engine-subordination.md",
+      "versions": [
+        {
+          "commit": "d40bca270ef5c456e8233196e4d8d65e099777a7",
+          "blob": "9d510e2ee43fd017028542f180008cd2c2aacb37",
+          "sha256": "5d06f4cc55541fb28030ec4f6c75f2a10537df53c60f792df84de118d0aeb4c5"
+        },
+        {
+          "commit": "dccea950845cda5b38f026e7770c07819d31f4d9",
+          "blob": "9d510e2ee43fd017028542f180008cd2c2aacb37",
+          "sha256": "5d06f4cc55541fb28030ec4f6c75f2a10537df53c60f792df84de118d0aeb4c5"
+        },
+        {
+          "commit": "c40d4acae1ce58b597267255026d9356565828fd",
+          "blob": "9d510e2ee43fd017028542f180008cd2c2aacb37",
+          "sha256": "5d06f4cc55541fb28030ec4f6c75f2a10537df53c60f792df84de118d0aeb4c5"
+        }
+      ]
+    },
+    {
+      "path": "policy-engine/docs/plans/active/POLICYOS_ATLAS_SURFACE_IMPLEMENTATION_MASTER_PLAN.md",
+      "versions": [
+        {
+          "commit": "d40bca270ef5c456e8233196e4d8d65e099777a7",
+          "blob": "21002cfb2805f718ef7e906e8df1c4ecb30c015d",
+          "sha256": "35c1b64c91aa4209cffed4aed42d89258e5f975afab44464f201111ba0b4d725"
+        },
+        {
+          "commit": "dccea950845cda5b38f026e7770c07819d31f4d9",
+          "blob": "21002cfb2805f718ef7e906e8df1c4ecb30c015d",
+          "sha256": "35c1b64c91aa4209cffed4aed42d89258e5f975afab44464f201111ba0b4d725"
+        },
+        {
+          "commit": "c40d4acae1ce58b597267255026d9356565828fd",
+          "blob": "21002cfb2805f718ef7e906e8df1c4ecb30c015d",
+          "sha256": "35c1b64c91aa4209cffed4aed42d89258e5f975afab44464f201111ba0b4d725"
+        }
+      ]
+    },
+    {
+      "path": "policy-engine/docs/plans/active/POLICYOS_ATLAS_PRODUCT_MARKETING_CLIENT_SURFACES_MASTER_PLAN.md",
+      "versions": [
+        {
+          "commit": "d40bca270ef5c456e8233196e4d8d65e099777a7",
+          "blob": "fb930a0f010d985d55ae29059850ce7f4d7cc5af",
+          "sha256": "b6490e4c4e38c5e06731bf816cc583c771b1a44b590d0b280e43836d2ecf7d16"
+        },
+        {
+          "commit": "dccea950845cda5b38f026e7770c07819d31f4d9",
+          "blob": "fb930a0f010d985d55ae29059850ce7f4d7cc5af",
+          "sha256": "b6490e4c4e38c5e06731bf816cc583c771b1a44b590d0b280e43836d2ecf7d16"
+        },
+        {
+          "commit": "c40d4acae1ce58b597267255026d9356565828fd",
+          "blob": "fb930a0f010d985d55ae29059850ce7f4d7cc5af",
+          "sha256": "b6490e4c4e38c5e06731bf816cc583c771b1a44b590d0b280e43836d2ecf7d16"
+        }
+      ]
+    },
+    {
+      "path": "policy-engine/docs/plans/active/DEBT-REGISTER.md",
+      "versions": [
+        {
+          "commit": "d40bca270ef5c456e8233196e4d8d65e099777a7",
+          "blob": "2c59d765fd53d8b363ab0a5b96ec121d71b0f727",
+          "sha256": "133bf46f5835a73e117bcfde31edd87b98a5514c364a23b74926278c9f883f6e"
+        },
+        {
+          "commit": "dccea950845cda5b38f026e7770c07819d31f4d9",
+          "blob": "5a0ab2e46e22431c2c29ef0826b02b6cd4edde76",
+          "sha256": "c9240beb279e660be9a208f5f1c7da90ace006a7447699ad764ad735272157ac"
+        },
+        {
+          "commit": "c40d4acae1ce58b597267255026d9356565828fd",
+          "blob": "2c59d765fd53d8b363ab0a5b96ec121d71b0f727",
+          "sha256": "133bf46f5835a73e117bcfde31edd87b98a5514c364a23b74926278c9f883f6e"
+        }
+      ]
+    },
+    {
+      "path": "policy-engine/docs/plans/active/LEDGER.md",
+      "versions": [
+        {
+          "commit": "d40bca270ef5c456e8233196e4d8d65e099777a7",
+          "blob": "b3b4beb8009e9c1e7abcbdbbd3211db7d3e3fe1b",
+          "sha256": "3093eb4a5708689d2e98833eabbdd9ca6957a6e75b3e8506ddc6aad6a4ff409f"
+        },
+        {
+          "commit": "dccea950845cda5b38f026e7770c07819d31f4d9",
+          "blob": "b3b4beb8009e9c1e7abcbdbbd3211db7d3e3fe1b",
+          "sha256": "3093eb4a5708689d2e98833eabbdd9ca6957a6e75b3e8506ddc6aad6a4ff409f"
+        },
+        {
+          "commit": "c40d4acae1ce58b597267255026d9356565828fd",
+          "blob": "b3b4beb8009e9c1e7abcbdbbd3211db7d3e3fe1b",
+          "sha256": "3093eb4a5708689d2e98833eabbdd9ca6957a6e75b3e8506ddc6aad6a4ff409f"
+        }
+      ]
+    },
+    {
+      "path": "policy-engine/docs/research/universal-policy-design/external-foundations/research-receipt-r9.json",
+      "versions": [
+        {
+          "commit": "d40bca270ef5c456e8233196e4d8d65e099777a7",
+          "blob": "7dc859cd464559ce459f7abe1481cf2a031d21eb",
+          "sha256": "561f244fa3ac73bd8e0579460a2f29b26f32755a137a5e887329663ed3c8adc7"
+        }
+      ]
+    }
+  ],
+  "reconciliation": "Use accepted E02 source/tree/receipt at activation. Retire duplicate repairs only against exact affected property evidence. Old plans retain their history.",
+  "additional_source_bindings": [
+    {
+      "path": "policy-engine/docs/research/policy-operations/int-r9-first-promotion-evaluation-protocol.md",
+      "blob_at_G": "da5f9bfc2eaec6030907ca7b5074ee6b11072e1e",
+      "sha256": "95169dad712b95765e18fcea03fc2f5101fbe516fb46298367fdd76a07306b9b",
+      "role": "INT-R9 separate first-promotion gate"
+    },
+    {
+      "path": "policy-engine/docs/system-design-decisions/int-wave-claim-semantics-ratification.md",
+      "blob_at_G": "57e34bb71ce1fc87a57b494f8d84a6e984173315",
+      "sha256": "04a7aeb685ba210d2a5d1477ef840d9b7e75b3a04d39d7b29504d5fb2e7af201",
+      "role": "INT-R9 separate first-promotion gate"
+    },
+    {
+      "path": "policy-engine/architecture/atlas_surfaces/frontend-disposition-register.json",
+      "blob_at_G": "5de68066d045240b90dfddadc231a89a1f60878d",
+      "sha256": "6998e9d58ace363a12e0b3740b8abd5575b422f9d5d491ad0f5c8146d8112189",
+      "role": "complete frontend disposition denominator; original statuses preserved"
+    }
+  ]
+}

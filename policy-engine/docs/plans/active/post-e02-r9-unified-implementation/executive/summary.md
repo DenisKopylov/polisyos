@@ -1,0 +1,191 @@
+# 1. Решение: одна программа, несколько независимых линий исполнения
+
+**PolicyOS · программа после E02 · 22 октября 2026**
+
+Предлагается реализовать R9 вместе с оставшимися обязательствами GY, Atlas и реестра долгов как единую программу. Единица работы — законченный механизм конкретного владельца и его фактические потребители. Старые планы сохраняют смысл своих требований; новый план связывает их с задачами, зависимостями и проверками. Это позволяет устранять общие причины один раз и одновременно двигать независимые части.
+
+Главная цель — подготовить систему к первому ограниченному практическому применению, сохранив универсальность PolicyOS. Ограничение первого применения задаёт конкретный вопрос, данные, аудиторию и полномочия. Оно не превращает архитектуру в набор отраслевых шаблонов и не вычёркивает незавершённую работу ради демонстрации.
+
+**Реализация начинается только после фактической приёмки E02.** Сейчас подготовлены документы. Непринятый E02 candidate использован для ограниченного чтения кода, но не объявлен рабочей принятой базой. После приёмки оркестратор перепривяжет задачи к её точным source/input/backend границам и устранит дубли с тем, что завершит E02.
+
+По умолчанию до первого применения все исходные незакрытые обязательства должны быть выполнены и приняты либо формально закрыты компетентным владельцем на основании исходного критерия. Называть обязательный остаток «неактуальным для выбранного профиля» недостаточно. Более ранний запуск с отложенной работой был бы отдельным изменением вашего решения о масштабе программы.
+
+Документация содержит 106 рабочих пакетов и контрольных точек. Это не 106 независимых продуктовых функций и не оценка трудоёмкости: среди них реализация, подготовка доказательств, содержательные основания, эксплуатация и решения о готовности. Машинный manifest дополняют подробные документы потоков, полные исходные crosswalks, протокол параллельности и prompts.
+
+**Ваше управленческое решение:** принять программу как основу будущего исполнения; после E02 утвердить перепривязанную базу. Новых правок system-design-decisions этот пакет не применяет. Он не присваивает findings closure и не разрешает публикацию рекомендаций.
+
+Читать: [README](../README.md), [границы входа](../execution/01-charter-and-entry.md), [tasks.json](../tasks.json).
+
+---PAGE---
+
+# 2. Что осталось: четыре разных знаменателя
+
+Полный документарный пересчёт нужен прежде любого обещания готовности. GY содержит **77 задач**: 55 имеют статус executed, 15 not_started, 5 blocked, 2 not_executed. При этом у **14 executed** не измерена полная конъюнкция исходного Done when. Это не повод отменять сделанный код: надо проверить или завершить конкретный оставшийся predicate. Новая программа адресует 22 невыполненные задачи и эти 14 ограниченных остатков.
+
+Atlas содержит **22 DS slices**. DS12, DS13, DS14 и DS21 остаются planned; у DS16 выполненная authority-часть не означает выполненную value grammar. Кроме этих крупных блоков остаются частичные обязательства других slices, перенесённые работы и миграция старых поверхностей. Поздние решения owning slice иногда точнее ранней обзорной таблицы.
+
+В DEBT-REGISTER полностью перечислены **277 уникальных ID**: 191 closed, 44 open, 32 blocked, 4 folded и 6 foreign. Все **86 nonclosed** получили маршрут. Folded ведёт к successor без повторного исполнения. Foreign сохраняет ответственность другого владельца, но не означает завершённости. Статусы исторических записей не изменены этим проектом.
+
+R9 описывает **26 семейств оснований, 103 содержательные записи и 197 source records**. Это исследовательский каталог, а не уже допущенный корпус доказательств. Его 115 traceability-строк связывают семейства, delivery waves и adversarial scenarios с исполнителями. Количество сценариев не является количеством выполненных тестов.
+
+Самая важная находка ревью: в 35 debt-описаниях старое начало строки скрывало более поздние исправления. Например, некоторые public renderers, DS15 positive routes, deterministic admission bundle и DS18 verifier уже построены; остаток относится к production composition, точному семантическому тесту, versioned reconciliation или подлинному внешнему акту. Повторная разработка этих механизмов была бы потерей времени и риском второго владельца.
+
+Эти знаменатели нельзя складывать в «число оставшихся функций». Один LIF-механизм может закрывать несколько исходных obligations; один finding может требовать нескольких owners. Процент готовности из суммы строк был бы ложной точностью.
+
+Читать: [inventory](../inventory/README.md), [исходные версии](../inventory/sources.json), [полный debt crosswalk](../inventory/debt-inventory.json).
+
+---PAGE---
+
+# 3. R9: жизненный цикл оснований как инфраструктура
+
+Универсальность достигается разделением устойчивого механизма и изменяющегося содержания. Новый источник поддержанного класса подключается через существующие registries, profiles и typed adapters. Новая семантика не маскируется записью trusted=true: её native owner должен определить смысл, допустимое применение и проверку. Это сохраняет принцип роста преимущественно через данные и конфигурацию, без бесконечного расширения центрального dispatcher.
+
+Полная цепь начинается с потребности policy task: какой факт, норма, измерительная конвенция или свидетельство нужны и как они изменят решение. Затем система ищет кандидатов, выбирает конкретный источник и профиль, проверяет разрешение операции, получает representation, сохраняет допустимые bytes или reference, производит предметный artifact и допускает конкретное использование. Получение и наличие данных ещё не доказывают их применимость.
+
+**CAP** владеет discovery, transport/capture и source-specific событиями. **LIF** владеет общими механизмами semantic-use admission, frontier commit, currentness, durable duties, управляемых копий, resource admission и derivative lineage. **CNT** наполняет предметные основания и profiles. **UI** показывает настоящее состояние потребителю. **OPS** развёртывает эти механизмы, не создавая параллельных schedulers и permission ledgers.
+
+Пример: CAP-02 сохраняет фактический capture и использует LIF-03 для записи frontier после доступного результата. CAP-04 передаёт событие изменения источника в LIF-02. Последний меняет состояние затронутых claims и защищает fresh read/publication даже при остановленном asynchronous fanout. CAP не пишет второй claim lifecycle.
+
+Повторное использование различает вычислительно одинаковые bytes и допустимость нового вопроса. Population, unit, purpose, audience, rights, model generation и source currentness могут изменить смысл использования при неизменном hash. Поэтому reusable computation не даёт reusable authority автоматически.
+
+Удаление, revoke, restore и rollback также разделены. Возможность восстановить бинарник или backup не разрешает восстановить старое право. Копии, spill, index и живые readers входят в реальную границу custody; недоказанное physical erasure остаётся недоказанным. Audit history и raw payload имеют разные правила хранения.
+
+Читать: [архитектура композиции](../architecture/01-integration-boundaries.md), [CAP](../workstreams/01-acquisition.md), [LIF](../workstreams/02-lifecycle.md).
+
+---PAGE---
+
+# 4. GY: завершить научную и обучаемую систему
+
+GY-остаток объединяет три разных класса: незавершённые production consumers, научные доказательства и механизмы обучения. Их нельзя закрыть одинаковым fixture PASS. D1 требует внутреннего ремонта и reissue фактических catalog bindings; C3 — композиции реального входа с requirement basis и safety/context; S3 — source-backed legal-subject relation; J — настоящего положительного evidence admission. Внешний input не является универсальным оправданием остановки внутренней инженерии.
+
+Promotion имеет несколько разных требований. PR1a использует data-only receipt. Protected promotion следует актуальной ADR-0178/0179 конъюнкции: S6 по всем пяти осям на verifier-reachable refutation-capable evidence, S8 normative admission, promotion-safety acceptance и S7 eligibility, связанный с их digests. Старые общие слова о независимости L1/L2 не заменяют эти условия.
+
+Отдельный GY-O0-NC-01 authentic near-miss остаётся самостоятельным эмпирическим обязательством. Его нельзя инсценировать вредным production trial или объявить выполненным по синтетической атаке. Если настоящий безопасно доступный случай отсутствует, исполнитель должен исследовать доступные evidence и представить владельцу явный вопрос о критерии. Тихий waiver недопустим.
+
+Обучение делится на подтверждающий и исследовательский контуры. O1 обновляет immutable posterior только для допустимого prediction_error с требуемым attribution/context. O2 сохраняет exploratory candidate с denominator, look/window/FDR spend и запретами применения. O3 записывает подтверждённое O1 изменение в versioned world model и доказывает чтение следующим циклом. **O3 зависит от O1 и AS3, но не от завершения O2.** Это важная возможность параллельного исполнения.
+
+FA1 включает четыре конкретных capabilities: runtime subtree cutoff, owner-resolved receipt store, platform/toolchain admission и production-data trust. Путь reuse-first проходит через существующие Foundry owners; manifests, одинаковые walks и self-sign не заменяют authority.
+
+V1–V7 сохраняют отдельные исходные свойства. До freeze готовятся coverage, corpora, independent oracles и локальные проверки самих verifier. Полное выполнение идёт после независимого review на одной замороженной композиции. Смена названия этапа не заменяет требуемого production-loop proof.
+
+Читать: [GY workstream](../workstreams/03-gy.md), [архитектурные вопросы](../architecture/03-research-and-authority-decisions.md).
+
+---PAGE---
+
+# 5. Atlas: внешняя поверхность должна говорить правду
+
+Atlas завершает не оформление готового backend, а полный путь от реального состояния до пользовательского решения. API, generated clients, browser, audit и MACHINE projections обязаны сохранять scope, status, authority, time, limitation и происхождение. Зелёный badge на основании наличия поля — дефект независимо от качества интерфейса.
+
+DS12 строит public decision surface и её связность с допустимой подписью. DS13 использует тот же canonical persisted index и его owner receipt; второй store не нужен. Существующие verifier/client badge и global-index producer переиспользуются. Настоящая population и текущая custody не возникают из локальной контролируемой демонстрации.
+
+**DS14 можно готовить без ожидания O-block.** Его актуальное owning решение прямо фиксирует GY-I и DS9 как выполненные prerequisites; старое название «Phase6 bounded agent» было ошибочным. После E02 проверяется сохранность именно этого evidence. Полное измерение других GY-I predicates не становится новым blanket gate для Clerk. Напротив, DS21 действительно зависит от O1/O3, потому что показывает post-deployment learning.
+
+DS16 продолжает value grammar, включая неизвестные и несравнимые значения. Нельзя сделать удобную числовую сортировку там, где система имеет только set-valued или normative relation. Authority containment, уже выполненный раньше, не закрывает эту новую содержательную работу.
+
+DS19 — миграция полного frontend estate по исходному owner_slice. Его 261 записей, 179 rebind-pending и 138 strangle-pending относятся к пересекающимся измерениям: это не 317 отдельных экранов. Закрытый register delivery не означает закрытого estate. Каждый реальный successor должен сохранить consumer behavior, а старый путь retiring — быть действительно недоступным.
+
+DS20 сохраняет foreign CAS/PG/scorecard/Helm остатки. Для PostgreSQL требуются все четыре исходных доказательства, а не общий concurrency smoke: one-winner step-up, scenario mutation с409, corrupted-head denial до OPA и fresh-app отказ unheaded CAS artifact. SQLite и прежний DS9 proof их не заменяют.
+
+Первая конкретная acquisition surface назначена UI-17: существующие Runtime action/projection, canonical client, dashboard и MACHINE/audit. CAP/LIF/CNT поставляют именно ей реальные результаты. Публичное раскрытие raw bytes не подразумевается.
+
+Читать: [Atlas workstream](../workstreams/04-atlas.md), [Atlas inventory](../inventory/atlas.md).
+
+---PAGE---
+
+# 6. Долги: устранить классы, сохранить историю
+
+Объединение реестра с R9 и Atlas полезно лишь при точном различении общего механизма и разных критериев приёмки. Новая программа выделяет 12 DEB-классов, а остальные строки направляет к уже назначенным GY/UI/CAP/LIF owners. Это не 12 массовых закрытий: каждый исходный ID получает собственный source-qualified disposition.
+
+Первая группа — инструменты измерения. Они должны раскрывать фактически прочитанный denominator, корректно трактовать unreadable и проверять заявленное свойство. Сканирование шести процентов дерева не даёт отсутствия по всему продукту. Перемещение конфигурации не уменьшает её semantic complexity. OpenAPI export не должен зависеть от случайного окружения, а test isolation — от порядка импортов.
+
+Вторая группа — native contracts и compatibility. Retained schema, calibration version, public/private imports и flat-manifest consumers ремонтируются у существующих владельцев. Нельзя объявить private путь удалённым, пока sibling consumer продолжает им пользоваться. Generated artifacts и release inventory входят в тот же законченный delta.
+
+Третья группа — reissue, lineage и смысловые relations. Здесь уже есть построенные adapters/verifiers; остатки используют LIF-02 и actual consumer. Ряд vocabulary вопросов решён в принципе. Исполнителю нужны конкретные profiles, propositions и полнота served-effect/grant coverage, а не восемь новых абстрактных adapters.
+
+Четвёртая группа — внешние authority slots и independent evidence. Qualification, mandate intake и deterministic bundle могут быть готовы, а реальное назначение signer или текущий institutional act отсутствовать. Это блокирует соответствующее утверждение или действие, но не разработку независимых частей. Система не превращается в администратора, который сам создаёт полномочия.
+
+Пятая группа — print/a11y и эксплуатационные foreign остатки. У C13 уже выполнены captures и migration; текущий вопрос — versioned DS18 reconciliation и различающиеся сигналы inherited/reissue rows. Повторить старый PDF недостаточно. Для connector cleanup и worktree tooling восстановлены точные критерии из Atlas, чтобы foreign не означало «когда-нибудь чужой агент».
+
+Закрытые 191 строки остаются историей. Новый plan не переписывает их и не утверждает новое runtime PASS. Каждый green требует точного свойства, а каждый red — установленного происхождения по P41 либо честного not_established.
+
+Читать: [debt workstream](../workstreams/06-debt-and-specialist-work.md), [полные строки](../inventory/debt-inventory.json).
+
+---PAGE---
+
+# 7. Как использовать до ста агентов без ста конфликтов
+
+Параллельность ограничивают три разных графа: зависимости результата, пересечения записи и конкуренция за ресурсы. Отсутствие build-зависимости ещё не разрешает двум людям менять один DTO или одновременно запускать browser на одном fixed port. Поэтому план отдельно определяет supplier/consumer interfaces, canonical write leases и resource tickets.
+
+Будущий оркестратор может использовать до **100 прямых помощников**. Он единственный создаёт назначения; помощники не создают детей. Иллюстративное распределение: 4 координатора направлений, 48 writers, 20 source/oracle специалистов, 20 независимых reviewers и 8 resource/verification stewards. Это потолок вместимости, а не обязательная численность. Один writer никогда не выступает reviewer собственного результата.
+
+После actual E02 acceptance read-only mappers параллельно сверяют исходные owners, obligations и delta. P0-REBIND — один ограниченный checkpoint полноты. Затем независимые механизмы, предметные evidence, UI consumers и DevX исправления запускаются по готовности. Машинный DAG сейчас имеет 14 логических уровней; максимальный уровень содержит 55 узлов. Это не 55 одновременно допустимых writers и не оценка сроков.
+
+На одном semantic owner, общем schema, generated family и integration branch всегда один writer. Consumer можно готовить против frozen интерфейса, пока supplier завершает implementation. Но capability принимается только на actual emitted artifact; два локальных fixture PASS не образуют доказанную композицию.
+
+Ресурс сериализуется по конкретной причине: shared store, browser, native high-RSS процесс, generator или governed artifact. Read-only research, независимые оракулы и разные небольшие code deltas не ждут чужого тяжёлого replay. При дефиците review capacity места переходят от writers к reviewers, а не увеличивают очередь непринятого кода.
+
+Freeze → независимые reviews → один дорогой composed wave. Подготовка V1–V7 происходит раньше; их полный результат и LIF-09 выполняются после FINAL-REVIEW. Blocking repair после freeze батчится и переверифицируется по затронутому delta. Cosmetic замечание не перезапускает весь эксперимент.
+
+Оценка календаря появляется после измерения типовых задач, review latency и runtime ресурсов. Сейчас обещание линейного ускорения от количества агентов было бы выдумкой.
+
+Читать: [параллельность](../execution/02-parallel-execution.md), [волны](../execution/03-waves.md), [prompts](../prompts/README.md).
+
+---PAGE---
+
+# 8. Настоящие основания: содержание и authority
+
+Инфраструктура не создаёт истинные исходные факты. Для реального policy task нужны task-selected источники, нормы, оценки, институциональные acts и свидетельства. Каталог R9 помогает обнаружить варианты, сопоставить их и организовать acquisition; он не объявляет все 197 source records доступными, актуальными или допустимыми для любой цели.
+
+**Данные:** точный snapshot, population, granularity, missingness, measurement process и права. Повторная публикация одного cohort не даёт независимой evidence. Данные, возникшие после нашей рекомендации, не становятся внешне независимыми только благодаря другому publisher.
+
+**Нормы права:** официальный text/version, jurisdiction, relevant time, effect-triggering facts и конкретное отношение к вмешательству. Publication не всегда означает вступление в силу; уведомление, исключение или transitional rule могут быть отдельными основаниями. Search no-hit не доказывает отсутствия нормы. LLM extraction остаётся candidate до компетентной проверки.
+
+**Измерительные конвенции и методы:** неравенство, стоимость, wellbeing или distributional effect могут иметь несколько допустимых исчислений. Система должна сохранять выбранную definition, unit/estimand, assumptions, sensitivity и границы сравнимости. Альтернативные основания можно исследовать в одном task, но нельзя усреднить нормативные различия в якобы объективный score.
+
+**Институциональные акты:** mandate, issuer competence, signing authority, policy profile, permission и currentness. Это разные propositions и time scopes. Valid signature подтверждает определённую связь с issuer; она сама по себе не делает issuer компетентным решать наш вопрос. Для отсутствующего акта исполнитель проверяет разрешённые источники и готовит точный запрос, но не назначает себя authority.
+
+**Человеческие свидетельства:** provenance occurrence, meaning, translation, challenge и permitted audience. Анонимный input не требует выдумывать person identity; отсутствие identity не доказывает независимости. Изменение перевода или обоснованный contest должен дойти до affected uses, а не остаться заметкой в архиве.
+
+Содержательные workers работают параллельно и передают inputs native owners. Метод и разрешение определяют, какие raw bytes можно сохранять, какие outputs — повторять и какие derivative — пересчитывать. Query-only или custodian computation остаются полезными путями, но имеют ограниченный replay и собственные receipt requirements.
+
+Читать: [содержательный поток](../workstreams/05-substantive-foundations.md), [supplier prompt](../prompts/foundation-supplier.md).
+
+---PAGE---
+
+# 9. Развёртывание, память и долговременная ответственность
+
+План рассматривает local, server, remote-storage, hybrid и air-gap профили как разные проверяемые deployment choices. Название env, наличие Helm values или enum backend не доказывают готовность. Требуются фактический worker loop, store semantics, admission, secret resolution, observation и восстановление на выбранной инфраструктуре.
+
+Local профиль полезен для защищённых данных и управляемого начала. Server требует durable work и корректного старта/остановки workers. PostgreSQL проверяется независимыми store/app instances. Remote CAS — своей ownership, consistency, restore и tenant matrix. Air-gap — процедурой переноса доверенных updates и честной stale/offline проекцией, а не обещанием непрерывной currentness без канала обновлений.
+
+Рост данных ограничивается механизмом, а не числом строк в fixture. Bounded capture, persisted refs вместо полного result list, streaming where semantically valid, stage admission и completion reserve должны охватывать decoded/native memory, skew, spills и result fanout. Semaphore на число активных jobs не защищает от неограниченной очереди накопленных результатов.
+
+Вложенная работа использует тот же resource owner. Если parent удерживает память, а child требует ещё capacity, нужны совместно допустимый peak либо настоящий checkpoint/release до ожидания. Истечение lease не доказывает, что native процесс перестал расходовать память. Cancellation fencing и физическое прекращение работы — разные условия.
+
+Recovery проверяет не только читаемость backup. Post-backup revoke/delete/withdrawal должны быть сверены до serving. Согласованно откатившиеся payload и journal не доказывают актуальности; witness должен переживать фактическую rollback boundary. Когда это невозможно, состояние quarantine/limitation честнее cached green.
+
+Provider timeout после внешнего эффекта не означает, что эффекта не было. Retry обязан учитывать допустимое idempotency/reconciliation окно. Неизвестный outcome остаётся неизвестным; новый dispatch не может молча повторить раскрытие или списание allowance.
+
+Практическое применение также требует назначенного оператора custody: кто поддерживает обещанную свежесть, обрабатывает supplier exit, передаёт duties при offboarding и прекращает подпись до потери возможности её защищать. Внешнее исполнение политики по-прежнему принадлежит соответствующим институциям.
+
+Читать: [deployment](../operations/01-deployment.md), [first-use gate](../operations/02-practical-use.md).
+
+---PAGE---
+
+# 10. Приёмка программы и дальнейшие решения
+
+Первый контрольный шаг после E02 — не массовый запуск writers. Оркестратор получает существующее решение G, точные accepted source/tree/input/backend, ограничения и evidence. Затем сверяет все исходные обязательства и перепривязывает реальные owners. Дополнительный проектный checklist удобен, но не создаёт новый продуктовый сервис, signing requirement или обязательную замену native receipts.
+
+Работа принимается на трёх уровнях. **Owner delivery:** законченный native delta с локальным свойством. **Composed acceptance:** фактический producer, persisted artifact/event, bridge и fresh consumer на общей версии. **Original disposition:** решение компетентного владельца по исходному критерию. Ни один уровень не получается автоматически из предыдущего.
+
+Доказательство включает положительный случай, содержательный adversarial negative и matched removal. Для последнего удаляется само свойство при сохранённых markers/declarations. Если gate остаётся green, он проверяет форму. Обязательные public/generated companions, migration и retirement входят в полный footprint того же изменения.
+
+После source/input/backend freeze независимые reviewers закрывают blocking замечания. Затем выполняется один согласованный expensive wave с отдельными исходными V1–V7, lifecycle, backend, browser и operational signals. Counts не суммируются, если scopes пересекаются. FAIL, ERROR, SKIP, unavailable input и UNRUN сохраняются раздельно; источник старой красноты не предполагается без P41.
+
+Решение о первом применении возможно, когда исходная программа действительно завершена или каждое обязательство явно закрыто компетентным владельцем, а конкретный use имеет подлинные admissible inputs и operational custody. Отсутствующий внешний факт нельзя заменить архитектурным выбором. Внутренний недостающий bridge нельзя бесконечно называть внешним препятствием.
+
+**Ожидаемые решения по ходу:** узкие unresolved semantic profiles и physical representation; необходимые competent appointments; exact deployment profile и ресурсные границы; реальные source/law/permission inputs; противоречащие исторические scope/closure signals. Каждый вопрос оформляется с уже проверенными вариантами, reuse-first выбором, миграцией и falsifier. Исполнитель продолжает независимую работу, пока G анализирует вопрос.
+
+Пакет документов сейчас готовит этот процесс, но не исполняет его. Продуктовые тесты, provisioning и production reads в этой исследовательской работе не запускались. Коррекция после E02 предусмотрена адресно; перенос всей работы на новую общую «перепроверку всего» не требуется.
+
+Читать: [assurance](../assurance/01-assurance.md), [change/rebind](../execution/04-change-and-rebind.md), [research method](../assurance/research-method.md).

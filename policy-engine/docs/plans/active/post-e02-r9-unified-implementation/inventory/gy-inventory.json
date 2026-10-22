@@ -1,0 +1,1176 @@
+{
+  "source": {
+    "path": "policy-engine/docs/plans/active/layer3-slices/GY-engine-subordination.md",
+    "blob": "9d510e2ee43fd017028542f180008cd2c2aacb37",
+    "worktree_commit": "d40bca270ef5c456e8233196e4d8d65e099777a7",
+    "status_authority": "§8.5 Task standing"
+  },
+  "enumeration": {
+    "method": "AWK complete walk of the single Markdown file status table at lines 1738-1814",
+    "file_denominator": 1,
+    "row_denominator": 77,
+    "unique_ids": 77,
+    "status_counts": {
+      "executed": 55,
+      "not_started": 15,
+      "blocked": 5,
+      "not_executed": 2,
+      "ambiguous": 0,
+      "in_flight": 0
+    },
+    "executed_by": "Codex leaf /root/r10_gy_inventory",
+    "relative_to_parent": "independently recomputed documentary set and source status; runtime evidence not rerun"
+  },
+  "rows": [
+    {
+      "id": "GY-A1",
+      "phase": "0",
+      "owner": "runtime/quality",
+      "source_ref": "policy-engine/docs/plans/active/layer3-slices/GY-engine-subordination.md §8.5 L1738",
+      "task_spec_ref": "§8.5 table",
+      "source_status": "executed",
+      "work_state": "executed_closed",
+      "remaining_obligation": "No task-local residual is asserted in this status row; see the memo for separately routed limits.",
+      "evidence_basis": "§8.5 is the status authority; this row cites the artifact, commit, or measurement used for its status.",
+      "route_hint": "Retain the source status; do not create follow-on work unless a separately named debt or task routes it.",
+      "program_tasks": [],
+      "program_disposition": "preserve_historical_status_consume_only"
+    },
+    {
+      "id": "GY-A2",
+      "phase": "0",
+      "owner": "corpus",
+      "source_ref": "policy-engine/docs/plans/active/layer3-slices/GY-engine-subordination.md §8.5 L1739",
+      "task_spec_ref": "§8.5 table",
+      "source_status": "executed",
+      "work_state": "executed_closed",
+      "remaining_obligation": "No task-local residual is asserted in this status row; see the memo for separately routed limits.",
+      "evidence_basis": "§8.5 is the status authority; this row cites the artifact, commit, or measurement used for its status.",
+      "route_hint": "Retain the source status; do not create follow-on work unless a separately named debt or task routes it.",
+      "program_tasks": [],
+      "program_disposition": "preserve_historical_status_consume_only"
+    },
+    {
+      "id": "GY-B2",
+      "phase": "0",
+      "owner": "runtime/quality",
+      "source_ref": "policy-engine/docs/plans/active/layer3-slices/GY-engine-subordination.md §8.5 L1740",
+      "task_spec_ref": "§8.5 table",
+      "source_status": "executed",
+      "work_state": "executed_closed",
+      "remaining_obligation": "No task-local residual is asserted in this status row; see the memo for separately routed limits.",
+      "evidence_basis": "§8.5 is the status authority; this row cites the artifact, commit, or measurement used for its status.",
+      "route_hint": "Retain the source status; do not create follow-on work unless a separately named debt or task routes it.",
+      "program_tasks": [],
+      "program_disposition": "preserve_historical_status_consume_only"
+    },
+    {
+      "id": "GY-N0",
+      "phase": "5",
+      "owner": "runtime/quality",
+      "source_ref": "policy-engine/docs/plans/active/layer3-slices/GY-engine-subordination.md §8.5 L1741",
+      "task_spec_ref": "§8.5 table",
+      "source_status": "executed",
+      "work_state": "executed_closed",
+      "remaining_obligation": "No task-local residual is asserted in this status row; see the memo for separately routed limits.",
+      "evidence_basis": "§8.5 is the status authority; this row cites the artifact, commit, or measurement used for its status.",
+      "route_hint": "Retain the source status; do not create follow-on work unless a separately named debt or task routes it.",
+      "program_tasks": [],
+      "program_disposition": "preserve_historical_status_consume_only"
+    },
+    {
+      "id": "GY-N1",
+      "phase": "5",
+      "owner": "pdc",
+      "source_ref": "policy-engine/docs/plans/active/layer3-slices/GY-engine-subordination.md §8.5 L1742",
+      "task_spec_ref": "§8.5 table",
+      "source_status": "executed",
+      "work_state": "executed_closed",
+      "remaining_obligation": "No task-local residual is asserted in this status row; see the memo for separately routed limits.",
+      "evidence_basis": "§8.5 is the status authority; this row cites the artifact, commit, or measurement used for its status.",
+      "route_hint": "Retain the source status; do not create follow-on work unless a separately named debt or task routes it.",
+      "program_tasks": [],
+      "program_disposition": "preserve_historical_status_consume_only"
+    },
+    {
+      "id": "GY-N2",
+      "phase": "5",
+      "owner": "pdc",
+      "source_ref": "policy-engine/docs/plans/active/layer3-slices/GY-engine-subordination.md §8.5 L1743",
+      "task_spec_ref": "§8.5 table",
+      "source_status": "executed",
+      "work_state": "executed_closed",
+      "remaining_obligation": "No task-local residual is asserted in this status row; see the memo for separately routed limits.",
+      "evidence_basis": "§8.5 is the status authority; this row cites the artifact, commit, or measurement used for its status.",
+      "route_hint": "Retain the source status; do not create follow-on work unless a separately named debt or task routes it.",
+      "program_tasks": [],
+      "program_disposition": "preserve_historical_status_consume_only"
+    },
+    {
+      "id": "GY-N3",
+      "phase": "5",
+      "owner": "pdc",
+      "source_ref": "policy-engine/docs/plans/active/layer3-slices/GY-engine-subordination.md §8.5 L1744",
+      "task_spec_ref": "§8.5 table",
+      "source_status": "executed",
+      "work_state": "executed_closed",
+      "remaining_obligation": "No task-local residual is asserted in this status row; see the memo for separately routed limits.",
+      "evidence_basis": "§8.5 is the status authority; this row cites the artifact, commit, or measurement used for its status.",
+      "route_hint": "Retain the source status; do not create follow-on work unless a separately named debt or task routes it.",
+      "program_tasks": [],
+      "program_disposition": "preserve_historical_status_consume_only"
+    },
+    {
+      "id": "GY-N4",
+      "phase": "5",
+      "owner": "runtime/quality",
+      "source_ref": "policy-engine/docs/plans/active/layer3-slices/GY-engine-subordination.md §8.5 L1745",
+      "task_spec_ref": "§8.5 table",
+      "source_status": "executed",
+      "work_state": "executed_closed",
+      "remaining_obligation": "No task-local residual is asserted in this status row; see the memo for separately routed limits.",
+      "evidence_basis": "§8.5 is the status authority; this row cites the artifact, commit, or measurement used for its status.",
+      "route_hint": "Retain the source status; do not create follow-on work unless a separately named debt or task routes it.",
+      "program_tasks": [],
+      "program_disposition": "preserve_historical_status_consume_only"
+    },
+    {
+      "id": "GY-N5",
+      "phase": "5",
+      "owner": "foundry",
+      "source_ref": "policy-engine/docs/plans/active/layer3-slices/GY-engine-subordination.md §8.5 L1746",
+      "task_spec_ref": "§8.5 table",
+      "source_status": "executed",
+      "work_state": "executed_closed",
+      "remaining_obligation": "No task-local residual is asserted in this status row; see the memo for separately routed limits.",
+      "evidence_basis": "§8.5 is the status authority; this row cites the artifact, commit, or measurement used for its status.",
+      "route_hint": "Retain the source status; do not create follow-on work unless a separately named debt or task routes it.",
+      "program_tasks": [],
+      "program_disposition": "preserve_historical_status_consume_only"
+    },
+    {
+      "id": "GY-N6",
+      "phase": "5",
+      "owner": "runtime/quality",
+      "source_ref": "policy-engine/docs/plans/active/layer3-slices/GY-engine-subordination.md §8.5 L1747",
+      "task_spec_ref": "§8.5 table",
+      "source_status": "executed",
+      "work_state": "executed_closed",
+      "remaining_obligation": "No task-local residual is asserted in this status row; see the memo for separately routed limits.",
+      "evidence_basis": "§8.5 is the status authority; this row cites the artifact, commit, or measurement used for its status.",
+      "route_hint": "Retain the source status; do not create follow-on work unless a separately named debt or task routes it.",
+      "program_tasks": [],
+      "program_disposition": "preserve_historical_status_consume_only"
+    },
+    {
+      "id": "GY-N7",
+      "phase": "5",
+      "owner": "fabric",
+      "source_ref": "policy-engine/docs/plans/active/layer3-slices/GY-engine-subordination.md §8.5 L1748",
+      "task_spec_ref": "§8.5 table",
+      "source_status": "executed",
+      "work_state": "executed_closed",
+      "remaining_obligation": "No task-local residual is asserted in this status row; see the memo for separately routed limits.",
+      "evidence_basis": "§8.5 is the status authority; this row cites the artifact, commit, or measurement used for its status.",
+      "route_hint": "Retain the source status; do not create follow-on work unless a separately named debt or task routes it.",
+      "program_tasks": [],
+      "program_disposition": "preserve_historical_status_consume_only"
+    },
+    {
+      "id": "GY-N8",
+      "phase": "5",
+      "owner": "runtime/quality",
+      "source_ref": "policy-engine/docs/plans/active/layer3-slices/GY-engine-subordination.md §8.5 L1749",
+      "task_spec_ref": "§8.5 table",
+      "source_status": "executed",
+      "work_state": "executed_closed",
+      "remaining_obligation": "No task-local residual is asserted in this status row; see the memo for separately routed limits.",
+      "evidence_basis": "§8.5 is the status authority; this row cites the artifact, commit, or measurement used for its status.",
+      "route_hint": "Retain the source status; do not create follow-on work unless a separately named debt or task routes it.",
+      "program_tasks": [],
+      "program_disposition": "preserve_historical_status_consume_only"
+    },
+    {
+      "id": "GY-N9",
+      "phase": "5",
+      "owner": "runtime/quality",
+      "source_ref": "policy-engine/docs/plans/active/layer3-slices/GY-engine-subordination.md §8.5 L1750",
+      "task_spec_ref": "§8.5 table",
+      "source_status": "executed",
+      "work_state": "executed_closed",
+      "remaining_obligation": "No task-local residual is asserted in this status row; see the memo for separately routed limits.",
+      "evidence_basis": "§8.5 is the status authority; this row cites the artifact, commit, or measurement used for its status.",
+      "route_hint": "Retain the source status; do not create follow-on work unless a separately named debt or task routes it.",
+      "program_tasks": [],
+      "program_disposition": "preserve_historical_status_consume_only"
+    },
+    {
+      "id": "GY-N10a",
+      "phase": "5",
+      "owner": "runtime/quality",
+      "source_ref": "policy-engine/docs/plans/active/layer3-slices/GY-engine-subordination.md §8.5 L1751",
+      "task_spec_ref": "§8.5 table",
+      "source_status": "executed",
+      "work_state": "executed_closed",
+      "remaining_obligation": "No task-local residual is asserted in this status row; see the memo for separately routed limits.",
+      "evidence_basis": "§8.5 is the status authority; this row cites the artifact, commit, or measurement used for its status.",
+      "route_hint": "Retain the source status; do not create follow-on work unless a separately named debt or task routes it.",
+      "program_tasks": [],
+      "program_disposition": "preserve_historical_status_consume_only"
+    },
+    {
+      "id": "GY-N10",
+      "phase": "5",
+      "owner": "runtime/quality",
+      "source_ref": "policy-engine/docs/plans/active/layer3-slices/GY-engine-subordination.md §8.5 L1752",
+      "task_spec_ref": "§8.5 table",
+      "source_status": "executed",
+      "work_state": "executed_closed",
+      "remaining_obligation": "No task-local residual is asserted in this status row; see the memo for separately routed limits.",
+      "evidence_basis": "§8.5 is the status authority; this row cites the artifact, commit, or measurement used for its status.",
+      "route_hint": "Retain the source status; do not create follow-on work unless a separately named debt or task routes it.",
+      "program_tasks": [],
+      "program_disposition": "preserve_historical_status_consume_only"
+    },
+    {
+      "id": "GY-N11",
+      "phase": "5",
+      "owner": "runtime/quality",
+      "source_ref": "policy-engine/docs/plans/active/layer3-slices/GY-engine-subordination.md §8.5 L1753",
+      "task_spec_ref": "§8.5 table",
+      "source_status": "executed",
+      "work_state": "executed_closed",
+      "remaining_obligation": "No task-local residual is asserted in this status row; see the memo for separately routed limits.",
+      "evidence_basis": "§8.5 is the status authority; this row cites the artifact, commit, or measurement used for its status.",
+      "route_hint": "Retain the source status; do not create follow-on work unless a separately named debt or task routes it.",
+      "program_tasks": [],
+      "program_disposition": "preserve_historical_status_consume_only"
+    },
+    {
+      "id": "GY-N12",
+      "phase": "5",
+      "owner": "runtime/quality",
+      "source_ref": "policy-engine/docs/plans/active/layer3-slices/GY-engine-subordination.md §8.5 L1754",
+      "task_spec_ref": "§8.5 table",
+      "source_status": "executed",
+      "work_state": "executed_with_scoped_residual",
+      "remaining_obligation": "GY-DEF22 follow-on delivered its capability half only; the Foundry correctness receipt is explicitly not delivered. The N12 boundaries 6-7 artifact remains artifact_missing by predeclared contract, and no new epoch or admitted-environment authority is claimed.",
+      "evidence_basis": "§8.5 L1754 says all four clusters merged and the task is closed; the same row explicitly records the missing correctness receipt and planned boundary absences.",
+      "route_hint": "Keep N12 executed and route the correctness receipt to GY-DEF22/debt ownership; do not reopen N12 or promote the capability-half receipt into correctness authority.",
+      "program_tasks": [],
+      "program_disposition": "preserve_historical_status_consume_only"
+    },
+    {
+      "id": "GY-N13a",
+      "phase": "5",
+      "owner": "fabric",
+      "source_ref": "policy-engine/docs/plans/active/layer3-slices/GY-engine-subordination.md §8.5 L1755",
+      "task_spec_ref": "§8.5 table",
+      "source_status": "executed",
+      "work_state": "executed_closed",
+      "remaining_obligation": "No task-local residual is asserted in this status row; see the memo for separately routed limits.",
+      "evidence_basis": "§8.5 is the status authority; this row cites the artifact, commit, or measurement used for its status.",
+      "route_hint": "Retain the source status; do not create follow-on work unless a separately named debt or task routes it.",
+      "program_tasks": [],
+      "program_disposition": "preserve_historical_status_consume_only"
+    },
+    {
+      "id": "GY-N13b",
+      "phase": "5",
+      "owner": "fabric",
+      "source_ref": "policy-engine/docs/plans/active/layer3-slices/GY-engine-subordination.md §8.5 L1756",
+      "task_spec_ref": "§8.5 table",
+      "source_status": "executed",
+      "work_state": "executed_closed",
+      "remaining_obligation": "Task closed on typed_deeper_terminal with no world-growth epoch; no world-growth claim is made.",
+      "evidence_basis": "§8.5 is the status authority; this row cites the artifact, commit, or measurement used for its status.",
+      "route_hint": "Keep closed; retain the honest typed_deeper_terminal and do not project it as a world-growth epoch.",
+      "program_tasks": [],
+      "program_disposition": "preserve_historical_status_consume_only"
+    },
+    {
+      "id": "GY-PA1",
+      "phase": "5",
+      "owner": "runtime/quality",
+      "source_ref": "policy-engine/docs/plans/active/layer3-slices/GY-engine-subordination.md §8.5 L1757",
+      "task_spec_ref": "§8.5 table",
+      "source_status": "executed",
+      "work_state": "executed_with_scoped_residual",
+      "remaining_obligation": "The production bridge and later-evidence lifecycle are executed. Dominance remains not_established; a live PostgreSQL concurrent-head run is not_established and non-filesystem signed CAS is unsupported. These are explicit limits, not an open PA1 task.",
+      "evidence_basis": "§8.5 L1757 records executed after the 2026-09-08 lane and names the limits and authority exclusions.",
+      "route_hint": "Keep PA1 closed; carry only the S8 candidate-evidence producer-chain remainder under GY-PR1.",
+      "program_tasks": [],
+      "program_disposition": "preserve_historical_status_consume_only"
+    },
+    {
+      "id": "GY-PA2",
+      "phase": "5",
+      "owner": "runtime/quality",
+      "source_ref": "policy-engine/docs/plans/active/layer3-slices/GY-engine-subordination.md §8.5 L1758",
+      "task_spec_ref": "§8.5 table",
+      "source_status": "executed",
+      "work_state": "executed_closed",
+      "remaining_obligation": "No task-local residual is asserted in this status row; see the memo for separately routed limits.",
+      "evidence_basis": "§8.5 is the status authority; this row cites the artifact, commit, or measurement used for its status.",
+      "route_hint": "Retain the source status; do not create follow-on work unless a separately named debt or task routes it.",
+      "program_tasks": [],
+      "program_disposition": "preserve_historical_status_consume_only"
+    },
+    {
+      "id": "GY-PA3",
+      "phase": "5",
+      "owner": "runtime/quality",
+      "source_ref": "policy-engine/docs/plans/active/layer3-slices/GY-engine-subordination.md §8.5 L1759",
+      "task_spec_ref": "§8.5 table",
+      "source_status": "executed",
+      "work_state": "executed_closed",
+      "remaining_obligation": "No task-local residual is asserted in this status row; see the memo for separately routed limits.",
+      "evidence_basis": "§8.5 is the status authority; this row cites the artifact, commit, or measurement used for its status.",
+      "route_hint": "Retain the source status; do not create follow-on work unless a separately named debt or task routes it.",
+      "program_tasks": [],
+      "program_disposition": "preserve_historical_status_consume_only"
+    },
+    {
+      "id": "GY-DI1",
+      "phase": "infra",
+      "owner": "ops/deploy",
+      "source_ref": "policy-engine/docs/plans/active/layer3-slices/GY-engine-subordination.md §8.5 L1760",
+      "task_spec_ref": "§8.5 table",
+      "source_status": "executed",
+      "work_state": "executed_closed",
+      "remaining_obligation": "No task-local residual is asserted in this status row; see the memo for separately routed limits.",
+      "evidence_basis": "§8.5 is the status authority; this row cites the artifact, commit, or measurement used for its status.",
+      "route_hint": "Retain the source status; do not create follow-on work unless a separately named debt or task routes it.",
+      "program_tasks": [],
+      "program_disposition": "preserve_historical_status_consume_only"
+    },
+    {
+      "id": "GY-DI2",
+      "phase": "infra",
+      "owner": "ops/deploy",
+      "source_ref": "policy-engine/docs/plans/active/layer3-slices/GY-engine-subordination.md §8.5 L1761",
+      "task_spec_ref": "§8.5 table",
+      "source_status": "executed",
+      "work_state": "executed_closed",
+      "remaining_obligation": "No task-local residual is asserted in this status row; see the memo for separately routed limits.",
+      "evidence_basis": "§8.5 is the status authority; this row cites the artifact, commit, or measurement used for its status.",
+      "route_hint": "Retain the source status; do not create follow-on work unless a separately named debt or task routes it.",
+      "program_tasks": [],
+      "program_disposition": "preserve_historical_status_consume_only"
+    },
+    {
+      "id": "GY-DI3",
+      "phase": "infra",
+      "owner": "ops/deploy",
+      "source_ref": "policy-engine/docs/plans/active/layer3-slices/GY-engine-subordination.md §8.5 L1762",
+      "task_spec_ref": "§8.5 table",
+      "source_status": "executed",
+      "work_state": "executed_closed",
+      "remaining_obligation": "No task-local residual is asserted in this status row; see the memo for separately routed limits.",
+      "evidence_basis": "§8.5 is the status authority; this row cites the artifact, commit, or measurement used for its status.",
+      "route_hint": "Retain the source status; do not create follow-on work unless a separately named debt or task routes it.",
+      "program_tasks": [],
+      "program_disposition": "preserve_historical_status_consume_only"
+    },
+    {
+      "id": "GY-DI4",
+      "phase": "infra",
+      "owner": "ops/deploy",
+      "source_ref": "policy-engine/docs/plans/active/layer3-slices/GY-engine-subordination.md §8.5 L1763",
+      "task_spec_ref": "§8.5 table",
+      "source_status": "executed",
+      "work_state": "executed_closed",
+      "remaining_obligation": "No task-local residual is asserted in this status row; see the memo for separately routed limits.",
+      "evidence_basis": "§8.5 is the status authority; this row cites the artifact, commit, or measurement used for its status.",
+      "route_hint": "Retain the source status; do not create follow-on work unless a separately named debt or task routes it.",
+      "program_tasks": [],
+      "program_disposition": "preserve_historical_status_consume_only"
+    },
+    {
+      "id": "GY-O0",
+      "phase": "6",
+      "owner": "runtime/quality",
+      "source_ref": "policy-engine/docs/plans/active/layer3-slices/GY-engine-subordination.md §8.5 L1764",
+      "task_spec_ref": "§8.5 table",
+      "source_status": "executed",
+      "work_state": "executed_with_scoped_residual",
+      "remaining_obligation": "GY-O0-NC-01, the empirical cross-gate disagreement on a real promoted design, is registered and expressly does not gate O0 closure; its field-pilot near-miss claim is carried by GY-PR1b.",
+      "evidence_basis": "§8.5 L1764 says the safety independence was discharged structurally and explicitly labels O0-NC-01 non-gating.",
+      "route_hint": "Keep O0 closed; route the specific protected field-pilot event to GY-PR1b, without turning O0 into a promotion gate.",
+      "program_tasks": [],
+      "program_disposition": "preserve_historical_status_consume_only"
+    },
+    {
+      "id": "GY-O1",
+      "phase": "6",
+      "owner": "runtime/quality",
+      "source_ref": "policy-engine/docs/plans/active/layer3-slices/GY-engine-subordination.md §8.5 L1765",
+      "task_spec_ref": "§9 Phase 6 L5439",
+      "source_status": "not_started",
+      "work_state": "unstarted_phase_gated",
+      "remaining_obligation": "Build the confirmatory Bayesian effect updater, admit evidence through AS2, classify deltas, and persist only supported predeclared prediction-error updates to fabric/world; interim rule is no posterior mutation.",
+      "evidence_basis": "§8.5 L1765 says not_started with no commit or note; §9 Phase 6 binds W5-K03 and AS2 evidence admission.",
+      "route_hint": "Phase 6 is unopened while Phase 5 stays open; after the gate, require AS2 and W5-K03 inputs; no posterior mutation in the interim.",
+      "program_tasks": [
+        "GYD-09"
+      ],
+      "program_disposition": "remaining_predicate_only_preserve_source_status"
+    },
+    {
+      "id": "GY-O2",
+      "phase": "6",
+      "owner": "runtime/quality",
+      "source_ref": "policy-engine/docs/plans/active/layer3-slices/GY-engine-subordination.md §8.5 L1766",
+      "task_spec_ref": "§9 Phase 6 L5466",
+      "source_status": "not_started",
+      "work_state": "unstarted_phase_gated",
+      "remaining_obligation": "Build FDR-controlled anomaly discovery that emits candidate_unverified hypotheses with attribution; no direct world edit, and authority only through O1.",
+      "evidence_basis": "§8.5 L1766 says not_started with no commit or note; §9 defines the low-authority candidate path.",
+      "route_hint": "Phase 6 is unopened while Phase 5 stays open; route any confirmed promotion through O1.",
+      "program_tasks": [
+        "GYD-10"
+      ],
+      "program_disposition": "remaining_predicate_only_preserve_source_status"
+    },
+    {
+      "id": "GY-O3",
+      "phase": "6",
+      "owner": "runtime/quality",
+      "source_ref": "policy-engine/docs/plans/active/layer3-slices/GY-engine-subordination.md §8.5 L1767",
+      "task_spec_ref": "§9 Phase 6 L5475",
+      "source_status": "not_started",
+      "work_state": "unstarted_phase_gated",
+      "remaining_obligation": "Build versioned WorldModelRecord write-back only from O1-confirmed findings; add the red-first self-confirmation fixture and permanence across full reprocessing; later Phase-5 cycles must ground against the new branch.",
+      "evidence_basis": "§8.5 L1767 says not_started with no commit or note; §9 binds the O3 self-confirmation and quarantine tests to AS3.",
+      "route_hint": "Phase 6 is unopened while Phase 5 stays open; wait for AS3 and never allow direct anomaly write-back.",
+      "program_tasks": [
+        "GYD-12"
+      ],
+      "program_disposition": "remaining_predicate_only_preserve_source_status"
+    },
+    {
+      "id": "GY-V1",
+      "phase": "7",
+      "owner": "team-architecture",
+      "source_ref": "policy-engine/docs/plans/active/layer3-slices/GY-engine-subordination.md §8.5 L1768",
+      "task_spec_ref": "§9 Phase 7 L5525",
+      "source_status": "not_started",
+      "work_state": "unstarted_phase_gated",
+      "remaining_obligation": "Re-derive the full capability coverage matrix and prove every claimed moved row has a complete chain with a semantic test.",
+      "evidence_basis": "§8.5 status row records not_started, no commit/note, and says Phases 5-6 must land first.",
+      "route_hint": "Schedule only after Phase 5 and Phase 6; V1 and V6 are explicit slice-completion gates.",
+      "program_tasks": [
+        "GYD-16"
+      ],
+      "program_disposition": "remaining_predicate_only_preserve_source_status"
+    },
+    {
+      "id": "GY-V2",
+      "phase": "7",
+      "owner": "team-architecture",
+      "source_ref": "policy-engine/docs/plans/active/layer3-slices/GY-engine-subordination.md §8.5 L1769",
+      "task_spec_ref": "§9 Phase 7 L5531",
+      "source_status": "not_started",
+      "work_state": "unstarted_phase_gated",
+      "remaining_obligation": "Run the full loop through B2 on real inputs and persist the reproducible Workspace graph, SearchLedger, SearchExitContract, measurement-rooted proof, or certified honest ceiling terminal.",
+      "evidence_basis": "§8.5 status row records not_started, no commit/note, and says Phases 5-6 must land first.",
+      "route_hint": "Schedule only after Phase 5 and Phase 6; V1 and V6 are explicit slice-completion gates.",
+      "program_tasks": [
+        "GYD-17"
+      ],
+      "program_disposition": "remaining_predicate_only_preserve_source_status"
+    },
+    {
+      "id": "GY-V3",
+      "phase": "7",
+      "owner": "team-architecture",
+      "source_ref": "policy-engine/docs/plans/active/layer3-slices/GY-engine-subordination.md §8.5 L1770",
+      "task_spec_ref": "§9 Phase 7 L5539",
+      "source_status": "not_started",
+      "work_state": "unstarted_phase_gated",
+      "remaining_obligation": "Record per-domain terminal/evidence-kind/decision-grade distributions over the multi-case recursive and unseen-domain battery, without forcing useful outcomes.",
+      "evidence_basis": "§8.5 status row records not_started, no commit/note, and says Phases 5-6 must land first.",
+      "route_hint": "Schedule only after Phase 5 and Phase 6; V1 and V6 are explicit slice-completion gates.",
+      "program_tasks": [
+        "GYD-18"
+      ],
+      "program_disposition": "remaining_predicate_only_preserve_source_status"
+    },
+    {
+      "id": "GY-V4",
+      "phase": "7",
+      "owner": "team-architecture",
+      "source_ref": "policy-engine/docs/plans/active/layer3-slices/GY-engine-subordination.md §8.5 L1771",
+      "task_spec_ref": "§9 Phase 7 L5559",
+      "source_status": "not_started",
+      "work_state": "unstarted_phase_gated",
+      "remaining_obligation": "Execute and record the listed authority, promotion, search, composition, surface, CAS, time, VOI, EvalSafety, stale-certificate, delta, and equilibrium negatives.",
+      "evidence_basis": "§8.5 status row records not_started, no commit/note, and says Phases 5-6 must land first.",
+      "route_hint": "Schedule only after Phase 5 and Phase 6; V1 and V6 are explicit slice-completion gates.",
+      "program_tasks": [
+        "GYD-19"
+      ],
+      "program_disposition": "remaining_predicate_only_preserve_source_status"
+    },
+    {
+      "id": "GY-V5",
+      "phase": "7",
+      "owner": "team-architecture",
+      "source_ref": "policy-engine/docs/plans/active/layer3-slices/GY-engine-subordination.md §8.5 L1772",
+      "task_spec_ref": "§9 Phase 7 L5591",
+      "source_status": "not_started",
+      "work_state": "unstarted_phase_gated",
+      "remaining_obligation": "Prove byte-identical deterministic replay, reconstructable agent trace, promoted-artifact revalidation, and reproducible time-invariant hashes.",
+      "evidence_basis": "§8.5 status row records not_started, no commit/note, and says Phases 5-6 must land first.",
+      "route_hint": "Schedule only after Phase 5 and Phase 6; V1 and V6 are explicit slice-completion gates.",
+      "program_tasks": [
+        "GYD-20"
+      ],
+      "program_disposition": "remaining_predicate_only_preserve_source_status"
+    },
+    {
+      "id": "GY-V6",
+      "phase": "7",
+      "owner": "team-architecture",
+      "source_ref": "policy-engine/docs/plans/active/layer3-slices/GY-engine-subordination.md §8.5 L1773",
+      "task_spec_ref": "§9 Phase 7 L5598",
+      "source_status": "not_started",
+      "work_state": "unstarted_phase_gated",
+      "remaining_obligation": "Run all GY artifacts through GX hardening, Task-0 coverage, 16 audit validators, and GY-V checks with no uncatalogued drift.",
+      "evidence_basis": "§8.5 status row records not_started, no commit/note, and says Phases 5-6 must land first.",
+      "route_hint": "Schedule only after Phase 5 and Phase 6; V1 and V6 are explicit slice-completion gates.",
+      "program_tasks": [
+        "GYD-21"
+      ],
+      "program_disposition": "remaining_predicate_only_preserve_source_status"
+    },
+    {
+      "id": "GY-V7",
+      "phase": "7",
+      "owner": "team-architecture",
+      "source_ref": "policy-engine/docs/plans/active/layer3-slices/GY-engine-subordination.md §8.5 L1774",
+      "task_spec_ref": "§9 Phase 7 L5603",
+      "source_status": "not_started",
+      "work_state": "unstarted_phase_gated",
+      "remaining_obligation": "Record the five constitution health signals and the honest domain-ceiling versus search-ceiling interpretation.",
+      "evidence_basis": "§8.5 status row records not_started, no commit/note, and says Phases 5-6 must land first.",
+      "route_hint": "Schedule only after Phase 5 and Phase 6; V1 and V6 are explicit slice-completion gates.",
+      "program_tasks": [
+        "GYD-22"
+      ],
+      "program_disposition": "remaining_predicate_only_preserve_source_status"
+    },
+    {
+      "id": "GY-M1",
+      "phase": "0",
+      "owner": "team-architecture",
+      "source_ref": "policy-engine/docs/plans/active/layer3-slices/GY-engine-subordination.md §8.5 L1775",
+      "task_spec_ref": "§8.5 table",
+      "source_status": "executed",
+      "work_state": "executed_closed",
+      "remaining_obligation": "No task-local residual is asserted in this status row; see the memo for separately routed limits.",
+      "evidence_basis": "§8.5 is the status authority; this row cites the artifact, commit, or measurement used for its status.",
+      "route_hint": "Retain the source status; do not create follow-on work unless a separately named debt or task routes it.",
+      "program_tasks": [],
+      "program_disposition": "preserve_historical_status_consume_only"
+    },
+    {
+      "id": "GY-B",
+      "phase": "0",
+      "owner": "runtime/quality",
+      "source_ref": "policy-engine/docs/plans/active/layer3-slices/GY-engine-subordination.md §8.5 L1776",
+      "task_spec_ref": "§9 Phase 0 L1983",
+      "source_status": "executed",
+      "work_state": "executed_presence_only",
+      "remaining_obligation": "The row explicitly says the full Done-when conjunction remains not_measured; measure both Slice-0 fixtures, discovered operation registry, replay levels, and forbidden-operation negatives.",
+      "evidence_basis": "§8.5 L1776 says executed but carries the 2026-09-07 full-conjunction not_measured rider.",
+      "route_hint": "runtime/quality owns the task; preserve executed as the table status while requiring the task-specific acceptance evidence before calling it complete.",
+      "program_tasks": [
+        "GYD-23"
+      ],
+      "program_disposition": "remaining_predicate_only_preserve_source_status"
+    },
+    {
+      "id": "GY-H",
+      "phase": "1",
+      "owner": "runtime/quality",
+      "source_ref": "policy-engine/docs/plans/active/layer3-slices/GY-engine-subordination.md §8.5 L1777",
+      "task_spec_ref": "§9 Phase 1 L2032",
+      "source_status": "executed",
+      "work_state": "executed_presence_only",
+      "remaining_obligation": "The full Done-when conjunction is explicitly not_measured: typed terminal precedence, groundable and ceiling fixtures, poor-recall routing, and VOI continuation remain to be demonstrated together.",
+      "evidence_basis": "§8.5 L1777 says executed but carries the 2026-09-07 full-conjunction not_measured rider.",
+      "route_hint": "runtime/quality owns the task; retain the typed exit work and measure the complete acceptance conjunction before closure.",
+      "program_tasks": [
+        "GYD-23"
+      ],
+      "program_disposition": "remaining_predicate_only_preserve_source_status"
+    },
+    {
+      "id": "GY-D1",
+      "phase": "1",
+      "owner": "fabric",
+      "source_ref": "policy-engine/docs/plans/active/layer3-slices/GY-engine-subordination.md §8.5 L1778",
+      "task_spec_ref": "§9 Phase 1 L2044",
+      "source_status": "blocked",
+      "work_state": "blocked_external",
+      "remaining_obligation": "The local catalog bridge and persisted full-fetch evidence are described as repaired; four of 56,846 executable catalog bindings still point at resource IDs that disagree with their distributions, so Data Forge reissue is required. A separate curated-GDP versus WDI unit/period mismatch is routed to D2/GY-PR1.",
+      "evidence_basis": "§8.5 L1778 current status blocked; the latest 2026-09-09 measurement supersedes the reversed 2026-08-30 prose and names the four external records.",
+      "route_hint": "Hold the positive on Data Forge reissue; preserve local bridge repairs and route the unit/period mismatch through the already named D2/GY-PR1 owners.",
+      "program_tasks": [
+        "GYD-02"
+      ],
+      "program_disposition": "remaining_predicate_only_preserve_source_status"
+    },
+    {
+      "id": "GY-D2",
+      "phase": "1",
+      "owner": "fabric",
+      "source_ref": "policy-engine/docs/plans/active/layer3-slices/GY-engine-subordination.md §8.5 L1779",
+      "task_spec_ref": "§9 Phase 1 L2059",
+      "source_status": "executed",
+      "work_state": "executed_presence_only",
+      "remaining_obligation": "The full Done-when conjunction is explicitly not_measured: connector applicability must fail closed and missing source-contract facets must block or downgrade real fetches.",
+      "evidence_basis": "§8.5 L1779 says executed but carries the 2026-09-07 full-conjunction not_measured rider.",
+      "route_hint": "fabric owns the task; keep current status and require the real admission behavior before treating it as complete.",
+      "program_tasks": [
+        "GYD-24"
+      ],
+      "program_disposition": "remaining_predicate_only_preserve_source_status"
+    },
+    {
+      "id": "GY-D3",
+      "phase": "1",
+      "owner": "fabric",
+      "source_ref": "policy-engine/docs/plans/active/layer3-slices/GY-engine-subordination.md §8.5 L1780",
+      "task_spec_ref": "§9 Phase 1 L2065",
+      "source_status": "executed",
+      "work_state": "executed_presence_only",
+      "remaining_obligation": "The full Done-when conjunction is explicitly not_measured: a committed governed semantic benchmark, negative controls, precision/recall floors, and search-ceiling routing must be consumed by the gate.",
+      "evidence_basis": "§8.5 L1780 says executed but carries the 2026-09-07 full-conjunction not_measured rider; §3.5.5 requires a representative corpus or an explicit surface_out_of_scope ruling.",
+      "route_hint": "fabric owns the task; establish the canonical benchmark population and prove the consuming gate follows its semantic property.",
+      "program_tasks": [
+        "GYD-25"
+      ],
+      "program_disposition": "remaining_predicate_only_preserve_source_status"
+    },
+    {
+      "id": "GY-E",
+      "phase": "1",
+      "owner": "fabric",
+      "source_ref": "policy-engine/docs/plans/active/layer3-slices/GY-engine-subordination.md §8.5 L1781",
+      "task_spec_ref": "§9 Phase 1 L2082",
+      "source_status": "executed",
+      "work_state": "executed_presence_only",
+      "remaining_obligation": "The full Done-when conjunction is explicitly not_measured: a pinned identification gap must resolve through DataNeedSpec to a real fetch or a costed acquisition_required exit.",
+      "evidence_basis": "§8.5 L1781 says executed but carries the 2026-09-07 full-conjunction not_measured rider.",
+      "route_hint": "fabric owns the task; prove the full producer-to-exit route without adding a parallel DataNeedSpec owner.",
+      "program_tasks": [
+        "GYD-24"
+      ],
+      "program_disposition": "remaining_predicate_only_preserve_source_status"
+    },
+    {
+      "id": "GY-C1",
+      "phase": "2",
+      "owner": "runtime/quality",
+      "source_ref": "policy-engine/docs/plans/active/layer3-slices/GY-engine-subordination.md §8.5 L1782",
+      "task_spec_ref": "§9 Phase 2 L2091",
+      "source_status": "executed",
+      "work_state": "executed_closed",
+      "remaining_obligation": "No task-local residual is asserted in this status row; see the memo for separately routed limits.",
+      "evidence_basis": "§8.5 L1782 later records measured repair on 2026-09-09; that later closure supersedes the historical 2026-09-07 not_measured note.",
+      "route_hint": "Retain the source status; do not create follow-on work unless a separately named debt or task routes it.",
+      "program_tasks": [],
+      "program_disposition": "preserve_historical_status_consume_only"
+    },
+    {
+      "id": "GY-C2",
+      "phase": "2",
+      "owner": "scientist",
+      "source_ref": "policy-engine/docs/plans/active/layer3-slices/GY-engine-subordination.md §8.5 L1783",
+      "task_spec_ref": "§9 Phase 2 L2099",
+      "source_status": "executed",
+      "work_state": "executed_presence_only_with_red_witness",
+      "remaining_obligation": "The row says full real-input verdicts remain not_measured and records a live counterexample: removing actual judge outputs while retaining names and a promote marker is accepted as applicable. The spine repair is therefore not substantiated as complete.",
+      "evidence_basis": "§8.5 L1783: source status executed, but explicitly says the status records presence rather than Done-when discharge and names the failing negative.",
+      "route_hint": "scientist owns the same task; close the consumer-side negative and real-input verdict before any governance-to-authority use.",
+      "program_tasks": [
+        "GYD-26"
+      ],
+      "program_disposition": "remaining_predicate_only_preserve_source_status"
+    },
+    {
+      "id": "GY-C3",
+      "phase": "2",
+      "owner": "foundry",
+      "source_ref": "policy-engine/docs/plans/active/layer3-slices/GY-engine-subordination.md §8.5 L1784",
+      "task_spec_ref": "§9 Phase 2 L2108",
+      "source_status": "blocked",
+      "work_state": "blocked_external",
+      "remaining_obligation": "Local route binding, content verification, ConstraintStore consumption, and optimizer corrections are described as repaired. Remaining acceptance needs Data Forge failed D0/staged intake, independently admitted EvalSafety evidence and context, and a truthful requirement basis.",
+      "evidence_basis": "§8.5 L1784 current status blocked after 2026-09-09 repair; the blocker is explicitly outside engineering in this task.",
+      "route_hint": "Hold on Data Forge and independent EvalSafety inputs; do not reopen the local route/consumer repairs.",
+      "program_tasks": [
+        "GYD-03"
+      ],
+      "program_disposition": "remaining_predicate_only_preserve_source_status"
+    },
+    {
+      "id": "GY-I",
+      "phase": "2",
+      "owner": "scientist",
+      "source_ref": "policy-engine/docs/plans/active/layer3-slices/GY-engine-subordination.md §8.5 L1785",
+      "task_spec_ref": "§9 Phase 2 L2114",
+      "source_status": "executed",
+      "work_state": "executed_presence_only",
+      "remaining_obligation": "The full Done-when conjunction is explicitly not_measured: real tool-loop role events, no-client refusal, construction-level Ring-2 rejection, and VOI score normalization must be demonstrated together.",
+      "evidence_basis": "§8.5 L1785 says executed but carries the 2026-09-07 full-conjunction not_measured rider.",
+      "route_hint": "scientist owns the task; measure event-backed production consumption and the listed semantic negatives.",
+      "program_tasks": [
+        "GYD-27"
+      ],
+      "program_disposition": "remaining_predicate_only_preserve_source_status"
+    },
+    {
+      "id": "GY-F1",
+      "phase": "3",
+      "owner": "runtime/quality",
+      "source_ref": "policy-engine/docs/plans/active/layer3-slices/GY-engine-subordination.md §8.5 L1786",
+      "task_spec_ref": "§9 Phase 3 L2126",
+      "source_status": "executed",
+      "work_state": "executed_closed",
+      "remaining_obligation": "No task-local residual is asserted in this status row; see the memo for separately routed limits.",
+      "evidence_basis": "§8.5 L1786 later records measured repair on 2026-09-09, including recomputed durable proof; that closure supersedes the historical not_measured note.",
+      "route_hint": "Retain the source status; do not create follow-on work unless a separately named debt or task routes it.",
+      "program_tasks": [],
+      "program_disposition": "preserve_historical_status_consume_only"
+    },
+    {
+      "id": "GY-F2",
+      "phase": "3",
+      "owner": "fabric",
+      "source_ref": "policy-engine/docs/plans/active/layer3-slices/GY-engine-subordination.md §8.5 L1787",
+      "task_spec_ref": "§9 Phase 3 L2131",
+      "source_status": "executed",
+      "work_state": "executed_presence_only",
+      "remaining_obligation": "The full Done-when conjunction is explicitly not_measured: secret/PII probes across raw and public routes plus CAS digest, deduplication, tamper, and garbage-collection survivability need a complete report.",
+      "evidence_basis": "§8.5 L1787 says executed but carries the 2026-09-07 full-conjunction not_measured rider.",
+      "route_hint": "fabric owns the task; avoid reading artifact presence as proof of surface coverage or CAS integrity.",
+      "program_tasks": [
+        "GYD-28"
+      ],
+      "program_disposition": "remaining_predicate_only_preserve_source_status"
+    },
+    {
+      "id": "GY-F3",
+      "phase": "3",
+      "owner": "runtime/quality",
+      "source_ref": "policy-engine/docs/plans/active/layer3-slices/GY-engine-subordination.md §8.5 L1788",
+      "task_spec_ref": "§9 Phase 3 L2142",
+      "source_status": "executed",
+      "work_state": "executed_presence_only",
+      "remaining_obligation": "The full Done-when conjunction is explicitly not_measured: time-role mismatch dispositions, S12 dereference/candidate downgrade, and reconciliation of all 406 candidate-positive rows remain to be measured together.",
+      "evidence_basis": "§8.5 L1788 says executed but carries the 2026-09-07 full-conjunction not_measured rider.",
+      "route_hint": "runtime/quality owns the task; preserve explicit time semantics and require the full inventory reconciliation.",
+      "program_tasks": [
+        "GYD-29"
+      ],
+      "program_disposition": "remaining_predicate_only_preserve_source_status"
+    },
+    {
+      "id": "GY-G",
+      "phase": "4",
+      "owner": "pdc",
+      "source_ref": "policy-engine/docs/plans/active/layer3-slices/GY-engine-subordination.md §8.5 L1789",
+      "task_spec_ref": "§9 Phase 4 L2158",
+      "source_status": "executed",
+      "work_state": "executed_presence_only",
+      "remaining_obligation": "The full Done-when conjunction is explicitly not_measured: two-chapter composition, feedback-decomposition refusal, and emergent-claim grounding cap need complete acceptance evidence.",
+      "evidence_basis": "§8.5 L1789 says executed but carries the 2026-09-07 full-conjunction not_measured rider.",
+      "route_hint": "pdc owns the task; retain the canonical composition owner and obtain task-level evidence rather than reopening historical GY-G fixes.",
+      "program_tasks": [
+        "GYD-30"
+      ],
+      "program_disposition": "remaining_predicate_only_preserve_source_status"
+    },
+    {
+      "id": "GY-M2",
+      "phase": "4",
+      "owner": "team-architecture",
+      "source_ref": "policy-engine/docs/plans/active/layer3-slices/GY-engine-subordination.md §8.5 L1790",
+      "task_spec_ref": "§8.5 table",
+      "source_status": "executed",
+      "work_state": "executed_closed",
+      "remaining_obligation": "No task-local residual is asserted in this status row; see the memo for separately routed limits.",
+      "evidence_basis": "§8.5 is the status authority; this row cites the artifact, commit, or measurement used for its status.",
+      "route_hint": "Retain the source status; do not create follow-on work unless a separately named debt or task routes it.",
+      "program_tasks": [],
+      "program_disposition": "preserve_historical_status_consume_only"
+    },
+    {
+      "id": "GY-J",
+      "phase": "4",
+      "owner": "runtime/quality",
+      "source_ref": "policy-engine/docs/plans/active/layer3-slices/GY-engine-subordination.md §8.5 L1791",
+      "task_spec_ref": "§9 Cross-cutting L2196",
+      "source_status": "not_executed",
+      "work_state": "measured_incomplete",
+      "remaining_obligation": "The production-catalog population is 0/1 with a typed a_spec_gap refusal; no Slice-0 fixture may enter the numerator. A positive evidence-admission producer is missing, with no named defect row or appointed positive owner.",
+      "evidence_basis": "§8.5 L1791 current status not_executed; the 2026-09-09 ruling fixes population to the canonical producer and records the 0/1 result.",
+      "route_hint": "Keep the truthful refusal; appoint/route the missing positive evidence producer before a future rate claim. Do not reclassify the fixture as production population.",
+      "program_tasks": [
+        "GYD-06"
+      ],
+      "program_disposition": "remaining_predicate_only_preserve_source_status"
+    },
+    {
+      "id": "GY-K",
+      "phase": "4",
+      "owner": "scholar",
+      "source_ref": "policy-engine/docs/plans/active/layer3-slices/GY-engine-subordination.md §8.5 L1792",
+      "task_spec_ref": "§9 Cross-cutting L2201",
+      "source_status": "blocked",
+      "work_state": "blocked_external",
+      "remaining_obligation": "The engineering half now measures the extractor and binds candidate ingestion, but precision and recall remain present-and-null as withheld_pending_adjudicator_appointment under correspondence-acceptance-standing-rule.",
+      "evidence_basis": "§8.5 L1792 current status blocked; the earlier GYK entailment-name collision is resolved and explicitly does not satisfy the ingestion/accuracy Done when.",
+      "route_hint": "Hold only the positive correspondence/accuracy claim on the adjudicator appointment; preserve candidate-only L2 ingestion work.",
+      "program_tasks": [
+        "GYD-04"
+      ],
+      "program_disposition": "remaining_predicate_only_preserve_source_status"
+    },
+    {
+      "id": "GY-L",
+      "phase": "4",
+      "owner": "runtime/quality",
+      "source_ref": "policy-engine/docs/plans/active/layer3-slices/GY-engine-subordination.md §8.5 L1793",
+      "task_spec_ref": "§9 Cross-cutting L2212",
+      "source_status": "not_executed",
+      "work_state": "measured_incomplete",
+      "remaining_obligation": "The outcome validator and current-family post-output GX recomputation are repaired; the current new artifacts remain expected_red with 38 findings owned by G1/G4/G5 and N9-calibration owners. The a_spec_gap terminal is permitted under this task.",
+      "evidence_basis": "§8.5 L1793 current status not_executed; the 2026-09-09 update separates repaired verification from the still-false GX acceptance conjunct.",
+      "route_hint": "Route the 38 findings to their named owners; keep L not_executed until actual post-output GX passes while keeping a_spec_gap as the permitted typed terminal.",
+      "program_tasks": [
+        "GYD-07"
+      ],
+      "program_disposition": "remaining_predicate_only_preserve_source_status"
+    },
+    {
+      "id": "GY-S0",
+      "phase": "5",
+      "owner": "fabric",
+      "source_ref": "policy-engine/docs/plans/active/layer3-slices/GY-engine-subordination.md §8.5 L1794",
+      "task_spec_ref": "§9 Phase 5 L2346",
+      "source_status": "executed",
+      "work_state": "executed_presence_only",
+      "remaining_obligation": "The full Done-when conjunction is explicitly not_measured: the registry/free-grow foundation must be checked over the complete real data vocabulary with owner validation and its decisive-property mutation.",
+      "evidence_basis": "§8.5 L1794 says executed but carries the 2026-09-07 full-conjunction not_measured rider.",
+      "route_hint": "fabric owns the task; preserve the shared substrate owner and measure all four §3.5.6 gates.",
+      "program_tasks": [
+        "GYD-32"
+      ],
+      "program_disposition": "remaining_predicate_only_preserve_source_status"
+    },
+    {
+      "id": "GY-S1",
+      "phase": "5",
+      "owner": "fabric",
+      "source_ref": "policy-engine/docs/plans/active/layer3-slices/GY-engine-subordination.md §8.5 L1795",
+      "task_spec_ref": "§9 Phase 5 L2358",
+      "source_status": "executed",
+      "work_state": "executed_presence_only",
+      "remaining_obligation": "The full Done-when conjunction is explicitly not_measured: the L1/L4/L5 lift must satisfy full-denominator, fake-input refusal, data-only free-grow, and decisive-property removal gates.",
+      "evidence_basis": "§8.5 L1795 says executed but carries the 2026-09-07 full-conjunction not_measured rider.",
+      "route_hint": "fabric owns the task; do not widen beyond the canonical substrate owners or count schema/artifact presence as lift completion.",
+      "program_tasks": [
+        "GYD-32"
+      ],
+      "program_disposition": "remaining_predicate_only_preserve_source_status"
+    },
+    {
+      "id": "GY-N-V",
+      "phase": "5",
+      "owner": "pdc",
+      "source_ref": "policy-engine/docs/plans/active/layer3-slices/GY-engine-subordination.md §8.5 L1796",
+      "task_spec_ref": "§9 Phase 5 L2375",
+      "source_status": "executed",
+      "work_state": "executed_presence_only",
+      "remaining_obligation": "The full Done-when conjunction is explicitly not_measured for the set-valued ValueOuterSet contract and its grounding, identification, transport, and honest-timeout behavior.",
+      "evidence_basis": "§8.5 L1796 says executed but carries the 2026-09-07 full-conjunction not_measured rider.",
+      "route_hint": "pdc owns the type; measure the set semantics with the named substrate and preserve candidate-only handling for unknown/incomparable results.",
+      "program_tasks": [
+        "GYD-31"
+      ],
+      "program_disposition": "remaining_predicate_only_preserve_source_status"
+    },
+    {
+      "id": "GY-S2",
+      "phase": "5",
+      "owner": "scholar / lex",
+      "source_ref": "policy-engine/docs/plans/active/layer3-slices/GY-engine-subordination.md §8.5 L1797",
+      "task_spec_ref": "§9 Phase 5 L2389",
+      "source_status": "executed",
+      "work_state": "executed_presence_only",
+      "remaining_obligation": "The full Done-when conjunction is explicitly not_measured: the L2/L3 knowledge lift needs full source/claim denominators, owner-resolved bindings, and fail-closed fake-input behavior.",
+      "evidence_basis": "§8.5 L1797 says executed but carries the 2026-09-07 full-conjunction not_measured rider.",
+      "route_hint": "scholar/lex own the task; keep candidate evidence separate from authority and do not merge the separate GY-K accuracy appointment.",
+      "program_tasks": [
+        "GYD-33"
+      ],
+      "program_disposition": "remaining_predicate_only_preserve_source_status"
+    },
+    {
+      "id": "GY-S3",
+      "phase": "5",
+      "owner": "foundry",
+      "source_ref": "policy-engine/docs/plans/active/layer3-slices/GY-engine-subordination.md §8.5 L1798",
+      "task_spec_ref": "§9 Phase 5 L2407",
+      "source_status": "blocked",
+      "work_state": "blocked_external",
+      "remaining_obligation": "The engineering recognition rule and S3 bridge are described as built and falsified on the CORR capability lane; remaining work is an independently authoritative legal-subject membership source and the correspondence-acceptance ruling.",
+      "evidence_basis": "§8.5 L1798 current status blocked after narrowing; synthetic sources prove the mechanism only, not legal authority, and that lane is recorded as not yet on main.",
+      "route_hint": "Hold governed use on CORR-B1 legal-subject authority plus correspondence-acceptance-standing-rule; preserve the built synthetic mechanism without treating this as a signing problem.",
+      "program_tasks": [
+        "GYD-05"
+      ],
+      "program_disposition": "remaining_predicate_only_preserve_source_status"
+    },
+    {
+      "id": "GY-PR1",
+      "phase": "5",
+      "owner": "runtime/quality",
+      "source_ref": "policy-engine/docs/plans/active/layer3-slices/GY-engine-subordination.md §8.5 L1799",
+      "task_spec_ref": "§9 Wave-5 originated tasks L5658",
+      "source_status": "blocked",
+      "work_state": "blocked_upstream",
+      "remaining_obligation": "The producer wiring is described as completed on CORR workstream C2, but the canonical promotable receipt and protected field-pilot near-miss event remain unproduced. The source still requires an authentic source-bearing N4 input and protected-admission batch; no writer input is fabricated. PR1a is data-only; PR1b is the institution-bound field-pilot claim.",
+      "evidence_basis": "§8.5 L1799 current status blocked; current scope supersedes old EFFECT/MEASUREMENT and caller-boolean scope. The completion note places C2 on a separate, not-yet-main branch.",
+      "route_hint": "Wait for actual E02 acceptance before execution; then require source-bearing N4/confidence C1 and protected-admission inputs. Keep data-only promotion distinct from the appointment-bound O0-NC-01 signal.",
+      "program_tasks": [
+        "GYD-01"
+      ],
+      "program_disposition": "remaining_predicate_only_preserve_source_status"
+    },
+    {
+      "id": "GY-AQ1",
+      "phase": "1",
+      "owner": "fabric",
+      "source_ref": "policy-engine/docs/plans/active/layer3-slices/GY-engine-subordination.md §8.5 L1800",
+      "task_spec_ref": "§8.5 table",
+      "source_status": "executed",
+      "work_state": "executed_with_scoped_residual",
+      "remaining_obligation": "Candidate acquisition resolution grants no institutional authority; GY-AS1 is a separate completed assurance task.",
+      "evidence_basis": "§8.5 L1800 cites all 70 cases and the live planner bridge; W5-K01 explicitly limits what same-stream volume can establish.",
+      "route_hint": "Keep closed and candidate-only; do not infer relation, mandate, capacity, licence, authority, or assurance from additional rows.",
+      "program_tasks": [],
+      "program_disposition": "preserve_historical_status_consume_only"
+    },
+    {
+      "id": "GY-AS1",
+      "phase": "1",
+      "owner": "fabric",
+      "source_ref": "policy-engine/docs/plans/active/layer3-slices/GY-engine-subordination.md §8.5 L1801",
+      "task_spec_ref": "§8.5 table",
+      "source_status": "executed",
+      "work_state": "executed_with_scoped_residual",
+      "remaining_obligation": "The battery is closed; its candidate-only finite semantics and typed-empty institutional appointments remain.",
+      "evidence_basis": "§8.5 L1801 cites 63 sealed cases, seven mutants, consumer assertion, and the corrected executed status.",
+      "route_hint": "Keep closed; do not reopen the previously misclassified permitted architecture baseline entry.",
+      "program_tasks": [],
+      "program_disposition": "preserve_historical_status_consume_only"
+    },
+    {
+      "id": "GY-AS2",
+      "phase": "6",
+      "owner": "runtime/quality",
+      "source_ref": "policy-engine/docs/plans/active/layer3-slices/GY-engine-subordination.md §8.5 L1802",
+      "task_spec_ref": "§9 Wave-5 originated tasks L5731",
+      "source_status": "not_started",
+      "work_state": "unstarted_phase_gated",
+      "remaining_obligation": "Build the sealed diagnosis holdout, all-unresolved baseline, risk-coverage metrics, anti-degeneracy controls, and OPS-R7 version/interference/repeated-look fixtures; it gates O1 evidence admission.",
+      "evidence_basis": "§8.5 L1802 status not_started; §9 names it as a Phase-6 prerequisite for O1.",
+      "route_hint": "Schedule after Phase 5 opens; do not set public thresholds because WP-09/WP-10 withhold them.",
+      "program_tasks": [
+        "GYD-08"
+      ],
+      "program_disposition": "remaining_predicate_only_preserve_source_status"
+    },
+    {
+      "id": "GY-AS3",
+      "phase": "6",
+      "owner": "runtime/quality",
+      "source_ref": "policy-engine/docs/plans/active/layer3-slices/GY-engine-subordination.md §8.5 L1803",
+      "task_spec_ref": "§9 Wave-5 originated tasks L5739",
+      "source_status": "not_started",
+      "work_state": "unstarted_phase_gated",
+      "remaining_obligation": "Build the 24-packet diagnosis corpus, sealed oracles, five independently failing O3 consumer mutations, and adjacent valid controls; it gates O3.",
+      "evidence_basis": "§8.5 L1803 status not_started; §9 names it as a Phase-6 prerequisite for O3.",
+      "route_hint": "Schedule after Phase 5 opens; require the real posterior consumer rather than marker checks, and keep quarantine permanent through reprocessing.",
+      "program_tasks": [
+        "GYD-11"
+      ],
+      "program_disposition": "remaining_predicate_only_preserve_source_status"
+    },
+    {
+      "id": "GY-VC1",
+      "phase": "4",
+      "owner": "team-architecture",
+      "source_ref": "policy-engine/docs/plans/active/layer3-slices/GY-engine-subordination.md §8.5 L1804",
+      "task_spec_ref": "§8.5 table",
+      "source_status": "executed",
+      "work_state": "executed_with_scoped_residual",
+      "remaining_obligation": "The inherited discrepancy between 12 explicitly listed routes and the earlier thirteen-count is routed to the architect; it does not reopen the completed crosswalk.",
+      "evidence_basis": "§8.5 L1804 cites the 98-entry versioned crosswalk, recomputing checker, and production admission falsifiers.",
+      "route_hint": "Keep closed; reconcile only the named count discrepancy at the architect-owned reference, without adding a target status.",
+      "program_tasks": [],
+      "program_disposition": "preserve_historical_status_consume_only"
+    },
+    {
+      "id": "GY-CB1",
+      "phase": "3",
+      "owner": "runtime/quality",
+      "source_ref": "policy-engine/docs/plans/active/layer3-slices/GY-engine-subordination.md §8.5 L1805",
+      "task_spec_ref": "§8.5 table",
+      "source_status": "executed",
+      "work_state": "executed_with_scoped_residual",
+      "remaining_obligation": "The synthetic instrument/corpus is closed; semantic paraphrase independence and W5-R3-Q06 institutional adjudication remain unestablished, and human comprehension stays false. Production use is the separate GY-CB2 task.",
+      "evidence_basis": "§8.5 L1805 records synthetic event/CAS readback and negatives, plus explicit withheld propositions.",
+      "route_hint": "Keep CB1 closed; implement the production consumer under CB2; do not turn conformance into a human-comprehension claim.",
+      "program_tasks": [],
+      "program_disposition": "preserve_historical_status_consume_only"
+    },
+    {
+      "id": "GY-ML1",
+      "phase": "3",
+      "owner": "lex / scholar",
+      "source_ref": "policy-engine/docs/plans/active/layer3-slices/GY-engine-subordination.md §8.5 L1806",
+      "task_spec_ref": "§8.5 table",
+      "source_status": "executed",
+      "work_state": "executed_with_scoped_residual",
+      "remaining_obligation": "Candidate multilingual assurance is closed; WP-11/WP-12 and W5-R6-Q05 stay withheld/institutional, signer/holder/trust roots remain empty, and no equivalence certificate or RTL authority admission is made. Production consumer is GY-ML2.",
+      "evidence_basis": "§8.5 L1806 cites bounded source readers and an independent two-parser census with a corrupt-field negative.",
+      "route_hint": "Keep ML1 closed; implement the real-rendition consumer under ML2 and preserve typed-empty authority roots.",
+      "program_tasks": [],
+      "program_disposition": "preserve_historical_status_consume_only"
+    },
+    {
+      "id": "GY-CB2",
+      "phase": "3",
+      "owner": "runtime/quality",
+      "source_ref": "policy-engine/docs/plans/active/layer3-slices/GY-engine-subordination.md §8.5 L1807",
+      "task_spec_ref": "§8.5 L1807",
+      "source_status": "not_started",
+      "work_state": "unstarted_specified",
+      "remaining_obligation": "Build a production caller that constructs an operator trial, persists its receipt through the diagnostic-event owner, recomputes on readback, fails an unchanged negative if invocation is removed, and is registered as a discoverable command.",
+      "evidence_basis": "§8.5 L1807 says the instrument has no caller outside its own tests and this task is the engineering half; institutional operator study remains separate.",
+      "route_hint": "Task is specified with no phase gate stated; schedule the engineering consumer. Keep WP-09 numbers withheld and human_comprehension_established false.",
+      "program_tasks": [
+        "GYD-13"
+      ],
+      "program_disposition": "remaining_predicate_only_preserve_source_status"
+    },
+    {
+      "id": "GY-ML2",
+      "phase": "3",
+      "owner": "lex / scholar",
+      "source_ref": "policy-engine/docs/plans/active/layer3-slices/GY-engine-subordination.md §8.5 L1808",
+      "task_spec_ref": "§8.5 L1808",
+      "source_status": "not_started",
+      "work_state": "unstarted_specified",
+      "remaining_obligation": "Build a Lex production consumer over real renditions, persist the assurance receipt, enforce the declared denominator on readback, and prove denominator refusal on a real rendition set.",
+      "evidence_basis": "§8.5 L1808 says MAEP machinery has no production caller and its lane-local CLI is not a consumer.",
+      "route_hint": "Task is specified with no phase gate stated; schedule the engineering consumer. Keep trust roots/signers empty and WP-11/WP-12 withheld.",
+      "program_tasks": [
+        "GYD-14"
+      ],
+      "program_disposition": "remaining_predicate_only_preserve_source_status"
+    },
+    {
+      "id": "GY-CR1",
+      "phase": "8",
+      "owner": "runtime/quality",
+      "source_ref": "policy-engine/docs/plans/active/layer3-slices/GY-engine-subordination.md §8.5 L1809",
+      "task_spec_ref": "§8.5 table",
+      "source_status": "executed",
+      "work_state": "executed_with_scoped_residual",
+      "remaining_obligation": "Candidate transition state, idempotency, recovery, and fail-safe behavior are closed. WP-08 signer/substitute slots remain empty; no external execution or approval is implied.",
+      "evidence_basis": "§8.5 L1809 cites actual SIGKILL/duplicate/readback and typed missing-role refusal.",
+      "route_hint": "Keep CR1 closed and candidate-only; do not create execution authority from the custody mechanism.",
+      "program_tasks": [],
+      "program_disposition": "preserve_historical_status_consume_only"
+    },
+    {
+      "id": "GY-CR2",
+      "phase": "8",
+      "owner": "runtime/quality",
+      "source_ref": "policy-engine/docs/plans/active/layer3-slices/GY-engine-subordination.md §8.5 L1810",
+      "task_spec_ref": "§8.5 table",
+      "source_status": "executed",
+      "work_state": "executed_closed",
+      "remaining_obligation": "No task-local residual; the constrained-product engine explicitly adds zero Atlas statuses.",
+      "evidence_basis": "§8.5 is the status authority; this row cites the artifact, commit, or measurement used for its status.",
+      "route_hint": "Keep E/X/V/C constrained-product state separate from the Atlas lifecycle lattice; do not add a status.",
+      "program_tasks": [],
+      "program_disposition": "preserve_historical_status_consume_only"
+    },
+    {
+      "id": "GY-CR3",
+      "phase": "8",
+      "owner": "runtime/quality",
+      "source_ref": "policy-engine/docs/plans/active/layer3-slices/GY-engine-subordination.md §8.5 L1811",
+      "task_spec_ref": "§8.5 table",
+      "source_status": "executed",
+      "work_state": "executed_with_scoped_residual",
+      "remaining_obligation": "The sealed response corpus and evaluator are closed; protected external execution and competent appointments remain unestablished.",
+      "evidence_basis": "§8.5 L1811 cites 20 packets, 42 event occurrences, sealed evaluator, zero guardrail escapes, and preserved containment.",
+      "route_hint": "Keep CR3 closed; carry external execution and appointment limits as withheld propositions.",
+      "program_tasks": [],
+      "program_disposition": "preserve_historical_status_consume_only"
+    },
+    {
+      "id": "GY-CR4",
+      "phase": "8",
+      "owner": "runtime/quality + scientist",
+      "source_ref": "policy-engine/docs/plans/active/layer3-slices/GY-engine-subordination.md §8.5 L1812",
+      "task_spec_ref": "§8.5 table",
+      "source_status": "executed",
+      "work_state": "executed_with_scoped_residual",
+      "remaining_obligation": "The content-bound reconciliation receipt and exact reader are built; production does not configure the opt-in reader, so it still takes the legacy branch.",
+      "evidence_basis": "§8.5 L1812 explicitly separates the built seam from its un-orchestrated production reader.",
+      "route_hint": "Keep CR4 closed; route production wiring to ds18-positive-transition-production-unorchestrated and related listed debt, not back into CR4.",
+      "program_tasks": [],
+      "program_disposition": "preserve_historical_status_consume_only"
+    },
+    {
+      "id": "GY-CR5",
+      "phase": "8",
+      "owner": "runtime/quality + foundry",
+      "source_ref": "policy-engine/docs/plans/active/layer3-slices/GY-engine-subordination.md §8.5 L1813",
+      "task_spec_ref": "§8.5 table",
+      "source_status": "executed",
+      "work_state": "executed_with_scoped_residual",
+      "remaining_obligation": "CR5 closes on the cited authentic evaluator negatives; institutional appointments remain typed-empty, and the source routes the separate 21-row Done-when measurement remainder back to its task rows.",
+      "evidence_basis": "§8.5 L1813 repaired the test citation and records actual consumer negatives; it says CR5 does not measure all Markdown task predicates.",
+      "route_hint": "Keep CR5 closed; honor each task row status and do not reopen CR5 to solve the 21-row census.",
+      "program_tasks": [],
+      "program_disposition": "preserve_historical_status_consume_only"
+    },
+    {
+      "id": "GY-FA1",
+      "phase": "8",
+      "owner": "foundry + runtime",
+      "source_ref": "policy-engine/docs/plans/active/layer3-slices/GY-engine-subordination.md §8.5 L1814",
+      "task_spec_ref": "§8.5 L1814; referenced producer specification",
+      "source_status": "not_started",
+      "work_state": "unstarted_specified",
+      "remaining_obligation": "Build typed contracts, non-test production producers, persisted receipts, exact readback, and missing/unverifiable/wrong-scope negatives for owner-enforced runtime subtree cutoff, owner-resolved resolution receipt store, platform toolchain admission, and production data trust policy.",
+      "evidence_basis": "§8.5 L1814 registers four absent/unallocated runtime-authority capabilities and gives a concrete acceptance condition; no task delivery is recorded.",
+      "route_hint": "Foundry/runtime own the task; schedule mechanism work while all runtime observations remain non-authoritative absent independently admitted authority.",
+      "program_tasks": [
+        "GYD-15"
+      ],
+      "program_disposition": "remaining_predicate_only_preserve_source_status"
+    }
+  ]
+}

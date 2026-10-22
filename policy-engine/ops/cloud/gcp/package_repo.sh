@@ -18,6 +18,17 @@ if [ -z "${GIT_COMMIT}" ]; then
   echo "GCP source archive requires a committed Git source tree" >&2
   exit 1
 fi
+EXPECTED_SOURCE_SHA="$(printenv EXPECTED_SOURCE_SHA || true)"
+if [ -n "$EXPECTED_SOURCE_SHA" ]; then
+  if [[ ! "$EXPECTED_SOURCE_SHA" =~ ^[0-9a-f]{40}$ ]]; then
+    echo "Expected GCP source commit must be a full 40-character lowercase SHA" >&2
+    exit 1
+  fi
+  if [ "$GIT_COMMIT" != "$EXPECTED_SOURCE_SHA" ]; then
+    echo "GCP source archive HEAD differs from expected frozen source commit" >&2
+    exit 1
+  fi
+fi
 GIT_SHA="$(GIT_NO_REPLACE_OBJECTS=1 git -C "${WORKSPACE_ROOT}" rev-parse --short "${GIT_COMMIT}")"
 ARCHIVE_PATH="${OUT_DIR}/policy-engine-${TIMESTAMP}-${GIT_SHA}.tar.gz"
 PYTHON_BIN="${PYTHON_BIN:-python3}"

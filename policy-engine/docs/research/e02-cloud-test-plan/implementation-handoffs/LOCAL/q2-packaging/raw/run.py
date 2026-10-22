@@ -362,6 +362,7 @@ def run_command(
                     "OUT_DIR",
                     "UPLOAD",
                     "PYTHON_BIN",
+                    "EXPECTED_SOURCE_SHA",
                     "UV_PROJECT_ENVIRONMENT",
                 }
             },
@@ -465,6 +466,135 @@ def frozen_source_preflight(repo: Path, source_sha: str, source_tree: str) -> No
     tracked_changes = git_text(repo, "status", "--porcelain=v1", "--untracked-files=no")
     if tracked_changes:
         raise WaveFailure("tracked source changes remain after freeze; no build was started")
+
+
+def run_frozen_gcp_archive_selector(
+    *,
+    repo: Path,
+    frozen_product: Path,
+    source_sha: str,
+    source_tree: str,
+    output: Path,
+    python_bin: Path,
+    log_stem: Path,
+) -> dict[str, Any]:
+    """Run the committed GCP selector from the exact attached frozen checkout."""
+    frozen_source_preflight(repo, source_sha, source_tree)
+    if not output.is_absolute() or output.exists():
+        raise WaveFailure("GCP archive output must be a new absolute path")
+    if not python_bin.is_absolute() or not python_bin.is_file():
+        raise WaveFailure("GCP archive Python executable must be an existing absolute file")
+
+    selector_relative = "ops/cloud/gcp/package_repo.sh"
+    selector_git_path = f"{REQUIRED_PRODUCT}/{selector_relative}"
+    selector_repo_path = repo / selector_git_path
+    selector_frozen_path = frozen_product / selector_relative
+    _, frozen_selector_bytes = _read_regular_without_symlink_components(
+        selector_frozen_path, "frozen GCP package selector"
+    )
+    committed_selector_bytes = git_blob(repo, source_sha, selector_git_path)
+    if frozen_selector_bytes != committed_selector_bytes:
+        raise WaveFailure("frozen archive GCP selector differs from the selected Git blob")
+    _, attached_selector_bytes = _read_regular_without_symlink_components(
+        selector_repo_path, "attached GCP package selector"
+    )
+    if attached_selector_bytes != committed_selector_bytes:
+        raise WaveFailure("attached GCP selector differs from the frozen Git blob")
+
+    bash_value = shutil.which("bash")
+    if bash_value is None:
+        raise WaveFailure("bash executable is not available on PATH")
+    bash = Path(bash_value).resolve(strict=True)
+    package_env = clean_child_env()
+    package_env.update(
+        {
+            "EXPECTED_SOURCE_SHA": source_sha,
+            "OUT_DIR": str(output),
+            "UPLOAD": "0",
+            "PYTHON_BIN": str(python_bin),
+        }
+    )
+    frozen_source_preflight(repo, source_sha, source_tree)
+    result = run_command(
+        [str(bash), str(selector_repo_path)],
+        cwd=repo,
+        env=package_env,
+        log_stem=log_stem,
+    )
+    frozen_source_preflight(repo, source_sha, source_tree)
+    _, attached_selector_after = _read_regular_without_symlink_components(
+        selector_repo_path, "attached GCP package selector after execution"
+    )
+    if attached_selector_after != committed_selector_bytes:
+        raise WaveFailure("attached GCP selector changed while creating the archive")
+
+    archive_path = one_matching_file(output, "policy-engine-*.tar.gz")
+    source_abbrev = git_text(repo, "rev-parse", "--short", source_sha)
+    if not re.fullmatch(
+        rf"policy-engine-\d{{8}}-\d{{6}}-{re.escape(source_abbrev)}\.tar\.gz",
+        archive_path.name,
+    ):
+        raise WaveFailure("GCP archive filename does not identify the frozen source commit")
+    source_line = f"Created {archive_path} from committed source {source_sha}"
+    if not result.stdout.splitlines() or result.stdout.splitlines()[-1] != source_line:
+        raise WaveFailure("GCP selector did not report the exact frozen source commit")
+
+    member_relatives = (
+        "README.md",
+        "pyproject.toml",
+        "hatch.toml",
+        "uv.lock",
+        selector_relative,
+    )
+    verified_members: dict[str, dict[str, Any]] = {}
+    with tarfile.open(archive_path, "r:*") as archive:
+        for relative in member_relatives:
+            archive_name = f"{REQUIRED_PRODUCT}/{relative}"
+            frozen_member_path = frozen_product / relative
+            _, frozen_member_bytes = _read_regular_without_symlink_components(
+                frozen_member_path, f"frozen GCP selector input {relative}"
+            )
+            committed_member_bytes = git_blob(repo, source_sha, archive_name)
+            if frozen_member_bytes != committed_member_bytes:
+                raise WaveFailure(
+                    f"frozen archive GCP selector input differs from the selected Git blob: "
+                    f"{relative}"
+                )
+            try:
+                member = archive.getmember(archive_name)
+            except KeyError as error:
+                raise WaveFailure(
+                    f"GCP archive omitted frozen selector input: {archive_name}"
+                ) from error
+            if not member.isfile():
+                raise WaveFailure(
+                    f"GCP archive selector input is not a regular file: {archive_name}"
+                )
+            stream = archive.extractfile(member)
+            if stream is None:
+                raise WaveFailure(f"cannot read GCP archive selector input: {archive_name}")
+            with stream:
+                archive_bytes = stream.read()
+            if archive_bytes != committed_member_bytes:
+                raise WaveFailure(
+                    f"GCP archive member differs from the selected Git blob: {archive_name}"
+                )
+            verified_members[archive_name] = {
+                "bytes": len(archive_bytes),
+                "sha256": sha256_bytes(archive_bytes),
+            }
+
+    return {
+        "source_sha": source_sha,
+        "source_tree": source_tree,
+        "source_abbrev": source_abbrev,
+        "selector_path": selector_git_path,
+        "selector_sha256": sha256_bytes(committed_selector_bytes),
+        "source_line": source_line,
+        "archive_path": str(archive_path),
+        "archive_sha256": sha256_file(archive_path),
+        "verified_members": verified_members,
+    }
 
 
 def safe_relative_member(name: str) -> PurePosixPath:
@@ -608,6 +738,16 @@ def extract_git_archive(
             },
         )
         raise
+
+
+def extract_frozen_product(
+    repo: Path, source_sha: str, source_root: Path, log_dir: Path
+) -> tuple[dict[str, Any], Path]:
+    """Extract the frozen product at its package path below the wave source root."""
+    source_root.mkdir(parents=True, exist_ok=False)
+    frozen_product = source_root / REQUIRED_PRODUCT
+    archive_receipt = extract_git_archive(repo, source_sha, frozen_product, log_dir)
+    return archive_receipt, frozen_product
 
 
 def read_asset_manifest(
@@ -2414,8 +2554,9 @@ def run_wave(args: argparse.Namespace) -> Path:
             "not consulted by the isolated build-tools venv."
         )
         source_root = run_root / "frozen-source"
-        archive_receipt = extract_git_archive(repo, args.source_sha, source_root, run_root / "logs")
-        frozen_product = source_root / REQUIRED_PRODUCT
+        archive_receipt, frozen_product = extract_frozen_product(
+            repo, args.source_sha, source_root, run_root / "logs"
+        )
         (
             buildtools,
             build_tool_profile,
@@ -2560,18 +2701,18 @@ def run_wave(args: argparse.Namespace) -> Path:
         sdist_wheel_receipt = verify_wheel(sdist_wheel, assets)
 
         gcp_output = run_root / "gcp-archive"
-        package_script = frozen_product / "ops/cloud/gcp/package_repo.sh"
-        package_env = clean_child_env()
-        package_env.update(
-            {"OUT_DIR": str(gcp_output), "UPLOAD": "0", "PYTHON_BIN": str(build_python)}
-        )
-        run_command(
-            ["bash", str(package_script)],
-            cwd=frozen_product,
-            env=package_env,
+        gcp_archive_binding = run_frozen_gcp_archive_selector(
+            repo=repo,
+            frozen_product=frozen_product,
+            source_sha=args.source_sha,
+            source_tree=args.source_tree,
+            output=gcp_output,
+            python_bin=build_python,
             log_stem=run_root / "logs" / "gcp-package-archive",
         )
-        gcp_archive = one_matching_file(gcp_output, "policy-engine-*.tar.gz")
+        gcp_archive = Path(gcp_archive_binding["archive_path"])
+        receipt["gcp_archive_source_binding"] = gcp_archive_binding
+        json_write(receipt_path, receipt)
         gcp_receipt = verify_tar_assets(
             gcp_archive,
             assets,

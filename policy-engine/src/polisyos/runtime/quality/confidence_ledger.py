@@ -13099,6 +13099,50 @@ def _source_derived_decorator_environment(
     return environment if reached_wrapper else None
 
 
+def _source_resolved_annotation_matches(
+    actual: object,
+    expected: _SourceResolvedAnnotation,
+) -> bool:
+    """Match only source-resolved class identities and their supported union forms."""
+
+    members = expected.members
+    if type(members) is not tuple or not members:
+        return False
+    if any(not isinstance(member, type) for member in members):
+        return False
+    if any(member is prior for index, member in enumerate(members) for prior in members[:index]):
+        return False
+    if len(members) == 1:
+        return actual is members[0]
+
+    try:
+        origin = typing.get_origin(actual)
+        actual_members = typing.get_args(actual)
+    except (AttributeError, TypeError, ValueError):
+        return False
+    if type(actual_members) is not tuple or len(actual_members) != len(members):
+        return False
+    if origin is typing.Union:
+        union_alias = typing.Union
+        if type(actual) is not type(union_alias[int, str]):
+            return False
+    elif origin is types.UnionType:
+        if type(actual) is not types.UnionType:
+            return False
+    else:
+        return False
+
+    if any(
+        actual_member is prior
+        for index, actual_member in enumerate(actual_members)
+        for prior in actual_members[:index]
+    ):
+        return False
+    return all(
+        any(actual_member is member for actual_member in actual_members) for member in members
+    )
+
+
 def _source_capture_value_matches(
     actual: object,
     expected: object,
@@ -13113,6 +13157,8 @@ def _source_capture_value_matches(
         return _source_signature_value_matches(actual, expected)
     if isinstance(expected, _SourceDecoratorParameter):
         return _source_parameter_value_matches(actual, expected)
+    if type(expected) is _SourceResolvedAnnotation:
+        return _source_resolved_annotation_matches(actual, expected)
     return _exact_literal_equal(actual, expected)
 
 

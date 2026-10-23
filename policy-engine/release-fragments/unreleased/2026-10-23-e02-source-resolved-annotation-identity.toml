@@ -1,0 +1,34 @@
+id = "2026-10-23-e02-source-resolved-annotation-identity"
+title = "Resolve supported source annotations by runtime identity"
+type = "fixed"
+component = "runtime-quality"
+owner = "team-polisyos"
+summary = "The confidence-ledger source verifier resolves supported exact-class and Union annotations by runtime identity while retaining fail-closed source-binding checks."
+evidence = [
+  "src/polisyos/runtime/quality/confidence_ledger.py",
+  "tests/unit/runtime/quality/test_source_resolved_annotation_matching.py",
+]
+compatibility = "This is an internal verifier correction. Supported annotation forms no longer fail because their runtime wrapper identity differs from the source-resolved member; unresolved, rebound, or unsupported bindings remain fail-closed."
+change_class = "internal"
+surface_classification = "internal: confidence-ledger source binding verification"
+migration = "No persisted-data, caller-signature, or consumer migration is required."
+api = "No public API, DTO, schema, HTTP route, exported signature, or generated-client change."
+limitations = "The candidate suite passed 4 tests on CPython 3.14.3; CPython 3.12 was not run. Full N11/DS17Available admission remains not_established and the source-artifact refresh is pending. This candidate does not establish source/package closure or production availability."
+generated_client_compatibility = "not_applicable"
+public_surface_inventory_reviewed = false
+migration_docs = []
+runbook_docs = []
+
+[[compatibility_change]]
+id = "source-resolved-annotation-identity-internal"
+change_class = "internal"
+impact = "internal"
+surface = "internal: runtime-quality confidence-ledger source binding"
+owner = "team-polisyos"
+version_owner = "team-polisyos"
+deprecation_window = "not_applicable"
+release_note = "Supported source-resolved annotation members are matched by runtime identity; source-binding checks remain fail-closed."
+generated_client_compatibility = "not_applicable"
+public_surface_inventory_reviewed = false
+migration_docs = []
+runbook_docs = []

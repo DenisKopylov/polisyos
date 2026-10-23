@@ -1,0 +1,191 @@
+{
+  "schema": "policyos.e02.local-candidate-slice.v1",
+  "slice": "n11-source-resolved-annotation-identity",
+  "authorship_branch": "codex/e02-unified-local-20261009",
+  "implementation": {
+    "slice_base": "3c3acfad1c20d40e8af9900f7bd6d2b5e7a1715a",
+    "candidate": "7870d94ee1da93e0cb7ef1d70132ad8cb23ae079",
+    "tree": "bfdb477a6ed064c851192e446b275845fc0ab150",
+    "parents": [
+      "3c3acfad1c20d40e8af9900f7bd6d2b5e7a1715a"
+    ],
+    "full_footprint": [
+      {
+        "path": "policy-engine/src/polisyos/runtime/quality/confidence_ledger.py",
+        "sha256": "79a77e30257be9fc5d64901b59b87c955103d74c1de6e214f96d6f2e023e73d5"
+      },
+      {
+        "path": "policy-engine/tests/unit/runtime/quality/test_source_resolved_annotation_matching.py",
+        "sha256": "6acceecce35c541b7a3f306647d0457aafcaf557a67d81aaf03209fbf9090fd5"
+      },
+      {
+        "path": "policy-engine/release-fragments/unreleased/2026-10-23-e02-source-resolved-annotation-identity.toml",
+        "sha256": "885a0778829eecb043960774f9a783a5975071821c49c94ab153831df7f8a070"
+      }
+    ],
+    "committed_bytes_read_back": true,
+    "readback": {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/root-n11-annotation-implementation-commit-20261023-r1/readback.json",
+      "sha256": "013e1191e4ae05091e736c0deb7c597c1ae368acc06598144a2816e4c95fd897"
+    }
+  },
+  "property": "The source-derived callable-capture matcher reconciles exact source-resolved class members with genuine singleton and Union runtime annotations, accepting legitimate CAS transaction wrappers and refusing substituted member identities.",
+  "chain": {
+    "producer": "Existing source annotation resolver derives member identities from canonical product source/importer bindings.",
+    "artifact": "Existing _loaded_code_manifest JSON observation of loader-owned callable slots; this correction does not publish an availability artifact.",
+    "bridge": "Existing _source_capture_value_matches and transactional wrapper/source environment comparison.",
+    "consumer": "Confidence-ledger source identity verifier, exercised on all 17 actual FileSystemCAS transactional methods.",
+    "surface": "Internal verifier diagnostics; full N11/DS17/API Available route is not demonstrated by this slice."
+  },
+  "verification": {
+    "profile": "Darwin / CPython 3.14.3 / existing locked local venv / numerical threads=1 / canonical default imports; no candidate-source override",
+    "native_receipt": {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/root-n11-annotation-canonical-native-wave-20261023-r1/receipt.json",
+      "sha256": "212443b0da9d053a9586646bfafe865ea5f47b07969a70e471751e32e26c711b"
+    },
+    "source_frame": {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/root-n11-annotation-identity-reviewed-application-20261023-r1/full-composed-source-frame.json",
+      "sha256": "3a1271112afc36c935c54eccde83ef92be20afb5cc1e991ed9b4f8b23a13f89d"
+    },
+    "checks": [
+      {
+        "name": "ruff-check",
+        "argv": [
+          "/Users/deniskopylov/.codex/worktrees/e02-unified-local-20261009/polisyos/policy-engine/.venv/bin/python",
+          "-B",
+          "-m",
+          "tools.devx.workspace.ruff_sources",
+          "--manifest",
+          "/Users/deniskopylov/.codex/worktrees/e02-unified-local-20261009/polisyos/policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/root-n11-annotation-canonical-native-wave-20261023-r1/ruff-manifest.json",
+          "--operation",
+          "check"
+        ],
+        "cwd": "/Users/deniskopylov/.codex/worktrees/e02-unified-local-20261009/polisyos/policy-engine",
+        "exit_code": 0,
+        "timed_out": false,
+        "wall_seconds": 0.3615295421332121,
+        "full_stdout": {
+          "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/root-n11-annotation-canonical-native-wave-20261023-r1/ruff-check.stdout",
+          "sha256": "318069d04276bfc650b34583cf100c1862f112b5257bb4c3a2eb934b7d298650"
+        },
+        "full_stderr": {
+          "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/root-n11-annotation-canonical-native-wave-20261023-r1/ruff-check.stderr",
+          "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+        }
+      },
+      {
+        "name": "ruff-format-check",
+        "argv": [
+          "/Users/deniskopylov/.codex/worktrees/e02-unified-local-20261009/polisyos/policy-engine/.venv/bin/python",
+          "-B",
+          "-m",
+          "tools.devx.workspace.ruff_sources",
+          "--manifest",
+          "/Users/deniskopylov/.codex/worktrees/e02-unified-local-20261009/polisyos/policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/root-n11-annotation-canonical-native-wave-20261023-r1/ruff-manifest.json",
+          "--operation",
+          "format-check"
+        ],
+        "cwd": "/Users/deniskopylov/.codex/worktrees/e02-unified-local-20261009/polisyos/policy-engine",
+        "exit_code": 0,
+        "timed_out": false,
+        "wall_seconds": 0.20487404195591807,
+        "full_stdout": {
+          "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/root-n11-annotation-canonical-native-wave-20261023-r1/ruff-format-check.stdout",
+          "sha256": "cfd1cb1ff2d52f10cfb0c3be533e93fdf28e0cc683320da33da1efa988712f96"
+        },
+        "full_stderr": {
+          "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/root-n11-annotation-canonical-native-wave-20261023-r1/ruff-format-check.stderr",
+          "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+        }
+      },
+      {
+        "name": "pytest",
+        "argv": [
+          "/Users/deniskopylov/.codex/worktrees/e02-unified-local-20261009/polisyos/policy-engine/.venv/bin/python",
+          "-B",
+          "-m",
+          "pytest",
+          "-q",
+          "-o",
+          "cache_dir=/Users/deniskopylov/.codex/worktrees/e02-unified-local-20261009/polisyos/policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/root-n11-annotation-canonical-native-wave-20261023-r1/pytest-cache",
+          "--basetemp=/Users/deniskopylov/.codex/worktrees/e02-unified-local-20261009/polisyos/policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/root-n11-annotation-canonical-native-wave-20261023-r1/temp",
+          "--junitxml=/Users/deniskopylov/.codex/worktrees/e02-unified-local-20261009/polisyos/policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/root-n11-annotation-canonical-native-wave-20261023-r1/junit.xml",
+          "tests/unit/runtime/quality/test_source_resolved_annotation_matching.py"
+        ],
+        "cwd": "/Users/deniskopylov/.codex/worktrees/e02-unified-local-20261009/polisyos/policy-engine",
+        "exit_code": 0,
+        "timed_out": false,
+        "wall_seconds": 11.133068917086348,
+        "full_stdout": {
+          "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/root-n11-annotation-canonical-native-wave-20261023-r1/pytest.stdout",
+          "sha256": "c4b808d34f4db00b333696dec1f3a43a2887d8bfe0cb7af07a3cb98ff43a7830"
+        },
+        "full_stderr": {
+          "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/root-n11-annotation-canonical-native-wave-20261023-r1/pytest.stderr",
+          "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+        }
+      }
+    ],
+    "counts": {
+      "tests": 4,
+      "failures": 0,
+      "errors": 0,
+      "skipped": 0
+    },
+    "full_junit": {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/root-n11-annotation-canonical-native-wave-20261023-r1/junit.xml",
+      "sha256": "4ae5c103b8a401b222b0ef137ded20bb1ef09ef7de43599d8ba160b56c142930"
+    },
+    "source_unchanged_during_native": true,
+    "baseline_before": "8ceca56253ec877284553b09de0ff1295a75583a6a4fc2238ef002cf9518b6af",
+    "baseline_after": "8ceca56253ec877284553b09de0ff1295a75583a6a4fc2238ef002cf9518b6af",
+    "release_validation": "The internal fragment was parsed, checked by the native compatibility-fragment validator, and rendered in the author companion packet; full repository gates remain pending.",
+    "raw_availability": "All referenced ignored RAW evidence is retained locally in the unified candidate checkout for G; it is not embedded into tracked source.",
+    "release_validation_receipt": {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/resume-f3-structural-contract-author-20261022-r3/owner-decorated-source-boundary/implementation-b-r1/r7-annotation-identity-r1/r7-annotation-default-import-r2-retry4/release-fragment-companion-r1/handoff.json",
+      "sha256": "dfea7608d6151b40dfdbf6ed0e6a152dac421a815db7a61ace6272766275e45a"
+    }
+  },
+  "independent_reviews": [
+    {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/resume-fabric-f4-native-review-20261022/n11-r7-annotation-comparator-review-20261023-r2/review.json",
+      "sha256": "ae9dd367170c3bb2b29456a9611ca066d35b3c8439e19bd94d34193435cdb251"
+    },
+    {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/resume-fabric-f4-native-review-20261022/n11-r7-r2-portability-loader-review-20261023-r1/review.json",
+      "sha256": "07827b75d047078a563ee5ddf214e1415cc13f64ad025387277f63ebcfec9ea8"
+    }
+  ],
+  "adversarial_controls": [
+    "Exact identity comparison refuses a same-named substituted Union member and string/lookalike annotations.",
+    "A changed selector_annotation closure cell fails the actual loader-owned manifest comparison.",
+    "A same-named rebound ArtifactRef importer binding fails the actual manifest comparison.",
+    "The canonical-default loader is tested with the optional RAW candidate variable absent."
+  ],
+  "pattern_pass": [
+    "P32 identity/content checks rather than annotation text or claimed type names",
+    "P38 distinguish a source-resolved annotation from an ordinary literal value",
+    "P40 bounded generic annotation-member comparison; no wrapper/class name whitelist"
+  ],
+  "proposal": {
+    "state": "limited",
+    "scope": "Internal annotation/capture reconciliation correction with focused native verification",
+    "whole_finding_closure_proposed": false,
+    "finding_ids": [],
+    "capability_missing_labels": [
+      "verification_missing"
+    ],
+    "reason": "DX0 has no allocated formal finding IDs; the full owner/import closure and authoritative Available projection are not established by this slice."
+  },
+  "limitations": [
+    "CPython 3.12/Linux execution is UNRUN; portable standard Union subscription replaced a 3.14-specific dunder, with no cross-version PASS claimed.",
+    "The broader import/class transform frontier and protected lifetime-integrity claim remain not_established.",
+    "Canonical N11 generated source artifacts have not been refreshed; final source/input/backend freeze, --check/drift, installed wheel/sdist and full native gates remain pending.",
+    "The current candidate composition retains other registered WIP; this is not a global source freeze, production currentness receipt, remote publication or G acceptance."
+  ],
+  "next_check": "Reconcile the source-defined dataclass/property output and __class__ closure boundary under the separate reviewed successor; after source/input/backend freeze regenerate the owner artifacts, run drift checks and real admitted consumer surfaces.",
+  "source_freeze": false,
+  "closure_ids": [],
+  "formal_adjudication_reserved_to": "G",
+  "G_acceptance_claimed": false
+}

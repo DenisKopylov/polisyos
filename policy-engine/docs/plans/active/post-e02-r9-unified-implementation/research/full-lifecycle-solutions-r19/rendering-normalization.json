@@ -1,0 +1,489 @@
+{
+  "scope": "Cosmetic post-review rendering normalization only; no nonblank line changed. Recover exact reviewed bytes by restoring listed whitespace at the same line numbers.",
+  "operation": "replace whitespace-only lines with an empty line; preserve every nonblank line and line number",
+  "cards": [
+    {
+      "card": "solutions/lifecycle-r19/S01.md",
+      "reviewed_sha256": "e41e5dd0778786bdb61fa6130dbd2d8f648f68c22391614c08c98c6cbdec1669",
+      "delivered_sha256": "136b0cff0bea3f74775f98821e4b8523c6dd71c6de39d0ede3dc3f34cc0adddd",
+      "blank_line_edits": [
+        {
+          "line": 485,
+          "previous_whitespace": "  "
+        },
+        {
+          "line": 487,
+          "previous_whitespace": "  "
+        }
+      ]
+    },
+    {
+      "card": "solutions/lifecycle-r19/S02.md",
+      "reviewed_sha256": "fe45317fa338022655c0724b035d07e16f9f38cd3445c5ce5cb809a6087f57cc",
+      "delivered_sha256": "f215a8d3b29a9d7e5f6cf3bdb18b7495097073eb7892e34bc12c8a4b089eb231",
+      "blank_line_edits": [
+        {
+          "line": 848,
+          "previous_whitespace": "  "
+        },
+        {
+          "line": 850,
+          "previous_whitespace": "  "
+        },
+        {
+          "line": 852,
+          "previous_whitespace": "  "
+        },
+        {
+          "line": 854,
+          "previous_whitespace": "  "
+        },
+        {
+          "line": 856,
+          "previous_whitespace": "  "
+        },
+        {
+          "line": 858,
+          "previous_whitespace": "  "
+        },
+        {
+          "line": 860,
+          "previous_whitespace": "  "
+        },
+        {
+          "line": 862,
+          "previous_whitespace": "  "
+        }
+      ]
+    },
+    {
+      "card": "solutions/lifecycle-r19/S05.md",
+      "reviewed_sha256": "bc6ae6f6b067052e39f5af848dceb8a2717d1e1be3eba97d94a90b778f237e1c",
+      "delivered_sha256": "b1ab364c9f28fad72055550f8dfcf4533fa9153dc1d45ad0481fcaf2ff0cc8a7",
+      "blank_line_edits": [
+        {
+          "line": 762,
+          "previous_whitespace": "  "
+        },
+        {
+          "line": 764,
+          "previous_whitespace": "  "
+        }
+      ]
+    },
+    {
+      "card": "solutions/lifecycle-r19/S06.md",
+      "reviewed_sha256": "84b2206c40cdc5338a89b8551b0f50557cef8a0605b86d726dbfd085137b44a1",
+      "delivered_sha256": "e0ccfc80d301cb2f78fd34a5eae4120e26b761e4cf9abbfb0967f4a95c9e1be8",
+      "blank_line_edits": [
+        {
+          "line": 654,
+          "previous_whitespace": "  "
+        },
+        {
+          "line": 656,
+          "previous_whitespace": "  "
+        }
+      ]
+    },
+    {
+      "card": "solutions/lifecycle-r19/S07.md",
+      "reviewed_sha256": "4f84267e25393f9e6646cd650502fbd667da7cbdd740f3f16275e2ac7fcb854d",
+      "delivered_sha256": "d585d440acffee125a14d425c661f231e9ed69a610600621c7ba6c636e31a997",
+      "blank_line_edits": [
+        {
+          "line": 391,
+          "previous_whitespace": "  "
+        },
+        {
+          "line": 393,
+          "previous_whitespace": "  "
+        },
+        {
+          "line": 395,
+          "previous_whitespace": "  "
+        },
+        {
+          "line": 397,
+          "previous_whitespace": "  "
+        },
+        {
+          "line": 399,
+          "previous_whitespace": "  "
+        },
+        {
+          "line": 401,
+          "previous_whitespace": "  "
+        },
+        {
+          "line": 403,
+          "previous_whitespace": "  "
+        },
+        {
+          "line": 405,
+          "previous_whitespace": "  "
+        },
+        {
+          "line": 407,
+          "previous_whitespace": "  "
+        },
+        {
+          "line": 409,
+          "previous_whitespace": "  "
+        },
+        {
+          "line": 411,
+          "previous_whitespace": "  "
+        },
+        {
+          "line": 413,
+          "previous_whitespace": "  "
+        },
+        {
+          "line": 415,
+          "previous_whitespace": "  "
+        },
+        {
+          "line": 417,
+          "previous_whitespace": "  "
+        }
+      ]
+    },
+    {
+      "card": "solutions/lifecycle-r19/S09.md",
+      "reviewed_sha256": "deedda02df005e04c64dca15ffc668d3edae933399136c2e9c02e73ea05fde96",
+      "delivered_sha256": "a986b427151482ec95d28201e5b18248d31429f7679426ca61f500477c007e44",
+      "blank_line_edits": [
+        {
+          "line": 730,
+          "previous_whitespace": "  "
+        },
+        {
+          "line": 732,
+          "previous_whitespace": "  "
+        },
+        {
+          "line": 734,
+          "previous_whitespace": "  "
+        },
+        {
+          "line": 736,
+          "previous_whitespace": "  "
+        },
+        {
+          "line": 738,
+          "previous_whitespace": "  "
+        },
+        {
+          "line": 740,
+          "previous_whitespace": "  "
+        },
+        {
+          "line": 742,
+          "previous_whitespace": "  "
+        },
+        {
+          "line": 744,
+          "previous_whitespace": "  "
+        },
+        {
+          "line": 746,
+          "previous_whitespace": "  "
+        },
+        {
+          "line": 748,
+          "previous_whitespace": "  "
+        },
+        {
+          "line": 750,
+          "previous_whitespace": "  "
+        },
+        {
+          "line": 752,
+          "previous_whitespace": "  "
+        },
+        {
+          "line": 754,
+          "previous_whitespace": "  "
+        },
+        {
+          "line": 756,
+          "previous_whitespace": "  "
+        },
+        {
+          "line": 758,
+          "previous_whitespace": "  "
+        },
+        {
+          "line": 760,
+          "previous_whitespace": "  "
+        },
+        {
+          "line": 762,
+          "previous_whitespace": "  "
+        },
+        {
+          "line": 774,
+          "previous_whitespace": "  "
+        },
+        {
+          "line": 776,
+          "previous_whitespace": "  "
+        },
+        {
+          "line": 783,
+          "previous_whitespace": "  "
+        },
+        {
+          "line": 788,
+          "previous_whitespace": "  "
+        }
+      ]
+    },
+    {
+      "card": "solutions/lifecycle-r19/S13.md",
+      "reviewed_sha256": "728bc7bc54b9c07eb512c4e511ad1f5ba4016d49e138541e16a287dcc0ba6825",
+      "delivered_sha256": "825567345d47a1cedc515958d33b93bcf7b1070691e038a193ee0654b2de0f9b",
+      "blank_line_edits": [
+        {
+          "line": 595,
+          "previous_whitespace": "  "
+        },
+        {
+          "line": 597,
+          "previous_whitespace": "  "
+        },
+        {
+          "line": 599,
+          "previous_whitespace": "  "
+        },
+        {
+          "line": 601,
+          "previous_whitespace": "  "
+        },
+        {
+          "line": 603,
+          "previous_whitespace": "  "
+        },
+        {
+          "line": 605,
+          "previous_whitespace": "  "
+        },
+        {
+          "line": 607,
+          "previous_whitespace": "  "
+        },
+        {
+          "line": 609,
+          "previous_whitespace": "  "
+        },
+        {
+          "line": 611,
+          "previous_whitespace": "  "
+        },
+        {
+          "line": 613,
+          "previous_whitespace": "  "
+        },
+        {
+          "line": 623,
+          "previous_whitespace": "  "
+        },
+        {
+          "line": 625,
+          "previous_whitespace": "  "
+        }
+      ]
+    },
+    {
+      "card": "solutions/lifecycle-r19/S14.md",
+      "reviewed_sha256": "081581e2017a2d532ac20a2cc8c78a538c3909a4abbf79e7733454e43fe49af1",
+      "delivered_sha256": "c9f828eab6c9038ffa0b988535b577d6ad2c70b7980518e3309f5d64c57571dc",
+      "blank_line_edits": [
+        {
+          "line": 831,
+          "previous_whitespace": "  "
+        },
+        {
+          "line": 833,
+          "previous_whitespace": "  "
+        }
+      ]
+    },
+    {
+      "card": "solutions/lifecycle-r19/S16.md",
+      "reviewed_sha256": "efc46161f82e4778e936e880e3fef58efbe20c755439f16dbfad5ae51a955cb4",
+      "delivered_sha256": "c29415df058b8d4ac0abb169787683c2302747eb557b920a2753111850b3fc49",
+      "blank_line_edits": [
+        {
+          "line": 424,
+          "previous_whitespace": "  "
+        },
+        {
+          "line": 426,
+          "previous_whitespace": "  "
+        },
+        {
+          "line": 430,
+          "previous_whitespace": "  "
+        },
+        {
+          "line": 432,
+          "previous_whitespace": "  "
+        },
+        {
+          "line": 434,
+          "previous_whitespace": "  "
+        },
+        {
+          "line": 436,
+          "previous_whitespace": "  "
+        },
+        {
+          "line": 438,
+          "previous_whitespace": "  "
+        },
+        {
+          "line": 440,
+          "previous_whitespace": "  "
+        },
+        {
+          "line": 442,
+          "previous_whitespace": "  "
+        },
+        {
+          "line": 446,
+          "previous_whitespace": "  "
+        },
+        {
+          "line": 448,
+          "previous_whitespace": "  "
+        }
+      ]
+    },
+    {
+      "card": "solutions/lifecycle-r19/S17.md",
+      "reviewed_sha256": "8ba162556d8de2a568ad199f1fdb1d61531505ec083e69478ebec20d95bcdd5f",
+      "delivered_sha256": "f583745365e54267d09652c267d6d616ea7c54b408bf5c0f580a8610cdbdea6f",
+      "blank_line_edits": [
+        {
+          "line": 929,
+          "previous_whitespace": "  "
+        },
+        {
+          "line": 933,
+          "previous_whitespace": "  "
+        },
+        {
+          "line": 941,
+          "previous_whitespace": "  "
+        },
+        {
+          "line": 943,
+          "previous_whitespace": "  "
+        }
+      ]
+    },
+    {
+      "card": "solutions/lifecycle-r19/S18.md",
+      "reviewed_sha256": "e4a2037168586583d8d726849167702113b993dd2a72fc60ac12c709749b80fd",
+      "delivered_sha256": "0f8f5445b44c4636abbb30e98c79ca67fb8c59735dad7e1f0cb2c7e3e09403da",
+      "blank_line_edits": [
+        {
+          "line": 481,
+          "previous_whitespace": "  "
+        },
+        {
+          "line": 483,
+          "previous_whitespace": "  "
+        }
+      ]
+    },
+    {
+      "card": "solutions/lifecycle-r19/S19.md",
+      "reviewed_sha256": "9a76f03bb45a88fd88b9d52d955eda7e7c59779e6cc5b3dcee51d5827d63e8bd",
+      "delivered_sha256": "3c456ee24956fc48719b795781ff4857c9316d7c6b356004c4823d8b83e33776",
+      "blank_line_edits": [
+        {
+          "line": 530,
+          "previous_whitespace": "  "
+        },
+        {
+          "line": 532,
+          "previous_whitespace": "  "
+        },
+        {
+          "line": 541,
+          "previous_whitespace": "    "
+        },
+        {
+          "line": 544,
+          "previous_whitespace": "    "
+        },
+        {
+          "line": 547,
+          "previous_whitespace": "  "
+        },
+        {
+          "line": 554,
+          "previous_whitespace": "    "
+        },
+        {
+          "line": 557,
+          "previous_whitespace": "    "
+        },
+        {
+          "line": 560,
+          "previous_whitespace": "  "
+        },
+        {
+          "line": 567,
+          "previous_whitespace": "    "
+        },
+        {
+          "line": 570,
+          "previous_whitespace": "    "
+        }
+      ]
+    },
+    {
+      "card": "solutions/lifecycle-r19/S20.md",
+      "reviewed_sha256": "ed34d03ec96a1817de3a3eeb82208cbf4509e86124e6408b24dacc335c43a2aa",
+      "delivered_sha256": "6201a4909f0583ef9d5fe53ce1dad9cafbc122c78ee0bc90a5eb773b048a5018",
+      "blank_line_edits": [
+        {
+          "line": 824,
+          "previous_whitespace": "  "
+        },
+        {
+          "line": 827,
+          "previous_whitespace": "  "
+        },
+        {
+          "line": 830,
+          "previous_whitespace": "  "
+        },
+        {
+          "line": 833,
+          "previous_whitespace": "  "
+        },
+        {
+          "line": 836,
+          "previous_whitespace": "  "
+        },
+        {
+          "line": 839,
+          "previous_whitespace": "  "
+        }
+      ]
+    }
+  ],
+  "product_verification": "UNRUN",
+  "superseded_by_new_exact_review": [
+    {
+      "card": "solutions/lifecycle-r19/S12.md",
+      "blank_lines_normalized": 8,
+      "reason": "After whitespace normalization, one missing existing-source citation was added to Q05; current exact card is independently reviewed again, so old cosmetic carry-forward is not used for this card."
+    }
+  ]
+}

@@ -17,3 +17,7 @@ For R14 attack false abstention, paraphrase diversity, provider-present/no-call 
 ## R17 companion
 
 Review all assigned `r17_extension` and actual selected D/Q obligations. Attack archive completeness without retained dependencies, renewal after missing history, silent-source no-change, partial succession flattened to current=true, published text substituted for exposure, provider bytes released after revoke, offline snapshot/clock rollback and private metadata/LLM descendants. Demand a useful permitted positive as well as refusal. Bound external authority and selected deployment claims; no new global replay or blanket denial.
+
+### Обязательный companion R19
+
+Прочитай `r19_extension` назначенных задач в tasks.json/preferred-solutions и связанные карточки `solutions/lifecycle-r19/`. Примени `architecture/10-full-lifecycle-composition.md`, `assurance/12-full-lifecycle-quality.md` и stage-specific правила `execution/10-full-lifecycle-parallelism.md`. Сохраняй старые обязательства. SDD proposals не применены и не являются новыми полномочиями. Различай useful conditional result, scientific support и institutional endorsement; не создавай 84 новых gates или параллельного owner. Выбери actual producer/consumer/public closure и independent falsifier; product UNRUN нельзя повышать по документации. Реализация только после фактической приёмки E02.

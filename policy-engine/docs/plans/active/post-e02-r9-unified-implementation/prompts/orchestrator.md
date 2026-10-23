@@ -35,3 +35,7 @@ Materialize each task with its r14_extension and preferred_solution_ref; assign 
 ### R17 preservation/succession/access
 
 Включи все assigned `r17_extension` и assurance/r17-capability-obligations.json в scoped task assignment и coverage; прочитай execution/09-design-lifetimes-and-access.md. D1–D7 — existing owners, не новые engines. Не превращай supplier acceptance в blanket preparation dependency. Closed/private edition, historical verification, current recommendation, legal replacement, observed operation и source-use rights различны. Назначь exact actual writers и selected deployment/duty profiles, затем compose useful positive и actual negatives. Реальные external acts/authority не выдумываются; механизм и conditional candidate работу выполняй самостоятельно.
+
+### Обязательный companion R19
+
+Прочитай `r19_extension` назначенных задач в tasks.json/preferred-solutions и связанные карточки `solutions/lifecycle-r19/`. Примени `architecture/10-full-lifecycle-composition.md`, `assurance/12-full-lifecycle-quality.md` и stage-specific правила `execution/10-full-lifecycle-parallelism.md`. Сохраняй старые обязательства. SDD proposals не применены и не являются новыми полномочиями. Различай useful conditional result, scientific support и institutional endorsement; не создавай 84 новых gates или параллельного owner. Выбери actual producer/consumer/public closure и independent falsifier; product UNRUN нельзя повышать по документации. Реализация только после фактической приёмки E02.

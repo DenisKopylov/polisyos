@@ -13,3 +13,7 @@ Read the assigned task’s `preferred_solution_ref` from [tasks.json](../tasks.j
 ## R14 companion
 
 For legal/design/doc cases supply exact lawful source/version/span and distinct proposed-vs-current status; preserve competing interpretations and review disagreement. CNT supplies case facts/config, not a parallel native interpretation engine. External law/mandate is not invented from candidate drafts.
+
+### Companion R19
+
+Прочитай `r19_extension` только назначенных задач и связанные `solutions/lifecycle-r19/` карточки; передай исполнителю точные slices, native owner, выбранные producer/consumer/profile и stage-specific obligations из `execution/10-full-lifecycle-parallelism.md`. Соблюдай `architecture/10-full-lifecycle-composition.md` и `assurance/12-full-lifecycle-quality.md`. Это не новый общий barrier: поставляй доступные source-qualified inputs и называй конкретные внешние residuals. Не создавай второй registry/scheduler/authority owner и не повышай candidate/условный результат до политического полномочия. SDD proposals ожидают согласования; фактические ограничения delegation и tool permissions имеют силу. Реализация только после фактической приёмки E02.

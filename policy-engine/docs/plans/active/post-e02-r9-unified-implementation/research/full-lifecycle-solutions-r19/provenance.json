@@ -1,0 +1,503 @@
+{
+  "baseline_commit": "6416d09d99fa5b219dd36b1c74750b23e11c3c93",
+  "scope": "Documentation research and review; scratch reports remain ignored; product verification UNRUN.",
+  "clusters": [
+    {
+      "cluster": "S01",
+      "author_report_ref": "policy-engine/_build/post-e02-r19-20261023/authors/S01.json@e0f582d62f639ea7ac1ed883d100885c8a9c1750f5d09c88e53ccba83335af68",
+      "initial_review_ref": "policy-engine/_build/post-e02-r19-20261023/reviews/RT-S01.json@b713ed6d0cd2c27df7225f8b5dfa3cc34d383ae5e5446c99cf9bc599108466a9",
+      "card": "solutions/lifecycle-r19/S01.md",
+      "card_sha256": "136b0cff0bea3f74775f98821e4b8523c6dd71c6de39d0ede3dc3f34cc0adddd",
+      "question_ids": [
+        "R18-D01-Q01",
+        "R18-D01-Q02",
+        "R18-D01-Q03",
+        "R18-D01-Q04"
+      ],
+      "author_agent_slot": 1,
+      "independent_reviewer_agent_slot": 3,
+      "latest_review_ref": "policy-engine/_build/post-e02-r19-20261023/reviews/FINAL2-S01.json@85e86bcaba67c451c7351af7b4501c8e782c59b37c6e506f267ac9fb61c8192b",
+      "latest_review_card_sha256": "e41e5dd0778786bdb61fa6130dbd2d8f648f68c22391614c08c98c6cbdec1669",
+      "latest_review_open_findings": 0,
+      "product_verification": "UNRUN",
+      "review_history": [
+        "policy-engine/_build/post-e02-r19-20261023/reviews/FINAL-S01.json@2dc165b0e21d5e27fedfa331af84f2cf6225627e61df873adaa44aefbfe9672e",
+        "policy-engine/_build/post-e02-r19-20261023/reviews/FINAL2-S01.json@85e86bcaba67c451c7351af7b4501c8e782c59b37c6e506f267ac9fb61c8192b"
+      ],
+      "post_review_normalization_ref": "research/full-lifecycle-solutions-r19/rendering-normalization.json"
+    },
+    {
+      "cluster": "S02",
+      "author_report_ref": "policy-engine/_build/post-e02-r19-20261023/authors/S02.json@422e4b550696f2a8324a8ded1b019ea21f10efbac4bab034d027decc829689b4",
+      "initial_review_ref": "policy-engine/_build/post-e02-r19-20261023/reviews/RT-S02.json@f96d75c783654f48479c019e3e821f090332641b86ed360df2b83424a5921339",
+      "card": "solutions/lifecycle-r19/S02.md",
+      "card_sha256": "f215a8d3b29a9d7e5f6cf3bdb18b7495097073eb7892e34bc12c8a4b089eb231",
+      "question_ids": [
+        "R18-D02-Q01",
+        "R18-D02-Q02",
+        "R18-D02-Q03",
+        "R18-D02-Q04",
+        "R18-D15-Q01",
+        "R18-D15-Q02"
+      ],
+      "author_agent_slot": 2,
+      "independent_reviewer_agent_slot": 10,
+      "latest_review_ref": "policy-engine/_build/post-e02-r19-20261023/reviews/FINAL-S02.json@4f51f133cfb745ae17d86f7c01b2b1fb8efc2068513aba65a22c3c0dc23f57a2",
+      "latest_review_card_sha256": "fe45317fa338022655c0724b035d07e16f9f38cd3445c5ce5cb809a6087f57cc",
+      "latest_review_open_findings": 0,
+      "product_verification": "UNRUN",
+      "review_history": [
+        "policy-engine/_build/post-e02-r19-20261023/reviews/FINAL-S02.json@4f51f133cfb745ae17d86f7c01b2b1fb8efc2068513aba65a22c3c0dc23f57a2"
+      ],
+      "post_review_normalization_ref": "research/full-lifecycle-solutions-r19/rendering-normalization.json"
+    },
+    {
+      "cluster": "S03",
+      "author_report_ref": "policy-engine/_build/post-e02-r19-20261023/authors/S03.json@e21122ce14c0a8724d077658e2ff898a49346031b05b18980c0b710560ff6fb2",
+      "initial_review_ref": "policy-engine/_build/post-e02-r19-20261023/reviews/RT-S03.json@16ee61f90cf57fc3f1cdab94d6a54cbcfeb40120e299f834cb2c62c8c6301f3a",
+      "card": "solutions/lifecycle-r19/S03.md",
+      "card_sha256": "61bf06af77261b75b54c0fb4a19908541d34311774d6d46ea7377e5b672a568a",
+      "question_ids": [
+        "R18-D03-Q01",
+        "R18-D03-Q02",
+        "R18-D03-Q03"
+      ],
+      "author_agent_slot": 3,
+      "independent_reviewer_agent_slot": 2,
+      "latest_review_ref": "policy-engine/_build/post-e02-r19-20261023/reviews/FINAL-S03.json@93bc6443a6fcbf64e4c97e17e44b093e9c7a5601f41224a2219c48fb51964032",
+      "latest_review_card_sha256": "61bf06af77261b75b54c0fb4a19908541d34311774d6d46ea7377e5b672a568a",
+      "latest_review_open_findings": 0,
+      "product_verification": "UNRUN",
+      "review_history": [
+        "policy-engine/_build/post-e02-r19-20261023/reviews/FINAL-S03.json@93bc6443a6fcbf64e4c97e17e44b093e9c7a5601f41224a2219c48fb51964032"
+      ]
+    },
+    {
+      "cluster": "S04",
+      "author_report_ref": "policy-engine/_build/post-e02-r19-20261023/authors/S04.json@4281cfd6a743d3f35e63f8b9ee59e4313211859644f401ff2cc9c710efbef092",
+      "initial_review_ref": "policy-engine/_build/post-e02-r19-20261023/reviews/RT-S04.json@a9465121228ddf883adafcdd6d46b2f5328317f602886e42d47dffbfd9c8e75f",
+      "card": "solutions/lifecycle-r19/S04.md",
+      "card_sha256": "5e7f6d7d6b493b3b167034390462e6725767e0000334002b6b6f136691bc08ac",
+      "question_ids": [
+        "R18-D04-Q01",
+        "R18-D04-Q02",
+        "R18-D04-Q03",
+        "R18-D04-Q04",
+        "R18-D04-Q05",
+        "R18-D04-Q06"
+      ],
+      "author_agent_slot": 4,
+      "independent_reviewer_agent_slot": 8,
+      "latest_review_ref": "policy-engine/_build/post-e02-r19-20261023/reviews/FINAL-S04.json@3298656e362024f6ab6ccb34877c295561c4ab3bca6ac631593e1716d22c588c",
+      "latest_review_card_sha256": "5e7f6d7d6b493b3b167034390462e6725767e0000334002b6b6f136691bc08ac",
+      "latest_review_open_findings": 0,
+      "product_verification": "UNRUN",
+      "review_history": [
+        "policy-engine/_build/post-e02-r19-20261023/reviews/FINAL-S04.json@3298656e362024f6ab6ccb34877c295561c4ab3bca6ac631593e1716d22c588c"
+      ]
+    },
+    {
+      "cluster": "S05",
+      "author_report_ref": "policy-engine/_build/post-e02-r19-20261023/authors/S05.json@c5d04560f5526898d8b2a9cf12fc96c5e8a14a4183814960e570ae4e260ea096",
+      "initial_review_ref": "policy-engine/_build/post-e02-r19-20261023/reviews/RT-S05.json@82171c70ed5a1b105ddffefb75b60e0d4ca3ca966686d773ed2802bdbf1d488f",
+      "card": "solutions/lifecycle-r19/S05.md",
+      "card_sha256": "b1ab364c9f28fad72055550f8dfcf4533fa9153dc1d45ad0481fcaf2ff0cc8a7",
+      "question_ids": [
+        "R18-D05-Q01",
+        "R18-D05-Q02",
+        "R18-D05-Q03",
+        "R18-D05-Q04",
+        "R18-D05-Q05",
+        "R18-D21-Q01"
+      ],
+      "author_agent_slot": 5,
+      "independent_reviewer_agent_slot": 15,
+      "latest_review_ref": "policy-engine/_build/post-e02-r19-20261023/reviews/FINAL-S05.json@5dc233f0b0821c7edc1a3bbc4230a5d36c87ffe5568f9e1ca5c23c9a3b89aa01",
+      "latest_review_card_sha256": "bc6ae6f6b067052e39f5af848dceb8a2717d1e1be3eba97d94a90b778f237e1c",
+      "latest_review_open_findings": 0,
+      "product_verification": "UNRUN",
+      "review_history": [
+        "policy-engine/_build/post-e02-r19-20261023/reviews/FINAL-S05.json@5dc233f0b0821c7edc1a3bbc4230a5d36c87ffe5568f9e1ca5c23c9a3b89aa01"
+      ],
+      "post_review_normalization_ref": "research/full-lifecycle-solutions-r19/rendering-normalization.json"
+    },
+    {
+      "cluster": "S06",
+      "author_report_ref": "policy-engine/_build/post-e02-r19-20261023/authors/S06.json@add9f45ae173db4b6d386fdecb5920bb854a4d517352bdc30fe84a21b4647055",
+      "initial_review_ref": "policy-engine/_build/post-e02-r19-20261023/reviews/RT-S06.json@a5b8d7344b94746e1bf901cef30ee3568b3b47294f82d68992724631d98eda1d",
+      "card": "solutions/lifecycle-r19/S06.md",
+      "card_sha256": "e0ccfc80d301cb2f78fd34a5eae4120e26b761e4cf9abbfb0967f4a95c9e1be8",
+      "question_ids": [
+        "R18-D06-Q01",
+        "R18-D06-Q02",
+        "R18-D06-Q03",
+        "R18-D06-Q04",
+        "R18-D06-Q05"
+      ],
+      "author_agent_slot": 6,
+      "independent_reviewer_agent_slot": 16,
+      "latest_review_ref": "policy-engine/_build/post-e02-r19-20261023/reviews/FINAL-S06.json@7d799bdeb8bea8b7ae043eaa101f2966aa63a578c5fd513d0fb7eaf4c90e3913",
+      "latest_review_card_sha256": "84b2206c40cdc5338a89b8551b0f50557cef8a0605b86d726dbfd085137b44a1",
+      "latest_review_open_findings": 0,
+      "product_verification": "UNRUN",
+      "review_history": [
+        "policy-engine/_build/post-e02-r19-20261023/reviews/FINAL-S06.json@7d799bdeb8bea8b7ae043eaa101f2966aa63a578c5fd513d0fb7eaf4c90e3913"
+      ],
+      "post_review_normalization_ref": "research/full-lifecycle-solutions-r19/rendering-normalization.json"
+    },
+    {
+      "cluster": "S07",
+      "author_report_ref": "policy-engine/_build/post-e02-r19-20261023/authors/S07.json@9402c241e03d8afec3301ff984b2196989014325d77ea3eabd3ba1a2f7b42550",
+      "initial_review_ref": "policy-engine/_build/post-e02-r19-20261023/reviews/RT-S07.json@d65316a36068959a7eeac40f61a8bd015a7fe86236a2b5a0eaba1b8e66463200",
+      "card": "solutions/lifecycle-r19/S07.md",
+      "card_sha256": "d585d440acffee125a14d425c661f231e9ed69a610600621c7ba6c636e31a997",
+      "question_ids": [
+        "R18-D07-Q01",
+        "R18-D07-Q02"
+      ],
+      "author_agent_slot": 7,
+      "independent_reviewer_agent_slot": 4,
+      "latest_review_ref": "policy-engine/_build/post-e02-r19-20261023/reviews/FINAL-S07.json@d8fb9d4a940c6d01d07bce32075701289c8402ef8d5c98cc324c3241bc27b5e9",
+      "latest_review_card_sha256": "4f84267e25393f9e6646cd650502fbd667da7cbdd740f3f16275e2ac7fcb854d",
+      "latest_review_open_findings": 0,
+      "product_verification": "UNRUN",
+      "review_history": [
+        "policy-engine/_build/post-e02-r19-20261023/reviews/FINAL-S07.json@d8fb9d4a940c6d01d07bce32075701289c8402ef8d5c98cc324c3241bc27b5e9"
+      ],
+      "post_review_normalization_ref": "research/full-lifecycle-solutions-r19/rendering-normalization.json"
+    },
+    {
+      "cluster": "S08",
+      "author_report_ref": "policy-engine/_build/post-e02-r19-20261023/authors/S08.json@babaf90a059bda3cb2ad6a6de4f8cd032f71c841147b61648b5da2833c169786",
+      "initial_review_ref": "policy-engine/_build/post-e02-r19-20261023/reviews/RT-S08.json@71646c0f93447bd017a951a477c0e30deda87bc56562424646374c674adc8e9d",
+      "card": "solutions/lifecycle-r19/S08.md",
+      "card_sha256": "ddc0182fea7836103a858225808a5078c96e465ccbb7ca6991a73a83c74fad5f",
+      "question_ids": [
+        "R18-D08-Q01",
+        "R18-D08-Q02",
+        "R18-D08-Q03",
+        "R18-D08-Q04",
+        "R18-D08-Q05"
+      ],
+      "author_agent_slot": 8,
+      "independent_reviewer_agent_slot": 7,
+      "latest_review_ref": "policy-engine/_build/post-e02-r19-20261023/reviews/FINAL-S08.json@9f37a3c7e5abcb0c706f18024969f73bdbca6d001f795e4eb3e0ca025364512d",
+      "latest_review_card_sha256": "ddc0182fea7836103a858225808a5078c96e465ccbb7ca6991a73a83c74fad5f",
+      "latest_review_open_findings": 0,
+      "product_verification": "UNRUN",
+      "review_history": [
+        "policy-engine/_build/post-e02-r19-20261023/reviews/FINAL-S08.json@9f37a3c7e5abcb0c706f18024969f73bdbca6d001f795e4eb3e0ca025364512d"
+      ]
+    },
+    {
+      "cluster": "S09",
+      "author_report_ref": "policy-engine/_build/post-e02-r19-20261023/authors/S09.json@aef65a1385165c2ca7afdb9ad64852089288528074731433a6a07ce3e25897f0",
+      "initial_review_ref": "policy-engine/_build/post-e02-r19-20261023/reviews/RT-S09.json@7ff7d1be6abe48e32f0b7f663d81ede108232e49ded48fe2a163e2ee9c51de2f",
+      "card": "solutions/lifecycle-r19/S09.md",
+      "card_sha256": "a986b427151482ec95d28201e5b18248d31429f7679426ca61f500477c007e44",
+      "question_ids": [
+        "R18-D09-Q01",
+        "R18-D09-Q02",
+        "R18-D09-Q03",
+        "R18-D09-Q04",
+        "R18-D09-Q05"
+      ],
+      "author_agent_slot": 9,
+      "independent_reviewer_agent_slot": 19,
+      "latest_review_ref": "policy-engine/_build/post-e02-r19-20261023/reviews/FINAL2-S09.json@5898f75b272c4d505175c79519b6d9d9678ca5985fcfc097dba93b03cbe71363",
+      "latest_review_card_sha256": "deedda02df005e04c64dca15ffc668d3edae933399136c2e9c02e73ea05fde96",
+      "latest_review_open_findings": 0,
+      "product_verification": "UNRUN",
+      "review_history": [
+        "policy-engine/_build/post-e02-r19-20261023/reviews/FINAL-S09.json@5db057978e536c9314fc2154719b3bf473bcf963c4ab8fcc7155252adee25039",
+        "policy-engine/_build/post-e02-r19-20261023/reviews/FINAL2-S09.json@5898f75b272c4d505175c79519b6d9d9678ca5985fcfc097dba93b03cbe71363"
+      ],
+      "post_review_normalization_ref": "research/full-lifecycle-solutions-r19/rendering-normalization.json"
+    },
+    {
+      "cluster": "S10",
+      "author_report_ref": "policy-engine/_build/post-e02-r19-20261023/authors/S10.json@32e55298204b1d0f3c2feb7cee92dd38bf18f0982bb3158822dc54cb62d97005",
+      "initial_review_ref": "policy-engine/_build/post-e02-r19-20261023/reviews/RT-S10.json@cf3e29803afb92e734858f78f24fcb714f913e3cf3bf631ba20b429d57838319",
+      "card": "solutions/lifecycle-r19/S10.md",
+      "card_sha256": "48eb7f19b3d5cacd84a629a9359ef4ed1098ae8b7b13e0ac24b34e7294e4a54f",
+      "question_ids": [
+        "R18-D10-Q01",
+        "R18-D10-Q02"
+      ],
+      "author_agent_slot": 10,
+      "independent_reviewer_agent_slot": 11,
+      "latest_review_ref": "policy-engine/_build/post-e02-r19-20261023/reviews/FINAL-S10.json@a5150e2eb51b8bac4451ee6a13a88b7ba5bfd7b67a7246a6731c05fdeb9a76cd",
+      "latest_review_card_sha256": "48eb7f19b3d5cacd84a629a9359ef4ed1098ae8b7b13e0ac24b34e7294e4a54f",
+      "latest_review_open_findings": 0,
+      "product_verification": "UNRUN",
+      "review_history": [
+        "policy-engine/_build/post-e02-r19-20261023/reviews/FINAL-S10.json@a5150e2eb51b8bac4451ee6a13a88b7ba5bfd7b67a7246a6731c05fdeb9a76cd"
+      ]
+    },
+    {
+      "cluster": "S11",
+      "author_report_ref": "policy-engine/_build/post-e02-r19-20261023/authors/S11.json@d30dbc9285a5cb3a487322a9169a5c1a78cec91d5c5bf341f21be35175c7f4e6",
+      "initial_review_ref": "policy-engine/_build/post-e02-r19-20261023/reviews/RT-S11.json@3138ba0663832475556a45311831d4a4dd1895900f7fcc7ca559d25f93b93bf1",
+      "card": "solutions/lifecycle-r19/S11.md",
+      "card_sha256": "d1e9a82c2f8b3b01fac1158a19e85383ab4a652be22f64ed4bb592284e965824",
+      "question_ids": [
+        "R18-D11-Q01"
+      ],
+      "author_agent_slot": 11,
+      "independent_reviewer_agent_slot": 1,
+      "latest_review_ref": "policy-engine/_build/post-e02-r19-20261023/reviews/FINAL-S11.json@d87ede0d445c0f4106fb72c86fa93e7026d0a1664e038fd4e1f5701fe15a5301",
+      "latest_review_card_sha256": "d1e9a82c2f8b3b01fac1158a19e85383ab4a652be22f64ed4bb592284e965824",
+      "latest_review_open_findings": 0,
+      "product_verification": "UNRUN",
+      "review_history": [
+        "policy-engine/_build/post-e02-r19-20261023/reviews/FINAL-S11.json@d87ede0d445c0f4106fb72c86fa93e7026d0a1664e038fd4e1f5701fe15a5301"
+      ]
+    },
+    {
+      "cluster": "S12",
+      "author_report_ref": "policy-engine/_build/post-e02-r19-20261023/authors/S12.json@2a972c5d7957fe92a1bb3c4e1c03caca23533ae7813cf91354d80d7ba3fb1f83",
+      "initial_review_ref": "policy-engine/_build/post-e02-r19-20261023/reviews/RT-S12.json@5d76911c382b757b1ec21a4939faa09ec938cd203666c4aaf4c67a19996ab739",
+      "card": "solutions/lifecycle-r19/S12.md",
+      "card_sha256": "b7e64c6bcf0bc51f8a0a5411494499abe9279e9268831da4ad1537469ebe94f8",
+      "question_ids": [
+        "R18-D12-Q01",
+        "R18-D12-Q02",
+        "R18-D12-Q03",
+        "R18-D12-Q04",
+        "R18-D12-Q05",
+        "R18-D12-Q06"
+      ],
+      "author_agent_slot": 12,
+      "independent_reviewer_agent_slot": 20,
+      "latest_review_ref": "policy-engine/_build/post-e02-r19-20261023/reviews/FINAL3-S12.json@35f8655cd487537e10a8efa6441f1569791548790019ee469fa0b989f5138bdb",
+      "latest_review_card_sha256": "b7e64c6bcf0bc51f8a0a5411494499abe9279e9268831da4ad1537469ebe94f8",
+      "latest_review_open_findings": 0,
+      "product_verification": "UNRUN",
+      "review_history": [
+        "policy-engine/_build/post-e02-r19-20261023/reviews/FINAL-S12.json@c6ef837d25193c7c55d6f20c31a1e041f68631d44b0e40471bce2264145c38f8",
+        "policy-engine/_build/post-e02-r19-20261023/reviews/FINAL2-S12.json@d27b9c9ea7c89dff2f7633dfbf6e48d60d22fb08fa9ab166eb4554ccbd64d8a4",
+        "policy-engine/_build/post-e02-r19-20261023/reviews/FINAL3-S12.json@35f8655cd487537e10a8efa6441f1569791548790019ee469fa0b989f5138bdb"
+      ]
+    },
+    {
+      "cluster": "S13",
+      "author_report_ref": "policy-engine/_build/post-e02-r19-20261023/authors/S13.json@7699e4f02255e9686073a5fd8b64e21fdd5822b9485fb2f07edf5051fc0a0c4e",
+      "initial_review_ref": "policy-engine/_build/post-e02-r19-20261023/reviews/RT-S13.json@5c59042a016661089b4ff1c89abcf0d45c9f28310c28d3d8474a7903aec72049",
+      "card": "solutions/lifecycle-r19/S13.md",
+      "card_sha256": "825567345d47a1cedc515958d33b93bcf7b1070691e038a193ee0654b2de0f9b",
+      "question_ids": [
+        "R18-D22-Q01",
+        "R18-D22-Q03",
+        "R18-D22-Q04",
+        "R18-D22-Q05"
+      ],
+      "author_agent_slot": 13,
+      "independent_reviewer_agent_slot": 17,
+      "latest_review_ref": "policy-engine/_build/post-e02-r19-20261023/reviews/FINAL2-S13.json@ece7017cc5d2a4f4dece09321df2ad4df34a0b4f704f7844cdc4f60d8ecb5670",
+      "latest_review_card_sha256": "728bc7bc54b9c07eb512c4e511ad1f5ba4016d49e138541e16a287dcc0ba6825",
+      "latest_review_open_findings": 0,
+      "product_verification": "UNRUN",
+      "review_history": [
+        "policy-engine/_build/post-e02-r19-20261023/reviews/FINAL-S13.json@bcc1188e0890670181d76b90efe5f3561ef248bbee4c89f7a1941d5353931fcd",
+        "policy-engine/_build/post-e02-r19-20261023/reviews/FINAL2-S13.json@ece7017cc5d2a4f4dece09321df2ad4df34a0b4f704f7844cdc4f60d8ecb5670"
+      ],
+      "post_review_normalization_ref": "research/full-lifecycle-solutions-r19/rendering-normalization.json"
+    },
+    {
+      "cluster": "S14",
+      "author_report_ref": "policy-engine/_build/post-e02-r19-20261023/authors/S14.json@bfa327b946c74537879e4c1f391e1fa80192dd98147aa8f8ef4c03b9cfa2849a",
+      "initial_review_ref": "policy-engine/_build/post-e02-r19-20261023/reviews/RT-S14.json@c3ba9d405500605ec4901c0965140c0ee4cb8d82ebb9bace06ddb3c86bddaabd",
+      "card": "solutions/lifecycle-r19/S14.md",
+      "card_sha256": "c9f828eab6c9038ffa0b988535b577d6ad2c70b7980518e3309f5d64c57571dc",
+      "question_ids": [
+        "R18-D14-Q01",
+        "R18-D14-Q02",
+        "R18-D14-Q03",
+        "R18-D14-Q04",
+        "R18-D14-Q05"
+      ],
+      "author_agent_slot": 14,
+      "independent_reviewer_agent_slot": 18,
+      "latest_review_ref": "policy-engine/_build/post-e02-r19-20261023/reviews/FINAL3-S14.json@429ad4cefad318cda67e3ce92fbc2fd1ddebbf917c0dc07465c168a71ac56505",
+      "latest_review_card_sha256": "081581e2017a2d532ac20a2cc8c78a538c3909a4abbf79e7733454e43fe49af1",
+      "latest_review_open_findings": 0,
+      "product_verification": "UNRUN",
+      "review_history": [
+        "policy-engine/_build/post-e02-r19-20261023/reviews/FINAL-S14.json@2b4414c1c78af8086b06e20cfa16671b7416d70c5b287380f05df11a5995f251",
+        "policy-engine/_build/post-e02-r19-20261023/reviews/FINAL2-S14.json@286156c6183467c093ce6583256c1394c9fcec73af734cbb23f382025887a668",
+        "policy-engine/_build/post-e02-r19-20261023/reviews/FINAL3-S14.json@429ad4cefad318cda67e3ce92fbc2fd1ddebbf917c0dc07465c168a71ac56505"
+      ],
+      "post_review_normalization_ref": "research/full-lifecycle-solutions-r19/rendering-normalization.json"
+    },
+    {
+      "cluster": "S15",
+      "author_report_ref": "policy-engine/_build/post-e02-r19-20261023/authors/S15.json@2e4d50bee25947d99b9f5ea586c23a206f2c7f6f84fc0b125d71c108f506c7e6",
+      "initial_review_ref": "policy-engine/_build/post-e02-r19-20261023/reviews/RT-S15.json@5536c4882577ba0e32a0cb8b5bb2a18e971351374ccb69be85e0a87ee6cd362b",
+      "card": "solutions/lifecycle-r19/S15.md",
+      "card_sha256": "010f5971b395c70f22dce9a8a101c5484e3cfd90594cf139fd752ab0a81abc9b",
+      "question_ids": [
+        "R18-D18-Q01",
+        "R18-D18-Q02",
+        "R18-D18-Q03",
+        "R18-D18-Q04"
+      ],
+      "author_agent_slot": 15,
+      "independent_reviewer_agent_slot": 5,
+      "latest_review_ref": "policy-engine/_build/post-e02-r19-20261023/reviews/FINAL-S15.json@85269ea5bf3f126cd0352dfe968b6eaa43807cd5b0eec91e36e25cfb12ca4cca",
+      "latest_review_card_sha256": "010f5971b395c70f22dce9a8a101c5484e3cfd90594cf139fd752ab0a81abc9b",
+      "latest_review_open_findings": 0,
+      "product_verification": "UNRUN",
+      "review_history": [
+        "policy-engine/_build/post-e02-r19-20261023/reviews/FINAL-S15.json@85269ea5bf3f126cd0352dfe968b6eaa43807cd5b0eec91e36e25cfb12ca4cca"
+      ]
+    },
+    {
+      "cluster": "S16",
+      "author_report_ref": "policy-engine/_build/post-e02-r19-20261023/authors/S16.json@25e1076563e07b298ce7c246146ae3e1d49e33c4929ce79d8f8463cbaee6e007",
+      "initial_review_ref": "policy-engine/_build/post-e02-r19-20261023/reviews/RT-S16.json@a8a2a9ef21174695b65b27033c580db1ea0c59483860490087bc65ad8e0de37d",
+      "card": "solutions/lifecycle-r19/S16.md",
+      "card_sha256": "c29415df058b8d4ac0abb169787683c2302747eb557b920a2753111850b3fc49",
+      "question_ids": [
+        "R18-D16-Q01",
+        "R18-D16-Q02"
+      ],
+      "author_agent_slot": 16,
+      "independent_reviewer_agent_slot": 6,
+      "latest_review_ref": "policy-engine/_build/post-e02-r19-20261023/reviews/FINAL-S16.json@f15f93b6a7357f2f6afd021ea5e251c16d9e83a5d30bab2c4de7b0dfc1c82b5c",
+      "latest_review_card_sha256": "efc46161f82e4778e936e880e3fef58efbe20c755439f16dbfad5ae51a955cb4",
+      "latest_review_open_findings": 0,
+      "product_verification": "UNRUN",
+      "review_history": [
+        "policy-engine/_build/post-e02-r19-20261023/reviews/FINAL-S16.json@f15f93b6a7357f2f6afd021ea5e251c16d9e83a5d30bab2c4de7b0dfc1c82b5c"
+      ],
+      "post_review_normalization_ref": "research/full-lifecycle-solutions-r19/rendering-normalization.json"
+    },
+    {
+      "cluster": "S17",
+      "author_report_ref": "policy-engine/_build/post-e02-r19-20261023/authors/S17.json@f367f806d7a8cee4dc8e248f291328c10b1d46d16ca4b6420a43ced86bdaed0c",
+      "initial_review_ref": "policy-engine/_build/post-e02-r19-20261023/reviews/RT-S17.json@e99d026f8a39ee47a768c50abf9d93dc1315e19cdfa31d97471387efb8dd3e2d",
+      "card": "solutions/lifecycle-r19/S17.md",
+      "card_sha256": "f583745365e54267d09652c267d6d616ea7c54b408bf5c0f580a8610cdbdea6f",
+      "question_ids": [
+        "R18-D17-Q01",
+        "R18-D17-Q02",
+        "R18-D17-Q03",
+        "R18-D17-Q04",
+        "R18-D17-Q05",
+        "R18-D17-Q07"
+      ],
+      "author_agent_slot": 17,
+      "independent_reviewer_agent_slot": 13,
+      "latest_review_ref": "policy-engine/_build/post-e02-r19-20261023/reviews/FINAL2-S17.json@0889d09cd0cc16af708bb2cd455b65fa0108446af7068634f121859cb716aa51",
+      "latest_review_card_sha256": "8ba162556d8de2a568ad199f1fdb1d61531505ec083e69478ebec20d95bcdd5f",
+      "latest_review_open_findings": 0,
+      "product_verification": "UNRUN",
+      "review_history": [
+        "policy-engine/_build/post-e02-r19-20261023/reviews/FINAL-S17.json@88e82787e671f70059110145aa642a53ca53726db194956eb52ce1bbe2e60b36",
+        "policy-engine/_build/post-e02-r19-20261023/reviews/FINAL2-S17.json@0889d09cd0cc16af708bb2cd455b65fa0108446af7068634f121859cb716aa51"
+      ],
+      "post_review_normalization_ref": "research/full-lifecycle-solutions-r19/rendering-normalization.json"
+    },
+    {
+      "cluster": "S18",
+      "author_report_ref": "policy-engine/_build/post-e02-r19-20261023/authors/S18.json@6101f9aa46df2c58306ed0aebded821f8026b144f8299bd584e895a61ddc6db4",
+      "initial_review_ref": "policy-engine/_build/post-e02-r19-20261023/reviews/RT-S18.json@8f79739f0f554c436919f1c8750637c208c3e9e126915a508fe0e34dc48d43ca",
+      "card": "solutions/lifecycle-r19/S18.md",
+      "card_sha256": "0f8f5445b44c4636abbb30e98c79ca67fb8c59735dad7e1f0cb2c7e3e09403da",
+      "question_ids": [
+        "R18-D23-Q01",
+        "R18-D23-Q02",
+        "R18-D23-Q03"
+      ],
+      "author_agent_slot": 18,
+      "independent_reviewer_agent_slot": 14,
+      "latest_review_ref": "policy-engine/_build/post-e02-r19-20261023/reviews/FINAL2-S18.json@833ebe27ed6eddd86fd6a236f3707a814300fc1f21ddcbbea3b5166a8f3cc06a",
+      "latest_review_card_sha256": "e4a2037168586583d8d726849167702113b993dd2a72fc60ac12c709749b80fd",
+      "latest_review_open_findings": 0,
+      "product_verification": "UNRUN",
+      "review_history": [
+        "policy-engine/_build/post-e02-r19-20261023/reviews/FINAL-S18.json@e7731b38cef2721312d6d7373fb5944096520842de6e954e75682f3cb1b80da1",
+        "policy-engine/_build/post-e02-r19-20261023/reviews/FINAL2-S18.json@833ebe27ed6eddd86fd6a236f3707a814300fc1f21ddcbbea3b5166a8f3cc06a"
+      ],
+      "post_review_normalization_ref": "research/full-lifecycle-solutions-r19/rendering-normalization.json"
+    },
+    {
+      "cluster": "S19",
+      "author_report_ref": "policy-engine/_build/post-e02-r19-20261023/authors/S19.json@d7c8ba431e42a02da613a38fec8c47ac9aa06543af6e88b557b827cfa7919d54",
+      "initial_review_ref": "policy-engine/_build/post-e02-r19-20261023/reviews/RT-S19.json@68ba353dec2eb05ac387ce840332d0f09f3b683280cfe448e27b8093e6efcb43",
+      "card": "solutions/lifecycle-r19/S19.md",
+      "card_sha256": "3c456ee24956fc48719b795781ff4857c9316d7c6b356004c4823d8b83e33776",
+      "question_ids": [
+        "R18-D19-Q02",
+        "R18-D19-Q04",
+        "R18-D19-Q05"
+      ],
+      "author_agent_slot": 19,
+      "independent_reviewer_agent_slot": 9,
+      "latest_review_ref": "policy-engine/_build/post-e02-r19-20261023/reviews/FINAL2-S19.json@4949177c3dde9fdcde26d0a32e2a9380f59087b6188f5ff1afd50240ea6d95c8",
+      "latest_review_card_sha256": "9a76f03bb45a88fd88b9d52d955eda7e7c59779e6cc5b3dcee51d5827d63e8bd",
+      "latest_review_open_findings": 0,
+      "product_verification": "UNRUN",
+      "review_history": [
+        "policy-engine/_build/post-e02-r19-20261023/reviews/FINAL-S19.json@d99820b90a29b0147e1a6204623558ec30ddb722b51e4788d0bd43e20b126d81",
+        "policy-engine/_build/post-e02-r19-20261023/reviews/FINAL2-S19.json@4949177c3dde9fdcde26d0a32e2a9380f59087b6188f5ff1afd50240ea6d95c8"
+      ],
+      "post_review_normalization_ref": "research/full-lifecycle-solutions-r19/rendering-normalization.json"
+    },
+    {
+      "cluster": "S20",
+      "author_report_ref": "policy-engine/_build/post-e02-r19-20261023/authors/S20.json@af900ad1b4f78ef57c4d8451df9b63b9c114c2bd96c9bce3d671e58c2945586a",
+      "initial_review_ref": "policy-engine/_build/post-e02-r19-20261023/reviews/RT-S20.json@b8efe3df3eaa0a2d5c7f8fcc134437e4b6efbe7745c507d87c9ab69da9332bb5",
+      "card": "solutions/lifecycle-r19/S20.md",
+      "card_sha256": "6201a4909f0583ef9d5fe53ce1dad9cafbc122c78ee0bc90a5eb773b048a5018",
+      "question_ids": [
+        "R18-D20-Q01",
+        "R18-D20-Q02",
+        "R18-D20-Q03",
+        "R18-D20-Q04",
+        "R18-D20-Q05",
+        "R18-D20-Q06"
+      ],
+      "author_agent_slot": 20,
+      "independent_reviewer_agent_slot": 12,
+      "latest_review_ref": "policy-engine/_build/post-e02-r19-20261023/reviews/FINAL5-S20.json@98978440f100e1bd1029a971fef4e6965c17c743e629da8ef5770870b3d9816d",
+      "latest_review_card_sha256": "ed34d03ec96a1817de3a3eeb82208cbf4509e86124e6408b24dacc335c43a2aa",
+      "latest_review_open_findings": 0,
+      "product_verification": "UNRUN",
+      "review_history": [
+        "policy-engine/_build/post-e02-r19-20261023/reviews/FINAL-S20.json@f723844088dc05f060b71cce90acad06d75ff959c6fdbd1b58e9919fa952acfb",
+        "policy-engine/_build/post-e02-r19-20261023/reviews/FINAL2-S20.json@cd23036c16123b243a30d882673112771d01eb44611cc7bb2f0affd5d792438a",
+        "policy-engine/_build/post-e02-r19-20261023/reviews/FINAL3-S20.json@5f4626123f974e53fae7df61ca1a2633dd2bb63e492539b75388fadc986add4a",
+        "policy-engine/_build/post-e02-r19-20261023/reviews/FINAL4-S20.json@b1f6f2670c48cb9f6af1b5853b726aa941a44981d6c0abaa6e305b94ba9f3df3",
+        "policy-engine/_build/post-e02-r19-20261023/reviews/FINAL5-S20.json@98978440f100e1bd1029a971fef4e6965c17c743e629da8ef5770870b3d9816d"
+      ],
+      "post_review_normalization_ref": "research/full-lifecycle-solutions-r19/rendering-normalization.json"
+    }
+  ],
+  "cross_review_history": [
+    "policy-engine/_build/post-e02-r19-20261023/reviews/CROSS-EXECUTION.json@9af745517eda9e42ec7aa92ecff718bda2ff6c1871108846e21bafa2a3069994",
+    "policy-engine/_build/post-e02-r19-20261023/reviews/CROSS-SCIENCE.json@b8499037b637c66b864dfea2dbb0425878b3f5564b3df6d87b7ecc91ea291632",
+    "policy-engine/_build/post-e02-r19-20261023/reviews/CROSS-SDD.json@fd3a7f4f45edd4fdf1b866cf5cd025ec60b3d9945e7f40fd8cb6d832c30f77d0",
+    "policy-engine/_build/post-e02-r19-20261023/reviews/CROSS2-EXECUTION.json@5fd36b3ca6846cbc457faa8f41ba56ff4a3ad5c36ef2a72d61fe9c50047f1d5b",
+    "policy-engine/_build/post-e02-r19-20261023/reviews/CROSS2-SCIENCE.json@6c8d835526d2a668530f1d4dcc0aa83207c397b08ba4594a91ea10fef4af35e2",
+    "policy-engine/_build/post-e02-r19-20261023/reviews/CROSS2-SDD.json@1e24bfe45a1b9cffc7ddda8d98d7be85c7cd7be18952fc980c68b1304ac93cfa",
+    "policy-engine/_build/post-e02-r19-20261023/reviews/CROSS3-SDD.json@fba769f792a3129cbb9fb0693c8b36fe7a936126239c88487b52e44d1ef6cbe7"
+  ],
+  "latest_cross_reviews": [
+    "policy-engine/_build/post-e02-r19-20261023/reviews/CROSS2-EXECUTION.json@5fd36b3ca6846cbc457faa8f41ba56ff4a3ad5c36ef2a72d61fe9c50047f1d5b",
+    "policy-engine/_build/post-e02-r19-20261023/reviews/CROSS2-SCIENCE.json@6c8d835526d2a668530f1d4dcc0aa83207c397b08ba4594a91ea10fef4af35e2",
+    "policy-engine/_build/post-e02-r19-20261023/reviews/CROSS3-SDD.json@fba769f792a3129cbb9fb0693c8b36fe7a936126239c88487b52e44d1ef6cbe7"
+  ],
+  "root_review": {
+    "ref": "research/full-lifecycle-solutions-r19/review.md",
+    "sha256": "783962d8fae4be9194d31564be4c86852b362c6d672aaf36e2b0d3a89bbb8f74",
+    "scope": "All 84 question decisions and their routes, scientific/authority boundaries, alternatives and limits; substantive design review only.",
+    "product_verification": "UNRUN"
+  },
+  "delivery_limits": [
+    "Raw author and complete review reports are ignored local path@sha; their availability on another machine is not assumed.",
+    "Tracked cards, dispositions, source applicability/limits and mirrored routes are the portable deliverable.",
+    "No product execution, E02 acceptance, finding closure, new SDD ratification or internet-source completeness is asserted.",
+    "Post-review whitespace-only normalization is fully reversible from rendering-normalization.json; independent reviews bind the reconstructed reviewed bytes, not falsely relabeled new hashes."
+  ]
+}

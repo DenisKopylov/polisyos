@@ -1,0 +1,54 @@
+# R19: предложения уточнений system-design-decisions
+
+**Статус: pending user approval; не применены.** Эти пять предложений не назначают новых полномочий, не создают продуктовые enums/registries и не расширяют фактические tool permissions. Источники и номера разделов повторно проверяются при будущем согласованном внесении.
+
+Изменение этих документов требует отдельного согласования пользователя. До него независимые инженерные действия, уже разрешённые действующими правилами, продолжаются. Нельзя объявить всю R19-программу заблокированной из-за одного предложенного уточнения.
+
+## R19-SDD-01. Ссылка на subject и наследование admissibility
+
+- **source_cluster**: S01
+- **current_rule_ref**: policy-engine/docs/system-design-decisions/stage0-custody-kernel-ratification.md#4.1,#7; policy-engine/docs/system-design-decisions/policyos-identity-and-custody-boundary.md#6
+- **precise_proposed_change**: For separate SDD ratification, decide only the protected-claim boundary: a qualified custody-subject reference or parent/child split-merge link is provenance/reference and by itself transfers no claim authority/status/currentness, evidence applicability, permission, audience or retention. Reusing the existing local adapter namespace/ref and source-qualified aliases is engineering under K01, not a request for a canonical owner, issuer, schema, relation or cardinality. A child authority claim may reuse an artifact only after current owners resolve/content-bind it and check child scope/time/method/rights.
+- **why_needed**: K01 already ratifies a qualified technical reference and limits equality; §7 leaves canonical identity ontology and evidence inheritance unresolved. The only proposed SDD boundary is needed before a protected/public claim may treat a parent link as inherited admissibility. It does not block local refs, candidate work or a child use freshly verified by existing owners.
+- **scope_pending_approval**: Existing K01/K06 permit adapter-local qualified refs, immutable links and fresh per-claim evaluation. No SDD approval is prerequisite to the no-external-ID local-ref path. Until a narrow inheritance rule is ratified, do not claim that the link itself transfers admissibility; actual source/profile-qualified facts and useful candidate analysis remain allowed.
+
+## R19-SDD-02. Конфликт применимых SDD
+
+- **source_cluster**: S18
+- **current_rule_ref**: policyos-identity-and-custody-boundary.md#9 after item 7; numbering must be checked at accepted rebind
+- **precise_proposed_change**: Добавить после п.7: «Для кажущегося конфликта фиксируются обе source-bound версии, scope/time, общий защищённый акт и несовместимые обязанности. Любой consumer может сообщить finding, но не выбирает precedence; standing меняет только датированная принятая запись компетентного human principal. До неё затронутый PolicyOS protected use не admitted; независимая авторизованная работа продолжается. Эта процедура определяет лишь standing/meaning PolicyOS SDD: она не меняет фактическую иерархию active system/developer/user instructions или tool permissions, не отменяет законные/safety запреты и не даёт разрешения на запрещённое действие. Repo-норма действует лишь в совместимом объёме.»
+- **why_needed**: S0 §6 lists specific non-conflicts; no general SDD resolver exists. A local tie-break cannot create authority, and project process must not be mistaken for actual instruction or permission resolution.
+- **scope_pending_approval**: Только meaning/standing конфликтующего PolicyOS SDD use; no global hold, new status, instruction override or action permission.
+
+## R19-SDD-03. Делегация права изменять ratified meaning
+
+- **source_cluster**: S18
+- **current_rule_ref**: universal-policy-design-system-vision-and-organizing-rules.md#12; policyos-identity-and-custody-boundary.md#9 after item 7 (next free item after accepted rebind)
+- **precise_proposed_change**: Добавить: «Amendment authority не следует из issuer/root succession, key custody, technical custody, architecture governance, repo access, task assignment или недоступности principal. Делегировать её может только current human principal заранее принятой записью, связывающей identity, конкретный amendment act, scope и срок/отзыв. Без неё или при contested standing successor не предполагается; amendment остаётся proposal. Это ограничивает только amendment authority; разрешённая engineering work продолжается.»
+- **why_needed**: §12 требует human acceptance, §9.6 ограничивает appointment конкретным act, но не задаёт succession; Q02 не разрешается техническим root-процессом.
+- **scope_pending_approval**: Не назначает преемника и не решает внешний спор об identity; вводит только запрет inference/default.
+
+## R19-SDD-04. Связь открытых вопросов с evidence и decision log
+
+- **source_cluster**: S18
+- **current_rule_ref**: universal-policy-design-system-vision-and-organizing-rules.md#8.4; policy-design-case-decision-log.md#Append-Only,Entry-Template; withheld-propositions-register.md#Standing-admission-rule
+- **precise_proposed_change**: Добавить: «Каждый текущий открытый §8.4 ID имеет один stable-ID crosswalk row и append-only log ref. Empirical proposition может ссылаться на G8 evidence-only answer; evidence по normative/design choice лишь информирует options и сохраняет choice/remainder до dated authorized decision. Mixed items разделяют эти части; evidence не решает normative choice. Expected set — все IDs canonical §8.4 source/version на freeze; нынешние пять — snapshot, не лимит. Generic join выявляет missing/duplicate/orphan; log хранит owner/trigger/disposition, WP указывается лишь для фактически withheld proposition. Изменение evidence/activation открывает review, не закрывает вопрос автоматически.»
+- **why_needed**: G8 сейчас строит пять empirical answer rows, но §8.4 включает normative/design questions: измерение информирует options, не выбирает схему. Vision document, включая §12, предложен как целое; accepted identity record покрывает только конкретную amendment, не универсальное succession law. Этот типо-соответствующий crosswalk остаётся pending; lifecycle используют существующие Log/WP owners.
+- **scope_pending_approval**: Только §8.4 evidence/lifecycle join; пять IDs — snapshot. Не создаёт authority/successor, owner, registry, scheduler, threshold или global gate; proposal pending acceptance.
+
+## R19-SDD-05. Scope и currentness составного утверждения
+
+- **source_cluster**: S20
+- **current_rule_ref**: universal-policy-design-target-architecture-and-gap.md#D2.6,D3.1; policy-design-execution-topology.md#§5,§10; policyos-identity-and-custody-boundary.md#§6-8
+- **precise_proposed_change**: Pending only: bounded cross-root claim scope/freshness binds purpose, exact editions, supported edges where needed, exclusions, audience and temporal support. It creates no PolicyMatter ontology, common mandate, separate certificate or default weight; membership never proves adoption, which remains an external act with resolved/content-bound applicability. A descriptive/arithmetic derivation is scoped to its verified inputs/operator and gives no joint-policy authority; protected joint causal/feasibility/program claims still consume existing coupling/decomposition and emergent-grounding obligations.
+- **why_needed**: Clarify scoped dependency/freshness for composed claims without promoting independent membership to joint approval or globally invalidating unrelated claims.
+- **scope_pending_approval**: Cross-root claim scope/freshness only; no new entity, certificate, authority, global model, default weights or hold on independent claims.
+
+## Практическая граница до согласования
+
+- Adapter-local qualified ref, immutable parent/child links и fresh per-claim evaluation уже допустимы; новая ссылка сама не создаёт transfer authority.
+- Применение принятой делегации проверяется по её реальному scope. Project SDD process никогда не отменяет действующую instruction hierarchy или запрет.
+- Открытые научные вопросы можно исследовать и связывать с evidence; их ответ не становится ratified meaning без компетентного принятия.
+- Existing GYD-30/LIF-02 могут уточнять состав и dependencies конкретного claim. Pending wording не оправдывает новый global identity/portfolio owner или объявление membership фактом adoption.
+
+Машинная форма: [r19-system-design-clarifications.json](r19-system-design-clarifications.json).

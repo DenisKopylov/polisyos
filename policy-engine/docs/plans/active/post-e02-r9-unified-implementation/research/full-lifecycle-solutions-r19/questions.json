@@ -1,0 +1,2284 @@
+{
+  "schema": "documentation-solution-trace/v1",
+  "baseline_commit": "6416d09d99fa5b219dd36b1c74750b23e11c3c93",
+  "status": "planned_not_implemented",
+  "counts": {
+    "questions": 84,
+    "solution_clusters": 20,
+    "affected_existing_tasks": 72,
+    "new_top_level_tasks": 0
+  },
+  "questions": [
+    {
+      "question_id": "R18-D01-Q01",
+      "title": "От сигнала к поручению",
+      "solution_ref": "solutions/lifecycle-r19/S01.md#r18-d01-q01",
+      "mechanism_ids": [
+        "S01-M1"
+      ],
+      "task_ids": [
+        "CNT-01",
+        "DES-01",
+        "DES-04"
+      ],
+      "source_ids": [
+        "S01-R01",
+        "S01-R02"
+      ],
+      "external_inputs": [
+        "Exact permitted signal/report/participant receipt and its source/use rights; testimony also needs actual context, selection/translation and audience.",
+        "Actual sponsor/institution commission naming decision, scope, purpose, accountable principal, audience and answerers."
+      ],
+      "unresolved_research": "Standing/commission rules vary by jurisdiction. The pilot institution supplies issuer/delegation/review route; no universal rule is invented.",
+      "implementation_status": "planned_after_E02_acceptance",
+      "product_verification": "UNRUN"
+    },
+    {
+      "question_id": "R18-D01-Q02",
+      "title": "Оспаривание выбранной области",
+      "solution_ref": "solutions/lifecycle-r19/S01.md#r18-d01-q02",
+      "mechanism_ids": [
+        "S01-M1",
+        "S01-M2"
+      ],
+      "task_ids": [
+        "CNT-01",
+        "CNT-04",
+        "CNT-07",
+        "CNT-08",
+        "DES-01"
+      ],
+      "source_ids": [
+        "S01-R01",
+        "S01-R02"
+      ],
+      "external_inputs": [
+        "Actual commission and, where relied upon, authenticated delegation, issuer competence, scope, effective/revocation dates and sponsor successor-selection act. A new institution act is needed only when existing resolved authority does not cover the changed scope.",
+        "Relevant legal/empirical/participatory sources and permissions; external principal authorized to accept any uncovered boundary change."
+      ],
+      "unresolved_research": "Standing to file/decide is institution- and jurisdiction-specific; retain candidate dissent while the selected institution resolves it.",
+      "implementation_status": "planned_after_E02_acceptance",
+      "product_verification": "UNRUN"
+    },
+    {
+      "question_id": "R18-D01-Q03",
+      "title": "Идентичность и кратность дел",
+      "solution_ref": "solutions/lifecycle-r19/S01.md#r18-d01-q03",
+      "mechanism_ids": [
+        "S01-M2"
+      ],
+      "task_ids": [
+        "CNT-01",
+        "CNT-08"
+      ],
+      "source_ids": [
+        "S01-R01",
+        "S01-R02",
+        "S01-R03"
+      ],
+      "external_inputs": [
+        "No external subject identifier is required to create/use the qualified local technical ref for PolicyOS custody and case-scoped work.",
+        "Issuer/assignment-system facts and actual referent are inputs only when an external alias or continuity claim is used; profile-local relation/cardinality and linkage error costs remain selected-context inputs, not global defaults."
+      ],
+      "unresolved_research": "No universal owner, issuer, schema, cardinality or method for cross-profile subject relations is ratified. Use the local technical ref now; keep external aliases and any real-world continuity claim source-qualified and unresolved until the relevant institution supplies grounds.",
+      "implementation_status": "planned_after_E02_acceptance",
+      "product_verification": "UNRUN"
+    },
+    {
+      "question_id": "R18-D01-Q04",
+      "title": "Наследование оснований между делами",
+      "solution_ref": "solutions/lifecycle-r19/S01.md#r18-d01-q04",
+      "mechanism_ids": [
+        "S01-M2"
+      ],
+      "task_ids": [
+        "CNT-01",
+        "CNT-03",
+        "CNT-04",
+        "CNT-07",
+        "CNT-08",
+        "DES-01",
+        "DES-07"
+      ],
+      "source_ids": [
+        "S01-R01",
+        "S01-R02"
+      ],
+      "external_inputs": [
+        "Parent commission and any relied-upon delegation: issuer, authenticity, scope, effectivity/revocation and sponsor selection. New act only if coverage is insufficient.",
+        "Child-use rights and selected source-specific method/target facts."
+      ],
+      "unresolved_research": "Delegation/standing is institution-specific. Resolve supplied evidence against exact scope; only uncovered protected uses wait. SDD concerns whether a link itself transfers admissibility, not the local-ref engineering.",
+      "implementation_status": "planned_after_E02_acceptance",
+      "product_verification": "UNRUN"
+    },
+    {
+      "question_id": "R18-D02-Q01",
+      "title": "Что сохраняет смысл после split/merge онтологии?",
+      "solution_ref": "solutions/lifecycle-r19/S02.md#r18-d02-q01",
+      "mechanism_ids": [
+        "S02-M1",
+        "S02-M4"
+      ],
+      "task_ids": [
+        "CNT-05",
+        "CNT-06",
+        "CNT-08",
+        "GYD-30",
+        "GYD-32",
+        "LIF-07"
+      ],
+      "source_ids": [
+        "S02-R01",
+        "S02-R04",
+        "S02-R08",
+        "S02-R09",
+        "S02-R10"
+      ],
+      "external_inputs": [
+        "Versioned source definitions and official split/merge relationships.",
+        "Variable-specific child data/margins/weights.",
+        "Selected method and measurement bridge evidence."
+      ],
+      "unresolved_research": "No universal equivalence threshold; test bridge/invariance per construct and method. Current path is branch, bound or retain parent scope.",
+      "implementation_status": "planned_after_E02_acceptance",
+      "product_verification": "UNRUN"
+    },
+    {
+      "question_id": "R18-D02-Q02",
+      "title": "Когда спорная связка меняет целевую совокупность?",
+      "solution_ref": "solutions/lifecycle-r19/S02.md#r18-d02-q02",
+      "mechanism_ids": [
+        "S02-M2",
+        "S02-M1"
+      ],
+      "task_ids": [
+        "CNT-05",
+        "CNT-06",
+        "CNT-08",
+        "GYD-04",
+        "GYD-05",
+        "GYD-30",
+        "LIF-07"
+      ],
+      "source_ids": [
+        "S02-R02",
+        "S02-R03"
+      ],
+      "external_inputs": [
+        "Linkage custodian’s candidates, model/calibration and complete target denominator.",
+        "Error/missingness by material strata; otherwise not_established.",
+        "Competent ruling only for legal membership."
+      ],
+      "unresolved_research": "No universal match threshold/fanout cap; choose method/workload budget, report diagnostics/unresolved mass, else limit completeness/support.",
+      "implementation_status": "planned_after_E02_acceptance",
+      "product_verification": "UNRUN"
+    },
+    {
+      "question_id": "R18-D02-Q03",
+      "title": "Как сделать периоды разных календарей сопоставимыми?",
+      "solution_ref": "solutions/lifecycle-r19/S02.md#r18-d02-q03",
+      "mechanism_ids": [
+        "S02-M3",
+        "S02-M1",
+        "S02-M4"
+      ],
+      "task_ids": [
+        "CNT-05",
+        "CNT-06",
+        "GYD-29",
+        "GYD-30",
+        "LIF-07"
+      ],
+      "source_ids": [
+        "S02-R05",
+        "S02-R06",
+        "S02-R07"
+      ],
+      "external_inputs": [
+        "Authoritative effective date with precision/jurisdiction.",
+        "Source calendar, periods, zone rules and native events.",
+        "Selected method’s time zero, lag and observation regime."
+      ],
+      "unresolved_research": "No universal time tolerance; use method requirements and source-supported neighboring windows. Without finer inputs, retain aggregate claim or conditional limitation.",
+      "implementation_status": "planned_after_E02_acceptance",
+      "product_verification": "UNRUN"
+    },
+    {
+      "question_id": "R18-D02-Q04",
+      "title": "Когда агрегат поддерживает более мелкий target?",
+      "solution_ref": "solutions/lifecycle-r19/S02.md#r18-d02-q04",
+      "mechanism_ids": [
+        "S02-M4",
+        "S02-M1"
+      ],
+      "task_ids": [
+        "CNT-05",
+        "CNT-06",
+        "CNT-08",
+        "GYD-30",
+        "GYD-32",
+        "LIF-07"
+      ],
+      "source_ids": [
+        "S02-R04",
+        "S02-R08",
+        "S02-R09"
+      ],
+      "external_inputs": [
+        "Actual aggregates and subgroup denominators/margins.",
+        "Variable-specific crosswalk/auxiliary evidence.",
+        "Causal design if effect, not descriptive association, is claimed."
+      ],
+      "unresolved_research": "Bound informativeness is empirical per target/source. Use validated partial-ID where possible; otherwise report aggregate resolution.",
+      "implementation_status": "planned_after_E02_acceptance",
+      "product_verification": "UNRUN"
+    },
+    {
+      "question_id": "R18-D03-Q01",
+      "title": "Когда поиск достаточен для заявленного охвата?",
+      "solution_ref": "solutions/lifecycle-r19/S03.md#r18-d03-q01",
+      "mechanism_ids": [
+        "S03-M1"
+      ],
+      "task_ids": [
+        "CAP-01",
+        "CNT-08"
+      ],
+      "source_ids": [
+        "S03-R01",
+        "S03-R02",
+        "S03-R03",
+        "S03-R04"
+      ],
+      "external_inputs": [
+        "Case owner/method reviewer supplies target, eligibility rule and materiality.",
+        "Provider/custodian supplies index coverage/cut/access and permitted query/result terms; existing CAP-01 verifies disclosure/use.",
+        "Known items need scoped references and independent-route provenance; their representativeness remains unknown."
+      ],
+      "unresolved_research": "No method proves a seed set represents every policy domain. For high-consequence absence claims, a reviewer must judge which unsearched source/language could change the result; record and route that gap now, then acquire only where material.",
+      "implementation_status": "planned_after_E02_acceptance",
+      "product_verification": "UNRUN"
+    },
+    {
+      "question_id": "R18-D03-Q02",
+      "title": "Когда похожие источники дают независимую поддержку?",
+      "solution_ref": "solutions/lifecycle-r19/S03.md#r18-d03-q02",
+      "mechanism_ids": [
+        "S03-M2"
+      ],
+      "task_ids": [
+        "CAP-03",
+        "CAP-06",
+        "CNT-06",
+        "CNT-08"
+      ],
+      "source_ids": [
+        "S03-R05",
+        "S03-R06",
+        "S03-R07",
+        "S03-R08"
+      ],
+      "external_inputs": [
+        "Custodian supplies cohort/site/sample/control lineage, overlap/covariance and corrections; restricted data may stay local behind a verified aggregate.",
+        "Method owner supplies estimand, dependence assumptions, cluster adequacy and falsifier.",
+        "Sharing permission for any overlap witness is resolved externally through current rights."
+      ],
+      "unresolved_research": "No general algorithm proves disjointness when custodians hide lineage. Try registration and custodian-side overlap routes for a consequential replication claim; otherwise keep unknown dependence and retain scoped, non-independent findings.",
+      "implementation_status": "planned_after_E02_acceptance",
+      "product_verification": "UNRUN"
+    },
+    {
+      "question_id": "R18-D03-Q03",
+      "title": "Когда качество основания ухудшилось без смены его версии?",
+      "solution_ref": "solutions/lifecycle-r19/S03.md#r18-d03-q03",
+      "mechanism_ids": [
+        "S03-M3"
+      ],
+      "task_ids": [
+        "CAP-04",
+        "CNT-06",
+        "CNT-08",
+        "LIF-02"
+      ],
+      "source_ids": [
+        "S03-R09",
+        "S03-R10",
+        "S03-R11",
+        "S03-R12"
+      ],
+      "external_inputs": [
+        "Custodian supplies frame, eligibility, subgroup, missingness, attrition, weight and instrument/mode facts; source access remains permitted.",
+        "Method reviewer supplies target/estimand, effect modifiers, assumptions and falsifier; bridge data need lawful access.",
+        "Permitted custodian-side aggregates may substitute for raw rows. A webhook is not prerequisite for a qualified own assessment to affect dependent currentness."
+      ],
+      "unresolved_research": "Unmeasured/unreported drift cannot be detected without suitable observations. Check source-side audits, administrative benchmarks, follow-up or bridge studies for the case; absent these, retain last observed target/frame boundary with explicit uncertainty.",
+      "implementation_status": "planned_after_E02_acceptance",
+      "product_verification": "UNRUN"
+    },
+    {
+      "question_id": "R18-D04-Q01",
+      "title": "Пересечение правопорядков и частичная применимость",
+      "solution_ref": "solutions/lifecycle-r19/S04.md#r18-d04-q01",
+      "mechanism_ids": [
+        "S04-M1",
+        "S04-M2"
+      ],
+      "task_ids": [
+        "CAP-05",
+        "CNT-04",
+        "CNT-09",
+        "DES-11",
+        "LIF-01"
+      ],
+      "source_ids": [
+        "S04-R01",
+        "S04-R02",
+        "S04-R04",
+        "S04-R05"
+      ],
+      "external_inputs": [
+        "Official source/status records and factual target/territory/action.",
+        "Named legal reviewer and selected conflict rule where sources contradict."
+      ],
+      "unresolved_research": "No actual jurisdiction/program is supplied. A concrete review must decide co-application vs conflict; no global resolver is justified.",
+      "implementation_status": "planned_after_E02_acceptance",
+      "product_verification": "UNRUN"
+    },
+    {
+      "question_id": "R18-D04-Q02",
+      "title": "Конкурирующие толкования и их правовой вес",
+      "solution_ref": "solutions/lifecycle-r19/S04.md#r18-d04-q02",
+      "mechanism_ids": [
+        "S04-M1",
+        "S04-M2"
+      ],
+      "task_ids": [
+        "CAP-05",
+        "CNT-04",
+        "CNT-08",
+        "LIF-01"
+      ],
+      "source_ids": [
+        "S04-R01",
+        "S04-R03",
+        "S04-R06"
+      ],
+      "external_inputs": [
+        "Authentic source/language and named reviewer mandate.",
+        "Actual decision plus evidence of jurisdiction/scope/status if claimed."
+      ],
+      "unresolved_research": "No legal system or actual competing ruling is supplied; effect of precedent must be resolved under the selected forum's rules. No actual holding is asserted.",
+      "implementation_status": "planned_after_E02_acceptance",
+      "product_verification": "UNRUN"
+    },
+    {
+      "question_id": "R18-D04-Q03",
+      "title": "Оспаривание, приостановление и преюдициальный вопрос",
+      "solution_ref": "solutions/lifecycle-r19/S04.md#r18-d04-q03",
+      "mechanism_ids": [
+        "S04-M1",
+        "S04-M2",
+        "S04-M3"
+      ],
+      "task_ids": [
+        "CAP-05",
+        "CNT-04",
+        "DEB-06",
+        "LIF-01",
+        "LIF-02"
+      ],
+      "source_ids": [
+        "S04-R03",
+        "S04-R07"
+      ],
+      "external_inputs": [
+        "Actual official order/docket/appeal/referral with scope/status.",
+        "Applicable procedural rule and service evidence where effect depends on notice."
+      ],
+      "unresolved_research": "Need the real proceeding, rule and order to resolve stay/finality. EU Article 267 is a bounded example, not evidence this hypothetical is stayed.",
+      "implementation_status": "planned_after_E02_acceptance",
+      "product_verification": "UNRUN"
+    },
+    {
+      "question_id": "R18-D04-Q04",
+      "title": "Процедурные условия и распределённый мандат",
+      "solution_ref": "solutions/lifecycle-r19/S04.md#r18-d04-q04",
+      "mechanism_ids": [
+        "S04-M1",
+        "S04-M2"
+      ],
+      "task_ids": [
+        "CAP-05",
+        "CNT-04",
+        "CNT-07",
+        "LIF-01"
+      ],
+      "source_ids": [
+        "S04-R08"
+      ],
+      "external_inputs": [
+        "Selected instrument/procedure law, actual issuer and any delegation.",
+        "Original notice, participation and approval records plus recipient/timing evidence.",
+        "Real participant/process custodian and mandate where relied on."
+      ],
+      "unresolved_research": "No act/procedure is supplied; a reviewer must map required steps and defect effects. Aarhus is a bounded environmental example only.",
+      "implementation_status": "planned_after_E02_acceptance",
+      "product_verification": "UNRUN"
+    },
+    {
+      "question_id": "R18-D04-Q05",
+      "title": "Договор, обычай и мягкие нормы",
+      "solution_ref": "solutions/lifecycle-r19/S04.md#r18-d04-q05",
+      "mechanism_ids": [
+        "S04-M1",
+        "S04-M2"
+      ],
+      "task_ids": [
+        "CAP-05",
+        "CNT-04",
+        "CNT-07",
+        "CNT-08"
+      ],
+      "source_ids": [
+        "S04-R01",
+        "S04-R02",
+        "S04-R03",
+        "S04-R04",
+        "S04-R05",
+        "S04-R06"
+      ],
+      "external_inputs": [
+        "Official depositary/issuer and domestic implementation record.",
+        "Practice/opinio-juris evidence with contrary examples for custom.",
+        "Actual contract/regulation/funding/mandate if soft law is said to bind."
+      ],
+      "unresolved_research": "No instrument, rule or incorporation is selected. A concrete legal reviewer must decide scope; architecture can represent the evidence and limitation without a universal force engine.",
+      "implementation_status": "planned_after_E02_acceptance",
+      "product_verification": "UNRUN"
+    },
+    {
+      "question_id": "R18-D04-Q06",
+      "title": "Воздействие правового изменения на собственную подпись",
+      "solution_ref": "solutions/lifecycle-r19/S04.md#r18-d04-q06",
+      "mechanism_ids": [
+        "S04-M1",
+        "S04-M2",
+        "S04-M3"
+      ],
+      "task_ids": [
+        "CAP-05",
+        "CNT-04",
+        "DEB-06",
+        "LIF-01",
+        "LIF-02"
+      ],
+      "source_ids": [
+        "S04-R01",
+        "S04-R06"
+      ],
+      "external_inputs": [
+        "Official change act and saving/transition scope.",
+        "Qualified reviewer determination and exact claim/dependency/source cut."
+      ],
+      "unresolved_research": "No actual later law or signed claim is supplied. Resolve its effect against the exact source dependency and affected audience; preserve both views until then.",
+      "implementation_status": "planned_after_E02_acceptance",
+      "product_verification": "UNRUN"
+    },
+    {
+      "question_id": "R18-D05-Q01",
+      "title": "Что утверждает рекомендация при несовместимых мандатах?",
+      "solution_ref": "solutions/lifecycle-r19/S05.md#r18-d05-q01",
+      "mechanism_ids": [
+        "S05-M1"
+      ],
+      "task_ids": [
+        "CNT-05",
+        "CNT-07",
+        "DES-03",
+        "GYD-31"
+      ],
+      "source_ids": [
+        "S05-R01"
+      ],
+      "external_inputs": [
+        "For a conditional calculation: actual selected schedule/assumption provenance, data/model/method, rights, currentness and comparison scope. A principal mandate is needed only to claim that principal's authorized choice; a collective act covering groups/audience/objective/aggregation/time is needed only for a collective-welfare selection or endorsement."
+      ],
+      "unresolved_research": "If a local procedure (including vote) is invoked to select or endorse collectively, resolve its legal authority/scope with the competent institution. Until then, do not state a collective winner; implementation can still publish the independently grounded conditional comparison. Product/runtime reachability remains UNRUN.",
+      "implementation_status": "planned_after_E02_acceptance",
+      "product_verification": "UNRUN"
+    },
+    {
+      "question_id": "R18-D05-Q02",
+      "title": "На чём основана граница затронутых групп?",
+      "solution_ref": "solutions/lifecycle-r19/S05.md#r18-d05-q02",
+      "mechanism_ids": [
+        "S05-M2"
+      ],
+      "task_ids": [
+        "CNT-05",
+        "CNT-07",
+        "CNT-09",
+        "DES-01",
+        "DES-11"
+      ],
+      "source_ids": [
+        "S05-R02"
+      ],
+      "external_inputs": [
+        "Source-backed population/geography/time and direct/indirect/cumulative mechanisms."
+      ],
+      "unresolved_research": "No advance proof excludes every future group. Use domain evidence/monitoring and retain residual unknowns.",
+      "implementation_status": "planned_after_E02_acceptance",
+      "product_verification": "UNRUN"
+    },
+    {
+      "question_id": "R18-D05-Q03",
+      "title": "Когда позиция группы зависит от процесса обсуждения?",
+      "solution_ref": "solutions/lifecycle-r19/S05.md#r18-d05-q03",
+      "mechanism_ids": [
+        "S05-M3"
+      ],
+      "task_ids": [
+        "CNT-05",
+        "CNT-07",
+        "DES-01",
+        "DES-10"
+      ],
+      "source_ids": [
+        "S05-R02",
+        "S05-R06"
+      ],
+      "external_inputs": [
+        "Actual process custodian, remit, script/options, facilitator/sponsor, translation, participant selection and deviations."
+      ],
+      "unresolved_research": "Stability/manipulation are empirical and process-specific; without control report observed views only.",
+      "implementation_status": "planned_after_E02_acceptance",
+      "product_verification": "UNRUN"
+    },
+    {
+      "question_id": "R18-D05-Q04",
+      "title": "Как интерес участника влияет на пригодность его суждения?",
+      "solution_ref": "solutions/lifecycle-r19/S05.md#r18-d05-q04",
+      "mechanism_ids": [
+        "S05-M3"
+      ],
+      "task_ids": [
+        "CNT-05",
+        "CNT-07",
+        "DES-01",
+        "DES-10"
+      ],
+      "source_ids": [
+        "S05-R05"
+      ],
+      "external_inputs": [
+        "Interest declarations and evidence of role/source-selection activity, with updates."
+      ],
+      "unresolved_research": "Materiality/disclosure thresholds vary by institution; absent a rule, report role-specific limitation, no trust score.",
+      "implementation_status": "planned_after_E02_acceptance",
+      "product_verification": "UNRUN"
+    },
+    {
+      "question_id": "R18-D05-Q05",
+      "title": "Что происходит при конфликте разрешений?",
+      "solution_ref": "solutions/lifecycle-r19/S05.md#r18-d05-q05",
+      "mechanism_ids": [
+        "S05-M4"
+      ],
+      "task_ids": [
+        "CAP-03",
+        "CNT-03",
+        "CNT-07",
+        "LIF-05"
+      ],
+      "source_ids": [
+        "S05-R03",
+        "S05-R04"
+      ],
+      "external_inputs": [
+        "Source custodian and actual law/agreements/community protocol or authorized resolver."
+      ],
+      "unresolved_research": "Secondary-use authority depends on source, jurisdiction and derivative; resolve with actual parties.",
+      "implementation_status": "planned_after_E02_acceptance",
+      "product_verification": "UNRUN"
+    },
+    {
+      "question_id": "R18-D06-Q01",
+      "title": "Нечисловые основания при неидентифицируемом эффекте",
+      "solution_ref": "solutions/lifecycle-r19/S06.md#r18-d06-q01",
+      "mechanism_ids": [
+        "S06-M1"
+      ],
+      "task_ids": [
+        "CNT-06",
+        "DES-12"
+      ],
+      "source_ids": [
+        "S06-R01",
+        "S06-R03"
+      ],
+      "external_inputs": [
+        "Original records, case-selection frame, source/time and author competence.",
+        "Separate estimand/study if an average effect is requested."
+      ],
+      "unresolved_research": "No universal numeric threshold for qualitative causal warrant; CNT-06 can require explicit method, rivals and scope.",
+      "implementation_status": "planned_after_E02_acceptance",
+      "product_verification": "UNRUN"
+    },
+    {
+      "question_id": "R18-D06-Q02",
+      "title": "Переход от кандидата к структурному изменению модели",
+      "solution_ref": "solutions/lifecycle-r19/S06.md#r18-d06-q02",
+      "mechanism_ids": [
+        "S06-M2",
+        "S06-M3"
+      ],
+      "task_ids": [
+        "DES-12",
+        "GYD-10",
+        "GYD-12"
+      ],
+      "source_ids": [
+        "S06-R02",
+        "S06-R03",
+        "S06-R05"
+      ],
+      "external_inputs": [
+        "Protocol/data and provenance; regime bridge; study design that distinguishes structural from measurement/selection causes."
+      ],
+      "unresolved_research": "Best feasible discriminator is setting-specific; DES-12 can optimize over declared rivals without asserting completeness.",
+      "implementation_status": "planned_after_E02_acceptance",
+      "product_verification": "UNRUN"
+    },
+    {
+      "question_id": "R18-D06-Q03",
+      "title": "Неизвестные связи вне сохранённого множества моделей",
+      "solution_ref": "solutions/lifecycle-r19/S06.md#r18-d06-q03",
+      "mechanism_ids": [
+        "S06-M1",
+        "S06-M2"
+      ],
+      "task_ids": [
+        "CNT-06",
+        "DES-12",
+        "GYD-12"
+      ],
+      "source_ids": [
+        "S06-R02",
+        "S06-R03",
+        "S06-R04"
+      ],
+      "external_inputs": [
+        "Domain-informed omitted-cause challenge set and empirical detection coverage for any exclusion."
+      ],
+      "unresolved_research": "Completeness is generally not provable globally; implement explicit set, missing-structure limits and justified bounds now.",
+      "implementation_status": "planned_after_E02_acceptance",
+      "product_verification": "UNRUN"
+    },
+    {
+      "question_id": "R18-D06-Q04",
+      "title": "Один конструкт или смена измерительного режима",
+      "solution_ref": "solutions/lifecycle-r19/S06.md#r18-d06-q04",
+      "mechanism_ids": [
+        "S06-M3"
+      ],
+      "task_ids": [
+        "CNT-06",
+        "CNT-08"
+      ],
+      "source_ids": [
+        "S06-R05",
+        "S06-R06"
+      ],
+      "external_inputs": [
+        "Instrument/code history, overlap validation, relevant subgroups/language, policy-linked reporting incentives."
+      ],
+      "unresolved_research": "Bridge adequacy is empirical; store tests and preserve split regime output when it is unknown.",
+      "implementation_status": "planned_after_E02_acceptance",
+      "product_verification": "UNRUN"
+    },
+    {
+      "question_id": "R18-D06-Q05",
+      "title": "Селективно отсутствующие результаты исследований",
+      "solution_ref": "solutions/lifecycle-r19/S06.md#r18-d06-q05",
+      "mechanism_ids": [
+        "S06-M4",
+        "S06-M1"
+      ],
+      "task_ids": [
+        "CNT-08",
+        "DES-12"
+      ],
+      "source_ids": [
+        "S06-R04",
+        "S06-R07",
+        "S06-R08",
+        "S06-R09"
+      ],
+      "external_inputs": [
+        "Registry/protocol/SAP/results, retrieval responses, eligibility/cutoff and outcome range if bounding."
+      ],
+      "unresolved_research": "Selection probabilities and unregistered studies are generally not identified from published outcomes alone; matrix, ROB-ME and scenarios remain useful.",
+      "implementation_status": "planned_after_E02_acceptance",
+      "product_verification": "UNRUN"
+    },
+    {
+      "question_id": "R18-D07-Q01",
+      "title": "Разная точность внутри спорного множества моделей",
+      "solution_ref": "solutions/lifecycle-r19/S07.md#r18-d07-q01",
+      "mechanism_ids": [
+        "S07-M1"
+      ],
+      "task_ids": [
+        "CNT-08",
+        "DES-03",
+        "DES-10",
+        "GYD-30",
+        "OPS-08"
+      ],
+      "source_ids": [
+        "S07-R01",
+        "S07-R02",
+        "S07-R03",
+        "S07-R04",
+        "S07-R05",
+        "S07-R09",
+        "S07-R10"
+      ],
+      "external_inputs": [
+        "Source-qualified required model set, method guarantees, dependence/coupling and validity domain",
+        "Grounds for required branches and authorized target/population/constraints",
+        "Declared family confidence/error budget; no optimizer-supplied model prior"
+      ],
+      "unresolved_research": "No universal joint rule spans methods. Use profile-valid finite-family alpha allocation/union bound or dependence-aware procedure; adaptive looks need time-uniform coverage or correction. Postselected/uncovered cells stay limited.",
+      "implementation_status": "planned_after_E02_acceptance",
+      "product_verification": "UNRUN"
+    },
+    {
+      "question_id": "R18-D07-Q02",
+      "title": "Объяснение сдвига при одновременном обновлении данных и модели",
+      "solution_ref": "solutions/lifecycle-r19/S07.md#r18-d07-q02",
+      "mechanism_ids": [
+        "S07-M2"
+      ],
+      "task_ids": [
+        "DES-06",
+        "DES-10",
+        "GYD-30",
+        "LIF-02",
+        "LIF-07"
+      ],
+      "source_ids": [
+        "S07-R05",
+        "S07-R06",
+        "S07-R07",
+        "S07-R08"
+      ],
+      "external_inputs": [
+        "Custodian corrections/cuts/retention rights",
+        "Authorized goal/value/mandate basis for ranking",
+        "Lawful availability of historical executable and inputs"
+      ],
+      "unresolved_research": "Some hybrid factor subsets are invalid/incomparable and exact cost is 2^k per branch. The chosen game and uncertainty remain case-specific; verify sum_i φ_i=direct delta and never sum a separate interaction contrast as another allocation.",
+      "implementation_status": "planned_after_E02_acceptance",
+      "product_verification": "UNRUN"
+    },
+    {
+      "question_id": "R18-D08-Q01",
+      "title": "Граница поиска при конкурирующих постановках",
+      "solution_ref": "solutions/lifecycle-r19/S08.md#r18-d08-q01",
+      "mechanism_ids": [
+        "S08-M1",
+        "S08-M4"
+      ],
+      "task_ids": [
+        "DES-01",
+        "DES-02",
+        "DES-10"
+      ],
+      "source_ids": [
+        "S08-R01"
+      ],
+      "external_inputs": [
+        "Exact request/selection; mandate or common values only for claims that require them."
+      ],
+      "unresolved_research": "No universal common basis for cross-frame ranking; keep separate frontiers until a competent owner supplies one.",
+      "implementation_status": "planned_after_E02_acceptance",
+      "product_verification": "UNRUN"
+    },
+    {
+      "question_id": "R18-D08-Q02",
+      "title": "Адекватность описателей для поиска невидимых механизмов",
+      "solution_ref": "solutions/lifecycle-r19/S08.md#r18-d08-q02",
+      "mechanism_ids": [
+        "S08-M2"
+      ],
+      "task_ids": [
+        "DES-02",
+        "DES-03",
+        "DES-10"
+      ],
+      "source_ids": [
+        "S08-R01",
+        "S08-R02",
+        "S08-R03"
+      ],
+      "external_inputs": [
+        "Actual case decision need/affected-group constraints and independent bounded labels; hypothetical ideas need no external fact to remain candidates."
+      ],
+      "unresolved_research": "Universal descriptor completeness is unprovable; keep expanding case-specific views and state remaining scope as not established.",
+      "implementation_status": "planned_after_E02_acceptance",
+      "product_verification": "UNRUN"
+    },
+    {
+      "question_id": "R18-D08-Q03",
+      "title": "Расходование бюджета между качеством, неопределённостью и предпочтениями",
+      "solution_ref": "solutions/lifecycle-r19/S08.md#r18-d08-q03",
+      "mechanism_ids": [
+        "S08-M3"
+      ],
+      "task_ids": [
+        "DEB-13",
+        "DES-03",
+        "DES-04",
+        "DES-12",
+        "LIF-06",
+        "OPS-08"
+      ],
+      "source_ids": [
+        "S08-R04",
+        "S08-R05",
+        "S08-R07"
+      ],
+      "external_inputs": [
+        "Authorized candidate profile/budget if autonomous allocation is desired.",
+        "External study/data permission only for acquisition execution.",
+        "Value owner only for normative choice."
+      ],
+      "unresolved_research": "No universal exchange rate across outcomes, compute, attention, acquisition and rights. Operational profile can allocate candidate compute; normative outcomes stay set-valued until an authorized owner decides.",
+      "implementation_status": "planned_after_E02_acceptance",
+      "product_verification": "UNRUN"
+    },
+    {
+      "question_id": "R18-D08-Q04",
+      "title": "Остановка поиска без ложного вывода об отсутствии меры",
+      "solution_ref": "solutions/lifecycle-r19/S08.md#r18-d08-q04",
+      "mechanism_ids": [
+        "S08-M4",
+        "S08-M3"
+      ],
+      "task_ids": [
+        "DES-04",
+        "DES-10",
+        "DES-11"
+      ],
+      "source_ids": [
+        "S08-R08"
+      ],
+      "external_inputs": [
+        "Need/no-op basis or authorized threshold only if required; candidate profile/budget if used; provider rights only for dependent routes."
+      ],
+      "unresolved_research": "Stopping thresholds are case/method-specific; test them on frozen cases and claim only that protocol, not universal exhaustion.",
+      "implementation_status": "planned_after_E02_acceptance",
+      "product_verification": "UNRUN"
+    },
+    {
+      "question_id": "R18-D08-Q05",
+      "title": "Зависимость frontier от порядка и истории поиска",
+      "solution_ref": "solutions/lifecycle-r19/S08.md#r18-d08-q05",
+      "mechanism_ids": [
+        "S08-M5",
+        "S08-M1",
+        "S08-M2"
+      ],
+      "task_ids": [
+        "DES-02",
+        "DES-04",
+        "DES-08",
+        "DES-10",
+        "LIF-07"
+      ],
+      "source_ids": [
+        "S08-R06",
+        "S08-R09"
+      ],
+      "external_inputs": [
+        "Case/mechanism rationale for a predeclared pair.",
+        "Provider/retention and memory-transfer rights when varied.",
+        "Competent semantic case labels."
+      ],
+      "unresolved_research": "Repeat count/materiality are case-specific. Predeclare plausible interaction pairs; otherwise report main effects only. Untested/higher-order behavior stays not established.",
+      "implementation_status": "planned_after_E02_acceptance",
+      "product_verification": "UNRUN"
+    },
+    {
+      "question_id": "R18-D09-Q01",
+      "title": "Комиссия, разрешение на conduct и права данных",
+      "solution_ref": "solutions/lifecycle-r19/S09.md#r18-d09-q01",
+      "mechanism_ids": [
+        "S09-M1"
+      ],
+      "task_ids": [
+        "CAP-01",
+        "CAP-03",
+        "DES-12",
+        "LIF-01",
+        "LIF-05"
+      ],
+      "source_ids": [
+        "S09-R01",
+        "S09-R04",
+        "S09-R05"
+      ],
+      "external_inputs": [
+        "Commission/award/acceptance and partial scope from sponsor/commissioner when the study is commissioned; do not require this act for unrelated secondary analysis.",
+        "Applicable protocol-specific ethics/regulatory/site/investigator approvals and corrections from competent external actors.",
+        "Current source custodian rights for the actual action (read/analyze/derive/export/publish), purpose, recipient and retention; analyze and derive rights are not inferred from read access.",
+        "Actual conduct/deviation/result record from investigator/site."
+      ],
+      "unresolved_research": "No single legal form or competent actor applies across selected jurisdictions and research types. Preserve the exact external requirement per case; do not invent it.",
+      "implementation_status": "planned_after_E02_acceptance",
+      "product_verification": "UNRUN"
+    },
+    {
+      "question_id": "R18-D09-Q02",
+      "title": "Граница подтверждающего вывода при отклонении",
+      "solution_ref": "solutions/lifecycle-r19/S09.md#r18-d09-q02",
+      "mechanism_ids": [
+        "S09-M2"
+      ],
+      "task_ids": [
+        "CNT-06",
+        "DES-12",
+        "GYD-09",
+        "GYD-10"
+      ],
+      "source_ids": [
+        "S09-R02",
+        "S09-R03"
+      ],
+      "external_inputs": [
+        "Exact protocol/SAP editions, approval/amendment and investigator/site deviation history.",
+        "First access to interim outcomes, actual looks/stopping, assignment/receipt and sample/site drops.",
+        "Selected claim-type estimator, assumptions and operating-characteristic basis."
+      ],
+      "unresolved_research": "There is no universal statistical downgrade for all deviations; novel method-specific consequences stay limited until the selected method owner supplies assumptions and falsifier.",
+      "implementation_status": "planned_after_E02_acceptance",
+      "product_verification": "UNRUN"
+    },
+    {
+      "question_id": "R18-D09-Q03",
+      "title": "Нет результата, нулевой эффект и незавершённое исследование",
+      "solution_ref": "solutions/lifecycle-r19/S09.md#r18-d09-q03",
+      "mechanism_ids": [
+        "S09-M3",
+        "S09-M2"
+      ],
+      "task_ids": [
+        "CNT-06",
+        "DES-04",
+        "DES-10",
+        "DES-12"
+      ],
+      "source_ids": [
+        "S09-R06",
+        "S09-R09",
+        "S09-R10"
+      ],
+      "external_inputs": [
+        "Registry/protocol outcomes, actual sample/measurement denominator and investigator stop/missingness explanation if known.",
+        "Method for informative stopping/missingness and current-use rights.",
+        "Conditional equivalence needs a fitting method and prespecified/source-grounded or explicit hypothetical margin; policy-value claim needs authorized decision-value basis."
+      ],
+      "unresolved_research": "Inference from safety/futility stopping or informative missingness depends on the actual design and generating process; without sufficient source/method evidence, retain limited or inconclusive result.",
+      "implementation_status": "planned_after_E02_acceptance",
+      "product_verification": "UNRUN"
+    },
+    {
+      "question_id": "R18-D09-Q04",
+      "title": "Портфель исследований и общие ресурсы",
+      "solution_ref": "solutions/lifecycle-r19/S09.md#r18-d09-q04",
+      "mechanism_ids": [
+        "S09-M4"
+      ],
+      "task_ids": [
+        "CNT-07",
+        "CNT-08",
+        "DEB-13",
+        "DES-04",
+        "DES-08",
+        "DES-12",
+        "OPS-08"
+      ],
+      "source_ids": [
+        "S09-R07",
+        "S09-R08"
+      ],
+      "external_inputs": [
+        "Decision alternatives/utility and target/horizon; authorization is needed for policy-value claims, not labeled hypothetical calculation.",
+        "Study prior/uncertainty, observation/missingness law, overlap and source rights.",
+        "Cost/time/opportunity-cost for net/ENBS or cost-based rank; state whether delay is in utility.",
+        "Sourced operator/site/cohort/team/instrument/window capacity for feasibility or constrained rank."
+      ],
+      "unresolved_research": "Values/probabilities, burden and capacity are case-specific. Without qualified inputs, show conditional scenarios/partial order and the unsupported net, ranking or feasibility claim; invent no scalar.",
+      "implementation_status": "planned_after_E02_acceptance",
+      "product_verification": "UNRUN"
+    },
+    {
+      "question_id": "R18-D09-Q05",
+      "title": "Полнота внешнего набора study–report–outcome",
+      "solution_ref": "solutions/lifecycle-r19/S09.md#r18-d09-q05",
+      "mechanism_ids": [
+        "S09-M3",
+        "S09-M1"
+      ],
+      "task_ids": [
+        "CAP-01",
+        "CAP-03",
+        "CNT-08",
+        "DES-08",
+        "DES-10",
+        "DES-12"
+      ],
+      "source_ids": [
+        "S09-R04",
+        "S09-R05",
+        "S09-R09",
+        "S09-R10"
+      ],
+      "external_inputs": [
+        "Selected source roster, exact search protocol/cutoff and access state.",
+        "Registry/sponsor/custodian/publisher identifiers, versions, protocol links, corrections and outcome data.",
+        "Cohort/sample/report ancestry when independence or dependence matters.",
+        "Current action-specific rights for read/analyze/derive/export/publish at the intended purpose and audience; publication right remains separate."
+      ],
+      "unresolved_research": "Unregistered/unindexed sources remain outside the bounded corpus unless a case-specific source/holder supplies them. Unknown overlap or unpublished outcome limits synthesis; do not claim universal completeness.",
+      "implementation_status": "planned_after_E02_acceptance",
+      "product_verification": "UNRUN"
+    },
+    {
+      "question_id": "R18-D10-Q01",
+      "title": "Граница видимости мониторинга",
+      "solution_ref": "solutions/lifecycle-r19/S10.md#r18-d10-q01",
+      "mechanism_ids": [
+        "S10-M1"
+      ],
+      "task_ids": [
+        "DES-11",
+        "DES-12",
+        "GYD-09",
+        "GYD-10",
+        "LIF-02"
+      ],
+      "source_ids": [
+        "S10-R01",
+        "S10-R02",
+        "S10-R03",
+        "S10-R07"
+      ],
+      "external_inputs": [
+        "Actual outcome labels, eligibility/reporting, source receipts and rollout facts come from custodians; PolicyOS admits/reconciles, not invents.",
+        "An external study needs protocol-specific permission, conduct and returned evidence; synthetic scenarios witness mechanism only."
+      ],
+      "unresolved_research": "No finite monitor establishes sensitivity to an open-ended universe of unregistered variables/mechanisms from its own stream. Select a decision-relevant alternative set and method-specific analysis; unresolved cases remain limitations. No universal threshold.",
+      "implementation_status": "planned_after_E02_acceptance",
+      "product_verification": "UNRUN"
+    },
+    {
+      "question_id": "R18-D10-Q02",
+      "title": "Перенос отрицательного знания",
+      "solution_ref": "solutions/lifecycle-r19/S10.md#r18-d10-q02",
+      "mechanism_ids": [
+        "S10-M2"
+      ],
+      "task_ids": [
+        "DES-04",
+        "DES-08",
+        "DES-10",
+        "DES-12",
+        "GYD-09",
+        "GYD-10",
+        "LIF-07"
+      ],
+      "source_ids": [
+        "S10-R02",
+        "S10-R04",
+        "S10-R05",
+        "S10-R06"
+      ],
+      "external_inputs": [
+        "Executed outcomes, source/target measures, exposure/selection and reuse rights come from actual owners; memory cannot manufacture them.",
+        "Causal graph/selection assumptions need claim-specific judgment. Without defensible transport/invariance, keep result local and search-useful."
+      ],
+      "unresolved_research": "No universal criterion transports negative mechanism knowledge across domains. Choose method per causal structure; source-only null cannot settle unmeasured target mechanisms. Preserve the local result and route a distinguishing study without blocking unrelated candidates.",
+      "implementation_status": "planned_after_E02_acceptance",
+      "product_verification": "UNRUN"
+    },
+    {
+      "question_id": "R18-D11-Q01",
+      "title": "Связать свежесть модели с текущим допуском профиля",
+      "solution_ref": "solutions/lifecycle-r19/S11.md#r18-d11-q01",
+      "mechanism_ids": [
+        "S11-M1"
+      ],
+      "task_ids": [
+        "DES-09",
+        "DES-10",
+        "GYD-20",
+        "LIF-02",
+        "LIF-07"
+      ],
+      "source_ids": [
+        "S11-R01",
+        "S11-R02",
+        "S11-R03",
+        "S11-R04",
+        "S11-R05"
+      ],
+      "external_inputs": [
+        "Provider request/response ID, served model/route/region/version when exposed; missing metadata remains not_established.",
+        "Source-qualified release/remap/retirement/incident notice and scope if actually available; missing feed is not a no-change receipt.",
+        "Independent profile cases/oracles, authorized thresholds/window and permitted access/cost from existing evaluation, governance and egress owners."
+      ],
+      "unresolved_research": [
+        "Opaque service cannot reveal hidden snapshot or exact drift onset; probes bound observed behavior, not absence of unobserved change.",
+        "Silent-update frequency and rare-error sample power are unknown; measure miss/false-alert/cost per profile. Until then use bounded candidate path and limit production claims to tested strata."
+      ],
+      "implementation_status": "planned_after_E02_acceptance",
+      "product_verification": "UNRUN"
+    },
+    {
+      "question_id": "R18-D12-Q01",
+      "title": "Когда можно утверждать, что читатель понял",
+      "solution_ref": "solutions/lifecycle-r19/S12.md#r18-d12-q01",
+      "mechanism_ids": [
+        "S12-M1",
+        "S12-M4"
+      ],
+      "task_ids": [
+        "CNT-09",
+        "DES-10",
+        "FINAL-USE"
+      ],
+      "source_ids": [
+        "S12-R05",
+        "S12-R06"
+      ],
+      "external_inputs": [
+        "Commissioned audience/frame and participant access",
+        "Independent oracle and institution-supplied work/support context"
+      ],
+      "unresolved_research": "INT-R3 needs owner-approved frame completeness/precision; no universal sample size or cutoff.",
+      "implementation_status": "planned_after_E02_acceptance",
+      "product_verification": "UNRUN"
+    },
+    {
+      "question_id": "R18-D12-Q02",
+      "title": "Осознанное согласие или автоматизационное смещение",
+      "solution_ref": "solutions/lifecycle-r19/S12.md#r18-d12-q02",
+      "mechanism_ids": [
+        "S12-M1"
+      ],
+      "task_ids": [
+        "CNT-09",
+        "DES-09",
+        "DES-10",
+        "FINAL-USE"
+      ],
+      "source_ids": [
+        "S12-R01",
+        "S12-R02"
+      ],
+      "external_inputs": [
+        "Selected participants and actual model profile where claimed",
+        "Independent correctness labels"
+      ],
+      "unresolved_research": "Advice effects and cognitive burden remain empirical for each selected task/profile/audience. Estimate first-decision and revision effects separately; repeated-exposure carryover may be bounded by parallel arms or reported as a limitation. No universal interaction, sample size or cutoff.",
+      "implementation_status": "planned_after_E02_acceptance",
+      "product_verification": "UNRUN"
+    },
+    {
+      "question_id": "R18-D12-Q03",
+      "title": "Смысловое согласование параллельных редакций",
+      "solution_ref": "solutions/lifecycle-r19/S12.md#r18-d12-q03",
+      "mechanism_ids": [
+        "S12-M3"
+      ],
+      "task_ids": [
+        "DES-07"
+      ],
+      "source_ids": [
+        "S12-R03",
+        "S12-R04"
+      ],
+      "external_inputs": [
+        "Edited carrier/rights",
+        "Native dependency map; human mapping for material ambiguity"
+      ],
+      "unresolved_research": "No universal merge rule; owners define relations that can change their conclusions.",
+      "implementation_status": "planned_after_E02_acceptance",
+      "product_verification": "UNRUN"
+    },
+    {
+      "question_id": "R18-D12-Q04",
+      "title": "Смысл статусов в переводе и доступных представлениях",
+      "solution_ref": "solutions/lifecycle-r19/S12.md#r18-d12-q04",
+      "mechanism_ids": [
+        "S12-M1",
+        "S12-M4"
+      ],
+      "task_ids": [
+        "DEB-10",
+        "DES-06",
+        "DES-07",
+        "DES-10",
+        "UI-02",
+        "UI-04"
+      ],
+      "source_ids": [
+        "S12-R05",
+        "S12-R06"
+      ],
+      "external_inputs": [
+        "Selected locale/carrier",
+        "Qualified target readers and accessibility evaluator"
+      ],
+      "unresolved_research": "Comprehension and accessibility remain unmeasured for untested audience/locale/carrier combinations; no standard provides a universal semantic threshold. Apply claims only to actual selected renditions.",
+      "implementation_status": "planned_after_E02_acceptance",
+      "product_verification": "UNRUN"
+    },
+    {
+      "question_id": "R18-D12-Q05",
+      "title": "Понимание реакции на исправление или несогласие",
+      "solution_ref": "solutions/lifecycle-r19/S12.md#r18-d12-q05",
+      "mechanism_ids": [
+        "S12-M5"
+      ],
+      "task_ids": [
+        "CNT-07",
+        "DEB-06",
+        "DES-10",
+        "LIF-02",
+        "UI-01",
+        "UI-02",
+        "UI-04"
+      ],
+      "source_ids": [
+        "S12-R06"
+      ],
+      "external_inputs": [
+        "Actual correction/act and permission where claimed",
+        "Native claim owner and valid affected-claim link"
+      ],
+      "unresolved_research": "Reader understanding under real response delays remains empirical. External adjudication and issuer decisions remain external; the system can immediately limit only its own affected current claims through LIF-02.",
+      "implementation_status": "planned_after_E02_acceptance",
+      "product_verification": "UNRUN"
+    },
+    {
+      "question_id": "R18-D12-Q06",
+      "title": "Различение неизвестного и скрытого по правам",
+      "solution_ref": "solutions/lifecycle-r19/S12.md#r18-d12-q06",
+      "mechanism_ids": [
+        "S12-M5"
+      ],
+      "task_ids": [
+        "DES-10",
+        "UI-01",
+        "UI-02",
+        "UI-04"
+      ],
+      "source_ids": [
+        "S12-R07"
+      ],
+      "external_inputs": [
+        "Audience-specific access decision",
+        "Source denominator for known zero and applicable rights"
+      ],
+      "unresolved_research": "Protected existence must remain indistinguishable only on audiences/surfaces where rights require it. Exact route/cache behavior depends on the commissioned deployment; enumerate and test that selected closure, leave unselected routes out_of_scope, and do not claim universal absence or internet-wide recall.",
+      "implementation_status": "planned_after_E02_acceptance",
+      "product_verification": "UNRUN"
+    },
+    {
+      "question_id": "R18-D14-Q01",
+      "title": "Доверие к производителям и внутренним ролям",
+      "solution_ref": "solutions/lifecycle-r19/S14.md#r18-d14-q01",
+      "mechanism_ids": [
+        "S14-M0",
+        "S14-M1"
+      ],
+      "task_ids": [
+        "CAP-06",
+        "CNT-08",
+        "GYD-28",
+        "OPS-11"
+      ],
+      "source_ids": [
+        "S14-R01",
+        "S14-R02",
+        "S14-R03"
+      ],
+      "external_inputs": [
+        "Bound source/provider and build record",
+        "Competent source/issuer grounds only for factual or authority claims",
+        "Independent evidence only when independent corroboration is claimed",
+        "Competent trust-root succession evidence"
+      ],
+      "unresolved_research": "Trust-root independence is profile-specific; absent proof limits that claim, not a valid local recomputation.",
+      "implementation_status": "planned_after_E02_acceptance",
+      "product_verification": "UNRUN"
+    },
+    {
+      "question_id": "R18-D14-Q02",
+      "title": "Дефект или компрометация производителя: какие claims затронуты?",
+      "solution_ref": "solutions/lifecycle-r19/S14.md#r18-d14-q02",
+      "mechanism_ids": [
+        "S14-M0",
+        "S14-M2"
+      ],
+      "task_ids": [
+        "CAP-04",
+        "DEB-06",
+        "LIF-02",
+        "LIF-07",
+        "UI-19"
+      ],
+      "source_ids": [
+        "S14-R12"
+      ],
+      "external_inputs": [
+        "Incident report and pinned defect repro",
+        "Invocation/version/descendant coverage",
+        "Changed claim, corrected basis, expected head and issuer admission when reissue applies"
+      ],
+      "unresolved_research": "Unknown execution coverage limits dependent impact even when the local defect is established.",
+      "implementation_status": "planned_after_E02_acceptance",
+      "product_verification": "UNRUN"
+    },
+    {
+      "question_id": "R18-D14-Q03",
+      "title": "Накопительное раскрытие через запросы и модели",
+      "solution_ref": "solutions/lifecycle-r19/S14.md#r18-d14-q03",
+      "mechanism_ids": [
+        "S14-M0",
+        "S14-M3"
+      ],
+      "task_ids": [
+        "CAP-03",
+        "CAP-06",
+        "CNT-08",
+        "DES-09",
+        "LIF-05",
+        "LIF-07"
+      ],
+      "source_ids": [
+        "S14-R05",
+        "S14-R06",
+        "S14-R07",
+        "S14-R08"
+      ],
+      "external_inputs": [
+        "Current source-authorized rule and issuer, including operations, unit, purpose, recipients, cumulative rule and effective version",
+        "Source-defined unit and alias/overlap relation",
+        "Valid DP mechanism/adjacency only for formal DP claim",
+        "Actual call/output receipts and recipient set"
+      ],
+      "unresolved_research": "Auxiliary data and future queries prevent finite probes from proving no leakage. Missing policy or complete state limits dependent protected/public release without inventing a threshold.",
+      "implementation_status": "planned_after_E02_acceptance",
+      "product_verification": "UNRUN"
+    },
+    {
+      "question_id": "R18-D14-Q04",
+      "title": "Consent, производное использование и отзыв",
+      "solution_ref": "solutions/lifecycle-r19/S14.md#r18-d14-q04",
+      "mechanism_ids": [
+        "S14-M0",
+        "S14-M4"
+      ],
+      "task_ids": [
+        "CAP-03",
+        "CNT-07",
+        "LIF-05",
+        "LIF-07",
+        "UI-02"
+      ],
+      "source_ids": [
+        "S14-R09",
+        "S14-R10"
+      ],
+      "external_inputs": [
+        "Competent person/community/source issuer and notice version",
+        "Applicable jurisdiction, lawful basis and retention exception",
+        "Provider or recipient evidence of release/deletion/retraining"
+      ],
+      "unresolved_research": "A prior release, third-party retention and exact model influence can be partly unobservable; state measured coverage, not universal erasure.",
+      "implementation_status": "planned_after_E02_acceptance",
+      "product_verification": "UNRUN"
+    },
+    {
+      "question_id": "R18-D14-Q05",
+      "title": "Злоупотребление рекомендацией после adoption",
+      "solution_ref": "solutions/lifecycle-r19/S14.md#r18-d14-q05",
+      "mechanism_ids": [
+        "S14-M0",
+        "S14-M5"
+      ],
+      "task_ids": [
+        "CAP-04",
+        "DES-06",
+        "UI-04",
+        "UI-19"
+      ],
+      "source_ids": [
+        "S14-R11",
+        "S14-R12"
+      ],
+      "external_inputs": [
+        "Adopter/recipient/affected person or regulator evidence",
+        "Exact recommendation edition and actual audience/use",
+        "Applicable external authority or rule defining the boundary"
+      ],
+      "unresolved_research": "Post-adoption activity may be unobservable and complaints incomplete; no report never proves all uses remained in scope.",
+      "implementation_status": "planned_after_E02_acceptance",
+      "product_verification": "UNRUN"
+    },
+    {
+      "question_id": "R18-D15-Q01",
+      "title": "Преемственность единицы при split/merge",
+      "solution_ref": "solutions/lifecycle-r19/S02.md#r18-d15-q01",
+      "mechanism_ids": [
+        "S02-M2",
+        "S02-M1"
+      ],
+      "task_ids": [
+        "CNT-06",
+        "GYD-05",
+        "LIF-01",
+        "LIF-07"
+      ],
+      "source_ids": [
+        "S02-R02",
+        "S02-R04"
+      ],
+      "external_inputs": [
+        "Source data dictionary and lifecycle events with content/version.",
+        "Legal act only if legal continuity is in scope.",
+        "Selected method’s unit, cohort and windows."
+      ],
+      "unresolved_research": "No universal entity continuity rule; preserve episodes/candidate relations, branch on source evidence, then re-evaluate selected method.",
+      "implementation_status": "planned_after_E02_acceptance",
+      "product_verification": "UNRUN"
+    },
+    {
+      "question_id": "R18-D15-Q02",
+      "title": "Согласованность срезов независимых источников",
+      "solution_ref": "solutions/lifecycle-r19/S02.md#r18-d15-q02",
+      "mechanism_ids": [
+        "S02-M3",
+        "S02-M1"
+      ],
+      "task_ids": [
+        "CAP-02",
+        "CAP-04",
+        "CNT-06",
+        "DES-11",
+        "LIF-02",
+        "LIF-03"
+      ],
+      "source_ids": [
+        "S02-R05",
+        "S02-R07"
+      ],
+      "external_inputs": [
+        "Native snapshot/cursor semantics, coverage and continuity evidence per source.",
+        "Change/correction event effective and known-at times.",
+        "Selected estimand’s ordering, lag and completeness requirements."
+      ],
+      "unresolved_research": "No universal tolerance; source-supported sensitivity gives only conditional evidence and cannot prove unobserved revisions absent. If continuity contract is missing, preserve as-of bound or currentness not_established; candidate analysis can continue.",
+      "implementation_status": "planned_after_E02_acceptance",
+      "product_verification": "UNRUN"
+    },
+    {
+      "question_id": "R18-D16-Q01",
+      "title": "Как распределять дефицитную мощность между обязанностями?",
+      "solution_ref": "solutions/lifecycle-r19/S16.md#r18-d16-q01",
+      "mechanism_ids": [
+        "S16-M1"
+      ],
+      "task_ids": [
+        "DES-04",
+        "DES-12",
+        "LIF-02",
+        "LIF-04",
+        "LIF-06",
+        "OPS-07",
+        "OPS-08",
+        "OPS-11"
+      ],
+      "source_ids": [
+        "S16-R01",
+        "S16-R02"
+      ],
+      "external_inputs": [
+        "Service owner: profile, authenticated principal/parent-org, aggregation, enforceable classes/fairness inputs.",
+        "Custody owner: competent duty owner, scope/cadence/due/urgency and bounded coverage/cutoff.",
+        "Provider owner: OPS-07 charge evidence if monetary cost is claimed."
+      ],
+      "unresolved_research": "No literature sets normative priority or finite wait under sustained overload. Owners choose scope/capacity/cutoff; PolicyOS can refuse new duty with measured gap while candidate work continues.",
+      "implementation_status": "planned_after_E02_acceptance",
+      "product_verification": "UNRUN"
+    },
+    {
+      "question_id": "R18-D16-Q02",
+      "title": "Какие часы определяют lease и просрочку worker?",
+      "solution_ref": "solutions/lifecycle-r19/S16.md#r18-d16-q02",
+      "mechanism_ids": [
+        "S16-M2"
+      ],
+      "task_ids": [
+        "CAP-04",
+        "LIF-02",
+        "LIF-04",
+        "LIF-06",
+        "OPS-03",
+        "OPS-04",
+        "OPS-11",
+        "OPS-12"
+      ],
+      "source_ids": [
+        "S16-R03",
+        "S16-R04",
+        "S16-R05",
+        "S16-R06"
+      ],
+      "external_inputs": [
+        "Backend owner: clock, hosts, restore path and durable generation semantics.",
+        "Provider: receiver fence or idempotency/reconciliation contract.",
+        "Custody owner: due interpretation/source/uncertainty/cadence/cutoff and dependent-claim enrollment."
+      ],
+      "unresolved_research": "Qualify actual backend/restore path and sink before fencing claims. Without proof, refuse protected resume and preserve indeterminate state; unknown due affects enrolled claims only. No universal clock needed.",
+      "implementation_status": "planned_after_E02_acceptance",
+      "product_verification": "UNRUN"
+    },
+    {
+      "question_id": "R18-D17-Q01",
+      "title": "Состав совместимого выпуска",
+      "solution_ref": "solutions/lifecycle-r19/S17.md#r18-d17-q01",
+      "mechanism_ids": [
+        "S17-M1",
+        "S17-M2",
+        "S17-M4"
+      ],
+      "task_ids": [
+        "CAP-06",
+        "LIF-07",
+        "OPS-04",
+        "OPS-05",
+        "OPS-09",
+        "OPS-10",
+        "OPS-12"
+      ],
+      "source_ids": [
+        "S17-R02",
+        "S17-R03",
+        "S17-R04"
+      ],
+      "external_inputs": [
+        "Upstream compatibility обещания и фактические resolved model/plugin/connector версии.",
+        "Реально оставленные reader/writer/artifacts и выбранный профиль."
+      ],
+      "unresolved_research": "Универсального окна версий не обосновано. После E02 rebind посчитать только actual retained versions selected profile и проверить operation-specific cross-owner pairs; полнота hidden provider/build inputs остаётся bounded limitation.",
+      "implementation_status": "planned_after_E02_acceptance",
+      "product_verification": "UNRUN"
+    },
+    {
+      "question_id": "R18-D17-Q02",
+      "title": "Окно смешанных версий",
+      "solution_ref": "solutions/lifecycle-r19/S17.md#r18-d17-q02",
+      "mechanism_ids": [
+        "S17-M1",
+        "S17-M2",
+        "S17-M4"
+      ],
+      "task_ids": [
+        "CAP-06",
+        "LIF-04",
+        "OPS-04",
+        "OPS-05",
+        "OPS-12"
+      ],
+      "source_ids": [
+        "S17-R01",
+        "S17-R04"
+      ],
+      "external_inputs": [
+        "Operators disclose active processes and chosen deployment semantics.",
+        "Provider supplies idempotency/lookup/cancel window; service owner supplies restore target."
+      ],
+      "unresolved_research": "Actual overlap duration depends on selected target and live attempts; determine with one selected transition after rebind, not a default duration.",
+      "implementation_status": "planned_after_E02_acceptance",
+      "product_verification": "UNRUN"
+    },
+    {
+      "question_id": "R18-D17-Q03",
+      "title": "Фактическая идентичность установленного стека",
+      "solution_ref": "solutions/lifecycle-r19/S17.md#r18-d17-q03",
+      "mechanism_ids": [
+        "S17-M2",
+        "S17-M1"
+      ],
+      "task_ids": [
+        "CAP-06",
+        "DES-09",
+        "OPS-01",
+        "OPS-03"
+      ],
+      "source_ids": [
+        "S17-R02",
+        "S17-R03",
+        "S17-R06"
+      ],
+      "external_inputs": [
+        "Trusted builder root/host measurement and actual per-cell operator inventory.",
+        "Provider supplies resolved model id when available; hidden weights may remain unknown."
+      ],
+      "unresolved_research": "Static typed attestation building block is not evidence of a full OPS-03 readback chain. Verify selected profile after E02; no live cells/product claims inspected.",
+      "implementation_status": "planned_after_E02_acceptance",
+      "product_verification": "UNRUN"
+    },
+    {
+      "question_id": "R18-D17-Q04",
+      "title": "Вывод сторонних моделей, коннекторов и расширений",
+      "solution_ref": "solutions/lifecycle-r19/S17.md#r18-d17-q04",
+      "mechanism_ids": [
+        "S17-M3",
+        "S17-M2",
+        "S17-M1"
+      ],
+      "task_ids": [
+        "CAP-04",
+        "DES-09",
+        "LIF-02"
+      ],
+      "source_ids": [
+        "S17-R06"
+      ],
+      "external_inputs": [
+        "Supplier/account notice, support terms and exact applicable product versions.",
+        "Component owner assesses semantic/security reachability."
+      ],
+      "unresolved_research": "Provider notice completeness varies. For selected vendor establish actual endpoint/cursor/account coverage; otherwise report unknown, not blanket monitoring.",
+      "implementation_status": "planned_after_E02_acceptance",
+      "product_verification": "UNRUN"
+    },
+    {
+      "question_id": "R18-D17-Q05",
+      "title": "Срочный security patch",
+      "solution_ref": "solutions/lifecycle-r19/S17.md#r18-d17-q05",
+      "mechanism_ids": [
+        "S17-M5",
+        "S17-M4",
+        "S17-M2"
+      ],
+      "task_ids": [
+        "LIF-04",
+        "OPS-01",
+        "OPS-05",
+        "OPS-11",
+        "OPS-12"
+      ],
+      "source_ids": [
+        "S17-R01",
+        "S17-R02",
+        "S17-R03",
+        "S17-R05"
+      ],
+      "external_inputs": [
+        "Supplier/CERT provides verified affected range; OPS-01 record supplies currently effective delegated actions/scope/audience/expiry.",
+        "Security/release owner supplies urgency and patch choice only within that grant; unknown authority limits broader action.",
+        "Offline operator supplies local import/freshness evidence."
+      ],
+      "unresolved_research": "No universal severity→deadline conversion. Where exact impact or inventory unknown, limit that scope; no unsafe rollback or all-system stop by default.",
+      "implementation_status": "planned_after_E02_acceptance",
+      "product_verification": "UNRUN"
+    },
+    {
+      "question_id": "R18-D17-Q07",
+      "title": "Повторная приёмка после обновления",
+      "solution_ref": "solutions/lifecycle-r19/S17.md#r18-d17-q07",
+      "mechanism_ids": [
+        "S17-M5",
+        "S17-M2",
+        "S17-M1"
+      ],
+      "task_ids": [
+        "OPS-01",
+        "OPS-03",
+        "OPS-12"
+      ],
+      "source_ids": [
+        "S17-R01",
+        "S17-R02",
+        "S17-R03"
+      ],
+      "external_inputs": [
+        "Institution defines delegated release changes and authority reapproval scope.",
+        "Each selected site/cloud/offline owner confirms actual rollout/targets and local custody facts."
+      ],
+      "unresolved_research": "Whether a change requires renewed approval depends on selected grant, legal scope and operator delegation; no universal per-version rule. Material external-boundary changes go to competent owner.",
+      "implementation_status": "planned_after_E02_acceptance",
+      "product_verification": "UNRUN"
+    },
+    {
+      "question_id": "R18-D18-Q01",
+      "title": "Разбор пограничного расширения по существующим критериям",
+      "solution_ref": "solutions/lifecycle-r19/S15.md#r18-d18-q01",
+      "mechanism_ids": [
+        "S15-M1"
+      ],
+      "task_ids": [
+        "CAP-05",
+        "DES-02",
+        "GYD-32",
+        "GYD-33",
+        "LIF-08"
+      ],
+      "source_ids": [
+        "S15-R01"
+      ],
+      "external_inputs": [
+        "Для expert-identified obligation — конкретный экспертный counterexample и reviewer только в объёме существующего owner contract."
+      ],
+      "unresolved_research": "Различающий кейс для нового primitive должен показать, что существующие facets/compositions не выражают повторяющийся спрос; универсальная novelty-метрика не нужна.",
+      "implementation_status": "planned_after_E02_acceptance",
+      "product_verification": "UNRUN"
+    },
+    {
+      "question_id": "R18-D18-Q02",
+      "title": "Сочетание конфликтующих расширений",
+      "solution_ref": "solutions/lifecycle-r19/S15.md#r18-d18-q02",
+      "mechanism_ids": [
+        "S15-M2"
+      ],
+      "task_ids": [
+        "CAP-05",
+        "DES-03",
+        "GYD-32",
+        "GYD-33",
+        "LIF-08"
+      ],
+      "source_ids": [
+        "S15-R02",
+        "S15-R03"
+      ],
+      "external_inputs": [
+        "Нужны определения источника/consumer и, при споре, evidence владельца о units/population/effective scope; внешний legal act нужен только для правового вопроса."
+      ],
+      "unresolved_research": "На конкретном pair могут остаться эмпирические relation/consumer tests; до них сохранять направленные альтернативы, а не вводить общий resolver.",
+      "implementation_status": "planned_after_E02_acceptance",
+      "product_verification": "UNRUN"
+    },
+    {
+      "question_id": "R18-D18-Q03",
+      "title": "Доверие к внешним авторам и верификаторам",
+      "solution_ref": "solutions/lifecycle-r19/S15.md#r18-d18-q03",
+      "mechanism_ids": [
+        "S15-M3"
+      ],
+      "task_ids": [
+        "CAP-05",
+        "GYD-32",
+        "LIF-01",
+        "OPS-11"
+      ],
+      "source_ids": [
+        "S15-R01",
+        "S15-R04"
+      ],
+      "external_inputs": [
+        "Provide method/data evidence. If review is relied on, resolve scope-relevant expertise and any required independence evidence under the native owner contract. Official appointment is needed only when that contract/legal rule requires it."
+      ],
+      "unresolved_research": "The native method owner must state what evidence qualifies a reviewer for this predicate and whether independence is required. Without it, review is attributed/candidate; direct recomputation remains available.",
+      "implementation_status": "planned_after_E02_acceptance",
+      "product_verification": "UNRUN"
+    },
+    {
+      "question_id": "R18-D18-Q04",
+      "title": "Смысловая совместимость между экземплярами и юрисдикциями",
+      "solution_ref": "solutions/lifecycle-r19/S15.md#r18-d18-q04",
+      "mechanism_ids": [
+        "S15-M2",
+        "S15-M3"
+      ],
+      "task_ids": [
+        "CAP-05",
+        "CAP-06",
+        "LIF-01",
+        "LIF-08",
+        "OPS-09",
+        "OPS-10",
+        "OPS-12"
+      ],
+      "source_ids": [
+        "S15-R02",
+        "S15-R03",
+        "S15-R04"
+      ],
+      "external_inputs": [
+        "Источник поставляет authentic artifact/profile/rule and its own authority/time facts; receiver institution — local rule and official appointment/jurisdiction facts where required."
+      ],
+      "unresolved_research": "Для конкретной foreign/local pair определить mapping strength по definitions, boundary probes и selected use. До этого preserve provenance and independent facets; dependent claims remain limited.",
+      "implementation_status": "planned_after_E02_acceptance",
+      "product_verification": "UNRUN"
+    },
+    {
+      "question_id": "R18-D19-Q02",
+      "title": "Как соотнести пользовательскую ценность с ценой проверки?",
+      "solution_ref": "solutions/lifecycle-r19/S19.md#r18-d19-q02",
+      "mechanism_ids": [
+        "S19-M1",
+        "S19-M2"
+      ],
+      "task_ids": [
+        "DES-03",
+        "DES-10",
+        "DES-12",
+        "LIF-06",
+        "OPS-07",
+        "OPS-08"
+      ],
+      "source_ids": [
+        "S19-R01",
+        "S19-R03",
+        "S19-R04"
+      ],
+      "external_inputs": [
+        "Scalar: authorized decision-specific outcome/weights.",
+        "Numeric EVSI: qualified priors/result; otherwise не заявлять."
+      ],
+      "unresolved_research": "Пользовательский outcome и loss basis специфичны decision owner; сейчас доступны set-valued delta и measured cost, не универсальный порог.",
+      "implementation_status": "planned_after_E02_acceptance",
+      "product_verification": "UNRUN"
+    },
+    {
+      "question_id": "R18-D19-Q04",
+      "title": "Что означает полная стоимость claim на всём сроке?",
+      "solution_ref": "solutions/lifecycle-r19/S19.md#r18-d19-q04",
+      "mechanism_ids": [
+        "S19-M1",
+        "S19-M2"
+      ],
+      "task_ids": [
+        "DES-04",
+        "DES-08",
+        "DES-10",
+        "LIF-06",
+        "OPS-07",
+        "OPS-08",
+        "OPS-10",
+        "OPS-11"
+      ],
+      "source_ids": [
+        "S19-R01",
+        "S19-R02"
+      ],
+      "external_inputs": [
+        "Версионированная finance policy для shared overhead; иначе unallocated.",
+        "Recorded review hours; money rate только по institutional convention.",
+        "Retention/reuse rights и evidence of successor acceptance."
+      ],
+      "unresolved_research": "У shared overhead нет универсального причинного split; D08-06 остается purpose-specific, без универсального search utility. Сейчас показывать sourced direct actuals, unallocated balance и coverage.",
+      "implementation_status": "planned_after_E02_acceptance",
+      "product_verification": "UNRUN"
+    },
+    {
+      "question_id": "R18-D19-Q05",
+      "title": "Когда внутреннее энергопотребление становится предметным фактором?",
+      "solution_ref": "solutions/lifecycle-r19/S19.md#r18-d19-q05",
+      "mechanism_ids": [
+        "S19-M1",
+        "S19-M3"
+      ],
+      "task_ids": [
+        "DES-03",
+        "DES-10",
+        "LIF-06",
+        "OPS-08",
+        "OPS-10"
+      ],
+      "source_ids": [
+        "S19-R05",
+        "S19-R06"
+      ],
+      "external_inputs": [
+        "Selected ecological boundary and R.",
+        "Meter/model and provider boundary.",
+        "Source/version/region/time of I and method for M.",
+        "Authorized environmental value only if ranking outcomes."
+      ],
+      "unresolved_research": "Complete cloud energy/embodied allocation may be unavailable/model-dependent; report bounded scope and uncertainty. Cited Scope 2 status (2026-10-16) описывает еще не завершенное изменение.",
+      "implementation_status": "planned_after_E02_acceptance",
+      "product_verification": "UNRUN"
+    },
+    {
+      "question_id": "R18-D20-Q01",
+      "title": "Когда несколько PolicyMatter становятся одним портфелем?",
+      "solution_ref": "solutions/lifecycle-r19/S20.md#r18-d20-q01",
+      "mechanism_ids": [
+        "S20-M1"
+      ],
+      "task_ids": [
+        "CNT-05",
+        "DES-03",
+        "GYD-30"
+      ],
+      "source_ids": [
+        "S20-R01",
+        "S20-R02",
+        "S20-R04"
+      ],
+      "external_inputs": [
+        "Если заявляется adoption: внешний акт, signer/mandate и resolved applicability/effectivity."
+      ],
+      "unresolved_research": "Универсального порога нет: проверить, decision-relevant ли edge для estimand; пока — отдельные результаты/conditional scenario.",
+      "implementation_status": "planned_after_E02_acceptance",
+      "product_verification": "UNRUN"
+    },
+    {
+      "question_id": "R18-D20-Q02",
+      "title": "Когда самостоятельные дела конкурируют за одну мощность?",
+      "solution_ref": "solutions/lifecycle-r19/S20.md#r18-d20-q02",
+      "mechanism_ids": [
+        "S20-M2",
+        "S20-M1"
+      ],
+      "task_ids": [
+        "CNT-07",
+        "DES-11",
+        "GYD-30"
+      ],
+      "source_ids": [
+        "S20-R01",
+        "S20-R03",
+        "S20-R06"
+      ],
+      "external_inputs": [
+        "Resource/operational owners: supply, commitments, user scope, timing, uncertainty, substitutions."
+      ],
+      "unresolved_research": "Агрегация зависит от физических единиц; несводимая мощность требует bounded scenario, не scalar.",
+      "implementation_status": "planned_after_E02_acceptance",
+      "product_verification": "UNRUN"
+    },
+    {
+      "question_id": "R18-D20-Q03",
+      "title": "Где проходят пределы вывода между юрисдикциями?",
+      "solution_ref": "solutions/lifecycle-r19/S20.md#r18-d20-q03",
+      "mechanism_ids": [
+        "S20-M3",
+        "S20-M1"
+      ],
+      "task_ids": [
+        "CNT-06",
+        "DES-11",
+        "GYD-30"
+      ],
+      "source_ids": [
+        "S20-R02",
+        "S20-R03",
+        "S20-R04"
+      ],
+      "external_inputs": [
+        "Receiver/exposure data; official boundaries, acts and competence from custodians."
+      ],
+      "unresolved_research": "Selected chain producer/method is unestablished pending rebind; not a repository-wide absence claim. CNT-06 qualifies but does not create receiver data.",
+      "implementation_status": "planned_after_E02_acceptance",
+      "product_verification": "UNRUN"
+    },
+    {
+      "question_id": "R18-D20-Q04",
+      "title": "Как связать стратегический ответ на политику между делами?",
+      "solution_ref": "solutions/lifecycle-r19/S20.md#r18-d20-q04",
+      "mechanism_ids": [
+        "S20-M4",
+        "S20-M1"
+      ],
+      "task_ids": [
+        "DES-11",
+        "GYD-01",
+        "GYD-30"
+      ],
+      "source_ids": [
+        "S20-R02",
+        "S20-R03",
+        "S20-R05"
+      ],
+      "external_inputs": [
+        "Observed take-up/routing/measurement shifts; rule version/effective time; actor/program scope."
+      ],
+      "unresolved_research": "Equilibrium/selection market-specific: diagnostics и bounded alternatives; profile не выбирается по выгодному исходу.",
+      "implementation_status": "planned_after_E02_acceptance",
+      "product_verification": "UNRUN"
+    },
+    {
+      "question_id": "R18-D20-Q05",
+      "title": "Какая граница действует при системном кризисе?",
+      "solution_ref": "solutions/lifecycle-r19/S20.md#r18-d20-q05",
+      "mechanism_ids": [
+        "S20-M5",
+        "S20-M1"
+      ],
+      "task_ids": [
+        "CAP-04",
+        "GYD-30",
+        "LIF-02",
+        "UI-19"
+      ],
+      "source_ids": [
+        "S20-R05",
+        "S20-R06",
+        "S20-R08"
+      ],
+      "external_inputs": [
+        "Time-stamped reconciled incident/sensor/service evidence, baseline calibration, affected scope and source events."
+      ],
+      "unresolved_research": "No universal discriminator: specify per system signature, false-positive sensitivity and counterexamples; else bounded stress analysis.",
+      "implementation_status": "planned_after_E02_acceptance",
+      "product_verification": "UNRUN"
+    },
+    {
+      "question_id": "R18-D20-Q06",
+      "title": "Как сопоставлять горизонты портфеля без общей шкалы ценностей?",
+      "solution_ref": "solutions/lifecycle-r19/S20.md#r18-d20-q06",
+      "mechanism_ids": [
+        "S20-M6",
+        "S20-M1"
+      ],
+      "task_ids": [
+        "CNT-05",
+        "DES-11",
+        "GYD-30"
+      ],
+      "source_ids": [
+        "S20-R02",
+        "S20-R07",
+        "S20-R08"
+      ],
+      "external_inputs": [
+        "Long-run cohort/outcome evidence and applicable measure/aggregation-rule basis; normative selection additionally needs actual authorized value choices. Hypothetical version-bound weights remain declared assumptions, and future mechanisms remain uncertain."
+      ],
+      "unresolved_research": "Long-run extrapolation needs method-specific validation; until then report support plus bounds/scenario, no default annualization/discount.",
+      "implementation_status": "planned_after_E02_acceptance",
+      "product_verification": "UNRUN"
+    },
+    {
+      "question_id": "R18-D21-Q01",
+      "title": "Кто задаёт валидную рубрику полезности без внешнего oracle?",
+      "solution_ref": "solutions/lifecycle-r19/S05.md#r18-d21-q01",
+      "mechanism_ids": [
+        "S05-M5",
+        "S05-M1"
+      ],
+      "task_ids": [
+        "DES-10",
+        "GYD-18",
+        "GYD-26"
+      ],
+      "source_ids": [
+        "S05-R07"
+      ],
+      "external_inputs": [
+        "Actual principal/audience and their authority to define policy-relevant need."
+      ],
+      "unresolved_research": "Reader sample and transfer are empirical; absent live audience evidence remains UNRUN.",
+      "implementation_status": "planned_after_E02_acceptance",
+      "product_verification": "UNRUN"
+    },
+    {
+      "question_id": "R18-D22-Q01",
+      "title": "Что доказывает переход от рекомендации к реальному использованию?",
+      "solution_ref": "solutions/lifecycle-r19/S13.md#r18-d22-q01",
+      "mechanism_ids": [
+        "S13-M1"
+      ],
+      "task_ids": [
+        "CAP-04",
+        "CAP-05",
+        "CNT-01",
+        "CNT-09",
+        "FINAL-USE",
+        "LIF-02",
+        "LIF-09"
+      ],
+      "source_ids": [
+        "S13-R01",
+        "S13-R03"
+      ],
+      "external_inputs": [
+        "Actual matter/body, target scope, audience and permitted use.",
+        "Competent instrument for adoption/effect; source-native operation/coverage for execution; feedback method only if outcome claimed.",
+        "Source custodian, rights, correction route and conflicting/late acts; missing inputs explicit."
+      ],
+      "unresolved_research": "Организация, система, кейс и channel не выбраны; CNT-01 должен сделать это до source adapter. Bounded candidate/limitation возможны сейчас.",
+      "implementation_status": "planned_after_E02_acceptance",
+      "product_verification": "UNRUN"
+    },
+    {
+      "question_id": "R18-D22-Q03",
+      "title": "Как связать ручную передачу с исходной редакцией?",
+      "solution_ref": "solutions/lifecycle-r19/S13.md#r18-d22-q03",
+      "mechanism_ids": [
+        "S13-M2"
+      ],
+      "task_ids": [
+        "CNT-09",
+        "DES-07",
+        "FINAL-USE",
+        "LIF-02",
+        "UI-02",
+        "UI-04",
+        "UI-19"
+      ],
+      "source_ids": [
+        "S13-R01",
+        "S13-R02"
+      ],
+      "external_inputs": [
+        "Actual permitted carrier/ref, parent edition, established provenance/time, rights and audience.",
+        "If claiming institutional use/adoption, actual source-native response/decision; export log/download is insufficient.",
+        "If the underlying PolicyOS claim is said to change, the admitted source event/qualified assessment and exact enrolled premise; the derivative alone is not that evidence."
+      ],
+      "unresolved_research": "No real carrier/route selected. DES-07 can represent supplied bytes and uncertainty; cannot establish unobserved copies or acknowledgements.",
+      "implementation_status": "planned_after_E02_acceptance",
+      "product_verification": "UNRUN"
+    },
+    {
+      "question_id": "R18-D22-Q04",
+      "title": "Какая преемственность важна для работы учреждения?",
+      "solution_ref": "solutions/lifecycle-r19/S13.md#r18-d22-q04",
+      "mechanism_ids": [
+        "S13-M1"
+      ],
+      "task_ids": [
+        "CAP-04",
+        "CAP-05",
+        "CNT-07",
+        "FINAL-USE",
+        "LIF-02",
+        "LIF-09",
+        "OPS-11"
+      ],
+      "source_ids": [
+        "S13-R01",
+        "S13-R03"
+      ],
+      "external_inputs": [
+        "Competent appointment/delegation source, effective date/remit if authority changes.",
+        "Operator capacity/coverage basis with units, target, period and planned/committed/measured/executed status if feasibility claimed.",
+        "Custodian and usage rights; absent facts leave feasibility conditional."
+      ],
+      "unresolved_research": "No organization, personnel, mandate or resource series selected; handoff impact is open. Claim-specific dependency can be built without institution-specific role model.",
+      "implementation_status": "planned_after_E02_acceptance",
+      "product_verification": "UNRUN"
+    },
+    {
+      "question_id": "R18-D22-Q05",
+      "title": "Как трактовать вред и несогласие до разрешения спора?",
+      "solution_ref": "solutions/lifecycle-r19/S13.md#r18-d22-q05",
+      "mechanism_ids": [
+        "S13-M3"
+      ],
+      "task_ids": [
+        "CAP-04",
+        "CNT-07",
+        "CNT-09",
+        "GYD-12",
+        "LIF-02",
+        "LIF-09",
+        "UI-04"
+      ],
+      "source_ids": [
+        "S13-R04",
+        "S13-R05"
+      ],
+      "external_inputs": [
+        "Actual report/source, asserted occurrence/received time, affected claim/exposure scope, provenance and consent/rights.",
+        "Occurrence needs corroboration; causality needs selected method/denominator; adjudication needs competent body's exact outcome.",
+        "Contradictions/corrections and proceeding state where available; no result does not delay narrow reaction."
+      ],
+      "unresolved_research": "Harm domain, source completeness, wording, threshold and adjudicator unselected. Causality/remedy remain empirical/external; keep bounded limitation, no universal score.",
+      "implementation_status": "planned_after_E02_acceptance",
+      "product_verification": "UNRUN"
+    },
+    {
+      "question_id": "R18-D23-Q01",
+      "title": "Приоритет при конфликте действующих правил",
+      "solution_ref": "solutions/lifecycle-r19/S18.md#r18-d23-q01",
+      "mechanism_ids": [
+        "S18-M1"
+      ],
+      "task_ids": [
+        "DEB-14",
+        "FINAL-FREEZE",
+        "FINAL-REVIEW",
+        "FINAL-USE"
+      ],
+      "source_ids": [
+        "S18-R01",
+        "S18-R02"
+      ],
+      "external_inputs": [
+        "Если разрешение требует сведений о внешнем акте/мандате, принять только исходный authority evidence с issuer, subject, act, scope и актуальностью; сейчас такие факты не установлены."
+      ],
+      "unresolved_research": "Как именно текущий competent principal будет подтверждён при фактическом споре об идентичности — Q02, не выводится из текста S0. Действующий кодовый conflict resolver и status mapping нужно проверить после E02; сейчас не заявлены.",
+      "implementation_status": "planned_after_E02_acceptance",
+      "product_verification": "UNRUN"
+    },
+    {
+      "question_id": "R18-D23-Q02",
+      "title": "Непрерывность полномочия human principal",
+      "solution_ref": "solutions/lifecycle-r19/S18.md#r18-d23-q02",
+      "mechanism_ids": [
+        "S18-M2"
+      ],
+      "task_ids": [
+        "DEB-09",
+        "FINAL-USE",
+        "OPS-11"
+      ],
+      "source_ids": [
+        "S18-R03",
+        "S18-R04"
+      ],
+      "external_inputs": [
+        "If disputed, the recognized governance source must establish current-principal identity/legitimacy; no appointment/successor evidence appears in reviewed records."
+      ],
+      "unresolved_research": "Repository cannot settle external identity, delegation right or off-repo succession. No fallback office, quorum or successor.",
+      "implementation_status": "planned_after_E02_acceptance",
+      "product_verification": "UNRUN"
+    },
+    {
+      "question_id": "R18-D23-Q03",
+      "title": "Переход открытого вопроса к решению или закрытию",
+      "solution_ref": "solutions/lifecycle-r19/S18.md#r18-d23-q03",
+      "mechanism_ids": [
+        "S18-M3"
+      ],
+      "task_ids": [
+        "FINAL-FREEZE",
+        "FINAL-REVIEW",
+        "FINAL-USE",
+        "GYD-22"
+      ],
+      "source_ids": [
+        "S18-R01",
+        "S18-R05"
+      ],
+      "external_inputs": [
+        "G8 evidence refs; actual dated authorized decision for any normative/design choice. No authority is inferred from the vision document."
+      ],
+      "unresolved_research": "Empirical adequacy stays study-specific; measurements cannot settle normative schema choices. Preserve the remainder until authorized disposition.",
+      "implementation_status": "planned_after_E02_acceptance",
+      "product_verification": "UNRUN"
+    }
+  ]
+}

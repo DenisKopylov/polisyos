@@ -19,3 +19,7 @@ Use assurance/08-productive-search-and-document-quality.md for DES-10. Distingui
 ## R17 companion
 
 Include assigned r17_extension and assurance/11-design-custody-succession-access.md in the selected semantic denominator. Record useful positive, adversarial, actual property removal and setup limitations separately. Synthetic institutional evidence proves internal mechanics only. Provider release can precede local commit; observe the actual sink. Historical archive, present admissibility and actual institutional operation require separate predicates. Use the existing frozen final wave; no R17-only heavy wave.
+
+### Обязательный companion R19
+
+Прочитай `r19_extension` назначенных задач в tasks.json/preferred-solutions и связанные карточки `solutions/lifecycle-r19/`. Примени `architecture/10-full-lifecycle-composition.md`, `assurance/12-full-lifecycle-quality.md` и stage-specific правила `execution/10-full-lifecycle-parallelism.md`. Сохраняй старые обязательства. SDD proposals не применены и не являются новыми полномочиями. Различай useful conditional result, scientific support и institutional endorsement; не создавай 84 новых gates или параллельного owner. Выбери actual producer/consumer/public closure и independent falsifier; product UNRUN нельзя повышать по документации. Реализация только после фактической приёмки E02.

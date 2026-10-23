@@ -161,3 +161,7 @@ R15: читать также 28 `r15_extension` в task/solution manifests и [�
 ## R17 additive решения
 
 [Долговременный дизайн, scoped succession и access lifecycle](17-design-custody-and-succession.md) задают D1–D7 в existing owners. Все 41 `r17_extension` обязательны вместе с прежними criteria; [machine coverage](../assurance/r17-capability-obligations.json), [семантические проверки](../assurance/11-design-custody-succession-access.md), [stage map](../execution/09-design-lifetimes-and-access.md). Это не новый архив/IAM/succession engine и не runtime acceptance.
+
+## R19: полный жизненный цикл
+
+[Все 84 решения](lifecycle-r19/README.md) и `r19_extension` в preferred-solutions/tasks являются дополнительными обязательствами назначенного slice. Прочитать также [composition rules](../architecture/10-full-lifecycle-composition.md); research/source assumptions не являются runtime PASS или разрешением на реализацию до E02 acceptance.

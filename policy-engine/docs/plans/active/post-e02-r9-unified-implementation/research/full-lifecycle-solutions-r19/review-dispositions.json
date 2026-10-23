@@ -1,0 +1,815 @@
+{
+  "schema": "documentation-review-dispositions/v1",
+  "scope": "Findings about this design package; neither runtime findings nor formal closure IDs. Repeated same-class examples are records, not independent architectural problems.",
+  "counts": {
+    "initial_findings": 41,
+    "rendered_findings_including_same_class_examples": 9,
+    "cross_findings_including_same_class_examples": 4,
+    "latest_open_documentation_findings": 0
+  },
+  "findings": [
+    {
+      "id": "RT-S01-F01",
+      "stage": "initial_independent_design_review",
+      "cluster": "S01",
+      "question_ids": [
+        "R18-D01-Q03"
+      ],
+      "class": "new_class",
+      "property": "PolicyOS can identify its own custody subject across cases using a stable technical reference while keeping source-qualified external identifiers as optional, time-qualified aliases; neither reference alone proves legal continuity, authority, evidence applicability, or permission.",
+      "disposition": "resolved_in_documentation",
+      "scope_note": "Current solution and root review contain the repair. This disposition concerns documentation, not product closure.",
+      "solution_ref": "solutions/lifecycle-r19/S01.md",
+      "original_review_ref": "policy-engine/_build/post-e02-r19-20261023/reviews/RT-S01.json@b713ed6d0cd2c27df7225f8b5dfa3cc34d383ae5e5446c99cf9bc599108466a9",
+      "current_review_ref": "policy-engine/_build/post-e02-r19-20261023/reviews/FINAL2-S01.json@85e86bcaba67c451c7351af7b4501c8e782c59b37c6e506f267ac9fb61c8192b"
+    },
+    {
+      "id": "RT-S01-F02",
+      "stage": "initial_independent_design_review",
+      "cluster": "S01",
+      "question_ids": [
+        "R18-D01-Q02",
+        "R18-D01-Q04"
+      ],
+      "class": "known_bounded_class",
+      "property": "A successor case's protected scope is authorized when the resolved, currently effective commission plus delegation already covers the sponsor and successor scope. A new principal/delegation instrument is needed only when that verified coverage does not reach the changed scope; new case identity and append-only lineage do not themselves require one.",
+      "disposition": "resolved_in_documentation",
+      "scope_note": "Current solution and root review contain the repair. This disposition concerns documentation, not product closure.",
+      "solution_ref": "solutions/lifecycle-r19/S01.md",
+      "original_review_ref": "policy-engine/_build/post-e02-r19-20261023/reviews/RT-S01.json@b713ed6d0cd2c27df7225f8b5dfa3cc34d383ae5e5446c99cf9bc599108466a9",
+      "current_review_ref": "policy-engine/_build/post-e02-r19-20261023/reviews/FINAL2-S01.json@85e86bcaba67c451c7351af7b4501c8e782c59b37c6e506f267ac9fb61c8192b"
+    },
+    {
+      "id": "RT-S02-F01",
+      "stage": "initial_independent_design_review",
+      "cluster": "S02",
+      "question_ids": [
+        "R18-D02-Q02"
+      ],
+      "class": "known_bounded_class",
+      "property": "Distinguish an invariant target definition (unit, eligibility, period, intervention/outcome and estimand) from uncertainty in the realized record membership/denominator used to measure that target. Propagate plausible linkage assignments jointly under the common target; do not require equal realized membership counts.",
+      "disposition": "resolved_in_documentation",
+      "scope_note": "Current solution and root review contain the repair. This disposition concerns documentation, not product closure.",
+      "solution_ref": "solutions/lifecycle-r19/S02.md",
+      "original_review_ref": "policy-engine/_build/post-e02-r19-20261023/reviews/RT-S02.json@f96d75c783654f48479c019e3e821f090332641b86ed360df2b83424a5921339",
+      "current_review_ref": "policy-engine/_build/post-e02-r19-20261023/reviews/FINAL-S02.json@4f51f133cfb745ae17d86f7c01b2b1fb8efc2068513aba65a22c3c0dc23f57a2"
+    },
+    {
+      "id": "RT-S04-F01",
+      "stage": "initial_independent_design_review",
+      "cluster": "S04",
+      "question_ids": [
+        "R18-D04-Q01",
+        "R18-D04-Q02",
+        "R18-D04-Q03",
+        "R18-D04-Q04",
+        "R18-D04-Q05",
+        "R18-D04-Q06"
+      ],
+      "class": "known_bounded_class",
+      "property": "A previously qualified rule may be applied automatically under its owning rule/version when every material application predicate is recomputed or independently reconciled at the use. Human/competent institutional adjudication is for a new or disputed interpretation/effect, unresolved conflict, out-of-envelope use, or authority-critical premise that lacks a qualified rule—not every deterministic application.",
+      "disposition": "resolved_in_documentation",
+      "scope_note": "Current solution and root review contain the repair. This disposition concerns documentation, not product closure.",
+      "solution_ref": "solutions/lifecycle-r19/S04.md",
+      "original_review_ref": "policy-engine/_build/post-e02-r19-20261023/reviews/RT-S04.json@a9465121228ddf883adafcdd6d46b2f5328317f602886e42d47dffbfd9c8e75f",
+      "current_review_ref": "policy-engine/_build/post-e02-r19-20261023/reviews/FINAL-S04.json@3298656e362024f6ab6ccb34877c295561c4ab3bca6ac631593e1716d22c588c"
+    },
+    {
+      "id": "RT-S04-F02",
+      "stage": "initial_independent_design_review",
+      "cluster": "S04",
+      "question_ids": [
+        "R18-D04-Q01",
+        "R18-D04-Q02",
+        "R18-D04-Q03",
+        "R18-D04-Q04",
+        "R18-D04-Q05",
+        "R18-D04-Q06"
+      ],
+      "class": "known_bounded_class",
+      "property": "When a selected recommendation, limitation, or abstention depends on the legal premise, the selected decision/status consumer and its permitted surface consume the exact LIF-01-bound relation and expose its scoped limitation; unrelated uses remain unaffected.",
+      "disposition": "resolved_in_documentation",
+      "scope_note": "Current solution and root review contain the repair. This disposition concerns documentation, not product closure.",
+      "solution_ref": "solutions/lifecycle-r19/S04.md",
+      "original_review_ref": "policy-engine/_build/post-e02-r19-20261023/reviews/RT-S04.json@a9465121228ddf883adafcdd6d46b2f5328317f602886e42d47dffbfd9c8e75f",
+      "current_review_ref": "policy-engine/_build/post-e02-r19-20261023/reviews/FINAL-S04.json@3298656e362024f6ab6ccb34877c295561c4ab3bca6ac631593e1716d22c588c"
+    },
+    {
+      "id": "RT-S05-F01",
+      "stage": "initial_independent_design_review",
+      "cluster": "S05",
+      "question_ids": [
+        "R18-D05-Q01"
+      ],
+      "class": "known_bounded_class",
+      "property": "Authority to select or endorse a collective outcome is distinct from the epistemic validity of a scoped conditional calculation. Under ratified S0-K06, missing authority blocks the protected selection, not the independently grounded computation.",
+      "disposition": "resolved_in_documentation",
+      "scope_note": "Current solution and root review contain the repair. This disposition concerns documentation, not product closure.",
+      "solution_ref": "solutions/lifecycle-r19/S05.md",
+      "original_review_ref": "policy-engine/_build/post-e02-r19-20261023/reviews/RT-S05.json@82171c70ed5a1b105ddffefb75b60e0d4ca3ca966686d773ed2802bdbf1d488f",
+      "current_review_ref": "policy-engine/_build/post-e02-r19-20261023/reviews/FINAL-S05.json@5dc233f0b0821c7edc1a3bbc4230a5d36c87ffe5568f9e1ca5c23c9a3b89aa01"
+    },
+    {
+      "id": "RT-S06-F01",
+      "stage": "initial_independent_design_review",
+      "cluster": "S06",
+      "question_ids": [
+        "R18-D06-Q03"
+      ],
+      "class": "new_class",
+      "property": "A decision-relevant equivalence bound supports only the named estimand/population/intervention/outcome/horizon under its identification assumptions. It does not prove an exact structural zero or justify deleting an SCM edge. Preserve the edge as active/contested/unknown and attach the parameter/effect bound; a decision may be called robust only if its admissibility and ranking hold across that bound and retained rivals.",
+      "disposition": "resolved_in_documentation",
+      "scope_note": "Current solution and root review contain the repair. This disposition concerns documentation, not product closure.",
+      "solution_ref": "solutions/lifecycle-r19/S06.md",
+      "original_review_ref": "policy-engine/_build/post-e02-r19-20261023/reviews/RT-S06.json@a5b8d7344b94746e1bf901cef30ee3568b3b47294f82d68992724631d98eda1d",
+      "current_review_ref": "policy-engine/_build/post-e02-r19-20261023/reviews/FINAL-S06.json@7d799bdeb8bea8b7ae043eaa101f2966aa63a578c5fd513d0fb7eaf4c90e3913"
+    },
+    {
+      "id": "RT-S07-F01",
+      "stage": "initial_independent_design_review",
+      "cluster": "S07",
+      "question_ids": [
+        "R18-D07-Q01"
+      ],
+      "class": "known_bounded_class",
+      "property": "A hard-floor claim over a selected stochastic branch set must bind either a deterministic bound or a validated joint coverage rule for that declared family. Pointwise branch guarantees do not automatically compose into a family-wide guarantee.",
+      "disposition": "resolved_in_documentation",
+      "scope_note": "Current solution and root review contain the repair. This disposition concerns documentation, not product closure.",
+      "solution_ref": "solutions/lifecycle-r19/S07.md",
+      "original_review_ref": "policy-engine/_build/post-e02-r19-20261023/reviews/RT-S07.json@d65316a36068959a7eeac40f61a8bd015a7fe86236a2b5a0eaba1b8e66463200",
+      "current_review_ref": "policy-engine/_build/post-e02-r19-20261023/reviews/FINAL-S07.json@d8fb9d4a940c6d01d07bce32075701289c8402ef8d5c98cc324c3241bc27b5e9"
+    },
+    {
+      "id": "RT-S07-F02",
+      "stage": "initial_independent_design_review",
+      "cluster": "S07",
+      "question_ids": [
+        "R18-D07-Q02"
+      ],
+      "class": "known_bounded_class",
+      "property": "For a specified coalition game, Shapley allocations satisfy sum_i φ_i = v(N)−v(∅). A separate interaction contrast may be shown diagnostically, but must not be added to Shapley values as another allocated contribution.",
+      "disposition": "resolved_in_documentation",
+      "scope_note": "Current solution and root review contain the repair. This disposition concerns documentation, not product closure.",
+      "solution_ref": "solutions/lifecycle-r19/S07.md",
+      "original_review_ref": "policy-engine/_build/post-e02-r19-20261023/reviews/RT-S07.json@d65316a36068959a7eeac40f61a8bd015a7fe86236a2b5a0eaba1b8e66463200",
+      "current_review_ref": "policy-engine/_build/post-e02-r19-20261023/reviews/FINAL-S07.json@d8fb9d4a940c6d01d07bce32075701289c8402ef8d5c98cc324c3241bc27b5e9"
+    },
+    {
+      "id": "RT-S08-F01",
+      "stage": "initial_independent_design_review",
+      "cluster": "S08",
+      "question_ids": [
+        "R18-D08-Q03"
+      ],
+      "class": "new_class",
+      "property": "Under a bound exploratory budget and a disclosed, reversible, non-normative allocation profile, the native search bridge can schedule permissible candidate-grade work among incomparable routes without inventing public preferences. It preserves the nondominated set, costs, selected route and unrun denominator; it cannot promote the resulting candidate or authorize external conduct. A preference owner is required only when resolving a value-bearing outcome or protected act.",
+      "disposition": "resolved_in_documentation",
+      "scope_note": "Current solution and root review contain the repair. This disposition concerns documentation, not product closure.",
+      "solution_ref": "solutions/lifecycle-r19/S08.md",
+      "original_review_ref": "policy-engine/_build/post-e02-r19-20261023/reviews/RT-S08.json@71646c0f93447bd017a951a477c0e30deda87bc56562424646374c674adc8e9d",
+      "current_review_ref": "policy-engine/_build/post-e02-r19-20261023/reviews/FINAL-S08.json@9f37a3c7e5abcb0c706f18024969f73bdbca6d001f795e4eb3e0ca025364512d"
+    },
+    {
+      "id": "RT-S08-F02",
+      "stage": "initial_independent_design_review",
+      "cluster": "S08",
+      "question_ids": [
+        "R18-D08-Q05"
+      ],
+      "class": "new_class",
+      "property": "A sensitivity claim must cover the combined factor settings that its stated scope includes, or be limited to the tested main effects. OFAT can identify conditional single-factor effects but cannot detect a pure interaction; absence of observed OFAT change is not evidence of interaction stability.",
+      "disposition": "resolved_in_documentation",
+      "scope_note": "Current solution and root review contain the repair. This disposition concerns documentation, not product closure.",
+      "solution_ref": "solutions/lifecycle-r19/S08.md",
+      "original_review_ref": "policy-engine/_build/post-e02-r19-20261023/reviews/RT-S08.json@71646c0f93447bd017a951a477c0e30deda87bc56562424646374c674adc8e9d",
+      "current_review_ref": "policy-engine/_build/post-e02-r19-20261023/reviews/FINAL-S08.json@9f37a3c7e5abcb0c706f18024969f73bdbca6d001f795e4eb3e0ca025364512d"
+    },
+    {
+      "id": "RT-S09-F01",
+      "stage": "initial_independent_design_review",
+      "cluster": "S09",
+      "question_ids": [
+        "R18-D09-Q04"
+      ],
+      "class": "new_class",
+      "property": "Gross EVSI — ожидаемая ценность оптимального решения после study information минус ценность при текущей информации. Study cost нужен для net benefit/ENBS; CNT-07/OPS-08 capacity — для feasibility/ресурсного выбора, а не самой формулы. Delay входит в EVSI лишь если он включен в decision utility/model.",
+      "disposition": "resolved_in_documentation",
+      "scope_note": "Current solution and root review contain the repair. This disposition concerns documentation, not product closure.",
+      "solution_ref": "solutions/lifecycle-r19/S09.md",
+      "original_review_ref": "policy-engine/_build/post-e02-r19-20261023/reviews/RT-S09.json@7ff7d1be6abe48e32f0b7f663d81ede108232e49ded48fe2a163e2ee9c51de2f",
+      "current_review_ref": "policy-engine/_build/post-e02-r19-20261023/reviews/FINAL2-S09.json@5898f75b272c4d505175c79519b6d9d9678ca5985fcfc097dba93b03cbe71363"
+    },
+    {
+      "id": "RT-S09-F02",
+      "stage": "initial_independent_design_review",
+      "cluster": "S09",
+      "question_ids": [
+        "R18-D09-Q03"
+      ],
+      "class": "known_bounded_class",
+      "property": "Equivalence требует заранее выбранного и аргументированного margin и подходящего метода; источник margin может быть method/scientific rationale или обозначенный hypothetical scenario. Практическая значимость для защищаемого policy decision требует подходящего decision-value basis.",
+      "disposition": "resolved_in_documentation",
+      "scope_note": "Current solution and root review contain the repair. This disposition concerns documentation, not product closure.",
+      "solution_ref": "solutions/lifecycle-r19/S09.md",
+      "original_review_ref": "policy-engine/_build/post-e02-r19-20261023/reviews/RT-S09.json@7ff7d1be6abe48e32f0b7f663d81ede108232e49ded48fe2a163e2ee9c51de2f",
+      "current_review_ref": "policy-engine/_build/post-e02-r19-20261023/reviews/FINAL2-S09.json@5898f75b272c4d505175c79519b6d9d9678ca5985fcfc097dba93b03cbe71363"
+    },
+    {
+      "id": "RT-S10-F01",
+      "stage": "initial_independent_design_review",
+      "cluster": "S10",
+      "question_ids": [
+        "R18-D10-Q01"
+      ],
+      "class": "known_bounded_class",
+      "property": "FDR control is conditional on the accepted procedure's valid p/e-value construction, family/dependence assumptions, complete look/selection history and state continuity. It is not a sensitivity or no-harm guarantee. Sensitivity is only defensible for a declared alternative set/window; an unobserved channel requires independent enrollment/receipt evidence or an explicit limit.",
+      "disposition": "resolved_in_documentation",
+      "scope_note": "Current solution and root review contain the repair. This disposition concerns documentation, not product closure.",
+      "solution_ref": "solutions/lifecycle-r19/S10.md",
+      "original_review_ref": "policy-engine/_build/post-e02-r19-20261023/reviews/RT-S10.json@cf3e29803afb92e734858f78f24fcb714f913e3cf3bf631ba20b429d57838319",
+      "current_review_ref": "policy-engine/_build/post-e02-r19-20261023/reviews/FINAL-S10.json@a5150e2eb51b8bac4451ee6a13a88b7ba5bfd7b67a7246a6731c05fdeb9a76cd"
+    },
+    {
+      "id": "RT-S10-F02",
+      "stage": "initial_independent_design_review",
+      "cluster": "S10",
+      "question_ids": [
+        "R18-D10-Q02"
+      ],
+      "class": "known_bounded_class",
+      "property": "A formal method/applicability warning can transfer on a bound method/version and verified matching preconditions even when irrelevant task/profile facets differ. An empirical causal null remains local absent a source-to-target transport argument and target evidence.",
+      "disposition": "resolved_in_documentation",
+      "scope_note": "Current solution and root review contain the repair. This disposition concerns documentation, not product closure.",
+      "solution_ref": "solutions/lifecycle-r19/S10.md",
+      "original_review_ref": "policy-engine/_build/post-e02-r19-20261023/reviews/RT-S10.json@cf3e29803afb92e734858f78f24fcb714f913e3cf3bf631ba20b429d57838319",
+      "current_review_ref": "policy-engine/_build/post-e02-r19-20261023/reviews/FINAL-S10.json@a5150e2eb51b8bac4451ee6a13a88b7ba5bfd7b67a7246a6731c05fdeb9a76cd"
+    },
+    {
+      "id": "RT-S11-F01",
+      "stage": "initial_independent_design_review",
+      "cluster": "S11",
+      "question_ids": [
+        "R18-D11-Q01"
+      ],
+      "class": "known_bounded_class",
+      "property": "Qualification applies to the selected, versioned task profile and only within its declared exposure envelope. Every factor that is material to that profile/use is bound and evaluated; a genuinely non-applicable factor does not block it. Dynamic per-call context remains exactly bound to that call without necessarily becoming a new profile identity.",
+      "disposition": "resolved_in_documentation",
+      "scope_note": "Current solution and root review contain the repair. This disposition concerns documentation, not product closure.",
+      "solution_ref": "solutions/lifecycle-r19/S11.md",
+      "original_review_ref": "policy-engine/_build/post-e02-r19-20261023/reviews/RT-S11.json@3138ba0663832475556a45311831d4a4dd1895900f7fcc7ca559d25f93b93bf1",
+      "current_review_ref": "policy-engine/_build/post-e02-r19-20261023/reviews/FINAL-S11.json@d87ede0d445c0f4106fb72c86fa93e7026d0a1664e038fd4e1f5701fe15a5301"
+    },
+    {
+      "id": "RT-S12-01",
+      "stage": "initial_independent_design_review",
+      "cluster": "S12",
+      "question_ids": [
+        "R18-D12-Q02"
+      ],
+      "class": "new_class",
+      "property": "An automation-bias estimate must compare correctness-conditioned behavior under a defined advice exposure against a genuinely pre-advice judgment or a randomized no-advice/matched-case control; the judgment called independent must precede exposure.",
+      "disposition": "resolved_in_documentation",
+      "scope_note": "Current solution and root review contain the repair. This disposition concerns documentation, not product closure.",
+      "solution_ref": "solutions/lifecycle-r19/S12.md",
+      "original_review_ref": "policy-engine/_build/post-e02-r19-20261023/reviews/RT-S12.json@5d76911c382b757b1ec21a4939faa09ec938cd203666c4aaf4c67a19996ab739",
+      "current_review_ref": "policy-engine/_build/post-e02-r19-20261023/reviews/FINAL3-S12.json@35f8655cd487537e10a8efa6441f1569791548790019ee469fa0b989f5138bdb"
+    },
+    {
+      "id": "RT-S12-02",
+      "stage": "initial_independent_design_review",
+      "cluster": "S12",
+      "question_ids": [
+        "R18-D12-Q04"
+      ],
+      "class": "known_bounded_class",
+      "property": "Meaning evidence is valid only for the content-bound edition, locale, carrier and time actually tested; document producer/import owners must bind the selected export, while accessibility and comprehension evidence remain distinct.",
+      "disposition": "resolved_in_documentation",
+      "scope_note": "Current solution and root review contain the repair. This disposition concerns documentation, not product closure.",
+      "solution_ref": "solutions/lifecycle-r19/S12.md",
+      "original_review_ref": "policy-engine/_build/post-e02-r19-20261023/reviews/RT-S12.json@5d76911c382b757b1ec21a4939faa09ec938cd203666c4aaf4c67a19996ab739",
+      "current_review_ref": "policy-engine/_build/post-e02-r19-20261023/reviews/FINAL3-S12.json@35f8655cd487537e10a8efa6441f1569791548790019ee469fa0b989f5138bdb"
+    },
+    {
+      "id": "RT-S12-03",
+      "stage": "initial_independent_design_review",
+      "cluster": "S12",
+      "question_ids": [
+        "R18-D12-Q05"
+      ],
+      "class": "known_bounded_class",
+      "property": "A dissent/correction event is not itself an institutional decision or automatic claim change. The native currentness owner must determine whether the exact changed source affects a claim; affected current uses become scoped stale/contested or are reissued through the existing epoch owner, while the old as-known edition remains intact.",
+      "disposition": "resolved_in_documentation",
+      "scope_note": "Current solution and root review contain the repair. This disposition concerns documentation, not product closure.",
+      "solution_ref": "solutions/lifecycle-r19/S12.md",
+      "original_review_ref": "policy-engine/_build/post-e02-r19-20261023/reviews/RT-S12.json@5d76911c382b757b1ec21a4939faa09ec938cd203666c4aaf4c67a19996ab739",
+      "current_review_ref": "policy-engine/_build/post-e02-r19-20261023/reviews/FINAL3-S12.json@35f8655cd487537e10a8efa6441f1569791548790019ee469fa0b989f5138bdb"
+    },
+    {
+      "id": "RT-S12-04",
+      "stage": "initial_independent_design_review",
+      "cluster": "S12",
+      "question_ids": [
+        "R18-D12-Q06"
+      ],
+      "class": "known_bounded_class",
+      "property": "Where rights require existence secrecy, a public audience must receive no existence/value assertion across every affected public consumer; authorized audiences retain the underlying evidence state and its denominator/scope. Denied and absent probes must be paired on the real surface set, including metadata/indexes/links/errors/caches.",
+      "disposition": "resolved_in_documentation",
+      "scope_note": "Current solution and root review contain the repair. This disposition concerns documentation, not product closure.",
+      "solution_ref": "solutions/lifecycle-r19/S12.md",
+      "original_review_ref": "policy-engine/_build/post-e02-r19-20261023/reviews/RT-S12.json@5d76911c382b757b1ec21a4939faa09ec938cd203666c4aaf4c67a19996ab739",
+      "current_review_ref": "policy-engine/_build/post-e02-r19-20261023/reviews/FINAL3-S12.json@35f8655cd487537e10a8efa6441f1569791548790019ee469fa0b989f5138bdb"
+    },
+    {
+      "id": "RT-S13-F01",
+      "stage": "initial_independent_design_review",
+      "cluster": "S13",
+      "question_ids": [
+        "R18-D22-Q03"
+      ],
+      "class": "known_bounded_class",
+      "property": "Every fresh audience surface that presents present-tense status must resolve the current owner projection for its source/rights cut. Previously issued bytes remain immutable historical views; an unobserved offline copy is unknown, not recalled.",
+      "disposition": "resolved_in_documentation",
+      "scope_note": "Current solution and root review contain the repair. This disposition concerns documentation, not product closure.",
+      "solution_ref": "solutions/lifecycle-r19/S13.md",
+      "original_review_ref": "policy-engine/_build/post-e02-r19-20261023/reviews/RT-S13.json@5c59042a016661089b4ff1c89abcf0d45c9f28310c28d3d8474a7903aec72049",
+      "current_review_ref": "policy-engine/_build/post-e02-r19-20261023/reviews/FINAL2-S13.json@ece7017cc5d2a4f4dece09321df2ad4df34a0b4f704f7844cdc4f60d8ecb5670"
+    },
+    {
+      "id": "RT-S13-F02",
+      "stage": "initial_independent_design_review",
+      "cluster": "S13",
+      "question_ids": [
+        "R18-D22-Q01",
+        "R18-D22-Q04",
+        "R18-D22-Q05"
+      ],
+      "class": "known_bounded_class",
+      "property": "For each selected real source path, the admitted event/correction persists and reaches a fresh affected and unaffected currentness reader with correct scope, time, and provenance; mechanism-only fixtures do not establish the external fact or composed path.",
+      "disposition": "resolved_in_documentation",
+      "scope_note": "Current solution and root review contain the repair. This disposition concerns documentation, not product closure.",
+      "solution_ref": "solutions/lifecycle-r19/S13.md",
+      "original_review_ref": "policy-engine/_build/post-e02-r19-20261023/reviews/RT-S13.json@5c59042a016661089b4ff1c89abcf0d45c9f28310c28d3d8474a7903aec72049",
+      "current_review_ref": "policy-engine/_build/post-e02-r19-20261023/reviews/FINAL2-S13.json@ece7017cc5d2a4f4dece09321df2ad4df34a0b4f704f7844cdc4f60d8ecb5670"
+    },
+    {
+      "id": "RT-S14-F01",
+      "stage": "initial_independent_design_review",
+      "cluster": "S14",
+      "question_ids": [
+        "R18-D14-Q01",
+        "R18-D14-Q02"
+      ],
+      "class": "new_class",
+      "property": "Admission следует точному типу claim. Integrity/provenance, deterministic derivation correctness, factual truth/source authority и evidence independence — разные свойства. Consumer recomputation/proof над resolved content-bound inputs, алгоритмом, evaluator и rule version может установить первое вычислительное свойство (`recomputed`), даже если исходный домен общий. Оно не легализует input и не повышает общий corroboration count; источник, полномочие, истинность мира и независимость остаются ограничены до надлежащих источников. Для incident: воспроизводимый defect устанавливает defect для pinned execution; неизвестный интервал/динамическое влияние остаются not_established и ограничивают только зависимые claims.",
+      "disposition": "resolved_in_documentation",
+      "scope_note": "Current solution and root review contain the repair. This disposition concerns documentation, not product closure.",
+      "solution_ref": "solutions/lifecycle-r19/S14.md",
+      "original_review_ref": "policy-engine/_build/post-e02-r19-20261023/reviews/RT-S14.json@c3ba9d405500605ec4901c0965140c0ee4cb8d82ebb9bace06ddb3c86bddaabd",
+      "current_review_ref": "policy-engine/_build/post-e02-r19-20261023/reviews/FINAL3-S14.json@429ad4cefad318cda67e3ce92fbc2fd1ddebbf917c0dc07465c168a71ac56505"
+    },
+    {
+      "id": "RT-S14-F02",
+      "stage": "initial_independent_design_review",
+      "cluster": "S14",
+      "question_ids": [
+        "R18-D14-Q03"
+      ],
+      "class": "known_bounded_class",
+      "property": "Защищённый output на фактическом sink допустим только по source/custodian-authorized, operation/purpose/unit/overlap/audience/version-bound release rule и её текущему admission result, применённому к общему состоянию всех релевантных calls/recipients/descendants. Shared ledger — учёт/сериализация экспозиции, не privacy proof и не grant. Bounded non-DP output остаётся допустимым, если source-specific policy разрешает этот режим и обозначены пределы риска; unknown scope/overlap/result ограничивает только этот release. DP-теорема применяется только к выбранному валидному DP mechanism/adjacency и полному release denominator.",
+      "disposition": "resolved_in_documentation",
+      "scope_note": "Current solution and root review contain the repair. This disposition concerns documentation, not product closure.",
+      "solution_ref": "solutions/lifecycle-r19/S14.md",
+      "original_review_ref": "policy-engine/_build/post-e02-r19-20261023/reviews/RT-S14.json@c3ba9d405500605ec4901c0965140c0ee4cb8d82ebb9bace06ddb3c86bddaabd",
+      "current_review_ref": "policy-engine/_build/post-e02-r19-20261023/reviews/FINAL3-S14.json@429ad4cefad318cda67e3ce92fbc2fd1ddebbf917c0dc07465c168a71ac56505"
+    },
+    {
+      "id": "RT-S15-F01",
+      "stage": "initial_independent_design_review",
+      "cluster": "S15",
+      "question_ids": [
+        "R18-D18-Q03"
+      ],
+      "class": "known_bounded_class",
+      "property": "If a review itself supports a protected scientific/method predicate, qualification and any material independence requirement are evidenced for that predicate and scope, or the native consumer directly recomputes the method property. Official appointment is required only where the owning contract requires institutional authority; a missing reviewer-qualification basis limits review-dependent support, not attributable candidate evidence or a recomputable scientific result.",
+      "disposition": "resolved_in_documentation",
+      "scope_note": "Current solution and root review contain the repair. This disposition concerns documentation, not product closure.",
+      "solution_ref": "solutions/lifecycle-r19/S15.md",
+      "original_review_ref": "policy-engine/_build/post-e02-r19-20261023/reviews/RT-S15.json@5536c4882577ba0e32a0cb8b5bb2a18e971351374ccb69be85e0a87ee6cd362b",
+      "current_review_ref": "policy-engine/_build/post-e02-r19-20261023/reviews/FINAL-S15.json@85269ea5bf3f126cd0352dfe968b6eaa43807cd5b0eec91e36e25cfb12ca4cca"
+    },
+    {
+      "id": "RT-S16-F01",
+      "stage": "initial_independent_design_review",
+      "cluster": "S16",
+      "question_ids": [
+        "R18-D16-Q01"
+      ],
+      "class": "new_class",
+      "property": "Before accepting a signature or renewal that creates a future custody duty, the affected duty must be accepted by its competent owner and bound to a funded/scheduled service profile or an explicit bounded cutoff. If capacity cannot support it, the system must decline that custody-bearing claim/renewal or show the owner-authorized limitation; it must not silently promise currentness. Candidate research and unrelated claims remain usable.",
+      "disposition": "resolved_in_documentation",
+      "scope_note": "Current solution and root review contain the repair. This disposition concerns documentation, not product closure.",
+      "solution_ref": "solutions/lifecycle-r19/S16.md",
+      "original_review_ref": "policy-engine/_build/post-e02-r19-20261023/reviews/RT-S16.json@a8a2a9ef21174695b65b27033c580db1ea0c59483860490087bc65ad8e0de37d",
+      "current_review_ref": "policy-engine/_build/post-e02-r19-20261023/reviews/FINAL-S16.json@f15f93b6a7357f2f6afd021ea5e251c16d9e83a5d30bab2c4de7b0dfc1c82b5c"
+    },
+    {
+      "id": "RT-S16-F02",
+      "stage": "initial_independent_design_review",
+      "cluster": "S16",
+      "question_ids": [
+        "R18-D16-Q02"
+      ],
+      "class": "known_bounded_class",
+      "property": "Attempt/lease generation must be monotonic across the selected ControlPlaneStore failover and backup/restore boundary, and each local consumer must bind to that generation. A separate anti-rollback mechanism counts only if its verified scope explicitly binds this runtime store/job epoch and restore path. Without that proof, protected resume/reclaim must refuse and preserve uncertain effects/resources until LIF-04 reconciliation.",
+      "disposition": "resolved_in_documentation",
+      "scope_note": "Current solution and root review contain the repair. This disposition concerns documentation, not product closure.",
+      "solution_ref": "solutions/lifecycle-r19/S16.md",
+      "original_review_ref": "policy-engine/_build/post-e02-r19-20261023/reviews/RT-S16.json@a8a2a9ef21174695b65b27033c580db1ea0c59483860490087bc65ad8e0de37d",
+      "current_review_ref": "policy-engine/_build/post-e02-r19-20261023/reviews/FINAL-S16.json@f15f93b6a7357f2f6afd021ea5e251c16d9e83a5d30bab2c4de7b0dfc1c82b5c"
+    },
+    {
+      "id": "RT-S16-F03",
+      "stage": "initial_independent_design_review",
+      "cluster": "S16",
+      "question_ids": [
+        "R18-D16-Q02"
+      ],
+      "class": "known_bounded_class",
+      "property": "Lease expiry, heartbeat freshness and duty due are separately bound operational predicates. If the duty's authoritative due coordinate/clock cannot be evaluated under its selected profile, absence of an overdue event is not evidence of timely coverage; only affected currentness claims become limited/pending or use an owner-signed cutoff. Unrelated claims and candidate work continue.",
+      "disposition": "resolved_in_documentation",
+      "scope_note": "Current solution and root review contain the repair. This disposition concerns documentation, not product closure.",
+      "solution_ref": "solutions/lifecycle-r19/S16.md",
+      "original_review_ref": "policy-engine/_build/post-e02-r19-20261023/reviews/RT-S16.json@a8a2a9ef21174695b65b27033c580db1ea0c59483860490087bc65ad8e0de37d",
+      "current_review_ref": "policy-engine/_build/post-e02-r19-20261023/reviews/FINAL-S16.json@f15f93b6a7357f2f6afd021ea5e251c16d9e83a5d30bab2c4de7b0dfc1c82b5c"
+    },
+    {
+      "id": "RT-S17-F01",
+      "stage": "initial_independent_design_review",
+      "cluster": "S17",
+      "question_ids": [
+        "R18-D17-Q01",
+        "R18-D17-Q03"
+      ],
+      "class": "known_bounded_class",
+      "property": "A protected operation is compatible only when its dependency closure includes the actually selected cell/profile boundary and all required owner-qualified reader/writer, state, call and rights relations. Unobservable or unqualified dynamic edges stay not_established and limit only the operation that needs them; they cannot be treated as an empty dependency set.",
+      "disposition": "resolved_in_documentation",
+      "scope_note": "Current solution and root review contain the repair. This disposition concerns documentation, not product closure.",
+      "solution_ref": "solutions/lifecycle-r19/S17.md",
+      "original_review_ref": "policy-engine/_build/post-e02-r19-20261023/reviews/RT-S17.json@e99d026f8a39ee47a768c50abf9d93dc1315e19cdfa31d97471387efb8dd3e2d",
+      "current_review_ref": "policy-engine/_build/post-e02-r19-20261023/reviews/FINAL2-S17.json@0889d09cd0cc16af708bb2cd455b65fa0108446af7068634f121859cb716aa51"
+    },
+    {
+      "id": "RT-S17-F02",
+      "stage": "initial_independent_design_review",
+      "cluster": "S17",
+      "question_ids": [
+        "R18-D17-Q05",
+        "R18-D17-Q07"
+      ],
+      "class": "known_bounded_class",
+      "property": "Release authority, institution policy authority and local technical containment are distinct. The emergency actor may act only within the actual, currently effective delegation/grant. Without it, PolicyOS can conservatively suspend its own affected protected use and preserve candidate work, but cannot assert external permission, policy succession or a broader institutional stop. A covered same-scope change does not need authority to be invented again.",
+      "disposition": "resolved_in_documentation",
+      "scope_note": "Current solution and root review contain the repair. This disposition concerns documentation, not product closure.",
+      "solution_ref": "solutions/lifecycle-r19/S17.md",
+      "original_review_ref": "policy-engine/_build/post-e02-r19-20261023/reviews/RT-S17.json@e99d026f8a39ee47a768c50abf9d93dc1315e19cdfa31d97471387efb8dd3e2d",
+      "current_review_ref": "policy-engine/_build/post-e02-r19-20261023/reviews/FINAL2-S17.json@0889d09cd0cc16af708bb2cd455b65fa0108446af7068634f121859cb716aa51"
+    },
+    {
+      "id": "RT-S18-F01",
+      "stage": "initial_independent_design_review",
+      "cluster": "S18",
+      "question_ids": [
+        "R18-D23-Q01"
+      ],
+      "class": "known_bounded_class",
+      "property": "The proposed resolver may decide only PolicyOS SDD standing/meaning. It cannot reorder the active instruction hierarchy, waive legal/tool/safety limits, or authorize a forbidden action.",
+      "disposition": "resolved_in_documentation",
+      "scope_note": "Current solution and root review contain the repair. This disposition concerns documentation, not product closure.",
+      "solution_ref": "solutions/lifecycle-r19/S18.md",
+      "original_review_ref": "policy-engine/_build/post-e02-r19-20261023/reviews/RT-S18.json@8f79739f0f554c436919f1c8750637c208c3e9e126915a508fe0e34dc48d43ca",
+      "current_review_ref": "policy-engine/_build/post-e02-r19-20261023/reviews/FINAL2-S18.json@833ebe27ed6eddd86fd6a236f3707a814300fc1f21ddcbbea3b5166a8f3cc06a"
+    },
+    {
+      "id": "RT-S18-F02",
+      "stage": "initial_independent_design_review",
+      "cluster": "S18",
+      "question_ids": [
+        "R18-D23-Q03"
+      ],
+      "class": "known_bounded_class",
+      "property": "The expected denominator is the complete current canonical question set. A generic consumer must reconcile every canonical ID to exactly one G8 evidence row and applicable log/WP cross-reference, detecting missing and orphan records without a fixed cardinality.",
+      "disposition": "resolved_in_documentation",
+      "scope_note": "Current solution and root review contain the repair. This disposition concerns documentation, not product closure.",
+      "solution_ref": "solutions/lifecycle-r19/S18.md",
+      "original_review_ref": "policy-engine/_build/post-e02-r19-20261023/reviews/RT-S18.json@8f79739f0f554c436919f1c8750637c208c3e9e126915a508fe0e34dc48d43ca",
+      "current_review_ref": "policy-engine/_build/post-e02-r19-20261023/reviews/FINAL2-S18.json@833ebe27ed6eddd86fd6a236f3707a814300fc1f21ddcbbea3b5166a8f3cc06a"
+    },
+    {
+      "id": "RT-S19-F01",
+      "stage": "initial_independent_design_review",
+      "cluster": "S19",
+      "question_ids": [
+        "R18-D19-Q04"
+      ],
+      "class": "new_class",
+      "property": "Resource facts count actual stored copy/replica use once per actual measurement or billing scope/interval; content hash establishes logical equality, not physical cardinality. Allocation to claims remains a separate, sourced rule.",
+      "disposition": "resolved_in_documentation",
+      "scope_note": "Current solution and root review contain the repair. This disposition concerns documentation, not product closure.",
+      "solution_ref": "solutions/lifecycle-r19/S19.md",
+      "original_review_ref": "policy-engine/_build/post-e02-r19-20261023/reviews/RT-S19.json@68ba353dec2eb05ac387ce840332d0f09f3b683280cfe448e27b8093e6efcb43",
+      "current_review_ref": "policy-engine/_build/post-e02-r19-20261023/reviews/FINAL2-S19.json@4949177c3dde9fdcde26d0a32e2a9380f59087b6188f5ff1afd50240ea6d95c8"
+    },
+    {
+      "id": "RT-S19-F02",
+      "stage": "initial_independent_design_review",
+      "cluster": "S19",
+      "question_ids": [
+        "R18-D19-Q02"
+      ],
+      "class": "known_bounded_class",
+      "property": "When a declared operational policy and existing budget apply, a verifier-proven equivalent or dominating reversible compute route may be selected and logged without changing the claim or admissibility floor. Tradeoffs affecting predicate coverage or policy outcomes remain Pareto/authorized-value decisions.",
+      "disposition": "resolved_in_documentation",
+      "scope_note": "Current solution and root review contain the repair. This disposition concerns documentation, not product closure.",
+      "solution_ref": "solutions/lifecycle-r19/S19.md",
+      "original_review_ref": "policy-engine/_build/post-e02-r19-20261023/reviews/RT-S19.json@68ba353dec2eb05ac387ce840332d0f09f3b683280cfe448e27b8093e6efcb43",
+      "current_review_ref": "policy-engine/_build/post-e02-r19-20261023/reviews/FINAL2-S19.json@4949177c3dde9fdcde26d0a32e2a9380f59087b6188f5ff1afd50240ea6d95c8"
+    },
+    {
+      "id": "RT-S19-F03",
+      "stage": "initial_independent_design_review",
+      "cluster": "S19",
+      "question_ids": [
+        "R18-D19-Q05"
+      ],
+      "class": "known_bounded_class",
+      "property": "A reported SCI must disclose a consistent boundary and functional unit and account for significant supporting infrastructure and provisioned/reserved energy under its chosen method. If those components are unavailable or intentionally outside scope, label a scoped partial projection rather than complete deployment SCI.",
+      "disposition": "resolved_in_documentation",
+      "scope_note": "Current solution and root review contain the repair. This disposition concerns documentation, not product closure.",
+      "solution_ref": "solutions/lifecycle-r19/S19.md",
+      "original_review_ref": "policy-engine/_build/post-e02-r19-20261023/reviews/RT-S19.json@68ba353dec2eb05ac387ce840332d0f09f3b683280cfe448e27b8093e6efcb43",
+      "current_review_ref": "policy-engine/_build/post-e02-r19-20261023/reviews/FINAL2-S19.json@4949177c3dde9fdcde26d0a32e2a9380f59087b6188f5ff1afd50240ea6d95c8"
+    },
+    {
+      "id": "RTS20-F01",
+      "stage": "initial_independent_design_review",
+      "cluster": "S20",
+      "question_ids": [
+        "R18-D20-Q01"
+      ],
+      "class": "new_class",
+      "property": "A supported aggregate claim is distinct from a coupled causal/operational model. Coupling determines whether interactions can be composed; it is not a prerequisite for aggregating aligned component outcomes.",
+      "disposition": "accepted_with_narrower_scope",
+      "scope_note": "Scoped descriptive arithmetic remains permissible; joint-policy/system authority still requires native coupling/decomposition and emergent grounding. Original broad aggregate wording is superseded.",
+      "solution_ref": "solutions/lifecycle-r19/S20.md",
+      "original_review_ref": "policy-engine/_build/post-e02-r19-20261023/reviews/RT-S20.json@b8efe3df3eaa0a2d5c7f8fcc134437e4b6efbe7745c507d87c9ab69da9332bb5",
+      "current_review_ref": "policy-engine/_build/post-e02-r19-20261023/reviews/FINAL5-S20.json@98978440f100e1bd1029a971fef4e6965c17c743e629da8ef5770870b3d9816d"
+    },
+    {
+      "id": "RTS20-F02",
+      "stage": "initial_independent_design_review",
+      "cluster": "S20",
+      "question_ids": [
+        "R18-D20-Q01"
+      ],
+      "class": "known_bounded_class",
+      "property": "S0-K01 names the subject as a PolicyOS custody subject, rejects `PolicyMatter` as a legal/administrative ontology, and says reference equality gives no permission to combine records.",
+      "disposition": "resolved_in_documentation",
+      "scope_note": "Current solution and root review contain the repair. This disposition concerns documentation, not product closure.",
+      "solution_ref": "solutions/lifecycle-r19/S20.md",
+      "original_review_ref": "policy-engine/_build/post-e02-r19-20261023/reviews/RT-S20.json@b8efe3df3eaa0a2d5c7f8fcc134437e4b6efbe7745c507d87c9ab69da9332bb5",
+      "current_review_ref": "policy-engine/_build/post-e02-r19-20261023/reviews/FINAL5-S20.json@98978440f100e1bd1029a971fef4e6965c17c743e629da8ef5770870b3d9816d"
+    },
+    {
+      "id": "RTS20-F03",
+      "stage": "initial_independent_design_review",
+      "cluster": "S20",
+      "question_ids": [
+        "R18-D20-Q02"
+      ],
+      "class": "known_bounded_class",
+      "property": "Physical public capacity and PolicyOS compute/execution permits have different resource owners, units, principals, and effects. Neither can qualify the other.",
+      "disposition": "resolved_in_documentation",
+      "scope_note": "Current solution and root review contain the repair. This disposition concerns documentation, not product closure.",
+      "solution_ref": "solutions/lifecycle-r19/S20.md",
+      "original_review_ref": "policy-engine/_build/post-e02-r19-20261023/reviews/RT-S20.json@b8efe3df3eaa0a2d5c7f8fcc134437e4b6efbe7745c507d87c9ab69da9332bb5",
+      "current_review_ref": "policy-engine/_build/post-e02-r19-20261023/reviews/FINAL5-S20.json@98978440f100e1bd1029a971fef4e6965c17c743e629da8ef5770870b3d9816d"
+    },
+    {
+      "id": "RTS20-F04",
+      "stage": "initial_independent_design_review",
+      "cluster": "S20",
+      "question_ids": [
+        "R18-D20-Q02"
+      ],
+      "class": "known_bounded_class",
+      "property": "Joint composition has one native certificate owner; shared-capacity aggregation must have one existing owner and a consumer bridge, not a second portfolio/authority engine.",
+      "disposition": "resolved_in_documentation",
+      "scope_note": "Current solution and root review contain the repair. This disposition concerns documentation, not product closure.",
+      "solution_ref": "solutions/lifecycle-r19/S20.md",
+      "original_review_ref": "policy-engine/_build/post-e02-r19-20261023/reviews/RT-S20.json@b8efe3df3eaa0a2d5c7f8fcc134437e4b6efbe7745c507d87c9ab69da9332bb5",
+      "current_review_ref": "policy-engine/_build/post-e02-r19-20261023/reviews/FINAL5-S20.json@98978440f100e1bd1029a971fef4e6965c17c743e629da8ef5770870b3d9816d"
+    },
+    {
+      "id": "RTS20-F05",
+      "stage": "initial_independent_design_review",
+      "cluster": "S20",
+      "question_ids": [
+        "R18-D20-Q03"
+      ],
+      "class": "known_bounded_class",
+      "property": "The causal estimand/exposure mapping must be produced and qualified by the actual causal method/data owner; legal scope/applicability is a distinct predicate.",
+      "disposition": "resolved_in_documentation",
+      "scope_note": "Current solution and root review contain the repair. This disposition concerns documentation, not product closure.",
+      "solution_ref": "solutions/lifecycle-r19/S20.md",
+      "original_review_ref": "policy-engine/_build/post-e02-r19-20261023/reviews/RT-S20.json@b8efe3df3eaa0a2d5c7f8fcc134437e4b6efbe7745c507d87c9ab69da9332bb5",
+      "current_review_ref": "policy-engine/_build/post-e02-r19-20261023/reviews/FINAL5-S20.json@98978440f100e1bd1029a971fef4e6965c17c743e629da8ef5770870b3d9816d"
+    },
+    {
+      "id": "RTS20-F06",
+      "stage": "initial_independent_design_review",
+      "cluster": "S20",
+      "question_ids": [
+        "R18-D20-Q01",
+        "R18-D20-Q05"
+      ],
+      "class": "known_bounded_class",
+      "property": "Source/event change must immediately affect current use of every enrolled composed claim and its actual fresh consumers; historical issuance stays distinguishable from current validity. Recompute is not itself a publication fence.",
+      "disposition": "resolved_in_documentation",
+      "scope_note": "Current solution and root review contain the repair. This disposition concerns documentation, not product closure.",
+      "solution_ref": "solutions/lifecycle-r19/S20.md",
+      "original_review_ref": "policy-engine/_build/post-e02-r19-20261023/reviews/RT-S20.json@b8efe3df3eaa0a2d5c7f8fcc134437e4b6efbe7745c507d87c9ab69da9332bb5",
+      "current_review_ref": "policy-engine/_build/post-e02-r19-20261023/reviews/FINAL5-S20.json@98978440f100e1bd1029a971fef4e6965c17c743e629da8ef5770870b3d9816d"
+    },
+    {
+      "id": "FINAL-S01-F01",
+      "stage": "rendered_card_and_route_review",
+      "cluster": "S01",
+      "question_ids": [
+        "R18-D01-Q02",
+        "R18-D01-Q04"
+      ],
+      "class": "new_class",
+      "property": "Each shared mechanism has one native predicate owner, with other task routes consuming its qualified output: CNT-01 resolves commission/sponsor selection; CNT-04 resolves law, effectivity, competence and actual acts; CNT-07 resolves participation/testimony context, permission and representation; CNT-08 consumes qualified bases to compare ancestry, overlap and claim-specific support.",
+      "disposition": "resolved_in_documentation",
+      "solution_ref": "solutions/lifecycle-r19/S01.md",
+      "original_review_ref": "policy-engine/_build/post-e02-r19-20261023/reviews/FINAL-S01.json@2dc165b0e21d5e27fedfa331af84f2cf6225627e61df873adaa44aefbfe9672e",
+      "current_review_ref": "policy-engine/_build/post-e02-r19-20261023/reviews/FINAL2-S01.json@85e86bcaba67c451c7351af7b4501c8e782c59b37c6e506f267ac9fb61c8192b"
+    },
+    {
+      "id": "FINAL-S09-F01",
+      "stage": "rendered_card_and_route_review",
+      "cluster": "S09",
+      "question_ids": [
+        "R18-D09-Q01"
+      ],
+      "class": "new_class",
+      "property": "The card's shared contract distinguishes current read, analyze, derive, export, and publish rights; admission of study conduct or data reading does not itself establish the specific right to analyze returned data.",
+      "disposition": "resolved_in_documentation",
+      "solution_ref": "solutions/lifecycle-r19/S09.md",
+      "original_review_ref": "policy-engine/_build/post-e02-r19-20261023/reviews/FINAL-S09.json@5db057978e536c9314fc2154719b3bf473bcf963c4ab8fcc7155252adee25039",
+      "current_review_ref": "policy-engine/_build/post-e02-r19-20261023/reviews/FINAL2-S09.json@5898f75b272c4d505175c79519b6d9d9678ca5985fcfc097dba93b03cbe71363"
+    },
+    {
+      "id": "FINAL-S12-01",
+      "stage": "rendered_card_and_route_review",
+      "cluster": "S12",
+      "question_ids": [
+        "R18-D12-Q01"
+      ],
+      "class": "same_class_deeper",
+      "property": "Every first-use/readers-study consumer must bind the actual audience, task, risk, edition, locale/modality, support, oracle and result predicate. One receipt may serve Q01 and Q02 only when both scope and recorded predicates are covered; no duplicate study is needed solely because two questions consume the same qualifying result.",
+      "disposition": "resolved_in_documentation",
+      "solution_ref": "solutions/lifecycle-r19/S12.md",
+      "original_review_ref": "policy-engine/_build/post-e02-r19-20261023/reviews/FINAL-S12.json@c6ef837d25193c7c55d6f20c31a1e041f68631d44b0e40471bce2264145c38f8",
+      "current_review_ref": "policy-engine/_build/post-e02-r19-20261023/reviews/FINAL3-S12.json@35f8655cd487537e10a8efa6441f1569791548790019ee469fa0b989f5138bdb"
+    },
+    {
+      "id": "FINAL-S13-F01",
+      "stage": "rendered_card_and_route_review",
+      "cluster": "S13",
+      "question_ids": [
+        "R18-D22-Q04",
+        "R18-D22-Q05"
+      ],
+      "class": "same_class_deeper",
+      "property": "Every selected real CAP-04 source path that a question claims as composed must be bound by path identity to the frozen LIF-09 receipt and its persisted-event, replay/correction, and fresh affected/unaffected-reader evidence. One path’s receipt does not prove another path.",
+      "disposition": "resolved_in_documentation",
+      "solution_ref": "solutions/lifecycle-r19/S13.md",
+      "original_review_ref": "policy-engine/_build/post-e02-r19-20261023/reviews/FINAL-S13.json@bcc1188e0890670181d76b90efe5f3561ef248bbee4c89f7a1941d5353931fcd",
+      "current_review_ref": "policy-engine/_build/post-e02-r19-20261023/reviews/FINAL2-S13.json@ece7017cc5d2a4f4dece09321df2ad4df34a0b4f704f7844cdc4f60d8ecb5670"
+    },
+    {
+      "id": "FINAL-S14-F01",
+      "stage": "rendered_card_and_route_review",
+      "cluster": "S14",
+      "question_ids": [
+        "R18-D14-Q02"
+      ],
+      "class": "new_class",
+      "property": "A local incident witness changes only affected claim currentness. Create a successor epoch only when the owning signed claim materially changes, and then bind it through DEB-06 to the corrected basis, prior head and issuer admission; preserve the previous as-known issue.",
+      "disposition": "resolved_in_documentation",
+      "solution_ref": "solutions/lifecycle-r19/S14.md",
+      "original_review_ref": "policy-engine/_build/post-e02-r19-20261023/reviews/FINAL-S14.json@2b4414c1c78af8086b06e20cfa16671b7416d70c5b287380f05df11a5995f251",
+      "current_review_ref": "policy-engine/_build/post-e02-r19-20261023/reviews/FINAL3-S14.json@429ad4cefad318cda67e3ce92fbc2fd1ddebbf917c0dc07465c168a71ac56505"
+    },
+    {
+      "id": "FINAL-S17-F01",
+      "stage": "rendered_card_and_route_review",
+      "cluster": "S17",
+      "question_ids": [
+        "R18-D17-Q02",
+        "R18-D17-Q05"
+      ],
+      "class": "same_class_deeper",
+      "property": "When offline is selected, a protected read/resume or emergency-patch status is supported only by that cell’s actual imported bundle generation, anti-rollback/as_of and fresh local readback. Cloud readiness and generic migration/restore compatibility do not establish local installation. Unknown state limits only the offline operation.",
+      "disposition": "resolved_in_documentation",
+      "solution_ref": "solutions/lifecycle-r19/S17.md",
+      "original_review_ref": "policy-engine/_build/post-e02-r19-20261023/reviews/FINAL-S17.json@88e82787e671f70059110145aa642a53ca53726db194956eb52ce1bbe2e60b36",
+      "current_review_ref": "policy-engine/_build/post-e02-r19-20261023/reviews/FINAL2-S17.json@0889d09cd0cc16af708bb2cd455b65fa0108446af7068634f121859cb716aa51"
+    },
+    {
+      "id": "FINAL-S20-F01",
+      "stage": "rendered_card_and_route_review",
+      "cluster": "S20",
+      "question_ids": [
+        "R18-D20-Q01",
+        "R18-D20-Q03",
+        "R18-D20-Q04",
+        "R18-D20-Q06"
+      ],
+      "class": "same_class_deeper",
+      "property": "Every selected cross-root composition or conditional measure/value dependency named by the solution must resolve to its native owner in the question-level task routes, or remain explicitly bounded out. Shared-owner reuse is sufficient; a new D20 task/certificate is not.",
+      "disposition": "resolved_in_documentation",
+      "solution_ref": "solutions/lifecycle-r19/S20.md",
+      "original_review_ref": "policy-engine/_build/post-e02-r19-20261023/reviews/FINAL-S20.json@f723844088dc05f060b71cce90acad06d75ff959c6fdbd1b58e9919fa952acfb",
+      "current_review_ref": "policy-engine/_build/post-e02-r19-20261023/reviews/FINAL5-S20.json@98978440f100e1bd1029a971fef4e6965c17c743e629da8ef5770870b3d9816d"
+    },
+    {
+      "id": "FINAL2-S20-F01",
+      "stage": "rendered_card_and_route_review",
+      "cluster": "S20",
+      "question_ids": [
+        "R18-D20-Q01",
+        "R18-D20-Q06"
+      ],
+      "class": "same_class_deeper",
+      "property": "CNT-05 qualification of the selected measure/target/unit/denominator and applicable aggregation-rule profile is required for conditional as well as normative aggregates. A hypothetical weight/discount is a declared assumption, not an endorsed value. Additional principal/rule/version authorization is required only to select a normative winner. Reuse of Q01 qualification for Q06 is sufficient only if the same bound predicate, editions, temporal/cohort support, measure, and rule profile actually cover both; labels or shared mechanism IDs alone do not establish that scope.",
+      "disposition": "resolved_in_documentation",
+      "solution_ref": "solutions/lifecycle-r19/S20.md",
+      "original_review_ref": "policy-engine/_build/post-e02-r19-20261023/reviews/FINAL2-S20.json@cd23036c16123b243a30d882673112771d01eb44611cc7bb2f0affd5d792438a",
+      "current_review_ref": "policy-engine/_build/post-e02-r19-20261023/reviews/FINAL5-S20.json@98978440f100e1bd1029a971fef4e6965c17c743e629da8ef5770870b3d9816d"
+    },
+    {
+      "id": "FINAL3-S20-F01",
+      "stage": "rendered_card_and_route_review",
+      "cluster": "S20",
+      "question_ids": [
+        "R18-D20-Q06"
+      ],
+      "class": "same_class_deeper",
+      "property": "Every selected scalar comparison consumes CNT-05 measure/aggregation-rule qualification, whether conditional or normative. Current principal/rule/version authority is an additional predicate only when selecting a normative winner. The composition edge must route the same distinction as its mechanism and question-level task slice.",
+      "disposition": "resolved_in_documentation",
+      "solution_ref": "solutions/lifecycle-r19/S20.md",
+      "original_review_ref": "policy-engine/_build/post-e02-r19-20261023/reviews/FINAL3-S20.json@5f4626123f974e53fae7df61ca1a2633dd2bb63e492539b75388fadc986add4a",
+      "current_review_ref": "policy-engine/_build/post-e02-r19-20261023/reviews/FINAL5-S20.json@98978440f100e1bd1029a971fef4e6965c17c743e629da8ef5770870b3d9816d"
+    },
+    {
+      "id": "CROSS-EXEC-F01",
+      "stage": "cross_document_review",
+      "class": "new_class",
+      "property": "A lead assigned to decompose R19 tasks must propagate the R19 question slices, shared-owner boundaries and stage-specific rules to its admitted work.",
+      "disposition": "resolved_in_documentation",
+      "original_review_ref": "policy-engine/_build/post-e02-r19-20261023/reviews/CROSS-EXECUTION.json@9af745517eda9e42ec7aa92ecff718bda2ff6c1871108846e21bafa2a3069994",
+      "current_review_ref": "policy-engine/_build/post-e02-r19-20261023/reviews/CROSS2-EXECUTION.json@5fd36b3ca6846cbc457faa8f41ba56ff4a3ad5c36ef2a72d61fe9c50047f1d5b"
+    },
+    {
+      "id": "CROSS-SDD-F01",
+      "stage": "cross_document_review",
+      "class": "new_class",
+      "property": "System/portfolio authority may be composed only after a grounded coupling/decomposition classification and, for emergent claims, separate system-level grounding.",
+      "disposition": "resolved_in_documentation",
+      "original_review_ref": "policy-engine/_build/post-e02-r19-20261023/reviews/CROSS-SDD.json@fd3a7f4f45edd4fdf1b866cf5cd025ec60b3d9945e7f40fd8cb6d832c30f77d0",
+      "current_review_ref": "policy-engine/_build/post-e02-r19-20261023/reviews/CROSS3-SDD.json@fba769f792a3129cbb9fb0693c8b36fe7a936126239c88487b52e44d1ef6cbe7"
+    },
+    {
+      "id": "CROSS-SDD-F02",
+      "stage": "cross_document_review",
+      "class": "new_class",
+      "property": "Every open question has evidence appropriate to its kind, while empirical evidence does not silently decide a normative architecture choice.",
+      "disposition": "resolved_in_documentation",
+      "original_review_ref": "policy-engine/_build/post-e02-r19-20261023/reviews/CROSS-SDD.json@fd3a7f4f45edd4fdf1b866cf5cd025ec60b3d9945e7f40fd8cb6d832c30f77d0",
+      "current_review_ref": "policy-engine/_build/post-e02-r19-20261023/reviews/CROSS3-SDD.json@fba769f792a3129cbb9fb0693c8b36fe7a936126239c88487b52e44d1ef6cbe7"
+    },
+    {
+      "id": "CROSS2-SDD-F01",
+      "stage": "cross_document_review",
+      "class": "same_class_deeper",
+      "property": "Every executable or behavioral discriminator preserves the distinction between a scoped arithmetic derivation and authority-bearing joint composition.",
+      "disposition": "resolved_in_documentation",
+      "original_review_ref": "policy-engine/_build/post-e02-r19-20261023/reviews/CROSS2-SDD.json@1e24bfe45a1b9cffc7ddda8d98d7be85c7cd7be18952fc980c68b1304ac93cfa",
+      "current_review_ref": "policy-engine/_build/post-e02-r19-20261023/reviews/CROSS3-SDD.json@fba769f792a3129cbb9fb0693c8b36fe7a936126239c88487b52e44d1ef6cbe7"
+    }
+  ],
+  "product_verification": "UNRUN",
+  "formal_closure_ids": []
+}

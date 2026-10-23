@@ -1,0 +1,148 @@
+{
+  "packet_type": "native_gate_proxy_issuer_decision_proposal",
+  "status": "proposal_only_owner_adjudication_required",
+  "source_freeze": false,
+  "closure_ids": [],
+  "target_tracked_decision_path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/decisions/native-gate-proxy-issuer-20261023.md",
+  "coordinator": {
+    "current_root_path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/root-parallel-resume-20261023-r2/CURRENT_ROOT.json",
+    "current_root_sha256": "0c80492f3e5175c1d3fe4694b9cadc5362e1043b4151207216a9735b0559e71b",
+    "current_head": "fb4fdc858d5db44bb433b927f0f1b737a26ce306",
+    "current_frame_path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/root-r72-receipt-commit-20261023-r1/full-composed-source-frame.json",
+    "current_frame_sha256": "8a55b99662712b882077978974e3da95dc4b0c89cb6d01805d64ed08b28bab70"
+  },
+  "e07_evidence": {
+    "audit_path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/e07-runtime-source-audit-20261023-r1/e07-denominator/e07-runtime-audit.md",
+    "audit_sha256": "579d63e04d8e98ecd0e4fde49888f11bdc810fcec428083b5720417db25e2302",
+    "denominator_path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/e07-runtime-source-audit-20261023-r1/e07-denominator/e07-runtime-named-denominator.json",
+    "denominator_sha256": "0094aedb053ca9f409a4c0e310d3069ad07d04d1d6aa76079910cb17224932c7",
+    "audited_head": "b2b57daa56cb68e5ae68565437fe39887421723a",
+    "audited_frame_sha256": "72425e5979d855f71326765f6a43a5a23517c4227297535c39e0bea18b6e35b1",
+    "row_output_path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/native-sota-current-rows-20261023-r4/current-E06-E11-property-probes-r1/e07-test-ratchets.json",
+    "row_output_sha256": "9c133e633e2c65517e90129b597ac00122cc821578449649c88b067e2888231b",
+    "contract_path": "policy-engine/architecture/tests/ratchets.toml",
+    "contract_sha256": "b3660f2c663ad383fcb728c7b2560793957071c065a26d3ad2af7c9f656cb2c6",
+    "reporter_path": "policy-engine/tools/quality/testing/report_test_ratchets.py",
+    "reporter_sha256": "7293e98a9a92abd0b1218e6555877dec7b4ad00a2f4642f50ec09db3bb62bbf8",
+    "denominator_counts": {
+      "runtime_source_modules": 321,
+      "qualifying_unit_test_files": 448
+    },
+    "rows": [
+      {
+        "package": "foundry",
+        "owner": "team-foundry",
+        "mirror": "385/539 = 0.7143",
+        "floor": 0.7176,
+        "e07_status": "floor_regression",
+        "strict": "191/539 = 0.3544",
+        "strict_baseline": 0.3531,
+        "property_files": 28,
+        "property_status": "required_present",
+        "owner_file": "policy-engine/architecture/packages/foundry.toml",
+        "owner_file_sha256": "d66b1796d4a0d527949d2fa541fcb3b58c4c209fc60275eb123d7a72ece2771d"
+      },
+      {
+        "package": "ir",
+        "owner": "team-ir",
+        "mirror": "106/177 = 0.5989",
+        "floor": 0.6012,
+        "e07_status": "floor_regression",
+        "strict": "26/177 = 0.1469",
+        "strict_baseline": 0.1272,
+        "property_files": 1,
+        "property_status": "required_present",
+        "owner_file": "policy-engine/architecture/packages/ir.toml",
+        "owner_file_sha256": "408c06d5be429baf1e723a8f07e009077f9d03e798c8b401970427f3352c3161"
+      },
+      {
+        "package": "runtime",
+        "owner": "team-runtime",
+        "mirror": "228/321 = 0.7103",
+        "floor": 0.7152,
+        "e07_status": "floor_regression_exception",
+        "exception_expired": "2026-06-15",
+        "strict": "165/321 = 0.5140",
+        "strict_baseline": 0.3892,
+        "property_files": 1,
+        "property_status": "required_present",
+        "contract_owner_file": "policy-engine/architecture/packages/runtime.toml",
+        "owner_file_sha256": "634b1a927f456a17e003f0dff09696efad6478df380e733d05c2b0edd970af88"
+      }
+    ],
+    "runtime_proxy_falsifier": {
+      "metric": "loose global filename-stem matching; no import/assertion/behavior/owner check",
+      "before": "228/321 = 0.7103",
+      "floor": 0.7152,
+      "rename_only_in_memory": [
+        {
+          "source": "policy-engine/src/polisyos/runtime/http/resource_binding.py",
+          "source_sha256": "38310d3d8953fdf4560f97ac7b324ec190e5fb4ae19a266779289a60477a1c5a",
+          "existing_test": "policy-engine/tests/unit/runtime/http/test_observational_hte_resource_summary_contract.py",
+          "test_sha256": "58b4448b661fa8162e5afb020cf0b471fd949e8bb46b2643dd6cbcd4f65c341e",
+          "proposed_name": "test_resource_binding.py"
+        },
+        {
+          "source": "policy-engine/src/polisyos/runtime/http/services/control/owned_attempt_anchor.py",
+          "source_sha256": "1d9ec0cf7dd9bf3c8e3dd1f3ee0383724a9d7138e54118c6e46d76dd81f54bc4",
+          "existing_test": "policy-engine/tests/unit/runtime/http/test_owned_attempt_anchor_v2_run_details_semantics.py",
+          "test_sha256": "ccdbe15804029543e7275f8fad55da4d2e330027556ac4fac97aa15fac6ab577",
+          "proposed_name": "test_owned_attempt_anchor.py"
+        }
+      ],
+      "after": "230/321 = 0.7165",
+      "files_changed": false,
+      "meaning": "Concrete P38 divergence; not proof that semantic testing is unnecessary."
+    },
+    "helper_topology": {
+      "owner": "team-quality",
+      "baseline_path": "policy-engine/architecture/baselines/repository_best_in_class_last_mile/test_helper_topology.json",
+      "baseline_sha256": "d3725f4bc510655204a00202be9081ea6851d017b9d986c3e6af31af3b17fee0",
+      "current": 34,
+      "baseline": 10,
+      "layer_local_conftests": 27,
+      "registered_duplicate": "cas_store",
+      "unused": 0,
+      "forbidden_reverse_imports": 0,
+      "stale_or_unregistered_duplicates": 0
+    }
+  },
+  "e06_hold": {
+    "status": "HOLD_for_debt_removed_claim",
+    "decision_source": "Root coordination instruction plus Q2 peer message; no durable peer report path/hash supplied",
+    "output_path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/native-sota-current-rows-20261023-r3/e08-e10-package-ignore-removal-probe-r1/fabric-check-no-glob.stdout",
+    "output_sha256": "4b94185d2454e2ed54b43b99d4c6bc56a010439e4bf347c887c221c1e8bca9d1",
+    "input_manifest_path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/native-sota-current-rows-20261023-r3/e08-e10-package-ignore-removal-probe-r1/fabric-no-glob-input-manifest.json",
+    "input_manifest_sha256": "1de397016826fa77c847fe23d7873a7c8e756f4a89a1d586af206c0bb4a062b1",
+    "matching_current_manifest_path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/native-sota-current-rows-20261023-r4/current-E06-E11-property-probes-r1/e08-fabric-ruff-current-inputs.json",
+    "matching_current_manifest_sha256": "1de397016826fa77c847fe23d7873a7c8e756f4a89a1d586af206c0bb4a062b1",
+    "inputs": 306,
+    "diagnostics": 248,
+    "diagnostic_counts": {
+      "TC001": 133,
+      "TC003": 100,
+      "TC002": 5,
+      "UP046": 5,
+      "E501": 5
+    },
+    "receipt_path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/native-sota-current-rows-20261023-r3/e08-e10-package-ignore-removal-probe-r1/receipt.json",
+    "receipt_sha256": "480d463de7aeff1bb00cf046927cb32670f44cd04c4fb17b32a0621de6e70623",
+    "invocation_path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/native-sota-current-rows-20261023-r3/e08-e10-package-ignore-removal-probe-r1/invocation.json",
+    "invocation_sha256": "ccf9c66f55a1d9c0c4e8120812577d060461fab82696afcb03780d7734ac5af8",
+    "overlay_config_sha256": "4f97c56c884602a4bc03c0770012420ac7da37b4fdce2979fd461d09bbf4d3fa",
+    "requested_action": "Keep E06 on HOLD; source owners continue Fabric/IR typing and lint repair, with no blanket renewal."
+  },
+  "proposed_next_state": {
+    "ratchets_unchanged": true,
+    "preserve_current_findings": true,
+    "root_waiver_authorized": false,
+    "semantic_test_only_for_proven_gap": true,
+    "next_check": "Named issuers provide current complete inputs, behavior mapping, and chosen route before next source-freeze review"
+  },
+  "pattern_pass": [
+    "P35",
+    "P38",
+    "P37",
+    "P41"
+  ]
+}

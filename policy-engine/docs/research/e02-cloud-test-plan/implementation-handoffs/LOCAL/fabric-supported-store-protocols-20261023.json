@@ -1,0 +1,228 @@
+{
+  "schema_version": "1.0",
+  "slice": "fabric-supported-store-protocols-20261023",
+  "status": "author_proposal_for_independent_G_acceptance",
+  "slice_base": "fb4fdc858d5db44bb433b927f0f1b737a26ce306",
+  "candidate": "be386cd7f6619123e5ca179f0750c0ce8192c5c4",
+  "tree": "90cad05768a911f93483e518f2517067f8072051",
+  "parents": [
+    "fb4fdc858d5db44bb433b927f0f1b737a26ce306"
+  ],
+  "branch": "codex/e02-unified-local-20261009",
+  "source_freeze": false,
+  "closure_ids": [],
+  "proposal_fields": {
+    "native_rows": {
+      "E09": "limited_proposal: seven normalized Mypy errors removed; full native remains red; canonical behavior positive"
+    },
+    "finding_closures": []
+  },
+  "scope": "Read-only protocol covariance and existing optional store capability narrowing at real consumers; no new backend support, public DTO or authority claims.",
+  "footprint": [
+    {
+      "path": "policy-engine/src/polisyos/fabric/connectors/quality/completeness.py",
+      "sha256": "e993d124ed4f9a2285c5f98cf867b3c40ae1bd0d0bf07165f0894201bfd6c30d"
+    },
+    {
+      "path": "policy-engine/src/polisyos/fabric/world/query.py",
+      "sha256": "28f00f19e7fa71d8770ea9289fb50f658cda02526d7266d2ef6fc49396162970"
+    },
+    {
+      "path": "policy-engine/src/polisyos/fabric/connectors/cache/invalidation.py",
+      "sha256": "df70dfe996ce1772d32d39bd436bb14d89160e09ea3892993154b9d1e427d0c9"
+    },
+    {
+      "path": "policy-engine/src/polisyos/fabric/retrieval/custody.py",
+      "sha256": "60c99349428315b54b316acf43ccbc8c9f443fca969c7a31bcc29ec60f845c22"
+    },
+    {
+      "path": "policy-engine/src/polisyos/fabric/data_plane/quarantine.py",
+      "sha256": "3c6a7e867b577c9130d8a9a96d5800d077df6574454e43ef547f4b70872544f5"
+    },
+    {
+      "path": "policy-engine/src/polisyos/fabric/data_plane/cli.py",
+      "sha256": "6c4b7fd4efa0c75e93a322cb5448530395ea4dd2d41aed81c3cd99edd2b7aa35"
+    },
+    {
+      "path": "policy-engine/tests/unit/fabric/test_e09_protocol_cohort1.py",
+      "sha256": "f1f207bea0ca3c8f8e0637e7f5868d81804fbea27f68558822d44d8eb7141b5b"
+    },
+    {
+      "path": "policy-engine/src/polisyos/fabric/connectors/README.md",
+      "sha256": "55015972ad6172cf72c6d9a6026838b77d786e81ad66154e64a19d0ed3cfabc7"
+    },
+    {
+      "path": "policy-engine/src/polisyos/fabric/retrieval/README.md",
+      "sha256": "15ad9c23755ffc488176fe39b08daf62a34b89e63faa4e1bebb4cc95625a1479"
+    },
+    {
+      "path": "policy-engine/src/polisyos/fabric/data_plane/README.md",
+      "sha256": "229e2a2a785136c86615812c772e763e65b75e143f64a33a4ce81eab963fe7ea"
+    }
+  ],
+  "implementation_readback": {
+    "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/root-fabric-e09-cohort1-implementation-commit-20261023-r1/readback.json",
+    "sha256": "b4b271ca0b9b5842dbac2b08602bda706fcfcfe4f31103023383de37a245e182"
+  },
+  "independent_reviews": [
+    {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/b161-fabric-e09-cohort1-independent-review-r1/review.md",
+      "sha256": "78e2c4a7d3c97562b48925c0afc6e647b123e304342ab7bd9ccddd435ff7bad9"
+    },
+    {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/root-fabric-cohort1-format-independent-review-20261023-r1/review.md",
+      "sha256": "4b9bee92db4ee9039479fbef1a8c2525f3c48d4be583fa036ecddc9e8e6aba82"
+    }
+  ],
+  "selected_inputs_and_backends": {
+    "fixture": "controlled local strict FileSystemCAS selected-profile manifests and frozen DataSchema / WorldSnapshotRecord",
+    "query_backend": "DuckDB local snapshot; unsupported adapter refusal retained",
+    "other_backends": "not established by this slice"
+  },
+  "source_qualification": {
+    "verification_context": "Actual canonical composed WIP source, captured by exact full frame; do not transfer test outcome to the isolated implementation commit tree or a later freeze without replay.",
+    "source_frame": {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/root-r3-facet-base-reviewed-application-20261023-r1/full-composed-source-frame.json",
+      "sha256": "ae836b16b2a4071b6df76cc99fcd475fbe420bc8ff87ff98693f00a301ffc592"
+    },
+    "head_at_run": "fb4fdc858d5db44bb433b927f0f1b737a26ce306",
+    "implementation_commit_after_run": "be386cd7f6619123e5ca179f0750c0ce8192c5c4",
+    "other_frame_hashes_preserved": true
+  },
+  "verification": {
+    "canonical_wave": {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/root-ad01-fabric-composed-canonical-wave-20261023-r1/receipt.json",
+      "sha256": "90fc847292a09022c6d241ce5ec397b8434dd40d528bbf65d0e659f9a31d8a58"
+    },
+    "command_rows": [
+      {
+        "name": "ruff-check",
+        "argv": [
+          "/Users/deniskopylov/.codex/worktrees/e02-unified-local-20261009/polisyos/policy-engine/.venv/bin/python",
+          "-B",
+          "-m",
+          "tools.devx.workspace.ruff_sources",
+          "--manifest",
+          "/Users/deniskopylov/.codex/worktrees/e02-unified-local-20261009/polisyos/policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/root-ad01-fabric-composed-canonical-wave-20261023-r1/ruff-manifest.json",
+          "--operation",
+          "check"
+        ],
+        "cwd": "/Users/deniskopylov/.codex/worktrees/e02-unified-local-20261009/polisyos/policy-engine",
+        "timeout_seconds": 90,
+        "exit_code": 0,
+        "timed_out": false,
+        "wall_seconds": 0.7207815828733146,
+        "stdout_sha256": "a7e06d4cab738ac86c6b7cc36faf16a0de5feff075e869c070cf71d9157f6c89",
+        "stderr_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+      },
+      {
+        "name": "ruff-format-check",
+        "argv": [
+          "/Users/deniskopylov/.codex/worktrees/e02-unified-local-20261009/polisyos/policy-engine/.venv/bin/python",
+          "-B",
+          "-m",
+          "tools.devx.workspace.ruff_sources",
+          "--manifest",
+          "/Users/deniskopylov/.codex/worktrees/e02-unified-local-20261009/polisyos/policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/root-ad01-fabric-composed-canonical-wave-20261023-r1/ruff-manifest.json",
+          "--operation",
+          "format-check"
+        ],
+        "cwd": "/Users/deniskopylov/.codex/worktrees/e02-unified-local-20261009/polisyos/policy-engine",
+        "timeout_seconds": 90,
+        "exit_code": 0,
+        "timed_out": false,
+        "wall_seconds": 0.6745837919879705,
+        "stdout_sha256": "613884a5b6489b448abb8058e1a94dff1c940ee5bf56dd39f62288c16fdb05dd",
+        "stderr_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+      },
+      {
+        "name": "pytest",
+        "argv": [
+          "/Users/deniskopylov/.codex/worktrees/e02-unified-local-20261009/polisyos/policy-engine/.venv/bin/python",
+          "-B",
+          "-m",
+          "pytest",
+          "-q",
+          "-o",
+          "cache_dir=/Users/deniskopylov/.codex/worktrees/e02-unified-local-20261009/polisyos/policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/root-ad01-fabric-composed-canonical-wave-20261023-r1/pytest-cache",
+          "--basetemp=/Users/deniskopylov/.codex/worktrees/e02-unified-local-20261009/polisyos/policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/root-ad01-fabric-composed-canonical-wave-20261023-r1/temp",
+          "--junitxml=/Users/deniskopylov/.codex/worktrees/e02-unified-local-20261009/polisyos/policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/root-ad01-fabric-composed-canonical-wave-20261023-r1/junit.xml",
+          "tests/integration/foundry/test_compiled_method_metric_projection.py",
+          "tests/unit/foundry/compile/test_unified_dag_method_nodes.py",
+          "tests/unit/scientist/nodes/builtins/planning/test_build_execution_plan.py",
+          "tests/unit/fabric/test_e09_protocol_cohort1.py",
+          "tests/unit/fabric/connectors/test_quality_system.py::TestCompletenessAnalyzer",
+          "tests/unit/fabric/test_world_query_multibackend.py",
+          "tests/unit/fabric/connectors/test_cache_system.py::test_invalidation_orchestrator",
+          "tests/unit/fabric/data_plane/test_quarantine.py"
+        ],
+        "cwd": "/Users/deniskopylov/.codex/worktrees/e02-unified-local-20261009/polisyos/policy-engine",
+        "timeout_seconds": 240,
+        "exit_code": 0,
+        "timed_out": false,
+        "wall_seconds": 14.858318208018318,
+        "stdout_sha256": "fcc0159e4e9f9a6d2d64f1a1b752e5d3c7dff236840630db8690ea0bcffae15d",
+        "stderr_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+      }
+    ],
+    "junit_counts": {
+      "tests": 34,
+      "failures": 0,
+      "errors": 0,
+      "skipped": 0
+    },
+    "complete_deciding_outputs": [
+      {
+        "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/root-ad01-fabric-composed-canonical-wave-20261023-r1/pytest.stdout",
+        "sha256": "fcc0159e4e9f9a6d2d64f1a1b752e5d3c7dff236840630db8690ea0bcffae15d"
+      },
+      {
+        "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/root-ad01-fabric-composed-canonical-wave-20261023-r1/pytest.stderr",
+        "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+      },
+      {
+        "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/root-ad01-fabric-composed-canonical-wave-20261023-r1/junit.xml",
+        "sha256": "c6439328801936c1e21ab3a79c40d1036204dfc809ccbc19681d7d883e01ce3b"
+      },
+      {
+        "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/root-ad01-fabric-composed-canonical-wave-20261023-r1/ruff-check.stdout",
+        "sha256": "a7e06d4cab738ac86c6b7cc36faf16a0de5feff075e869c070cf71d9157f6c89"
+      },
+      {
+        "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/root-ad01-fabric-composed-canonical-wave-20261023-r1/ruff-format-check.stdout",
+        "sha256": "613884a5b6489b448abb8058e1a94dff1c940ee5bf56dd39f62288c16fdb05dd"
+      }
+    ],
+    "count_scope": "34 total composed cases; includes AD01 and Fabric. No inferred additional finding closures.",
+    "author_full_mypy_comparison": {
+      "comparison_manifest": {
+        "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/b161-fabric-e09-cohort1-author-20261023-r1/packet-v4/candidate-manifest.json",
+        "sha256": "9a8e8dab8767a1fa055103cb8e0b9af21187fda01d15d304aba7f6368f412465"
+      },
+      "candidate_only_run": {
+        "bytes": 6698,
+        "path": "/Users/deniskopylov/.codex/worktrees/e02-unified-local-20261009/polisyos/policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/b161-fabric-e09-cohort1-author-20261023-r1/mypy-fabric-shadow-full-r1/mypy-run.json",
+        "sha256": "985edfa361ccfbf6f3af062f8f736249186199ffe2651b63299d65682735cddb"
+      }
+    },
+    "mypy_status": "94 -> 87 total errors in author comparison; 7 normalized diagnostics removed, 0 normalized added. Four raw line-shifted custody records normalize to unchanged diagnostics. Remaining errors are not classified inherited under P41; not a native green receipt."
+  },
+  "real_chain": [
+    "frozen schema/snapshot -> read-only consumer protocols -> completeness/query backend",
+    "acquired connector handle -> invalidation consumer -> release_connection on success/failure",
+    "selected CAS ref/profile -> custody manifest consumer and filesystem-indexed quarantine persistence"
+  ],
+  "adversarial_controls": [
+    "unsupported query adapter refuses",
+    "profile-addressed manifest capability fallback is exercised",
+    "freshness failure still releases handle",
+    "unsupported non-indexed quarantine store refuses at required capability boundary"
+  ],
+  "surfaces": "Existing Fabric consumer APIs/CLI; full installed package and external production surfaces pending.",
+  "limitations": [
+    "Full E08/E09/Fabric native gate remains red/unrun on final composition.",
+    "Cohort2 stream/results, remaining typing and TC import debt continue separately.",
+    "No Linux worker, full wheel/rebuilt-sdist, production currentness, causal calibration or G adjudication is established."
+  ],
+  "next_check": "After composed source/input/backend freeze: full native row replay and exact installed-package consumers; G independently reviews pinned candidate and proposal."
+}

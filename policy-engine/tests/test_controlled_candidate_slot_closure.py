@@ -212,16 +212,13 @@ def test_registered_and_direct_ncm_outcomes_compose_and_reject_wrong_paths() -> 
             candidate_baseline_state={"global.tax_rate": True},
             candidate_outcome_state_paths=None,
         )
-    with pytest.raises(
-        ValueError,
-        match="controlled_wmr_ncm_outcome_scope_not_supported",
-    ):
-        CANDIDATE_HELPER._controlled_selected_slot_specs(
-            policy_slot_ids=("agents_is_employed",),
-            declared_ncm_outcomes=frozenset({"agents_is_employed"}),
-            candidate_baseline_state={"agents_is_employed": True},
-            candidate_outcome_state_paths=None,
-        )
+    scoped = CANDIDATE_HELPER._controlled_selected_slot_specs(
+        policy_slot_ids=("agents_is_employed",),
+        declared_ncm_outcomes=frozenset({"agents_is_employed"}),
+        candidate_baseline_state={"agents_is_employed": True},
+        candidate_outcome_state_paths=None,
+    )
+    assert scoped["agents_is_employed"].scope.value == "per_agent"
     with pytest.raises(
         ValueError,
         match="controlled_wmr_registered_ncm_outcome_state_path_mismatch",
@@ -535,3 +532,124 @@ def test_owner_built_candidate_outcome_is_persisted_and_read_back(
             assert float(reloaded_state.market.total_supply) == 0.0
     finally:
         store.close()
+
+
+def test_registered_scalar_outcomes_preserve_typed_entity_axes_for_foundry() -> None:
+    """Scoped scalar fixtures retain the seed axis used by actual Foundry bindings."""
+    from polisyos.foundry.data_plane.bindings import (
+        _auto_rules_from_payload,
+        _infer_entity_sizes,
+    )
+    from polisyos.ir.kernel import DEFAULT_SLOT_REGISTRY, SlotRegistry
+
+    cases = (
+        ("agents.income", {"agents": {"income": [1200.0]}}, 0),
+        ("firms.labor_count", {"firms": {"labor_count": [3.0]}}, 1),
+        ("cells.distress_score", {"cells": {"distress_score": [0.0]}}, 2),
+    )
+    for slot_id, seed, expected_size_index in cases:
+        baseline = 0.5
+        spec = CANDIDATE_HELPER._controlled_selected_slot_specs(
+            policy_slot_ids=(slot_id,),
+            declared_ncm_outcomes=frozenset({slot_id}),
+            candidate_baseline_state={slot_id: baseline},
+            candidate_outcome_state_paths=None,
+        )[slot_id]
+        payload = seed
+        value = CANDIDATE_HELPER._controlled_ncm_outcome_payload_value(
+            payload=payload,
+            slot_spec=spec,
+            baseline=baseline,
+        )
+        CANDIDATE_HELPER._controlled_set_payload_path(
+            payload,
+            spec.state_path or "",
+            value,
+            replace_existing=True,
+        )
+        path_parts = (spec.state_path or "").split(".")
+        leaf: object = payload
+        for part in path_parts:
+            assert isinstance(leaf, dict)
+            leaf = leaf[part]
+        assert leaf == [baseline]
+
+        registry = SlotRegistry.model_validate(
+            {
+                "schema_version": DEFAULT_SLOT_REGISTRY.schema_version,
+                "slots": {slot_id: spec},
+                "notes": ["Candidate-only singleton-axis binding witness."],
+            }
+        )
+        rules = _auto_rules_from_payload(slot_registry=registry, payload=payload)
+        assert len(rules) == 1
+        assert rules[0].source_path == spec.state_path
+        assert rules[0].target_slot_id == slot_id
+        sizes = _infer_entity_sizes(payload=payload, rules=rules, slot_registry=registry)
+        assert sizes[expected_size_index] == 1
+
+
+def test_ncm_entity_axis_refuses_absent_malformed_and_ambiguous_seed_axes() -> None:
+    """A scalar cannot invent or collapse an entity population."""
+    from polisyos.ir.kernel import DEFAULT_SLOT_REGISTRY, SlotScope
+
+    spec = DEFAULT_SLOT_REGISTRY.slots["cells.distress_score"]
+    invalid_payloads = (
+        {},
+        {"cells": {"distress_score": 0.0}},
+        {"cells": {"distress_score": []}},
+        {"cells": {"distress_score": [0.0, 1.0]}},
+    )
+    for payload in invalid_payloads:
+        with pytest.raises(ValueError, match="controlled_wmr_ncm_outcome_entity_axis_"):
+            CANDIDATE_HELPER._controlled_ncm_outcome_payload_value(
+                payload=payload,
+                slot_spec=spec,
+                baseline=0.25,
+            )
+
+    wrongly_scoped = spec.model_copy(update={"scope": SlotScope.PER_AGENT})
+    with pytest.raises(
+        ValueError,
+        match="controlled_wmr_ncm_outcome_scope_state_path_mismatch",
+    ):
+        CANDIDATE_HELPER._controlled_ncm_outcome_payload_value(
+            payload={"cells": {"distress_score": [0.0]}},
+            slot_spec=wrongly_scoped,
+            baseline=0.25,
+        )
+
+    global_spec = DEFAULT_SLOT_REGISTRY.slots["global.tax_rate"]
+    with pytest.raises(
+        ValueError,
+        match="controlled_wmr_ncm_outcome_global_scope_entity_axis_mismatch",
+    ):
+        CANDIDATE_HELPER._controlled_ncm_outcome_payload_value(
+            payload={"tax_rate": [0.0]},
+            slot_spec=global_spec,
+            baseline=0.25,
+        )
+
+
+def test_global_ncm_outcome_keeps_scalar_and_allows_new_typed_path() -> None:
+    """Existing global outcomes remain scalar, including explicit unregistered fixtures."""
+    from polisyos.ir.kernel import DEFAULT_SLOT_REGISTRY
+
+    spec = DEFAULT_SLOT_REGISTRY.slots["global.tax_rate"]
+    assert (
+        CANDIDATE_HELPER._controlled_ncm_outcome_payload_value(
+            payload={"tax_rate": 0.0},
+            slot_spec=spec,
+            baseline=0.25,
+        )
+        == 0.25
+    )
+    direct = spec.model_copy(update={"state_path": "market.total_supply"})
+    assert (
+        CANDIDATE_HELPER._controlled_ncm_outcome_payload_value(
+            payload={},
+            slot_spec=direct,
+            baseline=1.0,
+        )
+        == 1.0
+    )

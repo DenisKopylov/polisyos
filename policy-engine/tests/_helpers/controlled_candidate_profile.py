@@ -17,7 +17,7 @@ from dataclasses import dataclass
 from decimal import Decimal
 from http.server import BaseHTTPRequestHandler, ThreadingHTTPServer
 from pathlib import Path
-from typing import Any
+from typing import TYPE_CHECKING, Any
 from uuid import uuid4
 
 from polisyos.core.artifacts import ensure_ir_artifact_store as _ensure_ir_artifact_store
@@ -41,6 +41,11 @@ from polisyos.runtime.quality.design_problem import (
 from polisyos.runtime.quality.generation_cycle import CandidateGroundingObservation
 from polisyos.runtime.quality.intervention_atom_binding import InterventionAtomBinding
 from polisyos.scientist.orchestration.engine.budget import BudgetLimit, BudgetState
+
+if TYPE_CHECKING:
+    from polisyos.ir.kernel import SlotSpec
+
+
 from tools.quality.validation import (
     check_layer3_gy_design_generation_contract as n4_contract,
 )
@@ -526,6 +531,65 @@ def _controlled_ncm_outcome_baseline_is_compatible(baseline: object, value_type:
         return False
 
 
+def _controlled_ncm_outcome_payload_value(
+    *,
+    payload: Mapping[str, object],
+    slot_spec: SlotSpec,
+    baseline: object,
+) -> object:
+    """Materialize a scalar fixture baseline only on its registered state axis.
+
+    The selected slot's owner-derived family must agree with its declared scope.
+    Global outcomes remain scalar. A scoped outcome can use a scalar NCM
+    baseline only when the exact registered state path already carries a
+    singleton entity axis in the fixture seed. This is a candidate-only
+    representation rule, not aggregation or broadcast semantics.
+    """
+    from polisyos.ir.kernel import SlotRegistry
+    from polisyos.ir.kernel.slots import build_slot_family_manifest
+
+    state_path = slot_spec.state_path
+    if not isinstance(state_path, str) or not state_path.strip():
+        raise ValueError("controlled_wmr_ncm_outcome_state_path_not_declared")
+    parts = state_path.split(".")
+    if any(not part for part in parts):
+        raise ValueError("controlled_wmr_ncm_outcome_state_path_invalid")
+    registry = SlotRegistry(slots={slot_spec.slot_id: slot_spec})
+    family_manifest = build_slot_family_manifest(registry)
+    (family,) = family_manifest.families.values()
+    scope_name = getattr(slot_spec.scope, "value", slot_spec.scope)
+    family_scope_name = getattr(family.scope, "value", family.scope)
+    if family.scope != slot_spec.scope:
+        raise ValueError(
+            "controlled_wmr_ncm_outcome_scope_state_path_mismatch:"
+            f"{scope_name}:{family_scope_name}:{state_path}"
+        )
+
+    current: object = payload
+    missing = object()
+    for part in parts:
+        if not isinstance(current, Mapping) or part not in current:
+            current = missing
+            break
+        current = current[part]
+    if scope_name == "global":
+        if current is not missing and isinstance(current, (list, tuple)):
+            raise ValueError(
+                "controlled_wmr_ncm_outcome_global_scope_entity_axis_mismatch:" + state_path
+            )
+        return baseline
+    if current is missing or not isinstance(current, (list, tuple)):
+        raise ValueError("controlled_wmr_ncm_outcome_entity_axis_not_established:" + state_path)
+    if len(current) != 1:
+        raise ValueError(
+            "controlled_wmr_ncm_outcome_entity_axis_cardinality_not_supported:"
+            f"{state_path}:{len(current)}"
+        )
+    if isinstance(current, list):
+        return [baseline]
+    return (baseline,)
+
+
 def _controlled_auto_binding_id(slot_id: str) -> str:
     """Mirror the data-plane auto-binding identifier for collision checks."""
     return f"auto.{slot_id.replace('.', '_')}"
@@ -594,9 +658,6 @@ def _controlled_selected_slot_specs(
             canonical_slot = DEFAULT_SLOT_REGISTRY.slots[canonical_id]
             slot_spec = canonical_slot.model_copy(update={"slot_id": slot_id})
             if slot_id in declared_ncm_outcomes:
-                scope_name = getattr(canonical_slot.scope, "value", canonical_slot.scope)
-                if scope_name != "global":
-                    raise ValueError("controlled_wmr_ncm_outcome_scope_not_supported:" + slot_id)
                 value_type_name = getattr(
                     canonical_slot.value_type, "value", canonical_slot.value_type
                 )
@@ -1167,10 +1228,15 @@ def _materialize_controlled_world_model_build(
             canonical_id = _CONTROLLED_SLOT_ALIASES.get(slot_id, slot_id)
             canonical_slot = DEFAULT_SLOT_REGISTRY.slots.get(canonical_id)
             registered_path = canonical_slot.state_path if canonical_slot is not None else None
+            payload_baseline = _controlled_ncm_outcome_payload_value(
+                payload=payload,
+                slot_spec=slot_spec,
+                baseline=baseline,
+            )
             _controlled_set_payload_path(
                 payload,
                 slot_spec.state_path,
-                baseline,
+                payload_baseline,
                 replace_existing=(registered_path == slot_spec.state_path),
             )
         payload_ref = artifact_store.put_json(

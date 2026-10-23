@@ -1,0 +1,238 @@
+{
+  "schema": "policyos.e02.source_bound_capability_replay_receipt.v1",
+  "slice": "Core and IR stored artifact selector semantics before projection",
+  "source": {
+    "slice_base": "f12fb9895a4009ce77828554f4c5c18d83e6ec15",
+    "candidate": "6b5df63930d5753ab5e2efaddcc032b91505e6ea",
+    "tree": "620c19dc1be0eedf238d18ee874fa22167daf70d",
+    "parents": [
+      "f12fb9895a4009ce77828554f4c5c18d83e6ec15"
+    ],
+    "branch": "codex/e02-unified-local-20261009"
+  },
+  "source_implementation": {
+    "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/root-active-resume-20261023-r2/core-ir-seven-ordinary-commit-r1/readback.json",
+    "sha256": "cce6b054e8d341aaf143aeab783028f3b2b77f3cfd74c28509650c94ef5ab853",
+    "availability": "retained local ignored RAW"
+  },
+  "full_code_test_config_companion_footprint": [
+    {
+      "path": "policy-engine/src/polisyos/core/artifacts/ids.py",
+      "sha256": "6fbfc522d960556af66e44a8c3d6b59e478ca1ff4578b49a3573c95d33c01b4d"
+    },
+    {
+      "path": "policy-engine/src/polisyos/core/artifacts/ir_adapter.py",
+      "sha256": "3221f214a8c24ef112e96e8f36f23c5589beabbef183b69e49b94d566cd810f9"
+    },
+    {
+      "path": "policy-engine/src/polisyos/ir/artifacts/contracts.py",
+      "sha256": "d5f77d80674ec756305964cc8e8fdafa35408de38161230c2f7b7c0867b917b0"
+    },
+    {
+      "path": "policy-engine/tests/unit/core/artifacts/test_ir_adapter.py",
+      "sha256": "830dbc42a23028f19d655e6e089c17e5f95156695794f5ce33402d7aa5a09437"
+    },
+    {
+      "path": "policy-engine/tests/unit/core/artifacts/test_artifact_id_native_string_validation.py",
+      "sha256": "942bd02af15352d8ecc74375e0e233b7ec193f6b537905ebdf0662f289db1b28"
+    },
+    {
+      "path": "policy-engine/tests/unit/ir/artifacts/test_selector_field_inventory.py",
+      "sha256": "d30780c749a31b02c470c2605da2569fa989ffa66cafa0c1c2e3e5bde895784f"
+    },
+    {
+      "path": "policy-engine/tests/unit/ir/artifacts/test_artifact_id_native_string_validation.py",
+      "sha256": "a0415e444244975a9e9c00ea90513bd67875d7d63264d790a1ee9de49d831df9"
+    }
+  ],
+  "verification_source_boundary": "The selected seven committed postimages were tested in the recorded larger dirty composition, not an isolated checkout of this Git tree. All run source frames and import origins are retained. Standalone committed-tree replay is not established.",
+  "selected_input_profile_backend": {
+    "input": "Complete existing selector/adapter and native ArtifactID test modules; local controlled CAS fixtures. No production payload.",
+    "backend": "Existing macOS CPython 3.14.3 local venv; no installation or environment copy.",
+    "configuration": "Explicit policy-engine/pytest.ini, native plugin autoload; canonical policy-engine/ruff.toml; one numerical thread."
+  },
+  "verification": {
+    "selector_adapter_whole_two_modules": {
+      "outcomes": {
+        "cases": 141,
+        "PASS": 141,
+        "FAIL": 0,
+        "ERROR": 0,
+        "SKIP": 0
+      },
+      "command_and_environment": {
+        "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/root-active-resume-20261023-r2/core-ir-r18-canonical-wave-r1/execution/invocation.json",
+        "sha256": "0011ba61d7c9d6f8809992e8f83f83fa4b80ac5c5c1eecf073bd480ede6651d8",
+        "availability": "retained local ignored RAW"
+      },
+      "source_input_freeze": {
+        "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/root-active-resume-20261023-r2/core-ir-r18-canonical-wave-r1/source-input-freeze.json",
+        "sha256": "833e207c14c8d3d17b083b89a11c01713006bf1c24ec2a0ed2ba927ea4cfc153",
+        "availability": "retained local ignored RAW"
+      },
+      "full_deciding_outputs": {
+        "result.json": {
+          "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/root-active-resume-20261023-r2/core-ir-r18-canonical-wave-r1/result.json",
+          "sha256": "88b5b96d3a5aff51ebd8f77237c256beff011cf3e8f6856c1b6e51c45b4b63e6",
+          "availability": "retained local ignored RAW"
+        },
+        "stdout": {
+          "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/root-active-resume-20261023-r2/core-ir-r18-canonical-wave-r1/stdout",
+          "sha256": "ea83da2b9e677e6bf854f3c9c322e66ad07f5733a4b09cb988c779036f5bcd1f",
+          "availability": "retained local ignored RAW"
+        },
+        "stderr": {
+          "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/root-active-resume-20261023-r2/core-ir-r18-canonical-wave-r1/stderr",
+          "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+          "availability": "retained local ignored RAW"
+        },
+        "junit.xml": {
+          "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/root-active-resume-20261023-r2/core-ir-r18-canonical-wave-r1/junit.xml",
+          "sha256": "6c913203680b69d41ff214880f2792f136408a978913a191ecff8f2f20487ab1",
+          "availability": "retained local ignored RAW"
+        },
+        "collection.json": {
+          "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/root-active-resume-20261023-r2/core-ir-r18-canonical-wave-r1/collection.json",
+          "sha256": "17e134644563dd1738a8482beaea7a588e81880560fce02417eed0b6b99dc866",
+          "availability": "retained local ignored RAW"
+        },
+        "import-origins.json": {
+          "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/root-active-resume-20261023-r2/core-ir-r18-canonical-wave-r1/import-origins.json",
+          "sha256": "1c3e55ccd8c98850b2a7f6bc4593a92e43cec6f864d70f06bfa94f1f84a739bc",
+          "availability": "retained local ignored RAW"
+        }
+      },
+      "execution_receipt": {
+        "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/root-active-resume-20261023-r2/core-ir-r18-canonical-wave-r1/execution/receipt.json",
+        "sha256": "704f480689387d9cb0257fb39f7b5f96027f64daecc74678ed1a495ef6fd8b09",
+        "availability": "retained local ignored RAW"
+      }
+    },
+    "native_id_whole_two_modules": {
+      "outcomes": {
+        "cases": 12,
+        "PASS": 12,
+        "FAIL": 0,
+        "ERROR": 0,
+        "SKIP": 0
+      },
+      "command_and_environment": {
+        "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/root-active-resume-20261023-r2/core-ir-owner-id-canonical-wave-r1/execution/invocation.json",
+        "sha256": "dbc43713643468cfae2a30cfe03f733b8b783005142165b0140a24291bf8ca6a",
+        "availability": "retained local ignored RAW"
+      },
+      "source_input_freeze": {
+        "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/root-active-resume-20261023-r2/core-ir-owner-id-canonical-wave-r1/source-input-freeze.json",
+        "sha256": "dc82aac6adf1a84aa0d53e334c12d84f39239647914f5da2649f8f3eaa8306a3",
+        "availability": "retained local ignored RAW"
+      },
+      "full_deciding_outputs": {
+        "result.json": {
+          "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/root-active-resume-20261023-r2/core-ir-owner-id-canonical-wave-r1/result.json",
+          "sha256": "f3d829da258081df09b2944f25c29857f1ef72fcf740c2b81438e342afa9f735",
+          "availability": "retained local ignored RAW"
+        },
+        "stdout": {
+          "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/root-active-resume-20261023-r2/core-ir-owner-id-canonical-wave-r1/stdout",
+          "sha256": "0f273d89c13c22f167eecad53a6b86b8034357045f6b6b4280504a100fb5fa9c",
+          "availability": "retained local ignored RAW"
+        },
+        "stderr": {
+          "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/root-active-resume-20261023-r2/core-ir-owner-id-canonical-wave-r1/stderr",
+          "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+          "availability": "retained local ignored RAW"
+        },
+        "junit.xml": {
+          "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/root-active-resume-20261023-r2/core-ir-owner-id-canonical-wave-r1/junit.xml",
+          "sha256": "44d01bcca9d664658df90ae9595bbddcd1d1626cb31b2a964aac8472d1db9097",
+          "availability": "retained local ignored RAW"
+        },
+        "collection.json": {
+          "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/root-active-resume-20261023-r2/core-ir-owner-id-canonical-wave-r1/collection.json",
+          "sha256": "49a5f534258415ab6378605178021289a16919ccfd55e23bc229ca177a71bd0e",
+          "availability": "retained local ignored RAW"
+        },
+        "import-origins.json": {
+          "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/root-active-resume-20261023-r2/core-ir-owner-id-canonical-wave-r1/import-origins.json",
+          "sha256": "000bb16cdcd732c66627f79a4cb191af0037d15d20e4ef6a25021a9e6116f204",
+          "availability": "retained local ignored RAW"
+        }
+      },
+      "execution_receipt": {
+        "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/root-active-resume-20261023-r2/core-ir-owner-id-canonical-wave-r1/execution/receipt.json",
+        "sha256": "75b692e2b37262bdc1784aa3d4669b65cd5a14742c249835dff370dee5417a5a",
+        "availability": "retained local ignored RAW"
+      }
+    },
+    "ruff_seven": {
+      "result": {
+        "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/root-active-resume-20261023-r2/core-ir-seven-canonical-ruff-r1/result.json",
+        "sha256": "bb7f21d0a31a5a8daa32bf447e89a36edd0dd1f7dc32dcbb43c434e2e2dca807",
+        "availability": "retained local ignored RAW"
+      },
+      "outputs": {
+        "check.stdout": {
+          "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/root-active-resume-20261023-r2/core-ir-seven-canonical-ruff-r1/check.stdout",
+          "sha256": "82b3e6a6c090a57601d22943bd23fca9218d1031dbe5a7b754092f9a156b4f18",
+          "availability": "retained local ignored RAW"
+        },
+        "check.stderr": {
+          "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/root-active-resume-20261023-r2/core-ir-seven-canonical-ruff-r1/check.stderr",
+          "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+          "availability": "retained local ignored RAW"
+        },
+        "format.stdout": {
+          "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/root-active-resume-20261023-r2/core-ir-seven-canonical-ruff-r1/format.stdout",
+          "sha256": "0321fffcb91606a42c0a19d8c1121d5c544379d663821fce616c71a7bb62f6b5",
+          "availability": "retained local ignored RAW"
+        },
+        "format.stderr": {
+          "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/root-active-resume-20261023-r2/core-ir-seven-canonical-ruff-r1/format.stderr",
+          "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+          "availability": "retained local ignored RAW"
+        }
+      },
+      "execution": {
+        "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/root-active-resume-20261023-r2/core-ir-seven-canonical-ruff-r1/execution/receipt.json",
+        "sha256": "16f0080cc0a6e042d33d0275cd320d2f3acd4d1bf6b78f809ae3283acae7ee1f",
+        "availability": "retained local ignored RAW"
+      }
+    }
+  },
+  "independent_source_review": {
+    "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/core-ir-r18-coherent-boundary-review-20261023-r1/source-review-r2/review.json",
+    "sha256": "a00744ebce0fee2fd076c062900b6ab021a87b3e6b019f13c192976f59767f8d",
+    "availability": "retained local ignored RAW"
+  },
+  "real_chain": "Stored Core/IR owner ID or structural selector -> inventory of stored fields/root/extras/slots before model_dump -> canonical ID grammar and selected manifest association -> CAS/typed reader. The two complete selector/adapter modules exercise actual store read counts and both boundaries.",
+  "adversarial_and_removal_controls": "Retained tests cover terminal newline and hostile str subclasses, hidden unknown stored fields/slots/extras, fake RootModel markers, projection substitution, and metadata rewriting. R18 explicitly proves unsupported stored root is refused before model_dump. Full deciding output identifies each case.",
+  "consumer_surface": {
+    "established": "Four complete local Core/IR test modules, 141 + 12 cases; canonical seven-file Ruff check and format.",
+    "pending": "Public schema/catalog/OpenAPI/client/dashboard companions and isolated installed consumer replay are not established by this receipt."
+  },
+  "warnings": [
+    "The 141-case command disabled cacheprovider while pytest.ini declares cache_dir, producing one configuration warning. The 12-case owner command kept cacheprovider redirected into RAW and had no such warning."
+  ],
+  "limitations": [
+    "No G528 owner-admission implementation is claimed in this commit.",
+    "No clean-checkout, installed wheel/sdist, browser, native SOTA aggregate, Linux or production-currentness acceptance.",
+    "The broader Fabric and HTTP failures are recorded separately and remain open; no P41 inherited classification."
+  ],
+  "patterns": [
+    "P29",
+    "P31",
+    "P32",
+    "P37",
+    "P38",
+    "P40"
+  ],
+  "proposals": {
+    "kind": "bounded_source_and_verification_candidate",
+    "ids_proposed_closed": [],
+    "formal_G_closures": [],
+    "next_check": "Rebind public generated and installed consumers, compose G528 shared owner contract, and replay affected real producer/readers under a coordinated freeze."
+  },
+  "source_freeze": false,
+  "G_acceptance": false,
+  "closure_ids": []
+}

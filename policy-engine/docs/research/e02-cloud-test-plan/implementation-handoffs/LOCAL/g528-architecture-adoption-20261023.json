@@ -1,0 +1,159 @@
+{
+  "schema": "policyos.e02.local_g_architecture_adoption.v1",
+  "slice": "G528 IR owner compatibility, PAG scope and conditional transport diagnostic",
+  "source": {
+    "slice_base": "f12fb9895a4009ce77828554f4c5c18d83e6ec15",
+    "candidate": "6b5df63930d5753ab5e2efaddcc032b91505e6ea",
+    "tree": "620c19dc1be0eedf238d18ee874fa22167daf70d",
+    "parents": [
+      "f12fb9895a4009ce77828554f4c5c18d83e6ec15"
+    ],
+    "branch": "codex/e02-unified-local-20261009",
+    "working_composition_frame": {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/root-active-resume-20261023-r2/native-pool-fixture-root-application-r1/full-composed-source-frame.json",
+      "sha256": "3e324f4075451866ea2c24c4f8d398abf164b852d4750997b67b93466117a8a7"
+    },
+    "working_composition_is_global_freeze": false
+  },
+  "G_decision": {
+    "commit": "528ec2576393e8aa9a0238ae4172336ccf76a057",
+    "tree": "0c10670d4221e75376a311dea7023718a4433326",
+    "parents": [
+      "40edeb635417124366da0237e20e8447d7c5199b"
+    ],
+    "published_branch": "codex/e02-integration",
+    "entry_status": "Fetched published Git object and read selected final decisions; documentation-only parent delta; not merged as author code.",
+    "delta": {
+      "files": 18,
+      "file_type_denominator": "15 Markdown and 3 JSON documents in this exact commit delta",
+      "paths": [
+        "policy-engine/docs/research/e02-cloud-test-plan/integration/architecture-decisions-2026-10-23/01-ir-owner-contract.md",
+        "policy-engine/docs/research/e02-cloud-test-plan/integration/architecture-decisions-2026-10-23/02-ir-version-compatibility.md",
+        "policy-engine/docs/research/e02-cloud-test-plan/integration/architecture-decisions-2026-10-23/03-pag-scope-and-legal-relation.md",
+        "policy-engine/docs/research/e02-cloud-test-plan/integration/architecture-decisions-2026-10-23/04-conditional-transport-diagnostic.md",
+        "policy-engine/docs/research/e02-cloud-test-plan/integration/architecture-decisions-2026-10-23/05-implementation-and-inputs.md",
+        "policy-engine/docs/research/e02-cloud-test-plan/integration/architecture-decisions-2026-10-23/06-validated-partial-graph-profile.md",
+        "policy-engine/docs/research/e02-cloud-test-plan/integration/architecture-decisions-2026-10-23/07-research-and-tradeoffs.md",
+        "policy-engine/docs/research/e02-cloud-test-plan/integration/architecture-decisions-2026-10-23/08-review-and-final-disposition.md",
+        "policy-engine/docs/research/e02-cloud-test-plan/integration/architecture-decisions-2026-10-23/README.md",
+        "policy-engine/docs/research/e02-cloud-test-plan/integration/architecture-decisions-2026-10-23/callsite-disposition.json",
+        "policy-engine/docs/research/e02-cloud-test-plan/integration/architecture-decisions-2026-10-23/document-checks.json",
+        "policy-engine/docs/research/e02-cloud-test-plan/integration/architecture-decisions-2026-10-23/inputs.json",
+        "policy-engine/docs/research/e02-cloud-test-plan/integration/architecture-decisions-2026-10-23/reviews/red-causal-r1.md",
+        "policy-engine/docs/research/e02-cloud-test-plan/integration/architecture-decisions-2026-10-23/reviews/red-causal-r2.md",
+        "policy-engine/docs/research/e02-cloud-test-plan/integration/architecture-decisions-2026-10-23/reviews/red-integration-r1.md",
+        "policy-engine/docs/research/e02-cloud-test-plan/integration/architecture-decisions-2026-10-23/reviews/red-integration-r2.md",
+        "policy-engine/docs/research/e02-cloud-test-plan/integration/architecture-decisions-2026-10-23/reviews/red-ir-r1.md",
+        "policy-engine/docs/research/e02-cloud-test-plan/integration/architecture-decisions-2026-10-23/reviews/red-ir-r2.md"
+      ]
+    },
+    "starting_document": "policy-engine/docs/research/e02-cloud-test-plan/integration/architecture-decisions-2026-10-23/05-implementation-and-inputs.md",
+    "final_disposition": "policy-engine/docs/research/e02-cloud-test-plan/integration/architecture-decisions-2026-10-23/08-review-and-final-disposition.md",
+    "independent_adoption_review": {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/g528-decision-adoption-independent-20261023-r1/review-r1/report.md",
+      "sha256": "8ded60f91f089f4c8e0d7cdc9fa0c5ba6ea82acbf2bcd4e74044bacaf0b9dad7",
+      "availability": "retained local ignored RAW"
+    },
+    "code_acceptance": false,
+    "closure_ids": []
+  },
+  "selected_decisions": [
+    {
+      "id": "IR-Q1",
+      "direction": "One immutable code-owned contract resolution for typed producer writes and typed reads; generic JSON remains authorized byte inspection. Register exact representations without a per-resource central allowlist.",
+      "implementation_state": "in_progress",
+      "next_check": "Actual CAS/fresh typed reader, registered nondefault representation, unseen resource, malformed override before mutation and both byte/value removal probes."
+    },
+    {
+      "id": "IR-Q2",
+      "direction": "Directional exact representation and manifest/payload laws in the existing registry; immutable snapshots, preserved history, reader-first rollout and writer-first rollback. Public ADR-0107 FULL advisory semantics retained.",
+      "implementation_state": "in_progress",
+      "next_check": "Idempotent/conflicting registration, unknown equal versions, alias/tuple conflicts, migration paths, old-reader/new-writer and rollback."
+    },
+    {
+      "id": "PAG",
+      "direction": "Separate input processing permission, conditional mathematical candidate and protected legal reliance; keep Lex refusal and direct scalar PAG/CPDAG guards. Bounded no-selection validated MAG family, lossless ADMG and actual solver per valid member.",
+      "implementation_state": "in_progress",
+      "next_check": "Independent conformance including nontrivial compelled endpoints, latent and discriminating-path fixtures; actual optional backend and resource admission."
+    },
+    {
+      "id": "conditional-transport-R4",
+      "direction": "Explicit request -> existing transport/node owner -> candidate branch -> immutable result/report -> fresh consumer, with nested diagnostic and unchanged protected UNSUPPORTED/NONE/false. No legacy confidence scalar mirror.",
+      "implementation_state": "in_progress",
+      "next_check": "Actual controlled positive, derived two-phase accounting, graph/query/context/profile binding, budget interruption, crash consistency and protected consumer refusal."
+    }
+  ],
+  "scope_qualification": {
+    "IR_census": "93 residual callsites / 53 caller paths: 70 overrideable,14 constant-only,5 central,2 known generic,2 unresolved owner-law; 73 committed-source,8 dirty-snapshot,12 RAW rows. These are routing seeds; current-source complete rebind remains required.",
+    "conditional_transport_seed": "33 source paths are a companion-discovery seed, not a closure/workload denominator. Conditional transport R4 is distinct from TASKS/R4 shared competing workload.",
+    "separate_G_delta": "Prior c8986d035f12c1c3d9e5d0d57e369fe8257bccbc and successor40edeb635417124366da0237e20e8447d7c5199b program plans are separately reviewed documentation inputs; no code acceptance or automatic source-freeze adoption."
+  },
+  "preserved_decisions": [
+    "AD01-AD06",
+    "N818 exception identity decision",
+    "Existing system-design decisions",
+    "Historical B198 bounded closure; no new adjudication"
+  ],
+  "current_verification": {
+    "Core_IR": "141 selector/adapter +12 native-ID tests pass on recorded composition; seven files Ruff check/format pass. See separate source-bound receipt.",
+    "Fabric": "306-source Mypy PASS; full 202 test modules retained 2743 cases:2675 PASS/67 FAIL/1 SKIP(Kuzu). Filter successor canonical49 PASS; complete aggregate after repairs not rerun.",
+    "HTTP": "15 selected semantic cases:10 PASS/5 FAIL/0 SKIP, no timeout,519.57s; full outputs retained.",
+    "G528_runtime": "UNRUN; no G528 candidate source has been accepted or globally frozen."
+  },
+  "engineering_decisions_taken": [
+    {
+      "topic": "EvidenceBundle",
+      "choice": "Reader-first strict 1.0 retained read-only and 1.1 current writer under an explicit optional-Twin source wire law; canonical exclude_none behavior must be respected. Retain old bytes and reject a supplied 1.0 Twin key even null. Compatibility and rollback still to verify."
+    },
+    {
+      "topic": "PAG backend",
+      "choice": "Investigate source-qualified public FCI exact d-separation adapter after raw causal-learn0.1.4.4 DAG2PAG counterexample. Distinct backend identity and independent oracle required before admission."
+    },
+    {
+      "topic": "Compute owner",
+      "choice": "Extend existing current node-attempt timeout/spawn wire and trusted bounded server profile; no new scheduler/permit registry and no HTE-specific resource-policy substitution."
+    }
+  ],
+  "external_facts_not_created": [
+    "Operative law, competent issuer, permission and applicable jurisdiction/purpose/time facts",
+    "Authentic custody/current serving context and production currentness",
+    "Real-world graph/selection assumptions, calibration or whole-class probabilistic validity",
+    "Lost historical payload/version provenance"
+  ],
+  "patterns": {
+    "relevant": [
+      "P01",
+      "P02",
+      "P04",
+      "P05",
+      "P07",
+      "P08",
+      "P10",
+      "P14",
+      "P27",
+      "P29",
+      "P31",
+      "P32",
+      "P35",
+      "P37",
+      "P38",
+      "P40"
+    ],
+    "target": "Single typed intake and actual consumers with behavioral positive/adversarial/removal proof; candidate computation never promotes protected authority.",
+    "missing_capability_labels": [
+      "producer_missing",
+      "bridge_missing",
+      "verification_missing",
+      "semantic_test_missing"
+    ],
+    "acceptance_signal": "Selected architecture implemented as actual producer -> persisted artifact -> bridge -> fresh consumer, then independent G code acceptance."
+  },
+  "proposals": {
+    "adoption": "selected_for_implementation",
+    "ids_proposed_closed": [],
+    "formal_G_closures": []
+  },
+  "source_freeze": false,
+  "G_acceptance": false,
+  "closure_ids": []
+}

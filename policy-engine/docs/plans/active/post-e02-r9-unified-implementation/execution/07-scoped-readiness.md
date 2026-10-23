@@ -63,3 +63,7 @@ For DES-12, `conditional_composition_dependencies` is a claim-selected compositi
 ## R16 composition stages
 
 Новая связь DES-03/LIF-07 — `interface_agreement` для подготовки actual reuse reader; selected cross-run/selective reuse acceptance требует настоящего influence producer и fresh recompute comparison. Это добавление к историческим 21 edges R12 и последующим R14/R15 edges, не их повторный census. Существующая CAP-04/LIF-02 связь получает `interface_agreement` для source-adapter подготовки, сохраняя реальный LIF-02 enrollment/replay/currentness supplier для composed claims; остальные prerequisites не снимаются. Прочие R16 supplier joins следуют claimed property, не становятся all-to-all whole-task start barriers. [Stage map](08-composition-stages.md) задаёт writers, consumers и ресурсы. Каждый r16_extension обязателен при readiness и включается в existing final wave.
+
+## R17 lifecycle stages
+
+[Stage map](09-design-lifetimes-and-access.md) уточняет preparation interfaces и actual composed acceptance без новых global edges. Все `r17_extension` включаются в readiness и existing final wave. Unselected cloud/offline/format/estimator не становится blocker локального scope; реально заявленная гарантия требует настоящего supplier/reader, не marker.

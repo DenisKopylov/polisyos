@@ -31,3 +31,7 @@ Materialize each task with its r14_extension and preferred_solution_ref; assign 
 ### R16 composition/reexecution
 
 Прочитай execution/08-composition-stages.md и assurance/r16-capability-obligations.json. Восемь C-slices распределены по существующим task owners; не добавляй дублирующий scheduler. При rebind включи r16_owner_alignment GYD-30 и все r16_extension в exact write leases, review и coverage. Подготовка независимых adapters/oracles идёт параллельно по согласованным interfaces; реальная композиция требует actual suppliers. Один existing FINAL-REPLAY включает selected R16 cases; ошибки/unsupported/unavailable сохраняются явно.
+
+### R17 preservation/succession/access
+
+Включи все assigned `r17_extension` и assurance/r17-capability-obligations.json в scoped task assignment и coverage; прочитай execution/09-design-lifetimes-and-access.md. D1–D7 — existing owners, не новые engines. Не превращай supplier acceptance в blanket preparation dependency. Closed/private edition, historical verification, current recommendation, legal replacement, observed operation и source-use rights различны. Назначь exact actual writers и selected deployment/duty profiles, затем compose useful positive и actual negatives. Реальные external acts/authority не выдумываются; механизм и conditional candidate работу выполняй самостоятельно.

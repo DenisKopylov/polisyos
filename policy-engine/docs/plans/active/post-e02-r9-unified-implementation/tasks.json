@@ -344,7 +344,22 @@
         }
       ],
       "dependency_stage": "owner_readiness",
-      "completion_contract_ref": "execution/stage-requirements.json#default"
+      "completion_contract_ref": "execution/stage-requirements.json#default",
+      "r17_extension": {
+        "requirement": "Reuse admission follows exact purpose/audience/source-right generation at actual consumer, including archive retrieval, query-only intermediates and derived artifacts. Grant to read does not grant derive/export/publish.",
+        "positive": "Permitted result/receipt reuse works without storing forbidden raw bytes; revoked or changed-purpose reuse is refused.",
+        "adversarial": "CAS/cache match replaces current permission, restricted raw retained in prompt/log/temp sink or output called safe merely because derived fail.",
+        "removal": "Remove actual source-use/egress check while preserving admission label; selected sink/consumer reveals forbidden canary.",
+        "delivery_slices": [
+          "solutions/17-design-custody-and-succession.md#D6"
+        ],
+        "quality_cases": [
+          "assurance/11-design-custody-succession-access.md#Q15",
+          "assurance/11-design-custody-succession-access.md#Q16",
+          "assurance/11-design-custody-succession-access.md#Q17"
+        ],
+        "product_verification": "UNRUN"
+      }
     },
     {
       "id": "CAP-04",
@@ -479,7 +494,24 @@
           "output": "Actual owner enrollment/replay and fresh currentness reaction to real source event; source-only adapter readiness is not this composed claim",
           "consumer": "CAP-04 to native claim/publication currentness; agreed interface cannot replace the actual consumer"
         }
-      ]
+      ],
+      "r17_extension": {
+        "requirement": "Extend existing source-event producer with actual interval/partition/incarnation coverage and scoped periodic reconciliation; external transition evidence remains source-qualified, with the selected source/custodian and canonical adapter resolved at accepted-source rebind. Empty inbox or live heartbeat does not prove no change.",
+        "positive": "Event-before-enrollment, silent-source update and late correction reach native currentness with correct effective/known-at cuts. A selected source-qualified operational record is persisted and verified through the native owner into a fresh incumbent/currentness consumer; synthetic evidence proves mechanics only.",
+        "adversarial": "Same-URL edits, compacted replay floor, omitted partition or candidate publication masquerading as institutional operation cannot pass.",
+        "removal": "Remove actual coverage/source-content event binding while retaining successful polling labels; downstream currentness oracle fails.",
+        "delivery_slices": [
+          "solutions/17-design-custody-and-succession.md#D3",
+          "solutions/17-design-custody-and-succession.md#D4"
+        ],
+        "quality_cases": [
+          "assurance/11-design-custody-succession-access.md#Q07",
+          "assurance/11-design-custody-succession-access.md#Q08",
+          "assurance/11-design-custody-succession-access.md#Q10",
+          "assurance/11-design-custody-succession-access.md#Q12"
+        ],
+        "product_verification": "UNRUN"
+      }
     },
     {
       "id": "CAP-05",
@@ -595,6 +627,21 @@
         "requirement": "Keep candidate extracted legal relations separate from verified relations; preserve source span/version, language, cross-reference alternatives and legal time roles. Supply DES-05 via the existing relation owner; do not duplicate interpretation synthesis.",
         "detail": "solutions/13-productive-design.md#extensions",
         "quality_ref": "assurance/08-productive-search-and-document-quality.md",
+        "product_verification": "UNRUN"
+      },
+      "r17_extension": {
+        "requirement": "Use legal-source/actual-act owners to bind jurisdiction-qualified competence, content, applicability and transition/saving scope, separately from operational evidence. No global law defaults or signature-only authority.",
+        "positive": "Admitted partial commencement changes only verified scope and time, retaining grandfathered incumbent and competing source evidence.",
+        "adversarial": "Draft/publication used as commencement or receipt, conflicting acts resolved by latest arrival, unknown scope replaced by default fail.",
+        "removal": "Remove competence/applicability/content verification while retaining institution and version labels; fresh protected consumer rejects.",
+        "delivery_slices": [
+          "solutions/17-design-custody-and-succession.md#D4"
+        ],
+        "quality_cases": [
+          "assurance/11-design-custody-succession-access.md#Q10",
+          "assurance/11-design-custody-succession-access.md#Q11",
+          "assurance/11-design-custody-succession-access.md#Q12"
+        ],
         "product_verification": "UNRUN"
       }
     },
@@ -733,6 +780,21 @@
           "assurance/10-composition-reexecution-quality.md#Q16"
         ],
         "product_verification": "UNRUN"
+      },
+      "r17_extension": {
+        "requirement": "Selected source-side computation separates use, output checking, export, ingest and transfer. Bind exact cleared view, recipient and source rights; restricted data and provider temp sinks follow actual selected contract, not encryption-only assurance.",
+        "positive": "Cross-institution reviewer obtains permitted result while raw data stays with custodian; useful approved outputs survive refusal of unrelated transfer.",
+        "adversarial": "Encrypted result or completed job substitutes for disclosure clearance, collaborator invitation implies source license or wrong audience receives output fail.",
+        "removal": "Remove actual output/recipient/source-use check while keeping transfer markers; real selected sink violates policy.",
+        "delivery_slices": [
+          "solutions/17-design-custody-and-succession.md#D6"
+        ],
+        "quality_cases": [
+          "assurance/11-design-custody-succession-access.md#Q15",
+          "assurance/11-design-custody-succession-access.md#Q17",
+          "assurance/11-design-custody-succession-access.md#Q18"
+        ],
+        "product_verification": "UNRUN"
       }
     },
     {
@@ -863,7 +925,23 @@
       "completion_contract_ref": "execution/stage-requirements.json#default",
       "acceptance_evidence_requirements": [
         "CAP-02 actual emitted receipt in LIF-09 composition"
-      ]
+      ],
+      "r17_extension": {
+        "requirement": "Bind institutional/source relation to the exact current or historical use, purpose, rule and time. Institutionally supplied assertions alone do not turn authority-band predicates green; verified applicability stays distinct from actual operation.",
+        "positive": "Permitted source-qualified relation supports only its exact scoped claim, while unresolved act/receipt still permits declared conditional candidate analysis.",
+        "adversarial": "Source reputation, adjacency, verified signature without applicable competence or reusable relation across incompatible use fail.",
+        "removal": "Remove actual relation-to-use verifier while preserving fields; protected claim consumer detects unsupported premise.",
+        "delivery_slices": [
+          "solutions/17-design-custody-and-succession.md#D3",
+          "solutions/17-design-custody-and-succession.md#D4"
+        ],
+        "quality_cases": [
+          "assurance/11-design-custody-succession-access.md#Q07",
+          "assurance/11-design-custody-succession-access.md#Q10",
+          "assurance/11-design-custody-succession-access.md#Q12"
+        ],
+        "product_verification": "UNRUN"
+      }
     },
     {
       "id": "LIF-02",
@@ -1030,6 +1108,26 @@
           "assurance/10-composition-reexecution-quality.md#Q09",
           "assurance/10-composition-reexecution-quality.md#Q11",
           "assurance/10-composition-reexecution-quality.md#Q13"
+        ],
+        "product_verification": "UNRUN"
+      },
+      "r17_extension": {
+        "requirement": "Keep sole current-head/dependency owner. Reconcile event coverage and immediate affected-use currentness before rerun; scoped institutional relations drive applicability separately from candidate editions and operational observations. Publication/reissue fences claim head plus source/right cuts.",
+        "positive": "Admitted partial replacement or corrected source updates current projection while old as-known remains honest; useful no-change does not force reissue.",
+        "adversarial": "Global current boolean, newest-wins on conflict, stale claim while compute waits or no source coverage called current fail.",
+        "removal": "Remove enrollment/effect or scope/time/head/source/right fence while keeping event markers; fresh current reader fails.",
+        "delivery_slices": [
+          "solutions/17-design-custody-and-succession.md#D3",
+          "solutions/17-design-custody-and-succession.md#D4",
+          "solutions/17-design-custody-and-succession.md#D7"
+        ],
+        "quality_cases": [
+          "assurance/11-design-custody-succession-access.md#Q07",
+          "assurance/11-design-custody-succession-access.md#Q08",
+          "assurance/11-design-custody-succession-access.md#Q09",
+          "assurance/11-design-custody-succession-access.md#Q10",
+          "assurance/11-design-custody-succession-access.md#Q11",
+          "assurance/11-design-custody-succession-access.md#Q12"
         ],
         "product_verification": "UNRUN"
       }
@@ -1309,6 +1407,24 @@
           "assurance/10-composition-reexecution-quality.md#Q16"
         ],
         "product_verification": "UNRUN"
+      },
+      "r17_extension": {
+        "requirement": "Use existing durable duty/attempt owner for preservation, review and revision continuation, including exact authorized intent and recipient. Cancellation is not termination; provider dispatch can be sent/not-sent/indeterminate and must reconcile, not blindly repeat.",
+        "positive": "Restart preserves review obligation and useful result; uncertain effect retains scoped reconciliation while new currentness is honest.",
+        "adversarial": "Successful retry marker without actual reconciliation, lost duty, doubled provider effect or final-commit block claimed as recall fail.",
+        "removal": "Remove durable duty or effect-state reconciliation while keeping job completion labels; recovery consumer fails.",
+        "delivery_slices": [
+          "solutions/17-design-custody-and-succession.md#D2",
+          "solutions/17-design-custody-and-succession.md#D3",
+          "solutions/17-design-custody-and-succession.md#D6"
+        ],
+        "quality_cases": [
+          "assurance/11-design-custody-succession-access.md#Q06",
+          "assurance/11-design-custody-succession-access.md#Q09",
+          "assurance/11-design-custody-succession-access.md#Q16",
+          "assurance/11-design-custody-succession-access.md#Q17"
+        ],
+        "product_verification": "UNRUN"
       }
     },
     {
@@ -1460,6 +1576,24 @@
           "solutions/15-technical-method-lifecycle.md#TP07"
         ],
         "product_verification": "UNRUN"
+      },
+      "r17_extension": {
+        "requirement": "Compose retention/hold/erasure and current use separately for all actual placements and descendants. Deny history covers every restorable generation or uses an independent current authority. Rights fence must govern irreversible egress as well as local commit; bounded in-flight limits are explicit when stronger ordering is unavailable.",
+        "positive": "Scoped preservation-only hold retains lawful bytes while denying ordinary use; grant/revoke races at materialization and provider release obey the selected actual ordering; permitted outputs remain usable.",
+        "adversarial": "Delete-marker-only erasure, orphan key escrow, candidate bypass, stale cache, provider dispatch after revoke won or unsafe restore cannot support the protected claim.",
+        "removal": "Remove actual copy/recovery/egress rights fence but retain permission markers; real canary reader or provider sink detects the violation.",
+        "delivery_slices": [
+          "solutions/17-design-custody-and-succession.md#D2",
+          "solutions/17-design-custody-and-succession.md#D6"
+        ],
+        "quality_cases": [
+          "assurance/11-design-custody-succession-access.md#Q05",
+          "assurance/11-design-custody-succession-access.md#Q15",
+          "assurance/11-design-custody-succession-access.md#Q16",
+          "assurance/11-design-custody-succession-access.md#Q17",
+          "assurance/11-design-custody-succession-access.md#Q18"
+        ],
+        "product_verification": "UNRUN"
       }
     },
     {
@@ -1588,6 +1722,23 @@
           "assurance/10-composition-reexecution-quality.md#Q13",
           "assurance/10-composition-reexecution-quality.md#Q14",
           "assurance/10-composition-reexecution-quality.md#Q16"
+        ],
+        "product_verification": "UNRUN"
+      },
+      "r17_extension": {
+        "requirement": "Budget preservation/revalidation by actual risk, selected coverage, source frontiers and duty scope; reserve custody/control capacity and expose overdue scope. Closed cases do not cause unbounded replay, global payload scan or mandatory replication.",
+        "positive": "Bounded actual duty schedule performs useful verification and source reconciliation while honest delayed currentness survives exhausted compute.",
+        "adversarial": "Empty polling counted as complete, sampling generalized to all objects or dropped duties called successful conservation fail.",
+        "removal": "Remove coverage/budget-to-duty accounting; selected actual pending obligations or workload no longer matches the reported scope.",
+        "delivery_slices": [
+          "solutions/17-design-custody-and-succession.md#D2",
+          "solutions/17-design-custody-and-succession.md#D3",
+          "solutions/17-design-custody-and-succession.md#D6"
+        ],
+        "quality_cases": [
+          "assurance/11-design-custody-succession-access.md#Q03",
+          "assurance/11-design-custody-succession-access.md#Q07",
+          "assurance/11-design-custody-succession-access.md#Q09"
         ],
         "product_verification": "UNRUN"
       }
@@ -1740,6 +1891,24 @@
           "assurance/10-composition-reexecution-quality.md#Q08",
           "assurance/10-composition-reexecution-quality.md#Q10",
           "assurance/10-composition-reexecution-quality.md#Q12"
+        ],
+        "product_verification": "UNRUN"
+      },
+      "r17_extension": {
+        "requirement": "Extend native manifests/influence with actual completed-design dependency closure and preservation representations. Distinguish retained bytes, permitted rendition, external/query ref and unavailable content. Preserve policy/measurement/target/exposure influence without equating topology to authority.",
+        "positive": "Fresh archived-design reader derives its actual dependency set and a cumulative source or exposure change reaches the affected use; lawful scoped learning remains useful.",
+        "adversarial": "Omitted material alternative/input, fake complete manifest, equal numeric outputs after rights/meaning changes or unauthorized cross-case cache cannot pass.",
+        "removal": "Remove traversal of actual required dependency or source/representation binding while retaining markers; independent read-set/consumer fails.",
+        "delivery_slices": [
+          "solutions/17-design-custody-and-succession.md#D1",
+          "solutions/17-design-custody-and-succession.md#D3",
+          "solutions/17-design-custody-and-succession.md#D5"
+        ],
+        "quality_cases": [
+          "assurance/11-design-custody-succession-access.md#Q01",
+          "assurance/11-design-custody-succession-access.md#Q02",
+          "assurance/11-design-custody-succession-access.md#Q08",
+          "assurance/11-design-custody-succession-access.md#Q14"
         ],
         "product_verification": "UNRUN"
       }
@@ -1978,6 +2147,28 @@
       "completion_contract_ref": "execution/stage-requirements.json#default",
       "dependency_stage_overrides": {
         "FINAL-REVIEW": "final_reviewed_replay_identity"
+      },
+      "r17_extension": {
+        "requirement": "Compose selected completed-design closure, archive, admitted change, scoped revision/succession, rights recovery and fresh historical/current audiences through actual suppliers. Keep external actual authority distinct from synthetic mechanism witness.",
+        "positive": "One selected full lifecycle works with a useful authorized result and correct refusal/limitation at each challenged boundary.",
+        "adversarial": "Mock suppliers, self-declared complete manifest, candidate-as-act, revoked restore or unselected mode claimed verified fail.",
+        "removal": "Remove actual supplier/bridge/emitter of a required property while retaining fields; composed fresh consumer fails.",
+        "delivery_slices": [
+          "solutions/17-design-custody-and-succession.md#D7"
+        ],
+        "quality_cases": [
+          "assurance/11-design-custody-succession-access.md#Q01",
+          "assurance/11-design-custody-succession-access.md#Q05",
+          "assurance/11-design-custody-succession-access.md#Q07",
+          "assurance/11-design-custody-succession-access.md#Q09",
+          "assurance/11-design-custody-succession-access.md#Q10",
+          "assurance/11-design-custody-succession-access.md#Q11",
+          "assurance/11-design-custody-succession-access.md#Q12",
+          "assurance/11-design-custody-succession-access.md#Q15",
+          "assurance/11-design-custody-succession-access.md#Q16",
+          "assurance/11-design-custody-succession-access.md#Q18"
+        ],
+        "product_verification": "UNRUN"
       }
     },
     {
@@ -2689,6 +2880,23 @@
           "assurance/10-composition-reexecution-quality.md#Q17"
         ],
         "product_verification": "UNRUN"
+      },
+      "r17_extension": {
+        "requirement": "Existing confirmatory updater binds policy regime, actual method-required exposure/target/measurement and cutoff; distinguish benign drift, changed measurement and effect change. A corrected receipt creates new current basis without rewriting earlier knowledge.",
+        "positive": "Supported source-backed effect update handles partial receipt and target composition correctly under selected assumptions.",
+        "adversarial": "Unknown labels as zero, publication as receipt or policy-induced observations used as independent confirmation fail.",
+        "removal": "Remove actual exposure/target/qualification binding while retaining O1 markers; estimator/claim consumer detects the false effect.",
+        "delivery_slices": [
+          "solutions/17-design-custody-and-succession.md#D3",
+          "solutions/17-design-custody-and-succession.md#D5"
+        ],
+        "quality_cases": [
+          "assurance/11-design-custody-succession-access.md#Q08",
+          "assurance/11-design-custody-succession-access.md#Q12",
+          "assurance/11-design-custody-succession-access.md#Q13",
+          "assurance/11-design-custody-succession-access.md#Q14"
+        ],
+        "product_verification": "UNRUN"
       }
     },
     {
@@ -2781,6 +2989,20 @@
           "assurance/10-composition-reexecution-quality.md#Q02",
           "assurance/10-composition-reexecution-quality.md#Q11",
           "assurance/10-composition-reexecution-quality.md#Q17"
+        ],
+        "product_verification": "UNRUN"
+      },
+      "r17_extension": {
+        "requirement": "Keep exploratory candidates and actual look/selection denominator across regime/observation changes; policy-induced drift is an investigable hypothesis, not self-validating confirmation.",
+        "positive": "New transition anomaly leads to useful candidate or study with honest dependence and false-discovery boundary.",
+        "adversarial": "Version bump discards looks or confirms the same selected observations without qualification fail.",
+        "removal": "Remove real look/selection history while retaining exploratory metadata; candidate qualification consumer fails.",
+        "delivery_slices": [
+          "solutions/17-design-custody-and-succession.md#D5"
+        ],
+        "quality_cases": [
+          "assurance/11-design-custody-succession-access.md#Q08",
+          "assurance/11-design-custody-succession-access.md#Q14"
         ],
         "product_verification": "UNRUN"
       }
@@ -2945,6 +3167,22 @@
           "assurance/10-composition-reexecution-quality.md#Q10",
           "assurance/10-composition-reexecution-quality.md#Q11",
           "assurance/10-composition-reexecution-quality.md#Q13"
+        ],
+        "product_verification": "UNRUN"
+      },
+      "r17_extension": {
+        "requirement": "World write-back keeps existing O1 authorization and qualification; bind exact regime/scope and verified operational evidence for any actual-deployment claim. Conditional simulated evidence cannot mutate operative world as actual policy activation.",
+        "positive": "Admitted supported update reaches versioned world and fresh surface; proposal-only counterpart remains conditional.",
+        "adversarial": "Candidate/publication/LLM institutional assertion used to activate actual regime, or original history silently rewritten fail.",
+        "removal": "Remove operational/source and O1 qualification consumption while retaining version fields; actual world consumer rejects.",
+        "delivery_slices": [
+          "solutions/17-design-custody-and-succession.md#D5",
+          "solutions/17-design-custody-and-succession.md#D7"
+        ],
+        "quality_cases": [
+          "assurance/11-design-custody-succession-access.md#Q10",
+          "assurance/11-design-custody-succession-access.md#Q13",
+          "assurance/11-design-custody-succession-access.md#Q14"
         ],
         "product_verification": "UNRUN"
       }
@@ -4734,6 +4972,23 @@
         "detail": "solutions/13-productive-design.md#extensions",
         "quality_ref": "assurance/08-productive-search-and-document-quality.md",
         "product_verification": "UNRUN"
+      },
+      "r17_extension": {
+        "requirement": "Project owner-produced archive/revision/currentness and institutional history under current access. Preserve public data-only/typed-empty signer boundary; private completion is not mandatory publication. Gate metadata, indexes, links and outputs; public corrections do not imply recall of downloaded copies.",
+        "positive": "Authorized audience sees useful old-as-known/current-qualified history and scoped succession; public view exposes only admitted rendition and correction link.",
+        "adversarial": "UI-generated enactment/current status, public private-parent URL/count, edited prior signed bytes or claimed internet-wide withdrawal fail.",
+        "removal": "Remove actual owner reader or public/index/link emission check while keeping UI status labels; fresh audience consumer detects mismatch or leak.",
+        "delivery_slices": [
+          "solutions/17-design-custody-and-succession.md#D7"
+        ],
+        "quality_cases": [
+          "assurance/11-design-custody-succession-access.md#Q01",
+          "assurance/11-design-custody-succession-access.md#Q10",
+          "assurance/11-design-custody-succession-access.md#Q12",
+          "assurance/11-design-custody-succession-access.md#Q15",
+          "assurance/11-design-custody-succession-access.md#Q18"
+        ],
+        "product_verification": "UNRUN"
       }
     },
     {
@@ -4837,7 +5092,24 @@
       "acceptance_dependencies": [
         "UI-02"
       ],
-      "interface_agreement_scope_ref": "execution/07-scoped-readiness.md#edge-decisions"
+      "interface_agreement_scope_ref": "execution/07-scoped-readiness.md#edge-decisions",
+      "r17_extension": {
+        "requirement": "Project owner-produced archive/revision/currentness and institutional history under current access. Preserve public data-only/typed-empty signer boundary; private completion is not mandatory publication. Gate metadata, indexes, links and outputs; public corrections do not imply recall of downloaded copies.",
+        "positive": "Authorized audience sees useful old-as-known/current-qualified history and scoped succession; public view exposes only admitted rendition and correction link.",
+        "adversarial": "UI-generated enactment/current status, public private-parent URL/count, edited prior signed bytes or claimed internet-wide withdrawal fail.",
+        "removal": "Remove actual owner reader or public/index/link emission check while keeping UI status labels; fresh audience consumer detects mismatch or leak.",
+        "delivery_slices": [
+          "solutions/17-design-custody-and-succession.md#D7"
+        ],
+        "quality_cases": [
+          "assurance/11-design-custody-succession-access.md#Q01",
+          "assurance/11-design-custody-succession-access.md#Q10",
+          "assurance/11-design-custody-succession-access.md#Q12",
+          "assurance/11-design-custody-succession-access.md#Q15",
+          "assurance/11-design-custody-succession-access.md#Q18"
+        ],
+        "product_verification": "UNRUN"
+      }
     },
     {
       "id": "UI-04",
@@ -4959,7 +5231,24 @@
         "UI-03",
         "LIF-02"
       ],
-      "interface_agreement_scope_ref": "execution/07-scoped-readiness.md#edge-decisions"
+      "interface_agreement_scope_ref": "execution/07-scoped-readiness.md#edge-decisions",
+      "r17_extension": {
+        "requirement": "Project owner-produced archive/revision/currentness and institutional history under current access. Preserve public data-only/typed-empty signer boundary; private completion is not mandatory publication. Gate metadata, indexes, links and outputs; public corrections do not imply recall of downloaded copies.",
+        "positive": "Authorized audience sees useful old-as-known/current-qualified history and scoped succession; public view exposes only admitted rendition and correction link.",
+        "adversarial": "UI-generated enactment/current status, public private-parent URL/count, edited prior signed bytes or claimed internet-wide withdrawal fail.",
+        "removal": "Remove actual owner reader or public/index/link emission check while keeping UI status labels; fresh audience consumer detects mismatch or leak.",
+        "delivery_slices": [
+          "solutions/17-design-custody-and-succession.md#D7"
+        ],
+        "quality_cases": [
+          "assurance/11-design-custody-succession-access.md#Q01",
+          "assurance/11-design-custody-succession-access.md#Q10",
+          "assurance/11-design-custody-succession-access.md#Q12",
+          "assurance/11-design-custody-succession-access.md#Q15",
+          "assurance/11-design-custody-succession-access.md#Q18"
+        ],
+        "product_verification": "UNRUN"
+      }
     },
     {
       "id": "UI-05",
@@ -5430,6 +5719,24 @@
           "assurance/10-composition-reexecution-quality.md#Q11",
           "assurance/10-composition-reexecution-quality.md#Q13",
           "assurance/10-composition-reexecution-quality.md#Q17"
+        ],
+        "product_verification": "UNRUN"
+      },
+      "r17_extension": {
+        "requirement": "Consume actual native currentness/epoch/effect/world owners; surface proposed, legally qualified and operationally evidenced scopes separately, with cutoff/remaining coverage. UI-19 positive transition remains unavailable until real producer/reader/consumer is rebound and proved.",
+        "positive": "Fresh API/MACHINE/browser/audit projection distinguishes partial incumbent, delayed delivery, historical result and corrected current basis.",
+        "adversarial": "Projection-only field used as authority, legal date as actual exposure, hidden contested overlap or unsupported positive currentness fail.",
+        "removal": "Remove real currentness/exposure/qualification reader while preserving display markers; composed audience oracle fails.",
+        "delivery_slices": [
+          "solutions/17-design-custody-and-succession.md#D7"
+        ],
+        "quality_cases": [
+          "assurance/11-design-custody-succession-access.md#Q09",
+          "assurance/11-design-custody-succession-access.md#Q10",
+          "assurance/11-design-custody-succession-access.md#Q11",
+          "assurance/11-design-custody-succession-access.md#Q12",
+          "assurance/11-design-custody-succession-access.md#Q13",
+          "assurance/11-design-custody-succession-access.md#Q18"
         ],
         "product_verification": "UNRUN"
       }
@@ -6487,7 +6794,25 @@
         "DEB-14"
       ],
       "dependency_stage": "owner_readiness",
-      "completion_contract_ref": "execution/stage-requirements.json#default"
+      "completion_contract_ref": "execution/stage-requirements.json#default",
+      "r17_extension": {
+        "requirement": "Consume actual native currentness/epoch/effect/world owners; surface proposed, legally qualified and operationally evidenced scopes separately, with cutoff/remaining coverage. UI-19 positive transition remains unavailable until real producer/reader/consumer is rebound and proved.",
+        "positive": "Fresh API/MACHINE/browser/audit projection distinguishes partial incumbent, delayed delivery, historical result and corrected current basis.",
+        "adversarial": "Projection-only field used as authority, legal date as actual exposure, hidden contested overlap or unsupported positive currentness fail.",
+        "removal": "Remove real currentness/exposure/qualification reader while preserving display markers; composed audience oracle fails.",
+        "delivery_slices": [
+          "solutions/17-design-custody-and-succession.md#D7"
+        ],
+        "quality_cases": [
+          "assurance/11-design-custody-succession-access.md#Q09",
+          "assurance/11-design-custody-succession-access.md#Q10",
+          "assurance/11-design-custody-succession-access.md#Q11",
+          "assurance/11-design-custody-succession-access.md#Q12",
+          "assurance/11-design-custody-succession-access.md#Q13",
+          "assurance/11-design-custody-succession-access.md#Q18"
+        ],
+        "product_verification": "UNRUN"
+      }
     },
     {
       "id": "CNT-01",
@@ -7001,6 +7326,21 @@
         "detail": "solutions/13-productive-design.md#extensions",
         "quality_ref": "assurance/08-productive-search-and-document-quality.md",
         "product_verification": "UNRUN"
+      },
+      "r17_extension": {
+        "requirement": "Use legal-source/actual-act owners to bind jurisdiction-qualified competence, content, applicability and transition/saving scope, separately from operational evidence. No global law defaults or signature-only authority.",
+        "positive": "Admitted partial commencement changes only verified scope and time, retaining grandfathered incumbent and competing source evidence.",
+        "adversarial": "Draft/publication used as commencement or receipt, conflicting acts resolved by latest arrival, unknown scope replaced by default fail.",
+        "removal": "Remove competence/applicability/content verification while retaining institution and version labels; fresh protected consumer rejects.",
+        "delivery_slices": [
+          "solutions/17-design-custody-and-succession.md#D4"
+        ],
+        "quality_cases": [
+          "assurance/11-design-custody-succession-access.md#Q10",
+          "assurance/11-design-custody-succession-access.md#Q11",
+          "assurance/11-design-custody-succession-access.md#Q12"
+        ],
+        "product_verification": "UNRUN"
       }
     },
     {
@@ -7310,6 +7650,21 @@
           "assurance/10-composition-reexecution-quality.md#Q10",
           "assurance/10-composition-reexecution-quality.md#Q11",
           "assurance/10-composition-reexecution-quality.md#Q14"
+        ],
+        "product_verification": "UNRUN"
+      },
+      "r17_extension": {
+        "requirement": "Bind method-qualified study/estimand to policy-strategy/exposure history, target weights, assignment versus receipt, preceding/concurrent policies and observation regime. Include announcement/anticipation when relevant; unknown awareness is scenario/bound/limitation. Use sufficient aggregate inputs when valid, not mandatory personal data.",
+        "positive": "Partial rollout and later correction produce a supported target/exposure analysis and useful discriminating study; original protocol and as-known result remain distinct.",
+        "adversarial": "Published date as actual receipt, treatment-confounder feedback ignored, population mix as within-group effect, inapplicable static method or rewritten preregistration fail.",
+        "removal": "Remove actual exposure/announcement/target/method or returned-evidence binding while retaining version markers; independent effect oracle detects misattribution or required limitation.",
+        "delivery_slices": [
+          "solutions/17-design-custody-and-succession.md#D5"
+        ],
+        "quality_cases": [
+          "assurance/11-design-custody-succession-access.md#Q12",
+          "assurance/11-design-custody-succession-access.md#Q13",
+          "assurance/11-design-custody-succession-access.md#Q14"
         ],
         "product_verification": "UNRUN"
       }
@@ -7642,6 +7997,20 @@
           "assurance/10-composition-reexecution-quality.md#Q11",
           "assurance/10-composition-reexecution-quality.md#Q12",
           "assurance/10-composition-reexecution-quality.md#Q17"
+        ],
+        "product_verification": "UNRUN"
+      },
+      "r17_extension": {
+        "requirement": "Compare and reuse bases across policy regime revisions without double-counting dependent exposure, selected looks or lessons. Different policy version does not establish independent evidence or unchanged target.",
+        "positive": "Admitted corrected evidence changes supported comparison while useful dependent experience remains explicitly qualified.",
+        "adversarial": "New-version label resets repeated-look denominator, pooled different targets or forbidden cross-case data treated as independent authority fail.",
+        "removal": "Remove dependence/target/eligibility consumption; actual comparison or learning oracle fails.",
+        "delivery_slices": [
+          "solutions/17-design-custody-and-succession.md#D5"
+        ],
+        "quality_cases": [
+          "assurance/11-design-custody-succession-access.md#Q13",
+          "assurance/11-design-custody-succession-access.md#Q14"
         ],
         "product_verification": "UNRUN"
       }
@@ -8264,7 +8633,25 @@
         }
       ],
       "dependency_stage": "owner_readiness",
-      "completion_contract_ref": "execution/stage-requirements.json#default"
+      "completion_contract_ref": "execution/stage-requirements.json#default",
+      "r17_extension": {
+        "requirement": "Extend existing recovery to completed editions and preservation duties: actual fixity/readability, independent-copy repair, bounded cold retrieval and post-backup rights/deny frontier reconciliation. Backup success alone is not recovery.",
+        "positive": "Fresh process recovers permitted historical content and refuses a revoked copy restored from an older backup; corruption repair names independently verified source.",
+        "adversarial": "Rehashing corrupt primary, treating same failure domain as independent or restored pre-revoke policy as current cannot pass.",
+        "removal": "Remove real fixity or newer-rights replay while leaving recovery labels; actual reader must fail.",
+        "delivery_slices": [
+          "solutions/17-design-custody-and-succession.md#D1",
+          "solutions/17-design-custody-and-succession.md#D2",
+          "solutions/17-design-custody-and-succession.md#D6"
+        ],
+        "quality_cases": [
+          "assurance/11-design-custody-succession-access.md#Q01",
+          "assurance/11-design-custody-succession-access.md#Q03",
+          "assurance/11-design-custody-succession-access.md#Q05",
+          "assurance/11-design-custody-succession-access.md#Q18"
+        ],
+        "product_verification": "UNRUN"
+      }
     },
     {
       "id": "OPS-06",
@@ -8345,7 +8732,24 @@
         "original_obligation_disposition: canonical owner decision; history preserved"
       ],
       "dependency_stage": "owner_readiness",
-      "completion_contract_ref": "execution/stage-requirements.json#default"
+      "completion_contract_ref": "execution/stage-requirements.json#default",
+      "r17_extension": {
+        "requirement": "Compose existing RBAC/object relations/ABAC and source-use owners across full access lifecycle. Resolve target tenant/owner, nonamplifying subject+actor delegation and required policy facts. Bind revocation ordering to actual effect/egress release, not just local commit; explicit in-flight limitation when profile cannot fence.",
+        "positive": "Named scoped reviewer/tool gets useful exact permitted content; concurrent revoke winning at actual release yields no bytes to provider or protected reader.",
+        "adversarial": "Caller tenant label, broad service credential, stale token/cache, skip-on-error permit despite relevant failed forbid or unauthorized existence metadata cannot pass.",
+        "removal": "Remove owner-resolved scope, required diagnostic handling or actual release fence while keeping markers; actual forbidden reader/egress canary detects violation.",
+        "delivery_slices": [
+          "solutions/17-design-custody-and-succession.md#D6",
+          "solutions/17-design-custody-and-succession.md#D7"
+        ],
+        "quality_cases": [
+          "assurance/11-design-custody-succession-access.md#Q15",
+          "assurance/11-design-custody-succession-access.md#Q16",
+          "assurance/11-design-custody-succession-access.md#Q17",
+          "assurance/11-design-custody-succession-access.md#Q18"
+        ],
+        "product_verification": "UNRUN"
+      }
     },
     {
       "id": "OPS-07",
@@ -8670,6 +9074,21 @@
           "assurance/10-composition-reexecution-quality.md#Q16"
         ],
         "product_verification": "UNRUN"
+      },
+      "r17_extension": {
+        "requirement": "Selected source-side computation separates use, output checking, export, ingest and transfer. Bind exact cleared view, recipient and source rights; restricted data and provider temp sinks follow actual selected contract, not encryption-only assurance.",
+        "positive": "Cross-institution reviewer obtains permitted result while raw data stays with custodian; useful approved outputs survive refusal of unrelated transfer.",
+        "adversarial": "Encrypted result or completed job substitutes for disclosure clearance, collaborator invitation implies source license or wrong audience receives output fail.",
+        "removal": "Remove actual output/recipient/source-use check while keeping transfer markers; real selected sink violates policy.",
+        "delivery_slices": [
+          "solutions/17-design-custody-and-succession.md#D6"
+        ],
+        "quality_cases": [
+          "assurance/11-design-custody-succession-access.md#Q15",
+          "assurance/11-design-custody-succession-access.md#Q17",
+          "assurance/11-design-custody-succession-access.md#Q18"
+        ],
+        "product_verification": "UNRUN"
       }
     },
     {
@@ -8759,7 +9178,24 @@
         "original_obligation_disposition: canonical owner decision; history preserved"
       ],
       "dependency_stage": "owner_readiness",
-      "completion_contract_ref": "execution/stage-requirements.json#overrides/OPS-10"
+      "completion_contract_ref": "execution/stage-requirements.json#overrides/OPS-10",
+      "r17_extension": {
+        "requirement": "For a selected remote backend, prove preservation/readback, version/replica copy outcomes, resource-right causal fences and restore quarantine. Keep remote parity conditional; local completion does not wait for unselected clouds.",
+        "positive": "Selected backend retrieves exact older permitted edition and reconciles revoked/versioned copies before service.",
+        "adversarial": "Local filesystem evidence reused as cloud parity, delete marker as erased old versions or cache bypass as cross-store causality fail.",
+        "removal": "Remove backend-specific version/rights recovery consumer; remote actual byte reader fails.",
+        "delivery_slices": [
+          "solutions/17-design-custody-and-succession.md#D2",
+          "solutions/17-design-custody-and-succession.md#D6"
+        ],
+        "quality_cases": [
+          "assurance/11-design-custody-succession-access.md#Q03",
+          "assurance/11-design-custody-succession-access.md#Q05",
+          "assurance/11-design-custody-succession-access.md#Q16",
+          "assurance/11-design-custody-succession-access.md#Q18"
+        ],
+        "product_verification": "UNRUN"
+      }
     },
     {
       "id": "OPS-11",
@@ -8846,7 +9282,25 @@
         "LIF-08"
       ],
       "dependency_stage": "owner_readiness",
-      "completion_contract_ref": "execution/stage-requirements.json#default"
+      "completion_contract_ref": "execution/stage-requirements.json#default",
+      "r17_extension": {
+        "requirement": "Keep issuer succession separate from archive verification renewal and current truth. Assign owner/deputy, scope, coverage/cadence, resources and transfer/cutoff to preservation and currentness duties. Renew actual evidence under a selected proven protocol before security loss; genuine institutional authority remains external.",
+        "positive": "Historically valid evidence stays separately qualified after key retirement; admitted successor receives exact archive and accepts duties; useful no-change review records coverage.",
+        "adversarial": "Late timestamp repairing missing history, self-signed successor, uploaded bytes implying custody acceptance or perpetual duty without owner/budget cannot pass.",
+        "removal": "Remove independent succession/renewal verification or recipient duty acceptance while retaining status fields; actual protected reader rejects.",
+        "delivery_slices": [
+          "solutions/17-design-custody-and-succession.md#D2",
+          "solutions/17-design-custody-and-succession.md#D3",
+          "solutions/17-design-custody-and-succession.md#D7"
+        ],
+        "quality_cases": [
+          "assurance/11-design-custody-succession-access.md#Q04",
+          "assurance/11-design-custody-succession-access.md#Q06",
+          "assurance/11-design-custody-succession-access.md#Q07",
+          "assurance/11-design-custody-succession-access.md#Q09"
+        ],
+        "product_verification": "UNRUN"
+      }
     },
     {
       "id": "OPS-12",
@@ -8928,7 +9382,22 @@
         "original_obligation_disposition: canonical owner decision; history preserved"
       ],
       "dependency_stage": "owner_readiness",
-      "completion_contract_ref": "execution/stage-requirements.json#overrides/OPS-12"
+      "completion_contract_ref": "execution/stage-requirements.json#overrides/OPS-12",
+      "r17_extension": {
+        "requirement": "Only for a selected offline profile, bind signed imports, local grants and currentness to an explicit as-of cutoff and rollback/trusted-time assumptions. Restore of old VM/rights/clock cannot silently establish newer rights; reconcile before actions requiring current facts.",
+        "positive": "Permitted offline historical use works under declared cutoff; pre-update snapshot restoration limits affected current operations until a proven freshness/anti-rollback basis exists.",
+        "adversarial": "Replayed old signed rights and clock, implied instant remote revocation or forced offline requirement for local pilot cannot pass.",
+        "removal": "Remove selected rollback/cutoff check on real import/read; fresh protected consumer detects unsupported currentness.",
+        "delivery_slices": [
+          "solutions/17-design-custody-and-succession.md#D2",
+          "solutions/17-design-custody-and-succession.md#D6"
+        ],
+        "quality_cases": [
+          "assurance/11-design-custody-succession-access.md#Q05",
+          "assurance/11-design-custody-succession-access.md#Q18"
+        ],
+        "product_verification": "UNRUN"
+      }
     },
     {
       "id": "P0-ACCEPT",
@@ -9476,7 +9945,24 @@
       ],
       "dependency_stage": "owner_readiness",
       "completion_contract_ref": "execution/stage-requirements.json#default",
-      "dispatch_condition": "Actual E02 acceptance; completed task-scoped accepted-source rebind under execution/07-scoped-readiness.md; exact required upstream stage/interface pins; non-overlapping write lease and phase-specific resource permit. Global P0 completion is not required for a reconciled independent scope."
+      "dispatch_condition": "Actual E02 acceptance; completed task-scoped accepted-source rebind under execution/07-scoped-readiness.md; exact required upstream stage/interface pins; non-overlapping write lease and phase-specific resource permit. Global P0 completion is not required for a reconciled independent scope.",
+      "r17_extension": {
+        "requirement": "Extend the existing canonical epoch reissue path only; preserve epoch/claim relation and actual issuer admission. External enactment is integrated evidence, not a new epoch authority or automatic signer default.",
+        "positive": "Verified scoped reissue reaches native history/current consumer; unavailable issuer remains typed-empty/refusal without blocking internal candidate work.",
+        "adversarial": "Numerical success alone re-signs, candidate ID establishes legal replacement or historical root overwritten fail.",
+        "removal": "Remove issuer/expected-head/source basis consumption while retaining epoch labels; actual protected reissue consumer fails.",
+        "delivery_slices": [
+          "solutions/17-design-custody-and-succession.md#D3",
+          "solutions/17-design-custody-and-succession.md#D4",
+          "solutions/17-design-custody-and-succession.md#D7"
+        ],
+        "quality_cases": [
+          "assurance/11-design-custody-succession-access.md#Q09",
+          "assurance/11-design-custody-succession-access.md#Q10",
+          "assurance/11-design-custody-succession-access.md#Q12"
+        ],
+        "product_verification": "UNRUN"
+      }
     },
     {
       "id": "DEB-07",
@@ -10146,6 +10632,36 @@
           "assurance/10-composition-reexecution-quality.md#Q17"
         ],
         "product_verification": "UNRUN"
+      },
+      "r17_extension": {
+        "requirement": "Include complete R17 obligations in the existing freeze/review/replay/use stages, each within its original role. Preserve all prior criteria and exact selected source/input/backend/rights/duty scope. No extra global wave or requirement to deploy unselected profiles.",
+        "positive": "Truthful disposition separates preserved/replayable/currently-admissible, proposed/effective/observed and authorized/withheld; actual selected useful lifecycle is independently reviewed and replayed once after freeze.",
+        "adversarial": "Documentation treated as implementation, omission of relevant R17 task, cherry-picked consumer, synthetic authority called real or no-change review called reissue cannot pass.",
+        "removal": "Remove any selected actual required mechanism rather than labels; corresponding semantic case detects failure; governance stages verify evidence without claiming to own product implementation.",
+        "delivery_slices": [
+          "solutions/17-design-custody-and-succession.md#D7"
+        ],
+        "quality_cases": [
+          "assurance/11-design-custody-succession-access.md#Q01",
+          "assurance/11-design-custody-succession-access.md#Q02",
+          "assurance/11-design-custody-succession-access.md#Q03",
+          "assurance/11-design-custody-succession-access.md#Q04",
+          "assurance/11-design-custody-succession-access.md#Q05",
+          "assurance/11-design-custody-succession-access.md#Q06",
+          "assurance/11-design-custody-succession-access.md#Q07",
+          "assurance/11-design-custody-succession-access.md#Q08",
+          "assurance/11-design-custody-succession-access.md#Q09",
+          "assurance/11-design-custody-succession-access.md#Q10",
+          "assurance/11-design-custody-succession-access.md#Q11",
+          "assurance/11-design-custody-succession-access.md#Q12",
+          "assurance/11-design-custody-succession-access.md#Q13",
+          "assurance/11-design-custody-succession-access.md#Q14",
+          "assurance/11-design-custody-succession-access.md#Q15",
+          "assurance/11-design-custody-succession-access.md#Q16",
+          "assurance/11-design-custody-succession-access.md#Q17",
+          "assurance/11-design-custody-succession-access.md#Q18"
+        ],
+        "product_verification": "UNRUN"
       }
     },
     {
@@ -10214,6 +10730,36 @@
           "assurance/10-composition-reexecution-quality.md#Q15",
           "assurance/10-composition-reexecution-quality.md#Q16",
           "assurance/10-composition-reexecution-quality.md#Q17"
+        ],
+        "product_verification": "UNRUN"
+      },
+      "r17_extension": {
+        "requirement": "Include complete R17 obligations in the existing freeze/review/replay/use stages, each within its original role. Preserve all prior criteria and exact selected source/input/backend/rights/duty scope. No extra global wave or requirement to deploy unselected profiles.",
+        "positive": "Truthful disposition separates preserved/replayable/currently-admissible, proposed/effective/observed and authorized/withheld; actual selected useful lifecycle is independently reviewed and replayed once after freeze.",
+        "adversarial": "Documentation treated as implementation, omission of relevant R17 task, cherry-picked consumer, synthetic authority called real or no-change review called reissue cannot pass.",
+        "removal": "Remove any selected actual required mechanism rather than labels; corresponding semantic case detects failure; governance stages verify evidence without claiming to own product implementation.",
+        "delivery_slices": [
+          "solutions/17-design-custody-and-succession.md#D7"
+        ],
+        "quality_cases": [
+          "assurance/11-design-custody-succession-access.md#Q01",
+          "assurance/11-design-custody-succession-access.md#Q02",
+          "assurance/11-design-custody-succession-access.md#Q03",
+          "assurance/11-design-custody-succession-access.md#Q04",
+          "assurance/11-design-custody-succession-access.md#Q05",
+          "assurance/11-design-custody-succession-access.md#Q06",
+          "assurance/11-design-custody-succession-access.md#Q07",
+          "assurance/11-design-custody-succession-access.md#Q08",
+          "assurance/11-design-custody-succession-access.md#Q09",
+          "assurance/11-design-custody-succession-access.md#Q10",
+          "assurance/11-design-custody-succession-access.md#Q11",
+          "assurance/11-design-custody-succession-access.md#Q12",
+          "assurance/11-design-custody-succession-access.md#Q13",
+          "assurance/11-design-custody-succession-access.md#Q14",
+          "assurance/11-design-custody-succession-access.md#Q15",
+          "assurance/11-design-custody-succession-access.md#Q16",
+          "assurance/11-design-custody-succession-access.md#Q17",
+          "assurance/11-design-custody-succession-access.md#Q18"
         ],
         "product_verification": "UNRUN"
       }
@@ -10325,6 +10871,36 @@
           "assurance/10-composition-reexecution-quality.md#Q17"
         ],
         "product_verification": "UNRUN"
+      },
+      "r17_extension": {
+        "requirement": "Include complete R17 obligations in the existing freeze/review/replay/use stages, each within its original role. Preserve all prior criteria and exact selected source/input/backend/rights/duty scope. No extra global wave or requirement to deploy unselected profiles.",
+        "positive": "Truthful disposition separates preserved/replayable/currently-admissible, proposed/effective/observed and authorized/withheld; actual selected useful lifecycle is independently reviewed and replayed once after freeze.",
+        "adversarial": "Documentation treated as implementation, omission of relevant R17 task, cherry-picked consumer, synthetic authority called real or no-change review called reissue cannot pass.",
+        "removal": "Remove any selected actual required mechanism rather than labels; corresponding semantic case detects failure; governance stages verify evidence without claiming to own product implementation.",
+        "delivery_slices": [
+          "solutions/17-design-custody-and-succession.md#D7"
+        ],
+        "quality_cases": [
+          "assurance/11-design-custody-succession-access.md#Q01",
+          "assurance/11-design-custody-succession-access.md#Q02",
+          "assurance/11-design-custody-succession-access.md#Q03",
+          "assurance/11-design-custody-succession-access.md#Q04",
+          "assurance/11-design-custody-succession-access.md#Q05",
+          "assurance/11-design-custody-succession-access.md#Q06",
+          "assurance/11-design-custody-succession-access.md#Q07",
+          "assurance/11-design-custody-succession-access.md#Q08",
+          "assurance/11-design-custody-succession-access.md#Q09",
+          "assurance/11-design-custody-succession-access.md#Q10",
+          "assurance/11-design-custody-succession-access.md#Q11",
+          "assurance/11-design-custody-succession-access.md#Q12",
+          "assurance/11-design-custody-succession-access.md#Q13",
+          "assurance/11-design-custody-succession-access.md#Q14",
+          "assurance/11-design-custody-succession-access.md#Q15",
+          "assurance/11-design-custody-succession-access.md#Q16",
+          "assurance/11-design-custody-succession-access.md#Q17",
+          "assurance/11-design-custody-succession-access.md#Q18"
+        ],
+        "product_verification": "UNRUN"
       }
     },
     {
@@ -10422,6 +10998,36 @@
           "assurance/10-composition-reexecution-quality.md#Q15",
           "assurance/10-composition-reexecution-quality.md#Q16",
           "assurance/10-composition-reexecution-quality.md#Q17"
+        ],
+        "product_verification": "UNRUN"
+      },
+      "r17_extension": {
+        "requirement": "Include complete R17 obligations in the existing freeze/review/replay/use stages, each within its original role. Preserve all prior criteria and exact selected source/input/backend/rights/duty scope. No extra global wave or requirement to deploy unselected profiles.",
+        "positive": "Truthful disposition separates preserved/replayable/currently-admissible, proposed/effective/observed and authorized/withheld; actual selected useful lifecycle is independently reviewed and replayed once after freeze.",
+        "adversarial": "Documentation treated as implementation, omission of relevant R17 task, cherry-picked consumer, synthetic authority called real or no-change review called reissue cannot pass.",
+        "removal": "Remove any selected actual required mechanism rather than labels; corresponding semantic case detects failure; governance stages verify evidence without claiming to own product implementation.",
+        "delivery_slices": [
+          "solutions/17-design-custody-and-succession.md#D7"
+        ],
+        "quality_cases": [
+          "assurance/11-design-custody-succession-access.md#Q01",
+          "assurance/11-design-custody-succession-access.md#Q02",
+          "assurance/11-design-custody-succession-access.md#Q03",
+          "assurance/11-design-custody-succession-access.md#Q04",
+          "assurance/11-design-custody-succession-access.md#Q05",
+          "assurance/11-design-custody-succession-access.md#Q06",
+          "assurance/11-design-custody-succession-access.md#Q07",
+          "assurance/11-design-custody-succession-access.md#Q08",
+          "assurance/11-design-custody-succession-access.md#Q09",
+          "assurance/11-design-custody-succession-access.md#Q10",
+          "assurance/11-design-custody-succession-access.md#Q11",
+          "assurance/11-design-custody-succession-access.md#Q12",
+          "assurance/11-design-custody-succession-access.md#Q13",
+          "assurance/11-design-custody-succession-access.md#Q14",
+          "assurance/11-design-custody-succession-access.md#Q15",
+          "assurance/11-design-custody-succession-access.md#Q16",
+          "assurance/11-design-custody-succession-access.md#Q17",
+          "assurance/11-design-custody-succession-access.md#Q18"
         ],
         "product_verification": "UNRUN"
       }
@@ -10916,7 +11522,21 @@
           "output": "Actual native influence/read-set/use qualification consumed by real search/execution cache path",
           "consumer": "DES-03 fresh trial and frontier; interface agreement alone cannot establish reuse"
         }
-      ]
+      ],
+      "r17_extension": {
+        "requirement": "Compare successor candidates against the selected incumbent strategy mixture with transition feasibility and commitments via native trajectory/joint execution. Keep value choices explicit; no mandatory option menu or duplicate optimizer.",
+        "positive": "Actual staged alternative and maintained incumbent are meaningfully compared on the same supported initial basis and uncertainty.",
+        "adversarial": "Unspent budget assumed despite incumbent commitments, sunk costs double counted as new incremental cost or unsupported retroactive action fail.",
+        "removal": "Remove transition/incumbent evaluation while retaining frontier scores; independent path/feasibility oracle fails.",
+        "delivery_slices": [
+          "solutions/17-design-custody-and-succession.md#D4"
+        ],
+        "quality_cases": [
+          "assurance/11-design-custody-succession-access.md#Q11",
+          "assurance/11-design-custody-succession-access.md#Q12"
+        ],
+        "product_verification": "UNRUN"
+      }
     },
     {
       "implementation_status": "planned_after_E02_acceptance",
@@ -11030,6 +11650,24 @@
           "assurance/10-composition-reexecution-quality.md#Q09",
           "assurance/10-composition-reexecution-quality.md#Q13",
           "assurance/10-composition-reexecution-quality.md#Q17"
+        ],
+        "product_verification": "UNRUN"
+      },
+      "r17_extension": {
+        "requirement": "Route source/implementation changes through existing revision/acquisition loop: useful no-change, scoped correction, incumbent-relative candidate or discriminating study. Do not force expensive arithmetic when only permission/authority changes.",
+        "positive": "Actual admitted change or counterexample yields appropriate bounded next action and a useful new comparison when warranted.",
+        "adversarial": "Unbounded closed-case replay, drift treated as causal proof or blocked compute leaving stale public currentness fail.",
+        "removal": "Remove change-to-next-action bridge while preserving review-complete markers; fresh design consumer fails.",
+        "delivery_slices": [
+          "solutions/17-design-custody-and-succession.md#D3",
+          "solutions/17-design-custody-and-succession.md#D4",
+          "solutions/17-design-custody-and-succession.md#D5"
+        ],
+        "quality_cases": [
+          "assurance/11-design-custody-succession-access.md#Q08",
+          "assurance/11-design-custody-succession-access.md#Q09",
+          "assurance/11-design-custody-succession-access.md#Q11",
+          "assurance/11-design-custody-succession-access.md#Q14"
         ],
         "product_verification": "UNRUN"
       }
@@ -11234,6 +11872,24 @@
           "assurance/10-composition-reexecution-quality.md#Q17"
         ],
         "product_verification": "UNRUN"
+      },
+      "r17_extension": {
+        "requirement": "Extend native PolicyArtifactBuilder and document emitter with a completed edition manifest: actual selected basis, material alternatives/counterevidence, machine/human renditions and representation dependencies. Distinguish candidate, our recommendation, external legal act and observed operation; private completion need not publish.",
+        "positive": "Close, persist and retrieve an older permitted edition through a fresh reader after a newer one exists, retaining useful reasoning and honest unavailable inputs; public output reveals only admitted rendition.",
+        "adversarial": "Valid hashes without missing actual dependencies, current parser defaults, candidate text as enactment or public private-ancestor links cannot establish archive/current authority.",
+        "removal": "Remove actual closure or owner-bound document/emitter consumption while keeping edition and section labels; fresh semantic reader detects the loss.",
+        "delivery_slices": [
+          "solutions/17-design-custody-and-succession.md#D1",
+          "solutions/17-design-custody-and-succession.md#D4",
+          "solutions/17-design-custody-and-succession.md#D7"
+        ],
+        "quality_cases": [
+          "assurance/11-design-custody-succession-access.md#Q01",
+          "assurance/11-design-custody-succession-access.md#Q02",
+          "assurance/11-design-custody-succession-access.md#Q10",
+          "assurance/11-design-custody-succession-access.md#Q18"
+        ],
+        "product_verification": "UNRUN"
       }
     },
     {
@@ -11318,7 +11974,24 @@
       "dependency_stage_overrides": {
         "DES-06": "interface_agreement"
       },
-      "r14_review_refinement": "Normal import, history, processing and export obey existing LIF-05 rights/retention, not just rollback. Revocation/expiry with intact revision IDs must prevent prohibited copy/use/egress and retain only permitted custody receipts. Sidecar alignment does not supersede actual edited carrier content."
+      "r14_review_refinement": "Normal import, history, processing and export obey existing LIF-05 rights/retention, not just rollback. Revocation/expiry with intact revision IDs must prevent prohibited copy/use/egress and retain only permitted custody receipts. Sidecar alignment does not supersede actual edited carrier content.",
+      "r17_extension": {
+        "requirement": "Human edits and migrated representations create content-bound revisions linked to the native case/edition. Re-evaluate changed meaning and authority without overwriting prior lawful bytes or treating edited prose as an institutional act.",
+        "positive": "Edited transition scope yields a new candidate and scoped re-evaluation while previous as-known edition remains interpretable.",
+        "adversarial": "Backfilled incumbent defaults, silent schema reinterpretation or a revised document promoting itself to adopted policy fail.",
+        "removal": "Remove semantic edit-to-revision binding while keeping document version; actual consumer detects changed scope.",
+        "delivery_slices": [
+          "solutions/17-design-custody-and-succession.md#D1",
+          "solutions/17-design-custody-and-succession.md#D4",
+          "solutions/17-design-custody-and-succession.md#D7"
+        ],
+        "quality_cases": [
+          "assurance/11-design-custody-succession-access.md#Q02",
+          "assurance/11-design-custody-succession-access.md#Q10",
+          "assurance/11-design-custody-succession-access.md#Q12"
+        ],
+        "product_verification": "UNRUN"
+      }
     },
     {
       "implementation_status": "planned_after_E02_acceptance",
@@ -11437,6 +12110,22 @@
           "assurance/10-composition-reexecution-quality.md#Q17"
         ],
         "product_verification": "UNRUN"
+      },
+      "r17_extension": {
+        "requirement": "Lawful experience memory is scoped by case/organization/tenant, purpose, audience, jurisdiction and reuse rights; retrieval/current-use checks cover summaries and embeddings. Useful transferable lessons remain qualified rather than blocked wholesale.",
+        "positive": "Permitted lesson changes real search; identical restricted cross-case lesson is refused before provider context or downstream claim use.",
+        "adversarial": "Private embeddings/derived summary assumed public, same hash implies permission or new version launders scientific independence fail.",
+        "removal": "Remove actual memory eligibility or recipient/use check while keeping provenance; controlled private canary or learning comparison detects the breach.",
+        "delivery_slices": [
+          "solutions/17-design-custody-and-succession.md#D5",
+          "solutions/17-design-custody-and-succession.md#D6"
+        ],
+        "quality_cases": [
+          "assurance/11-design-custody-succession-access.md#Q14",
+          "assurance/11-design-custody-succession-access.md#Q15",
+          "assurance/11-design-custody-succession-access.md#Q17"
+        ],
+        "product_verification": "UNRUN"
       }
     },
     {
@@ -11522,7 +12211,24 @@
         "OPS-07": "interface_agreement"
       },
       "r14_canonical_writer": "DES-09 owns prompt_tool_ledger.py and the exact existing gateway/context projection path resolved at P0. formulator.py and hypothesis_ledger.py are read-only suppliers: submit interface requests to DES-01 and DES-02 respectively. No alternate spelling of their lease creates an independent writer.",
-      "read_only_mechanism_anchors": ["policy-engine/src/polisyos/runtime/quality/hypothesis_ledger.py", "policy-engine/src/polisyos/scientist/policy_design/formulator.py"]
+      "read_only_mechanism_anchors": [
+        "policy-engine/src/polisyos/runtime/quality/hypothesis_ledger.py",
+        "policy-engine/src/polisyos/scientist/policy_design/formulator.py"
+      ],
+      "r17_extension": {
+        "requirement": "Existing LLM context/tool ledger carries exact recipient/provider, delegated subject/actor, authorized purpose and actual egress disposition. Release ordering or bounded in-flight profile is explicit; local commit refusal cannot recall an already sent prompt.",
+        "positive": "Authorized provider receives only permitted context and useful candidate result; revoke before fenced release prevents actual bytes leaving.",
+        "adversarial": "Task handoff expands user rights, service-only credential reads foreign case or sent/indeterminate provider effect retried as not-sent fail.",
+        "removal": "Remove actual provider release/recipient/delegation gate while keeping ledger fields; controlled canary proves disclosure.",
+        "delivery_slices": [
+          "solutions/17-design-custody-and-succession.md#D6"
+        ],
+        "quality_cases": [
+          "assurance/11-design-custody-succession-access.md#Q16",
+          "assurance/11-design-custody-succession-access.md#Q17"
+        ],
+        "product_verification": "UNRUN"
+      }
     },
     {
       "implementation_status": "planned_after_E02_acceptance",
@@ -11765,6 +12471,23 @@
           "assurance/10-composition-reexecution-quality.md#Q14"
         ],
         "product_verification": "UNRUN"
+      },
+      "r17_extension": {
+        "requirement": "Bind native trajectories to actual known or declared-assumed incumbent exposure, shared capacity, carryover and residual obligations; represent planned versus externally observed branches separately. Distinguish announcement, legal effect and operational receipt when selected method requires; no future knowledge or automatic world rollback.",
+        "positive": "Partial V2 introduction with grandfathered V1 yields correct mixed baseline and useful V3 comparison; late correction preserves old as-known path.",
+        "adversarial": "Global version replacement, zero transition cost, future-dated knowledge, unknown or incomplete announcement/awareness history treated as no anticipation or simulated adoption as fact fail.",
+        "removal": "Remove actual incumbent/scope/cutoff/announcement-exposure consumption but keep labels; independent trajectory/effect oracle fails or requires bounded result.",
+        "delivery_slices": [
+          "solutions/17-design-custody-and-succession.md#D4",
+          "solutions/17-design-custody-and-succession.md#D5"
+        ],
+        "quality_cases": [
+          "assurance/11-design-custody-succession-access.md#Q10",
+          "assurance/11-design-custody-succession-access.md#Q11",
+          "assurance/11-design-custody-succession-access.md#Q12",
+          "assurance/11-design-custody-succession-access.md#Q13"
+        ],
+        "product_verification": "UNRUN"
       }
     },
     {
@@ -11880,6 +12603,21 @@
           "assurance/10-composition-reexecution-quality.md#Q10",
           "assurance/10-composition-reexecution-quality.md#Q11",
           "assurance/10-composition-reexecution-quality.md#Q17"
+        ],
+        "product_verification": "UNRUN"
+      },
+      "r17_extension": {
+        "requirement": "Bind method-qualified study/estimand to policy-strategy/exposure history, target weights, assignment versus receipt, preceding/concurrent policies and observation regime. Include announcement/anticipation when relevant; unknown awareness is scenario/bound/limitation. Use sufficient aggregate inputs when valid, not mandatory personal data.",
+        "positive": "Partial rollout and later correction produce a supported target/exposure analysis and useful discriminating study; original protocol and as-known result remain distinct.",
+        "adversarial": "Published date as actual receipt, treatment-confounder feedback ignored, population mix as within-group effect, inapplicable static method or rewritten preregistration fail.",
+        "removal": "Remove actual exposure/announcement/target/method or returned-evidence binding while retaining version markers; independent effect oracle detects misattribution or required limitation.",
+        "delivery_slices": [
+          "solutions/17-design-custody-and-succession.md#D5"
+        ],
+        "quality_cases": [
+          "assurance/11-design-custody-succession-access.md#Q12",
+          "assurance/11-design-custody-succession-access.md#Q13",
+          "assurance/11-design-custody-succession-access.md#Q14"
         ],
         "product_verification": "UNRUN"
       }

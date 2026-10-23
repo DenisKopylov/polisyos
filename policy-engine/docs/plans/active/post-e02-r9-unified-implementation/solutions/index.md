@@ -157,3 +157,7 @@ R15: читать также 28 `r15_extension` в task/solution manifests и [�
 ## R16 additive решения
 
 [Композиции, sequences/cycles и revisions](16-composed-execution-and-revisions.md) содержат C1–C8 внутри existing owners. `r16_extension` в tasks.json и preferred-solutions обязателен вместе с исходным решением и R15, а не вместо них. [Quality Q01–Q17](../assurance/10-composition-reexecution-quality.md); [coverage](../assurance/r16-capability-obligations.json). Optional protocol не становится обязательной библиотекой; новый adapter должен исполняться и потребляться реально.
+
+## R17 additive решения
+
+[Долговременный дизайн, scoped succession и access lifecycle](17-design-custody-and-succession.md) задают D1–D7 в existing owners. Все 41 `r17_extension` обязательны вместе с прежними criteria; [machine coverage](../assurance/r17-capability-obligations.json), [семантические проверки](../assurance/11-design-custody-succession-access.md), [stage map](../execution/09-design-lifetimes-and-access.md). Это не новый архив/IAM/succession engine и не runtime acceptance.

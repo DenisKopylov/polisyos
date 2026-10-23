@@ -13,3 +13,7 @@ Read the assigned task’s `preferred_solution_ref` from [tasks.json](../tasks.j
 ## R14 companion
 
 For R14 attack false abstention, paraphrase diversity, provider-present/no-call provenance, memory-as-evidence, omitted exception/model, hidden scalarization and document edits that inherit stale support. Check both capability and authority. Same-class deeper finding follows P40; no unbounded repair ladder. Preserve old criteria and actual dispatch stages.
+
+## R17 companion
+
+Review all assigned `r17_extension` and actual selected D/Q obligations. Attack archive completeness without retained dependencies, renewal after missing history, silent-source no-change, partial succession flattened to current=true, published text substituted for exposure, provider bytes released after revoke, offline snapshot/clock rollback and private metadata/LLM descendants. Demand a useful permitted positive as well as refusal. Bound external authority and selected deployment claims; no new global replay or blanket denial.

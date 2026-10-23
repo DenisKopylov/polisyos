@@ -15,3 +15,7 @@ Read the assigned task’s `preferred_solution_ref` from [tasks.json](../tasks.j
 ## R14 companion
 
 Use assurance/08-productive-search-and-document-quality.md for DES-10. Distinguish recorded response, live provider, deterministic trial, human comprehension and authentic effect claims. Freeze endpoints/exposure and report all cases/arms/missing results; source-derived complete denominator. Do not optimize useful_design_rate or call a copied citation a claim proof.
+
+## R17 companion
+
+Include assigned r17_extension and assurance/11-design-custody-succession-access.md in the selected semantic denominator. Record useful positive, adversarial, actual property removal and setup limitations separately. Synthetic institutional evidence proves internal mechanics only. Provider release can precede local commit; observe the actual sink. Historical archive, present admissibility and actual institutional operation require separate predicates. Use the existing frozen final wave; no R17-only heavy wave.

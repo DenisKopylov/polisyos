@@ -42,3 +42,7 @@ Interface agreement достаточно для native isolated preparation. Com
 ## R16: композиция и обновление полезного результата
 
 [Delivery slices](../solutions/16-composed-execution-and-revisions.md) связывают real native composition, exact influence, bounded rerun duty и method-valid evidence update. DES-03 остаётся search coordinator, DES-04 — generation-cycle bridge, DES-11 — temporal adapter, DES-12 — study designer. GYD-30 пишет shared execution bridge; LIF-07 — influence relation; LIF-02 — currentness. [Q17](../assurance/10-composition-reexecution-quality.md#Q17) требует полезный полный цикл, не status-only реакцию. Все r16_extension входят в исходную готовность; отдельного DES-13/engine нет.
+
+## R17: successor design относительно действующего режима
+
+[Действующая политика](../architecture/08-incumbent-policy-succession.md) связывает DES-11/03/04 с source-qualified incumbent mixture, transition costs и scoped evidence. DES-06/07 сохраняют readable editions; DES-12/CNT/GYD связывают exposure/announcement/target history с selected inference. Candidate не означает enactment; missing external facts допускают declared conditional work. assigned r17_extension дополняет R15/R16.

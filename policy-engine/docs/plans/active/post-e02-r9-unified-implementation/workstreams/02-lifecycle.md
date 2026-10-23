@@ -132,3 +132,7 @@ No implementation, product execution, tests, imports, installs, production reads
 LIF-05 assigns AP07 to one native rights/privacy source-use owner: source/custodian-defined protected unit, overlap/aliases/lineage, recipient cooperation scope and composition law. Reserve/commit is atomic across admitted requests; timeout after possible output retains an indeterminate reservation. Same output/same audience replay differs from a fresh draw or new recipient according to the actual law. No universal privacy guarantee or second ledger is inferred. Concurrent overlapping releases, unknown overlap, lost output and marker-preserving removal are required probes. CAP-03/06 are consumers, not alternate counters.
 
 LIF-08 second-source acceptance resolves CAP-02's exact named producer/output or an explicitly allocated new CAP delta. Trust-dependent use additionally consumes OPS-01 independently authorized initial provision and OPS-11 succession/compromise recovery; a self-consistent provision cannot authorize its own issuer.
+
+## R17: закрытая edition и продолжающаяся custody
+
+[Сохранение/review/succession](../solutions/17-design-custody-and-succession.md) добавляет D1–D3 и D4 bridges к прежним LIF criteria. LIF-07 ведёт influence/manifest, LIF-02 currentness/head, LIF-04 duty, LIF-05 rights/copies, OPS-05/11 preservation/trust duties. Нет нового архивного scheduler. [Q01–Q12](../assurance/11-design-custody-succession-access.md#Q01) и assigned r17_extension обязательны; actual-source rebind остаётся первым шагом после E02.

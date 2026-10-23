@@ -25,3 +25,7 @@ R15 supplement: if the task has `r15_extension`, read the entire extension, `sol
 ### Дополнение R16 для затронутой задачи
 
 Прочитай своё r16_extension, delivery_slices и quality_cases вместе с исходными критериями. Выбери existing owner и полный accepted-source footprint; не создавай новый scheduler/graph только ради task label. Различай calculation identity, current-use qualification и statistical evidence independence. Для selective reuse докажи actual positive/negative dependencies и сравнение с clean recompute; для duty исполни actual event→intent→trial, не только dirty marker. Подготовка по agreed interface не даёт composed acceptance. Не реализовывать до фактической приёмки E02.
+
+### R17 для затронутой задачи
+
+Прочитай своё `r17_extension`, все D-slices/Q-cases и architecture/07–09 вместе с исходными критериями. Реализуй полный producer→persisted artifact→bridge→fresh reader/emitter. Особо проверь actual closure, old-as-known/current-use, rights-at-egress и scoped real-world succession. Перечень predicates/consumers выводи из accepted source; не создавай enum текущих доменов или default law. Не реализовывать до E02 acceptance.

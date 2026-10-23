@@ -1,0 +1,39 @@
+# R17 — Независимый редтим и окончательный review
+
+Baseline `d30e957940c7060ac7efcbb571fe3b763a1eee80`, 2026-10-23. Это review документации будущей реализации, не code acceptance/security audit и не closure findings E02. Все product checks **UNRUN**. Автор интеграции сам проверил содержание всех 41 `r17_extension`, их exact mirror, семь delivery slices, восемнадцать quality groups и отсутствие ослабления исходных критериев. Полный машинный denominator и результаты — [validation](r17-validation.json).
+
+## Исследование и независимость
+
+Восемь прямых исследователей, без детей, writes и тяжёлых процессов: `r17_preservation`, `r17_retention_trust`, `r17_revalidation`, `r17_policy_succession`, `r17_access_architecture`, `r17_access_modes`, `r17_repo_coverage`, `r17_longitudinal_effects`. Они прочитали scoped native anchors и первичные работы; root проверил различия между plan/static evidence и фактической runtime capability. Их выводы сведены в [research](../research/design-custody-succession-access-r17.md), а не приняты автоматически. Старые архитектурные receipts не объявлены review нового delta.
+
+Отдельные direct reviewers не авторы предложений: `r17_red_archive`, `r17_red_succession`, `r17_red_access`, `r17_red_plan`. После исправлений повторно читался только изменённый смысл исходных finding. No children, no tests/import/build/install/server/production scans; root единственный писатель документации.
+
+## Findings и решения
+
+| ID / reviewer | Divergent case и класс | Исправление / actual future discriminator | Disposition |
+|---|---|---|---|
+| R17-RT-01 / red_access | Проверка прав прошла, revoke победил позже, prompt ушёл provider до заблокированного local commit. P31/P38: существующий revocation class на более глубокой emission boundary | Architecture09/D6/Q16 и OPS-06/LIF-05/LIF-04/DES-09 требуют actual release ordering, разрешённый bounded in-flight fallback, sent/not-sent/indeterminate и отсутствие общего lock на remote RPC. Remove real release fence при intact commit gate должен раскрыть controlled canary | Исправлен design delta; independent delta review подтвердил, runtime UNRUN |
+| R17-RT-02 / red_access | Offline restore возвращает прежние часы и старый signed rights package. Валидная подпись не доказывает текущий допуск. P07/P08/P38, same lifecycle class | Architecture09/D6/Q18/OPS-12: proven generation/time boundary либо честный cutoff; current-dependent use ограничен, действительно разрешённое historical use сохраняется. Pre-update VM restore — distinguishing case | Исправлено; independent delta review подтвердил, runtime UNRUN |
+| R17-RT-03 / red_succession | Credible announcement t1 меняет поведение до legal t2/receipt t3; receipt-only effect ошибочно приписывает ранний сдвиг baseline/V1. P24/P38, existing strategic-response class | Architecture08/D5/Q13/DES-11/CNT-06/DES-12: selected awareness/exposure либо сценарий/граница/limitation. Remove announcement exposure, keep rollout/version markers: полный effect claim меняется или ограничивается | Исправлено; independent delta review подтвердил. Уточнено unknown/incomplete evidence versus verified absence; runtime UNRUN |
+| R17-RT-04 / red_archive | Проверены archive guarantees, crypto loss, restore-frontier rights, duty coverage и budget; существенного противоречия в пяти drafts не найдено | Q01–Q09 сохраняют useful positives, independently checked copies и запрет hash/timestamp-as-truth | Bounded design GO, не product PASS |
+| R17-RT-05 / red_plan | Первоначальное сомнение в source/custodian allocation operational event после чтения полного inherited CAP-04/R16 снято: canonical source adapter, real source positive и native enrollment уже назначены | Doc-local clarity усилена в architecture08, Q11 и CAP-04 extension: selected source-qualified operational record → persistence/verification → currentness → fresh incumbent/UI; genuine input unavailable ограничивает actual claim, не mechanism work | Reviewer скорректировал замечание до неблокирующего уточнения, bounded plan GO; root clarification сохраняет inherited route |
+
+## Самостоятельный review автора
+
+- **D1:** сохранение частного завершённого дизайна не зависит от publication. Exact closure включает material alternatives и counterevidence, но не предписывает удержание всех raw inputs вопреки правам. Fresh reader независим от author workspace/current pointer. Readability, replay и authority разделены.
+- **D2:** backup, архив и воспроизводимость — разные свойства. Исходные operational retention defaults не используются как law. Copy/crypto/restore обязанности имеют scope и provenance. Evidence renewal не лечит утраченную историю; offboarding не передаёт чужую лицензию или sovereign authority.
+- **D3:** coverage источника — реальное обязательство, а не cron marker. Изменение currentness происходит до дорогого расчёта; no-change полезен и не заставляет выпускать новый документ. Duty конечен и обеспечен ресурсами/transfer/cutoff по ratified custody, не silently abandoned.
+- **D4:** external act и operation — отдельные predicates. Переходы partial/overlap/grandfathering/late correction обрабатываются scope/time relations; candidate remains productive under declared unknown. Никакого дополнительного administrator или глобального current flag.
+- **D5:** estimand определяет нужные exposure/target данные и допустимую агрегацию. Announcement awareness, carryover, composition, confounding и selection нельзя заменить одним policy_version. Новые методы не становятся обязательными библиотеками; negative scientific result может дать полезный study design.
+- **D6:** existing OPA/authz/source-use остаются основой. Полный actual reader/emitter denominator, nonamplifying delegation и required-policy errors важнее названия IAM. Разрешённый позитивный share обязателен. После redteam расширена actual egress boundary; offline threat profile не наследует online freshness.
+- **D7:** UI/document не производят institutional facts. Public data-only и typed-empty signer сохраняются; existing epoch reissue не расширен до enactment. API/index/search/link/audit scopes включены. Публичная коррекция не означает возвращение всех downloaded copies.
+- **Организация:** 41 дополнение распределены среди прежних 121 задач; не создаются новые root IDs, blanket lock, global prep edge или отдельная дорогая R17 wave. Existing final stages принимают соответствующие selected evidence, а не присваивают implementation другим owners. Новая representation/provider/method проверяется только при выборе данного guarantee.
+- **Нормативная граница:** PolicyMatter и custody уже ратифицированы. `system-design-decisions` не менялась; новых решений, требующих согласования этой директории, не введено. Реальные institutional authority/rights/observations не создаются архитектурой.
+
+## Проверка и доставка
+
+[Документационная проверка](r17-validation.json) сравнивает все task/solution objects с baseline после удаления только additive `r17_extension`, exact mirror/D-slice/Q membership, JSON syntax, local links и explicit anchors, неизменный preparation DAG/leases/inventory/SDD и docs-only scope. Это не semantic runtime test. Product tests, build, typecheck и browser/server checks не запускались. `git diff --check` применяется только к документации.
+
+Для обычной публикации docs исключены unconditional frontend `check-contrast`, `check-reduced-motion`, `typecheck` hooks в соответствии с пользовательским запретом тяжёлых процессов; config не менялась, исключение не называется PASS. Source/final commit readback и remote byte readback выполняются отдельно обычным transport. Полные компактные deciding outputs и manifest остаются в ignored `_build/post-e02-r17-20261023`; tracked source не дублируется.
+
+Pattern pass: P01/P02/P03/P04/P05/P07/P08/P09/P10/P13/P14/P15/P24/P27/P29/P31/P32/P35/P37/P38/P39/P40/P41. Все claims ограничены исследованием и документацией; E02 acceptance и formal closure не изменены.

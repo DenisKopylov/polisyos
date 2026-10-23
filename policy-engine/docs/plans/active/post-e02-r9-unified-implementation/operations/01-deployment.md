@@ -82,3 +82,7 @@ OPS-02 rehearsal requires LIF-06's enforced selected host, input/decoded-byte/co
 OPS-05 binds the actual filesystem-CAS mount/volume type, options, API/worker topology, visibility and durability scope. Concurrent publish/crash/restart/quarantine-restore runs use that exact volume; local-directory evidence cannot establish a different network/container mount. Untested mounts remain unclaimed.
 
 OPS-01 admits an initial trust provision through an independently authenticated operator/release path external to the new key package. OPS-11 separately proves authorized recovery after current-root compromise, old-root rollback refusal and fresh source-use consumption of the new generation. Signature validity and hash integrity cannot appoint an issuer or prove institutional competence.
+
+## R17: preservation, access и custody на выбранном deployment
+
+[Access architecture](../architecture/09-design-isolation-and-access.md) и [D2/D6](../solutions/17-design-custody-and-succession.md#D2) дополняют OPS criteria: preservation/crypto duty, restored-rights frontier, recipient-specific transfer, actual provider egress ordering и conditional offline rollback proof. Не выбранные modes не добавляют global dependencies. Длительная история, текущая authority и контроль downloaded copies — разные guarantees.

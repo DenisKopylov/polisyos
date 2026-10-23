@@ -1,0 +1,54 @@
+# R17 — Изоляция и полный цикл доступа к дизайнам
+
+Предпочтительное инженерное решение, исходный pin `d30e957940c7060ac7efcbb571fe3b763a1eee80`. Реализация только после фактической приёмки E02 и accepted-source rebind; product verification **UNRUN**. Источники и границы заимствования — [research](../research/design-custody-succession-access-r17.md); исполнимые обязательства — [D6/D7](../solutions/17-design-custody-and-succession.md#D6). Это уточнение existing owners, не введение второго IAM или нового SDD.
+
+## Четыре разных разрешения
+
+Читать дизайн, использовать его основания, утверждать научную обоснованность результата и совершать институциональное действие — разные полномочия. Членство в проекте не выдаёт права на все источники. Подписанная рекомендация не даёт права исполнить политику. Candidate-grade анализ тоже обязан иметь разрешение на чтение и обработку: низкая authority результата не отменяет data permissions. Публичность вывода не делает публичными исходные данные, reviewer notes и частные альтернативы.
+
+Reuse текущих `AccessScope`, runtime authz/OPA, source-use resolver LIF-05/CAP-03, object/artifact owners и DES-09 context/tool ledger. RBAC даёт крупные роли; object relations определяют связь с конкретным ресурсом; ABAC ограничивает действие по цели, audience, source rights и контексту. Это композиция существующих владельцев решений, не обязательная миграция на Cedar/OpenFGA и не матрица сегодняшних профессий. Native schemas/statuses расширяются после rebind при доказанном отсутствии нужного смысла; названия измерений ниже не являются новым product enum.
+
+Один запрос связывает authenticated subject + действующего human/service/agent + issuer/delegation, **owner-resolved target** и tenant/cell, action, purpose, recipient/audience, применимые resource/source generations, policy/rule version и интервалы действия. Network location, caller tenant header, opaque ID, possession of URL/key и `admin` сами по себе не являются object/source permission. Operator обслуживает инфраструктуру в явно объявленной threat model; он не получает по этой роли право издавать или оценивать чужие claims.
+
+Обязательные права составляются пересечением применимых разрешений и ограничений, включая исходного пользователя, делегата, объекта, источника и выдаваемой проекции. Для каждого action consumer сам выводит обязательные predicates из owning contracts. Неизвестный/устаревший/недоступный обязательный predicate ограничивает именно затронутую защищённую операцию. Обоснованно не относящаяся к ней ошибка не становится глобальным outage. Нельзя считать `allow` движка достаточным без его semantics: например, Cedar пропускает policy с evaluation error; ошибочная применимая forbid при успешной permit может дать allow. Нужны валидируемая схема, доверенный полный applicable policy set, проверенные атрибуты и обработка диагностики. Нельзя объявить ошибочную policy нерелевантной на основании той же ошибки.
+
+## Read / job / effect / egress — один связанный маршрут
+
+1. Identity admission из выбранного IdP или локального доверенного контекста. Tenant/cell и отношения к target устанавливает owner, не LLM или request field.
+2. Resolve точного объекта и source-use условий; decision привязан к действию, recipient, ресурсам и текущим поколениям. Аудит фиксирует достаточный минимум объяснения, без secret/raw-payload dumps.
+3. Передать минимальный task-bound grant настоящему worker/tool/provider; сохранить и subject, и actor. Credential service не расширяет права делегирующего пользователя. Token exchange сам не доказывает propagation revocation.
+4. Повторить актуальную проверку на dequeue/start, retry/resume/checkpoint read, внешнем вызове, materialization commit, result read и export. Для долгого stream определить проверяемую границу chunk/lease/renewal и максимальную задержку отзыва; нельзя обещать немедленный отзыв байтов, уже ушедших в сеть.
+5. Generation/causal fence не допускает commit после concurrent revoke. При невозможности общей атомарности использовать LIF-05 stage→reconcile→publish с невыдаваемым staging. Cache bypass не равен межхранилищному causality fence. Cancellation request не доказывает прекращение эффекта.
+Для необратимой provider/tool отправки определить **точку разрешённого release** на последней контролируемой egress boundary и доказанное упорядочение с rights generation. Проверка перед enqueue или запрет последующего local commit этого не заменяют. Если revoke выигрывает в выбранном порядке до release, bytes не выходят; уже разрешённая/начатая отправка учитывается как in-flight с ограниченным scope/объёмом/сроком по выбранному grant contract. Если adapter не способен дать такое упорядочение, допускается лишь явно разрешённый bounded in-flight profile; use, которому нужна более строгая гарантия, остаётся unsupported. Нельзя держать общий rights lock во время неопределённого remote RPC: отделить короткое owner decision/release coordination от сетевого ожидания и reconcile uncertain outcome. Actual disposition `not sent` / `sent` / `indeterminate` не выводится из успешности local commit и не разрешает слепой retry.
+
+6. Expiry/revoke/transfer меняет future use, pending work, копии и обязанности. Quarantined restore сверяет более новые grants/revocations и copy inventory до выдачи. Законно сохранённая историческая authorization receipt объясняет прошлый доступ, но не разрешает нынешний.
+
+Все фактические consumers входят в denominator: object bytes, list/search/count/autocomplete, links/IDs, retrieval/embeddings, caches, browser state, downloadable reports, signed URLs, provider context/tool outputs, telemetry, backup/restore и экспорт. Enforcement ставится в canonical intake/emission и owner boundaries, затем подтверждается на каждом представленном consumer. Нет обещания побайтового constant-time/noninterference для всей системы: existence-protected API должны иметь согласованную foreign/absent проекцию; побочные каналы и измеренные границы выбранного deployment фиксируются отдельно. Список endpoints выводится из accepted source, не является замороженным allowlist.
+
+Derived artifact, embedding, trained model, summary и synthetic dataset потенциально несут информацию исходника. Их release определяется выбранным disclosure/rights contract; слово «derived», удаление raw rows или одинаковый hash не служат clearance. DES-08 cross-case learning использует scoped eligibility и права на повторное использование; полезный lesson должен оставаться доступным при законном допуске. Нельзя «обеспечить безопасность», запретив все позитивные чтения и обучение.
+
+## Режимы — композиции профилей, а не обязательный список deploy targets
+
+| Пример выбранного режима | Реальная граница | Что нельзя обещать |
+|---|---|---|
+| Локальная частная работа | Доверенный OS principal, отдельные файлы/секреты/sockets; explicit local grant | Изоляцию от OS administrator или других пользователей при общем открытом storage |
+| Команда одной организации | Identity + object/project relations + source/purpose rights, сервисные identities | Что workspace membership или общая сеть разрешает все данные |
+| Межинституциональная работа | Именной grant на exact artifact/view, purpose, recipient; по необходимости source-side compute OPS-09 | Что grant одной организации переносится вместе с файлом к другой |
+| Публичное досье / частные основания | UI-02 самостоятельный разрешённый release и gated private references; UI-04 linked corrections | Отзыв уже скачанных публичных копий или вывод о публичности родителей |
+| Secure research / query-only | People/project/setting/data/output controls; selected output checking перед egress; bounded retention | Что шифрование, агрегирование или «DP» автоматически разрешает экспорт |
+| Hybrid / custodian worker | Локальные данные, scoped remote compute request, фактические разрешённые outputs/receipts | Что удалённый callback или encrypted transport сам подтверждает recipient authority |
+| Offline / air-gap | Signed import и локальные policy/rights cutoffs, explicit validity/reconciliation profile | Мгновенную удалённую revocation/currentness без канала; отсутствие связи не повышает authority |
+
+Физический silo, bridge или pooled storage выбираются по threat model и требованиям источника, не по названию тарифа. Локальный pilot не ждёт cloud. Multi-tenant production не наследует single-user proof. Не выбранные профили остаются unselected, без parity claim и без глобального barrier.
+
+Offline freshness имеет собственную rollback boundary: восстановленный laptop/VM может вернуть старые часы и ещё корректно подписанный rights package. Выбранный профиль должен доказать защиту поколения/времени или явно квалифицировать результат cutoff этого пакета. Без свежей независимо проверенной границы нельзя выполнять действия, требующие current rights; permissible historical use допускается только по действительно принятому offline grant и его threat assumptions. Это conditional OPS-12 witness, не новый blocker локального pilot.
+
+Export, ingest и transfer — разные действия. Export manifest различает разрешённые результаты, restricted sources/prompts, verification receipts и недоступные записи; importer заново проверяет назначение, права, содержимое и применимость. External copy имеет честное состояние контроля: можно прекратить будущую выдачу и направить уведомление, нельзя заявить remote deletion без соответствующего проверенного receipt. Offboarding не переносит лицензию, институциональный мандат или signing authority автоматически.
+
+## Рост и цена механизма
+
+Новые resource types, relationships и rights facets подключаются через versioned owning contracts с schema validation, тестируемым predicate resolver и consumer adapter. Domain-specific facts живут в typed data, не в разрастающихся `if role/domain` и не в исполняемой policy от LLM. Расширение не обходится без проверки нового verifier: free-grow означает отсутствие массовой переделки общего lifecycle, а не admission произвольной семантики.
+
+Кэшировать можно exact object/influence identity и ограниченный authorization decision, связанный с policy/resource/right generations и valid interval. Cache hit не отменяет current-use check. Review/retention scans шардируются по duty/manifest/source/event frontier, с control-plane budget LIF-06. Sensitive audit и indexes имеют собственные access/retention rules. Контроль доступа не требует копировать большие payloads; cursor/manifest refs и bounded streams используют existing CAS/OPS-10 contracts.
+
+Pattern pass: P03/P04/P05/P07/P08/P13/P15/P27/P29/P31/P32/P37/P38. План закрывает gaps в требованиях к полному lifecycle, не выдаёт статическое чтение за security audit. Реальная capability и её missing labels устанавливаются при accepted-source rebind. Обязателен разрешённый позитивный маршрут наряду с cross-tenant/revoke/error/provider/restore negatives и matched removal; см. [Q15–Q18](../assurance/11-design-custody-succession-access.md#Q15).

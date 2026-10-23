@@ -55,6 +55,7 @@ class _ToDictLike(Protocol):
     def to_dict(self, *args: object, **kwargs: object) -> object: ...
 
 
+@runtime_checkable
 class IndexedArtifactStore(Protocol):
     """Artifact store protocol with read access to its local root path."""
 
@@ -340,7 +341,8 @@ def load_quarantine_payload(
     manifest = store.get_manifest(aid)
     raw = store.get_bytes(aid)
     if manifest.media_type == "application/json":
-        return load_core_json_artifact(store, aid, raw_payload_bytes=raw)
+        payload: object = load_core_json_artifact(store, aid, raw_payload_bytes=raw)
+        return payload
     return raw
 
 

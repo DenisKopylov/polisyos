@@ -24,6 +24,8 @@ class _ConnectorRegistry(Protocol):
 
     async def get_connection(self, connector_id: str) -> ConnectionHandle: ...
 
+    async def release_connection(self, connector_id: str, handle: ConnectionHandle) -> None: ...
+
 
 class InvalidationStrategy(str, Enum):
     """How connector cache entries are retired or refreshed after a source changes."""

@@ -42,6 +42,11 @@ do the operational recovery surfaces for quarantine and schema-drift evidence.
 | `compare_historical_rows()` / `persist_historical_semantic_diff_report()`         | Historical schema-evolution diff helpers.                                   |
 | `python -m polisyos.fabric.data_plane.cli`                                        | Package-local CLI for quarantine report and replay operations.              |
 
+The quarantine report/replay CLI stores its JSONL index beneath the CAS root. It
+requires the indexed-store protocol, including a filesystem `Path` root and the
+CAS operations used by quarantine records; stores without that capability are
+refused before report or replay starts.
+
 ## Depends On / Depended On By
 
 - Depends on: `polisyos.fabric.ingestion`, `polisyos.fabric.connectors`,

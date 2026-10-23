@@ -9,13 +9,14 @@ from __future__ import annotations
 import math
 from dataclasses import dataclass
 from datetime import UTC, datetime
-from typing import TYPE_CHECKING, Any, Literal
+from typing import TYPE_CHECKING, Any, Literal, Protocol, runtime_checkable
 
 from pydantic import BaseModel, ConfigDict
 
 from polisyos.common.canonical_profile import CanonicalProfileRefusalError
 from polisyos.core import artifacts as core_artifacts
 from polisyos.core import canon, scan_secret_and_pii
+from polisyos.core.artifacts.protocol import ProfileAddressedManifestStore
 from polisyos.core.contracts.control import FetchPlan
 from polisyos.data_forge.read_api import catalog as catalog_api
 from polisyos.ir.connectors import FetchRequest, FetchResult
@@ -24,6 +25,12 @@ if TYPE_CHECKING:
     from polisyos.core.artifacts import ArtifactStore
 
     from .providers import RetrievalProviders
+
+
+@runtime_checkable
+class _RuntimeProfileAddressedStore(ProfileAddressedManifestStore, Protocol):
+    """Runtime-narrowable view of the existing optional manifest capability."""
+
 
 _CANON = canon.CanonSpec(forbid_floats=False, exclude_none=False)
 _PRODUCER = core_artifacts.ProducerInfo(
@@ -303,10 +310,17 @@ def _read(
     checked = core_artifacts.ArtifactRef.model_validate(ref.model_dump(mode="python"))
     if checked.manifest_profile_sha256 is None:
         raise FabricFetchCustodyError("fabric_fetch_profile_unverified")
-    manifest = store.get_manifest_by_profile(
-        checked.artifact_id,
-        checked.manifest_profile_sha256,
-    )
+    if isinstance(store, _RuntimeProfileAddressedStore):
+        manifest = store.get_manifest_by_profile(
+            checked.artifact_id,
+            checked.manifest_profile_sha256,
+        )
+    else:
+        manifest = core_artifacts.resolve_manifest_by_profile(
+            store,
+            checked.artifact_id,
+            checked.manifest_profile_sha256,
+        )
     if (
         checked.kind != kind
         or checked.media_type != media_type

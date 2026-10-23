@@ -5,6 +5,7 @@ from __future__ import annotations
 import argparse
 import importlib
 import json
+from pathlib import Path
 from typing import TYPE_CHECKING, Any, cast
 
 from polisyos.core.artifacts.backends.config import ArtifactStoreConfig, build_artifact_store
@@ -20,12 +21,15 @@ if TYPE_CHECKING:
 
 
 def _build_store(root: str) -> IndexedArtifactStore:
-    return build_artifact_store(
+    store = build_artifact_store(
         ArtifactStoreConfig(
             backend="filesystem",
             root=root,
         )
     )
+    if not isinstance(store, IndexedArtifactStore) or not isinstance(store.root, Path):
+        raise TypeError("quarantine CLI requires a filesystem-indexed artifact store")
+    return store
 
 
 def _load_handler(spec: str | None) -> Callable[[Any, Any], Any] | None:

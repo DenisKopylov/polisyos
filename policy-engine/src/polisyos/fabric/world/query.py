@@ -96,8 +96,11 @@ class _DuckDBResult(Protocol):
 class _WorldSnapshotSource(Protocol):
     """Snapshot fields required to open its read-only query backend."""
 
-    storage_adapter: str
-    snapshot_path: str | Path
+    @property
+    def storage_adapter(self) -> str: ...
+
+    @property
+    def snapshot_path(self) -> str: ...
 
 
 class _DuckDBSnapshotBackend:

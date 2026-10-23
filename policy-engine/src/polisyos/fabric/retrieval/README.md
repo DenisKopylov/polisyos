@@ -12,6 +12,10 @@ snapshot captured before the CAS write, so a later mutation of connector-owned d
 the profiled object being stored. Arrow IPC payloads remain media-specific byte streams. Readers
 continue to require the declared profile; profileless historical JSON is not upgraded or treated
 as verified by this capture path.
+The reader uses the Core profile-addressed manifest capability when the store
+provides it. Otherwise, it falls back only to Core's default-profile resolver;
+profileless refs and non-default profiles remain refused.
+
 
 `execute_fetch_plans(..., persist_payload=True)` requires a real
 `DatasetCatalogGraph` and CAS. The actual chosen plan, including a fallback,

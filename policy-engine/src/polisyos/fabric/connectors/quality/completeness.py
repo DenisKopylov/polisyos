@@ -33,13 +33,19 @@ class _TemporalFieldType(Protocol):
 
 
 class _CompletenessField(Protocol):
-    name: str
-    semantic_type: object
-    data_type: _TemporalFieldType
+    @property
+    def name(self) -> str: ...
+
+    @property
+    def semantic_type(self) -> object: ...
+
+    @property
+    def data_type(self) -> _TemporalFieldType: ...
 
 
 class _CompletenessSchema(Protocol):
-    fields: Sequence[_CompletenessField]
+    @property
+    def fields(self) -> Sequence[_CompletenessField]: ...
 
 
 @dataclass

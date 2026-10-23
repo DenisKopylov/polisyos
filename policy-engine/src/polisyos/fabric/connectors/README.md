@@ -169,6 +169,10 @@ an old generation pool may remain idle until shutdown or capacity trimming.
 Registration and physical cleanup do not establish source custody, permission,
 currentness, or the authority of the fetched data.
 
+Freshness scans release each successfully acquired handle through the
+registry, including when a connector freshness check raises. A release failure
+is logged and does not establish that physical cleanup completed.
+
 ## Reference Docs
 
 - [Fabric connectors reference](../../../../docs/reference/fabric/connectors.md)

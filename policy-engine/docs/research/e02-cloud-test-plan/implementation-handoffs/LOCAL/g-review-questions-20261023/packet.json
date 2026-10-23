@@ -1,0 +1,91 @@
+{
+  "census_path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/ir-remaining-owner-callsite-census-20261023-r3/owner-callsite-census.json",
+  "census_sha256": "dfbcda17d96bbeded6affa1e89e63844ece42b08594a05a0dc403352cc23c6e8",
+  "counts": {
+    "full_source_denominator": {
+      "caller_files": 67,
+      "get_json_artifact_ast_calls": 134,
+      "python_files": 195
+    },
+    "residual": {
+      "call_rows": 93,
+      "unique_api_names": 1,
+      "unique_caller_files": 53,
+      "unique_caller_function_names": 92,
+      "unique_caller_path_function_pairs": 92,
+      "unique_producer_functions_with_owner_source": 90
+    },
+    "row_buckets": {
+      "already_central_typed_contract_enforced": 5,
+      "concrete_typed_ref_owner_contract_known_missing_nonserialized_class_declaration": 84,
+      "generic_selector_with_known_owner_contract_requires_bridge": 2,
+      "genuinely_unknown_owner_law": 2
+    },
+    "source_rows_by_relation": {
+      "HEAD5b match": 73,
+      "RAW candidate postimage; not Git HEAD": 12,
+      "current worktree differs from HEAD5b": 8
+    },
+    "source_view_rows": {
+      "candidate_postimage": 12,
+      "current_canonical": 81
+    },
+    "unique_source_file_relation": {
+      "HEAD5b match": 43,
+      "RAW candidate postimage; not Git HEAD": 5,
+      "current worktree differs from HEAD5b": 5
+    }
+  },
+  "created_from_branch": "codex/e02-unified-local-20261009",
+  "created_from_head": "5b5871c4e5e1f682a7526e2c5c3b97d0b043ce75",
+  "created_from_tree": "7511cb8c5c524027ea48dd414ea00a18c2914944",
+  "limitations": [
+    "Census includes RAW candidate overlays distinct from Git HEAD.",
+    "Five current-canonical caller files differ from committed HEAD5b.",
+    "The causal_graph baseline mismatch remains P41 not_established.",
+    "No runtime tests were run for these G questions."
+  ],
+  "packet_files_sha256": {
+    "README.md": "e6bd62fde2a55b7005054e48f5b9199d39e76f62cd157bb2769e79bd7e3651bb",
+    "Q1-override-owner-contract.md": "1dfac4f62aaaf3710466669f70054e7a1a809e9f0706c4eacd50d198a2061a21",
+    "Q2-version-compatibility.md": "cd65adde8932fab365ce8960cfcfb8131544310ceba2fa0c31fc2e1df03cdadd",
+    "required-inputs.md": "90c5d19308db9d5e011a6c253c19820c851ae5b5fdf01072e86754bfa700e72f",
+    "existing-pending-questions.md": "34271a96f4b36f435cd810f0952edc7744338ba7795abed826afebd74144dea8",
+    "remaining-93-callsite-census.csv": "d39c84fe4a6769bb5fe18ef12c864c2d8290c1a859a2e13575f32f4a90b2c711"
+  },
+  "runtime_falsifiers": "UNRUN",
+  "schema": "e02.g-review-questions.20261023.v1",
+  "shared_candidate_manifest_path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/ir-shared-consumer-admission-author-20261023-r2/admission-freeze-r2.json",
+  "shared_candidate_manifest_sha256": "21f3f701504caa4ebb16c98fa2a5d3195e08c31f08e0b8ee5db100543fb8f25d",
+  "shared_candidate_status": "unpublished RAW candidate; 38 postimages plus 12 unchanged locators",
+  "source_bodies_copied": false,
+  "source_denominator_manifest_path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/native-sota-current-rows-20261023-r4/current-E06-E11-property-probes-r1/e11-ir-mypy-source-current-inputs.json",
+  "source_denominator_manifest_sha256": "c20813fcd529531314c1e51f2ee8c106fa6b52f7f9c25e3c7683a734a355c7ce",
+  "status": "PROPOSED_FOR_G_ARCHITECTURE_REVIEW",
+  "code_acceptance": false,
+  "source_freeze": false,
+  "closure_ids": [],
+  "new_question_ids": [
+    "IR-Q1",
+    "IR-Q2"
+  ],
+  "existing_pending": [
+    "PAG legal relation/consumer migration",
+    "R4 conditional candidate transport diagnostic"
+  ],
+  "candidate_authority_split": "already_ratified_S0_K06_not_reopened",
+  "g_checkpoint": "c8986d035f12c1c3d9e5d0d57e369fe8257bccbc",
+  "source_file_glob": "policy-engine/src/polisyos/ir/**/*.py",
+  "supporting_raw_inputs": [
+    {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/g-questions-semantic-addendum-draft-20261023-r3/execution/g-questions-semantic-addendum.md",
+      "sha256": "1631deb8984d556f7fad733c4f952dc8ad919e3b86634a5ab1f707e51429e142",
+      "availability": "local ignored RAW; not a published product source or live-currentness receipt"
+    },
+    {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/t1-t2-custody-input-current-reentry-20261023-r3/evidence-ledger-r2/evidence-ledger.md",
+      "sha256": "52ad64047f6ed12f3c51cf04ecd1eb018ae97899706ac23e3d6601602b0514b2",
+      "availability": "local ignored RAW; not a published product source or live-currentness receipt"
+    }
+  ]
+}

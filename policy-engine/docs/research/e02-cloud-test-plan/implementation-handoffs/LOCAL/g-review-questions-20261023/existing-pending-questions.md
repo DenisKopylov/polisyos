@@ -1,0 +1,12 @@
+# Existing pending G questions — consolidated pointers
+
+These two requests are already open. They are included here so G can process one index; no duplicate decision or new claimed closure is created.
+
+1. **PAG legal permission/relation and consumer migration.** [Existing active index](../decisions/20261021-g-pending-questions.md#questions-that-remain-open). G's 798 package makes no allow/block legal determination. Preserve protected refusal pending authentic evidence. The architecture/migration choice and the external operative legal relation are separate planes.
+2. **R4 conditional candidate transport diagnostic.** [Complete recommended contract, migration and 33-path companion inventory](../decisions/g-choice-conditional-transport-diagnostics-20261021.md), [source-bound receipt](../decisions/g-choice-conditional-transport-diagnostics-20261021.json). Recommend extending the existing persisted result with a typed candidate diagnostic while outer `UNSUPPORTED`, mode `NONE`, `feasible=false`, refusal and expert review remain unchanged. Its actual historical replay was 7 PASS / 1 FAIL on manually supplied SCMs. It established neither legal relation nor owner-approved/source-trained graph; it does not close B31/B33/B161/B214. A PAG scalar is not an all-completions result.
+
+The exact G checkpoint `c8986d035f12c1c3d9e5d0d57e369fe8257bccbc` was checked: it changes the later plan and does not answer these requests. Prior b7adafe AD01–03, 798 AD04–06 and d40bca N818 selections remain fixed. DS17 whole-module import-purity is parked unless a concrete ratified rule conflict is produced. No new S1/S2 architecture choice was established by the latest semantic audit; missing law/calibration/independence/currentness facts are listed in [required-inputs.md](required-inputs.md).
+
+B161's AD06 first replacement is already selected. A hypothetical universal assessed-to-assessed refinement is not an active new request without a concrete consumer, owner-valid relation and falsifier. Ordinary ClassVar, import, API/JSON fixture, Ruff and bridge repairs proceed with the executor.
+
+Binding historical inputs: pending index SHA-256 `d604ad2f372840a774b1a06dc38b10d9cf058873b2ffd311f7dd9ee4c7f09e81`; R4 proposal `45c15676ef9dd76171b86af43bbb5b1110964217a65a5b6f2f24886d0fb3c090`; R4 JSON `f93238a3d431b1abb4e7d429288121310fb4ed4f6c3b8b43aaec9e7a6fc2178a`. These identify the previous question packets, not current source acceptance.

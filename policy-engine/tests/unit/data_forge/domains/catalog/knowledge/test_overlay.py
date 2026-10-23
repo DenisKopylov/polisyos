@@ -1415,15 +1415,18 @@ def test_activation_refuses_profiled_production_sidecar_drift_without_overlay_wr
         production.model_dump(mode="python") | {"receipt_ref": tampered_ref}
     )
     before = _activation_database_snapshot(scenario)
-    with pytest.raises(
-        OverlayAdmissionError,
-        match="semantic_epoch_production_receipt_drift",
-    ):
+    expected_refusal_code = (
+        "semantic_external_receipt_profile_unverified"
+        if tampered_sidecar == "schema"
+        else "semantic_epoch_production_receipt_drift"
+    )
+    with pytest.raises(OverlayAdmissionError) as refusal:
         scenario.overlay.activate_semantic_epoch(
             pending_receipt=scenario.pending,
             production_receipt=tampered_production,
             artifact_store=scenario.store,
         )
+    assert refusal.value.code == expected_refusal_code
     assert _activation_database_snapshot(scenario) == before
 
 
@@ -1678,23 +1681,24 @@ def test_epoch_statement_readback_recanonicalizes_typed_native_bytes(
     """Real membership bytes survive Core readback, while changed decoded bytes refuse."""
 
     scenario = _real_epoch_scenario(tmp_path)
-    query = scenario.service.acquisition_owner_query(query=scenario.query)
-    membership = scenario.overlay.resolve_native_membership(query=query)
-    kind = "epoch.r1721_typed_native_membership_fixture"
-    domain = "polisyos.test.r1721-typed-native-membership"
-
-    ref, _ = overlay_module._persist_epoch_statement(
-        artifact_store=scenario.store,
-        value=membership,
-        kind=kind,
-        domain=domain,
+    admitted_ref = _emit_admitted_ref(scenario)
+    admitted_mapping = contracts.epoch.load_verified_epoch_statement(
+        store=scenario.store,
+        ref=admitted_ref,
+        expected_kind="epoch.admitted_acquisition_boundary_evidence",
     )
+    admitted = contracts.epoch.AdmittedAcquisitionBoundaryEvidence.model_validate(admitted_mapping)
+    kind = "epoch.acquisition_native_membership"
+    domain = overlay_module._SEMANTIC_RECEIPT_DOMAINS[kind]
+    ref = admitted.native_membership_receipt_ref
+    assert ref.kind == kind
     assert ref.manifest_profile_sha256 is not None
     persisted = contracts.epoch.load_verified_epoch_statement(
         store=scenario.store,
         ref=ref,
         expected_kind=kind,
     )
+    membership = contracts.epoch.AcquisitionNativeMembershipReceipt.model_validate(persisted)
     persisted_query = persisted.get("query")
     assert isinstance(persisted_query, dict)
     assert isinstance(persisted_query.get("valid_effect_coordinate_bytes"), bytes)
@@ -2542,3 +2546,425 @@ def test_finalizer_fails_closed_when_a_selected_owner_snapshot_cannot_be_read(
 
     assert receipt.status == "not_established"
     assert receipt.failure_codes == ("epoch_scope_unresolved",)
+
+
+@pytest.mark.parametrize(
+    ("raw_unit", "canonical_unit", "expected_multiplier"),
+    [
+        ("km", "m", "1000"),
+        ("kg", "g", "1000"),
+        ("km/h", "m/s", "0.2777777777777777777777777778"),
+        ("kWh", "J", "3600000"),
+    ],
+)
+def test_fixed_multiplicative_unit_transform_reuses_versioned_fabric_definitions(
+    raw_unit: str,
+    canonical_unit: str,
+    expected_multiplier: str,
+) -> None:
+    binding = overlay_module.build_metric_field_binding(
+        dataset_id="dataset.fixed-unit",
+        distribution_id="distribution.fixed-unit",
+        raw_field="measured_value",
+        canonical_variable="canonical.value",
+        raw_unit=raw_unit,
+        canonical_unit=canonical_unit,
+        unit_transform="fixed_multiplicative",
+        unit_transform_ref="fabric://units/fixed-multiplicative/v1",
+        alignment_method="meta_analytic",
+        alignment_confidence=0.8,
+        is_proxy=False,
+        proxy_penalty=0.0,
+        evidence_refs=("repo://fixed-unit-test",),
+    )
+
+    evidence = overlay_module._resolve_fixed_unit_transform(binding)
+
+    assert evidence.transform_ref == "fabric://units/fixed-multiplicative/v1"
+    assert evidence.executor_version == "polisyos.fabric.units.fixed-multiplicative.v1"
+    assert evidence.binding_id == binding.binding_id
+    assert evidence.raw_unit == raw_unit
+    assert evidence.canonical_unit == canonical_unit
+    assert evidence.multiplier == expected_multiplier
+    assert evidence.definition_content_sha256.startswith("sha256:")
+
+
+@pytest.mark.parametrize(
+    ("raw_unit", "canonical_unit", "transform_ref", "expected_error"),
+    [
+        ("km", "m", "fabric://units/other/v1", "unit_transform_executor_unregistered"),
+        (
+            "km",
+            "s",
+            "fabric://units/fixed-multiplicative/v1",
+            "unit_transform_incompatible_dimensions",
+        ),
+        (
+            "index",
+            "ratio",
+            "fabric://units/fixed-multiplicative/v1",
+            "unit_transform_dimensionless_not_admissible",
+        ),
+        ("USD", "EUR", "fabric://units/fixed-multiplicative/v1", "unit_transform_rate_required"),
+        (
+            "USD/year",
+            "EUR/year",
+            "fabric://units/fixed-multiplicative/v1",
+            "unit_transform_currency_rate_law_missing",
+        ),
+        (
+            "degC",
+            "K",
+            "fabric://units/fixed-multiplicative/v1",
+            "unit_transform_offset_not_admissible",
+        ),
+        (
+            "furlong",
+            "m",
+            "fabric://units/fixed-multiplicative/v1",
+            "unit_transform_definition_unregistered",
+        ),
+        (
+            "households",
+            "persons",
+            "fabric://units/fixed-multiplicative/v1",
+            "unit_transform_population_law_missing",
+        ),
+    ],
+)
+def test_fixed_multiplicative_unit_transform_refuses_unbound_or_semantic_units(
+    raw_unit: str,
+    canonical_unit: str,
+    transform_ref: str,
+    expected_error: str,
+) -> None:
+    binding = overlay_module.build_metric_field_binding(
+        dataset_id="dataset.fixed-unit",
+        distribution_id="distribution.fixed-unit",
+        raw_field="measured_value",
+        canonical_variable="canonical.value",
+        raw_unit=raw_unit,
+        canonical_unit=canonical_unit,
+        unit_transform="fixed_multiplicative",
+        unit_transform_ref=transform_ref,
+        alignment_method="meta_analytic",
+        alignment_confidence=0.8,
+        is_proxy=False,
+        proxy_penalty=0.0,
+        evidence_refs=("repo://fixed-unit-test",),
+    )
+
+    with pytest.raises(OverlayAdmissionError, match=expected_error):
+        overlay_module._resolve_fixed_unit_transform(binding)
+
+
+def test_identity_observation_serialization_omits_fixed_unit_evidence() -> None:
+    row = overlay_module.CanonicalAcquisitionObservation(
+        observation_id="identity-observation",
+        dataset_id="dataset.identity",
+        raw_variable="measured_value",
+        canonical_var="canonical.value",
+        country_code="UA",
+        year=2024,
+        survey_year=None,
+        wave=None,
+        value=0.5,
+        condition_json="{}",
+        acquisition_method="identity",
+        source_watermark="watermark:1",
+        dataset_version="dataset-version:1",
+        observation_class=ObservationProvenanceClass.OBSERVED,
+    )
+
+    assert "unit_transform_evidence" not in row.model_dump(mode="json")
+
+
+def test_observation_unit_transform_evidence_additive_migration_preserves_unknown_history() -> None:
+    con = duckdb.connect(":memory:")
+    try:
+        con.execute(
+            """
+            CREATE TABLE acquisition_observation_provenance (
+                observation_id VARCHAR PRIMARY KEY,
+                epoch_id BIGINT NOT NULL,
+                passport_id VARCHAR NOT NULL,
+                observation_class VARCHAR NOT NULL,
+                raw_evidence_event_sha256 VARCHAR NOT NULL,
+                raw_artifact_id VARCHAR NOT NULL,
+                l5_trust_tier VARCHAR NOT NULL,
+                effective_authority_score DOUBLE NOT NULL
+            )
+            """
+        )
+        con.execute(
+            "INSERT INTO acquisition_observation_provenance VALUES (?, ?, ?, ?, ?, ?, ?, ?)",
+            [
+                "legacy-observation",
+                1,
+                "legacy-passport",
+                "observed",
+                "legacy-event",
+                "legacy-artifact",
+                "legacy-tier",
+                0.5,
+            ],
+        )
+
+        overlay_module._migrate_observation_provenance_unit_transform_evidence(con)
+        overlay_module._migrate_observation_provenance_unit_transform_evidence(con)
+
+        columns = {
+            str(row[1])
+            for row in con.execute(
+                "PRAGMA table_info('acquisition_observation_provenance')"
+            ).fetchall()
+        }
+        assert "unit_transform_evidence_json" in columns
+        assert con.execute(
+            "SELECT unit_transform_evidence_json FROM acquisition_observation_provenance "
+            "WHERE observation_id = ?",
+            ["legacy-observation"],
+        ).fetchone() == (None,)
+    finally:
+        con.close()
+
+
+def test_fixed_unit_lift_rejects_raw_condition_unit_outside_binding() -> None:
+    binding = overlay_module.build_metric_field_binding(
+        dataset_id="dataset.condition-unit",
+        distribution_id="distribution.condition-unit",
+        raw_field="distance",
+        canonical_variable="canonical.distance",
+        raw_unit="km",
+        canonical_unit="m",
+        unit_transform="fixed_multiplicative",
+        unit_transform_ref="fabric://units/fixed-multiplicative/v1",
+        alignment_method="meta_analytic",
+        alignment_confidence=0.8,
+        is_proxy=False,
+        proxy_penalty=0.0,
+        evidence_refs=("repo://condition-unit-test",),
+    )
+    registration = SimpleNamespace(
+        catalog_dataset_id="dataset.condition-unit",
+        field_binding=binding,
+    )
+    passport = SimpleNamespace(
+        epoch_id=1,
+        source_watermark="sha256:" + "1" * 64,
+        dataset_version="fixture-version-1",
+        observation_class=ObservationProvenanceClass.OBSERVED,
+    )
+    raw_body = json.dumps(
+        [
+            {
+                "distance": 1.0,
+                "country_code": "UA",
+                "year": 2024,
+                "condition_json": {"unit": "mi"},
+            }
+        ]
+    ).encode("utf-8")
+
+    with pytest.raises(
+        OverlayAdmissionError,
+        match="raw_condition_unit_binding_mismatch",
+    ):
+        overlay_module.derive_canonical_observations(
+            raw_body,
+            passport=passport,
+            registration=registration,
+        )
+
+
+def test_fixed_unit_executor_rejects_drift_across_entire_definition_basis(monkeypatch):
+    from polisyos.fabric.connectors.types._units_base import (
+        STANDARD_UNITS,
+        SUPERSCRIPT_MAP,
+    )
+    from polisyos.fabric.connectors.types._units_prefixes import PREFIX_FACTORS
+
+    binding = overlay_module.build_metric_field_binding(
+        dataset_id="dataset.fixed-unit-drift",
+        distribution_id="distribution.fixed-unit-drift",
+        raw_field="measured_value",
+        canonical_variable="canonical.value",
+        raw_unit="km",
+        canonical_unit="m",
+        unit_transform="fixed_multiplicative",
+        unit_transform_ref="fabric://units/fixed-multiplicative/v1",
+        alignment_method="meta_analytic",
+        alignment_confidence=0.8,
+        is_proxy=False,
+        proxy_penalty=0.0,
+        evidence_refs=("repo://fixed-unit-drift-test",),
+    )
+
+    def refuse_live_drift(mapping, key, changed_value):
+        with monkeypatch.context() as patch:
+            patch.setitem(mapping, key, changed_value)
+            with pytest.raises(
+                OverlayAdmissionError,
+                match="unit_transform_definition_content_drift",
+            ):
+                overlay_module._resolve_fixed_unit_transform(binding)
+
+    for key, definition in tuple(STANDARD_UNITS.items()):
+        refuse_live_drift(
+            STANDARD_UNITS,
+            key,
+            definition._replace(to_si_factor=definition.to_si_factor * 2),
+        )
+
+    km = STANDARD_UNITS["km"]
+    refuse_live_drift(
+        STANDARD_UNITS,
+        "km",
+        km._replace(aliases=(*km.aliases, "alternate-kilometre-suffix")),
+    )
+
+    for key, factor in tuple(PREFIX_FACTORS.items()):
+        refuse_live_drift(PREFIX_FACTORS, key, factor * 2)
+
+    for key, exponent in tuple(SUPERSCRIPT_MAP.items()):
+        changed_exponent = "8" if exponent != "8" else "7"
+        refuse_live_drift(SUPERSCRIPT_MAP, key, changed_exponent)
+
+    custom_unit = STANDARD_UNITS["m"]._replace(symbol="fixture_custom")
+    with monkeypatch.context() as patch:
+        patch.setitem(STANDARD_UNITS, "fixture_custom", custom_unit)
+        with pytest.raises(
+            OverlayAdmissionError,
+            match="unit_transform_definition_content_drift",
+        ):
+            overlay_module._resolve_fixed_unit_transform(binding)
+
+
+def test_fixed_unit_resolver_uses_frozen_basis_during_live_registry_aba(monkeypatch):
+    from polisyos.fabric.connectors.types._units_base import STANDARD_UNITS
+
+    binding = overlay_module.build_metric_field_binding(
+        dataset_id="dataset.fixed-unit-aba",
+        distribution_id="distribution.fixed-unit-aba",
+        raw_field="measured_value",
+        canonical_variable="canonical.value",
+        raw_unit="km",
+        canonical_unit="m",
+        unit_transform="fixed_multiplicative",
+        unit_transform_ref="fabric://units/fixed-multiplicative/v1",
+        alignment_method="meta_analytic",
+        alignment_confidence=0.8,
+        is_proxy=False,
+        proxy_penalty=0.0,
+        evidence_refs=("repo://fixed-unit-aba-test",),
+    )
+    original_parse = overlay_module.Unit._parse_with_definition_maps
+    original_km = STANDARD_UNITS["km"]
+    changed_km = original_km._replace(to_si_factor=original_km.to_si_factor * 2)
+
+    def parse_while_live_map_is_changed(cls, unit_text, **definition_maps):
+        with monkeypatch.context() as patch:
+            patch.setitem(STANDARD_UNITS, "km", changed_km)
+            return original_parse(unit_text, **definition_maps)
+
+    monkeypatch.setattr(
+        overlay_module.Unit,
+        "_parse_with_definition_maps",
+        classmethod(parse_while_live_map_is_changed),
+    )
+
+    evidence = overlay_module._resolve_fixed_unit_transform(binding)
+
+    assert evidence.multiplier == "1000"
+    assert STANDARD_UNITS["km"] == original_km
+
+
+def test_fixed_unit_executor_rejects_non_factor_definition_drift(monkeypatch):
+    from decimal import Decimal
+
+    from polisyos.fabric.connectors.types._units_base import STANDARD_UNITS
+
+    binding = overlay_module.build_metric_field_binding(
+        dataset_id="dataset.fixed-unit-metadata-drift",
+        distribution_id="distribution.fixed-unit-metadata-drift",
+        raw_field="measured_value",
+        canonical_variable="canonical.value",
+        raw_unit="km",
+        canonical_unit="m",
+        unit_transform="fixed_multiplicative",
+        unit_transform_ref="fabric://units/fixed-multiplicative/v1",
+        alignment_method="meta_analytic",
+        alignment_confidence=0.8,
+        is_proxy=False,
+        proxy_penalty=0.0,
+        evidence_refs=("repo://fixed-unit-metadata-drift-test",),
+    )
+    km = STANDARD_UNITS["km"]
+    changed_definitions = (
+        km._replace(symbol="km-alternate-symbol"),
+        km._replace(dimension=STANDARD_UNITS["kg"].dimension),
+        km._replace(to_si_offset=Decimal("1")),
+        km._replace(category="alternate-category"),
+        km._replace(aliases=(*km.aliases, "alternate-alias")),
+    )
+
+    for changed_definition in changed_definitions:
+        with monkeypatch.context() as patch:
+            patch.setitem(STANDARD_UNITS, "km", changed_definition)
+            with pytest.raises(
+                OverlayAdmissionError,
+                match="unit_transform_definition_content_drift",
+            ):
+                overlay_module._resolve_fixed_unit_transform(binding)
+
+
+def test_fixed_unit_definition_drift_refuses_owner_lift_before_observation_creation(
+    monkeypatch,
+):
+    from polisyos.fabric.connectors.types._units_base import STANDARD_UNITS
+
+    binding = overlay_module.build_metric_field_binding(
+        dataset_id="dataset.fixed-unit-producer-drift",
+        distribution_id="distribution.fixed-unit-producer-drift",
+        raw_field="measured_value",
+        canonical_variable="canonical.value",
+        raw_unit="km",
+        canonical_unit="m",
+        unit_transform="fixed_multiplicative",
+        unit_transform_ref="fabric://units/fixed-multiplicative/v1",
+        alignment_method="meta_analytic",
+        alignment_confidence=0.8,
+        is_proxy=False,
+        proxy_penalty=0.0,
+        evidence_refs=("repo://fixed-unit-producer-drift-test",),
+    )
+    registration = SimpleNamespace(
+        catalog_dataset_id="dataset.fixed-unit-producer-drift",
+        field_binding=binding,
+    )
+    passport = SimpleNamespace(
+        epoch_id=1,
+        source_watermark="watermark:1",
+        dataset_version="dataset-version:1",
+        observation_class=ObservationProvenanceClass.OBSERVED,
+    )
+    raw_body = json.dumps([{"measured_value": 1.0, "country_code": "UA", "year": 2024}]).encode(
+        "utf-8"
+    )
+    km = STANDARD_UNITS["km"]
+
+    with monkeypatch.context() as patch:
+        patch.setitem(
+            STANDARD_UNITS,
+            "km",
+            km._replace(to_si_factor=km.to_si_factor * 2),
+        )
+        with pytest.raises(
+            OverlayAdmissionError,
+            match="unit_transform_definition_content_drift",
+        ):
+            overlay_module.derive_canonical_observations(
+                raw_body,
+                passport=passport,
+                registration=registration,
+            )

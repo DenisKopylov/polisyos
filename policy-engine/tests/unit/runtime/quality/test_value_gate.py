@@ -7952,3 +7952,173 @@ def test_n8_source_projection_preserves_synthetic_asymmetric_ci_through_fresh_ca
             pytest.raises(ValueError, match="value_owner_method_run_basis_binding_mismatch"),
         ):
             original_consumer(**consumer_kwargs)
+
+
+def test_n8_fresh_consumer_reads_recomputed_fixed_unit_owner_projection(
+    tmp_path: Path,
+    monkeypatch: pytest.MonkeyPatch,
+) -> None:
+    """Static unit conversion reaches the fresh N8 reader without changing assignment authority."""
+    from dataclasses import replace
+
+    from polisyos.runtime.quality import generation_cycle as gc
+    from polisyos.runtime.quality.substrate_registry import (
+        CatalogServingSourcePaths,
+        catalog_serving_source_scope,
+        default_substrate_catalog_paths,
+    )
+    from tests._helpers.semantic_epoch_native import make_native_multivariable_active_projections
+
+    source_rows = [
+        {
+            "country_code": "UA",
+            "year": 2021 + index,
+            "distance": 0.001 * (index + 1),
+            "condition_json": '{"population":"synthetic-candidate"}',
+        }
+        for index in range(4)
+    ]
+    fixture = make_native_multivariable_active_projections(
+        tmp_path / "fixed-unit-owner-source",
+        source_rows=source_rows,
+        condition_units_by_raw_field={"distance": "km"},
+        variable_specs=(
+            {
+                "target_variable": "distance",
+                "raw_field": "distance",
+                "raw_unit": "km",
+                "canonical_unit": "m",
+                "unit_transform": "fixed_multiplicative",
+                "unit_transform_ref": "fabric://units/fixed-multiplicative/v1",
+                "valid_min": 0.0,
+                "valid_max": 5.0,
+            },
+        ),
+    )
+    projection = fixture.projections["distance"]
+    observations = tuple(row.observation for row in projection.observations)
+    assert [row.value for row in observations] == [1.0, 2.0, 3.0, 4.0]
+    assert all(json.loads(row.condition_json)["unit"] == "m" for row in observations)
+    assert all(row.unit_transform_evidence is not None for row in observations)
+    assert all(row.unit_transform_evidence.raw_unit == "km" for row in observations)
+    assert all(row.unit_transform_evidence.canonical_unit == "m" for row in observations)
+    assert all(row.unit_transform_evidence.multiplier == "1000" for row in observations)
+    assert projection.source_time_status == "not_established"
+    assert projection.predicate_provenance == "recomputed"
+
+    substrate_paths = replace(
+        default_substrate_catalog_paths(fixture.repo_root),
+        l1_dcat_path=fixture.baseline_path,
+    )
+    catalog_source = CatalogServingSourcePaths(
+        repo_root=fixture.repo_root,
+        snapshot_root=fixture.baseline_path.parent,
+        database_path=fixture.baseline_path,
+        index_dir=fixture.repo_root / "index",
+        overlay_path=fixture.overlay_path,
+        catalog_run_profile=None,
+        selection_basis="explicit_path_candidate_only",
+        substrate_paths=substrate_paths,
+    )
+    with catalog_serving_source_scope(catalog_source):
+        profile = gc._load_value_data_profile_from_l1_dcat(
+            repo_root=fixture.repo_root,
+            outcome="distance",
+            owner_access_ref="fixture://n8-fixed-unit-fresh-profile",
+            overlay_path=fixture.overlay_path,
+            scope_region="UA",
+            artifact_store=fixture.artifact_store,
+            activated_observation_projection=projection,
+        )
+
+    assert profile is not None
+    assert profile.measurement_unit == "m"
+    assert [row.outcome_value for row in profile.rows] == [1.0, 2.0, 3.0, 4.0]
+    assert all(row.measurement_unit == "m" for row in profile.rows)
+    assert profile.treatment_assignment_status == "owner_assignment_unresolved"
+
+    import duckdb
+
+    from polisyos.runtime.quality.acquisition_executor import AdmissionPassport
+
+    with duckdb.connect(str(fixture.overlay_path), read_only=True) as con:
+        columns = {
+            str(row[1])
+            for row in con.execute(
+                "PRAGMA table_info('acquisition_observation_provenance')"
+            ).fetchall()
+        }
+    assert "unit_transform_evidence_json" in columns
+
+    with duckdb.connect(str(fixture.overlay_path), read_only=True) as con:
+        passport_row = con.execute(
+            "SELECT passport_json FROM acquisition_passports WHERE epoch_id = ? "
+            "AND passport_id = ?",
+            [projection.epoch_id, projection.passport_id],
+        ).fetchone()
+    assert passport_row is not None
+    persisted_passport = AdmissionPassport.model_validate(json.loads(str(passport_row[0])))
+    fresh_projection = fixture.overlay.read_activated_semantic_epoch_observations(
+        receipt_ref=projection.receipt_ref,
+        artifact_store=fixture.artifact_store,
+        passport=persisted_passport,
+        authority=fixture.authority,
+    )
+    assert fresh_projection.projection_content_sha256 == projection.projection_content_sha256
+
+    with duckdb.connect(str(fixture.overlay_path), read_only=True) as con:
+        stored = con.execute(
+            "SELECT observation_id, unit_transform_evidence_json "
+            "FROM acquisition_observation_provenance WHERE epoch_id = ? "
+            "AND passport_id = ? ORDER BY observation_id",
+            [projection.epoch_id, projection.passport_id],
+        ).fetchall()
+    assert len(stored) == len(observations)
+    expected = {
+        row.observation_id: row.unit_transform_evidence.model_dump(mode="json")
+        for row in observations
+    }
+    for observation_id, evidence_json in stored:
+        assert json.loads(str(evidence_json)) == expected[str(observation_id)]
+
+    with duckdb.connect(str(fixture.overlay_path)) as con:
+        first_id, first_json = stored[0]
+        tampered = json.loads(str(first_json))
+        tampered["multiplier"] = "1"
+        con.execute(
+            "UPDATE acquisition_observation_provenance "
+            "SET unit_transform_evidence_json = ? WHERE observation_id = ?",
+            [json.dumps(tampered), first_id],
+        )
+
+    from polisyos.data_forge.domains.catalog.knowledge import overlay as overlay_module
+
+    with pytest.raises(
+        overlay_module.OverlayAdmissionError,
+        match="active_epoch_observation_content_mismatch",
+    ):
+        fixture.overlay.read_activated_semantic_epoch_observations(
+            receipt_ref=projection.receipt_ref,
+            artifact_store=fixture.artifact_store,
+            passport=persisted_passport,
+            authority=fixture.authority,
+        )
+
+    ref_drift = json.loads(str(first_json))
+    ref_drift["definition_content_sha256"] = "sha256:" + "0" * 64
+    with duckdb.connect(str(fixture.overlay_path)) as con:
+        con.execute(
+            "UPDATE acquisition_observation_provenance "
+            "SET unit_transform_evidence_json = ? WHERE observation_id = ?",
+            [json.dumps(ref_drift), first_id],
+        )
+    with pytest.raises(
+        overlay_module.OverlayAdmissionError,
+        match="active_epoch_observation_content_mismatch",
+    ):
+        fixture.overlay.read_activated_semantic_epoch_observations(
+            receipt_ref=projection.receipt_ref,
+            artifact_store=fixture.artifact_store,
+            passport=persisted_passport,
+            authority=fixture.authority,
+        )

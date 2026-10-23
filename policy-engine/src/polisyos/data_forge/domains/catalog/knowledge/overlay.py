@@ -15,6 +15,7 @@ from collections.abc import Mapping, Sequence
 from decimal import Decimal
 from enum import StrEnum
 from pathlib import Path
+from types import MappingProxyType
 from typing import Any, Literal, Protocol, Self
 
 import duckdb
@@ -22,6 +23,13 @@ from pydantic import BaseModel, ConfigDict, Field, field_validator, model_valida
 
 from polisyos.core import artifacts, canon, contracts, scan_secret_and_pii
 from polisyos.fabric import data_plane as fabric_data_plane
+from polisyos.fabric.connectors.types._units_base import (
+    STANDARD_UNITS,
+    SUPERSCRIPT_MAP,
+    BaseUnit,
+)
+from polisyos.fabric.connectors.types._units_prefixes import PREFIX_FACTORS
+from polisyos.fabric.connectors.types.units import Unit, UnitConversionError, UnitParseError
 
 ArtifactID = artifacts.ArtifactID
 ArtifactRef = artifacts.ArtifactRef
@@ -395,6 +403,226 @@ class LegacyAdmissionPassport(_StrictModel):
         return self
 
 
+_FIXED_UNIT_TRANSFORM = "fixed_multiplicative"
+_FIXED_UNIT_TRANSFORM_REF = "fabric://units/fixed-multiplicative/v1"
+_FIXED_UNIT_EXECUTOR_VERSION = "polisyos.fabric.units.fixed-multiplicative.v1"
+_UNIT_DIMENSIONS = (
+    "length",
+    "mass",
+    "time",
+    "current",
+    "temperature",
+    "amount",
+    "luminosity",
+    "currency",
+    "population",
+    "information",
+    "angle",
+)
+_FIXED_UNIT_DEFINITION_BASIS_CONTENT_SHA256 = (
+    "sha256:05b2363a679c1636cdb2f5b862ad88b279f5aafe3481d01aa93a5837148e384f"
+)
+_FIXED_UNIT_STANDARD_UNITS = MappingProxyType(dict(STANDARD_UNITS))
+_FIXED_UNIT_PREFIX_FACTORS = MappingProxyType(dict(PREFIX_FACTORS))
+_FIXED_UNIT_SUPERSCRIPT_MAP = MappingProxyType(dict(SUPERSCRIPT_MAP))
+
+
+class FixedUnitTransformEvidence(_StrictModel):
+    """Recomputed, content-bound evidence for one fixed local unit conversion."""
+
+    schema_version: Literal["polisyos.data_forge.fixed_unit_transform_evidence.v1"] = (
+        "polisyos.data_forge.fixed_unit_transform_evidence.v1"
+    )
+    transform_ref: Literal["fabric://units/fixed-multiplicative/v1"] = (
+        "fabric://units/fixed-multiplicative/v1"
+    )
+    executor_version: Literal["polisyos.fabric.units.fixed-multiplicative.v1"] = (
+        "polisyos.fabric.units.fixed-multiplicative.v1"
+    )
+    binding_id: str = Field(pattern=r"^field-binding:sha256:[0-9a-f]{64}$")
+    raw_unit: str = Field(min_length=1)
+    canonical_unit: str = Field(min_length=1)
+    multiplier: str = Field(min_length=1)
+    definition_content_sha256: str = Field(pattern=_SHA256_PATTERN)
+
+
+def _unit_definition_basis_sha256(
+    standard_units: Mapping[str, BaseUnit],
+    prefix_factors: Mapping[str, Decimal],
+    superscript_map: Mapping[str, str],
+) -> str:
+    """Hash the full static definition basis admitted by the fixed-unit v1 owner."""
+    payload = {
+        "standard_units": [
+            {
+                "registry_key": registry_key,
+                "symbol": definition.symbol,
+                "dimension": {
+                    name: getattr(definition.dimension, name) for name in _UNIT_DIMENSIONS
+                },
+                "to_si_factor": str(definition.to_si_factor),
+                "to_si_offset": str(definition.to_si_offset),
+                "aliases": list(definition.aliases),
+                "category": definition.category,
+            }
+            for registry_key, definition in sorted(standard_units.items())
+        ],
+        "prefix_factors": {key: str(value) for key, value in sorted(prefix_factors.items())},
+        "superscript_map": dict(sorted(superscript_map.items())),
+    }
+    encoded = json.dumps(
+        payload,
+        allow_nan=False,
+        ensure_ascii=False,
+        separators=(",", ":"),
+        sort_keys=True,
+    ).encode("utf-8")
+    return "sha256:" + hashlib.sha256(encoded).hexdigest()
+
+
+def _require_fixed_unit_definition_basis() -> str:
+    """Require both the frozen v1 snapshot and current owner maps to match the v1 pin."""
+    try:
+        snapshot_sha256 = _unit_definition_basis_sha256(
+            _FIXED_UNIT_STANDARD_UNITS,
+            _FIXED_UNIT_PREFIX_FACTORS,
+            _FIXED_UNIT_SUPERSCRIPT_MAP,
+        )
+        current_sha256 = _unit_definition_basis_sha256(
+            STANDARD_UNITS,
+            PREFIX_FACTORS,
+            SUPERSCRIPT_MAP,
+        )
+    except (AttributeError, RuntimeError, TypeError, ValueError) as exc:
+        raise OverlayAdmissionError("unit_transform_definition_content_drift") from exc
+    if (
+        snapshot_sha256 != _FIXED_UNIT_DEFINITION_BASIS_CONTENT_SHA256
+        or current_sha256 != _FIXED_UNIT_DEFINITION_BASIS_CONTENT_SHA256
+    ):
+        raise OverlayAdmissionError("unit_transform_definition_content_drift")
+    return snapshot_sha256
+
+
+def _unit_definition_payload(unit: Unit) -> dict[str, object]:
+    """Describe the frozen local definitions used by the fixed-unit v1 parser."""
+    components: list[dict[str, object]] = []
+    for symbol, power in unit._components:
+        definition = _FIXED_UNIT_STANDARD_UNITS.get(symbol)
+        if definition is None:
+            raise OverlayAdmissionError("unit_transform_definition_unregistered", symbol)
+        components.append(
+            {
+                "power": power,
+                "symbol": definition.symbol,
+                "dimension": {
+                    name: getattr(definition.dimension, name) for name in _UNIT_DIMENSIONS
+                },
+                "to_si_factor": str(definition.to_si_factor),
+                "to_si_offset": str(definition.to_si_offset),
+                "aliases": list(definition.aliases),
+                "category": definition.category,
+            }
+        )
+    return {
+        "parsed_symbol": unit.symbol,
+        "dimension": {name: getattr(unit.dimension, name) for name in _UNIT_DIMENSIONS},
+        "to_canonical_factor": str(unit.to_canonical_factor),
+        "to_canonical_offset": str(unit.to_canonical_offset),
+        "components": components,
+    }
+
+
+def _resolve_fixed_unit_transform(binding: MetricFieldBinding) -> FixedUnitTransformEvidence:
+    """Resolve a fixed conversion against the immutable, content-pinned v1 definition basis."""
+    if (
+        binding.unit_transform != _FIXED_UNIT_TRANSFORM
+        or binding.unit_transform_ref != _FIXED_UNIT_TRANSFORM_REF
+    ):
+        raise OverlayAdmissionError(
+            "unit_transform_executor_unregistered",
+            f"{binding.unit_transform}:{binding.unit_transform_ref}",
+        )
+    if not binding.raw_unit.strip() or not binding.canonical_unit.strip():
+        raise OverlayAdmissionError("unit_transform_unit_missing")
+
+    basis_sha256 = _require_fixed_unit_definition_basis()
+    try:
+        parse = Unit._parse_with_definition_maps
+        source = parse(
+            binding.raw_unit,
+            standard_units=_FIXED_UNIT_STANDARD_UNITS,
+            prefix_factors=_FIXED_UNIT_PREFIX_FACTORS,
+            superscript_map=_FIXED_UNIT_SUPERSCRIPT_MAP,
+        )
+        target = parse(
+            binding.canonical_unit,
+            standard_units=_FIXED_UNIT_STANDARD_UNITS,
+            prefix_factors=_FIXED_UNIT_PREFIX_FACTORS,
+            superscript_map=_FIXED_UNIT_SUPERSCRIPT_MAP,
+        )
+    except UnitParseError as exc:
+        raise OverlayAdmissionError("unit_transform_definition_unregistered", str(exc)) from exc
+    if source.is_dimensionless or target.is_dimensionless:
+        raise OverlayAdmissionError("unit_transform_dimensionless_not_admissible")
+    if not source.is_compatible_with(target):
+        raise OverlayAdmissionError("unit_transform_incompatible_dimensions")
+    try:
+        conversion = source.get_conversion_factor(target)
+    except UnitConversionError as exc:
+        raise OverlayAdmissionError("unit_transform_incompatible_dimensions", str(exc)) from exc
+    if conversion.requires_rate:
+        raise OverlayAdmissionError("unit_transform_rate_required")
+    if conversion.offset != 0:
+        raise OverlayAdmissionError("unit_transform_offset_not_admissible")
+    if conversion.multiplier <= 0:
+        raise OverlayAdmissionError("unit_transform_multiplier_not_positive")
+    for unit in (source, target):
+        for symbol, _power in unit._components:
+            definition = _FIXED_UNIT_STANDARD_UNITS.get(symbol)
+            if definition is None:
+                raise OverlayAdmissionError("unit_transform_definition_unregistered", symbol)
+            if getattr(definition.dimension, "currency", 0):
+                raise OverlayAdmissionError("unit_transform_currency_rate_law_missing", symbol)
+            if getattr(definition.dimension, "population", 0):
+                raise OverlayAdmissionError("unit_transform_population_law_missing", symbol)
+    if conversion.multiplier == 1 and source.symbol != target.symbol:
+        raise OverlayAdmissionError("unit_transform_semantic_identity_unproven")
+
+    definition_payload = {
+        "executor_version": _FIXED_UNIT_EXECUTOR_VERSION,
+        "transform_ref": _FIXED_UNIT_TRANSFORM_REF,
+        "definition_basis_content_sha256": basis_sha256,
+        "raw_unit": binding.raw_unit,
+        "canonical_unit": binding.canonical_unit,
+        "source": _unit_definition_payload(source),
+        "target": _unit_definition_payload(target),
+        "multiplier": format(conversion.multiplier, "f"),
+        "offset": format(conversion.offset, "f"),
+    }
+    definition_hash = (
+        "sha256:"
+        + hashlib.sha256(
+            json.dumps(
+                definition_payload,
+                allow_nan=False,
+                ensure_ascii=False,
+                separators=(",", ":"),
+                sort_keys=True,
+            ).encode("utf-8")
+        ).hexdigest()
+    )
+
+    if _require_fixed_unit_definition_basis() != basis_sha256:
+        raise OverlayAdmissionError("unit_transform_definition_content_drift")
+    return FixedUnitTransformEvidence(
+        binding_id=binding.binding_id,
+        raw_unit=binding.raw_unit,
+        canonical_unit=binding.canonical_unit,
+        multiplier=format(conversion.multiplier, "f"),
+        definition_content_sha256=definition_hash,
+    )
+
+
 class CanonicalAcquisitionObservation(_StrictModel):
     """One admitted overlay row plus its non-baseline provenance class."""
 
@@ -412,6 +640,9 @@ class CanonicalAcquisitionObservation(_StrictModel):
     source_watermark: str = Field(min_length=1)
     dataset_version: str = Field(min_length=1)
     observation_class: ObservationProvenanceClass
+    unit_transform_evidence: FixedUnitTransformEvidence | None = Field(
+        default=None, exclude_if=lambda value: value is None
+    )
 
     @field_validator("value")
     @classmethod
@@ -509,6 +740,52 @@ def _verify_observation_projection_rows(
                 for index, column in enumerate(columns)
             ):
                 raise OverlayAdmissionError(content_error_code, expected.observation_id)
+
+
+def _verify_observation_unit_transform_evidence(
+    con: duckdb.DuckDBPyConnection,
+    *,
+    observations: Sequence[CanonicalAcquisitionObservation],
+    epoch_id: int,
+    passport_id: str,
+    schema_error_code: str,
+    content_error_code: str,
+) -> None:
+    """Reconcile persisted conversion evidence against every recomputed owner row."""
+
+    columns = {
+        str(row[1])
+        for row in con.execute("PRAGMA table_info('acquisition_observation_provenance')").fetchall()
+    }
+    if "unit_transform_evidence_json" not in columns:
+        raise OverlayAdmissionError(schema_error_code, "unit_transform_evidence_json")
+    stored_rows = con.execute(
+        "SELECT observation_id, unit_transform_evidence_json "
+        "FROM acquisition_observation_provenance "
+        "WHERE epoch_id = ? AND passport_id = ?",
+        [epoch_id, passport_id],
+    ).fetchall()
+    stored_by_id = {str(row[0]): row[1] for row in stored_rows}
+    if len(stored_rows) != len(observations) or len(stored_by_id) != len(observations):
+        raise OverlayAdmissionError(content_error_code, "unit_evidence_denominator_mismatch")
+    for observation in observations:
+        stored_value = stored_by_id.get(observation.observation_id)
+        if observation.observation_id not in stored_by_id:
+            raise OverlayAdmissionError(content_error_code, observation.observation_id)
+        if stored_value is None:
+            stored_evidence = None
+        else:
+            try:
+                stored_evidence = json.loads(str(stored_value))
+            except (TypeError, json.JSONDecodeError) as exc:
+                raise OverlayAdmissionError(content_error_code, observation.observation_id) from exc
+        expected_evidence = (
+            None
+            if observation.unit_transform_evidence is None
+            else observation.unit_transform_evidence.model_dump(mode="json")
+        )
+        if stored_evidence != expected_evidence:
+            raise OverlayAdmissionError(content_error_code, observation.observation_id)
 
 
 class OverlayAdmissionReceipt(epoch_contract.ActivatedOverlayAdmissionStatement):
@@ -1476,10 +1753,12 @@ class CatalogAcquisitionOverlay:
                     raw_evidence_event_sha256 VARCHAR NOT NULL,
                     raw_artifact_id VARCHAR NOT NULL,
                     l5_trust_tier VARCHAR NOT NULL,
-                    effective_authority_score DOUBLE NOT NULL
+                    effective_authority_score DOUBLE NOT NULL,
+                    unit_transform_evidence_json JSON
                 )
                 """
             )
+            _migrate_observation_provenance_unit_transform_evidence(con)
             con.execute(
                 """
                 CREATE TABLE IF NOT EXISTS ds_metric_field_bindings (
@@ -1744,6 +2023,14 @@ class CatalogAcquisitionOverlay:
                     schema_error_code="overlay_observation_schema_incomplete",
                     content_error_code="overlay_observation_content_conflict",
                 )
+                _verify_observation_unit_transform_evidence(
+                    schema_con,
+                    observations=rows,
+                    epoch_id=epoch_id,
+                    passport_id=passport_id,
+                    schema_error_code="overlay_observation_schema_incomplete",
+                    content_error_code="overlay_observation_content_conflict",
+                )
         finally:
             schema_con.close()
         admission_projection = {
@@ -1816,6 +2103,14 @@ class CatalogAcquisitionOverlay:
                 rows,
                 epoch_id=epoch_id,
                 passport=passport,
+            )
+            _verify_observation_unit_transform_evidence(
+                con,
+                observations=rows,
+                epoch_id=epoch_id,
+                passport_id=passport_id,
+                schema_error_code="overlay_observation_schema_incomplete",
+                content_error_code="overlay_observation_content_conflict",
             )
             passport_json = _model_json(passport)
             con.execute(
@@ -2374,6 +2669,14 @@ class CatalogAcquisitionOverlay:
             _verify_observation_projection_rows(
                 native,
                 observations=expected_observations,
+                schema_error_code="active_epoch_observation_projection_incomplete",
+                content_error_code="active_epoch_observation_content_mismatch",
+            )
+            _verify_observation_unit_transform_evidence(
+                native,
+                observations=expected_observations,
+                epoch_id=statement.epoch_id,
+                passport_id=statement.passport_id,
                 schema_error_code="active_epoch_observation_projection_incomplete",
                 content_error_code="active_epoch_observation_content_mismatch",
             )
@@ -3806,13 +4109,19 @@ def derive_canonical_observations(
         raise OverlayAdmissionError("raw_observations_not_tabular")
 
     binding = registration.field_binding
-    if binding.unit_transform != "identity":
+    fixed_unit_evidence: FixedUnitTransformEvidence | None = None
+    multiplier = Decimal("1")
+    if binding.unit_transform == "identity":
+        if binding.raw_unit != binding.canonical_unit:
+            raise OverlayAdmissionError("identity_unit_transform_mismatch")
+    elif binding.unit_transform == _FIXED_UNIT_TRANSFORM:
+        fixed_unit_evidence = _resolve_fixed_unit_transform(binding)
+        multiplier = Decimal(fixed_unit_evidence.multiplier)
+    else:
         raise OverlayAdmissionError(
             "unit_transform_executor_unregistered",
             binding.unit_transform,
         )
-    if binding.raw_unit != binding.canonical_unit:
-        raise OverlayAdmissionError("identity_unit_transform_mismatch")
 
     measured: list[tuple[tuple[str, int | None, int | None, int | None, str], float]] = []
     for index, raw_row in enumerate(raw_rows):
@@ -3827,6 +4136,13 @@ def derive_canonical_observations(
             raise OverlayAdmissionError("raw_value_not_numeric", str(index)) from exc
         if not math.isfinite(numeric_value):
             raise OverlayAdmissionError("raw_value_not_finite", str(index))
+        if fixed_unit_evidence is not None:
+            try:
+                numeric_value = float(multiplier * Decimal(str(numeric_value)))
+            except (OverflowError, ValueError) as exc:
+                raise OverlayAdmissionError("canonical_value_not_finite", str(index)) from exc
+            if not math.isfinite(numeric_value):
+                raise OverlayAdmissionError("canonical_value_not_finite", str(index))
         country_code = str(raw_row.get("country_code") or "unknown")
         year = _optional_int(raw_row.get("year"), field="year", row_index=index)
         survey_year = _optional_int(
@@ -3843,8 +4159,14 @@ def derive_canonical_observations(
                 raise OverlayAdmissionError("raw_condition_invalid", str(index)) from exc
         if not isinstance(condition, Mapping):
             raise OverlayAdmissionError("raw_condition_invalid", str(index))
+        condition_payload = dict(condition)
+        if fixed_unit_evidence is not None:
+            declared_raw_unit = condition_payload.get("unit")
+            if declared_raw_unit not in (None, "", binding.raw_unit):
+                raise OverlayAdmissionError("raw_condition_unit_binding_mismatch", str(index))
+            condition_payload["unit"] = binding.canonical_unit
         condition_json = json.dumps(
-            dict(condition),
+            condition_payload,
             allow_nan=False,
             ensure_ascii=False,
             separators=(",", ":"),
@@ -3892,6 +4214,8 @@ def derive_canonical_observations(
             "raw_body_sha256": body_sha256,
             "binding_id": binding.binding_id,
         }
+        if fixed_unit_evidence is not None:
+            identity["unit_transform_evidence"] = fixed_unit_evidence.model_dump(mode="json")
         derived.append(
             CanonicalAcquisitionObservation(
                 observation_id="acquisition-observation:" + content_sha256(identity),
@@ -3912,6 +4236,7 @@ def derive_canonical_observations(
                 observation_class=ObservationProvenanceClass(
                     _enum_value(passport.observation_class)
                 ),
+                unit_transform_evidence=fixed_unit_evidence,
             )
         )
     rows = tuple(derived)
@@ -3946,6 +4271,9 @@ def _validate_observations(
 ) -> None:
     seen: set[str] = set()
     binding = registration.field_binding
+    expected_unit_evidence = (
+        None if binding.unit_transform == "identity" else _resolve_fixed_unit_transform(binding)
+    )
     for row in observations:
         if row.observation_id in seen:
             raise OverlayAdmissionError("duplicate_observation_id", row.observation_id)
@@ -3960,10 +4288,39 @@ def _validate_observations(
             raise OverlayAdmissionError("observation_watermark_drift", row.observation_id)
         if row.dataset_version != str(passport.dataset_version):
             raise OverlayAdmissionError("observation_dataset_version_drift", row.observation_id)
+        if row.unit_transform_evidence != expected_unit_evidence:
+            raise OverlayAdmissionError(
+                "observation_unit_transform_evidence_drift", row.observation_id
+            )
+        if expected_unit_evidence is not None:
+            try:
+                condition = json.loads(row.condition_json)
+            except json.JSONDecodeError as exc:  # pragma: no cover - row model owns JSON shape.
+                raise OverlayAdmissionError(
+                    "observation_condition_invalid", row.observation_id
+                ) from exc
+            if condition.get("unit") != binding.canonical_unit:
+                raise OverlayAdmissionError("observation_canonical_unit_drift", row.observation_id)
         if binding.valid_min is not None and row.value < binding.valid_min:
             raise OverlayAdmissionError("observation_below_valid_range", row.observation_id)
         if binding.valid_max is not None and row.value > binding.valid_max:
             raise OverlayAdmissionError("observation_above_valid_range", row.observation_id)
+
+
+def _migrate_observation_provenance_unit_transform_evidence(
+    con: duckdb.DuckDBPyConnection,
+) -> None:
+    """Add nullable fixed-unit evidence without interpreting historical rows."""
+
+    columns = {
+        str(row[1])
+        for row in con.execute("PRAGMA table_info('acquisition_observation_provenance')").fetchall()
+    }
+    if "unit_transform_evidence_json" not in columns:
+        con.execute(
+            "ALTER TABLE acquisition_observation_provenance "
+            "ADD COLUMN unit_transform_evidence_json JSON"
+        )
 
 
 def _migrate_epoch_table_v2(con: duckdb.DuckDBPyConnection) -> None:
@@ -4993,7 +5350,19 @@ def _insert_observations(
         ],
     )
     con.executemany(
-        "INSERT INTO acquisition_observation_provenance VALUES (?, ?, ?, ?, ?, ?, ?, ?)",
+        """
+        INSERT INTO acquisition_observation_provenance (
+            observation_id,
+            epoch_id,
+            passport_id,
+            observation_class,
+            raw_evidence_event_sha256,
+            raw_artifact_id,
+            l5_trust_tier,
+            effective_authority_score,
+            unit_transform_evidence_json
+        ) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?)
+        """,
         [
             [
                 row.observation_id,
@@ -5004,6 +5373,14 @@ def _insert_observations(
                 str(passport.raw_artifact_id),
                 str(passport.l5_trust.tier),
                 _effective_authority_score(passport),
+                None
+                if row.unit_transform_evidence is None
+                else json.dumps(
+                    row.unit_transform_evidence.model_dump(mode="json"),
+                    ensure_ascii=False,
+                    separators=(",", ":"),
+                    sort_keys=True,
+                ),
             ]
             for row in observations
         ],

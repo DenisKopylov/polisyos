@@ -3,10 +3,10 @@
 from __future__ import annotations
 
 import re
-from collections.abc import Mapping
 from dataclasses import dataclass, field
 from decimal import Decimal
 from functools import cached_property
+from typing import TYPE_CHECKING
 
 from polisyos.fabric.connectors.types.dimensions import Dimension
 
@@ -17,6 +17,11 @@ from ._units_base import (
 )
 from ._units_errors import UnitConversionError, UnitParseError
 from ._units_prefixes import PREFIX_FACTORS
+
+if TYPE_CHECKING:
+    from collections.abc import Mapping
+
+    from ._units_base import BaseUnit
 
 __all__ = [
     "Unit",
@@ -78,75 +83,108 @@ class Unit:
 
     @classmethod
     def parse(cls, unit_str: str) -> Unit:
-        """
-        Parse a unit string into a Unit object.
+        """Parse a unit string using Fabric's current definition maps."""
+        return cls._parse_with_definition_maps(
+            unit_str,
+            standard_units=STANDARD_UNITS,
+            prefix_factors=PREFIX_FACTORS,
+            superscript_map=SUPERSCRIPT_MAP,
+        )
 
-        Supports formats:
-        - Simple: "m", "s", "USD"
-        - Prefixed: "km", "MHz", "Mio EUR"
-        - Compound: "km/h", "m/s^2", "kg*m/s^2"
-        - With exponents: "m2", "m^2", "m^2"
-
-        Args:
-            unit_str: The unit string to parse.
-
-        Returns:
-            A Unit object representing the parsed unit.
-
-        Raises:
-            UnitParseError: If the string cannot be parsed.
-
-        Example:
-            >>> Unit.parse("km/h")
-            Unit(symbol='km/h', dimension=Dimension(length=1, time=-1), ...)
-        """
+    @classmethod
+    def _parse_with_definition_maps(
+        cls,
+        unit_str: str,
+        *,
+        standard_units: Mapping[str, BaseUnit],
+        prefix_factors: Mapping[str, Decimal],
+        superscript_map: Mapping[str, str],
+    ) -> Unit:
+        """Parse against caller-supplied views of Fabric's existing unit definitions."""
         if not unit_str or not unit_str.strip():
             raise UnitParseError(unit_str, "empty unit string")
 
         unit_str = unit_str.strip()
-
-        # Handle special cases
         if unit_str in ("1", "dimensionless", "unitless", "-"):
             return cls.dimensionless()
 
-        # Parse compound units (division and multiplication)
-        return cls._parse_compound(unit_str)
+        return cls._parse_compound(
+            unit_str,
+            standard_units=standard_units,
+            prefix_factors=prefix_factors,
+            superscript_map=superscript_map,
+        )
 
     @classmethod
-    def _parse_compound(cls, unit_str: str) -> Unit:
+    def _parse_compound(
+        cls,
+        unit_str: str,
+        *,
+        standard_units: Mapping[str, BaseUnit] | None = None,
+        prefix_factors: Mapping[str, Decimal] | None = None,
+        superscript_map: Mapping[str, str] | None = None,
+    ) -> Unit:
         """Parse a potentially compound unit string."""
-        # Normalize the string
-        normalized = unit_str.replace("\u00b7", "*").replace("\u00d7", "*")
+        standard_units = STANDARD_UNITS if standard_units is None else standard_units
+        prefix_factors = PREFIX_FACTORS if prefix_factors is None else prefix_factors
+        superscript_map = SUPERSCRIPT_MAP if superscript_map is None else superscript_map
 
-        # Handle "per" notation (e.g., "km per hour")
+        normalized = unit_str.replace("\u00b7", "*").replace("\u00d7", "*")
         normalized = re.sub(r"\s+per\s+", "/", normalized, flags=re.IGNORECASE)
 
-        # Split by / for numerator and denominator (left-associative)
         if "/" in normalized:
             parts = [p.strip() for p in normalized.split("/")]
             if any(not p for p in parts):
                 raise UnitParseError(unit_str, "invalid division syntax")
-            result = cls._parse_product(parts[0])
+            result = cls._parse_product(
+                parts[0],
+                standard_units=standard_units,
+                prefix_factors=prefix_factors,
+                superscript_map=superscript_map,
+            )
             for part in parts[1:]:
-                result = result / cls._parse_product(part)
+                result = result / cls._parse_product(
+                    part,
+                    standard_units=standard_units,
+                    prefix_factors=prefix_factors,
+                    superscript_map=superscript_map,
+                )
             return result
 
-        return cls._parse_product(normalized)
+        return cls._parse_product(
+            normalized,
+            standard_units=standard_units,
+            prefix_factors=prefix_factors,
+            superscript_map=superscript_map,
+        )
 
     @classmethod
-    def _parse_product(cls, unit_str: str) -> Unit:
+    def _parse_product(
+        cls,
+        unit_str: str,
+        *,
+        standard_units: Mapping[str, BaseUnit] | None = None,
+        prefix_factors: Mapping[str, Decimal] | None = None,
+        superscript_map: Mapping[str, str] | None = None,
+    ) -> Unit:
         """Parse a product of units (e.g., 'kg*m')."""
-        # Split by multiplication signs
+        standard_units = STANDARD_UNITS if standard_units is None else standard_units
+        prefix_factors = PREFIX_FACTORS if prefix_factors is None else prefix_factors
+        superscript_map = SUPERSCRIPT_MAP if superscript_map is None else superscript_map
+
         parts = re.split(r"[\*\s]+", unit_str)
         parts = [p.strip() for p in parts if p.strip()]
-
         if not parts:
             raise UnitParseError(unit_str, "no unit components found")
 
-        # Handle prefix token followed by unit token (e.g., "Mio EUR")
-        if len(parts) == 2 and parts[0] in PREFIX_FACTORS and parts[0] not in STANDARD_UNITS:
+        if len(parts) == 2 and parts[0] in prefix_factors and parts[0] not in standard_units:
             prefix_symbol = parts[0]
-            base_unit = cls._parse_single(parts[1])
+            base_unit = cls._parse_single(
+                parts[1],
+                standard_units=standard_units,
+                prefix_factors=prefix_factors,
+                superscript_map=superscript_map,
+            )
             if base_unit.to_canonical_offset != 0:
                 raise UnitParseError(unit_str, "affine units cannot be prefixed")
             if len(base_unit._components) != 1:
@@ -154,24 +192,42 @@ class Unit:
             return cls(
                 symbol=f"{prefix_symbol} {base_unit.symbol}",
                 dimension=base_unit.dimension,
-                to_canonical_factor=base_unit.to_canonical_factor * PREFIX_FACTORS[prefix_symbol],
+                to_canonical_factor=base_unit.to_canonical_factor * prefix_factors[prefix_symbol],
                 to_canonical_offset=base_unit.to_canonical_offset,
                 _components=base_unit._components,
             )
 
-        result = cls._parse_single(parts[0])
+        result = cls._parse_single(
+            parts[0],
+            standard_units=standard_units,
+            prefix_factors=prefix_factors,
+            superscript_map=superscript_map,
+        )
         for part in parts[1:]:
-            result = result * cls._parse_single(part)
-
+            result = result * cls._parse_single(
+                part,
+                standard_units=standard_units,
+                prefix_factors=prefix_factors,
+                superscript_map=superscript_map,
+            )
         return result
 
     @classmethod
-    def _parse_single(cls, unit_str: str) -> Unit:
+    def _parse_single(
+        cls,
+        unit_str: str,
+        *,
+        standard_units: Mapping[str, BaseUnit] | None = None,
+        prefix_factors: Mapping[str, Decimal] | None = None,
+        superscript_map: Mapping[str, str] | None = None,
+    ) -> Unit:
         """Parse a single unit with optional prefix and exponent."""
+        standard_units = STANDARD_UNITS if standard_units is None else standard_units
+        prefix_factors = PREFIX_FACTORS if prefix_factors is None else prefix_factors
+        superscript_map = SUPERSCRIPT_MAP if superscript_map is None else superscript_map
         if not unit_str:
             raise UnitParseError(unit_str, "empty component")
 
-        # Extract exponent (e.g., "m2", "m^2", "m^2")
         exponent = 1
         exp_match = re.match(r"(.+?)[\^]?([-]?\d+)$", unit_str)
         if exp_match:
@@ -183,32 +239,38 @@ class Unit:
             except ValueError:
                 pass
         else:
-            # Handle superscript exponents
             idx = len(unit_str)
-            while idx > 0 and unit_str[idx - 1] in SUPERSCRIPT_MAP:
+            while idx > 0 and unit_str[idx - 1] in superscript_map:
                 idx -= 1
             if idx < len(unit_str):
-                exp_str = "".join(SUPERSCRIPT_MAP[ch] for ch in unit_str[idx:])
+                exp_str = "".join(superscript_map[ch] for ch in unit_str[idx:])
                 try:
                     exponent = int(exp_str)
                     unit_str = unit_str[:idx]
                 except ValueError:
                     pass
 
-        # Look up the base unit
-        base_unit = cls._lookup_base_unit(unit_str)
-
-        if exponent != 1:
-            return base_unit**exponent
-
-        return base_unit
+        base_unit = cls._lookup_base_unit(
+            unit_str,
+            standard_units=standard_units,
+            prefix_factors=prefix_factors,
+        )
+        return base_unit**exponent if exponent != 1 else base_unit
 
     @classmethod
-    def _lookup_base_unit(cls, unit_str: str) -> Unit:
+    def _lookup_base_unit(
+        cls,
+        unit_str: str,
+        *,
+        standard_units: Mapping[str, BaseUnit] | None = None,
+        prefix_factors: Mapping[str, Decimal] | None = None,
+    ) -> Unit:
         """Look up a base unit, handling prefixes."""
-        # First, try direct lookup
-        if unit_str in STANDARD_UNITS:
-            base = STANDARD_UNITS[unit_str]
+        standard_units = STANDARD_UNITS if standard_units is None else standard_units
+        prefix_factors = PREFIX_FACTORS if prefix_factors is None else prefix_factors
+
+        if unit_str in standard_units:
+            base = standard_units[unit_str]
             return cls(
                 symbol=unit_str,
                 dimension=base.dimension,
@@ -217,9 +279,8 @@ class Unit:
                 _components=((unit_str, 1),),
             )
 
-        # Try lowercase
         unit_lower = unit_str.lower()
-        for symbol, base in STANDARD_UNITS.items():
+        for symbol, base in standard_units.items():
             if symbol.lower() == unit_lower or unit_lower in [a.lower() for a in base.aliases]:
                 return cls(
                     symbol=symbol,
@@ -229,18 +290,15 @@ class Unit:
                     _components=((symbol, 1),),
                 )
 
-        # Try stripping common prefixes
         for prefix_symbol, prefix_factor in sorted(
-            PREFIX_FACTORS.items(),
-            key=lambda x: len(x[0]),
-            reverse=True,  # Try longer prefixes first
+            prefix_factors.items(),
+            key=lambda item: len(item[0]),
+            reverse=True,
         ):
             if unit_str.startswith(prefix_symbol) and len(unit_str) > len(prefix_symbol):
                 remainder = unit_str[len(prefix_symbol) :]
-
-                # Look up the remainder
-                if remainder in STANDARD_UNITS:
-                    base = STANDARD_UNITS[remainder]
+                if remainder in standard_units:
+                    base = standard_units[remainder]
                     if base.to_si_offset != 0:
                         raise UnitParseError(unit_str, "affine units cannot be prefixed")
                     return cls(
@@ -251,8 +309,7 @@ class Unit:
                         _components=((remainder, 1),),
                     )
 
-                # Try lowercase remainder
-                for symbol, base in STANDARD_UNITS.items():
+                for symbol, base in standard_units.items():
                     if symbol.lower() == remainder.lower():
                         if base.to_si_offset != 0:
                             raise UnitParseError(unit_str, "affine units cannot be prefixed")
@@ -264,7 +321,6 @@ class Unit:
                             _components=((symbol, 1),),
                         )
 
-        # Unknown unit - create as generic
         raise UnitParseError(unit_str, f"unknown unit '{unit_str}'")
 
     @classmethod

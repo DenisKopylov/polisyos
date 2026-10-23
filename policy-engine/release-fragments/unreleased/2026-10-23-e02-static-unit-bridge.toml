@@ -1,0 +1,5 @@
+title = "Recompute fixed static unit transforms for acquisition overlays"
+category = "Changed"
+
+[[changes]]
+summary = "Acquisition overlays can reuse Fabric's fixed multiplicative definitions for content-bound non-identity field lifts; the v1 parser binds the full immutable unit/prefix/exponent basis, rejects mutable-definition drift, and fresh value readers verify persisted evidence before exposing canonical-unit conditions."

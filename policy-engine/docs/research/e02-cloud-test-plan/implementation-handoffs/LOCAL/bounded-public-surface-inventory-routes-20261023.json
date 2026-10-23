@@ -1,0 +1,211 @@
+{
+  "kind": "implementation-handoff",
+  "slice": "bounded-public-surface-inventory-and-declared-read-api-routes",
+  "source_freeze": false,
+  "closure_ids": [],
+  "formal_adjudication": "reserved_to_G",
+  "slice_base": "b2b57daa56cb68e5ae68565437fe39887421723a",
+  "candidate_commit": "d77ffbfe504b19e34bb32f1fea4b42cb5791585e",
+  "candidate_tree": "22922a6a4cda6cf28bf87c40fb0e0a7a51d67a5b",
+  "candidate_parents": [
+    "b2b57daa56cb68e5ae68565437fe39887421723a"
+  ],
+  "branch": "codex/e02-unified-local-20261009",
+  "implementation_footprint": [
+    {
+      "path": "policy-engine/tools/devx/architecture/guardrails.py",
+      "sha256": "1182790bfd00a278e4e6303a48fe1bdbfa16166da31c08799705bd8d9573abee"
+    },
+    {
+      "path": "policy-engine/tests/repo_quality/architecture/test_public_surface_export_resolution.py",
+      "sha256": "e771be33fd91a5ae6ef72acd9319f4590bc9b94ce662241c8939df57ea759ba6"
+    },
+    {
+      "path": "policy-engine/tests/repo_quality/architecture/test_public_surface_supported_entrypoint_inventory.py",
+      "sha256": "b57f3a44989e237cb1ce09fb6e48f72fbe972e8fbaed180130f18064ef322475"
+    },
+    {
+      "path": "policy-engine/tests/repo_quality/architecture/test_lazy_facade_guardrails.py",
+      "sha256": "6ba0e7c1b849d91b067964e11dfd3a69fad1120b89c6daacd82ad645565cd7d4"
+    },
+    {
+      "path": "policy-engine/src/polisyos/data_forge/read_api/surface_routes.py",
+      "sha256": "a704d6cd386843adf04a2654f3eb553611e15386e06bbd2863175a2fcf1a8b48"
+    },
+    {
+      "path": "policy-engine/src/polisyos/data_forge/read_api/README.md",
+      "sha256": "b4f71d26695ae298c5a91c3604f12ce3f688dddaba5e1ad225f963e2adaad792"
+    },
+    {
+      "path": "policy-engine/release-fragments/unreleased/2026-10-23-e02-data-forge-read-api-routes-and-bounded-export-inventory.toml",
+      "sha256": "9ec2aa11d8756f48d21e7c09efd49676348b24881e0508fa7225a2f974312950"
+    }
+  ],
+  "mandatory_companions_included": true,
+  "selected_profile": {
+    "python": "CPython 3.14.3",
+    "python_executable": "/Users/deniskopylov/.codex/worktrees/e02-unified-local-20261009/polisyos/policy-engine/.venv/bin/python",
+    "backend": "native local source; optional estimator backends not exercised",
+    "ruff_config": {
+      "path": "policy-engine/architecture/tooling/ruff/workspace_root.toml",
+      "sha256": "879bfc2fa77909e595e661679fdeb9c771c3d34308a52e7c41971114f6a4ed99",
+      "availability": "local ignored RAW; complete deciding output retained"
+    },
+    "inputs": "existing curated source facade declarations and source-selected dependency grammar; six Data Forge module routes derived from TYPE_CHECKING declarations"
+  },
+  "source_bound_verification": {
+    "manifest": {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/root-r72-composed-canonical-native-wave-20261023-r2/manifest.json",
+      "sha256": "b8a6528a7ec1859925d8c843c819e0a16d35e0bc6679ff0ec79204fef4a361a3",
+      "availability": "local ignored RAW; complete deciding output retained"
+    },
+    "receipt": {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/root-r72-composed-canonical-native-wave-20261023-r2/receipt.json",
+      "sha256": "49466e759a2a18925c671cbc80f917292659f9dcb0707c301e67eff98d0235db",
+      "availability": "local ignored RAW; complete deciding output retained"
+    },
+    "commands": [
+      {
+        "name": "ruff-check",
+        "argv": [
+          "/Users/deniskopylov/.codex/worktrees/e02-unified-local-20261009/polisyos/policy-engine/.venv/bin/python",
+          "-B",
+          "-m",
+          "tools.devx.workspace.ruff_sources",
+          "--manifest",
+          "/Users/deniskopylov/.codex/worktrees/e02-unified-local-20261009/polisyos/policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/root-r72-composed-canonical-native-wave-20261023-r2/ruff-manifest.json",
+          "--operation",
+          "check"
+        ],
+        "cwd": "/Users/deniskopylov/.codex/worktrees/e02-unified-local-20261009/polisyos/policy-engine",
+        "timeout_seconds": 90,
+        "exit_code": 0,
+        "timed_out": false,
+        "wall_seconds": 0.3140708329156041,
+        "stdout_sha256": "b461fff3400f803030c61e2ce27b59e40e7aaad67a45620a1d9ac735115dce03",
+        "stderr_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+      },
+      {
+        "name": "ruff-format-check",
+        "argv": [
+          "/Users/deniskopylov/.codex/worktrees/e02-unified-local-20261009/polisyos/policy-engine/.venv/bin/python",
+          "-B",
+          "-m",
+          "tools.devx.workspace.ruff_sources",
+          "--manifest",
+          "/Users/deniskopylov/.codex/worktrees/e02-unified-local-20261009/polisyos/policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/root-r72-composed-canonical-native-wave-20261023-r2/ruff-manifest.json",
+          "--operation",
+          "format-check"
+        ],
+        "cwd": "/Users/deniskopylov/.codex/worktrees/e02-unified-local-20261009/polisyos/policy-engine",
+        "timeout_seconds": 90,
+        "exit_code": 0,
+        "timed_out": false,
+        "wall_seconds": 0.3128399171400815,
+        "stdout_sha256": "c5fb4b7735823733d4331443d34181b5b64b744cba2aafa26962eeb18845e1ba",
+        "stderr_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+      },
+      {
+        "name": "pytest",
+        "argv": [
+          "/Users/deniskopylov/.codex/worktrees/e02-unified-local-20261009/polisyos/policy-engine/.venv/bin/python",
+          "-B",
+          "-m",
+          "pytest",
+          "-q",
+          "-o",
+          "cache_dir=/Users/deniskopylov/.codex/worktrees/e02-unified-local-20261009/polisyos/policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/root-r72-composed-canonical-native-wave-20261023-r2/pytest-cache",
+          "--basetemp=/Users/deniskopylov/.codex/worktrees/e02-unified-local-20261009/polisyos/policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/root-r72-composed-canonical-native-wave-20261023-r2/temp",
+          "--junitxml=/Users/deniskopylov/.codex/worktrees/e02-unified-local-20261009/polisyos/policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/root-r72-composed-canonical-native-wave-20261023-r2/junit.xml",
+          "tests/repo_quality/architecture/test_public_surface_export_resolution.py",
+          "tests/repo_quality/architecture/test_public_surface_supported_entrypoint_inventory.py",
+          "tests/repo_quality/architecture/test_lazy_facade_guardrails.py"
+        ],
+        "cwd": "/Users/deniskopylov/.codex/worktrees/e02-unified-local-20261009/polisyos/policy-engine",
+        "timeout_seconds": 240,
+        "exit_code": 0,
+        "timed_out": false,
+        "wall_seconds": 97.78555604210123,
+        "stdout_sha256": "7fcc46904bad8c16f525a40bf2feeb1b75612b3bbe19f6add6251b9e461211ab",
+        "stderr_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+      }
+    ],
+    "deciding_outputs": [
+      {
+        "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/root-r72-composed-canonical-native-wave-20261023-r2/pytest.stdout",
+        "sha256": "7fcc46904bad8c16f525a40bf2feeb1b75612b3bbe19f6add6251b9e461211ab",
+        "availability": "local ignored RAW; complete deciding output retained"
+      },
+      {
+        "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/root-r72-composed-canonical-native-wave-20261023-r2/pytest.stderr",
+        "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+        "availability": "local ignored RAW; complete deciding output retained"
+      },
+      {
+        "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/root-r72-composed-canonical-native-wave-20261023-r2/junit.xml",
+        "sha256": "6bf3af4797408210494f7dfbabf557bfbe637bfc81787ada9ff83097849a7eed",
+        "availability": "local ignored RAW; complete deciding output retained"
+      },
+      {
+        "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/root-r72-composed-canonical-native-wave-20261023-r2/ruff-check.stdout",
+        "sha256": "b461fff3400f803030c61e2ce27b59e40e7aaad67a45620a1d9ac735115dce03",
+        "availability": "local ignored RAW; complete deciding output retained"
+      },
+      {
+        "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/root-r72-composed-canonical-native-wave-20261023-r2/ruff-format-check.stdout",
+        "sha256": "c5fb4b7735823733d4331443d34181b5b64b744cba2aafa26962eeb18845e1ba",
+        "availability": "local ignored RAW; complete deciding output retained"
+      }
+    ],
+    "result": {
+      "tests": 131,
+      "failures": 0,
+      "errors": 0,
+      "skipped": 0
+    },
+    "source_frame": {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/root-r72-format-reviewed-application-20261023-r1/full-composed-source-frame.json",
+      "sha256": "72425e5979d855f71326765f6a43a5a23517c4227297535c39e0bea18b6e35b1"
+    },
+    "source_unchanged": true
+  },
+  "real_chain": "existing facade declarations -> owned route map -> lazy module resolution and bounded source inventory -> actual six cold-import routes and inventory consumer tests",
+  "consumer_surface": "Data Forge read_api module attributes, dir/__all__/metadata/load helpers; generated-owner source inventory",
+  "semantic_and_adversarial_controls": "131 canonical cases include unknown-route no-import, complete declared module route quantity, cold selected-only lazy imports, exact module origin, and bounded source resolver mutation/refusal cases; neither route table presence nor marker names alone are acceptance evidence.",
+  "independent_reviews": [
+    {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/resume-after-cleanup-20261022-r1/ui-generated-contract-oracle/r72-seven-path-companion-20261023-r16-verification/r17-independent-review-final/report.md",
+      "sha256": "8775f9ceae433b4aa03c9f39489f959c70f7a9579e3dd3837e8feb4d3bb69a5d",
+      "availability": "local ignored RAW; complete deciding output retained"
+    },
+    {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/root-r72-canonical-format-independent-review-20261023-r1/review-v1/review.json",
+      "sha256": "e3df2fca7020b9aff9ed0acb6a7219422241fd09fd3f0fe5a8b514b0d66cfd97",
+      "availability": "local ignored RAW; complete deciding output retained"
+    }
+  ],
+  "prior_attempts": [
+    {
+      "receipt": {
+        "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/root-r72-composed-canonical-native-wave-20261023-r1/receipt.json",
+        "sha256": "57a67880bbfcc2afa26db762014951465efb057fa650a9349ca3d16ffa191e3e",
+        "availability": "local ignored RAW; complete deciding output retained"
+      },
+      "disposition": "Ruff lint passed, formatter rejected four files; pytest collection failed before bodies because P/tools import root was absent. Four formatter-only postimages were independently checked for AST/comment/import equality, then corrected canonical topology and PYTHONPATH replay passed."
+    }
+  ],
+  "readback": {
+    "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/root-r72-implementation-commit-20261023-r1/readback.json",
+    "sha256": "1f083eb0688c4ceb7721d47a695f1314fe1e7524d9ffb98e372c3fba270641a6",
+    "availability": "local ignored RAW; complete deciding output retained"
+  },
+  "finding_proposals": [],
+  "limitations": [
+    "Bounded source grammar; no claim of arbitrary Python namespace purity.",
+    "The full 84 supported-entrypoint census and full native repository gate remain pending.",
+    "No installed wheel/rebuilt-sdist/browser/production currentness claim.",
+    "compliance and provenance restore declared routes but gain no new supported public-surface contract status.",
+    "Local ordinary commit only; own remote publication remains pending generated TypeScript fixes and normal push hooks."
+  ],
+  "next_check": "Compose remaining Core/DTO/source owners, freeze exact input/backend profiles, run full curated entrypoint census plus required generated/native/installed-consumer wave; reconcile individual ID occurrences independently."
+}

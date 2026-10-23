@@ -1,0 +1,198 @@
+{
+  "schema_version": "policyos.e02.local_implementation_handoff.v1",
+  "slice": "controlled-scoped-ncm-fixture-axis-20261023",
+  "status": "author_bounded_candidate_source_locally_committed_independent_g_acceptance_pending",
+  "slice_base": {
+    "sha": "e9fcb20492e2355ac179e396a631842c55d1c2f7",
+    "tree": "1924f271aaa9986d4e926c99c13bb09c7147f976"
+  },
+  "implementation": {
+    "sha": "d95457f33c57354045fda901cb98be7c03a9b7d7",
+    "tree": "a0ea4dddde0110609d53ce980997df3fb4d926b2",
+    "parents": [
+      "e9fcb20492e2355ac179e396a631842c55d1c2f7"
+    ],
+    "branch": "codex/e02-unified-local-20261009",
+    "delivery": "local ordinary commit; no remote publication claimed",
+    "readback": {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/root-n6-axis-implementation-commit-20261023-r1/readback.json",
+      "sha256": "27b422d29baa25c743a1239d91594bed25fa60c2abe4a4f457fa46eee0555c71"
+    }
+  },
+  "source_freeze": false,
+  "full_source_frame": {
+    "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/root-n6-axis-implementation-commit-20261023-r1/full-composed-source-frame.json",
+    "sha256": "f6b9e43767510e857803369ad8fbd70833bf5fc53b92e302e1053851449c5af4"
+  },
+  "footprint": [
+    {
+      "path": "policy-engine/tests/_helpers/controlled_candidate_profile.py",
+      "preimage_sha256": "8fafbf7fb586f8194128f9d1dbc3625fcaa40333b6a2074e49470cb569a0b454",
+      "candidate_sha256": "1a5e206648bd5bc59a1de2218a600ddc17012a7189b29e8868927925b832751c",
+      "classification": "internal test fixture helper"
+    },
+    {
+      "path": "policy-engine/tests/test_controlled_candidate_slot_closure.py",
+      "preimage_sha256": "ac7ded8cae126ebc22f5cc0f0a3a56b297e6aa452189c059f79da109a5c2b817",
+      "candidate_sha256": "3578520f0481314720f9c50fc955b4573f5eb02ae86a50aa572b91ef6eedad0f",
+      "classification": "mandatory mirrored behavior tests"
+    }
+  ],
+  "selected_input_profile_backend": {
+    "input": "controlled fixture existing registered singleton seed axis plus scalar NCM baseline",
+    "profile": "candidate_only; exact SlotSpec.state_path and SlotFamilyManifest.scope must agree",
+    "backend": "canonical existing .venv CPython 3.14; no production inputs",
+    "unit_semantics": "representation only; no aggregation or broadcast and no empirical/causal calibration claim"
+  },
+  "real_chain": [
+    "existing controlled fixture producer selects typed SlotSpec",
+    "owner SlotFamilyManifest derives scope from exact state path",
+    "materializer preserves an already established singleton list or tuple axis",
+    "existing Core CAS persistence/readback fixture paths are exercised by the unchanged tests in the full selected module",
+    "actual Foundry auto-binding and entity-size consumers consume per-agent/per-firm/per-cell payloads"
+  ],
+  "consumer_surface_boundary": {
+    "consumer": "Foundry data-plane auto binding and entity-size inference plus persisted controlled fixture reload",
+    "surface": "internal test fixture consumer; served runtime GET, dashboard, browser and production are UNRUN"
+  },
+  "verification": {
+    "deciding_receipt": {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/root-n6-axis-canonical-native-wave-20261023-r1/receipt.json",
+      "sha256": "3e49ae4abed40c3080d8070d9825fb7b753884dee767b95889e7eaf7d59cd9b5"
+    },
+    "junit_counts": {
+      "tests": 13,
+      "failures": 0,
+      "errors": 0,
+      "skipped": 0
+    },
+    "commands_and_full_deciding_outputs": [
+      {
+        "name": "ruff-check",
+        "argv": [
+          "/Users/deniskopylov/.codex/worktrees/e02-unified-local-20261009/polisyos/policy-engine/.venv/bin/python",
+          "-B",
+          "-m",
+          "tools.devx.workspace.ruff_sources",
+          "--manifest",
+          "/Users/deniskopylov/.codex/worktrees/e02-unified-local-20261009/polisyos/policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/root-n6-axis-canonical-native-wave-20261023-r1/ruff-manifest.json",
+          "--operation",
+          "check"
+        ],
+        "cwd": "/Users/deniskopylov/.codex/worktrees/e02-unified-local-20261009/polisyos/policy-engine",
+        "exit_code": 0,
+        "wall_seconds": 0.20015791687183082,
+        "stdout": {
+          "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/root-n6-axis-canonical-native-wave-20261023-r1/ruff-check.stdout",
+          "sha256": "7bbf9008d44d6aad740ceffc22abe1085fd55e579d8cc8f0a4f6d04e54222f5a"
+        },
+        "stderr": {
+          "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/root-n6-axis-canonical-native-wave-20261023-r1/ruff-check.stderr",
+          "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+        }
+      },
+      {
+        "name": "ruff-format-check",
+        "argv": [
+          "/Users/deniskopylov/.codex/worktrees/e02-unified-local-20261009/polisyos/policy-engine/.venv/bin/python",
+          "-B",
+          "-m",
+          "tools.devx.workspace.ruff_sources",
+          "--manifest",
+          "/Users/deniskopylov/.codex/worktrees/e02-unified-local-20261009/polisyos/policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/root-n6-axis-canonical-native-wave-20261023-r1/ruff-manifest.json",
+          "--operation",
+          "format-check"
+        ],
+        "cwd": "/Users/deniskopylov/.codex/worktrees/e02-unified-local-20261009/polisyos/policy-engine",
+        "exit_code": 0,
+        "wall_seconds": 0.14199704211205244,
+        "stdout": {
+          "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/root-n6-axis-canonical-native-wave-20261023-r1/ruff-format-check.stdout",
+          "sha256": "091528391a58c6ef708f93719335439b2abd12642cb5bbb586a03bd8ac5c60cc"
+        },
+        "stderr": {
+          "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/root-n6-axis-canonical-native-wave-20261023-r1/ruff-format-check.stderr",
+          "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+        }
+      },
+      {
+        "name": "pytest",
+        "argv": [
+          "/Users/deniskopylov/.codex/worktrees/e02-unified-local-20261009/polisyos/policy-engine/.venv/bin/python",
+          "-B",
+          "-m",
+          "pytest",
+          "-q",
+          "-o",
+          "cache_dir=/Users/deniskopylov/.codex/worktrees/e02-unified-local-20261009/polisyos/policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/root-n6-axis-canonical-native-wave-20261023-r1/pytest-cache",
+          "--basetemp=/Users/deniskopylov/.codex/worktrees/e02-unified-local-20261009/polisyos/policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/root-n6-axis-canonical-native-wave-20261023-r1/temp",
+          "--junitxml=/Users/deniskopylov/.codex/worktrees/e02-unified-local-20261009/polisyos/policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/root-n6-axis-canonical-native-wave-20261023-r1/junit.xml",
+          "tests/test_controlled_candidate_slot_closure.py"
+        ],
+        "cwd": "/Users/deniskopylov/.codex/worktrees/e02-unified-local-20261009/polisyos/policy-engine",
+        "exit_code": 0,
+        "wall_seconds": 13.8179662078619,
+        "stdout": {
+          "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/root-n6-axis-canonical-native-wave-20261023-r1/pytest.stdout",
+          "sha256": "cfc14fd2dc11c362cccf5421245ca5ab0e9d286b54a604a80bd2dd5522f6feb9"
+        },
+        "stderr": {
+          "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/root-n6-axis-canonical-native-wave-20261023-r1/pytest.stderr",
+          "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+        }
+      }
+    ],
+    "junit": {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/root-n6-axis-canonical-native-wave-20261023-r1/junit.xml",
+      "sha256": "81fe84ece6df9bae4aba3df5cfa58ccc41c231a8be5694dbda78ccaf5e5129a0"
+    },
+    "canonical_source_unchanged_during_wave": true,
+    "canonical_baseline_unchanged": true,
+    "confinement_receipt": {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/root-n6-axis-canonical-native-wave-20261023-r1/confined-driver/receipt.json",
+      "sha256": "fe86e600492e02b67fb648ac26c456b0b3a3690b7cfa42643ef9b139abb08000"
+    }
+  },
+  "independent_review": {
+    "report": {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/n6-scoped-fixture-independent-review-20261023-r1/review.md",
+      "sha256": "5c76cefd0e6a716d1cbd0eee55eb687e8a6d3ddc9da4543ab3fea2be30ec7f65"
+    },
+    "scope": "independent two-path source review, exact preimages/apply check and keep-markers/remove-property controls; GO for root composition",
+    "inconclusive_attempts": "two independent focused pytest attempts timed out at 180s without test output; retained in the review and not called PASS",
+    "fresh_root_resolution": "canonical full selected module subsequently passed 13 tests in 13.82s; no timeout"
+  },
+  "adversarial_removal_controls": {
+    "owner_scope_mismatch": "per-agent declared scope with cells state path refuses",
+    "invalid_seed_axes": [
+      "absent",
+      "scalar",
+      "empty",
+      "multiple entities",
+      "global scope with entity vector"
+    ],
+    "removal": "independent runtime replacement of the axis-preservation function with scalar passthrough retains source markers and makes both positive and refusal tests fail; see independent review for full deciding outputs"
+  },
+  "pattern_pass": {
+    "ids": [
+      "P31",
+      "P33",
+      "P35",
+      "P38",
+      "P40"
+    ],
+    "bucket": "same registered owner-axis class widened to exact SlotSpec + SlotFamilyManifest rather than domain whitelists",
+    "acceptance_signal": "controlled fixture semantics and actual Foundry binding/size consumers only"
+  },
+  "limitations": [
+    "No global capability closure, whole N4/N6 runtime replay, production suitability, installed wheel or browser claim.",
+    "The full E02 source/input/backend freeze, canonical generation, native SOTA and authentic closeout remain pending."
+  ],
+  "next_check": "After composed source review, replay the real selected N4 producer through TCP and fresh GET, capture exact served bytes, and consume those bytes in strict dashboard parser/Overview tests.",
+  "proposals": {
+    "finding_ids": [],
+    "task_route": "N6/C10 consumer companion; no finding-level closure proposed from this helper success"
+  },
+  "closure_ids": [],
+  "formal_g_adjudication": "pending independent G"
+}

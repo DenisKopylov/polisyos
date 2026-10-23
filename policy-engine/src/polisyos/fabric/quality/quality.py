@@ -371,10 +371,11 @@ class QualityIndicators:
         schema_drift = False
 
         outlier_ratio = 0.0
-        if getattr(report, "anomaly_report", None) is not None:
+        anomaly_report = report.anomaly_report
+        if anomaly_report is not None:
             outlier_ratio = min(
                 1.0,
-                float(report.anomaly_report.overall_anomaly_rate),
+                float(anomaly_report.overall_anomaly_rate),
             )
         elif report.violations:
             bounds_violations = [
@@ -539,9 +540,23 @@ def compute_quality_from_duckdb(
     )
     conn = duckdb.connect(db_path, read_only=True)
     try:
+
+        def fetch_aggregate_count(query: str, *, label: str) -> int:
+            result_row = conn.execute(query).fetchone()
+            if result_row is None:
+                raise RuntimeError(f"DuckDB {label} query returned no result row")
+            if not result_row:
+                raise RuntimeError(f"DuckDB {label} query returned an empty result row")
+            value = result_row[0]
+            if value is None:
+                raise RuntimeError(f"DuckDB {label} query returned a NULL result")
+            if isinstance(value, bool) or not isinstance(value, int):
+                raise RuntimeError(f"DuckDB {label} query returned a non-integer result")
+            return int(value)
+
         # Identifiers cannot be bound as SQL values; this relation is validated and quoted above.
         row_count_query = "SELECT COUNT(*) FROM " + safe_table_name  # noqa: S608
-        row_count = conn.execute(row_count_query).fetchone()[0]
+        row_count = fetch_aggregate_count(row_count_query, label="row-count")
 
         columns_info = conn.execute(f"DESCRIBE {safe_table_name}").fetchall()
         column_names = [
@@ -563,7 +578,7 @@ def compute_quality_from_duckdb(
             # Every dynamic token is a validated, quoted identifier; no values are
             # interpolated.
             null_count_query = "SELECT SUM(" + null_checks + ") FROM " + safe_table_name  # noqa: S608
-            total_nulls = conn.execute(null_count_query).fetchone()[0] or 0
+            total_nulls = fetch_aggregate_count(null_count_query, label="null-cell-count")
             non_finite_cells = 0
             if numeric_non_finite_columns:
                 non_finite_checks = " + ".join(
@@ -574,7 +589,10 @@ def compute_quality_from_duckdb(
                 )
                 # This predicate also contains only fixed SQL and quoted identifiers.
                 non_finite_query = "SELECT SUM(" + non_finite_checks + ") FROM " + safe_table_name  # noqa: S608
-                non_finite_cells = conn.execute(non_finite_query).fetchone()[0] or 0
+                non_finite_cells = fetch_aggregate_count(
+                    non_finite_query,
+                    label="non-finite-cell-count",
+                )
             total_cells = row_count * len(column_names)
             missingness = min(1.0, (total_nulls + non_finite_cells) / total_cells)
         else:

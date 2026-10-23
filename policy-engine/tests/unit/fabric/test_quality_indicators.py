@@ -1,5 +1,7 @@
 from __future__ import annotations
 
+import sys
+from dataclasses import replace
 from datetime import UTC, datetime, timedelta
 
 import pandas as pd
@@ -209,6 +211,7 @@ class TestQualityLevelScoring:
             DataQualityReport,
             FreshnessLevel,
             FreshnessStatus,
+            RuleViolation,
         )
         from polisyos.ir.connectors import QualityTier
 
@@ -248,8 +251,117 @@ class TestQualityLevelScoring:
         indicators = QualityIndicators.from_quality_report(report)
         assert indicators.outlier_ratio == 0.05
 
+        missing_report = replace(
+            report,
+            anomaly_report=None,
+            violations=[
+                RuleViolation(
+                    rule_type="bounds",
+                    field_name="value",
+                    severity="warning",
+                    message="value falls below minimum",
+                    expected=0,
+                    actual=-1,
+                )
+            ],
+        )
+        fallback_indicators = QualityIndicators.from_quality_report(missing_report)
+        assert fallback_indicators.outlier_ratio == 0.02
+
+        explicit_zero_report = replace(
+            report,
+            anomaly_report=AnomalyReport(),
+            violations=[],
+        )
+        explicit_zero_indicators = QualityIndicators.from_quality_report(explicit_zero_report)
+        assert explicit_zero_indicators.outlier_ratio == 0.0
+
 
 class TestDuckDBQualityComputation:
+    @pytest.mark.parametrize(
+        ("failure_stage", "result_row", "expected_message"),
+        [
+            pytest.param("row-count", None, "no result row", id="missing-row"),
+            pytest.param("row-count", (), "empty result row", id="empty-row"),
+            pytest.param("row-count", (None,), "NULL result", id="null-result"),
+            pytest.param("row-count", ("0",), "non-integer result", id="malformed-result"),
+            pytest.param("null-cell-count", None, "no result row", id="missing-null-count"),
+            pytest.param(
+                "non-finite-cell-count",
+                None,
+                "no result row",
+                id="missing-non-finite-count",
+            ),
+        ],
+    )
+    def test_aggregate_queries_reject_missing_or_malformed_results(
+        self,
+        monkeypatch: pytest.MonkeyPatch,
+        failure_stage: str,
+        result_row: tuple[object, ...] | None,
+        expected_message: str,
+    ) -> None:
+        class _QueryResult:
+            def __init__(
+                self,
+                row: tuple[object, ...] | None = None,
+                rows: tuple[tuple[object, ...], ...] = (),
+            ) -> None:
+                self._row = row
+                self._rows = rows
+
+            def fetchone(self) -> tuple[object, ...] | None:
+                return self._row
+
+            def fetchall(self) -> list[tuple[object, ...]]:
+                return list(self._rows)
+
+        class _Connection:
+            def __init__(self) -> None:
+                self.queries: list[str] = []
+                self.closed = False
+
+            def execute(self, query: str) -> _QueryResult:
+                self.queries.append(query)
+                if query.startswith("SELECT COUNT(*)"):
+                    row = result_row if failure_stage == "row-count" else (2,)
+                    return _QueryResult(row=row)
+                if query.startswith("DESCRIBE"):
+                    column_type = (
+                        "DOUBLE" if failure_stage == "non-finite-cell-count" else "INTEGER"
+                    )
+                    return _QueryResult(rows=(("value", column_type),))
+                if "isfinite(" in query:
+                    row = result_row if failure_stage == "non-finite-cell-count" else (0,)
+                    return _QueryResult(row=row)
+                row = result_row if failure_stage == "null-cell-count" else (0,)
+                return _QueryResult(row=row)
+
+            def close(self) -> None:
+                self.closed = True
+
+        connection = _Connection()
+
+        class _DuckDBStub:
+            def connect(self, _db_path: str, *, read_only: bool) -> _Connection:
+                assert read_only
+                return connection
+
+        monkeypatch.setitem(sys.modules, "duckdb", _DuckDBStub())
+
+        with pytest.raises(RuntimeError, match=expected_message):
+            compute_quality_from_duckdb("unused.db", "safe_table", "metric")
+
+        assert connection.closed
+        assert connection.queries
+        assert connection.queries[0].startswith("SELECT COUNT(*)")
+        if failure_stage == "row-count":
+            assert len(connection.queries) == 1
+        elif failure_stage == "null-cell-count":
+            assert len(connection.queries) == 3
+        else:
+            assert len(connection.queries) == 4
+
     def test_rejects_unsafe_table_identifier(self, tmp_path) -> None:
         duckdb = pytest.importorskip("duckdb")
         db_path = tmp_path / "quality.duckdb"

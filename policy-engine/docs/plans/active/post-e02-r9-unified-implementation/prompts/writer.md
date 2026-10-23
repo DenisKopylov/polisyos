@@ -19,3 +19,5 @@ Read the assigned task’s `preferred_solution_ref` from [tasks.json](../tasks.j
 ## R14 companion
 
 For R14 work read solutions/13-productive-design.md plus the original task and r14_extension. Prove the actual productive path and its removal signal, not only safe refusal or schema validity. Native numerical execution evaluates LLM hypotheses; model prose never supplies outcome evidence. Internal missing producer/bridge is your scoped engineering work, not an external-input hold.
+
+R15 supplement: if the task has `r15_extension`, read the entire extension, `solutions/15-technical-method-lifecycle.md` selected profiles, and `assurance/09-adaptive-research-and-method-quality.md`. DES-11/12 own narrow native extensions; DES-03/04/GYD-30 retain shared writer roles. No numeric scientific EVSI requirement for a justified nonnumeric study. GYD-30 reads the heterogeneous-model research dossier before claiming a new coupling class. Complete original criteria and every applicable additive extension; no technology shopping or automatic authority from method diagnostics.

@@ -1,4 +1,4 @@
-# Индекс 119 предпочтительных решений
+# Индекс 121 предпочтительного решения
 
 Критерии и scheduling stages сохраняются в [tasks.json](../tasks.json). Эти карточки дают рекомендуемый способ исполнения, а не новый договор authority. Начать с [общих решений](00-shared-decisions.md), затем читать свой полный исходный task. Каждая карточка связана с [самостоятельным review](root-review.md) и первичными источниками.
 
@@ -17,6 +17,7 @@
 | Остаточные долги | 14 | [11-debt.md](11-debt.md) |
 | Вход, freeze, review и replay | 6 | [12-execution.md](12-execution.md) |
 | Содержательный дизайн и обучение | 10 | [13-productive-design.md](13-productive-design.md) |
+| Адаптивные траектории и исследования | 2 | [14-adaptive-trajectories-and-studies.md](14-adaptive-trajectories-and-studies.md) |
 
 ## Все task IDs
 
@@ -148,3 +149,7 @@
 | DES-08 | Make cross-run experience change search without laundering evidence | [карточка](13-productive-design.md#DES-08) |
 | DES-09 | Bind real LLM execution, contextual evidence and resource use to native ledgers | [карточка](13-productive-design.md#DES-09) |
 | DES-10 | Verify productive search, learning and readable policy outputs with independent comparisons | [карточка](13-productive-design.md#DES-10) |
+| DES-11 | Adaptive trajectories with observable signposts and commitments | [карточка](14-adaptive-trajectories-and-studies.md#DES-11) |
+| DES-12 | Decision-informative studies and returned evidence | [карточка](14-adaptive-trajectories-and-studies.md#DES-12) |
+
+R15: читать также 28 `r15_extension` в task/solution manifests и [полный технический цикл методов](15-technical-method-lifecycle.md). [Совместное исполнение моделей](../research/heterogeneous-model-execution.md) — отдельный research dossier, условное руководство GYD-30, не новый общий dependency.

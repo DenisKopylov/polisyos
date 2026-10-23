@@ -1,5 +1,7 @@
 # Получение и поиск: предпочтительные решения
 
+R15: для CAP-06 обязательны также `r15_extension` в [tasks.json](../tasks.json), [технический full-cycle](15-technical-method-lifecycle.md) и [joint-model research](../research/heterogeneous-model-execution.md). Исходные criteria ниже сохранены; additions не создают второго owner.
+
 Статус: engineering recommendations; product execution UNRUN. Реализация только после E02 acceptance и полного affected-scope rebind. Исходные критерии не сокращаются; [общие решения](00-shared-decisions.md) предотвращают второго owner. [Нормативные уточнения](decision-clarifications.md) остаются предложениями.
 
 <a id="CAP-01"></a>

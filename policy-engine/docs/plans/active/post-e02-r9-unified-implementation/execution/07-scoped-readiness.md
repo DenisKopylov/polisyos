@@ -55,3 +55,7 @@ Hold a write lease while the author can mutate its exact files or shared semanti
 CPU/RAM/browser/store/provider tickets are acquired for the phase that uses them, not for the entire task's lifetime. An agent waiting for review or an issuer does not retain a compute ticket without an active process. A process with uncertain termination retains its resource claim until reconciled. No lease expiry, cancellation request or commit is proof that a process stopped.
 
 Pattern pass: P01/P02/P05/P07/P13/P27/P29/P35/P37/P38/P41. Falsifiers: unrelated scope dispute must not freeze an already reconciled disjoint lane; unknown shared owner must freeze its affected lane; mock producer cannot pass composed acceptance; another shard may start while LIF-09 runs, but release cannot omit its required result. These are documentary procedure checks; product execution remains UNRUN.
+
+## R15 conditional composition
+
+For DES-12, `conditional_composition_dependencies` is a claim-selected composition requirement, not a preparation edge. Select it when a numeric scientific EVSI claim is made; bind the actual qualified DEB-13 result then. Otherwise record not-applicable with the chosen nonnumeric/bounded design basis. Do not silently fill scientific EVSI from a compute-ranking score. Every `r15_extension` must be included in its task readiness/acceptance and recomputed final obligation coverage. Technical-profile references list possible methods; only the selected guarantee activates its corresponding checks.

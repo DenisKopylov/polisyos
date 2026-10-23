@@ -32,3 +32,9 @@
 Pattern pass: P01/P02/P03/P05/P10/P11/P13/P15/P25/P27/P29/P31–P41. Положительная substantive цепь обязательна наряду с refusal; free-grow проверяется новым conforming ресурсом без search-code edit. Product execution UNRUN; SDD untouched.
 
 Конкретизация shared-writer: DES-01 пишет formulator.py и принимает requests DES-02/08/09; DES-02 пишет hypothesis_ledger.py; DES-09 пишет prompt_tool_ledger.py и native context boundary. Последние два файла не получают параллельных писателей от consumer tasks. Exact paths перепроверяются при rebind.
+
+## R15: две дополнительные native цепи
+
+[DES-11/12](../solutions/14-adaptive-trajectories-and-studies.md) и 28 `r15_extension` обязательны для соответствующих назначений. DES-11 — trajectory producer/evaluator и fresh frontier result; DES-12 — существующий Foundry causal study designer, analysis binding и evidence return. Они готовятся параллельно после E02/scoped rebind, не зависят друг от друга. DES-03 сохраняет общий search writer; DES-04 — acquisition/feedback bridge; GYD-30 — joint evaluation. Новым задачам нельзя параллельно править эти файлы лишь потому, что task IDs различны.
+
+Interface agreement достаточно для native isolated preparation. Composed acceptance требует actual selected suppliers. Numeric EVSI/DEB-13 — только для scientific numeric-value claim; unsupported EVSI не блокирует честный nonnumeric study design. DES-10 готовит R15 cases до freeze и исполняет в той же FINAL-REPLAY. [R15 obligations](../assurance/r15-capability-obligations.json) имеют отдельную disposition; original/R14 требования сохранены. Conditional technology — не универсальная установка всех пакетов.

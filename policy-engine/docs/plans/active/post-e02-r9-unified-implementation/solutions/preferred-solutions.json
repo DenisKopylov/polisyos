@@ -525,7 +525,19 @@
         "Chosen provider's documented and contractually applicable idempotency retention, request-digest comparison, lookup, cancel, receipt signature, log/retention/temp-storage, and status semantics.",
         "Selected remote backend's tenant isolation, restore/revoke protocol, storage/backup topology and any independently verifiable attestation/retention evidence."
       ],
-      "input_resolution_rule": "Classify each input at accepted-source rebind as internal engineering output/allocation, existing source record, or genuine external fact/permission. Missing native producer/bridge is assigned work, not an external blocker. Only the last class can justify an external-input hold after supplier/alternative investigation. See root-review.md for the task-specific distinction."
+      "input_resolution_rule": "Classify each input at accepted-source rebind as internal engineering output/allocation, existing source record, or genuine external fact/permission. Missing native producer/bridge is assigned work, not an external blocker. Only the last class can justify an external-input hold after supplier/alternative investigation. See root-review.md for the task-specific distinction.",
+      "r15_extension": {
+        "requirement": "For a selected federated/private profile bind site roster/omissions, executable and input identities, alignment, aggregation and allowed recipients. Secure computation proves its narrow execution/security property; CNT-06 separately qualifies population/inference. This task owns capture/result intake contracts; OPS-09 consumes them in the selected deployment cell rather than reimplementing admission. For selected remote model evaluations, every solver map call (not just retry) obeys exact-input idempotency/result/receipt and current rights plus compute/monetary/disclosure admission. Prefer frozen acquisition before loops; non-replayable or institutional effects stay outside fixed-point maps.",
+        "positive": "Allowed private result reaches fresh qualified consumer without disallowed raw sinks; selective site dropout changes target/limitation appropriately.",
+        "adversarial": "Poisoned/misaligned result, duplicate site, nonrandom dropout or revoked rights cannot retain the original global claim merely because aggregation succeeded. Jacobian/multi-start evaluations cannot hide duplicated charges, disclosures or external effects as internal solver work.",
+        "removal": "Remove roster/source/inference or egress binding while retaining encrypted/remote markers: appropriate numerical or custody consumer rejects.",
+        "detail": "solutions/14-adaptive-trajectories-and-studies.md#extensions",
+        "quality_ref": "assurance/09-adaptive-research-and-method-quality.md",
+        "technical_profiles": [
+          "solutions/15-technical-method-lifecycle.md#TP07"
+        ],
+        "product_verification": "UNRUN"
+      }
     },
     {
       "task_id": "LIF-01",
@@ -699,7 +711,22 @@
         "CAP actual event receipt.",
         "Rights issuer supplies scoped act/effective time; publisher supplies actual head commit boundary."
       ],
-      "input_resolution_rule": "Classify each input at accepted-source rebind as internal engineering output/allocation, existing source record, or genuine external fact/permission. Missing native producer/bridge is assigned work, not an external blocker. Only the last class can justify an external-input hold after supplier/alternative investigation. See root-review.md for the task-specific distinction."
+      "input_resolution_rule": "Classify each input at accepted-source rebind as internal engineering output/allocation, existing source record, or genuine external fact/permission. Missing native producer/bridge is assigned work, not an external blocker. Only the last class can justify an external-input hold after supplier/alternative investigation. See root-review.md for the task-specific distinction.",
+      "r15_extension": {
+        "requirement": "Enroll actual trajectory/study/model/measurement/solver and derived-artifact influence in existing dependency/currentness paths. Reuse key is not permission/current validity; preserve old knowledge cutoffs and historical results. This task owns enrollment/currentness fencing; LIF-07 owns derived influence/eligibility. No duplicate lineage writer.",
+        "positive": "Material model/protocol/rights/input change revalidates affected current consumers and keeps unrelated results reusable under their scopes.",
+        "adversarial": "Late backdated observation rewrites earlier knowledge, stale checkpoint/cache survives changed coupling, or revoked derived model remains current authority.",
+        "removal": "Remove actual dependency/revalidation edge but retain graph metadata: changed premise leaves stale current claim and falsifier fails.",
+        "detail": "solutions/14-adaptive-trajectories-and-studies.md#extensions",
+        "quality_ref": "assurance/09-adaptive-research-and-method-quality.md",
+        "technical_profiles": [
+          "solutions/15-technical-method-lifecycle.md#TP01",
+          "solutions/15-technical-method-lifecycle.md#TP02",
+          "solutions/15-technical-method-lifecycle.md#TP05",
+          "solutions/15-technical-method-lifecycle.md#TP07"
+        ],
+        "product_verification": "UNRUN"
+      }
     },
     {
       "task_id": "LIF-03",
@@ -955,7 +982,19 @@
       ],
       "input_resolution_rule": "Classify each input at accepted-source rebind as internal engineering output/allocation, existing source record, or genuine external fact/permission. Missing native producer/bridge is assigned work, not an external blocker. Only the last class can justify an external-input hold after supplier/alternative investigation. See root-review.md for the task-specific distinction.",
       "r14_extension_ref": "solutions/13-productive-design.md#extensions",
-      "r14_extension": "Apply existing rights/retention/restore rules to LLM context, caches and document revisions; do not introduce perpetual prompt storage."
+      "r14_extension": "Apply existing rights/retention/restore rules to LLM context, caches and document revisions; do not introduce perpetual prompt storage.",
+      "r15_extension": {
+        "requirement": "Reuse the same source-governed disclosure allowance for selected DP/federated releases and derived artifacts. Bind privacy unit/adjacency/composition/randomness where the actual profile claims DP; no universal epsilon or second ledger.",
+        "positive": "Same permitted immutable release reuse is distinguished from fresh draw/new audience; real overlapping disclosures share allowance and uncertain outcomes remain reserved.",
+        "adversarial": "DP noise excluded from inference, unknown overlap treated independent, refund after possible release or raw-free model leakage cannot receive an unqualified privacy guarantee.",
+        "removal": "Remove actual overlap/composition admission while retaining budget labels: paired release/retry case exceeds the claimed property and fails.",
+        "detail": "solutions/14-adaptive-trajectories-and-studies.md#extensions",
+        "quality_ref": "assurance/09-adaptive-research-and-method-quality.md",
+        "technical_profiles": [
+          "solutions/15-technical-method-lifecycle.md#TP07"
+        ],
+        "product_verification": "UNRUN"
+      }
     },
     {
       "task_id": "LIF-06",
@@ -1125,7 +1164,22 @@
       ],
       "input_resolution_rule": "Classify each input at accepted-source rebind as internal engineering output/allocation, existing source record, or genuine external fact/permission. Missing native producer/bridge is assigned work, not an external blocker. Only the last class can justify an external-input hold after supplier/alternative investigation. See root-review.md for the task-specific distinction.",
       "r14_extension_ref": "solutions/13-productive-design.md#extensions",
-      "r14_extension": "Track actual candidate/memory/context influence and selection exposure for DES-08/09; revoked/stale history cannot remain active by copied summaries. Preserve original closed replay."
+      "r14_extension": "Track actual candidate/memory/context influence and selection exposure for DES-08/09; revoked/stale history cannot remain active by copied summaries. Preserve original closed replay.",
+      "r15_extension": {
+        "requirement": "Enroll actual trajectory/study/model/measurement/solver and derived-artifact influence in existing dependency/currentness paths. Reuse key is not permission/current validity; preserve old knowledge cutoffs and historical results. This task owns derived influence/reuse eligibility; LIF-02 owns current-claim enrollment/fencing. No duplicate lifecycle writer.",
+        "positive": "Material model/protocol/rights/input change revalidates affected current consumers and keeps unrelated results reusable under their scopes.",
+        "adversarial": "Late backdated observation rewrites earlier knowledge, stale checkpoint/cache survives changed coupling, or revoked derived model remains current authority.",
+        "removal": "Remove actual dependency/revalidation edge but retain graph metadata: changed premise leaves stale current claim and falsifier fails.",
+        "detail": "solutions/14-adaptive-trajectories-and-studies.md#extensions",
+        "quality_ref": "assurance/09-adaptive-research-and-method-quality.md",
+        "technical_profiles": [
+          "solutions/15-technical-method-lifecycle.md#TP01",
+          "solutions/15-technical-method-lifecycle.md#TP02",
+          "solutions/15-technical-method-lifecycle.md#TP05",
+          "solutions/15-technical-method-lifecycle.md#TP07"
+        ],
+        "product_verification": "UNRUN"
+      }
     },
     {
       "task_id": "LIF-08",
@@ -1368,7 +1422,20 @@
         "Real S6 capacity-feasibility and strategic-response producers/profiles.",
         "Authentic safe-to-observe near-miss or explicit owner criterion decision."
       ],
-      "input_resolution_rule": "Classify each input at accepted-source rebind as internal engineering output/allocation, existing source record, or genuine external fact/permission. Missing native producer/bridge is assigned work, not an external blocker. Only the last class can justify an external-input hold after supplier/alternative investigation. See root-review.md for the task-specific distinction."
+      "input_resolution_rule": "Classify each input at accepted-source rebind as internal engineering output/allocation, existing source record, or genuine external fact/permission. Missing native producer/bridge is assigned work, not an external blocker. Only the last class can justify an external-input hold after supplier/alternative investigation. See root-review.md for the task-specific distinction.",
+      "r15_extension": {
+        "requirement": "Finish already-required S6 capacity/strategic-response producers; source-bound baseline/incumbents and competing take-up/selection/gaming responses must reach the existing admission path. No separate S6 or external administrator.",
+        "positive": "A grounded change in capacity or incentives changes scoped feasibility/effect or supplies independently justified stability; planned capacity is distinct from delivered.",
+        "adversarial": "Pay-for-placement improves registration through selection while true outcome stays unchanged; caller response/capacity declarations cannot ground protected admission.",
+        "removal": "Remove real S6 response/capacity evidence with markers intact; protected result loses support.",
+        "detail": "solutions/14-adaptive-trajectories-and-studies.md#extensions",
+        "quality_ref": "assurance/09-adaptive-research-and-method-quality.md",
+        "technical_profiles": [
+          "solutions/15-technical-method-lifecycle.md#TP06",
+          "solutions/15-technical-method-lifecycle.md#TP01"
+        ],
+        "product_verification": "UNRUN"
+      }
     },
     {
       "task_id": "GYD-02",
@@ -2389,7 +2456,21 @@
       ],
       "input_resolution_rule": "Classify each input at accepted-source rebind as internal engineering output/allocation, existing source record, or genuine external fact/permission. Missing native producer/bridge is assigned work, not an external blocker. Only the last class can justify an external-input hold after supplier/alternative investigation. See root-review.md for the task-specific distinction.",
       "r14_extension_ref": "solutions/13-productive-design.md#extensions",
-      "r14_extension": "Supply actual joint simulation/composition evidence to DES-03. Add an individually/pairwise plausible but jointly divergent case, keeping K_sim distinct from K_world; do not build a search controller here."
+      "r14_extension": "Supply actual joint simulation/composition evidence to DES-03. Add an individually/pairwise plausible but jointly divergent case, keeping K_sim distinct from K_world; do not build a search controller here.",
+      "r15_extension": {
+        "requirement": "Supply trajectory and heterogeneous-model joint results through the existing owner. Include shared incumbent resources, explicit cross-model mappings and shared exogenous dependence only where material. Use research/heterogeneous-model-execution.md for scoped extension choices; not a second certificate or co-simulation platform mandate. For fixed-point reuse, prove whole-participant deterministic/restartable eligibility on a frozen scenario and bind recomputed actual final-materialization residual to final artifacts. Compact feedback vector is not a full checkpoint; fixed-seed convergence is not expected-map convergence.",
+        "positive": "Order-sensitive whole-design effect and selected cross-model transfer have actual persisted joint witnesses; static exact cases retain validated exact alternatives.",
+        "adversarial": "Pairwise summation, mismatched time/support/units, duplicate common shock or cheapest residual-selected equilibrium cannot prove joint causal/feasibility claims. Change hidden state only at final materialization while keeping solved/converged markers; or present diagnostic noise_sd as an expected-response equilibrium guarantee. Both must lose the unsupported joint claim.",
+        "removal": "Drop a material model/transfer/incumbent while keeping graph/certificate names: source-derived coverage or semantic joint oracle fails.",
+        "detail": "solutions/14-adaptive-trajectories-and-studies.md#extensions",
+        "quality_ref": "assurance/09-adaptive-research-and-method-quality.md",
+        "technical_profiles": [
+          "solutions/15-technical-method-lifecycle.md#TP01",
+          "solutions/15-technical-method-lifecycle.md#TP05",
+          "solutions/15-technical-method-lifecycle.md#TP06"
+        ],
+        "product_verification": "UNRUN"
+      }
     },
     {
       "task_id": "GYD-31",
@@ -2463,7 +2544,22 @@
       ],
       "input_resolution_rule": "Classify each input at accepted-source rebind as internal engineering output/allocation, existing source record, or genuine external fact/permission. Missing native producer/bridge is assigned work, not an external blocker. Only the last class can justify an external-input hold after supplier/alternative investigation. See root-review.md for the task-specific distinction.",
       "r14_extension_ref": "solutions/13-productive-design.md#extensions",
-      "r14_extension": "Preserve vector/set-valued objectives and model-sensitive/incomparable choices in DES-03/06; no implicit social weights or scalar promotion winner."
+      "r14_extension": "Preserve vector/set-valued objectives and model-sensitive/incomparable choices in DES-03/06; no implicit social weights or scalar promotion winner.",
+      "r15_extension": {
+        "requirement": "Keep statistical, identification, numerical, model-set and value/mandate uncertainty distinct in native set consumers. Exact estimate of wrong target cannot narrow relevant value bounds; no default model probabilities or normative weights.",
+        "positive": "Matched evidence narrows only its justified component; conflicting authorized value orders or ungrounded cross-model dependence retain alternatives.",
+        "adversarial": "SAT/PPC/SBC/convergence/secure-aggregate signals do not upgrade world truth; fixed aggregate gain does not compensate a protected hard floor.",
+        "removal": "Remove target/assumption relation or value separation while retaining interval fields: current consumer falsely narrows/selects and oracle fails.",
+        "detail": "solutions/14-adaptive-trajectories-and-studies.md#extensions",
+        "quality_ref": "assurance/09-adaptive-research-and-method-quality.md",
+        "technical_profiles": [
+          "solutions/15-technical-method-lifecycle.md#TP03",
+          "solutions/15-technical-method-lifecycle.md#TP04",
+          "solutions/15-technical-method-lifecycle.md#TP05",
+          "solutions/15-technical-method-lifecycle.md#TP08"
+        ],
+        "product_verification": "UNRUN"
+      }
     },
     {
       "task_id": "GYD-32",
@@ -2556,7 +2652,20 @@
       "inputs_to_resolve": [
         "Permitted real Ukraine L4/panels, registry owners, access permit and corpus scope."
       ],
-      "input_resolution_rule": "Classify each input at accepted-source rebind as internal engineering output/allocation, existing source record, or genuine external fact/permission. Missing native producer/bridge is assigned work, not an external blocker. Only the last class can justify an external-input hold after supplier/alternative investigation. See root-review.md for the task-specific distinction."
+      "input_resolution_rule": "Classify each input at accepted-source rebind as internal engineering output/allocation, existing source record, or genuine external fact/permission. Missing native producer/bridge is assigned work, not an external blocker. Only the last class can justify an external-input hold after supplier/alternative investigation. See root-review.md for the task-specific distinction.",
+      "r15_extension": {
+        "requirement": "Evaluate selected inference/measurement/strategic method on the actual substrate. New conforming resource within supported class requires no central search-code edit; new semantics needs its owning extension.",
+        "positive": "Actual selected support/regime fits the method or a useful bounded alternative is produced and consumed.",
+        "adversarial": "SBC or simulation calibration under wrong-world assumptions, synthetic MAUP mapping or source label is not actual target adequacy.",
+        "removal": "Remove substrate/profile match while keeping registry metadata: altered regime control loses valid claim support.",
+        "detail": "solutions/14-adaptive-trajectories-and-studies.md#extensions",
+        "quality_ref": "assurance/09-adaptive-research-and-method-quality.md",
+        "technical_profiles": [
+          "solutions/15-technical-method-lifecycle.md#TP03",
+          "solutions/15-technical-method-lifecycle.md#TP06"
+        ],
+        "product_verification": "UNRUN"
+      }
     },
     {
       "task_id": "GYD-33",
@@ -2708,7 +2817,20 @@
         "Source-qualified diagnosis adjudications, including disagreement/competing labels and provenance; claim independent correctness only when an independent validation basis is actually supplied.",
         "Exact deployment/intervention version, observation process, context/interference refs, and actuals that distinguish the cause classes."
       ],
-      "input_resolution_rule": "Classify each input at accepted-source rebind as internal engineering output/allocation, existing source record, or genuine external fact/permission. Missing native producer/bridge is assigned work, not an external blocker. Only the last class can justify an external-input hold after supplier/alternative investigation. See root-review.md for the task-specific distinction."
+      "input_resolution_rule": "Classify each input at accepted-source rebind as internal engineering output/allocation, existing source record, or genuine external fact/permission. Missing native producer/bridge is assigned work, not an external blocker. Only the last class can justify an external-input hold after supplier/alternative investigation. See root-review.md for the task-specific distinction.",
+      "r15_extension": {
+        "requirement": "Include exposure to candidate study/trajectory outcomes in the existing sealed-data/exposure discipline; retain unresolved original AS2 ruling, do not replace it with a new comparator.",
+        "positive": "Independent bounded control remains informative after legitimate development exposure separation.",
+        "adversarial": "Adaptive repeated peeking or memory retrieval leaks final outcomes into design/selection and invalidates the corresponding confirmatory comparison.",
+        "removal": "Remove exposure separation while retaining sealed IDs: leak-sensitive control detects changed selection/evidence.",
+        "detail": "solutions/14-adaptive-trajectories-and-studies.md#extensions",
+        "quality_ref": "assurance/09-adaptive-research-and-method-quality.md",
+        "technical_profiles": [
+          "solutions/15-technical-method-lifecycle.md#TP02",
+          "solutions/15-technical-method-lifecycle.md#TP08"
+        ],
+        "product_verification": "UNRUN"
+      }
     },
     {
       "task_id": "GYD-09",
@@ -2797,7 +2919,21 @@
         "Source evidence for intervention/version ancestry and W5-K03 context, interference, observation validity, and mechanism; method-specific assumptions/inputs for whichever qualified inference profile is selected.",
         "Internal producers/comparison/provenance are assigned engineering; a competent WP-01 activation decision and, only if proposed, WP-02/R4-Q01 routine-policy ruling are genuine governance inputs. See decision-clarifications.md."
       ],
-      "input_resolution_rule": "Classify each input at accepted-source rebind as internal engineering output/allocation, existing source record, or genuine external fact/permission. Missing native producer/bridge is assigned work, not an external blocker. Only the last class can justify an external-input hold after supplier/alternative investigation. See root-review.md for the task-specific distinction."
+      "input_resolution_rule": "Classify each input at accepted-source rebind as internal engineering output/allocation, existing source record, or genuine external fact/permission. Missing native producer/bridge is assigned work, not an external blocker. Only the last class can justify an external-input hold after supplier/alternative investigation. See root-review.md for the task-specific distinction.",
+      "r15_extension": {
+        "requirement": "Bind eligibility/exposure/assignment versus receipt, observation regime, policy version and actual selection/stopping profile. Propensity only where the estimator requires it. Preserve current WP-01 activation and WP-02 authority boundaries.",
+        "positive": "Qualified result changes only the intended scoped confirmatory calculation; without actual activation operative posterior remains unchanged despite passing internal checks.",
+        "adversarial": "No overlap, exploratory selection, as-treated substitution or protocol drift cannot become an ordinary identified/fixed-sample effect update.",
+        "removal": "Remove target/support/design qualification while retaining result/signature markers: effect consumer loses admissibility; activation-removal cannot permit mutation.",
+        "detail": "solutions/14-adaptive-trajectories-and-studies.md#extensions",
+        "quality_ref": "assurance/09-adaptive-research-and-method-quality.md",
+        "technical_profiles": [
+          "solutions/15-technical-method-lifecycle.md#TP02",
+          "solutions/15-technical-method-lifecycle.md#TP03",
+          "solutions/15-technical-method-lifecycle.md#TP08"
+        ],
+        "product_verification": "UNRUN"
+      }
     },
     {
       "task_id": "GYD-10",
@@ -2875,7 +3011,20 @@
         "Real DDM observations and source-qualified detector outputs.",
         "A complete, accepted hypothesis-family denominator, data-generating/p-value or e-value validity basis, dependence characterization, and stream state across actual looks."
       ],
-      "input_resolution_rule": "Classify each input at accepted-source rebind as internal engineering output/allocation, existing source record, or genuine external fact/permission. Missing native producer/bridge is assigned work, not an external blocker. Only the last class can justify an external-input hold after supplier/alternative investigation. See root-review.md for the task-specific distinction."
+      "input_resolution_rule": "Classify each input at accepted-source rebind as internal engineering output/allocation, existing source record, or genuine external fact/permission. Missing native producer/bridge is assigned work, not an external blocker. Only the last class can justify an external-input hold after supplier/alternative investigation. See root-review.md for the task-specific distinction.",
+      "r15_extension": {
+        "requirement": "Carry actual study-selection/interim-look/adaptive-exposure denominator through existing O2 controller; discovery remains candidate, and analysis claims must fit actual selection scheme.",
+        "positive": "Exploratory discovery triggers a concrete review/study route with bounded error accounting.",
+        "adversarial": "Unlogged looks, selectively omitted nulls or a selected signal routed as independent confirmation cannot pass.",
+        "removal": "Remove actual look/exposure accounting but retain FDR labels: selected known counterexample breaks the declared guarantee.",
+        "detail": "solutions/14-adaptive-trajectories-and-studies.md#extensions",
+        "quality_ref": "assurance/09-adaptive-research-and-method-quality.md",
+        "technical_profiles": [
+          "solutions/15-technical-method-lifecycle.md#TP02",
+          "solutions/15-technical-method-lifecycle.md#TP08"
+        ],
+        "product_verification": "UNRUN"
+      }
     },
     {
       "task_id": "GYD-11",
@@ -3034,7 +3183,21 @@
         "O1 profile-qualified update and AS3 consumer-mutation receipt, with any independent-correctness claim supported by a genuinely independent check as scoped by K14.",
         "Real current N12/N13b source/context evidence, actual branch-head state, and the later cycle's source/version readback."
       ],
-      "input_resolution_rule": "Classify each input at accepted-source rebind as internal engineering output/allocation, existing source record, or genuine external fact/permission. Missing native producer/bridge is assigned work, not an external blocker. Only the last class can justify an external-input hold after supplier/alternative investigation. See root-review.md for the task-specific distinction."
+      "input_resolution_rule": "Classify each input at accepted-source rebind as internal engineering output/allocation, existing source record, or genuine external fact/permission. Missing native producer/bridge is assigned work, not an external blocker. Only the last class can justify an external-input hold after supplier/alternative investigation. See root-review.md for the task-specific distinction.",
+      "r15_extension": {
+        "requirement": "Bind actual policy/measurement/support regime and design-analysis evidence into existing O1-qualified world write-back; preserve no-mutation until competent activation.",
+        "positive": "A properly authorized qualified result updates only bound world scope; stale regime becomes historical evidence and current limitation.",
+        "adversarial": "Changed implementation/measurement mistaken for prediction error or synthetic study returns cannot silently rewrite causal world.",
+        "removal": "Remove O1/regime binding while preserving posterior/version refs: unauthorized or wrong-scope write is detected.",
+        "detail": "solutions/14-adaptive-trajectories-and-studies.md#extensions",
+        "quality_ref": "assurance/09-adaptive-research-and-method-quality.md",
+        "technical_profiles": [
+          "solutions/15-technical-method-lifecycle.md#TP02",
+          "solutions/15-technical-method-lifecycle.md#TP06",
+          "solutions/15-technical-method-lifecycle.md#TP08"
+        ],
+        "product_verification": "UNRUN"
+      }
     },
     {
       "task_id": "GYD-13",
@@ -4484,7 +4647,21 @@
         "Current DS4 owner and GY-AQ1 canonical set/version.",
         "Actual licence, mandate, and authority evidence remain external for protected actions."
       ],
-      "input_resolution_rule": "Classify each input at accepted-source rebind as internal engineering output/allocation, existing source record, or genuine external fact/permission. Missing native producer/bridge is assigned work, not an external blocker. Only the last class can justify an external-input hold after supplier/alternative investigation. See root-review.md for the task-specific distinction."
+      "input_resolution_rule": "Classify each input at accepted-source rebind as internal engineering output/allocation, existing source record, or genuine external fact/permission. Missing native producer/bridge is assigned work, not an external blocker. Only the last class can justify an external-input hold after supplier/alternative investigation. See root-review.md for the task-specific distinction.",
+      "r15_extension": {
+        "requirement": "Project native strategy/research and learning results: as-of observation cutoff, proposed versus actual branch, uncertainty/value disagreement, incumbent scope, study return/analysis state and institutional boundary. No UI-created authority or null-to-zero. Apply this to the existing value/uncertainty grammar and its consumers; UI-08 separately owns effect/world-growth projection.",
+        "positive": "Fresh authorized reader distinguishes useful conditional recommendation, unresolved value choice and unavailable actual effect.",
+        "adversarial": "Historical experiment/model success displayed as current fact, reversible UI action displayed as undone real harm, or confidence hides unsupported scope.",
+        "removal": "Remove native result/currentness binding but preserve badges: stale/changed-basis scenario renders wrong meaning and semantic check fails.",
+        "detail": "solutions/14-adaptive-trajectories-and-studies.md#extensions",
+        "quality_ref": "assurance/09-adaptive-research-and-method-quality.md",
+        "technical_profiles": [
+          "solutions/15-technical-method-lifecycle.md#TP01",
+          "solutions/15-technical-method-lifecycle.md#TP02",
+          "solutions/15-technical-method-lifecycle.md#TP08"
+        ],
+        "product_verification": "UNRUN"
+      }
     },
     {
       "task_id": "UI-07",
@@ -4657,7 +4834,21 @@
         "Accepted O1 confirmatory and O3 world-growth artifacts and rule versions.",
         "Deployment/acquisition event refs with exact policy, source, time, branch, and authority provenance."
       ],
-      "input_resolution_rule": "Classify each input at accepted-source rebind as internal engineering output/allocation, existing source record, or genuine external fact/permission. Missing native producer/bridge is assigned work, not an external blocker. Only the last class can justify an external-input hold after supplier/alternative investigation. See root-review.md for the task-specific distinction."
+      "input_resolution_rule": "Classify each input at accepted-source rebind as internal engineering output/allocation, existing source record, or genuine external fact/permission. Missing native producer/bridge is assigned work, not an external blocker. Only the last class can justify an external-input hold after supplier/alternative investigation. See root-review.md for the task-specific distinction.",
+      "r15_extension": {
+        "requirement": "Project native strategy/research and learning results: as-of observation cutoff, proposed versus actual branch, uncertainty/value disagreement, incumbent scope, study return/analysis state and institutional boundary. No UI-created authority or null-to-zero. Apply this to the existing effect/world-growth view and its consumers; UI-06 remains value/uncertainty grammar owner.",
+        "positive": "Fresh authorized reader distinguishes useful conditional recommendation, unresolved value choice and unavailable actual effect.",
+        "adversarial": "Historical experiment/model success displayed as current fact, reversible UI action displayed as undone real harm, or confidence hides unsupported scope.",
+        "removal": "Remove native result/currentness binding but preserve badges: stale/changed-basis scenario renders wrong meaning and semantic check fails.",
+        "detail": "solutions/14-adaptive-trajectories-and-studies.md#extensions",
+        "quality_ref": "assurance/09-adaptive-research-and-method-quality.md",
+        "technical_profiles": [
+          "solutions/15-technical-method-lifecycle.md#TP01",
+          "solutions/15-technical-method-lifecycle.md#TP02",
+          "solutions/15-technical-method-lifecycle.md#TP08"
+        ],
+        "product_verification": "UNRUN"
+      }
     },
     {
       "task_id": "UI-09",
@@ -5731,7 +5922,21 @@
         "Dataset owner supplies definitions, frame, weights, missingness, currency and price details.",
         "Authorized principal supplies objectives, thresholds, tradeoffs and mandate provenance."
       ],
-      "input_resolution_rule": "Classify each input at accepted-source rebind as internal engineering output/allocation, existing source record, or genuine external fact/permission. Missing native producer/bridge is assigned work, not an external blocker. Only the last class can justify an external-input hold after supplier/alternative investigation. See root-review.md for the task-specific distinction."
+      "input_resolution_rule": "Classify each input at accepted-source rebind as internal engineering output/allocation, existing source record, or genuine external fact/permission. Missing native producer/bridge is assigned work, not an external blocker. Only the last class can justify an external-input hold after supplier/alternative investigation. See root-review.md for the task-specific distinction.",
+      "r15_extension": {
+        "requirement": "Extend measurement profiles with selected instrument/language invariance, joint missingness/linkage sensitivity and spatial boundary-vintage/support mappings. Preserve alternative value orders and hard-floor mandates independently of metric arithmetic.",
+        "positive": "Same observations under a materially different instrument/boundary/denominator produce appropriate sensitivity/limitation or demonstrated stability at fresh consumer.",
+        "adversarial": "High match rate hides linkage errors; MNAR plus biased linkage changes target; ecological inference or omitted subgroup harm cannot be concealed by aggregate labels.",
+        "removal": "Remove actual measurement/crosswalk/denominator use while preserving its IDs: independently constructed sensitivity case fails.",
+        "detail": "solutions/14-adaptive-trajectories-and-studies.md#extensions",
+        "quality_ref": "assurance/09-adaptive-research-and-method-quality.md",
+        "technical_profiles": [
+          "solutions/15-technical-method-lifecycle.md#TP03",
+          "solutions/15-technical-method-lifecycle.md#TP06",
+          "solutions/15-technical-method-lifecycle.md#TP08"
+        ],
+        "product_verification": "UNRUN"
+      }
     },
     {
       "task_id": "CNT-06",
@@ -5804,7 +6009,22 @@
         "Domain/method reviewer supplies identification and transport assessment and a falsifier.",
         "Independent validation data owner supplies permitted target labels and calibration protocol."
       ],
-      "input_resolution_rule": "Classify each input at accepted-source rebind as internal engineering output/allocation, existing source record, or genuine external fact/permission. Missing native producer/bridge is assigned work, not an external blocker. Only the last class can justify an external-input hold after supplier/alternative investigation. See root-review.md for the task-specific distinction."
+      "input_resolution_rule": "Classify each input at accepted-source rebind as internal engineering output/allocation, existing source record, or genuine external fact/permission. Missing native producer/bridge is assigned work, not an external blocker. Only the last class can justify an external-input hold after supplier/alternative investigation. See root-review.md for the task-specific distinction.",
+      "r15_extension": {
+        "requirement": "Bind design and analysis, competing explanations, identification versus estimability versus decision relevance; consume actual returned-study deviations. Add selected Bayesian/partial-ID/federated qualifications with native method-specific guarantees.",
+        "positive": "Observationally equivalent rivals are separated by an appropriate feasible study, or decision equivalence avoids unnecessary study; result changes only justified target claim.",
+        "adversarial": "Noncompliance, interference, adaptive stopping, wrong target, poor support or unrepresentative site dropout cannot be rescued by sample size/fit/secure execution.",
+        "removal": "Delete analysis/result/target binding with protocol and provenance labels retained: evidence consumer refuses the unsupported advance.",
+        "detail": "solutions/14-adaptive-trajectories-and-studies.md#extensions",
+        "quality_ref": "assurance/09-adaptive-research-and-method-quality.md",
+        "technical_profiles": [
+          "solutions/15-technical-method-lifecycle.md#TP02",
+          "solutions/15-technical-method-lifecycle.md#TP03",
+          "solutions/15-technical-method-lifecycle.md#TP07",
+          "solutions/15-technical-method-lifecycle.md#TP08"
+        ],
+        "product_verification": "UNRUN"
+      }
     },
     {
       "task_id": "CNT-07",
@@ -5878,7 +6098,21 @@
         "Commissioning authority names remit, participant-selection method and its response obligation.",
         "Authorized principal states values/tradeoffs; operator and technical authority supply capacity and execution evidence."
       ],
-      "input_resolution_rule": "Classify each input at accepted-source rebind as internal engineering output/allocation, existing source record, or genuine external fact/permission. Missing native producer/bridge is assigned work, not an external blocker. Only the last class can justify an external-input hold after supplier/alternative investigation. See root-review.md for the task-specific distinction."
+      "input_resolution_rule": "Classify each input at accepted-source rebind as internal engineering output/allocation, existing source record, or genuine external fact/permission. Missing native producer/bridge is assigned work, not an external blocker. Only the last class can justify an external-input hold after supplier/alternative investigation. See root-review.md for the task-specific distinction.",
+      "r15_extension": {
+        "requirement": "Supply real incumbent/capacity and preference/mandate grounds; separate measured/planned/committed/executed capacity and irreversible commitments. Study conduct and policy execution remain external.",
+        "positive": "Verified incumbent load and an authorized non-compensable constraint are consumed; conflicting principal preferences remain visible alternatives.",
+        "adversarial": "Statistics cannot infer missing mandate, consent, permission or promised capacity; projected average gain cannot erase a required subgroup floor.",
+        "removal": "Remove substantive act/capacity/value relation while retaining signature/authority labels: protected consumer fails closed.",
+        "detail": "solutions/14-adaptive-trajectories-and-studies.md#extensions",
+        "quality_ref": "assurance/09-adaptive-research-and-method-quality.md",
+        "technical_profiles": [
+          "solutions/15-technical-method-lifecycle.md#TP01",
+          "solutions/15-technical-method-lifecycle.md#TP04",
+          "solutions/15-technical-method-lifecycle.md#TP08"
+        ],
+        "product_verification": "UNRUN"
+      }
     },
     {
       "task_id": "CNT-08",
@@ -5960,7 +6194,21 @@
       ],
       "input_resolution_rule": "Classify each input at accepted-source rebind as internal engineering output/allocation, existing source record, or genuine external fact/permission. Missing native producer/bridge is assigned work, not an external blocker. Only the last class can justify an external-input hold after supplier/alternative investigation. See root-review.md for the task-specific distinction.",
       "r14_extension_ref": "solutions/13-productive-design.md#extensions",
-      "r14_extension": "Compare DES-05 interpretation branches and DES-08 influence lineage when selected; preserve disagreement, source dependence and no automatic current authority from history."
+      "r14_extension": "Compare DES-05 interpretation branches and DES-08 influence lineage when selected; preserve disagreement, source dependence and no automatic current authority from history.",
+      "r15_extension": {
+        "requirement": "Account for reused cohorts, common model assumptions, coupled shocks, synthetic/model-derived descendants and adaptive exposure. Model diversity is not independent evidence; bounds cannot be narrowed by incompatible target/assumption composition.",
+        "positive": "Independent versus shared-origin evidence yields different justified strength, while valid diverse-model comparison remains useful.",
+        "adversarial": "Duplicated federated site, synthetic augmentation, same-data adaptive confirmation or incompatible robustness sets cannot inflate effective support.",
+        "removal": "Remove lineage/dependence consumer but preserve source counts: duplicated-evidence case falsely tightens and semantic oracle fails.",
+        "detail": "solutions/14-adaptive-trajectories-and-studies.md#extensions",
+        "quality_ref": "assurance/09-adaptive-research-and-method-quality.md",
+        "technical_profiles": [
+          "solutions/15-technical-method-lifecycle.md#TP02",
+          "solutions/15-technical-method-lifecycle.md#TP07",
+          "solutions/15-technical-method-lifecycle.md#TP08"
+        ],
+        "product_verification": "UNRUN"
+      }
     },
     {
       "task_id": "CNT-09",
@@ -6611,7 +6859,21 @@
         "Host/platform owner exposes cgroup or equivalent controls and physical capacity.",
         "Service owner sets process reserve, resource ceilings, queue-age target, workload window and acceptable latency/error envelope."
       ],
-      "input_resolution_rule": "Classify each input at accepted-source rebind as internal engineering output/allocation, existing source record, or genuine external fact/permission. Missing native producer/bridge is assigned work, not an external blocker. Only the last class can justify an external-input hold after supplier/alternative investigation. See root-review.md for the task-specific distinction."
+      "input_resolution_rule": "Classify each input at accepted-source rebind as internal engineering output/allocation, existing source record, or genuine external fact/permission. Missing native producer/bridge is assigned work, not an external blocker. Only the last class can justify an external-input hold after supplier/alternative investigation. See root-review.md for the task-specific distinction.",
+      "r15_extension": {
+        "requirement": "Use existing shared resource admission for conditional-branch search, study-design simulation, solver and coupling evaluations. Meter nested work and memory/output/checkpoint use; never multiply reservations through submodels. Meter complete map evaluations including multi-start, finite-difference/Jacobian probes, retries, final materialization and CAS bytes; inspected Foundry max_steps alone does not establish the aggregate cap.",
+        "positive": "Budgeted useful result or honest incomplete frontier is retained; independent scenario shards run within real shared cap.",
+        "adversarial": "Each model separately respects a local cap while aggregate exceeds common memory/compute budget; timeout is mislabeled infeasible or a retry repeats external effect.",
+        "removal": "Remove shared cap/nested accounting but retain requested limits: controlled contended execution violates the property.",
+        "detail": "solutions/14-adaptive-trajectories-and-studies.md#extensions",
+        "quality_ref": "assurance/09-adaptive-research-and-method-quality.md",
+        "technical_profiles": [
+          "solutions/15-technical-method-lifecycle.md#TP01",
+          "solutions/15-technical-method-lifecycle.md#TP04",
+          "solutions/15-technical-method-lifecycle.md#TP05"
+        ],
+        "product_verification": "UNRUN"
+      }
     },
     {
       "task_id": "OPS-09",
@@ -6680,7 +6942,19 @@
         "Institutional network/security owner approves pull route and observes egress behavior.",
         "Local operator accepts responsibility for secrets, temp, backups and incident response."
       ],
-      "input_resolution_rule": "Classify each input at accepted-source rebind as internal engineering output/allocation, existing source record, or genuine external fact/permission. Missing native producer/bridge is assigned work, not an external blocker. Only the last class can justify an external-input hold after supplier/alternative investigation. See root-review.md for the task-specific distinction."
+      "input_resolution_rule": "Classify each input at accepted-source rebind as internal engineering output/allocation, existing source record, or genuine external fact/permission. Missing native producer/bridge is assigned work, not an external blocker. Only the last class can justify an external-input hold after supplier/alternative investigation. See root-review.md for the task-specific distinction.",
+      "r15_extension": {
+        "requirement": "For a selected federated/private profile bind site roster/omissions, executable and input identities, alignment, aggregation and allowed recipients. Secure computation proves its narrow execution/security property; CNT-06 separately qualifies population/inference. This task proves the selected worker-cell deployment over CAP-06 native intake; no second remote-result or permission owner.",
+        "positive": "Allowed private result reaches fresh qualified consumer without disallowed raw sinks; selective site dropout changes target/limitation appropriately.",
+        "adversarial": "Poisoned/misaligned result, duplicate site, nonrandom dropout or revoked rights cannot retain the original global claim merely because aggregation succeeded.",
+        "removal": "Remove roster/source/inference or egress binding while retaining encrypted/remote markers: appropriate numerical or custody consumer rejects.",
+        "detail": "solutions/14-adaptive-trajectories-and-studies.md#extensions",
+        "quality_ref": "assurance/09-adaptive-research-and-method-quality.md",
+        "technical_profiles": [
+          "solutions/15-technical-method-lifecycle.md#TP07"
+        ],
+        "product_verification": "UNRUN"
+      }
     },
     {
       "task_id": "OPS-10",
@@ -8182,7 +8456,20 @@
       ],
       "input_resolution_rule": "Classify each input at accepted-source rebind as internal engineering output/allocation, existing source record, or genuine external fact/permission. Missing native producer/bridge is assigned work, not an external blocker. Only the last class can justify an external-input hold after supplier/alternative investigation. See root-review.md for the task-specific distinction.",
       "r14_extension_ref": "solutions/13-productive-design.md#extensions",
-      "r14_extension": "Include DES mechanism readiness and DES-10 reviewed comparison preparation; do not require final live/audience comparison to satisfy its own freeze predecessor."
+      "r14_extension": "Include DES mechanism readiness and DES-10 reviewed comparison preparation; do not require final live/audience comparison to satisfy its own freeze predecessor.",
+      "r15_extension": {
+        "requirement": "Include DES-11/12 owner-readiness and R15 comparison preparation, with scoped method/profile selections. Do not wait for years of external study conduct or activate every optional technology; retain every original obligation.",
+        "positive": "All selected internal producer/consumer/companion work is ready and external required evidence remains explicitly unresolved before actual release.",
+        "adversarial": "Missing internal designer/trajectory producer labeled external hold, or optional tool package turned universal prerequisite, is rejected.",
+        "removal": "Remove a required readiness consumer while retaining checklist status: freeze reconciliation fails.",
+        "detail": "solutions/14-adaptive-trajectories-and-studies.md#extensions",
+        "quality_ref": "assurance/09-adaptive-research-and-method-quality.md",
+        "technical_profiles": [
+          "solutions/15-technical-method-lifecycle.md#TP01",
+          "solutions/15-technical-method-lifecycle.md#TP02"
+        ],
+        "product_verification": "UNRUN"
+      }
     },
     {
       "task_id": "FINAL-REVIEW",
@@ -8337,7 +8624,26 @@
       ],
       "input_resolution_rule": "Classify each input at accepted-source rebind as internal engineering output/allocation, existing source record, or genuine external fact/permission. Missing native producer/bridge is assigned work, not an external blocker. Only the last class can justify an external-input hold after supplier/alternative investigation. See root-review.md for the task-specific distinction.",
       "r14_extension_ref": "solutions/13-productive-design.md#extensions",
-      "r14_extension": "Execute DES-10 in this same frozen wave; join actual R14 obligations separately from unchanged original GY/Atlas/debt/R9 outcomes."
+      "r14_extension": "Execute DES-10 in this same frozen wave; join actual R14 obligations separately from unchanged original GY/Atlas/debt/R9 outcomes.",
+      "r15_extension": {
+        "requirement": "Join R15 positive/adversarial/removal endpoints through DES-10 and affected existing owner probes in this same frozen wave. Separate numerical, controlled usefulness, external authorization and authentic effects. technical_profiles is a reference set; DES-10 declares the case-selected required subset and its justified exclusions, never an all-library prerequisite.",
+        "positive": "Complete selected R15 case/arm/seed/site/branch outcomes are source-bound and read by fresh consumers.",
+        "adversarial": "One algorithm diagnostic or aggregate green substitutes for a missing trajectory/study/authority endpoint.",
+        "removal": "Remove actual named endpoint while retaining summary: complete obligation join fails.",
+        "detail": "solutions/14-adaptive-trajectories-and-studies.md#extensions",
+        "quality_ref": "assurance/09-adaptive-research-and-method-quality.md",
+        "technical_profiles": [
+          "solutions/15-technical-method-lifecycle.md#TP01",
+          "solutions/15-technical-method-lifecycle.md#TP02",
+          "solutions/15-technical-method-lifecycle.md#TP03",
+          "solutions/15-technical-method-lifecycle.md#TP04",
+          "solutions/15-technical-method-lifecycle.md#TP05",
+          "solutions/15-technical-method-lifecycle.md#TP06",
+          "solutions/15-technical-method-lifecycle.md#TP07",
+          "solutions/15-technical-method-lifecycle.md#TP08"
+        ],
+        "product_verification": "UNRUN"
+      }
     },
     {
       "task_id": "FINAL-USE",
@@ -8410,7 +8716,20 @@
       ],
       "input_resolution_rule": "Classify each input at accepted-source rebind as internal engineering output/allocation, existing source record, or genuine external fact/permission. Missing native producer/bridge is assigned work, not an external blocker. Only the last class can justify an external-input hold after supplier/alternative investigation. See root-review.md for the task-specific distinction.",
       "r14_extension_ref": "solutions/13-productive-design.md#extensions",
-      "r14_extension": "In addition to original programme obligations, reconcile every R14 capability obligation and selected required quality claim. Unavailable live-model or audience evidence cannot silently disappear. Controlled PASS is not authentic usefulness; explicit competent scope change required for deferral."
+      "r14_extension": "In addition to original programme obligations, reconcile every R14 capability obligation and selected required quality claim. Unavailable live-model or audience evidence cannot silently disappear. Controlled PASS is not authentic usefulness; explicit competent scope change required for deferral.",
+      "r15_extension": {
+        "requirement": "Reconcile every R15 obligation in assurance/r15-capability-obligations.json in addition to original and R14 obligations. Conditional technology scope is explicit; absence cannot waive a mandatory property. Recompute extension coverage from every tasks.json object carrying r15_extension; all such tasks must map to the obligation set, with their full extension criteria retained.",
+        "positive": "Selected use is supported by actual qualified results or explicitly competent scope disposition; research recommendations remain candidates.",
+        "adversarial": "Controlled research positive represented as real executed study or observed benefit; missing public surface or external evidence silently disappears.",
+        "removal": "Remove a bound obligation/result while preserving release summary: use disposition fails.",
+        "detail": "solutions/14-adaptive-trajectories-and-studies.md#extensions",
+        "quality_ref": "assurance/09-adaptive-research-and-method-quality.md",
+        "technical_profiles": [
+          "solutions/15-technical-method-lifecycle.md#TP01",
+          "solutions/15-technical-method-lifecycle.md#TP02"
+        ],
+        "product_verification": "UNRUN"
+      }
     },
     {
       "task_id": "DES-01",
@@ -8648,7 +8967,22 @@
       "inputs_to_resolve": [
         "Native simulation/method contracts; selected objective/value basis. External weights or law are required only for claims that depend on them; retain set-valued candidate comparisons without them."
       ],
-      "input_resolution_rule": "Classify missing inputs as internal engineering/allocation, existing source record, or genuine external fact/permission. Investigate native alternatives and supply internal gaps; only genuine external requirements justify a scoped hold."
+      "input_resolution_rule": "Classify missing inputs as internal engineering/allocation, existing source record, or genuine external fact/permission. Investigate native alternatives and supply internal gaps; only genuine external requirements justify a scoped hold.",
+      "r15_extension": {
+        "requirement": "Consume native adaptive trajectories and selected incumbent-policy context; preserve separate uncertainty/value/model axes. Select exact solver or surrogate only on a declared case need; no second optimizer or hidden social objective.",
+        "positive": "Order-sensitive real trajectories and joint incumbent capacity reach fresh frontier; relevant exact control agrees with independent enumeration.",
+        "adversarial": "Clairvoyant future access, omitted incumbent load, wrong encoding, surrogate-only winner, unsupported independence or default lexicographic value choice cannot support a decision claim.",
+        "removal": "Remove actual trajectory/joint/constraint consumption while retaining scores; corresponding oracle detects the property loss.",
+        "detail": "solutions/14-adaptive-trajectories-and-studies.md#extensions",
+        "quality_ref": "assurance/09-adaptive-research-and-method-quality.md",
+        "technical_profiles": [
+          "solutions/15-technical-method-lifecycle.md#TP01",
+          "solutions/15-technical-method-lifecycle.md#TP04",
+          "solutions/15-technical-method-lifecycle.md#TP05",
+          "solutions/15-technical-method-lifecycle.md#TP08"
+        ],
+        "product_verification": "UNRUN"
+      }
     },
     {
       "task_id": "DES-04",
@@ -8725,7 +9059,21 @@
       "inputs_to_resolve": [
         "Actual counterexample or controlled owner output, permitted acquisition inputs and selected budgets. Lack of empirical evidence limits conclusions, not the entire candidate loop."
       ],
-      "input_resolution_rule": "Classify missing inputs as internal engineering/allocation, existing source record, or genuine external fact/permission. Investigate native alternatives and supply internal gaps; only genuine external requirements justify a scoped hold."
+      "input_resolution_rule": "Classify missing inputs as internal engineering/allocation, existing source record, or genuine external fact/permission. Investigate native alternatives and supply internal gaps; only genuine external requirements justify a scoped hold.",
+      "r15_extension": {
+        "requirement": "Route trajectory counterexamples and decision-informative study designs through existing N6/N7/acquisition. Keep compute VOI distinct from scientific EVSI; unsupported numeric EVSI does not block justified qualitative/bounded acquisition.",
+        "positive": "Returned content-bound study evidence or signpost changes candidate/next acquisition when relevant; costly uninformative study can be rejected for a stated reason.",
+        "adversarial": "Requerying observationally equivalent data, missing external permission, manufactured EVSI, stale protocol or same-data confirmation cannot silently advance authority.",
+        "removal": "Remove study-result/counterexample bridge but keep closed-study/feedback markers: next real consumer no longer satisfies the expected update.",
+        "detail": "solutions/14-adaptive-trajectories-and-studies.md#extensions",
+        "quality_ref": "assurance/09-adaptive-research-and-method-quality.md",
+        "technical_profiles": [
+          "solutions/15-technical-method-lifecycle.md#TP01",
+          "solutions/15-technical-method-lifecycle.md#TP02",
+          "solutions/15-technical-method-lifecycle.md#TP08"
+        ],
+        "product_verification": "UNRUN"
+      }
     },
     {
       "task_id": "DES-05",
@@ -8887,7 +9235,20 @@
         "Selected packet and allowed document audience; native numerical/legal suppliers only for chosen claims. Form/language profile and reader-study participants for usability claims, not for mechanical source binding."
       ],
       "input_resolution_rule": "Classify missing inputs as internal engineering/allocation, existing source record, or genuine external fact/permission. Investigate native alternatives and supply internal gaps; only genuine external requirements justify a scoped hold.",
-      "r14_review_refinement": "Bind actual displayed/exported DOCX paragraphs and cells to the semantic sidecar and exact revision. Independently change a sentence/cell while keeping IDs and old sidecar: fresh reader must detect unbound/stale meaning and reject inherited support. Independent format parsing alone is insufficient."
+      "r14_review_refinement": "Bind actual displayed/exported DOCX paragraphs and cells to the semantic sidecar and exact revision. Independently change a sentence/cell while keeping IDs and old sidecar: fresh reader must detect unbound/stale meaning and reject inherited support. Independent format parsing alone is insufficient.",
+      "r15_extension": {
+        "requirement": "Render ordered/conditional recommendations, study protocols, observation cutoffs, decision alternatives and residual commitments from native owner results. Separate proposed, externally authorized and actually observed execution.",
+        "positive": "A reader can identify next conditional action, distinguishing observation, stop/cost boundary and who must act, following exact persisted references.",
+        "adversarial": "Fluent future-tense text must not imply enacted law, completed trial, undone harm or granted authority; unknown branch/currentness stays visible.",
+        "removal": "Delete owner-result binding while retaining text sections: document semantic/source fidelity check fails.",
+        "detail": "solutions/14-adaptive-trajectories-and-studies.md#extensions",
+        "quality_ref": "assurance/09-adaptive-research-and-method-quality.md",
+        "technical_profiles": [
+          "solutions/15-technical-method-lifecycle.md#TP01",
+          "solutions/15-technical-method-lifecycle.md#TP02"
+        ],
+        "product_verification": "UNRUN"
+      }
     },
     {
       "task_id": "DES-07",
@@ -9049,7 +9410,21 @@
         "Actual evaluated source runs and reuse rights; candidate-only hypotheses need truthful provenance. Genuine confirmation inputs/activation remain GYD-09/12 obligations, not prerequisites for candidate search learning."
       ],
       "input_resolution_rule": "Classify missing inputs as internal engineering/allocation, existing source record, or genuine external fact/permission. Investigate native alternatives and supply internal gaps; only genuine external requirements justify a scoped hold.",
-      "r14_canonical_writer": "DES-08 owns retrieval adapter; durable formulator sink delta is sent to DES-01 and hypothesis binding to DES-02. It does not acquire their shared file writes."
+      "r14_canonical_writer": "DES-08 owns retrieval adapter; durable formulator sink delta is sent to DES-01 and hypothesis binding to DES-02. It does not acquire their shared file writes.",
+      "r15_extension": {
+        "requirement": "Reuse search/study-design experience only under matched context; distinguish evidence exposure, design performance, institutional act and empirical result. Do not train on final holdout or count synthetic descendants as new evidence.",
+        "positive": "Memory-on improves a declared search choice or preserves justified no-transfer against memory-off; stale measurement/trajectory regime is rejected.",
+        "adversarial": "Repeated studies sharing cohort, cached model-generated confirmations or prior trajectory success cannot mint independent support for current claims.",
+        "removal": "Remove influence/eligibility check while retaining memory provenance markers: stale/contaminated transfer case fails.",
+        "detail": "solutions/14-adaptive-trajectories-and-studies.md#extensions",
+        "quality_ref": "assurance/09-adaptive-research-and-method-quality.md",
+        "technical_profiles": [
+          "solutions/15-technical-method-lifecycle.md#TP02",
+          "solutions/15-technical-method-lifecycle.md#TP06",
+          "solutions/15-technical-method-lifecycle.md#TP08"
+        ],
+        "product_verification": "UNRUN"
+      }
     },
     {
       "task_id": "DES-09",
@@ -9200,7 +9575,192 @@
         "Internal frozen cases and exact real-path suppliers; lawful live model access, selected independent reviewers/target readers and legitimate domain inputs for their respective claims. Sample size insufficient for superiority yields descriptive evidence."
       ],
       "input_resolution_rule": "Classify missing inputs as internal engineering/allocation, existing source record, or genuine external fact/permission. Investigate native alternatives and supply internal gaps; only genuine external requirements justify a scoped hold.",
-      "r14_review_refinement": "Freeze a decision-relevant positive criterion, independently labelled, for designated known-solvable controls: a candidate answers the declared decision need or a specific acquisition/evidence path resolves it. Feasible diverse but irrelevant alternatives must not pass this criterion. All-null decision-support outcomes leave productive capability not_established even if plumbing passes. This is a bounded acceptance discriminator, never a useful_design_rate optimization/reward/promotion target. No-op and deliberate removal arms are comparators expected to fail productivity, not implementations required to produce an intervention. Reviewer panels belong to evaluation, not per-run/manual authority gates."
+      "r14_review_refinement": "Freeze a decision-relevant positive criterion, independently labelled, for designated known-solvable controls: a candidate answers the declared decision need or a specific acquisition/evidence path resolves it. Feasible diverse but irrelevant alternatives must not pass this criterion. All-null decision-support outcomes leave productive capability not_established even if plumbing passes. This is a bounded acceptance discriminator, never a useful_design_rate optimization/reward/promotion target. No-op and deliberate removal arms are comparators expected to fail productivity, not implementations required to produce an intervention. Reviewer panels belong to evaluation, not per-run/manual authority gates.",
+      "r15_extension": {
+        "requirement": "Add R15 trajectory/study discriminators and case-selected method profiles to the same frozen productive comparison. New controls join FINAL-REPLAY, not a second global wave; usefulness, authority and numerical correctness stay distinct.",
+        "positive": "A known-solvable adaptive case and distinguishing-study case produce useful bound native outputs; no-op/all-abstain and marker-only controls fail their scoped positive criteria.",
+        "adversarial": "Omitted failed branches/sites/studies, future leakage, wrong population, biased inference, false feasibility or privacy claims cannot be hidden by aggregate pass rate.",
+        "removal": "Remove actual trajectory, design discrimination or result-return consumer separately; preserve labels and verify loss of the respective endpoint.",
+        "detail": "solutions/14-adaptive-trajectories-and-studies.md#extensions",
+        "quality_ref": "assurance/09-adaptive-research-and-method-quality.md",
+        "technical_profiles": [
+          "solutions/15-technical-method-lifecycle.md#TP01",
+          "solutions/15-technical-method-lifecycle.md#TP02",
+          "solutions/15-technical-method-lifecycle.md#TP03",
+          "solutions/15-technical-method-lifecycle.md#TP04",
+          "solutions/15-technical-method-lifecycle.md#TP05",
+          "solutions/15-technical-method-lifecycle.md#TP06",
+          "solutions/15-technical-method-lifecycle.md#TP07",
+          "solutions/15-technical-method-lifecycle.md#TP08"
+        ],
+        "product_verification": "UNRUN"
+      }
+    },
+    {
+      "task_id": "DES-11",
+      "preferred_solution": "Extend the native candidate/temporal evaluation bridge to produce and compare conditional policy strategies with action order, observation history/cutoffs, lags, incumbent loads, carryover and irreversible commitments. Persist the actual path evaluation and consume it in the existing frontier/dossier. Reuse any accepted-source implementation; do not add a parallel adaptive-policy engine.",
+      "reuse_anchors": [
+        {
+          "path": "policy-engine/src/polisyos/foundry/agent_sim/temporal_executor.py",
+          "symbol": "Native owner; exact callsite and admitted schema rebind after E02",
+          "source_pin": "528ec2576393e8aa9a0238ae4172336ccf76a057",
+          "observation": "Bounded static source anchor; runtime UNRUN."
+        },
+        {
+          "path": "policy-engine/src/polisyos/foundry/agent_sim/temporal.py",
+          "symbol": "Native owner; exact callsite and admitted schema rebind after E02",
+          "source_pin": "528ec2576393e8aa9a0238ae4172336ccf76a057",
+          "observation": "Bounded static source anchor; runtime UNRUN."
+        },
+        {
+          "path": "policy-engine/src/polisyos/foundry/execute/api.py",
+          "symbol": "Native owner; exact callsite and admitted schema rebind after E02",
+          "source_pin": "528ec2576393e8aa9a0238ae4172336ccf76a057",
+          "observation": "Bounded static source anchor; runtime UNRUN."
+        },
+        {
+          "path": "policy-engine/src/polisyos/scientist/policy_design/search.py",
+          "symbol": "Native owner; exact callsite and admitted schema rebind after E02",
+          "source_pin": "528ec2576393e8aa9a0238ae4172336ccf76a057",
+          "observation": "Bounded static source anchor; runtime UNRUN."
+        }
+      ],
+      "implementation_steps": [
+        "Rebind complete native producer/consumer/companion footprint, retained old artifacts and selected claim/property.",
+        "Execute the numbered design steps in solutions/14-adaptive-trajectories-and-studies.md#DES-11; inherit all original authority/time/activation boundaries.",
+        "Persist actual owner output and prove real fresh consumer and authorized surface with positive/adversarial/removal witnesses.",
+        "Review exact immutable implementation independently; run only scoped profile checks before the one final composed wave."
+      ],
+      "detail": "solutions/14-adaptive-trajectories-and-studies.md#DES-11",
+      "alternatives": [
+        {
+          "option": "Parallel engine or generic universal DTO",
+          "why_not_default": "Existing native owners hold search, method execution, artifacts and admission."
+        },
+        {
+          "option": "Only markers/refusal",
+          "why_not_default": "Does not prove a useful trajectory or discriminating study."
+        }
+      ],
+      "free_grow": {
+        "data_or_config_growth": "New conforming native operator/observation/study method discovered without central domain edits.",
+        "extension_boundary": "New semantic class needs its owner/version/migration and full chain, not relabeling.",
+        "resource_behavior": "Finite case-selected branch/horizon/budget, honest incomplete search; same shared permits."
+      },
+      "migration_and_rollback": [
+        "Legacy terminal-only records stay terminal-only; never infer path/knowledge history or reversibility.",
+        "Suspend affected new use; preserve immutable history and legally permitted receipts; revert behavior by a forward repair/version, not history rewrite. Never restore revoked authority or rights."
+      ],
+      "composition_contracts": [
+        "Native owner schemas/status/authority and full accepted-source consumer closure; no universal model or study DTO.",
+        "Interface agreement permits isolated preparation; composition needs actual selected producer outputs. DES-03 remains search writer, DES-04 feedback/acquisition bridge writer, GYD-30 joint witness owner.",
+        "Any foundry/execute/api.py or shared joint-result change is requested from GYD-30, not a DES-11 write grant."
+      ],
+      "acceptance_discriminators": [
+        "A controlled useful A-then-B versus B-then-A distinction reaches fresh search/dossier consumer; adaptive choices differ only after observable histories diverge. Relevant delay/no-op/stop comparators preserve residual commitments.",
+        "Future/latent leakage, backdated late observation, noisy signposts, truncated tail loss, absent incumbent scope or planned capacity cannot silently support feasible adaptive recommendation.",
+        "Remove history/transition/cutoff or incumbent consumption while preserving adaptive labels; the independent path/feasibility oracle and fresh consumer detect property loss."
+      ],
+      "deviation_triggers": [
+        "Existing accepted implementation already meets property: wire and verify instead.",
+        "Measured native alternative better fits declared claim and resource envelope: document choice without weakening criterion.",
+        "Authority/time/shared ABI/SDD change requires named competent decision, not silent implementation."
+      ],
+      "source_ids": [
+        "R15 user-requested adaptive/research capability delta; assurance/09-adaptive-research-and-method-quality.md"
+      ],
+      "scope": "Planning-only full native mechanism/consumer/surface; no external execution mandate.",
+      "original_task_ref": "tasks.json#DES-11",
+      "inputs_to_resolve": [
+        "Actual capacity/incumbent/transition/observation grounds and mandate only for claims that need them; external institutions authorize and execute policy. Unknowns permit conditional candidate analysis, not fabricated current facts."
+      ],
+      "input_resolution_rule": "Classify missing inputs as internal engineering/allocation, existing source record, or genuine external fact/permission. Investigate native alternatives and supply internal gaps; only genuine external requirements justify a scoped hold."
+    },
+    {
+      "task_id": "DES-12",
+      "preferred_solution": "Extend existing CausalExperimentDesigner/ExperimentPlan and native acquisition/causal workflow to produce a versioned feasible study candidate discriminating decision-relevant rival explanations, with aligned sampling/assignment/measurement/analysis/stopping and actual result-return binding. Identifiability, finite-sample estimability and decision relevance remain distinct. Numeric EVSI is conditional, separate from compute VOI; no autonomous external study executor.",
+      "reuse_anchors": [
+        {
+          "path": "policy-engine/src/polisyos/foundry/methods/catalog/causal/optimal_design.py",
+          "symbol": "Native owner; exact callsite and admitted schema rebind after E02",
+          "source_pin": "528ec2576393e8aa9a0238ae4172336ccf76a057",
+          "observation": "Bounded static source anchor; runtime UNRUN."
+        },
+        {
+          "path": "policy-engine/src/polisyos/foundry/methods/catalog/causal/protocols.py",
+          "symbol": "Native owner; exact callsite and admitted schema rebind after E02",
+          "source_pin": "528ec2576393e8aa9a0238ae4172336ccf76a057",
+          "observation": "Bounded static source anchor; runtime UNRUN."
+        },
+        {
+          "path": "policy-engine/src/polisyos/ir/analytics/experiment_plan.py",
+          "symbol": "Native owner; exact callsite and admitted schema rebind after E02",
+          "source_pin": "528ec2576393e8aa9a0238ae4172336ccf76a057",
+          "observation": "Bounded static source anchor; runtime UNRUN."
+        },
+        {
+          "path": "policy-engine/src/polisyos/runtime/quality/acquisition_planner.py",
+          "symbol": "Native owner; exact callsite and admitted schema rebind after E02",
+          "source_pin": "528ec2576393e8aa9a0238ae4172336ccf76a057",
+          "observation": "Bounded static source anchor; runtime UNRUN."
+        },
+        {
+          "path": "policy-engine/src/polisyos/scientist/orchestration/workflows/causal_full.py",
+          "symbol": "Native owner; exact callsite and admitted schema rebind after E02",
+          "source_pin": "528ec2576393e8aa9a0238ae4172336ccf76a057",
+          "observation": "Bounded static source anchor; runtime UNRUN."
+        }
+      ],
+      "implementation_steps": [
+        "Rebind complete native producer/consumer/companion footprint, retained old artifacts and selected claim/property.",
+        "Execute the numbered design steps in solutions/14-adaptive-trajectories-and-studies.md#DES-12; inherit all original authority/time/activation boundaries.",
+        "Persist actual owner output and prove real fresh consumer and authorized surface with positive/adversarial/removal witnesses.",
+        "Review exact immutable implementation independently; run only scoped profile checks before the one final composed wave."
+      ],
+      "detail": "solutions/14-adaptive-trajectories-and-studies.md#DES-12",
+      "alternatives": [
+        {
+          "option": "Parallel engine or generic universal DTO",
+          "why_not_default": "Existing native owners hold search, method execution, artifacts and admission."
+        },
+        {
+          "option": "Only markers/refusal",
+          "why_not_default": "Does not prove a useful trajectory or discriminating study."
+        }
+      ],
+      "free_grow": {
+        "data_or_config_growth": "New conforming native operator/observation/study method discovered without central domain edits.",
+        "extension_boundary": "New semantic class needs its owner/version/migration and full chain, not relabeling.",
+        "resource_behavior": "Finite case-selected branch/horizon/budget, honest incomplete search; same shared permits."
+      },
+      "migration_and_rollback": [
+        "Legacy single-graph ExperimentPlan stays scoped; do not backfill rivals, preregistration, decision relevance or external authority.",
+        "Suspend affected new use; preserve immutable history and legally permitted receipts; revert behavior by a forward repair/version, not history rewrite. Never restore revoked authority or rights."
+      ],
+      "composition_contracts": [
+        "Native owner schemas/status/authority and full accepted-source consumer closure; no universal model or study DTO.",
+        "Interface agreement permits isolated preparation; composition needs actual selected producer outputs. DES-03 remains search writer, DES-04 feedback/acquisition bridge writer, GYD-30 joint witness owner.",
+        "Decision-bearing designer inputs are explicit/content-bound or declared hypothetical; defaults never become case facts. At protected dispatch/resume the native authority owner resolves the grant and recomputes coverage of EVERY load-bearing facet required by the actual operation/authorization contract, not a fixed checklist. Unresolved required scope refuses that action and claims of authorized conduct. Current-use rights/admission for already-returned evidence is a separate qualified decision."
+      ],
+      "acceptance_discriminators": [
+        "An independently specified observationally equivalent model pair yields a feasible distinguishing design; a controlled owner-produced returned result reaches fresh claim consumer and changes only justified scope. A decision-equivalent alternative avoids unnecessary study; no operative world/posterior mutation without actual authorization.",
+        "Uninformative repeated query, single-graph fallback intervention list, off-target receipt, adaptive unadjusted looks, mismatched target, fabricated permission or missing null outcomes cannot establish discriminating evidence. Current valid authorization for a different protocol/site, revoke before dispatch, or omitted decision-bearing basis filled by designer defaults cannot support the affected protected action or grounded numeric claim; explicit hypothetical scenarios remain candidates. Generic authorization falsifier: keep the grant valid and descriptive markers intact but change any native required operation facet (including recipient, population or intervention) outside its coverage, or add a new required facet. Actual owner coverage must fail; lawful bounded use of already-returned evidence is evaluated separately, not automatically erased.",
+        "Remove actual discrimination or design-analysis-result/bridge binding while keeping study fields; oracle/consumer fails. Removing EVSI does not block a justified bounded acquisition route."
+      ],
+      "deviation_triggers": [
+        "Existing accepted implementation already meets property: wire and verify instead.",
+        "Measured native alternative better fits declared claim and resource envelope: document choice without weakening criterion.",
+        "Authority/time/shared ABI/SDD change requires named competent decision, not silent implementation."
+      ],
+      "source_ids": [
+        "R15 user-requested adaptive/research capability delta; assurance/09-adaptive-research-and-method-quality.md"
+      ],
+      "scope": "Planning-only full native mechanism/consumer/surface; no external execution mandate.",
+      "original_task_ref": "tasks.json#DES-12",
+      "inputs_to_resolve": [
+        "Actual study permission/conduct/source rights and returned empirical evidence are external for their respective claims; internal design, analysis, adapter and consumer are engineering work. WP-01/02 activation remains independent of this plan and E02 acceptance."
+      ],
+      "input_resolution_rule": "Classify missing inputs as internal engineering/allocation, existing source record, or genuine external fact/permission. Investigate native alternatives and supply internal gaps; only genuine external requirements justify a scoped hold."
     }
   ],
   "review_status": "root-revised after 12 research proposals and 6 independent red-team scopes; product execution UNRUN"

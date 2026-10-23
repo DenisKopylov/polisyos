@@ -1,5 +1,7 @@
 # Согласованные инженерные решения
 
+Актуальная карточка задачи = исходная карточка + все её `r14_extension` / `r15_extension` в [tasks.json](../tasks.json) и mirrored solution manifest. Чтение только старой prose-карточки не даёт полного assignment. [R15 implementation guidance](14-adaptive-trajectories-and-studies.md) и [method profiles](15-technical-method-lifecycle.md) раскрывают новые обязанности; ссылки на профили не означают обязательное внедрение всех технологий.
+
 Эти рекомендации выбирают общий механизм для нескольких задач. Они конкретизируют [уже распределённых владельцев](../architecture/01-integration-boundaries.md), не создавая новый центральный subsystem. Ратифицированные AD-E02-01–06, Fabric N818 и SDD сохраняются. Задачи используют соответствующую строку, а затем доказывают свой фактический consumer path.
 
 ## S01. Расширяемость через native contracts, а не центральный список возможностей

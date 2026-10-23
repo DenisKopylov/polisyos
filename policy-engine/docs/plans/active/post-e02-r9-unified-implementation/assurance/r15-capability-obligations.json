@@ -1,0 +1,127 @@
+{
+  "kind": "planning_delta_not_original_findings",
+  "baseline": "528ec2576393e8aa9a0238ae4172336ccf76a057",
+  "implementation_gate": "actual_E02_G_acceptance",
+  "obligations": [
+    {
+      "id": "R15-DES-11",
+      "task_ids": [
+        "DES-11"
+      ],
+      "criterion": "A controlled useful A-then-B versus B-then-A distinction reaches fresh search/dossier consumer; adaptive choices differ only after observable histories diverge. Relevant delay/no-op/stop comparators preserve residual commitments.",
+      "negative": "Future/latent leakage, backdated late observation, noisy signposts, truncated tail loss, absent incumbent scope or planned capacity cannot silently support feasible adaptive recommendation.",
+      "removal": "Remove history/transition/cutoff or incumbent consumption while preserving adaptive labels; the independent path/feasibility oracle and fresh consumer detect property loss.",
+      "criterion_ref": "solutions/14-adaptive-trajectories-and-studies.md#DES-11",
+      "scope": "native mechanism required; genuine external claims separately qualified",
+      "status": "planned_after_E02_acceptance",
+      "verification": "UNRUN",
+      "closure": "not_adjudicated"
+    },
+    {
+      "id": "R15-DES-12",
+      "task_ids": [
+        "DES-12"
+      ],
+      "criterion": "An independently specified observationally equivalent model pair yields a feasible distinguishing design; a controlled owner-produced returned result reaches fresh claim consumer and changes only justified scope. A decision-equivalent alternative avoids unnecessary study; no operative world/posterior mutation without actual authorization.",
+      "negative": "Uninformative repeated query, single-graph fallback intervention list, off-target receipt, adaptive unadjusted looks, mismatched target, fabricated permission or missing null outcomes cannot establish discriminating evidence. Current valid authorization for a different protocol/site, revoke before dispatch, or omitted decision-bearing basis filled by designer defaults cannot support the affected protected action or grounded numeric claim; explicit hypothetical scenarios remain candidates. Generic authorization falsifier: keep the grant valid and descriptive markers intact but change any native required operation facet (including recipient, population or intervention) outside its coverage, or add a new required facet. Actual owner coverage must fail; lawful bounded use of already-returned evidence is evaluated separately, not automatically erased.",
+      "removal": "Remove actual discrimination or design-analysis-result/bridge binding while keeping study fields; oracle/consumer fails. Removing EVSI does not block a justified bounded acquisition route.",
+      "criterion_ref": "solutions/14-adaptive-trajectories-and-studies.md#DES-12",
+      "scope": "native mechanism required; genuine external claims separately qualified",
+      "status": "planned_after_E02_acceptance",
+      "verification": "UNRUN",
+      "closure": "not_adjudicated"
+    },
+    {
+      "id": "R15-METHOD",
+      "task_ids": [
+        "DES-03",
+        "GYD-31",
+        "GYD-32",
+        "CNT-06",
+        "GYD-30",
+        "OPS-08"
+      ],
+      "criterion_ref": "assurance/09-adaptive-research-and-method-quality.md#method",
+      "scope": "Case-selected guarantee and full native method lifecycle; no every-library obligation",
+      "status": "planned_after_E02_acceptance",
+      "verification": "UNRUN",
+      "closure": "not_adjudicated"
+    },
+    {
+      "id": "R15-MEASURE",
+      "task_ids": [
+        "CNT-05",
+        "CNT-06",
+        "GYD-01",
+        "CNT-07"
+      ],
+      "criterion_ref": "assurance/09-adaptive-research-and-method-quality.md#measure",
+      "scope": "Relevant measurement/response/incumbent claims; controlled representative general-property proof required",
+      "status": "planned_after_E02_acceptance",
+      "verification": "UNRUN",
+      "closure": "not_adjudicated"
+    },
+    {
+      "id": "R15-LEARN",
+      "task_ids": [
+        "GYD-08",
+        "GYD-09",
+        "GYD-10",
+        "GYD-12",
+        "CNT-08",
+        "DES-04",
+        "DES-08",
+        "LIF-02"
+      ],
+      "criterion_ref": "assurance/09-adaptive-research-and-method-quality.md#learn",
+      "scope": "Existing original activation and inference obligations preserved",
+      "status": "planned_after_E02_acceptance",
+      "verification": "UNRUN",
+      "closure": "not_adjudicated"
+    },
+    {
+      "id": "R15-PRIVATE",
+      "task_ids": [
+        "CAP-06",
+        "LIF-05",
+        "LIF-07",
+        "OPS-09"
+      ],
+      "criterion_ref": "assurance/09-adaptive-research-and-method-quality.md#private",
+      "scope": "Conditional actual private/federated/DP profile; source rights always apply to protected uses",
+      "status": "planned_after_E02_acceptance",
+      "verification": "UNRUN",
+      "closure": "not_adjudicated"
+    },
+    {
+      "id": "R15-SURFACE",
+      "task_ids": [
+        "DES-06",
+        "UI-06",
+        "UI-08"
+      ],
+      "criterion_ref": "assurance/09-adaptive-research-and-method-quality.md#surface",
+      "scope": "Actual authorized projections for newly claimed capabilities",
+      "status": "planned_after_E02_acceptance",
+      "verification": "UNRUN",
+      "closure": "not_adjudicated"
+    },
+    {
+      "id": "R15-QUALITY",
+      "task_ids": [
+        "DES-10",
+        "FINAL-FREEZE",
+        "FINAL-REPLAY",
+        "FINAL-USE"
+      ],
+      "criterion_ref": "assurance/09-adaptive-research-and-method-quality.md#quality",
+      "scope": "Single composed wave and full original plus R14/R15 dispositions",
+      "status": "planned_after_E02_acceptance",
+      "verification": "UNRUN",
+      "closure": "not_adjudicated"
+    }
+  ],
+  "extension_source": "tasks.json#r15_extension",
+  "product_execution": "UNRUN",
+  "extension_coverage_rule": "At readiness and final disposition enumerate the complete tasks.json tasks array. Every task with r15_extension must appear in obligation task_ids; preserve its full requirement/positive/adversarial/removal, not only the group summary. All new tasks need an obligation. Profiles are conditional references, not blanket installations."
+}

@@ -354,12 +354,14 @@
       "classification": "mixed_reference_roles",
       "tasks": [
         "DES-03",
-        "DES-08"
+        "DES-08",
+        "DES-11",
+        "DES-12"
       ],
       "anchors": [
         "src/polisyos/scientist/policy_design/search.py"
       ],
-      "resolution": "DES-03 owns coordinator/trials, DES-08 proposes retrieval adapter. One writer composes shared file; memory/evaluator reviews and separate adapters can proceed in parallel."
+      "resolution": "DES-03 owns coordinator/trials, DES-08 proposes retrieval adapter. One writer composes shared file; memory/evaluator reviews and separate adapters can proceed in parallel. DES-11 trajectory and DES-12 study suggestions consume search; they do not become extra search.py writers."
     },
     {
       "id": "n6-loop-consumers",
@@ -370,13 +372,15 @@
         "DES-10",
         "GYD-17",
         "GYD-18",
-        "GYD-22"
+        "GYD-22",
+        "DES-11",
+        "DES-12"
       ],
       "anchors": [
         "src/polisyos/runtime/quality/design_generation.py",
         "src/polisyos/runtime/quality/generation_cycle.py"
       ],
-      "resolution": "DES-02 owns N4; DES-04 owns N6 bridge. Verification consumers do not receive product writes merely by reading them; same final source is reviewed before comparison."
+      "resolution": "DES-02 owns N4; DES-04 owns N6 bridge. Verification consumers do not receive product writes merely by reading them; same final source is reviewed before comparison. DES-04 integrates trajectory/study feedback requests; other adapters and oracle work can proceed on disjoint files."
     },
     {
       "id": "legal-synthesis",
@@ -426,6 +430,37 @@
         "existing traced gateway/context projection owner (exact path at rebind)"
       ],
       "resolution": "DES-09 consumes actual egress/rights/permit contracts and owns context/invocation binding, not their services. Serialize only actual common files/credentials/resource, not all LLM research."
+    },
+    {
+      "id": "trajectory-joint-evaluation",
+      "classification": "semantic_owner",
+      "tasks": [
+        "DES-11",
+        "GYD-30",
+        "DES-03"
+      ],
+      "anchors": [
+        "src/polisyos/foundry/execute/api.py",
+        "src/polisyos/foundry/agent_sim/temporal_executor.py"
+      ],
+      "resolution": "GYD-30 owns shared joint-result bridge; DES-11 owns admitted trajectory adapter/oracle only. Exact files and native schema rebind before writers; no blanket Foundry lock."
+    },
+    {
+      "id": "study-design-acquisition",
+      "classification": "mixed_reference_roles",
+      "tasks": [
+        "DES-12",
+        "DES-04",
+        "CAP-01",
+        "CNT-06",
+        "DEB-13"
+      ],
+      "anchors": [
+        "src/polisyos/foundry/methods/catalog/causal/optimal_design.py",
+        "src/polisyos/ir/analytics/experiment_plan.py",
+        "src/polisyos/runtime/quality/acquisition_planner.py"
+      ],
+      "resolution": "DES-12 extends native study designer/plan; DES-04 integrates feedback, existing acquisition owner routes requests; CNT-06 qualifies claims. Numeric EVSI owner applies conditionally, never a second scheduler. One shared schema writer."
     }
   ],
   "unknown_rule": "A task with unresolved actual write/read/generated set is not a certified disjoint writer. Root maps it before dispatch; independent read-only work can continue.",

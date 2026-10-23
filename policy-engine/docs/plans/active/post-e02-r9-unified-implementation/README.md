@@ -1,6 +1,6 @@
 # Post-E02: единая программа R9, GY, Atlas и остаточных долгов
 
-**Дата:** 22 октября 2026. **Статус:** проект исполнения; продуктовые проверки UNRUN. **Начало реализации:** только после фактической приёмки E02. Предположение «E02 будет полностью завершён» используется для планирования, а не как разрешение начать код.
+**Дата текущего дополнения:** 23 октября 2026. **Статус:** проект исполнения; продуктовые проверки UNRUN. **Начало реализации:** только после фактической приёмки E02. Предположение «E02 будет полностью завершён» используется для планирования, а не как разрешение начать код.
 
 **Цель:** довести инфраструктуру внешних оснований, незавершённые механизмы PolicyOS и их рабочие поверхности до согласованного, проверяемого состояния; затем обоснованно допустить ограниченное практическое применение. Ограничивается конкретное применение, а не универсальная архитектура или весь объём программы.
 
@@ -8,12 +8,12 @@
 
 ## Как читать
 
-1. [Executive summary R13 — PDF, 10 страниц](executive/summary.pdf), [текст с отметкой версии](executive/summary.md) и обязательное [дополнение R14](executive/r14-capabilities.md).
+1. [Executive summary R13 — PDF, 10 страниц](executive/summary.pdf), [текст с отметкой версии](executive/summary.md) и дополнения [R14](executive/r14-capabilities.md) / [R15](executive/r15-adaptive-and-models.md).
 2. [Границы, источники и правила перехода](execution/01-charter-and-entry.md).
 3. [Сверенный остаток](inventory/README.md), [исходные версии](inventory/sources.json), полные GY/Atlas/debt crosswalks.
 4. [Архитектура композиции](architecture/01-integration-boundaries.md): кто пишет общий механизм, кто только потребляет.
 5. [Пакеты работ](workstreams/README.md) и [машинный план](tasks.json): исходные обязательства, зависимости, пути владельцев, результат, миграция, позитивные и отрицательные проверки.
-6. [Предпочтительные решения для всех 119 задач](solutions/index.md), [общие механизмы](solutions/00-shared-decisions.md), [research sources](solutions/sources.md), [самостоятельное review](solutions/root-review.md).
+6. [Предпочтительные решения для всех 121 задач](solutions/index.md), [общие механизмы](solutions/00-shared-decisions.md), [research sources](solutions/sources.md), [самостоятельное review](solutions/root-review.md).
 7. [Исполнение и параллельность](execution/02-parallel-execution.md), [волны и критический путь](execution/03-waves.md), [правила изменения плана](execution/04-change-and-rebind.md), [стадии готовности и допуска](execution/05-stage-and-release-contracts.md), [реальные конфликты записи](execution/06-conflicts-and-dispatch.md).
 8. [Приёмка](assurance/01-assurance.md), [матрица сценариев R9](inventory/r9-obligations.json), [допуск практического применения](operations/02-practical-use.md).
 9. [Развёртывание](operations/01-deployment.md) и [готовые задания](prompts/README.md).
@@ -45,6 +45,12 @@ R13 добавляет конкретные способы реализации,
 
 ## R14: содержательный поиск, обучение, право и документы
 
-Текущий manifest — 119 task objects: прежние 109 сохранены, добавлены DES-01–10; 24 прежние строки получили явный additive scope. Это число задач/контрольных точек, не независимых capabilities и не оценка длительности. [Архитектурное решение](architecture/04-generative-search-learning-and-documents.md), [аудит конкретных пробелов](assurance/07-r14-capability-audit.md), [10 решений и 24 дополнения](solutions/13-productive-design.md), [качество](assurance/08-productive-search-and-document-quality.md), [организация работы](workstreams/07-productive-policy-design.md).
+На этапе R14 manifest содержал 119 task objects: прежние 109 сохранены, добавлены DES-01–10; 24 прежние строки получили явный additive scope. Это число задач/контрольных точек, не независимых capabilities и не оценка длительности. [Архитектурное решение](architecture/04-generative-search-learning-and-documents.md), [аудит конкретных пробелов](assurance/07-r14-capability-audit.md), [10 решений и 24 дополнения](solutions/13-productive-design.md), [качество](assurance/08-productive-search-and-document-quality.md), [организация работы](workstreams/07-productive-policy-design.md).
 
 R13 receipts и PDF — исторический снимок до R14; их hashes не проверяют новый delta. Актуальная документарная проверка и review: [R14 disposition](assurance/r14-review-disposition.md), [validation](assurance/r14-validation.json). Ни E02, ни runtime результаты этой документацией не принимаются.
+
+## R15: адаптивные траектории, исследовательский дизайн и методы
+
+Актуальный manifest содержит **121 task object**: DES-11/12 добавлены к полным 119 предыдущим; **28 существующих строк** имеют обязательные `r15_extension`. Это не число независимых engines. [Две implementation cards](solutions/14-adaptive-trajectories-and-studies.md), [восемь технических профилей](solutions/15-technical-method-lifecycle.md), [full-cycle архитектура](architecture/05-adaptive-design-and-research.md), [semantic acceptance](assurance/09-adaptive-research-and-method-quality.md), [обязательства](assurance/r15-capability-obligations.json), [редтим/root review](assurance/r15-review-disposition.md) и [документарная проверка](assurance/r15-validation.json).
+
+Отдельное [исследование совместного исполнения разнородных моделей](research/heterogeneous-model-execution.md) выбирает native DAG/fixed-point reuse и условные дальнейшие extensions; оно не вводит новый обязательный simulator или SDD. R13 PDF и R14 receipts сохранены как исторические версии; актуальное executive дополнение — [R15](executive/r15-adaptive-and-models.md). Реализация по-прежнему только после приёмки E02.

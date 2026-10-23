@@ -676,7 +676,19 @@
         "LIF-04": "interface_agreement",
         "LIF-05": "interface_agreement"
       },
-      "interface_agreement_scope_ref": "execution/07-scoped-readiness.md#edge-decisions"
+      "interface_agreement_scope_ref": "execution/07-scoped-readiness.md#edge-decisions",
+      "r15_extension": {
+        "requirement": "For a selected federated/private profile bind site roster/omissions, executable and input identities, alignment, aggregation and allowed recipients. Secure computation proves its narrow execution/security property; CNT-06 separately qualifies population/inference. This task owns capture/result intake contracts; OPS-09 consumes them in the selected deployment cell rather than reimplementing admission. For selected remote model evaluations, every solver map call (not just retry) obeys exact-input idempotency/result/receipt and current rights plus compute/monetary/disclosure admission. Prefer frozen acquisition before loops; non-replayable or institutional effects stay outside fixed-point maps.",
+        "positive": "Allowed private result reaches fresh qualified consumer without disallowed raw sinks; selective site dropout changes target/limitation appropriately.",
+        "adversarial": "Poisoned/misaligned result, duplicate site, nonrandom dropout or revoked rights cannot retain the original global claim merely because aggregation succeeded. Jacobian/multi-start evaluations cannot hide duplicated charges, disclosures or external effects as internal solver work.",
+        "removal": "Remove roster/source/inference or egress binding while retaining encrypted/remote markers: appropriate numerical or custody consumer rejects.",
+        "detail": "solutions/14-adaptive-trajectories-and-studies.md#extensions",
+        "quality_ref": "assurance/09-adaptive-research-and-method-quality.md",
+        "technical_profiles": [
+          "solutions/15-technical-method-lifecycle.md#TP07"
+        ],
+        "product_verification": "UNRUN"
+      }
     },
     {
       "id": "LIF-01",
@@ -943,7 +955,22 @@
       "completion_contract_ref": "execution/stage-requirements.json#default",
       "acceptance_evidence_requirements": [
         "CAP-04 actual emitted event in LIF-09 composition"
-      ]
+      ],
+      "r15_extension": {
+        "requirement": "Enroll actual trajectory/study/model/measurement/solver and derived-artifact influence in existing dependency/currentness paths. Reuse key is not permission/current validity; preserve old knowledge cutoffs and historical results. This task owns enrollment/currentness fencing; LIF-07 owns derived influence/eligibility. No duplicate lineage writer.",
+        "positive": "Material model/protocol/rights/input change revalidates affected current consumers and keeps unrelated results reusable under their scopes.",
+        "adversarial": "Late backdated observation rewrites earlier knowledge, stale checkpoint/cache survives changed coupling, or revoked derived model remains current authority.",
+        "removal": "Remove actual dependency/revalidation edge but retain graph metadata: changed premise leaves stale current claim and falsifier fails.",
+        "detail": "solutions/14-adaptive-trajectories-and-studies.md#extensions",
+        "quality_ref": "assurance/09-adaptive-research-and-method-quality.md",
+        "technical_profiles": [
+          "solutions/15-technical-method-lifecycle.md#TP01",
+          "solutions/15-technical-method-lifecycle.md#TP02",
+          "solutions/15-technical-method-lifecycle.md#TP05",
+          "solutions/15-technical-method-lifecycle.md#TP07"
+        ],
+        "product_verification": "UNRUN"
+      }
     },
     {
       "id": "LIF-03",
@@ -1342,6 +1369,18 @@
         "detail": "solutions/13-productive-design.md#extensions",
         "quality_ref": "assurance/08-productive-search-and-document-quality.md",
         "product_verification": "UNRUN"
+      },
+      "r15_extension": {
+        "requirement": "Reuse the same source-governed disclosure allowance for selected DP/federated releases and derived artifacts. Bind privacy unit/adjacency/composition/randomness where the actual profile claims DP; no universal epsilon or second ledger.",
+        "positive": "Same permitted immutable release reuse is distinguished from fresh draw/new audience; real overlapping disclosures share allowance and uncertain outcomes remain reserved.",
+        "adversarial": "DP noise excluded from inference, unknown overlap treated independent, refund after possible release or raw-free model leakage cannot receive an unqualified privacy guarantee.",
+        "removal": "Remove actual overlap/composition admission while retaining budget labels: paired release/retry case exceeds the claimed property and fails.",
+        "detail": "solutions/14-adaptive-trajectories-and-studies.md#extensions",
+        "quality_ref": "assurance/09-adaptive-research-and-method-quality.md",
+        "technical_profiles": [
+          "solutions/15-technical-method-lifecycle.md#TP07"
+        ],
+        "product_verification": "UNRUN"
       }
     },
     {
@@ -1574,6 +1613,21 @@
         "requirement": "Track actual candidate/memory/context influence and selection exposure for DES-08/09; revoked/stale history cannot remain active by copied summaries. Preserve original closed replay.",
         "detail": "solutions/13-productive-design.md#extensions",
         "quality_ref": "assurance/08-productive-search-and-document-quality.md",
+        "product_verification": "UNRUN"
+      },
+      "r15_extension": {
+        "requirement": "Enroll actual trajectory/study/model/measurement/solver and derived-artifact influence in existing dependency/currentness paths. Reuse key is not permission/current validity; preserve old knowledge cutoffs and historical results. This task owns derived influence/reuse eligibility; LIF-02 owns current-claim enrollment/fencing. No duplicate lifecycle writer.",
+        "positive": "Material model/protocol/rights/input change revalidates affected current consumers and keeps unrelated results reusable under their scopes.",
+        "adversarial": "Late backdated observation rewrites earlier knowledge, stale checkpoint/cache survives changed coupling, or revoked derived model remains current authority.",
+        "removal": "Remove actual dependency/revalidation edge but retain graph metadata: changed premise leaves stale current claim and falsifier fails.",
+        "detail": "solutions/14-adaptive-trajectories-and-studies.md#extensions",
+        "quality_ref": "assurance/09-adaptive-research-and-method-quality.md",
+        "technical_profiles": [
+          "solutions/15-technical-method-lifecycle.md#TP01",
+          "solutions/15-technical-method-lifecycle.md#TP02",
+          "solutions/15-technical-method-lifecycle.md#TP05",
+          "solutions/15-technical-method-lifecycle.md#TP07"
+        ],
         "product_verification": "UNRUN"
       }
     },
@@ -1930,6 +1984,19 @@
         "PR1a": "Actual canonical data-only N4-bound receipt with its source hashes and independent original owner disposition; no authentic near-miss prerequisite.",
         "PR1b": "Amended protected promotion conjunction plus its exact institutional scope; original authentic O0 attempted-field-pilot refusal/near-miss criterion separately recorded. No unsafe pilot execution.",
         "aggregation": "PR1a result does not close PR1b or GY-PR1 full criterion; original standing changes only by competent source owner."
+      },
+      "r15_extension": {
+        "requirement": "Finish already-required S6 capacity/strategic-response producers; source-bound baseline/incumbents and competing take-up/selection/gaming responses must reach the existing admission path. No separate S6 or external administrator.",
+        "positive": "A grounded change in capacity or incentives changes scoped feasibility/effect or supplies independently justified stability; planned capacity is distinct from delivered.",
+        "adversarial": "Pay-for-placement improves registration through selection while true outcome stays unchanged; caller response/capacity declarations cannot ground protected admission.",
+        "removal": "Remove real S6 response/capacity evidence with markers intact; protected result loses support.",
+        "detail": "solutions/14-adaptive-trajectories-and-studies.md#extensions",
+        "quality_ref": "assurance/09-adaptive-research-and-method-quality.md",
+        "technical_profiles": [
+          "solutions/15-technical-method-lifecycle.md#TP06",
+          "solutions/15-technical-method-lifecycle.md#TP01"
+        ],
+        "product_verification": "UNRUN"
       }
     },
     {
@@ -2399,7 +2466,20 @@
         "original_obligation_disposition: canonical owner decision; history preserved"
       ],
       "dependency_stage": "owner_readiness",
-      "completion_contract_ref": "execution/stage-requirements.json#default"
+      "completion_contract_ref": "execution/stage-requirements.json#default",
+      "r15_extension": {
+        "requirement": "Include exposure to candidate study/trajectory outcomes in the existing sealed-data/exposure discipline; retain unresolved original AS2 ruling, do not replace it with a new comparator.",
+        "positive": "Independent bounded control remains informative after legitimate development exposure separation.",
+        "adversarial": "Adaptive repeated peeking or memory retrieval leaks final outcomes into design/selection and invalidates the corresponding confirmatory comparison.",
+        "removal": "Remove exposure separation while retaining sealed IDs: leak-sensitive control detects changed selection/evidence.",
+        "detail": "solutions/14-adaptive-trajectories-and-studies.md#extensions",
+        "quality_ref": "assurance/09-adaptive-research-and-method-quality.md",
+        "technical_profiles": [
+          "solutions/15-technical-method-lifecycle.md#TP02",
+          "solutions/15-technical-method-lifecycle.md#TP08"
+        ],
+        "product_verification": "UNRUN"
+      }
     },
     {
       "id": "GYD-09",
@@ -2467,7 +2547,21 @@
         "original_obligation_disposition: canonical owner decision; history preserved"
       ],
       "dependency_stage": "owner_readiness",
-      "completion_contract_ref": "execution/stage-requirements.json#default"
+      "completion_contract_ref": "execution/stage-requirements.json#default",
+      "r15_extension": {
+        "requirement": "Bind eligibility/exposure/assignment versus receipt, observation regime, policy version and actual selection/stopping profile. Propensity only where the estimator requires it. Preserve current WP-01 activation and WP-02 authority boundaries.",
+        "positive": "Qualified result changes only the intended scoped confirmatory calculation; without actual activation operative posterior remains unchanged despite passing internal checks.",
+        "adversarial": "No overlap, exploratory selection, as-treated substitution or protocol drift cannot become an ordinary identified/fixed-sample effect update.",
+        "removal": "Remove target/support/design qualification while retaining result/signature markers: effect consumer loses admissibility; activation-removal cannot permit mutation.",
+        "detail": "solutions/14-adaptive-trajectories-and-studies.md#extensions",
+        "quality_ref": "assurance/09-adaptive-research-and-method-quality.md",
+        "technical_profiles": [
+          "solutions/15-technical-method-lifecycle.md#TP02",
+          "solutions/15-technical-method-lifecycle.md#TP03",
+          "solutions/15-technical-method-lifecycle.md#TP08"
+        ],
+        "product_verification": "UNRUN"
+      }
     },
     {
       "id": "GYD-10",
@@ -2533,7 +2627,20 @@
         "original_obligation_disposition: canonical owner decision; history preserved"
       ],
       "dependency_stage": "owner_readiness",
-      "completion_contract_ref": "execution/stage-requirements.json#default"
+      "completion_contract_ref": "execution/stage-requirements.json#default",
+      "r15_extension": {
+        "requirement": "Carry actual study-selection/interim-look/adaptive-exposure denominator through existing O2 controller; discovery remains candidate, and analysis claims must fit actual selection scheme.",
+        "positive": "Exploratory discovery triggers a concrete review/study route with bounded error accounting.",
+        "adversarial": "Unlogged looks, selectively omitted nulls or a selected signal routed as independent confirmation cannot pass.",
+        "removal": "Remove actual look/exposure accounting but retain FDR labels: selected known counterexample breaks the declared guarantee.",
+        "detail": "solutions/14-adaptive-trajectories-and-studies.md#extensions",
+        "quality_ref": "assurance/09-adaptive-research-and-method-quality.md",
+        "technical_profiles": [
+          "solutions/15-technical-method-lifecycle.md#TP02",
+          "solutions/15-technical-method-lifecycle.md#TP08"
+        ],
+        "product_verification": "UNRUN"
+      }
     },
     {
       "id": "GYD-11",
@@ -2668,7 +2775,21 @@
       "acceptance_dependencies": [
         "UI-08"
       ],
-      "downstream_consumer": "UI-08/DS21 reads O3 output; it is not an O3 producer/build prerequisite."
+      "downstream_consumer": "UI-08/DS21 reads O3 output; it is not an O3 producer/build prerequisite.",
+      "r15_extension": {
+        "requirement": "Bind actual policy/measurement/support regime and design-analysis evidence into existing O1-qualified world write-back; preserve no-mutation until competent activation.",
+        "positive": "A properly authorized qualified result updates only bound world scope; stale regime becomes historical evidence and current limitation.",
+        "adversarial": "Changed implementation/measurement mistaken for prediction error or synthetic study returns cannot silently rewrite causal world.",
+        "removal": "Remove O1/regime binding while preserving posterior/version refs: unauthorized or wrong-scope write is detected.",
+        "detail": "solutions/14-adaptive-trajectories-and-studies.md#extensions",
+        "quality_ref": "assurance/09-adaptive-research-and-method-quality.md",
+        "technical_profiles": [
+          "solutions/15-technical-method-lifecycle.md#TP02",
+          "solutions/15-technical-method-lifecycle.md#TP06",
+          "solutions/15-technical-method-lifecycle.md#TP08"
+        ],
+        "product_verification": "UNRUN"
+      }
     },
     {
       "id": "GYD-13",
@@ -3946,6 +4067,20 @@
         "detail": "solutions/13-productive-design.md#extensions",
         "quality_ref": "assurance/08-productive-search-and-document-quality.md",
         "product_verification": "UNRUN"
+      },
+      "r15_extension": {
+        "requirement": "Supply trajectory and heterogeneous-model joint results through the existing owner. Include shared incumbent resources, explicit cross-model mappings and shared exogenous dependence only where material. Use research/heterogeneous-model-execution.md for scoped extension choices; not a second certificate or co-simulation platform mandate. For fixed-point reuse, prove whole-participant deterministic/restartable eligibility on a frozen scenario and bind recomputed actual final-materialization residual to final artifacts. Compact feedback vector is not a full checkpoint; fixed-seed convergence is not expected-map convergence.",
+        "positive": "Order-sensitive whole-design effect and selected cross-model transfer have actual persisted joint witnesses; static exact cases retain validated exact alternatives.",
+        "adversarial": "Pairwise summation, mismatched time/support/units, duplicate common shock or cheapest residual-selected equilibrium cannot prove joint causal/feasibility claims. Change hidden state only at final materialization while keeping solved/converged markers; or present diagnostic noise_sd as an expected-response equilibrium guarantee. Both must lose the unsupported joint claim.",
+        "removal": "Drop a material model/transfer/incumbent while keeping graph/certificate names: source-derived coverage or semantic joint oracle fails.",
+        "detail": "solutions/14-adaptive-trajectories-and-studies.md#extensions",
+        "quality_ref": "assurance/09-adaptive-research-and-method-quality.md",
+        "technical_profiles": [
+          "solutions/15-technical-method-lifecycle.md#TP01",
+          "solutions/15-technical-method-lifecycle.md#TP05",
+          "solutions/15-technical-method-lifecycle.md#TP06"
+        ],
+        "product_verification": "UNRUN"
       }
     },
     {
@@ -4015,6 +4150,21 @@
         "detail": "solutions/13-productive-design.md#extensions",
         "quality_ref": "assurance/08-productive-search-and-document-quality.md",
         "product_verification": "UNRUN"
+      },
+      "r15_extension": {
+        "requirement": "Keep statistical, identification, numerical, model-set and value/mandate uncertainty distinct in native set consumers. Exact estimate of wrong target cannot narrow relevant value bounds; no default model probabilities or normative weights.",
+        "positive": "Matched evidence narrows only its justified component; conflicting authorized value orders or ungrounded cross-model dependence retain alternatives.",
+        "adversarial": "SAT/PPC/SBC/convergence/secure-aggregate signals do not upgrade world truth; fixed aggregate gain does not compensate a protected hard floor.",
+        "removal": "Remove target/assumption relation or value separation while retaining interval fields: current consumer falsely narrows/selects and oracle fails.",
+        "detail": "solutions/14-adaptive-trajectories-and-studies.md#extensions",
+        "quality_ref": "assurance/09-adaptive-research-and-method-quality.md",
+        "technical_profiles": [
+          "solutions/15-technical-method-lifecycle.md#TP03",
+          "solutions/15-technical-method-lifecycle.md#TP04",
+          "solutions/15-technical-method-lifecycle.md#TP05",
+          "solutions/15-technical-method-lifecycle.md#TP08"
+        ],
+        "product_verification": "UNRUN"
       }
     },
     {
@@ -4078,7 +4228,20 @@
         "original_obligation_disposition: canonical owner decision; history preserved"
       ],
       "dependency_stage": "owner_readiness",
-      "completion_contract_ref": "execution/stage-requirements.json#default"
+      "completion_contract_ref": "execution/stage-requirements.json#default",
+      "r15_extension": {
+        "requirement": "Evaluate selected inference/measurement/strategic method on the actual substrate. New conforming resource within supported class requires no central search-code edit; new semantics needs its owning extension.",
+        "positive": "Actual selected support/regime fits the method or a useful bounded alternative is produced and consumed.",
+        "adversarial": "SBC or simulation calibration under wrong-world assumptions, synthetic MAUP mapping or source label is not actual target adequacy.",
+        "removal": "Remove substrate/profile match while keeping registry metadata: altered regime control loses valid claim support.",
+        "detail": "solutions/14-adaptive-trajectories-and-studies.md#extensions",
+        "quality_ref": "assurance/09-adaptive-research-and-method-quality.md",
+        "technical_profiles": [
+          "solutions/15-technical-method-lifecycle.md#TP03",
+          "solutions/15-technical-method-lifecycle.md#TP06"
+        ],
+        "product_verification": "UNRUN"
+      }
     },
     {
       "id": "GYD-33",
@@ -4813,7 +4976,21 @@
           "required_stage": "composed_acceptance",
           "preparation_rule": "Consumer preparation before final replay may use a pinned interface, not claim real-data acceptance."
         }
-      ]
+      ],
+      "r15_extension": {
+        "requirement": "Project native strategy/research and learning results: as-of observation cutoff, proposed versus actual branch, uncertainty/value disagreement, incumbent scope, study return/analysis state and institutional boundary. No UI-created authority or null-to-zero. Apply this to the existing value/uncertainty grammar and its consumers; UI-08 separately owns effect/world-growth projection.",
+        "positive": "Fresh authorized reader distinguishes useful conditional recommendation, unresolved value choice and unavailable actual effect.",
+        "adversarial": "Historical experiment/model success displayed as current fact, reversible UI action displayed as undone real harm, or confidence hides unsupported scope.",
+        "removal": "Remove native result/currentness binding but preserve badges: stale/changed-basis scenario renders wrong meaning and semantic check fails.",
+        "detail": "solutions/14-adaptive-trajectories-and-studies.md#extensions",
+        "quality_ref": "assurance/09-adaptive-research-and-method-quality.md",
+        "technical_profiles": [
+          "solutions/15-technical-method-lifecycle.md#TP01",
+          "solutions/15-technical-method-lifecycle.md#TP02",
+          "solutions/15-technical-method-lifecycle.md#TP08"
+        ],
+        "product_verification": "UNRUN"
+      }
     },
     {
       "id": "UI-07",
@@ -4992,7 +5169,21 @@
         "GYD-09",
         "GYD-12"
       ],
-      "interface_agreement_scope_ref": "execution/07-scoped-readiness.md#edge-decisions"
+      "interface_agreement_scope_ref": "execution/07-scoped-readiness.md#edge-decisions",
+      "r15_extension": {
+        "requirement": "Project native strategy/research and learning results: as-of observation cutoff, proposed versus actual branch, uncertainty/value disagreement, incumbent scope, study return/analysis state and institutional boundary. No UI-created authority or null-to-zero. Apply this to the existing effect/world-growth view and its consumers; UI-06 remains value/uncertainty grammar owner.",
+        "positive": "Fresh authorized reader distinguishes useful conditional recommendation, unresolved value choice and unavailable actual effect.",
+        "adversarial": "Historical experiment/model success displayed as current fact, reversible UI action displayed as undone real harm, or confidence hides unsupported scope.",
+        "removal": "Remove native result/currentness binding but preserve badges: stale/changed-basis scenario renders wrong meaning and semantic check fails.",
+        "detail": "solutions/14-adaptive-trajectories-and-studies.md#extensions",
+        "quality_ref": "assurance/09-adaptive-research-and-method-quality.md",
+        "technical_profiles": [
+          "solutions/15-technical-method-lifecycle.md#TP01",
+          "solutions/15-technical-method-lifecycle.md#TP02",
+          "solutions/15-technical-method-lifecycle.md#TP08"
+        ],
+        "product_verification": "UNRUN"
+      }
     },
     {
       "id": "UI-09",
@@ -6688,7 +6879,21 @@
       "dependency_stage_overrides": {
         "CNT-02": "interface_agreement"
       },
-      "interface_agreement_scope_ref": "execution/07-scoped-readiness.md#edge-decisions"
+      "interface_agreement_scope_ref": "execution/07-scoped-readiness.md#edge-decisions",
+      "r15_extension": {
+        "requirement": "Extend measurement profiles with selected instrument/language invariance, joint missingness/linkage sensitivity and spatial boundary-vintage/support mappings. Preserve alternative value orders and hard-floor mandates independently of metric arithmetic.",
+        "positive": "Same observations under a materially different instrument/boundary/denominator produce appropriate sensitivity/limitation or demonstrated stability at fresh consumer.",
+        "adversarial": "High match rate hides linkage errors; MNAR plus biased linkage changes target; ecological inference or omitted subgroup harm cannot be concealed by aggregate labels.",
+        "removal": "Remove actual measurement/crosswalk/denominator use while preserving its IDs: independently constructed sensitivity case fails.",
+        "detail": "solutions/14-adaptive-trajectories-and-studies.md#extensions",
+        "quality_ref": "assurance/09-adaptive-research-and-method-quality.md",
+        "technical_profiles": [
+          "solutions/15-technical-method-lifecycle.md#TP03",
+          "solutions/15-technical-method-lifecycle.md#TP06",
+          "solutions/15-technical-method-lifecycle.md#TP08"
+        ],
+        "product_verification": "UNRUN"
+      }
     },
     {
       "id": "CNT-06",
@@ -6826,7 +7031,22 @@
       "dependency_stage_overrides": {
         "CNT-02": "interface_agreement"
       },
-      "interface_agreement_scope_ref": "execution/07-scoped-readiness.md#edge-decisions"
+      "interface_agreement_scope_ref": "execution/07-scoped-readiness.md#edge-decisions",
+      "r15_extension": {
+        "requirement": "Bind design and analysis, competing explanations, identification versus estimability versus decision relevance; consume actual returned-study deviations. Add selected Bayesian/partial-ID/federated qualifications with native method-specific guarantees.",
+        "positive": "Observationally equivalent rivals are separated by an appropriate feasible study, or decision equivalence avoids unnecessary study; result changes only justified target claim.",
+        "adversarial": "Noncompliance, interference, adaptive stopping, wrong target, poor support or unrepresentative site dropout cannot be rescued by sample size/fit/secure execution.",
+        "removal": "Delete analysis/result/target binding with protocol and provenance labels retained: evidence consumer refuses the unsupported advance.",
+        "detail": "solutions/14-adaptive-trajectories-and-studies.md#extensions",
+        "quality_ref": "assurance/09-adaptive-research-and-method-quality.md",
+        "technical_profiles": [
+          "solutions/15-technical-method-lifecycle.md#TP02",
+          "solutions/15-technical-method-lifecycle.md#TP03",
+          "solutions/15-technical-method-lifecycle.md#TP07",
+          "solutions/15-technical-method-lifecycle.md#TP08"
+        ],
+        "product_verification": "UNRUN"
+      }
     },
     {
       "id": "CNT-07",
@@ -6953,7 +7173,21 @@
       "dependency_stage_overrides": {
         "CNT-02": "interface_agreement"
       },
-      "interface_agreement_scope_ref": "execution/07-scoped-readiness.md#edge-decisions"
+      "interface_agreement_scope_ref": "execution/07-scoped-readiness.md#edge-decisions",
+      "r15_extension": {
+        "requirement": "Supply real incumbent/capacity and preference/mandate grounds; separate measured/planned/committed/executed capacity and irreversible commitments. Study conduct and policy execution remain external.",
+        "positive": "Verified incumbent load and an authorized non-compensable constraint are consumed; conflicting principal preferences remain visible alternatives.",
+        "adversarial": "Statistics cannot infer missing mandate, consent, permission or promised capacity; projected average gain cannot erase a required subgroup floor.",
+        "removal": "Remove substantive act/capacity/value relation while retaining signature/authority labels: protected consumer fails closed.",
+        "detail": "solutions/14-adaptive-trajectories-and-studies.md#extensions",
+        "quality_ref": "assurance/09-adaptive-research-and-method-quality.md",
+        "technical_profiles": [
+          "solutions/15-technical-method-lifecycle.md#TP01",
+          "solutions/15-technical-method-lifecycle.md#TP04",
+          "solutions/15-technical-method-lifecycle.md#TP08"
+        ],
+        "product_verification": "UNRUN"
+      }
     },
     {
       "id": "CNT-08",
@@ -7113,6 +7347,20 @@
         "requirement": "Compare DES-05 interpretation branches and DES-08 influence lineage when selected; preserve disagreement, source dependence and no automatic current authority from history.",
         "detail": "solutions/13-productive-design.md#extensions",
         "quality_ref": "assurance/08-productive-search-and-document-quality.md",
+        "product_verification": "UNRUN"
+      },
+      "r15_extension": {
+        "requirement": "Account for reused cohorts, common model assumptions, coupled shocks, synthetic/model-derived descendants and adaptive exposure. Model diversity is not independent evidence; bounds cannot be narrowed by incompatible target/assumption composition.",
+        "positive": "Independent versus shared-origin evidence yields different justified strength, while valid diverse-model comparison remains useful.",
+        "adversarial": "Duplicated federated site, synthetic augmentation, same-data adaptive confirmation or incompatible robustness sets cannot inflate effective support.",
+        "removal": "Remove lineage/dependence consumer but preserve source counts: duplicated-evidence case falsely tightens and semantic oracle fails.",
+        "detail": "solutions/14-adaptive-trajectories-and-studies.md#extensions",
+        "quality_ref": "assurance/09-adaptive-research-and-method-quality.md",
+        "technical_profiles": [
+          "solutions/15-technical-method-lifecycle.md#TP02",
+          "solutions/15-technical-method-lifecycle.md#TP07",
+          "solutions/15-technical-method-lifecycle.md#TP08"
+        ],
         "product_verification": "UNRUN"
       }
     },
@@ -7994,7 +8242,21 @@
         "original_obligation_disposition: canonical owner decision; history preserved"
       ],
       "dependency_stage": "owner_readiness",
-      "completion_contract_ref": "execution/stage-requirements.json#default"
+      "completion_contract_ref": "execution/stage-requirements.json#default",
+      "r15_extension": {
+        "requirement": "Use existing shared resource admission for conditional-branch search, study-design simulation, solver and coupling evaluations. Meter nested work and memory/output/checkpoint use; never multiply reservations through submodels. Meter complete map evaluations including multi-start, finite-difference/Jacobian probes, retries, final materialization and CAS bytes; inspected Foundry max_steps alone does not establish the aggregate cap.",
+        "positive": "Budgeted useful result or honest incomplete frontier is retained; independent scenario shards run within real shared cap.",
+        "adversarial": "Each model separately respects a local cap while aggregate exceeds common memory/compute budget; timeout is mislabeled infeasible or a retry repeats external effect.",
+        "removal": "Remove shared cap/nested accounting but retain requested limits: controlled contended execution violates the property.",
+        "detail": "solutions/14-adaptive-trajectories-and-studies.md#extensions",
+        "quality_ref": "assurance/09-adaptive-research-and-method-quality.md",
+        "technical_profiles": [
+          "solutions/15-technical-method-lifecycle.md#TP01",
+          "solutions/15-technical-method-lifecycle.md#TP04",
+          "solutions/15-technical-method-lifecycle.md#TP05"
+        ],
+        "product_verification": "UNRUN"
+      }
     },
     {
       "id": "OPS-09",
@@ -8079,7 +8341,19 @@
         "original_obligation_disposition: canonical owner decision; history preserved"
       ],
       "dependency_stage": "owner_readiness",
-      "completion_contract_ref": "execution/stage-requirements.json#overrides/OPS-09"
+      "completion_contract_ref": "execution/stage-requirements.json#overrides/OPS-09",
+      "r15_extension": {
+        "requirement": "For a selected federated/private profile bind site roster/omissions, executable and input identities, alignment, aggregation and allowed recipients. Secure computation proves its narrow execution/security property; CNT-06 separately qualifies population/inference. This task proves the selected worker-cell deployment over CAP-06 native intake; no second remote-result or permission owner.",
+        "positive": "Allowed private result reaches fresh qualified consumer without disallowed raw sinks; selective site dropout changes target/limitation appropriately.",
+        "adversarial": "Poisoned/misaligned result, duplicate site, nonrandom dropout or revoked rights cannot retain the original global claim merely because aggregation succeeded.",
+        "removal": "Remove roster/source/inference or egress binding while retaining encrypted/remote markers: appropriate numerical or custody consumer rejects.",
+        "detail": "solutions/14-adaptive-trajectories-and-studies.md#extensions",
+        "quality_ref": "assurance/09-adaptive-research-and-method-quality.md",
+        "technical_profiles": [
+          "solutions/15-technical-method-lifecycle.md#TP07"
+        ],
+        "product_verification": "UNRUN"
+      }
     },
     {
       "id": "OPS-10",
@@ -9475,7 +9749,9 @@
         "DES-07",
         "DES-08",
         "DES-09",
-        "DES-10"
+        "DES-10",
+        "DES-11",
+        "DES-12"
       ],
       "source_ids": [],
       "owner_paths": [
@@ -9510,6 +9786,19 @@
         "requirement": "Include DES mechanism readiness and DES-10 reviewed comparison preparation; do not require final live/audience comparison to satisfy its own freeze predecessor.",
         "detail": "solutions/13-productive-design.md#extensions",
         "quality_ref": "assurance/08-productive-search-and-document-quality.md",
+        "product_verification": "UNRUN"
+      },
+      "r15_extension": {
+        "requirement": "Include DES-11/12 owner-readiness and R15 comparison preparation, with scoped method/profile selections. Do not wait for years of external study conduct or activate every optional technology; retain every original obligation.",
+        "positive": "All selected internal producer/consumer/companion work is ready and external required evidence remains explicitly unresolved before actual release.",
+        "adversarial": "Missing internal designer/trajectory producer labeled external hold, or optional tool package turned universal prerequisite, is rejected.",
+        "removal": "Remove a required readiness consumer while retaining checklist status: freeze reconciliation fails.",
+        "detail": "solutions/14-adaptive-trajectories-and-studies.md#extensions",
+        "quality_ref": "assurance/09-adaptive-research-and-method-quality.md",
+        "technical_profiles": [
+          "solutions/15-technical-method-lifecycle.md#TP01",
+          "solutions/15-technical-method-lifecycle.md#TP02"
+        ],
         "product_verification": "UNRUN"
       }
     },
@@ -9613,6 +9902,25 @@
         "detail": "solutions/13-productive-design.md#extensions",
         "quality_ref": "assurance/08-productive-search-and-document-quality.md",
         "product_verification": "UNRUN"
+      },
+      "r15_extension": {
+        "requirement": "Join R15 positive/adversarial/removal endpoints through DES-10 and affected existing owner probes in this same frozen wave. Separate numerical, controlled usefulness, external authorization and authentic effects. technical_profiles is a reference set; DES-10 declares the case-selected required subset and its justified exclusions, never an all-library prerequisite.",
+        "positive": "Complete selected R15 case/arm/seed/site/branch outcomes are source-bound and read by fresh consumers.",
+        "adversarial": "One algorithm diagnostic or aggregate green substitutes for a missing trajectory/study/authority endpoint.",
+        "removal": "Remove actual named endpoint while retaining summary: complete obligation join fails.",
+        "detail": "solutions/14-adaptive-trajectories-and-studies.md#extensions",
+        "quality_ref": "assurance/09-adaptive-research-and-method-quality.md",
+        "technical_profiles": [
+          "solutions/15-technical-method-lifecycle.md#TP01",
+          "solutions/15-technical-method-lifecycle.md#TP02",
+          "solutions/15-technical-method-lifecycle.md#TP03",
+          "solutions/15-technical-method-lifecycle.md#TP04",
+          "solutions/15-technical-method-lifecycle.md#TP05",
+          "solutions/15-technical-method-lifecycle.md#TP06",
+          "solutions/15-technical-method-lifecycle.md#TP07",
+          "solutions/15-technical-method-lifecycle.md#TP08"
+        ],
+        "product_verification": "UNRUN"
       }
     },
     {
@@ -9669,6 +9977,19 @@
         "requirement": "In addition to original programme obligations, reconcile every R14 capability obligation and selected required quality claim. Unavailable live-model or audience evidence cannot silently disappear. Controlled PASS is not authentic usefulness; explicit competent scope change required for deferral.",
         "detail": "solutions/13-productive-design.md#extensions",
         "quality_ref": "assurance/08-productive-search-and-document-quality.md",
+        "product_verification": "UNRUN"
+      },
+      "r15_extension": {
+        "requirement": "Reconcile every R15 obligation in assurance/r15-capability-obligations.json in addition to original and R14 obligations. Conditional technology scope is explicit; absence cannot waive a mandatory property. Recompute extension coverage from every tasks.json object carrying r15_extension; all such tasks must map to the obligation set, with their full extension criteria retained.",
+        "positive": "Selected use is supported by actual qualified results or explicitly competent scope disposition; research recommendations remain candidates.",
+        "adversarial": "Controlled research positive represented as real executed study or observed benefit; missing public surface or external evidence silently disappears.",
+        "removal": "Remove a bound obligation/result while preserving release summary: use disposition fails.",
+        "detail": "solutions/14-adaptive-trajectories-and-studies.md#extensions",
+        "quality_ref": "assurance/09-adaptive-research-and-method-quality.md",
+        "technical_profiles": [
+          "solutions/15-technical-method-lifecycle.md#TP01",
+          "solutions/15-technical-method-lifecycle.md#TP02"
+        ],
         "product_verification": "UNRUN"
       }
     },
@@ -10115,6 +10436,21 @@
         "DES-02": "interface_agreement",
         "GYD-30": "interface_agreement",
         "GYD-31": "interface_agreement"
+      },
+      "r15_extension": {
+        "requirement": "Consume native adaptive trajectories and selected incumbent-policy context; preserve separate uncertainty/value/model axes. Select exact solver or surrogate only on a declared case need; no second optimizer or hidden social objective.",
+        "positive": "Order-sensitive real trajectories and joint incumbent capacity reach fresh frontier; relevant exact control agrees with independent enumeration.",
+        "adversarial": "Clairvoyant future access, omitted incumbent load, wrong encoding, surrogate-only winner, unsupported independence or default lexicographic value choice cannot support a decision claim.",
+        "removal": "Remove actual trajectory/joint/constraint consumption while retaining scores; corresponding oracle detects the property loss.",
+        "detail": "solutions/14-adaptive-trajectories-and-studies.md#extensions",
+        "quality_ref": "assurance/09-adaptive-research-and-method-quality.md",
+        "technical_profiles": [
+          "solutions/15-technical-method-lifecycle.md#TP01",
+          "solutions/15-technical-method-lifecycle.md#TP04",
+          "solutions/15-technical-method-lifecycle.md#TP05",
+          "solutions/15-technical-method-lifecycle.md#TP08"
+        ],
+        "product_verification": "UNRUN"
       }
     },
     {
@@ -10200,6 +10536,20 @@
         "DES-02": "interface_agreement",
         "DES-03": "interface_agreement",
         "GYD-24": "interface_agreement"
+      },
+      "r15_extension": {
+        "requirement": "Route trajectory counterexamples and decision-informative study designs through existing N6/N7/acquisition. Keep compute VOI distinct from scientific EVSI; unsupported numeric EVSI does not block justified qualitative/bounded acquisition.",
+        "positive": "Returned content-bound study evidence or signpost changes candidate/next acquisition when relevant; costly uninformative study can be rejected for a stated reason.",
+        "adversarial": "Requerying observationally equivalent data, missing external permission, manufactured EVSI, stale protocol or same-data confirmation cannot silently advance authority.",
+        "removal": "Remove study-result/counterexample bridge but keep closed-study/feedback markers: next real consumer no longer satisfies the expected update.",
+        "detail": "solutions/14-adaptive-trajectories-and-studies.md#extensions",
+        "quality_ref": "assurance/09-adaptive-research-and-method-quality.md",
+        "technical_profiles": [
+          "solutions/15-technical-method-lifecycle.md#TP01",
+          "solutions/15-technical-method-lifecycle.md#TP02",
+          "solutions/15-technical-method-lifecycle.md#TP08"
+        ],
+        "product_verification": "UNRUN"
       }
     },
     {
@@ -10370,7 +10720,20 @@
         "Selected packet and allowed document audience; native numerical/legal suppliers only for chosen claims. Form/language profile and reader-study participants for usability claims, not for mechanical source binding."
       ],
       "product_status": "planning_only; not E02 acceptance or finding closure",
-      "r14_review_refinement": "Bind actual displayed/exported DOCX paragraphs and cells to the semantic sidecar and exact revision. Independently change a sentence/cell while keeping IDs and old sidecar: fresh reader must detect unbound/stale meaning and reject inherited support. Independent format parsing alone is insufficient."
+      "r14_review_refinement": "Bind actual displayed/exported DOCX paragraphs and cells to the semantic sidecar and exact revision. Independently change a sentence/cell while keeping IDs and old sidecar: fresh reader must detect unbound/stale meaning and reject inherited support. Independent format parsing alone is insufficient.",
+      "r15_extension": {
+        "requirement": "Render ordered/conditional recommendations, study protocols, observation cutoffs, decision alternatives and residual commitments from native owner results. Separate proposed, externally authorized and actually observed execution.",
+        "positive": "A reader can identify next conditional action, distinguishing observation, stop/cost boundary and who must act, following exact persisted references.",
+        "adversarial": "Fluent future-tense text must not imply enacted law, completed trial, undone harm or granted authority; unknown branch/currentness stays visible.",
+        "removal": "Delete owner-result binding while retaining text sections: document semantic/source fidelity check fails.",
+        "detail": "solutions/14-adaptive-trajectories-and-studies.md#extensions",
+        "quality_ref": "assurance/09-adaptive-research-and-method-quality.md",
+        "technical_profiles": [
+          "solutions/15-technical-method-lifecycle.md#TP01",
+          "solutions/15-technical-method-lifecycle.md#TP02"
+        ],
+        "product_verification": "UNRUN"
+      }
     },
     {
       "implementation_status": "planned_after_E02_acceptance",
@@ -10542,7 +10905,21 @@
         "LIF-07": "interface_agreement",
         "DES-04": "interface_agreement"
       },
-      "r14_canonical_writer": "DES-08 owns retrieval adapter; durable formulator sink delta is sent to DES-01 and hypothesis binding to DES-02. It does not acquire their shared file writes."
+      "r14_canonical_writer": "DES-08 owns retrieval adapter; durable formulator sink delta is sent to DES-01 and hypothesis binding to DES-02. It does not acquire their shared file writes.",
+      "r15_extension": {
+        "requirement": "Reuse search/study-design experience only under matched context; distinguish evidence exposure, design performance, institutional act and empirical result. Do not train on final holdout or count synthetic descendants as new evidence.",
+        "positive": "Memory-on improves a declared search choice or preserves justified no-transfer against memory-off; stale measurement/trajectory regime is rejected.",
+        "adversarial": "Repeated studies sharing cohort, cached model-generated confirmations or prior trajectory success cannot mint independent support for current claims.",
+        "removal": "Remove influence/eligibility check while retaining memory provenance markers: stale/contaminated transfer case fails.",
+        "detail": "solutions/14-adaptive-trajectories-and-studies.md#extensions",
+        "quality_ref": "assurance/09-adaptive-research-and-method-quality.md",
+        "technical_profiles": [
+          "solutions/15-technical-method-lifecycle.md#TP02",
+          "solutions/15-technical-method-lifecycle.md#TP06",
+          "solutions/15-technical-method-lifecycle.md#TP08"
+        ],
+        "product_verification": "UNRUN"
+      }
     },
     {
       "implementation_status": "planned_after_E02_acceptance",
@@ -10685,7 +11062,9 @@
         "write:productive-evaluation-recipe",
         "resource:replay-profile/{selected_profile}"
       ],
-      "canonical_write_candidates": ["proposed: mirrored tests/recipe at the accepted native GY/Scientist evaluation owner; exact path appointed after scoped rebind"],
+      "canonical_write_candidates": [
+        "proposed: mirrored tests/recipe at the accepted native GY/Scientist evaluation owner; exact path appointed after scoped rebind"
+      ],
       "owner_paths_role": "Pinned research anchors, not blanket write permission. Exact native writer/consumer/companion closure rebind at P0; one lease per real semantic owner/shared path.",
       "rollback": "Suspend affected new use; preserve immutable history and legally permitted receipts; revert behavior by a forward repair/version, not history rewrite. Never restore revoked authority or rights.",
       "migration": "Version native artifacts and consumers where needed; legacy provenance/claims are not backfilled as verified. Read old outputs with explicit limits; re-evaluate only actual affected current uses.",
@@ -10707,7 +11086,221 @@
       ],
       "execution_gate": "Single composed comparison after explicit FINAL-REVIEW; local oracle/preparation work may precede freeze.",
       "final_execution_property": "All R14 capability obligations in assurance/r14-capability-obligations.json accounted for by actual bound outputs, with unavailable evidence explicit; no promotion from benchmark score.",
-      "r14_review_refinement": "Freeze a decision-relevant positive criterion, independently labelled, for designated known-solvable controls: a candidate answers the declared decision need or a specific acquisition/evidence path resolves it. Feasible diverse but irrelevant alternatives must not pass this criterion. All-null decision-support outcomes leave productive capability not_established even if plumbing passes. This is a bounded acceptance discriminator, never a useful_design_rate optimization/reward/promotion target. No-op and deliberate removal arms are comparators expected to fail productivity, not implementations required to produce an intervention. Reviewer panels belong to evaluation, not per-run/manual authority gates."
+      "r14_review_refinement": "Freeze a decision-relevant positive criterion, independently labelled, for designated known-solvable controls: a candidate answers the declared decision need or a specific acquisition/evidence path resolves it. Feasible diverse but irrelevant alternatives must not pass this criterion. All-null decision-support outcomes leave productive capability not_established even if plumbing passes. This is a bounded acceptance discriminator, never a useful_design_rate optimization/reward/promotion target. No-op and deliberate removal arms are comparators expected to fail productivity, not implementations required to produce an intervention. Reviewer panels belong to evaluation, not per-run/manual authority gates.",
+      "r15_extension": {
+        "requirement": "Add R15 trajectory/study discriminators and case-selected method profiles to the same frozen productive comparison. New controls join FINAL-REPLAY, not a second global wave; usefulness, authority and numerical correctness stay distinct.",
+        "positive": "A known-solvable adaptive case and distinguishing-study case produce useful bound native outputs; no-op/all-abstain and marker-only controls fail their scoped positive criteria.",
+        "adversarial": "Omitted failed branches/sites/studies, future leakage, wrong population, biased inference, false feasibility or privacy claims cannot be hidden by aggregate pass rate.",
+        "removal": "Remove actual trajectory, design discrimination or result-return consumer separately; preserve labels and verify loss of the respective endpoint.",
+        "detail": "solutions/14-adaptive-trajectories-and-studies.md#extensions",
+        "quality_ref": "assurance/09-adaptive-research-and-method-quality.md",
+        "technical_profiles": [
+          "solutions/15-technical-method-lifecycle.md#TP01",
+          "solutions/15-technical-method-lifecycle.md#TP02",
+          "solutions/15-technical-method-lifecycle.md#TP03",
+          "solutions/15-technical-method-lifecycle.md#TP04",
+          "solutions/15-technical-method-lifecycle.md#TP05",
+          "solutions/15-technical-method-lifecycle.md#TP06",
+          "solutions/15-technical-method-lifecycle.md#TP07",
+          "solutions/15-technical-method-lifecycle.md#TP08"
+        ],
+        "product_verification": "UNRUN"
+      }
+    },
+    {
+      "implementation_status": "planned_after_E02_acceptance",
+      "product_verification": "UNRUN",
+      "dispatch_condition": "Actual E02 acceptance; completed task-scoped accepted-source rebind under execution/07-scoped-readiness.md; exact required upstream stage/interface pins; non-overlapping write lease and phase-specific resource permit. Global P0 completion is not required for a reconciled independent scope.",
+      "acceptance_steps": [
+        "Resolve original criterion and accepted E02 source; trace current producer and full consumer/companion footprint.",
+        "Pin expected property and independent oracle where needed; reproduce a distinguishing baseline negative.",
+        "Implement the smallest native-owner invariant and actual use; preserve native status/authority/time semantics.",
+        "Prove positive, adversarial and matched removal signals below through persisted state and fresh consumer; include public/generated companions.",
+        "Review exact candidate independently, resolve blockers, run scoped gates under resource permit, read back committed delivery and report limitations."
+      ],
+      "test_path_rule": "Use mirrored tests adjacent to actual affected modules after P0 rebind. Proposed paths in prose are not asserted existing. Record exact paths/commands before execution.",
+      "mandatory_companions": [
+        "native schema/rule version if changed",
+        "all actual consumers and generated family if affected",
+        "migration/retirement proof",
+        "task journal and original obligation disposition",
+        "deciding outputs and independent review"
+      ],
+      "lease_rule": "Resolve every key instance and exact path overlap before dispatch. Human-friendly resource_locks are descriptions, never independent mutex identities. Any shared file or semantic owner wins over differing labels.",
+      "completion_planes": [
+        "owner_delivery: reviewed native result with scoped local proof",
+        "composed_acceptance: actual emitted dependencies and fresh consumer on bound source",
+        "original_obligation_disposition: canonical owner decision; history preserved"
+      ],
+      "dependency_stage": "owner_readiness",
+      "completion_contract_ref": "execution/stage-requirements.json#default",
+      "owner_paths_role": "Pinned research anchors, not blanket write permission. Exact native writer/consumer/companion closure rebind at P0; one lease per real semantic owner/shared path.",
+      "rollback": "Suspend affected new use; preserve immutable history and legally permitted receipts; revert behavior by a forward repair/version, not history rewrite. Never restore revoked authority or rights.",
+      "input_resolution_rule": "Classify missing inputs as internal engineering/allocation, existing source record, or genuine external fact/permission. Investigate native alternatives and supply internal gaps; only genuine external requirements justify a scoped hold.",
+      "product_status": "planning_only; not E02 acceptance or finding closure",
+      "id": "DES-11",
+      "title": "Evaluate adaptive policy trajectories with observable signposts and commitments",
+      "source_code_observation": "528ec2576393e8aa9a0238ae4172336ccf76a057",
+      "preferred_solution_ref": "solutions/14-adaptive-trajectories-and-studies.md#DES-11",
+      "capability_delta_ref": "solutions/14-adaptive-trajectories-and-studies.md#DES-11",
+      "source_ids": [
+        "R15 user-requested adaptive/research capability delta; assurance/09-adaptive-research-and-method-quality.md"
+      ],
+      "requires_other_mechanisms": [
+        "Native owner schemas/status/authority and full accepted-source consumer closure; no universal model or study DTO.",
+        "Interface agreement permits isolated preparation; composition needs actual selected producer outputs. DES-03 remains search writer, DES-04 feedback/acquisition bridge writer, GYD-30 joint witness owner.",
+        "Any foundry/execute/api.py or shared joint-result change is requested from GYD-30, not a DES-11 write grant."
+      ],
+      "owner_paths": [
+        "existing: policy-engine/src/polisyos/foundry/agent_sim/temporal_executor.py",
+        "existing: policy-engine/src/polisyos/foundry/agent_sim/temporal.py",
+        "existing: policy-engine/src/polisyos/foundry/execute/api.py",
+        "existing: policy-engine/src/polisyos/scientist/policy_design/search.py"
+      ],
+      "canonical_write_candidates": [
+        "policy-engine/src/polisyos/foundry/agent_sim/temporal_executor.py",
+        "policy-engine/src/polisyos/foundry/agent_sim/temporal.py"
+      ],
+      "read_only_mechanism_anchors": [
+        "policy-engine/src/polisyos/foundry/execute/api.py",
+        "policy-engine/src/polisyos/scientist/policy_design/search.py"
+      ],
+      "deliverable": "Extend the native candidate/temporal evaluation bridge to produce and compare conditional policy strategies with action order, observation history/cutoffs, lags, incumbent loads, carryover and irreversible commitments. Persist the actual path evaluation and consume it in the existing frontier/dossier. Reuse any accepted-source implementation; do not add a parallel adaptive-policy engine.",
+      "positive": "A controlled useful A-then-B versus B-then-A distinction reaches fresh search/dossier consumer; adaptive choices differ only after observable histories diverge. Relevant delay/no-op/stop comparators preserve residual commitments.",
+      "adversarial": "Future/latent leakage, backdated late observation, noisy signposts, truncated tail loss, absent incumbent scope or planned capacity cannot silently support feasible adaptive recommendation.",
+      "removal": "Remove history/transition/cutoff or incumbent consumption while preserving adaptive labels; the independent path/feasibility oracle and fresh consumer detect property loss.",
+      "surface": "Existing frontier/Cycle Board/reviewer dossier, API and authorized Atlas/document projection resolve actual native result, assumptions, observation cutoff, uncertainty, omitted alternatives and candidate/external-act boundaries.",
+      "resource_locks": [
+        "write:native-temporal-evaluation",
+        "resource:selected-method/{profile}"
+      ],
+      "canonical_lease_keys": [
+        "write:native-temporal-evaluation",
+        "resource:selected-method/{profile}"
+      ],
+      "migration": "Legacy terminal-only records stay terminal-only; never infer path/knowledge history or reversibility.",
+      "workstream": "DES",
+      "detail": "workstreams/07-productive-policy-design.md",
+      "depends_on": [
+        "P0-ACCEPT",
+        "DES-03",
+        "GYD-30",
+        "CNT-06",
+        "CNT-07",
+        "LIF-02"
+      ],
+      "dependency_stage_overrides": {
+        "DES-03": "interface_agreement",
+        "GYD-30": "interface_agreement",
+        "CNT-06": "interface_agreement",
+        "CNT-07": "interface_agreement",
+        "LIF-02": "interface_agreement"
+      },
+      "genuine_external_inputs": [
+        "Actual capacity/incumbent/transition/observation grounds and mandate only for claims that need them; external institutions authorize and execute policy. Unknowns permit conditional candidate analysis, not fabricated current facts."
+      ],
+      "technical_lifecycle_ref": "solutions/15-technical-method-lifecycle.md#TP01",
+      "runtime_capability_status": "not_established_by_static_planning_review"
+    },
+    {
+      "implementation_status": "planned_after_E02_acceptance",
+      "product_verification": "UNRUN",
+      "dispatch_condition": "Actual E02 acceptance; completed task-scoped accepted-source rebind under execution/07-scoped-readiness.md; exact required upstream stage/interface pins; non-overlapping write lease and phase-specific resource permit. Global P0 completion is not required for a reconciled independent scope.",
+      "acceptance_steps": [
+        "Resolve original criterion and accepted E02 source; trace current producer and full consumer/companion footprint.",
+        "Pin expected property and independent oracle where needed; reproduce a distinguishing baseline negative.",
+        "Implement the smallest native-owner invariant and actual use; preserve native status/authority/time semantics.",
+        "Prove positive, adversarial and matched removal signals below through persisted state and fresh consumer; include public/generated companions.",
+        "Review exact candidate independently, resolve blockers, run scoped gates under resource permit, read back committed delivery and report limitations."
+      ],
+      "test_path_rule": "Use mirrored tests adjacent to actual affected modules after P0 rebind. Proposed paths in prose are not asserted existing. Record exact paths/commands before execution.",
+      "mandatory_companions": [
+        "native schema/rule version if changed",
+        "all actual consumers and generated family if affected",
+        "migration/retirement proof",
+        "task journal and original obligation disposition",
+        "deciding outputs and independent review"
+      ],
+      "lease_rule": "Resolve every key instance and exact path overlap before dispatch. Human-friendly resource_locks are descriptions, never independent mutex identities. Any shared file or semantic owner wins over differing labels.",
+      "completion_planes": [
+        "owner_delivery: reviewed native result with scoped local proof",
+        "composed_acceptance: actual emitted dependencies and fresh consumer on bound source",
+        "original_obligation_disposition: canonical owner decision; history preserved"
+      ],
+      "dependency_stage": "owner_readiness",
+      "completion_contract_ref": "execution/stage-requirements.json#default",
+      "owner_paths_role": "Pinned research anchors, not blanket write permission. Exact native writer/consumer/companion closure rebind at P0; one lease per real semantic owner/shared path.",
+      "rollback": "Suspend affected new use; preserve immutable history and legally permitted receipts; revert behavior by a forward repair/version, not history rewrite. Never restore revoked authority or rights.",
+      "input_resolution_rule": "Classify missing inputs as internal engineering/allocation, existing source record, or genuine external fact/permission. Investigate native alternatives and supply internal gaps; only genuine external requirements justify a scoped hold.",
+      "product_status": "planning_only; not E02 acceptance or finding closure",
+      "id": "DES-12",
+      "title": "Design decision-informative studies and bind their returned evidence",
+      "source_code_observation": "528ec2576393e8aa9a0238ae4172336ccf76a057",
+      "preferred_solution_ref": "solutions/14-adaptive-trajectories-and-studies.md#DES-12",
+      "capability_delta_ref": "solutions/14-adaptive-trajectories-and-studies.md#DES-12",
+      "source_ids": [
+        "R15 user-requested adaptive/research capability delta; assurance/09-adaptive-research-and-method-quality.md"
+      ],
+      "requires_other_mechanisms": [
+        "Native owner schemas/status/authority and full accepted-source consumer closure; no universal model or study DTO.",
+        "Interface agreement permits isolated preparation; composition needs actual selected producer outputs. DES-03 remains search writer, DES-04 feedback/acquisition bridge writer, GYD-30 joint witness owner.",
+        "Decision-bearing designer inputs are explicit/content-bound or declared hypothetical; defaults never become case facts. At protected dispatch/resume the native authority owner resolves the grant and recomputes coverage of EVERY load-bearing facet required by the actual operation/authorization contract, not a fixed checklist. Unresolved required scope refuses that action and claims of authorized conduct. Current-use rights/admission for already-returned evidence is a separate qualified decision."
+      ],
+      "owner_paths": [
+        "existing: policy-engine/src/polisyos/foundry/methods/catalog/causal/optimal_design.py",
+        "existing: policy-engine/src/polisyos/foundry/methods/catalog/causal/protocols.py",
+        "existing: policy-engine/src/polisyos/ir/analytics/experiment_plan.py",
+        "existing: policy-engine/src/polisyos/runtime/quality/acquisition_planner.py",
+        "existing: policy-engine/src/polisyos/scientist/orchestration/workflows/causal_full.py"
+      ],
+      "canonical_write_candidates": [
+        "policy-engine/src/polisyos/foundry/methods/catalog/causal/optimal_design.py",
+        "policy-engine/src/polisyos/foundry/methods/catalog/causal/protocols.py",
+        "policy-engine/src/polisyos/ir/analytics/experiment_plan.py"
+      ],
+      "read_only_mechanism_anchors": [
+        "policy-engine/src/polisyos/runtime/quality/acquisition_planner.py",
+        "policy-engine/src/polisyos/scientist/orchestration/workflows/causal_full.py"
+      ],
+      "deliverable": "Extend existing CausalExperimentDesigner/ExperimentPlan and native acquisition/causal workflow to produce a versioned feasible study candidate discriminating decision-relevant rival explanations, with aligned sampling/assignment/measurement/analysis/stopping and actual result-return binding. Identifiability, finite-sample estimability and decision relevance remain distinct. Numeric EVSI is conditional, separate from compute VOI; no autonomous external study executor.",
+      "positive": "An independently specified observationally equivalent model pair yields a feasible distinguishing design; a controlled owner-produced returned result reaches fresh claim consumer and changes only justified scope. A decision-equivalent alternative avoids unnecessary study; no operative world/posterior mutation without actual authorization.",
+      "adversarial": "Uninformative repeated query, single-graph fallback intervention list, off-target receipt, adaptive unadjusted looks, mismatched target, fabricated permission or missing null outcomes cannot establish discriminating evidence. Current valid authorization for a different protocol/site, revoke before dispatch, or omitted decision-bearing basis filled by designer defaults cannot support the affected protected action or grounded numeric claim; explicit hypothetical scenarios remain candidates. Generic authorization falsifier: keep the grant valid and descriptive markers intact but change any native required operation facet (including recipient, population or intervention) outside its coverage, or add a new required facet. Actual owner coverage must fail; lawful bounded use of already-returned evidence is evaluated separately, not automatically erased.",
+      "removal": "Remove actual discrimination or design-analysis-result/bridge binding while keeping study fields; oracle/consumer fails. Removing EVSI does not block a justified bounded acquisition route.",
+      "surface": "Existing frontier/Cycle Board/reviewer dossier, API and authorized Atlas/document projection resolve actual native result, assumptions, observation cutoff, uncertainty, omitted alternatives and candidate/external-act boundaries.",
+      "resource_locks": [
+        "write:native-causal-study-design",
+        "resource:selected-method/{profile}"
+      ],
+      "canonical_lease_keys": [
+        "write:native-causal-study-design",
+        "resource:selected-method/{profile}"
+      ],
+      "migration": "Legacy single-graph ExperimentPlan stays scoped; do not backfill rivals, preregistration, decision relevance or external authority.",
+      "workstream": "DES",
+      "detail": "workstreams/07-productive-policy-design.md",
+      "depends_on": [
+        "P0-ACCEPT",
+        "DES-04",
+        "CNT-06",
+        "CAP-01"
+      ],
+      "dependency_stage_overrides": {
+        "DES-04": "interface_agreement",
+        "CNT-06": "interface_agreement",
+        "CAP-01": "interface_agreement"
+      },
+      "genuine_external_inputs": [
+        "Actual study permission/conduct/source rights and returned empirical evidence are external for their respective claims; internal design, analysis, adapter and consumer are engineering work. WP-01/02 activation remains independent of this plan and E02 acceptance."
+      ],
+      "technical_lifecycle_ref": "solutions/15-technical-method-lifecycle.md#TP02",
+      "runtime_capability_status": "not_established_by_static_planning_review",
+      "conditional_composition_dependencies": [
+        {
+          "task": "DEB-13",
+          "when": "A numeric scientific EVSI claim is selected; do not require for justified nonnumeric/bounded designs.",
+          "required_stage": "actual_qualified_result"
+        }
+      ]
     }
   ]
 }

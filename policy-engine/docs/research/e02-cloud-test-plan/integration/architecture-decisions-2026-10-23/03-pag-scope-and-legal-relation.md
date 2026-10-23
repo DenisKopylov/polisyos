@@ -1,0 +1,51 @@
+# PAG — useful candidate mathematics without legal-authority substitution
+
+Status: G architecture selection for the pending PAG request, not a legal determination or code acceptance. S0-K06 and AD01–06 remain unchanged. All new semantic probes are UNRUN.
+
+## Decision and rejected alternatives
+
+**Separate permission to perform an operation, conditional mathematical output, and permission to rely on/publish a policy claim.** Permit the candidate computation over interpretable, lawfully usable inputs under declared uncertainty about the policy-level legal relation. Preserve the existing protected refusal when that relation is not established. Implement the candidate channel through [R4](04-conditional-transport-diagnostic.md), using existing graph, solver, result, Lex and claim-lifecycle owners.
+
+Reject moving the legal gate after an already-authoritative result, replacing it with `transport_permitted=True`, treating absent legal evidence as absence of legal constraints, disabling data/access gates for candidate mode, and blocking all mathematics merely because the policy-level relation is unknown. No new legal platform, universal legal parser or sovereign permission issuer is required for E02.
+
+## Three planes and their actual consumers
+
+| Plane | Decision owner | Positive predicate | Missing/negative outcome |
+|---|---|---|---|
+| Read/process/disclose the selected inputs and derived artifacts | Existing resource, tenant, privacy/licence and access owners | Applicable purpose/actor/source policy admits this actual operation | Refuse the affected read/compute/disclosure; candidate label is no exemption |
+| Compute a conditional graph/query result | Foundry/Scientist graph resolver and solver | Known graph grammar, exact selected bytes/profile, query/context binding, algorithm domain and budget | Typed candidate unavailable/error/partial; do not fabricate an estimand or graph |
+| Transport/recommend/publish under a legally operative relation | Lex verification plus existing governance/claim owner | Verified source relation for this operation, scope, time, graph/query/claim and accountable issuer | Keep protected refusal/review; no claim of legal permission or prohibition follows merely from missing verification |
+
+An unknown jurisdiction may be carried as an explicit assumption in candidate work. A prohibition or unavailable consent for processing the actual source is different: it constrains that action. Pure graph mathematics over authorized/synthetic inputs can continue independently. Recheck access at queue admission, worker materialization and output/cache read, following AD03; an earlier check cannot license a later revoked access. Concrete integration anchors are `runtime/http/authorization.py`, `resource_binding.py`, `execution_policy.py`, and `services/control/run_lifecycle.py`; their presence is not proof that the new graph route is wired. The implementer must name the actual operation-specific predicate/receipt and subject at each seam. A source relation refusal is not that predicate. A dataset-use/issuer bridge that remains missing is `not_established`; demonstrate the candidate path with permitted synthetic/manual inputs instead of inventing a live grant.
+
+## Graph and scientific semantics
+
+The graph is the selected named model/identification-plan artifact, including graph type, endpoint semantics, selected profile, provenance and relevant context. Existing candidate construction from variable names/context differences remains a heuristic and cannot masquerade as the B33 named-model bridge. Bind manual/generated input as manual/generated; do not claim fit, owner approval, calibration or currentness from successful execution.
+
+Preserve DAG, ADMG, CPDAG and PAG semantics according to the actual supported owner types. At the question source there is no MAG enum: a no-selection MAG can use a losslessly checked ADMG representation; `MGRAPH` is the missingness graph and is not MAG. A PAG is not an arbitrary DAG with uncertain arrows. Preserve compelled directions and latent/confounding/selection semantics. A sampled orientation or consistent extension is a conditional hypothesis only; acyclicity alone is insufficient to establish membership of the graph's equivalence class. The existing binary-orientation sampler destroys some compelled arrowheads and latent-confounding relations; calling it a heuristic does not repair that loss. It is not an admitted producer for the new diagnostic. Use the bounded validated-family route in [06](06-validated-partial-graph-profile.md); if its checks cannot establish membership, withhold that member/result. An independently declared alternative graph may be explored as a separate hypothesis with explicit changed assumptions, never as a completion of the original PAG. Never present a complete-PAG result from a subset of members.
+
+Scientific extension route: reuse the existing graph/method dispatch and admit a native partial-graph identification/transport algorithm with explicit graph/query domain, soundness/completeness claim, version, tests and proof trace. Do not introduce a second graph representation or dispatcher solely for a new paper. Theoretical completeness for observational PAG identification is not completeness for transport across source/target populations. A new backend must declare precisely which operation it implements.
+
+The distinction is substantive: [Jaber et al., ICML 2019](https://proceedings.mlr.press/v97/jaber19a.html) supplies a complete identification algorithm under a PAG; [Jaber et al., NeurIPS 2022](https://proceedings.neurips.cc/paper_files/paper/2022/hash/17a9ab4190289f0e1504bbb98d1d111a-Abstract-Conference.html) addresses conditional effect identification. These are possible future algorithm-owner inputs, not evidence that PolicyOS's sampled cross-domain solver implements either theorem. No new complete algorithm is a prerequisite for the narrow honest diagnostic selected here.
+
+## Operative relation intake and time
+
+Preserve the existing `require_legal_source_relation_verification` refusal and its Lex consumer. At the question pin that helper always raises: a positive relation producer/verifier chain is not established by this packet. A future positive relation must resolve an authenticated source/provision and competent issuer/verifier; bind jurisdiction, subject, action/purpose, claim/graph/query scope, applicable conditions, source version, effective/valid interval, verification basis and current status. A signed blob is an input to verification, not proof that its issuer is competent or its interpretation fits this claim. LLM extraction/interpretation remains a candidate.
+
+Do not invent a positive producer while real operative sources are absent. The implementer may wire existing independently verified evidence or propose the missing receipt/verification bridge where its law can actually be specified; this architecture supplies no legal-positive evidence. When the source is unresolved, deliver the exact minimum missing input and a falsifier rather than a blanket instruction to obtain “legal approval”. If two valid sources conflict, preserve the contested relation and authority limitation; do not let freshness or highest numeric score settle legal precedence.
+
+Keep legal effect time, publication/version time, observation/receipt time, verification/admission time and claim reaction time distinct. Late evidence creates an append-only receipt and new current evaluation. An as-known-at historical replay excludes information not then received; an expressly retrospective valid-time analysis may include the late evidence and says so. Neither silently rewrites the original signed case or backdates admission.
+
+Expiry, revocation or supersession revalidates affected standing claims through existing custody/invalidation owners. A cached mathematical result may remain reproducible, while its use/disclosure eligibility changes. Reuse requires matching graph/query/context/solver identity and current applicable access; no cached candidate or historical legal-positive receipt bypasses revalidation. A genuine later legal positive is separately verified and incorporated by a new result/claim generation, not by mutating the old candidate's status.
+
+## Required bridges and acceptance
+
+The actual implementation must connect selected graph/profile → permitted solver attempt → persisted result/report → fresh consumer/API/audit projection, with the existing protected Lex refusal carried throughout. R4 names mandatory consumers. B33's named model bridge is a separate property; candidate diagnostics do not close B31/B33/B161/B214.
+
+1. Known lawful graph/query under missing policy-level legal relation produces a substantive candidate result; protected result remains `UNSUPPORTED/NONE/false`, exact refusal and expert review. The output must still be useful enough to distinguish different graph hypotheses.
+2. Change topology with identical node names/marginals. Binding and conditional result/proof change as required; a name-only certificate fails. Change endpoint directions/confounding while retaining marker fields; invalid projections cannot pass the stronger graph profile.
+3. Missing source, forged relation, wrong scope/jurisdiction/time, expired verifier basis, caller Boolean, and source/target swap cannot improve protected status. No claim that absence proves prohibition.
+4. Deny compute access while permitting abstract candidate work elsewhere: the denied source is not materialized. Revoke during work: prevent further protected reads/disclosure; record actual cancellation/completion state, without pretending a native kernel was forcibly cancelled.
+5. Receive genuinely verified later evidence; current evaluation can progress through the existing owner while the historical refused result and original replay remain intact. A fake late event or a backdated assertion cannot wake protected authority.
+
+Pattern pass: P01/P02/P04/P05/P07/P08/P10/P14/P15/P27/P29/P31/P32/P37/P38/P40. This is the existing candidate/authority class repaired at the solver boundary. Positive legal relation may remain `producer_missing`/`artifact_missing`/`verification_missing`; candidate diagnostic `bridge_missing` is independently implementable. No SDD amendment is needed for this selection.

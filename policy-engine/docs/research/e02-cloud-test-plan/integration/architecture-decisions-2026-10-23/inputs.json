@@ -1,0 +1,61 @@
+{
+  "schema": "policyos.e02.g_architecture_inputs.20261023.v1",
+  "question_commit": "f12fb9895a4009ce77828554f4c5c18d83e6ec15",
+  "question_tree": "42416d2873f92776f021f5e00d43bf3be98e0d41",
+  "integration_entry": "40edeb635417124366da0237e20e8447d7c5199b",
+  "packet_directory": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/g-review-questions-20261023",
+  "packet_member_sha256": {
+    "Q1-override-owner-contract.md": "1dfac4f62aaaf3710466669f70054e7a1a809e9f0706c4eacd50d198a2061a21",
+    "Q2-version-compatibility.md": "cd65adde8932fab365ce8960cfcfb8131544310ceba2fa0c31fc2e1df03cdadd",
+    "README.md": "e6bd62fde2a55b7005054e48f5b9199d39e76f62cd157bb2769e79bd7e3651bb",
+    "existing-pending-questions.md": "34271a96f4b36f435cd810f0952edc7744338ba7795abed826afebd74144dea8",
+    "packet.json": "2f9535a75693cc3fedfb96f01b5d659309404d07f1d888567105f6c673ac6e87",
+    "remaining-93-callsite-census.csv": "246b828c4a304e61c605f5086f3aca394b4dd21975f6777f64d44cca83422a3a",
+    "required-inputs.md": "90c5d19308db9d5e011a6c253c19820c851ae5b5fdf01072e86754bfa700e72f"
+  },
+  "census": {
+    "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/g-review-questions-20261023/remaining-93-callsite-census.csv",
+    "sha256": "246b828c4a304e61c605f5086f3aca394b4dd21975f6777f64d44cca83422a3a",
+    "base": "5b5871c4e5e1f682a7526e2c5c3b97d0b043ce75",
+    "rows_recomputed": 93,
+    "caller_paths_recomputed": 53,
+    "source_relation_rows": {
+      "HEAD5b match": 73,
+      "RAW candidate postimage; not Git HEAD": 12,
+      "current worktree differs from HEAD5b": 8
+    },
+    "committed_source_files_rehashed": 43,
+    "dirty_and_raw_bytes_verified": false,
+    "larger_195_file_134_call_denominator": "author_reported_not_recomputed_in_this_review"
+  },
+  "r4": {
+    "receipt_path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/decisions/g-choice-conditional-transport-diagnostics-20261021.json",
+    "receipt_sha256": "f93238a3d431b1abb4e7d429288121310fb4ed4f6c3b8b43aaec9e7a6fc2178a",
+    "proposal_path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/decisions/g-choice-conditional-transport-diagnostics-20261021.md",
+    "proposal_sha256": "45c15676ef9dd76171b86af43bbb5b1110964217a65a5b6f2f24886d0fb3c090",
+    "pin_base": "2536eb6dbc946ce5000d2b2da246d7e071b037fc",
+    "seed_arrays": [
+      "consumer_adoption_set",
+      "required_public_surface_documentation",
+      "required_verification_test_set"
+    ],
+    "seed_paths_rehashed": 33,
+    "extension_denominator": {
+      ".py": 26,
+      ".json": 3,
+      ".md": 4
+    },
+    "runtime_outputs": "author_reported_not_reexecuted_or_independently_rehashed_here"
+  },
+  "accepted_architecture_unchanged": [
+    "b7adafe89423bc6906a5fb86c38e579a381ad2ee",
+    "798bd1ab9646378f49fd127b3f04ebe71aca67d2",
+    "d40bca270ef5c456e8233196e4d8d65e099777a7"
+  ],
+  "checks_executor": "G root (independent stdlib/Git readback after research-agent checks)",
+  "checks_scope": "bounded document hashes, CSV partition, 43 source blobs and 33 companion blobs; no product execution",
+  "code_acceptance": false,
+  "closure_ids": [],
+  "runtime_checks": "UNRUN",
+  "system_design_decisions_modified": false
+}

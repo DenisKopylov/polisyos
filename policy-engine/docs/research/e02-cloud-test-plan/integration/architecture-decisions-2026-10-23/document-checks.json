@@ -1,0 +1,88 @@
+{
+  "scope": "documentation only; receipt excludes its own bytes",
+  "integration_entry": "40edeb635417124366da0237e20e8447d7c5199b",
+  "question_commit": "f12fb9895a4009ce77828554f4c5c18d83e6ec15",
+  "checks": {
+    "json_parse": "PASS",
+    "relative_markdown_targets": "PASS",
+    "trailing_whitespace": "PASS",
+    "input_packet_sha256": "PASS",
+    "csv_ordinal_partition": "PASS",
+    "deciding_review_output_copies": "PASS"
+  },
+  "relative_targets_checked": 23,
+  "file_type_denominator_excluding_this_receipt": {
+    ".md": 15,
+    ".json": 2
+  },
+  "files_excluding_this_receipt": 17,
+  "bytes_excluding_this_receipt": 171015,
+  "csv_lane_sizes": {
+    "A-overrideable": 70,
+    "B-constant": 14,
+    "C-central": 5,
+    "D-generic-known": 2,
+    "E-owner-unresolved": 2
+  },
+  "research_assignments": [
+    "census-migration.md",
+    "custody-scope.md",
+    "pag-design.md",
+    "q1-owner.md",
+    "q2-versions.md",
+    "r4-diagnostic.md",
+    "sota-contracts.md"
+  ],
+  "review_outputs": [
+    "red-causal-r1.md",
+    "red-causal-r2.md",
+    "red-integration-r1.md",
+    "red-integration-r2.md",
+    "red-ir-r1.md",
+    "red-ir-r2.md"
+  ],
+  "review_normalization": "EOF surplus blank lines only; original deciding output preserved in ignored scratch",
+  "original_review_sha256": {
+    "red-causal-r1.md": "20cceee985ce74afadae049ba7f1f720d5dbb4766d59a015b3b23849907e8942",
+    "red-causal-r2.md": "0d051146e43c5484ae3909a5adde8c6ac34d152cb6012989896d95cc8ba29989",
+    "red-integration-r1.md": "0cb98f70b285852865635d90c3f31339bc6a3f56847fa2884bddc724ebe8a5c4",
+    "red-integration-r2.md": "9a5eeb41c9277f1f3cb2e706bb2859400e41ba1f58ed639596c156abbe0f0b64",
+    "red-ir-r1.md": "69afda7aef3795b4d86ac7658be0b895e010a7d90df5dd45c19754adef5943b0",
+    "red-ir-r2.md": "9bbe5c4a46511781e137d6093fa1a1096e3da41f60fcc2f33d95c85150aaa803"
+  },
+  "file_sha256": {
+    "01-ir-owner-contract.md": "566a8b50dd0443722612fc8dcdb4c9d62250744dd0e68b422efe1418ba14053b",
+    "02-ir-version-compatibility.md": "b4b31d4293384d9fb45651b94a5bd23309dfefcec4d74e04b9e6694a4013ce76",
+    "03-pag-scope-and-legal-relation.md": "51dbf9c81f2e7aeaf41e5547d731ccc68ff764b8a89d5c67bcdf9fa209b1fbdd",
+    "04-conditional-transport-diagnostic.md": "e6044d0f06b11a69d7763938c117e724250748d633240ba6aafdb11f6ba9ad9f",
+    "05-implementation-and-inputs.md": "7c2f1dec868cfe20f22757593b6cfe1729e127206c40028d52ed8af5a6e2cc00",
+    "06-validated-partial-graph-profile.md": "f3c503ad34715655f68b2b2241bd41a67e2bea9da9c07216c8ba4620e6b3c1bb",
+    "07-research-and-tradeoffs.md": "92e5703ec0e56d29c2d7d936202bd4eb20263030f2e1e80114b19498d514a7a9",
+    "08-review-and-final-disposition.md": "2580632cf8e0985b7b7c0c593e1d0bd3ced15dc6cedc064783be7d261908ac2c",
+    "README.md": "92e31025361aafc4d6823c83449f269ec3dcd638aa96e980d06bf30ef4e3afd9",
+    "callsite-disposition.json": "3a9a62c7e3adbaa7df5ef02f9b1dcbf87ad599b7b8186313dca2272d6f1f8c89",
+    "inputs.json": "69d4ab0fe73e9d7c08489a1fa9927921d08e0a1d32d6f5ac4c363eed82c1526d",
+    "reviews/red-causal-r1.md": "20cceee985ce74afadae049ba7f1f720d5dbb4766d59a015b3b23849907e8942",
+    "reviews/red-causal-r2.md": "0d051146e43c5484ae3909a5adde8c6ac34d152cb6012989896d95cc8ba29989",
+    "reviews/red-integration-r1.md": "d5eaed1612302025e037e46b0a71a02af3e0c655086ca984301aafdca5e9315a",
+    "reviews/red-integration-r2.md": "9a5eeb41c9277f1f3cb2e706bb2859400e41ba1f58ed639596c156abbe0f0b64",
+    "reviews/red-ir-r1.md": "69afda7aef3795b4d86ac7658be0b895e010a7d90df5dd45c19754adef5943b0",
+    "reviews/red-ir-r2.md": "9bbe5c4a46511781e137d6093fa1a1096e3da41f60fcc2f33d95c85150aaa803"
+  },
+  "source_and_companion_readback": "Prior root verification retained in unchanged inputs.json; dirty/RAW bodies and runtime outputs not verified",
+  "runtime_tests_imports_builds_installs": "UNRUN by user resource constraint",
+  "hook_exclusions": {
+    "pre_commit": [
+      "check-contrast",
+      "check-reduced-motion"
+    ],
+    "pre_push": [
+      "typecheck"
+    ],
+    "reason": "user-authorized docs-only/no-heavy-process work; no hook configuration change"
+  },
+  "code_acceptance": false,
+  "closure_ids": [],
+  "system_design_decisions_modified": false,
+  "publication_readback": "performed after commit/push; retained in ignored publication receipt"
+}

@@ -1,0 +1,71 @@
+{
+  "kind": "documentation_validation_only",
+  "baseline": "54035f83d9a0455e7245b3413e7ca4a8bab1991f",
+  "counts": {
+    "domains": 24,
+    "source_questions": 90,
+    "retained_questions": 84,
+    "merged_candidates": 6,
+    "covered_topic_observations": 119
+  },
+  "complete_set_checks": {
+    "candidate_accounting": "PASS",
+    "question_id_uniqueness": "PASS",
+    "all_121_task_ids_resolve": "PASS",
+    "index_matches_catalog": "PASS",
+    "cross_references_symmetric": "PASS",
+    "repository_reference_files_and_start_lines": "PASS",
+    "unique_repository_reference_locators": 621,
+    "local_navigation_links": 75,
+    "tasks_and_preferred_solutions_byte_unchanged": "PASS",
+    "system_design_decisions_unchanged": "PASS",
+    "product_paths_unchanged": "PASS",
+    "git_diff_check": "PASS",
+    "branch_attachment": "PASS"
+  },
+  "unchanged_inputs_sha256": {
+    "policy-engine/docs/plans/active/post-e02-r9-unified-implementation/tasks.json": "f228da89ffc911a0a25844401f5ad231c8ec34289b2d670dc92d3a1ee18ed7fc",
+    "policy-engine/docs/plans/active/post-e02-r9-unified-implementation/solutions/preferred-solutions.json": "f428202c6bc5f4324d45755dc3100e5f63c19bb18d3a07b50ef1f79161a726ac"
+  },
+  "review_reports": [
+    {
+      "path": "policy-engine/_build/post-e02-r18-20261023/agents-review-a.json",
+      "sha256": "d7c06394ad3b61bcedece3ac3f38c87caa4775ea39fe7cf858d3752e511785d5"
+    },
+    {
+      "path": "policy-engine/_build/post-e02-r18-20261023/agents-review-b.json",
+      "sha256": "0454cea6aa7e5b371affc8c4a0000e0b5b36de1f9fd22a53458a4299cf8d6186"
+    },
+    {
+      "path": "policy-engine/_build/post-e02-r18-20261023/final-inventory-review.json",
+      "sha256": "f22dd12b3ed000b2baa1dc147674c11026d8c134329063953aca5124d21ecab2"
+    }
+  ],
+  "document_sha256": {
+    "policy-engine/docs/plans/active/post-e02-r9-unified-implementation/research/full-lifecycle-question-inventory-r18/README.md": "d28299f48a2d606c0d4ae486609290627fab0d67a25aac9287c73f30de692144",
+    "policy-engine/docs/plans/active/post-e02-r9-unified-implementation/research/full-lifecycle-question-inventory-r18/covered-and-boundaries.md": "75e980800cbde31888a916bca7849633d26705fbec8e4e8431efe61345eaf2a3",
+    "policy-engine/docs/plans/active/post-e02-r9-unified-implementation/research/full-lifecycle-question-inventory-r18/index.md": "c3586697285fb93a070966655c704b49d76fa6f71fcea58d8d75e852a5437436",
+    "policy-engine/docs/plans/active/post-e02-r9-unified-implementation/research/full-lifecycle-question-inventory-r18/coverage.md": "661477a194de978d89c11eca91ce41dbc7d68b22ff7c406748096a4fa8d7a8aa",
+    "policy-engine/docs/plans/active/post-e02-r9-unified-implementation/research/full-lifecycle-question-inventory-r18/review.md": "43e8106a5fa1d2374c52d21a4da860421e26ee85bcbecda547cc3812f4120174",
+    "policy-engine/docs/plans/active/post-e02-r9-unified-implementation/research/full-lifecycle-question-inventory-r18/catalog.json": "9a24293a904699e2f244eedda890afb20c30006c5f1b11cbdbb4f62046c192e3",
+    "policy-engine/docs/plans/active/post-e02-r9-unified-implementation/README.md": "6707a7ff611a1671fc758a4f476d3dc2611a67370e95190653efcf7e01321b6d"
+  },
+  "limits": [
+    "Document fragments are descriptive locators; not all fragment slugs are machine-validated.",
+    "Existence of a reference is not validation of its semantic claim; source interpretation is reviewed by humans/agents.",
+    "Covered-topic observations overlap and are not a count of distinct capabilities.",
+    "No proof of absence of all future unknowns, no repository-wide runtime audit."
+  ],
+  "product_execution": {
+    "tests": "UNRUN",
+    "imports_builds_installs": "UNRUN",
+    "production_access": "UNRUN"
+  },
+  "acceptance": false,
+  "closure_ids": [],
+  "publication_hooks": {
+    "check-contrast": "UNRUN per user no-heavy-process instruction",
+    "check-reduced-motion": "UNRUN per user no-heavy-process instruction",
+    "typecheck": "UNRUN per user no-heavy-process instruction"
+  }
+}

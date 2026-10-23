@@ -1058,8 +1058,19 @@ def test_dataframe_payload_roundtrip_preserves_entire_table(real_fetch_owner):
     owner.payload["value"] = frame
     executed = _execute(owner)
     assert getattr(executed, "fetch_receipt_ref", None) is not None
-    from polisyos.fabric.retrieval.custody import resolve_persisted_fetch
+    from polisyos.core.artifacts import load_core_json_artifact
+    from polisyos.fabric.retrieval.custody import (
+        FabricFetchReceipt,
+        _encode_payload,
+        resolve_persisted_fetch,
+    )
 
+    receipt = FabricFetchReceipt.model_validate(
+        load_core_json_artifact(owner.store, executed.fetch_receipt_ref)
+    )
+    assert receipt.payload_encoding == "pandas_arrow_ipc"
+    encoded, _, _ = _encode_payload(frame)
+    assert owner.store.get_bytes(receipt.result.data) == encoded
     resolved = resolve_persisted_fetch(
         store=owner.store,
         fetch_receipt_ref=executed.fetch_receipt_ref,
@@ -1067,6 +1078,70 @@ def test_dataframe_payload_roundtrip_preserves_entire_table(real_fetch_owner):
         providers=owner.providers,
     )
     pd.testing.assert_frame_equal(resolved.result.data, frame)
+
+
+def test_arrow_table_payload_roundtrip_preserves_entire_table(real_fetch_owner: Any) -> None:
+    import pyarrow as pa
+
+    owner = real_fetch_owner
+    table = pa.Table.from_pylist(owner.rows)
+    owner.payload["value"] = table
+    executed = _execute(owner)
+    assert getattr(executed, "fetch_receipt_ref", None) is not None
+    from polisyos.core.artifacts import load_core_json_artifact
+    from polisyos.fabric.retrieval.custody import (
+        FabricFetchReceipt,
+        _encode_payload,
+        resolve_persisted_fetch,
+    )
+
+    receipt = FabricFetchReceipt.model_validate(
+        load_core_json_artifact(owner.store, executed.fetch_receipt_ref)
+    )
+    assert receipt.payload_encoding == "arrow_ipc"
+    encoded, _, _ = _encode_payload(table)
+    assert owner.store.get_bytes(receipt.result.data) == encoded
+    resolved = resolve_persisted_fetch(
+        store=owner.store,
+        fetch_receipt_ref=executed.fetch_receipt_ref,
+        catalog=owner.graph,
+        providers=owner.providers,
+    )
+    assert isinstance(resolved.result.data, pa.Table)
+    assert resolved.result.data.equals(table)
+    assert resolved.result.data.schema.equals(table.schema, check_metadata=True)
+    assert resolved.replayed_result.data.equals(table)
+
+
+def test_json_object_payload_roundtrip_preserves_complete_mapping(real_fetch_owner: Any) -> None:
+    owner = real_fetch_owner
+    data = {"records": owner.rows}
+    owner.payload["value"] = data
+    executed = _execute(owner)
+    assert executed.fetch_receipt_ref is not None
+    from polisyos.core.artifacts import load_core_json_artifact
+    from polisyos.fabric.retrieval.custody import (
+        FabricFetchReceipt,
+        _encode_payload,
+        resolve_persisted_fetch,
+    )
+
+    receipt = FabricFetchReceipt.model_validate(
+        load_core_json_artifact(owner.store, executed.fetch_receipt_ref)
+    )
+    assert receipt.payload_encoding == "canonical_json"
+    encoded, media_type, encoding = _encode_payload(data)
+    assert media_type == "application/json"
+    assert encoding == "canonical_json"
+    assert owner.store.get_bytes(receipt.result.data) == encoded
+    resolved = resolve_persisted_fetch(
+        store=owner.store,
+        fetch_receipt_ref=executed.fetch_receipt_ref,
+        catalog=owner.graph,
+        providers=owner.providers,
+    )
+    assert resolved.result.data == data
+    assert resolved.replayed_result.data == data
 
 
 def _copy_artifact(store, original_ref, payload, *, inputs=None, profiled=True):

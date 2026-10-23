@@ -42,6 +42,7 @@ _BINDING_KIND = "fabric.catalog_fetch_binding"
 _PAYLOAD_KIND = "fabric.fetch_payload"
 _JSON = "application/json"
 _ARROW = "application/vnd.apache.arrow.stream"
+_FetchPayloadEncoding = Literal["canonical_json", "pandas_arrow_ipc", "arrow_ipc"]
 
 
 class FabricFetchCustodyError(ValueError):
@@ -61,7 +62,7 @@ class FabricFetchReceipt(BaseModel):
     used_plan: FetchPlan
     request: FetchRequest
     result: FetchResult[core_artifacts.ArtifactRef]
-    payload_encoding: Literal["canonical_json", "pandas_arrow_ipc", "arrow_ipc"]
+    payload_encoding: _FetchPayloadEncoding
     catalog_binding_ref: core_artifacts.ArtifactRef
     authority_scope: Literal["catalog_selection_and_returned_result_custody"] = (
         "catalog_selection_and_returned_result_custody"
@@ -104,25 +105,26 @@ def _bind_plan(catalog: object, plan: FetchPlan) -> catalog_api.CatalogFetchBind
         raise FabricFetchCustodyError("catalog_fetch_target_not_admitted") from exc
 
 
-def _encode_payload(data: object) -> tuple[bytes, str, str]:
+def _encode_payload(data: object) -> tuple[bytes, str, _FetchPayloadEncoding]:
     import pandas as pd
     import pyarrow as pa
 
-    if isinstance(data, (pd.DataFrame, pa.Table)):
-        pandas_frame = isinstance(data, pd.DataFrame)
-        table = pa.Table.from_pandas(data, preserve_index=True) if pandas_frame else data
-        sink = pa.BufferOutputStream()
-        with pa.ipc.new_stream(sink, table.schema) as writer:
-            writer.write_table(table)
-        return (
-            sink.getvalue().to_pybytes(),
-            _ARROW,
-            "pandas_arrow_ipc" if pandas_frame else "arrow_ipc",
-        )
-    return canon.to_canonical_bytes(data, spec=_CANON), _JSON, "canonical_json"
+    if isinstance(data, pd.DataFrame):
+        table = pa.Table.from_pandas(data, preserve_index=True)
+        encoding: _FetchPayloadEncoding = "pandas_arrow_ipc"
+    elif isinstance(data, pa.Table):
+        table = data
+        encoding = "arrow_ipc"
+    else:
+        return canon.to_canonical_bytes(data, spec=_CANON), _JSON, "canonical_json"
+
+    sink = pa.BufferOutputStream()
+    with pa.ipc.new_stream(sink, table.schema) as writer:
+        writer.write_table(table)
+    return sink.getvalue().to_pybytes(), _ARROW, encoding
 
 
-def _decode_payload(data: bytes, encoding: str) -> object:
+def _decode_payload(data: bytes, encoding: _FetchPayloadEncoding) -> object:
     if encoding == "canonical_json":
         return canon.from_canonical_bytes(data)
     import pyarrow as pa
@@ -137,6 +139,7 @@ def _validate_payload(result: FetchResult[Any]) -> None:
 
     data = result.data
     count = None
+    scan_data: object
     if isinstance(data, pd.DataFrame):
         count = len(data)
         scan_data = {
@@ -185,7 +188,7 @@ def _require_source_agreement(
     *,
     result: FetchResult[Any],
     raw: bytes,
-    encoding: str,
+    encoding: _FetchPayloadEncoding,
     replayed: FetchResult[Any],
 ) -> None:
     _validate_payload(replayed)

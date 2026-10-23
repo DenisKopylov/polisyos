@@ -51,7 +51,7 @@
     "Q2-version-compatibility.md": "cd65adde8932fab365ce8960cfcfb8131544310ceba2fa0c31fc2e1df03cdadd",
     "required-inputs.md": "90c5d19308db9d5e011a6c253c19820c851ae5b5fdf01072e86754bfa700e72f",
     "existing-pending-questions.md": "34271a96f4b36f435cd810f0952edc7744338ba7795abed826afebd74144dea8",
-    "remaining-93-callsite-census.csv": "d39c84fe4a6769bb5fe18ef12c864c2d8290c1a859a2e13575f32f4a90b2c711"
+    "remaining-93-callsite-census.csv": "246b828c4a304e61c605f5086f3aca394b4dd21975f6777f64d44cca83422a3a"
   },
   "runtime_falsifiers": "UNRUN",
   "schema": "e02.g-review-questions.20261023.v1",
@@ -87,5 +87,12 @@
       "sha256": "52ad64047f6ed12f3c51cf04ecd1eb018ae97899706ac23e3d6601602b0514b2",
       "availability": "local ignored RAW; not a published product source or live-currentness receipt"
     }
-  ]
+  ],
+  "publication_text_normalization": {
+    "path": "remaining-93-callsite-census.csv",
+    "before_sha256": "d39c84fe4a6769bb5fe18ef12c864c2d8290c1a859a2e13575f32f4a90b2c711",
+    "after_sha256": "246b828c4a304e61c605f5086f3aca394b4dd21975f6777f64d44cca83422a3a",
+    "semantic_rows_unchanged": 93,
+    "cause": "Git canonical LF normalization, not a source or decision change"
+  }
 }

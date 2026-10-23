@@ -1,0 +1,248 @@
+{
+  "schema": "policyos.e02.implementation_handoff.v1",
+  "receipt_revision": 1,
+  "unit": "LOCAL",
+  "branch": "codex/e02-unified-local-20261009",
+  "source_freeze": false,
+  "closure_ids": [],
+  "predicate_basis": "recomputed",
+  "source_context": "Checks used the canonical composed working tree with declared peer E02 changes; they qualify the named hashes and context, not the entire committed tree or final freeze.",
+  "raw_availability": "Ignored RAW deciding outputs retained locally. If inaccessible to G, replay or transfer them by an agreed ordinary channel.",
+  "formal_G_acceptance": "pending",
+  "slice": "static-unit-definition-basis-bridge",
+  "slice_base_sha": "3f53562bd242fb7944462be1f06704fa2220e9f2",
+  "implementation_commits": [
+    "b376f78ea82dda7ffceed89ad432135a7c17bf6e"
+  ],
+  "candidate_tree_sha": "fc5f011ac0bfc4b20b43af197ed816322c3ea65f",
+  "candidate_parents": [
+    "3f53562bd242fb7944462be1f06704fa2220e9f2"
+  ],
+  "changed_paths": [
+    {
+      "path": "policy-engine/src/polisyos/fabric/connectors/types/_units_core.py",
+      "sha256": "91a241ec6623c1ab6c6cf3e9bfceb7a60b3b7024418860da43bc357af145694f"
+    },
+    {
+      "path": "policy-engine/src/polisyos/data_forge/domains/catalog/knowledge/overlay.py",
+      "sha256": "f6c108517d9c5c1e5ef6564bd2311b43817ced36b846c7f202945139a68b4cf0"
+    },
+    {
+      "path": "policy-engine/tests/unit/fabric/connectors/types/test_units_core.py",
+      "sha256": "3612b3b7e3ba35691c6c551b319e236298c30e21a5a60ba9ea894a18f664b083"
+    },
+    {
+      "path": "policy-engine/tests/unit/data_forge/domains/catalog/knowledge/test_overlay.py",
+      "sha256": "9a356916468e36cf3fcf3a55bc2faa5d2ab2efbbd56f4587f6acc6ec55e43ecc"
+    },
+    {
+      "path": "policy-engine/tests/unit/runtime/quality/test_value_gate.py",
+      "sha256": "e92bc1856cdcd1743acd3f7df7375ae17a5880c85a05b6267c3fd7addbfb6b41"
+    },
+    {
+      "path": "policy-engine/src/polisyos/data_forge/domains/catalog/knowledge/README.md",
+      "sha256": "5f4467229e46d7c06963de417c86e95fd291fa7e22fc1bdc1fd44ae74fa625a5"
+    },
+    {
+      "path": "policy-engine/release-fragments/unreleased/2026-10-23-e02-static-unit-bridge.toml",
+      "sha256": "35f200596756b6d31c1dc267c18dd00fec311e16d7ed361f14f9dcf1b46073ae"
+    }
+  ],
+  "selected_profile": {
+    "python": "3.14.3",
+    "backend": "controlled DuckDB acquisition overlay / local CAS / fresh N8 consumer",
+    "inputs": "Four synthetic km source rows with fixed code-defined multiplicative SI conversion; candidate_fixture_only",
+    "assignment_provenance": "consumer_asserted",
+    "owner_assignment_status": "owner_assignment_unresolved",
+    "source_time_status": "not_established",
+    "production_value_eligible": false
+  },
+  "property": {
+    "statement": "Existing raw-to-observation conversion resolves a compatible fixed multiplicative unit from an immutable complete definition snapshot and persists evidence bound to that basis; definition or persisted projection tampering refuses before the converted observation can be accepted.",
+    "chain": [
+      "Fabric existing fixed unit definitions and parser seam",
+      "DataForge derive_canonical_observations fixed conversion",
+      "persisted acquisition overlay and unit-transform evidence",
+      "fresh N8 generation consumer recomputes projection",
+      "existing value-gate candidate limitation surface"
+    ],
+    "negative_controls": [
+      "full factor/prefix/glyph/metadata definition drift",
+      "transient mutation restored before resolver return (ABA)",
+      "unsupported offset/dynamic/incompatible units remain refused",
+      "fresh-reader multiplier or definition-content tampering refuses",
+      "profiled production sidecar drift refuses without overlay writes"
+    ],
+    "scope_note": "A fixed arithmetic bridge is not a claim of semantic equivalence of policy outcomes, causal calibration or full B31 uncertainty reconciliation."
+  },
+  "checks": [
+    {
+      "outcome": "PASS",
+      "counts": {
+        "passed": 140,
+        "failed": 0,
+        "errors": 0,
+        "skipped": 0
+      },
+      "command": {
+        "cwd": "/Users/deniskopylov/.codex/worktrees/e02-unified-local-20261009/polisyos/policy-engine",
+        "python": "/Users/deniskopylov/.codex/worktrees/e02-unified-local-20261009/polisyos/policy-engine/.venv/bin/python",
+        "argv": [
+          "-q",
+          "-p",
+          "no:cacheprovider",
+          "--basetemp=/Users/deniskopylov/.codex/worktrees/e02-unified-local-20261009/polisyos/policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/root-active-resume-20261023-r2/cache-s3-canonical-qualified-replay-r1/pytest-data",
+          "--junitxml=/Users/deniskopylov/.codex/worktrees/e02-unified-local-20261009/polisyos/policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/root-active-resume-20261023-r2/cache-s3-canonical-qualified-replay-r1/junit.xml",
+          "tests/unit/fabric/connectors/test_cache_system.py",
+          "tests/unit/fabric/connectors/test_registry.py",
+          "tests/unit/data_forge/domains/catalog/knowledge/test_overlay.py::test_activation_refuses_profiled_production_sidecar_drift_without_overlay_writes",
+          "tests/unit/data_forge/domains/catalog/knowledge/test_overlay.py::test_epoch_statement_readback_recanonicalizes_typed_native_bytes",
+          "tests/unit/runtime/quality/test_value_gate.py::test_n8_fresh_consumer_reads_recomputed_fixed_unit_owner_projection"
+        ],
+        "source_mode": "canonical source bytes compiled directly; no overlay and no pyc reuse for repository files"
+      },
+      "source_frame": {
+        "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/root-active-resume-20261023-r2/hte-ui-origin-root-application-r1/full-composed-source-frame.json",
+        "sha256": "7f2665ea8af2a1aa4ba2a88b30ac074d5aa64e503eafbc2aa47053616c2d7cfe"
+      },
+      "runner": {
+        "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/root-active-resume-20261023-r2/cache-s3-canonical-qualified-replay-r1/run.py",
+        "sha256": "566cd6a98af3136d3771c80b35c0b69379db712c39597d367c1e0ee659c661c5"
+      },
+      "output": {
+        "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/root-active-resume-20261023-r2/cache-s3-canonical-qualified-replay-r1/execution/stdout",
+        "sha256": "db6cb478cc0911e2ce6aedb04ccb8fa965534542e4d7a87bf0057176f2114903"
+      },
+      "stderr": {
+        "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/root-active-resume-20261023-r2/cache-s3-canonical-qualified-replay-r1/execution/stderr",
+        "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+      },
+      "receipt": {
+        "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/root-active-resume-20261023-r2/cache-s3-canonical-qualified-replay-r1/execution/receipt.json",
+        "sha256": "02cf47491dce0b8ef47bfed08f2c9b20e7f3ddda3b78c33b548e1220c88b2dbb"
+      },
+      "junit": {
+        "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/root-active-resume-20261023-r2/cache-s3-canonical-qualified-replay-r1/junit.xml",
+        "sha256": "0d177d8b1e22737fd056c7f569d26718014e5da30064903033d6614a00cb5f3b"
+      },
+      "compiled_production_origins": {
+        "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/root-active-resume-20261023-r2/cache-s3-canonical-qualified-replay-r1/origins.json",
+        "sha256": "7a5f854118114c81089808a217661e4ecf677302a40a1c807eb029cd403ce281"
+      },
+      "qualification": "37 cache + 99 registry importer + three overlay cases + one fresh N8 consumer. The origin list pins production imports but pytest test bytes are bound by canonical command, JUnit identities and committed hashes; no assertion of pytest rewrite-loader byte tracing."
+    },
+    {
+      "outcome": "PASS",
+      "scope": "Five cache Python paths plus two S3 test companions; prior unchanged S3 source lint receipts remain separately qualified.",
+      "results": {
+        "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/root-active-resume-20261023-r2/cache-s3-canonical-lint-r1/results.json",
+        "sha256": "c94e5b6236f52359064415d020a946e6767a72ebad3e01a17a522441ae5eb8be"
+      },
+      "output": {
+        "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/root-active-resume-20261023-r2/cache-s3-canonical-lint-r1/execution/stdout",
+        "sha256": "d76b4d5da3758d43000ddad61699f0161eb39336559f18783513fd9d537f2b33"
+      },
+      "receipt": {
+        "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/root-active-resume-20261023-r2/cache-s3-canonical-lint-r1/execution/receipt.json",
+        "sha256": "cb7180ca70885a3b38aaa1823c269b812ff87deb80477773a808810636000624"
+      }
+    },
+    {
+      "outcome": "PARTIAL_then_companion_delta_PASS",
+      "command": {
+        "cwd": "/Users/deniskopylov/.codex/worktrees/e02-unified-local-20261009/polisyos/policy-engine",
+        "python": "/Users/deniskopylov/.codex/worktrees/e02-unified-local-20261009/polisyos/policy-engine/.venv/bin/python",
+        "argv": [
+          "-q",
+          "-p",
+          "no:cacheprovider",
+          "--basetemp=/Users/deniskopylov/.codex/worktrees/e02-unified-local-20261009/polisyos/policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/root-active-resume-20261023-r2/n6-s3-canonical-regression-r1/pytest-data",
+          "--junitxml=/Users/deniskopylov/.codex/worktrees/e02-unified-local-20261009/polisyos/policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/root-active-resume-20261023-r2/n6-s3-canonical-regression-r1/junit.xml",
+          "tests/unit/fabric/test_quality_indicators.py",
+          "tests/unit/fabric/connectors/types/test_units_core.py",
+          "tests/unit/data_forge/domains/catalog/knowledge/test_overlay.py",
+          "tests/unit/runtime/quality/test_value_gate.py::test_n8_fresh_consumer_reads_recomputed_fixed_unit_owner_projection"
+        ],
+        "source_mode": "canonical source bytes compiled directly; no overlay and no pyc reuse for repository files"
+      },
+      "receipt": {
+        "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/root-active-resume-20261023-r2/n6-s3-canonical-regression-r1/execution/receipt.json",
+        "sha256": "154cf3e2ce6a1856eade654ca8be31c1682ce27843a23bb0c303eedb1be9cd5f"
+      },
+      "output": {
+        "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/root-active-resume-20261023-r2/n6-s3-canonical-regression-r1/execution/stdout",
+        "sha256": "7702338039f7d7a84658cdd4a0ee62ae5e3e7c6215ab8091faab42fbedd36ca2"
+      },
+      "junit": {
+        "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/root-active-resume-20261023-r2/n6-s3-canonical-regression-r1/junit.xml",
+        "sha256": "1b28c49e1beaf6a3e4806c273bebff3ce0714110ef03af875cf5c092b2862d74"
+      },
+      "reconciliation": {
+        "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/root-active-resume-20261023-r2/n6-s3-case-reconciliation.json",
+        "sha256": "bbda1a09eb70553114b16e82d1267567ed2fa3e898f9dfd4de0b5af8c2586d92"
+      },
+      "qualification": "Original canonical four-target run: 121 PASS / 2 FAIL in S3 fixtures. Tests were corrected with independently reviewed real Core producer/codec and precise refusal expectations; both former failures plus fresh N8 were replayed successfully in the 140-case command above. The entire overlay module was not rerun after test-only corrections."
+    },
+    {
+      "outcome": "PASS_exact_candidate_N8",
+      "receipt": {
+        "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/s3-final-r14-n8-source-qualified-reissue-20261023-r2/execution/receipt.json",
+        "sha256": "2a1132550caf10e53853515f71c6f6f7d68d04d25d2d93a9864a878dadbde395"
+      },
+      "output": {
+        "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/s3-final-r14-n8-source-qualified-reissue-20261023-r2/execution/stdout",
+        "sha256": "67d21c9e93678306f8427a65fbf985b42d1b731719084b090533c46f45661f3d"
+      },
+      "qualification": "Exact parser/owner/consumer/context bytes logged, followed by canonical fresh-consumer pass. See original proposal for separately bounded mutation and existing-unit tests, not a full native wave."
+    }
+  ],
+  "author_proposal": {
+    "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/root-s3-b31-static-unit-bridge-20261023-r2/implementation-proposal-r14.json",
+    "sha256": "3f5a68ed51d098ea4a632807250b22b8b6331066e41ec87570a789a49a2adf55"
+  },
+  "independent_reviews": [
+    {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/s3-r14-final-identity-independent-review-20261023-r2/review.json",
+      "sha256": "a268db5cd83547b9f79ae2a3171d97c55af8381b64009d6d57bd5f1559da379a"
+    },
+    {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/s3-canonical-companion-independent-review-20261023-r2/review.json",
+      "sha256": "b300d647c871780aecf6c87df6f4e36a71fde1cf867a3301b53e6dd72bb782ec"
+    }
+  ],
+  "implementation_readback": {
+    "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/root-active-resume-20261023-r2/s3-static-unit-implementation-commit-r1/readback.json",
+    "sha256": "993c029d7410af5cef270ee10bf4e0f9981c374675a80429c444f02ab614d65b"
+  },
+  "proposals": {
+    "finding_ids": [
+      "B31"
+    ],
+    "criterion_ref": {
+      "coverage_pointer": "/findings/156/criterion_refs/0",
+      "coverage_sha256": "97860dc18c7b92124971aa8032fc229be3367723ea2ec45e6cda4a777e544e01",
+      "criterion_span_sha256": "9311ba1b0fb2e6a3f180546c6118406c5781dbbfb57e27b28075b95a92fe371f",
+      "formal_closure": "not_adjudicated",
+      "historical_ledger_status": "held",
+      "id": "B31",
+      "lines": [
+        593,
+        606
+      ],
+      "occurrence_ordinal": 1,
+      "owner_path": "docs/plans/active/agent-packages/PolicyOS_E02_Combined_Agent_Package/source/B_r19_original.md",
+      "owner_sha256": "9c98584cbfa72996b058abf127f6c689f919a3421cdd563a82c84a7324ab39b5"
+    },
+    "disposition": "limited_bounded_mechanism; full criterion held",
+    "formal_closure": "not_adjudicated",
+    "finding_closures_proposed": []
+  },
+  "limitations_and_next_check": [
+    "Independent review of the exact candidate preimages/postimages and existing source-contract compatibility before any canonical write.",
+    "Run the approved post-freeze expensive wave once; do not infer it from focused suites.",
+    "Full B31 consumer discriminator: same substantive subject/estimand/unit coordinate across methods, preserved native nonzero/asymmetric interval separate from identification bounds; current unit witness is single-method and does not close B31.",
+    "G decision is still needed for contextual/time-varying conversion authority/applicability/expiry or semantic-equivalence claims; none is inferred here.",
+    "External measurement unit meaning, treatment assignment, support, source time/currentness remain not_established.",
+    "No full native AIPW/TMLE/calibration, installed consumer, backend suite or formal G closure is inferred."
+  ]
+}

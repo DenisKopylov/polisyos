@@ -1,0 +1,214 @@
+{
+  "schema": "policyos.e02.implementation_handoff.v1",
+  "receipt_revision": 1,
+  "unit": "LOCAL",
+  "branch": "codex/e02-unified-local-20261009",
+  "source_freeze": false,
+  "closure_ids": [],
+  "predicate_basis": "recomputed",
+  "source_context": "Checks used the canonical composed working tree with declared peer E02 changes; they qualify the named hashes and context, not the entire committed tree or final freeze.",
+  "raw_availability": "Ignored RAW deciding outputs retained locally. If inaccessible to G, replay or transfer them by an agreed ordinary channel.",
+  "formal_G_acceptance": "pending",
+  "slice": "fabric-cache-provider-contract",
+  "slice_base_sha": "c48c829111f474db5c4ae027d7fa33e1cee1f072",
+  "implementation_commits": [
+    "3f53562bd242fb7944462be1f06704fa2220e9f2"
+  ],
+  "candidate_tree_sha": "aefefcfdd3bb048cfb666fa14bf1d8811e5b50d3",
+  "candidate_parents": [
+    "c48c829111f474db5c4ae027d7fa33e1cee1f072"
+  ],
+  "changed_paths": [
+    {
+      "path": "policy-engine/src/polisyos/fabric/connectors/_registry_lifecycle.py",
+      "sha256": "91ad2b9c34f1895cd7ed2feded64e2fe373156f0fb2505f4383cf54fd74a9de1"
+    },
+    {
+      "path": "policy-engine/src/polisyos/fabric/connectors/cache/_store_index.py",
+      "sha256": "10ad09585bbc3ddddf4129846ffe96e6b4be1480445bc6fe8404e0ae092fd776"
+    },
+    {
+      "path": "policy-engine/src/polisyos/fabric/connectors/cache/prefetch.py",
+      "sha256": "db05a79e5c2a71d613a49e707cb304fd1ddef2ae7363c4b4d1532bd1dba8f53c"
+    },
+    {
+      "path": "policy-engine/src/polisyos/fabric/connectors/cache/invalidation.py",
+      "sha256": "9b79e2cf067629425de0820fb336705ebcdfe8de2a969e0754dcc1f9493a3ffe"
+    },
+    {
+      "path": "policy-engine/tests/unit/fabric/connectors/test_cache_system.py",
+      "sha256": "185241fd7add210c66c2bdac25eea3352742cb851c3f70c772dd212acae5859c"
+    }
+  ],
+  "selected_profile": {
+    "python": "3.14.3",
+    "backend": "local SQLite cache index / FileSystemCAS; installed locked dependencies",
+    "inputs": "controlled real ConnectorRegistry cached provider and finite date-filter fixtures; no production payloads"
+  },
+  "property": {
+    "statement": "The real cached registry provider is accepted by prefetch and invalidation without a false SourceConnector-only cast; UTC date filters reject malformed supplied strings before cache mutation; SLO fetch wrapping preserves callable parameter and result types.",
+    "chain": [
+      "ConnectorRegistry.get returns SourceConnectorValue including CachingConnectorProxy",
+      "actual PrefetchScheduler stores fetched result and metadata",
+      "InvalidationOrchestrator detects provider staleness",
+      "cache entry becomes unavailable to the next consumer"
+    ],
+    "surface": "Existing provider and cache APIs; no new DTO, authority or public claim.",
+    "negative_controls": [
+      "empty date filter raises before soft invalidation and preserves cached hit",
+      "real cached provider then freshness event invalidates its entry",
+      "date range invalidation preserves nonmatching entry"
+    ]
+  },
+  "checks": [
+    {
+      "outcome": "PASS",
+      "counts": {
+        "passed": 140,
+        "failed": 0,
+        "errors": 0,
+        "skipped": 0
+      },
+      "command": {
+        "cwd": "/Users/deniskopylov/.codex/worktrees/e02-unified-local-20261009/polisyos/policy-engine",
+        "python": "/Users/deniskopylov/.codex/worktrees/e02-unified-local-20261009/polisyos/policy-engine/.venv/bin/python",
+        "argv": [
+          "-q",
+          "-p",
+          "no:cacheprovider",
+          "--basetemp=/Users/deniskopylov/.codex/worktrees/e02-unified-local-20261009/polisyos/policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/root-active-resume-20261023-r2/cache-s3-canonical-qualified-replay-r1/pytest-data",
+          "--junitxml=/Users/deniskopylov/.codex/worktrees/e02-unified-local-20261009/polisyos/policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/root-active-resume-20261023-r2/cache-s3-canonical-qualified-replay-r1/junit.xml",
+          "tests/unit/fabric/connectors/test_cache_system.py",
+          "tests/unit/fabric/connectors/test_registry.py",
+          "tests/unit/data_forge/domains/catalog/knowledge/test_overlay.py::test_activation_refuses_profiled_production_sidecar_drift_without_overlay_writes",
+          "tests/unit/data_forge/domains/catalog/knowledge/test_overlay.py::test_epoch_statement_readback_recanonicalizes_typed_native_bytes",
+          "tests/unit/runtime/quality/test_value_gate.py::test_n8_fresh_consumer_reads_recomputed_fixed_unit_owner_projection"
+        ],
+        "source_mode": "canonical source bytes compiled directly; no overlay and no pyc reuse for repository files"
+      },
+      "source_frame": {
+        "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/root-active-resume-20261023-r2/hte-ui-origin-root-application-r1/full-composed-source-frame.json",
+        "sha256": "7f2665ea8af2a1aa4ba2a88b30ac074d5aa64e503eafbc2aa47053616c2d7cfe"
+      },
+      "runner": {
+        "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/root-active-resume-20261023-r2/cache-s3-canonical-qualified-replay-r1/run.py",
+        "sha256": "566cd6a98af3136d3771c80b35c0b69379db712c39597d367c1e0ee659c661c5"
+      },
+      "output": {
+        "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/root-active-resume-20261023-r2/cache-s3-canonical-qualified-replay-r1/execution/stdout",
+        "sha256": "db6cb478cc0911e2ce6aedb04ccb8fa965534542e4d7a87bf0057176f2114903"
+      },
+      "stderr": {
+        "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/root-active-resume-20261023-r2/cache-s3-canonical-qualified-replay-r1/execution/stderr",
+        "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+      },
+      "receipt": {
+        "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/root-active-resume-20261023-r2/cache-s3-canonical-qualified-replay-r1/execution/receipt.json",
+        "sha256": "02cf47491dce0b8ef47bfed08f2c9b20e7f3ddda3b78c33b548e1220c88b2dbb"
+      },
+      "junit": {
+        "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/root-active-resume-20261023-r2/cache-s3-canonical-qualified-replay-r1/junit.xml",
+        "sha256": "0d177d8b1e22737fd056c7f569d26718014e5da30064903033d6614a00cb5f3b"
+      },
+      "compiled_production_origins": {
+        "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/root-active-resume-20261023-r2/cache-s3-canonical-qualified-replay-r1/origins.json",
+        "sha256": "7a5f854118114c81089808a217661e4ecf677302a40a1c807eb029cd403ce281"
+      },
+      "qualification": "37 cache + 99 registry importer + three overlay cases + one fresh N8 consumer. The origin list pins production imports but pytest test bytes are bound by canonical command, JUnit identities and committed hashes; no assertion of pytest rewrite-loader byte tracing."
+    },
+    {
+      "outcome": "PASS",
+      "scope": "Five cache Python paths plus two S3 test companions; prior unchanged S3 source lint receipts remain separately qualified.",
+      "results": {
+        "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/root-active-resume-20261023-r2/cache-s3-canonical-lint-r1/results.json",
+        "sha256": "c94e5b6236f52359064415d020a946e6767a72ebad3e01a17a522441ae5eb8be"
+      },
+      "output": {
+        "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/root-active-resume-20261023-r2/cache-s3-canonical-lint-r1/execution/stdout",
+        "sha256": "d76b4d5da3758d43000ddad61699f0161eb39336559f18783513fd9d537f2b33"
+      },
+      "receipt": {
+        "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/root-active-resume-20261023-r2/cache-s3-canonical-lint-r1/execution/receipt.json",
+        "sha256": "cb7180ca70885a3b38aaa1823c269b812ff87deb80477773a808810636000624"
+      }
+    },
+    {
+      "outcome": "PASS_scoped_candidate",
+      "scope": "Mypy four shadow-mapped production modules, 136 candidate/cache/importer test cases; all five candidate bytes equal committed implementation.",
+      "verification_manifest": {
+        "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/e09-cache-provider-contract-successor-author-20261023-r2/verification-manifest-r1.json",
+        "sha256": "f2521ed82d7b50aef8866fea2196872f346ce3f4c857a6ee88499f263bd705b2"
+      },
+      "verification_receipt": {
+        "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/e09-cache-provider-contract-successor-author-20261023-r2/verification-receipt-r1.json",
+        "sha256": "344539d4e531921178508b8ae738086156560fbeaf86f471d4bdb7e8c7733456"
+      },
+      "mypy_command": [
+        "/usr/bin/sandbox-exec",
+        "-f",
+        "/Users/deniskopylov/.codex/worktrees/e02-unified-local-20261009/polisyos/policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/e09-cache-provider-contract-successor-author-20261023-r2/mypy-frozen-r1/profile.sb",
+        "/usr/bin/env",
+        "MYPY_CACHE_DIR=/dev/null",
+        "OMP_NUM_THREADS=1",
+        "OPENBLAS_NUM_THREADS=1",
+        "MKL_NUM_THREADS=1",
+        "NUMEXPR_NUM_THREADS=1",
+        "/Users/deniskopylov/.codex/worktrees/e02-unified-local-20261009/polisyos/policy-engine/.venv/bin/python",
+        "-B",
+        "-m",
+        "mypy",
+        "--config-file=/Users/deniskopylov/.codex/worktrees/e02-unified-local-20261009/polisyos/policy-engine/architecture/tooling/mypy/generated.ini",
+        "--no-incremental",
+        "--cache-dir=/dev/null",
+        "--shadow-file",
+        "/Users/deniskopylov/.codex/worktrees/e02-unified-local-20261009/polisyos/policy-engine/src/polisyos/fabric/connectors/_registry_lifecycle.py",
+        "/Users/deniskopylov/.codex/worktrees/e02-unified-local-20261009/polisyos/policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/e09-cache-provider-contract-successor-author-20261023-r2/postimages/policy-engine/src/polisyos/fabric/connectors/_registry_lifecycle.py",
+        "--shadow-file",
+        "/Users/deniskopylov/.codex/worktrees/e02-unified-local-20261009/polisyos/policy-engine/src/polisyos/fabric/connectors/cache/_store_index.py",
+        "/Users/deniskopylov/.codex/worktrees/e02-unified-local-20261009/polisyos/policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/e09-cache-provider-contract-successor-author-20261023-r2/postimages/policy-engine/src/polisyos/fabric/connectors/cache/_store_index.py",
+        "--shadow-file",
+        "/Users/deniskopylov/.codex/worktrees/e02-unified-local-20261009/polisyos/policy-engine/src/polisyos/fabric/connectors/cache/prefetch.py",
+        "/Users/deniskopylov/.codex/worktrees/e02-unified-local-20261009/polisyos/policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/e09-cache-provider-contract-successor-author-20261023-r2/postimages/policy-engine/src/polisyos/fabric/connectors/cache/prefetch.py",
+        "--shadow-file",
+        "/Users/deniskopylov/.codex/worktrees/e02-unified-local-20261009/polisyos/policy-engine/src/polisyos/fabric/connectors/cache/invalidation.py",
+        "/Users/deniskopylov/.codex/worktrees/e02-unified-local-20261009/polisyos/policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/e09-cache-provider-contract-successor-author-20261023-r2/postimages/policy-engine/src/polisyos/fabric/connectors/cache/invalidation.py",
+        "/Users/deniskopylov/.codex/worktrees/e02-unified-local-20261009/polisyos/policy-engine/src/polisyos/fabric/connectors/_registry_lifecycle.py",
+        "/Users/deniskopylov/.codex/worktrees/e02-unified-local-20261009/polisyos/policy-engine/src/polisyos/fabric/connectors/cache/_store_index.py",
+        "/Users/deniskopylov/.codex/worktrees/e02-unified-local-20261009/polisyos/policy-engine/src/polisyos/fabric/connectors/cache/prefetch.py",
+        "/Users/deniskopylov/.codex/worktrees/e02-unified-local-20261009/polisyos/policy-engine/src/polisyos/fabric/connectors/cache/invalidation.py"
+      ],
+      "mypy_output": {
+        "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/e09-cache-provider-contract-successor-author-20261023-r2/mypy-frozen-r1/stdout",
+        "sha256": "71144743c83babea384888a735db0c4daba3d4d7b7942b6839984bd5c21b52bb"
+      },
+      "mypy_stderr": {
+        "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/e09-cache-provider-contract-successor-author-20261023-r2/mypy-frozen-r1/stderr",
+        "sha256": "730b08a8535e24996429927b699abf9e676f80f13670294bff179242ae8ce04e"
+      },
+      "qualification": "Generated-config unused-section warnings are retained. This is not the complete 306-input native typecheck."
+    }
+  ],
+  "independent_reviews": [
+    {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/e09-cache-provider-successor-independent-review-20261023-r2/source-review/independent-review.md",
+      "sha256": "996151d9af9ae0139413264f1e74664eefdcc82057db2981c3188c25fbe798e6"
+    },
+    {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/e09-cache-provider-successor-independent-review-20261023-r2/runtime-qualification-addendum-r1/runtime-addendum.md",
+      "sha256": "0c70ec417702a869ce8e41892d4d5719b4437ba5b2a395008899dc8c6c345ec0"
+    }
+  ],
+  "implementation_readback": {
+    "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/root-active-resume-20261023-r2/cache-provider-implementation-commit-r1/readback.json",
+    "sha256": "9169736d18ba95dc7d35112d01b187dbc5f1a29733d87e148d43d490bd20198e"
+  },
+  "proposals": {
+    "bounded_code_proposal": "Adopt these provider/date-filter corrections; continue complete E09 native qualification.",
+    "finding_closures_proposed": []
+  },
+  "limitations_and_next_check": [
+    "Root: compose remaining E09 cohorts, freeze exact source and run full 306-source Mypy once.",
+    "Root/G: complete native gates and generated/installed consumer checks after freeze.",
+    "No inherited-red attribution, production currentness, or formal finding closure is inferred."
+  ]
+}

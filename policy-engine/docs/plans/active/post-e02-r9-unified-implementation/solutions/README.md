@@ -33,3 +33,5 @@
 Нельзя оптимизировать за счёт округления юридически значимого времени, подмены полного множества выборкой, потери причины отказа, ослабления rights, смешения зависимых свидетельств или выдачи approximate результата за exact. Эквивалентные representations и bounded algorithms разрешены, когда сохраняют конкретный predicate; иначе предъявляется явная новая гарантия и её допустимость.
 
 Pattern pass: P01/P02/P03 — полная цепь; P04/P05/P07/P08/P15 — смысл и authority; P10/P14/P29/P32/P37/P38 — собственно доказываемое свойство; P13/P27/P31 — один механизм и bounded complexity; P35/P39/P40/P41 — полный исходный набор, companions, класс дефекта и provenance красноты. Product execution в этом пакете — UNRUN.
+
+R14 supplements this historical R13 package: [productive-design cards and extensions](13-productive-design.md), [current index](index.md), [delta review](../assurance/r14-review-disposition.md). Historical R13 hashes cover only their pinned source. Current manifest includes DES-01–10 and 24 additive extensions; do not discard them when materializing assignments.

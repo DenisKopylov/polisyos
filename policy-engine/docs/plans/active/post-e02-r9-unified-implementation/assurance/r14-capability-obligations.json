@@ -1,0 +1,123 @@
+{
+  "kind": "planning_capability_delta_not_original_findings",
+  "baseline": "c8986d035f12c1c3d9e5d0d57e369fe8257bccbc",
+  "implementation_gate": "actual_E02_G_acceptance",
+  "obligations": [
+    {
+      "id": "R14-DES-01",
+      "task": "DES-01",
+      "criterion": "An ambiguous but usable question yields distinct explicit framings; an authorized selected frame reaches N4 with exact original intent and unknowns. A known-solvable bounded case yields real candidate generation, not only clarification/refusal.",
+      "negative": "A prompt that substitutes a different population, goal, jurisdiction or value basis cannot silently become the chosen task. Prompt injection cannot expand tools or egress rights; unrepresentable ideas survive as unbound hypotheses.",
+      "removal": "Remove the original-intent/selection bridge while keeping frame IDs: fresh generation-input and reviewer comparisons detect the meaning loss.",
+      "status": "planned_after_E02_acceptance",
+      "verification": "UNRUN",
+      "closure": "not_adjudicated",
+      "criterion_ref": "solutions/13-productive-design.md#DES-01"
+    },
+    {
+      "id": "R14-DES-02",
+      "task": "DES-02",
+      "criterion": "On a known-groundable case the real N4 route produces the required alternative set, including an independently checked material mechanism distinction, persists it and a fresh N6 consumer reads it. A newly registered conforming operator is discovered without a search-code edit.",
+      "negative": "Synonyms/IDs do not inflate diversity; similarly worded but causally different proposals do not collapse. Missing world/evidence/law facts remain declared unknown and cannot execute a fake bound effect. A missing provider leaves an honest degraded mode and usable grammar candidates.",
+      "removal": "Replace the set with paraphrases while retaining count/diversity markers; the semantic check fails. Remove candidate-firewall/source binding; protected downstream consumers refuse.",
+      "status": "planned_after_E02_acceptance",
+      "verification": "UNRUN",
+      "closure": "not_adjudicated",
+      "criterion_ref": "solutions/13-productive-design.md#DES-02",
+      "review_refinement": "On the designated productive positive control, the alternative must answer a predeclared substantive decision need or identify a specific evidence path that resolves it. Structural validity/diversity alone does not establish productive capability. Independent labels and the frozen DES-10 criterion decide that bounded claim."
+    },
+    {
+      "id": "R14-DES-03",
+      "task": "DES-03",
+      "criterion": "A mixed structural/parameter problem produces actual trials and a fresh-reader Pareto/model-sensitive set. Conflicting objectives retain tradeoffs; a two-intervention joint effect changes ranking/feasibility compared with isolated evaluation.",
+      "negative": "Wrong units, stale objective direction, impossible categories, high-score infeasible designs, missing required model completions and ungrounded weights cannot produce a feasible/robust winner. Provider-client presence alone cannot label a deterministic seed LLM-generated.",
+      "removal": "Remove real trial/joint-evaluation calls while retaining scores/certificates: consumer/oracle fails. Remove one required model completion: robust result becomes incomplete.",
+      "status": "planned_after_E02_acceptance",
+      "verification": "UNRUN",
+      "closure": "not_adjudicated",
+      "criterion_ref": "solutions/13-productive-design.md#DES-03"
+    },
+    {
+      "id": "R14-DES-04",
+      "task": "DES-04",
+      "criterion": "A material counterexample produces a revised mechanism or properly rejected branch; a genuine new input changes a subsequent trial/choice. Under honest budget exhaustion the set and next useful action remain visible.",
+      "negative": "Repeated paraphrases cannot appear as exploration; a high proxy/weak grounding candidate stays out of DecisionFront. Full declared input-family coverage cannot stand in for actual emitted/visited coverage.",
+      "removal": "Disable the feedback or acquisition-result bridge while retaining histories/front markers: the distinguishing next-choice test fails. Removing grammar fallback exposes lost reachable candidates.",
+      "status": "planned_after_E02_acceptance",
+      "verification": "UNRUN",
+      "closure": "not_adjudicated",
+      "criterion_ref": "solutions/13-productive-design.md#DES-04"
+    },
+    {
+      "id": "R14-DES-05",
+      "task": "DES-05",
+      "criterion": "A selected multi-provision case with reference, exception and transition changes design/limitations across legal dates or readings. A lawful amendment-design branch survives current-law incompatibility while its present-tense authority claim remains refused.",
+      "negative": "Retrieved text is not entailment; fake citation, omitted exception, conflicting translation, wrong jurisdiction, invalid end date and asserted precedence cannot produce verified current permission. Do not fabricate ambiguity on unambiguous cases or a single winner where genuine disagreement remains.",
+      "removal": "Remove the exception/source binding or branch-to-design bridge while keeping citation/count/status fields: affected consumer must change/refuse; omit change subscription and the stale-projection probe fails.",
+      "status": "planned_after_E02_acceptance",
+      "verification": "UNRUN",
+      "closure": "not_adjudicated",
+      "criterion_ref": "solutions/13-productive-design.md#DES-05",
+      "review_refinement": "Current-law permission requires actual CAP-05 emitted, content-bound relation/applicability evidence through the relevant native verifier, not an agreed interface or citation marker. Its absence leaves that conclusion limited/refused while hypothetical/amendment branches remain available. Separate legal-valid time, observed/received/verified time and analysis/knowledge as-of; late correction of earlier effectivity preserves historical knowledge replay and invalidates affected current uses."
+    },
+    {
+      "id": "R14-DES-06",
+      "task": "DES-06",
+      "criterion": "A fresh consumer opens a substantive options/proposed-measure/explanation set, traces material claims and recomputes numbers; an independent actual DOCX reader can read its text/tables/roles. A new format profile preserves the same semantic basis without central domain-code changes.",
+      "negative": "Unsupported assertions stay marked proposals; missing qualifications, changed denominator/rounding, invented legal act, counterfeit DOCX and audience/rights mismatch cannot produce a trusted view. A document genre is not mandate or enactment.",
+      "removal": "Remove evidence/quantity/status binding but keep citations and watermark: fidelity checks fail. Replace real DOCX bytes with HTML-in-JSON while keeping MIME/name: format proof fails.",
+      "status": "planned_after_E02_acceptance",
+      "verification": "UNRUN",
+      "closure": "not_adjudicated",
+      "criterion_ref": "solutions/13-productive-design.md#DES-06",
+      "review_refinement": "Bind actual displayed/exported DOCX paragraphs and cells to the semantic sidecar and exact revision. Independently change a sentence/cell while keeping IDs and old sidecar: fresh reader must detect unbound/stale meaning and reject inherited support. Independent format parsing alone is insufficient."
+    },
+    {
+      "id": "R14-DES-07",
+      "task": "DES-07",
+      "criterion": "A threshold edit changes the native numerical trial and table; a new exception changes legal/design comparison; a mechanism edit creates a new candidate. Reimport with stripped IDs preserves text as unbound rather than falsely equivalent.",
+      "negative": "Concurrently edited base, renamed target, copied citation with changed assertion, injected macros/external relationships, removed uncertainty and reordered paragraphs cannot silently inherit prior status or execute imported content.",
+      "removal": "Disable edit→owner dispatch or conflict detection while keeping revision IDs: fresh recomputation/concurrency probe fails. Hash-only semantic equivalence must be falsified by a changed material clause.",
+      "status": "planned_after_E02_acceptance",
+      "verification": "UNRUN",
+      "closure": "not_adjudicated",
+      "criterion_ref": "solutions/13-productive-design.md#DES-07",
+      "review_refinement": "Normal import, history, processing and export obey existing LIF-05 rights/retention, not just rollback. Revocation/expiry with intact revision IDs must prevent prohibited copy/use/egress and retain only permitted custody receipts. Sidecar alignment does not supersede actual edited carrier content."
+    },
+    {
+      "id": "R14-DES-08",
+      "task": "DES-08",
+      "criterion": "A later task actually changes a candidate or search choice using a compatible evaluated lesson; fresh-process retrieval resolves exact refs. A useful opportunity survives failure-heavy memory, with actual cost/benefit measured separately.",
+      "negative": "Wrong population/unit/jurisdiction/objective/model generation, revoked rights, fake success, held-out contamination or LLM reflection cannot enter an evaluated-evidence lane. Candidate memory cannot mutate O1 posterior or O3 world.",
+      "removal": "Remove retrieval while keeping lesson refs: measured controlled influence disappears. Remove persistence: next process cannot see the record. Retain candidate labels but attempt authority use: protected consumer refuses.",
+      "status": "planned_after_E02_acceptance",
+      "verification": "UNRUN",
+      "closure": "not_adjudicated",
+      "criterion_ref": "solutions/13-productive-design.md#DES-08"
+    },
+    {
+      "id": "R14-DES-09",
+      "task": "DES-09",
+      "criterion": "A permitted real call is traceable through selected context to a persisted candidate and actual usage; recorded replay is separately labelled. Missing-provider mode preserves allowed existing grammar work without fabricated live evidence.",
+      "negative": "Context injection, private-query exfiltration, provider drift, stale cache, lost legal exception and client-without-call fail their actual property checks. Removing a qualifier during summarization cannot produce a stronger claim.",
+      "removal": "Stub out actual invocation or strip decisive context while retaining ledger/model markers: provenance/semantic tests detect the change. Cancelled work cannot retain phantom successful call/result.",
+      "status": "planned_after_E02_acceptance",
+      "verification": "UNRUN",
+      "closure": "not_adjudicated",
+      "criterion_ref": "solutions/13-productive-design.md#DES-09"
+    },
+    {
+      "id": "R14-DES-10",
+      "task": "DES-10",
+      "criterion": "A known-solvable real path produces material alternatives and a coherent document; all-abstain/all-no-op implementations cannot pass. Selected equal-ceiling comparisons report useful and harmful/null outcomes without universal superiority claims.",
+      "negative": "Paraphrase inflation, invented model invocation, self-scored novelty, omitted failed arms, contaminated holdout, prompt-position legal exception loss, copied citations, unsupported enacted-law prose and hidden subgroup failures are caught. Unavailable live/audience inputs never become simulated authentic PASS.",
+      "removal": "Remove generation, retrieval/feedback, numerical execution, source binding or document edit bridge one at a time but keep report markers; the corresponding actual endpoint fails or loses its measured effect.",
+      "status": "planned_after_E02_acceptance",
+      "verification": "UNRUN",
+      "closure": "not_adjudicated",
+      "criterion_ref": "solutions/13-productive-design.md#DES-10",
+      "review_refinement": "Freeze a decision-relevant positive criterion, independently labelled, for designated known-solvable controls: a candidate answers the declared decision need or a specific acquisition/evidence path resolves it. Feasible diverse but irrelevant alternatives must not pass this criterion. All-null decision-support outcomes leave productive capability not_established even if plumbing passes. This is a bounded acceptance discriminator, never a useful_design_rate optimization/reward/promotion target. No-op and deliberate removal arms are comparators expected to fail productivity, not implementations required to produce an intervention. Reviewer panels belong to evaluation, not per-run/manual authority gates."
+    }
+  ],
+  "original_inventories": "unchanged; R14 additions have separate disposition and cannot silently drop at FINAL-USE"
+}

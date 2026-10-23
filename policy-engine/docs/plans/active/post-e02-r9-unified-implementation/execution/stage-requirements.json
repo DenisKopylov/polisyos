@@ -19,7 +19,7 @@
   "overrides": {
     "FINAL-REPLAY": {
       "owner_readiness": "Execution coordinator, not a pre-freeze mechanism task. Starting is allowed after final reviewed identity; completion requires all selected wave obligations accounted for by actual outputs.",
-      "composition": "Join LIF-09, GYD-16–22 and every other selected frozen matrix output by exact source/input/backend. Parallel shards have no conflicting active write/resource leases; shared-capacity tickets must fit the actual common budget. PASS requires the original predicates, not merely completed commands.",
+      "composition": "Join LIF-09, GYD-16–22, DES-10 and every other selected frozen matrix output by exact source/input/backend. Parallel shards have no conflicting active write/resource leases; shared-capacity tickets must fit the actual common budget. PASS requires the original predicates, not merely completed commands.",
       "original_disposition": "Diagnostics can finish with ERROR/FAIL/UNRUN; accepted programme replay and FINAL-USE remain unavailable while required predicates are unresolved."
     },
     "GYD-01": {
@@ -86,5 +86,10 @@
     "after_change": "Stop affected acceptance; rebind actual affected source/input/consumer closure and repeat necessary proof. Do not repeat unchanged global work just because a task ID changed."
   },
   "release": "FINAL-USE.required_original_dispositions is mandatory in addition to FINAL-REPLAY. A truthful incomplete replay can finish as a diagnostic run but cannot count as accepted programme closeout. Plan logistics only, no new product gate service.",
-  "product_verification": "UNRUN"
+  "product_verification": "UNRUN",
+  "productive_verification_preparation": {
+    "owner_readiness": "DES-10 frozen protocol/corpus selection, actual supplier census, independent oracles, local verifier/removal preparation and resource profile ready. Final productive comparison remains UNRUN until FINAL-REPLAY.",
+    "composition": "After FINAL-REVIEW, execute selected DES-10 comparisons against actual native producers and fresh readers in the same FINAL-REPLAY wave. Recorded responses, live provider behavior, reader usability and authentic outcome claims are separate evidence planes.",
+    "original_disposition": "R14 capability obligations join FINAL-USE independently of unchanged historical criteria. Unavailable external inputs limit only their claim; internal owner readiness can finish but no required final outcome is silently waived."
+  }
 }

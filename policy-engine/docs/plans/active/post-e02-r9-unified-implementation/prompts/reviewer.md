@@ -9,3 +9,7 @@ Classify each finding: blocking for named claim, nonblocking debt, genuine exter
 Return exact source/evidence references, divergent case, practical consequence, correction, applicable acceptance signal and reviewer scope. A review GO is a bounded recommendation; G performs separate code acceptance and finding adjudication.
 
 Read the assigned task’s `preferred_solution_ref` from [tasks.json](../tasks.json), the [shared decisions](../solutions/00-shared-decisions.md), [root review](../solutions/root-review.md) and relevant [decision clarifications](../solutions/decision-clarifications.md). Use the recommended native solution as the starting point, not a second owner or a universal platform mandate. An evidence-backed engineering deviation records the changed observation, preserved predicates, alternatives/resource tradeoff, migration, consumers and distinguishing test; root reconciles interfaces and leases. Changes to ratified semantics or original criteria require their competent approval. Missing internal producers are assigned work; unavailable external authority is not fabricated. No implementation before actual E02 acceptance.
+
+## R14 companion
+
+For R14 attack false abstention, paraphrase diversity, provider-present/no-call provenance, memory-as-evidence, omitted exception/model, hidden scalarization and document edits that inherit stale support. Check both capability and authority. Same-class deeper finding follows P40; no unbounded repair ladder. Preserve old criteria and actual dispatch stages.

@@ -31,3 +31,5 @@
 Подробные prompts: [orchestrator](../prompts/orchestrator.md), [writer](../prompts/writer.md), [reviewer](../prompts/reviewer.md), [verification](../prompts/verification.md), [foundation supplier](../prompts/foundation-supplier.md).
 
 Before dispatch use [stage/release contracts](../execution/05-stage-and-release-contracts.md) and [conflict registry](../execution/conflict-groups.json): bind the exact stage, actual source/file/generator leases, selected conditional suppliers and outputs, physical execution permits, and original-obligation disposition. An owner-ready task does not close its original criterion. Unknown write sets cannot enter a writer lane; fixture preparation does not discharge composed acceptance.
+
+R14 adds [DES — substantive policy design and learning](07-productive-policy-design.md): ten native-owner deltas and 24 companion extensions. Its tasks and comparison obligations are in the same manifest and final freeze/replay, not a separately scheduled programme.

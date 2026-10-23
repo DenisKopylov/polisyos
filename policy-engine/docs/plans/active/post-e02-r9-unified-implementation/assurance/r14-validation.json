@@ -1,0 +1,93 @@
+{
+  "status": "PASS_document_checks_only",
+  "baseline": "c8986d035f12c1c3d9e5d0d57e369fe8257bccbc",
+  "source_observation": "dccea950845cda5b38f026e7770c07819d31f4d9",
+  "scope": "Complete plan JSON/task/solution/link census and immutable code object existence only; no product tests/imports/builds/installs or production reads.",
+  "tasks": 119,
+  "original_tasks": 109,
+  "new_tasks": 10,
+  "extended_original_tasks": 24,
+  "extended_ids": [
+    "CAP-05",
+    "LIF-05",
+    "LIF-07",
+    "GYD-17",
+    "GYD-18",
+    "GYD-20",
+    "GYD-22",
+    "GYD-23",
+    "GYD-25",
+    "GYD-26",
+    "GYD-30",
+    "GYD-31",
+    "GYD-33",
+    "UI-02",
+    "UI-05",
+    "CNT-04",
+    "CNT-08",
+    "CNT-09",
+    "OPS-07",
+    "DEB-10",
+    "FINAL-FREEZE",
+    "FINAL-REPLAY",
+    "FINAL-USE",
+    "DEB-13"
+  ],
+  "preferred_solutions": 119,
+  "original_acceptance_fields_preserved": true,
+  "original_task_field_exceptions": [
+    "FINAL-FREEZE depends_on adds DES-01..10",
+    "FINAL-REPLAY acceptance_dependencies adds DES-10",
+    "24 additive r14_extension fields"
+  ],
+  "r14_review_hashes_checked": 34,
+  "independent_review_receipts_checked": 3,
+  "original_solution_fields_preserved": true,
+  "original_inventory_files_byte_unchanged": 10,
+  "dag": {
+    "prerequisite_edges": 355,
+    "logical_levels": 15,
+    "max_logical_width": 60,
+    "cycles": false,
+    "interpretation": "stage-qualified collapsed projection; not runnable width or duration"
+  },
+  "r14_obligations": 10,
+  "new_immutable_code_anchor_paths": 24,
+  "json_files": 20,
+  "local_markdown_links": 814,
+  "shared_writer_assignment": "DES-01 formulator; DES-02 hypothesis ledger; DES-09 prompt/tool invocation receipts",
+  "errors": [],
+  "product_execution": "UNRUN",
+  "E02_acceptance": "not_established_by_this_work",
+  "SDD_changes": "none",
+  "executive_pdf": "unchanged historical R13 ten-page snapshot; current R14 supplement executive/r14-capabilities.md",
+  "checksums": [
+    {
+      "path": "tasks.json",
+      "sha256": "f7416546cde4edaec5546fe21e41194053e85beb44c8b35278e349eb493eb793"
+    },
+    {
+      "path": "solutions/preferred-solutions.json",
+      "sha256": "dce5e1d408b18b6f9514f8f3372e12b2179826a6221d8db233097c73de92f0ee"
+    },
+    {
+      "path": "solutions/13-productive-design.md",
+      "sha256": "e49bbe5509af6601175aa4c12421132d7f0ecad32a03583384404d87fd97c9f1"
+    },
+    {
+      "path": "execution/conflict-groups.json",
+      "sha256": "87b1da94e5db68d8af9a980607b3ac551e7e815b8d78068aaf799cbb4e1255c1"
+    },
+    {
+      "path": "execution/stage-requirements.json",
+      "sha256": "232336fccfde3270022428ffcbf63b9b214618ec67a8b929e30cf8ad97d7afcb"
+    },
+    {
+      "path": "assurance/r14-capability-obligations.json",
+      "sha256": "7114df44c54bfce8ea2609ece11e06b3171b51a18e946075356a64e9a07dc1a5"
+    }
+  ],
+  "validator_source": "policy-engine/_build/post-e02-r14-capability-20261023/validate.py@24f45e74284b62de55e527abe9f456ea86c738e0f9ece7de11a520e2d4dd74b1",
+  "full_deciding_output": "policy-engine/_build/post-e02-r14-capability-20261023/final-doc-check-output.json@5e4a9837ac3a5f985397c5a400e03e25234a008d3bb45f4c4680d6b592e26436",
+  "hooks": "Product-related contrast/reduced-motion/typecheck UNRUN per user documentation-only/no-heavy constraint; no hook configuration changes."
+}

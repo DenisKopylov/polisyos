@@ -1,0 +1,323 @@
+{
+  "kind": "R14_document_review_not_product_acceptance",
+  "baseline": "c8986d035f12c1c3d9e5d0d57e369fe8257bccbc",
+  "scope": "Ten new task rows and 24 changed existing rows, including corresponding solutions. Unchanged old fields retain historical R13 provenance; no blanket current runtime claim.",
+  "reviewed_rows": 34,
+  "rows": [
+    {
+      "task_id": "CAP-05",
+      "review": "root_substantive_document_review_after_independent_delta",
+      "decision": "Original task criterion/owner retained; additive requirement reviewed: Keep candidate extracted legal relations separate from verified relations; preserve source span/version, language, cross-reference alternatives and legal time roles. Supply DES-05 via the existing relation owner; do not duplicate interpretation synthesis.",
+      "task_sha256": "540fc5150e96bc754e950038b736e7d0bcbb246922c4cd26af1e550c37a49f43",
+      "solution_sha256": "297cf4134c1aba79f025a132831ca85d2442fcd75d4ef240f1db4bceadc490db",
+      "runtime_verification": "UNRUN"
+    },
+    {
+      "task_id": "LIF-05",
+      "review": "root_substantive_document_review_after_independent_delta",
+      "decision": "Original task criterion/owner retained; additive requirement reviewed: Apply existing rights/retention/restore rules to LLM context, caches and document revisions; do not introduce perpetual prompt storage.",
+      "task_sha256": "c4e4f53ef09c228f309db9e25ac33cc7cf8a7c0b8b0484f03909771b1c9410d0",
+      "solution_sha256": "2419efb1570b828ab4e1a7b24981d2a4a90239b3093bf541dc339dede5d96949",
+      "runtime_verification": "UNRUN"
+    },
+    {
+      "task_id": "LIF-07",
+      "review": "root_substantive_document_review_after_independent_delta",
+      "decision": "Original task criterion/owner retained; additive requirement reviewed: Track actual candidate/memory/context influence and selection exposure for DES-08/09; revoked/stale history cannot remain active by copied summaries. Preserve original closed replay.",
+      "task_sha256": "b5d77805bf461a63d43ad53682fa1c1b847dd3bb4582523fbecda53e073acc3d",
+      "solution_sha256": "e3f8624ebe9bc19a28560ea13ebdd67251265d021f6f8ae1fcab92103e446c3a",
+      "runtime_verification": "UNRUN"
+    },
+    {
+      "task_id": "GYD-17",
+      "review": "root_substantive_document_review_after_independent_delta",
+      "decision": "Original task criterion/owner retained; additive requirement reviewed: Share exact real producer/consumer replay identity with DES-10; original V2 criterion remains independently mandatory.",
+      "task_sha256": "dd7d20f980d1c03d46637c57764b7f4d319a725aea5c0322817486e8f1131b9f",
+      "solution_sha256": "1834b15585925e35be3d4d3a840e33e406f6a3a95c265c4e5c44d11af760a48c",
+      "runtime_verification": "UNRUN"
+    },
+    {
+      "task_id": "GYD-18",
+      "review": "root_substantive_document_review_after_independent_delta",
+      "decision": "Original task criterion/owner retained; additive requirement reviewed: Share full frozen case denominator and distinct-domain strata with DES-10; do not mix candidates/seeds with independent case count.",
+      "task_sha256": "e236340c5a4bb35e487933b52501ab1ca8d24da01a207b51a256b402275c024a",
+      "solution_sha256": "ac9c0f73400cc728a5a15e8589d66f7cf10a3d5366bb30aead81118d6ccdfdb4",
+      "runtime_verification": "UNRUN"
+    },
+    {
+      "task_id": "GYD-20",
+      "review": "root_substantive_document_review_after_independent_delta",
+      "decision": "Original task criterion/owner retained; additive requirement reviewed: Distinguish recorded LLM response reconstruction from fresh live stochastic behavior and deterministic numeric replay. Unknown provider version limits the claim.",
+      "task_sha256": "ed0b869db5d05e12804e36c03ab35958c0ce77e9eb98614fc8c72f6bdf750eb0",
+      "solution_sha256": "88e4131196a177292f14ee73d5be05ae69ee9baf22371a92de10b1b4ba5d0e88",
+      "runtime_verification": "UNRUN"
+    },
+    {
+      "task_id": "GYD-22",
+      "review": "root_substantive_document_review_after_independent_delta",
+      "decision": "Original task criterion/owner retained; additive requirement reviewed: Read DES-10 productive quality, diversity, cost and false-abstention diagnostics without using useful_design_rate as promotion objective.",
+      "task_sha256": "89508651265ce0b09f81d0b406ddff21beb4cc1d24fe18f5300020561126342f",
+      "solution_sha256": "b1e84c93971d0933d73f717ccaac5c75cc8fca36aa9e2d955b8ceca1d350274d",
+      "runtime_verification": "UNRUN"
+    },
+    {
+      "task_id": "GYD-23",
+      "review": "root_substantive_document_review_after_independent_delta",
+      "decision": "Original task criterion/owner retained; additive requirement reviewed: R14 richer N4/N6 search does not alter this Slice0 BIND/ESTIMATE/VERIFY scope or terminal. DEB-13 EVSI and DES-04 use existing compatible interfaces only; do not introduce a blanket numeric-EVSI requirement.",
+      "task_sha256": "02145fb2755c4acee7b3ae3b0827a2a502734d2cb9125b21441c4e0d63c06f5b",
+      "solution_sha256": "54e4cfe4b63a7583a979aea80bd676ec357e3ab2918187aec877804b07cffb43",
+      "runtime_verification": "UNRUN"
+    },
+    {
+      "task_id": "GYD-25",
+      "review": "root_substantive_document_review_after_independent_delta",
+      "decision": "Original task criterion/owner retained; additive requirement reviewed: Retain original retrieval adequacy; DES-10 adds separate downstream semantic diversity/transfer evaluation. Retrieval hits alone do not demonstrate learning.",
+      "task_sha256": "e4f4f70b43c30ebf7ded4cad53d9822443d0e92bfe89d0c7a67526b4277a156f",
+      "solution_sha256": "1acd60093549a1975262a9720dc284757a4f031cda14267dc4bc8a623f0cc54a",
+      "runtime_verification": "UNRUN"
+    },
+    {
+      "task_id": "GYD-26",
+      "review": "root_substantive_document_review_after_independent_delta",
+      "decision": "Original task criterion/owner retained; additive requirement reviewed: Judge output binding proves identity only. DES-10 tests order/verbosity/provider bias and independent agreement; LLM judge consensus never authorizes.",
+      "task_sha256": "f1a1e248f1370d5f92735f438723d87039481ef39ef6c6ad307eb25389d10e4a",
+      "solution_sha256": "ae8ce9cbe07a444cf076f6d1fe39d80bcf55a03449c611c11d7633851592b0d6",
+      "runtime_verification": "UNRUN"
+    },
+    {
+      "task_id": "GYD-30",
+      "review": "root_substantive_document_review_after_independent_delta",
+      "decision": "Original task criterion/owner retained; additive requirement reviewed: Supply actual joint simulation/composition evidence to DES-03. Add an individually/pairwise plausible but jointly divergent case, keeping K_sim distinct from K_world; do not build a search controller here.",
+      "task_sha256": "2f31923a8be519f27dcaa6ecb21431ee37d88ee1b794cdef217bc2ec65577478",
+      "solution_sha256": "04a9078bce033fa7d09403d37f1fc18f5fe2035fac42de25a0eca25a1bc85ec8",
+      "runtime_verification": "UNRUN"
+    },
+    {
+      "task_id": "GYD-31",
+      "review": "root_substantive_document_review_after_independent_delta",
+      "decision": "Original task criterion/owner retained; additive requirement reviewed: Preserve vector/set-valued objectives and model-sensitive/incomparable choices in DES-03/06; no implicit social weights or scalar promotion winner.",
+      "task_sha256": "ab81446c56553f1d46396b3cb656b51a97ea51b19a652e69e79712070cb17831",
+      "solution_sha256": "b439b5e2f5c3483c88795bcc95a1f7e75bb9f0dcfa85b79e2ad00f7c9e36d7a2",
+      "runtime_verification": "UNRUN"
+    },
+    {
+      "task_id": "GYD-33",
+      "review": "root_substantive_document_review_after_independent_delta",
+      "decision": "Original task criterion/owner retained; additive requirement reviewed: Check the meaning of emitted versus available instrument_family_coverage against actual selected S2 emissions. Preserve S2 bounded one-candidate scope; names/menu membership are not measured emitted coverage.",
+      "task_sha256": "8b0233b6300f6f9e7c61d6a6fee5c849b0cc1cb307ba13c216f93365555d8905",
+      "solution_sha256": "96b3699bd9672b842783b05ae39eae83c461fc9f0bc7ae4e48256b705913caa1",
+      "runtime_verification": "UNRUN"
+    },
+    {
+      "task_id": "UI-02",
+      "review": "root_substantive_document_review_after_independent_delta",
+      "decision": "Original task criterion/owner retained; additive requirement reviewed: Data-only public practice remains unchanged. DES-06/07 private document drafting/export does not acquire public prose permission through this task.",
+      "task_sha256": "c2015ff9ec56487d2911a652ff79265c3369425ca543f2143a688cb82a0a4236",
+      "solution_sha256": "2f43255a6b8b8cadc3993e06ff07196720589b6204e3f3e33589753d687deaac",
+      "runtime_verification": "UNRUN"
+    },
+    {
+      "task_id": "UI-05",
+      "review": "root_substantive_document_review_after_independent_delta",
+      "decision": "Original task criterion/owner retained; additive requirement reviewed: Pass exact framing/unknowns to DES-01 and show authorized candidate references. G6 remains bounded intake; PUBLIC raw recommendation text remains out of scope.",
+      "task_sha256": "cdddaa455cd7ba567122454047b39b0d091614a17813a5155f96fa210b635d02",
+      "solution_sha256": "07c794a27bc33ed50002443febe08198f650f0a4048029840e206c33886c1f94",
+      "runtime_verification": "UNRUN"
+    },
+    {
+      "task_id": "CNT-04",
+      "review": "root_substantive_document_review_after_independent_delta",
+      "decision": "Original task criterion/owner retained; additive requirement reviewed: Supply selected multi-provision case sources, exceptions/transition/competence and appropriate review inputs for DES-05. This remains a content/data/config lane; DES-05 owns generic Lex/Scientist source delta. Preserve current law versus proposed amendment.",
+      "task_sha256": "e0f472f48fad0254ea8b00620478a1b996f1ee76decf7ad5a84ed38963e08265",
+      "solution_sha256": "3c11c1aab090c999c02c570c2acdfe50f8871b7b53e4989c6a26430306037587",
+      "runtime_verification": "UNRUN"
+    },
+    {
+      "task_id": "CNT-08",
+      "review": "root_substantive_document_review_after_independent_delta",
+      "decision": "Original task criterion/owner retained; additive requirement reviewed: Compare DES-05 interpretation branches and DES-08 influence lineage when selected; preserve disagreement, source dependence and no automatic current authority from history.",
+      "task_sha256": "43a266075d6782d3d4152d53a99f506201ad3ad198e711235c006558777970b4",
+      "solution_sha256": "5147fef03d37852a0fb3976858f82eea82d000e5c27ec9928f42fd1e6f35e818",
+      "runtime_verification": "UNRUN"
+    },
+    {
+      "task_id": "CNT-09",
+      "review": "root_substantive_document_review_after_independent_delta",
+      "decision": "Original task criterion/owner retained; additive requirement reviewed: For selected substantive-design case, consume actual DES alternative, legal and document artifacts; prove changed premise changes the design/document. Authentic commissioning remains separate from controlled positive proof.",
+      "task_sha256": "494bfebcdbbd337b49646c3bad0c88d8677a053ecaef8e763cab2fee5a0870d6",
+      "solution_sha256": "707f0f5e2c323f610dc868edbfc25cb51405e39fc393bd71f9d9da876b05d1c4",
+      "runtime_verification": "UNRUN"
+    },
+    {
+      "task_id": "OPS-07",
+      "review": "root_substantive_document_review_after_independent_delta",
+      "decision": "Original task criterion/owner retained; additive requirement reviewed: Reuse existing permits, costs, cancellation and resource accounting for model calls, numeric trials and document re-evaluation; no independent DES budget ledger.",
+      "task_sha256": "ba6906949637c1ed3a225298f834dcaae45fb31cbf26bdc1910db74819c4c9f1",
+      "solution_sha256": "f7d9e789ab81a50294921693a2cf2b71417802973f57f5b160f84cc478d975b9",
+      "runtime_verification": "UNRUN"
+    },
+    {
+      "task_id": "DEB-10",
+      "review": "root_substantive_document_review_after_independent_delta",
+      "decision": "Original task criterion/owner retained; additive requirement reviewed: Where selected, independent print/accessibility/readability checks cover actual DES-06 document carrier; content-type or HTML preview does not prove DOCX fidelity.",
+      "task_sha256": "f3f3f2fd4e43b4681993340d1cde5ec4d702547f0322e100e8e313dcd262ac27",
+      "solution_sha256": "ca835c94c92cfdfe021dbc8430eb016bfdf2e83c76f8f0ed62dc9421ea52352d",
+      "runtime_verification": "UNRUN"
+    },
+    {
+      "task_id": "FINAL-FREEZE",
+      "review": "root_substantive_document_review_after_independent_delta",
+      "decision": "Original task criterion/owner retained; additive requirement reviewed: Include DES mechanism readiness and DES-10 reviewed comparison preparation; do not require final live/audience comparison to satisfy its own freeze predecessor.",
+      "task_sha256": "61bf3b2dd0debdef2097957d5d4a874e2351f898a71377dedace47487b655ae2",
+      "solution_sha256": "bc9a14bb1638a0501b8af0ac08e518f4e3a2569af7dcddca900be63a695943a7",
+      "runtime_verification": "UNRUN"
+    },
+    {
+      "task_id": "FINAL-REPLAY",
+      "review": "root_substantive_document_review_after_independent_delta",
+      "decision": "Original task criterion/owner retained; additive requirement reviewed: Execute DES-10 in this same frozen wave; join actual R14 obligations separately from unchanged original GY/Atlas/debt/R9 outcomes.",
+      "task_sha256": "7c0aedb9ca3291ac4d8f6a1768fa2337982e598abca6fb8dc455a2ebf0629a13",
+      "solution_sha256": "74b22787580d81ed1575542d730611a5983907cca9ec9cb93b45b52bbaac61f8",
+      "runtime_verification": "UNRUN"
+    },
+    {
+      "task_id": "FINAL-USE",
+      "review": "root_substantive_document_review_after_independent_delta",
+      "decision": "Original task criterion/owner retained; additive requirement reviewed: In addition to original programme obligations, reconcile every R14 capability obligation and selected required quality claim. Unavailable live-model or audience evidence cannot silently disappear. Controlled PASS is not authentic usefulness; explicit competent scope change required for deferral.",
+      "task_sha256": "fabf4d4355d20d47bf5c684e501f66ce35e320beaefb8d88d80109f2e79435d7",
+      "solution_sha256": "6823813c9c295fa9808baa5390e3ddc67afef27c77402ba0c2c38db3d675ec45",
+      "runtime_verification": "UNRUN"
+    },
+    {
+      "task_id": "DEB-13",
+      "review": "root_substantive_document_review_after_independent_delta",
+      "decision": "Original task criterion/owner retained; additive requirement reviewed: Expose established gross/net EVSI distinctly to DES-04 when selected. Unsupported EVSI remains limited; other native justified acquisition routes continue without fabricated numeric ranking.",
+      "task_sha256": "e8ec32ee966714c41772794e7107e661d895e8995bad3017c2fc8465d820e5a4",
+      "solution_sha256": "9a4b103004d3336330179c639f42d50b25d8df47f63068f98488ac482c63e436",
+      "runtime_verification": "UNRUN"
+    },
+    {
+      "task_id": "DES-01",
+      "review": "root_substantive_document_review_after_independent_delta",
+      "decision": "Intent/assumptions preserved at G6/formulator boundary; no mandate invented; one formulator writer. Known-solvable generation and scope-change loss witness prevent clarification-only success.",
+      "task_sha256": "da6969dc32f20d1a1200e29adaf1c9f6e017863e6391c44fc554522306090bd8",
+      "solution_sha256": "25c24bd8bc895ad4917b80febe56787a55ef5e6c2f7ec1b1c5ac60bce8e4279d",
+      "runtime_verification": "UNRUN"
+    },
+    {
+      "task_id": "DES-02",
+      "review": "root_substantive_document_review_after_independent_delta",
+      "decision": "Native N4 and grammar fallback reused. Actual provider channel, material mechanism distinction, unbound ideas and decision-relevant positive coexist; no fixed template catalogue or universal diversity quota.",
+      "task_sha256": "72597a0b984337aea820d08ae56e1b20db76d8e3ee5b65b3f0cd1dd1f3ead24d",
+      "solution_sha256": "3489ccd9fd6f5bb4046738630b552f5cac043415e97b4d24443e19913c627864",
+      "runtime_verification": "UNRUN"
+    },
+    {
+      "task_id": "DES-03",
+      "review": "root_substantive_document_review_after_independent_delta",
+      "decision": "Native numeric coordinator consumes actual joint/value outputs; categories/units/constraints and model uncertainty separated. Search.py shared with DES-08; false client-presence provenance is explicitly addressed.",
+      "task_sha256": "c583f8894f31c89d2b53969967e142078813b794ddaa532866649409acfbe173",
+      "solution_sha256": "a88b4cf2969bf734a347d16634b8030c41b6b82179d12c1fe5bc409bc0da15f3",
+      "runtime_verification": "UNRUN"
+    },
+    {
+      "task_id": "DES-04",
+      "review": "root_substantive_document_review_after_independent_delta",
+      "decision": "N6 actual feedback affects next choice; no duplicate scheduler, forced global EVSI gate or deferred MCTS requirement. History preserves unexecuted opportunities and bounded search.",
+      "task_sha256": "aa5e7fb073d5fdbed4e4452889e6b447df6933b3fcf6735aabef1459eb8b686c",
+      "solution_sha256": "caf2c74f84b1be901a0a4bbf476bcb7402b2c524c93e20f68219283c23b9dc64",
+      "runtime_verification": "UNRUN"
+    },
+    {
+      "task_id": "DES-05",
+      "review": "root_substantive_document_review_after_independent_delta",
+      "decision": "Generic Lex synthesis allocated separately from CNT-04 case data; CAP-05 evidence remains required for current-law claims. Three time axes, competing readings and proposed amendment route preserved.",
+      "task_sha256": "da1f47d827f7990531c202aeb6a254361c04da51594bd4a8cd0b5c7e7b1b1471",
+      "solution_sha256": "0b11543d95d109a99c1d5d6f7b320a57880df62dc4a092abaef762f4be6c7430",
+      "runtime_verification": "UNRUN"
+    },
+    {
+      "task_id": "DES-06",
+      "review": "root_substantive_document_review_after_independent_delta",
+      "decision": "Native document producer extended with material span/cell binding and real editable carrier; body/sidecar discrepancy falsifier. Private role only; UI-02 data-only remains unchanged.",
+      "task_sha256": "52e854e2ed9e72bcd1ed7c4998a603af425acadee5034fcb0a8a7045ed13c99b",
+      "solution_sha256": "7aca5a3069ef3b0978b0575c7704a07ad9a8bf92571a3d026a807cdcc5e0946d",
+      "runtime_verification": "UNRUN"
+    },
+    {
+      "task_id": "DES-07",
+      "review": "root_substantive_document_review_after_independent_delta",
+      "decision": "Actual edit/import invokes native affected recomputation; ambiguity remains visible. Concurrency, rights, retention and unsupported carrier features addressed; no hash-based semantic proof.",
+      "task_sha256": "7c53e3828a46a71bde55642ca32d645cae0357136d88d3b5fcec8943669f2720",
+      "solution_sha256": "56a895259dc5784a54a4b39a692ef877e8904edf8ff68c37861776ce27426a3e",
+      "runtime_verification": "UNRUN"
+    },
+    {
+      "task_id": "DES-08",
+      "review": "root_substantive_document_review_after_independent_delta",
+      "decision": "Actual evaluated lessons and candidate hypotheses separated; native active-LLM-memory prohibition retained. Retrieval influences next candidate and can be ablated; no O1/O3 or finetuning authority.",
+      "task_sha256": "3af074856dfac42e4f8db24f0d77abb3eca801dbffb56359f35fbd08ee986133",
+      "solution_sha256": "d56d082126d246e0ce3c88cfa77ad0e26715435998ebc3cf3e32077d1dfd2ac3",
+      "runtime_verification": "UNRUN"
+    },
+    {
+      "task_id": "DES-09",
+      "review": "root_substantive_document_review_after_independent_delta",
+      "decision": "Actual invocation/context/rights/usage and replay classes bound through existing ledgers. Candidate ledger/formulator read-only here; hidden reasoning not required; no new budget service.",
+      "task_sha256": "7a2f1fa207feb9f670bae520745de1e0807277ecba952ee6464b1b0212c935cb",
+      "solution_sha256": "85767b7fda729b9c1c8c79f879609d110fe3ac5815ef56f7fe413866627ccb6f",
+      "runtime_verification": "UNRUN"
+    },
+    {
+      "task_id": "DES-10",
+      "review": "root_substantive_document_review_after_independent_delta",
+      "decision": "Preparation and final-comparison stages separated. Decision-relevant positive, all-null falsifier, countercontrols and independent quality measured without usefulness reward/promotion. Unavailable external evaluation leaves exact claim open.",
+      "task_sha256": "c56e426252d2639cfe5868310f5c8766a0456e82e1ba89ec1daf2f0dd4410573",
+      "solution_sha256": "8176280eb33da66cc4fb45ba597ef3d835b698569a070f53fe6dd432be4ebd1c",
+      "runtime_verification": "UNRUN"
+    }
+  ],
+  "research_receipts": [
+    {
+      "path": "policy-engine/_build/post-e02-r14-capability-20261023/research-documents.md",
+      "sha256": "037e7699bfa46cdd3154ea4baf5d26c15788cbe10f3e754acf619503784b4340"
+    },
+    {
+      "path": "policy-engine/_build/post-e02-r14-capability-20261023/research-hybrid.md",
+      "sha256": "71229777ccda99550af5fc16c0cb0c4d16c815a9903cd06680a8b4f59f965c91"
+    },
+    {
+      "path": "policy-engine/_build/post-e02-r14-capability-20261023/research-learning.md",
+      "sha256": "fe5662345ddda13891ea1eea5be6c878ed3a3face0008ba27289ccef35b4dfe2"
+    },
+    {
+      "path": "policy-engine/_build/post-e02-r14-capability-20261023/research-legal.md",
+      "sha256": "08177fdbec8529720a800bf8b2f84e0e0902f2af41fbadf053a037d298489a86"
+    },
+    {
+      "path": "policy-engine/_build/post-e02-r14-capability-20261023/research-quality.md",
+      "sha256": "9a3a831e87db447586d40db6ba2323cd17c8b3719fd5b9428e31900f4f742681"
+    },
+    {
+      "path": "policy-engine/_build/post-e02-r14-capability-20261023/research-search.md",
+      "sha256": "25401c19c6b49d590a2b8c1b1bab0d53c76967e765884bf791702911ea3b8309"
+    }
+  ],
+  "independent_review_receipts": [
+    {
+      "path": "assurance/r14-reviews/red-capacity.md",
+      "sha256": "db9771d236980bdb92036d44ca7bc1dde66b84f01b68f30867d7fb9962475f4a"
+    },
+    {
+      "path": "assurance/r14-reviews/red-execution.md",
+      "sha256": "7ab0e73b84bec71064821754577582ad0f955b347ffa7cac74e2a73a67a1f00c"
+    },
+    {
+      "path": "assurance/r14-reviews/red-legal-documents.md",
+      "sha256": "370f56e51222b6ea2128f68256530b731534bc397779c786f60509e0f2253a6d"
+    }
+  ],
+  "delegation": "six direct researchers; three separate direct red reviewers; no child delegation",
+  "product_execution": "UNRUN",
+  "SDD_changes": "none"
+}

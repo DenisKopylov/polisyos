@@ -562,7 +562,13 @@
         "CAP-02": "interface_agreement",
         "CAP-03": "interface_agreement"
       },
-      "interface_agreement_scope_ref": "execution/07-scoped-readiness.md#edge-decisions"
+      "interface_agreement_scope_ref": "execution/07-scoped-readiness.md#edge-decisions",
+      "r14_extension": {
+        "requirement": "Keep candidate extracted legal relations separate from verified relations; preserve source span/version, language, cross-reference alternatives and legal time roles. Supply DES-05 via the existing relation owner; do not duplicate interpretation synthesis.",
+        "detail": "solutions/13-productive-design.md#extensions",
+        "quality_ref": "assurance/08-productive-search-and-document-quality.md",
+        "product_verification": "UNRUN"
+      }
     },
     {
       "id": "CAP-06",
@@ -1330,7 +1336,13 @@
         "original_obligation_disposition: canonical owner decision; history preserved"
       ],
       "dependency_stage": "owner_readiness",
-      "completion_contract_ref": "execution/stage-requirements.json#default"
+      "completion_contract_ref": "execution/stage-requirements.json#default",
+      "r14_extension": {
+        "requirement": "Apply existing rights/retention/restore rules to LLM context, caches and document revisions; do not introduce perpetual prompt storage.",
+        "detail": "solutions/13-productive-design.md#extensions",
+        "quality_ref": "assurance/08-productive-search-and-document-quality.md",
+        "product_verification": "UNRUN"
+      }
     },
     {
       "id": "LIF-06",
@@ -1557,7 +1569,13 @@
         "original_obligation_disposition: canonical owner decision; history preserved"
       ],
       "dependency_stage": "owner_readiness",
-      "completion_contract_ref": "execution/stage-requirements.json#default"
+      "completion_contract_ref": "execution/stage-requirements.json#default",
+      "r14_extension": {
+        "requirement": "Track actual candidate/memory/context influence and selection exposure for DES-08/09; revoked/stale history cannot remain active by copied summaries. Preserve original closed replay.",
+        "detail": "solutions/13-productive-design.md#extensions",
+        "quality_ref": "assurance/08-productive-search-and-document-quality.md",
+        "product_verification": "UNRUN"
+      }
     },
     {
       "id": "LIF-08",
@@ -3005,7 +3023,13 @@
       "completion_contract_ref": "execution/stage-requirements.json#verification_preparation",
       "acceptance_evidence_requirements": [
         "actual frozen source/input/backend profile"
-      ]
+      ],
+      "r14_extension": {
+        "requirement": "Share exact real producer/consumer replay identity with DES-10; original V2 criterion remains independently mandatory.",
+        "detail": "solutions/13-productive-design.md#extensions",
+        "quality_ref": "assurance/08-productive-search-and-document-quality.md",
+        "product_verification": "UNRUN"
+      }
     },
     {
       "id": "GYD-18",
@@ -3082,7 +3106,13 @@
       "dependency_stage_overrides": {
         "GYD-17": "interface_agreement"
       },
-      "interface_agreement_scope_ref": "execution/07-scoped-readiness.md#edge-decisions"
+      "interface_agreement_scope_ref": "execution/07-scoped-readiness.md#edge-decisions",
+      "r14_extension": {
+        "requirement": "Share full frozen case denominator and distinct-domain strata with DES-10; do not mix candidates/seeds with independent case count.",
+        "detail": "solutions/13-productive-design.md#extensions",
+        "quality_ref": "assurance/08-productive-search-and-document-quality.md",
+        "product_verification": "UNRUN"
+      }
     },
     {
       "id": "GYD-19",
@@ -3230,7 +3260,13 @@
       "dependency_stage_overrides": {
         "GYD-17": "interface_agreement"
       },
-      "interface_agreement_scope_ref": "execution/07-scoped-readiness.md#edge-decisions"
+      "interface_agreement_scope_ref": "execution/07-scoped-readiness.md#edge-decisions",
+      "r14_extension": {
+        "requirement": "Distinguish recorded LLM response reconstruction from fresh live stochastic behavior and deterministic numeric replay. Unknown provider version limits the claim.",
+        "detail": "solutions/13-productive-design.md#extensions",
+        "quality_ref": "assurance/08-productive-search-and-document-quality.md",
+        "product_verification": "UNRUN"
+      }
     },
     {
       "id": "GYD-21",
@@ -3384,7 +3420,13 @@
         "GYD-17": "interface_agreement",
         "GYD-18": "interface_agreement"
       },
-      "interface_agreement_scope_ref": "execution/07-scoped-readiness.md#edge-decisions"
+      "interface_agreement_scope_ref": "execution/07-scoped-readiness.md#edge-decisions",
+      "r14_extension": {
+        "requirement": "Read DES-10 productive quality, diversity, cost and false-abstention diagnostics without using useful_design_rate as promotion objective.",
+        "detail": "solutions/13-productive-design.md#extensions",
+        "quality_ref": "assurance/08-productive-search-and-document-quality.md",
+        "product_verification": "UNRUN"
+      }
     },
     {
       "id": "GYD-23",
@@ -3445,7 +3487,13 @@
         "original_obligation_disposition: canonical owner decision; history preserved"
       ],
       "dependency_stage": "owner_readiness",
-      "completion_contract_ref": "execution/stage-requirements.json#default"
+      "completion_contract_ref": "execution/stage-requirements.json#default",
+      "r14_extension": {
+        "requirement": "R14 richer N4/N6 search does not alter this Slice0 BIND/ESTIMATE/VERIFY scope or terminal. DEB-13 EVSI and DES-04 use existing compatible interfaces only; do not introduce a blanket numeric-EVSI requirement.",
+        "detail": "solutions/13-productive-design.md#extensions",
+        "quality_ref": "assurance/08-productive-search-and-document-quality.md",
+        "product_verification": "UNRUN"
+      }
     },
     {
       "id": "GYD-24",
@@ -3568,7 +3616,13 @@
         "original_obligation_disposition: canonical owner decision; history preserved"
       ],
       "dependency_stage": "owner_readiness",
-      "completion_contract_ref": "execution/stage-requirements.json#default"
+      "completion_contract_ref": "execution/stage-requirements.json#default",
+      "r14_extension": {
+        "requirement": "Retain original retrieval adequacy; DES-10 adds separate downstream semantic diversity/transfer evaluation. Retrieval hits alone do not demonstrate learning.",
+        "detail": "solutions/13-productive-design.md#extensions",
+        "quality_ref": "assurance/08-productive-search-and-document-quality.md",
+        "product_verification": "UNRUN"
+      }
     },
     {
       "id": "GYD-26",
@@ -3628,7 +3682,13 @@
         "original_obligation_disposition: canonical owner decision; history preserved"
       ],
       "dependency_stage": "owner_readiness",
-      "completion_contract_ref": "execution/stage-requirements.json#default"
+      "completion_contract_ref": "execution/stage-requirements.json#default",
+      "r14_extension": {
+        "requirement": "Judge output binding proves identity only. DES-10 tests order/verbosity/provider bias and independent agreement; LLM judge consensus never authorizes.",
+        "detail": "solutions/13-productive-design.md#extensions",
+        "quality_ref": "assurance/08-productive-search-and-document-quality.md",
+        "product_verification": "UNRUN"
+      }
     },
     {
       "id": "GYD-27",
@@ -3880,6 +3940,12 @@
       "completion_contract_ref": "execution/stage-requirements.json#default",
       "original_specific_obligations": {
         "foundry-ukraine-method-contract-consumer-residual": "Measure and repair the actual workflow-consumer coverage of all original13 verified Ukraine method contracts/families. Bind each admitted contract to a real workflow caller, produced result and fresh consumer or exact original-criterion limitation; the currently exercised single family cannot stand for the set. Preserve GY-G composition criteria and GY-S2 knowledge binding as distinct claims; source-derived set readback controls, not a hardcoded13."
+      },
+      "r14_extension": {
+        "requirement": "Supply actual joint simulation/composition evidence to DES-03. Add an individually/pairwise plausible but jointly divergent case, keeping K_sim distinct from K_world; do not build a search controller here.",
+        "detail": "solutions/13-productive-design.md#extensions",
+        "quality_ref": "assurance/08-productive-search-and-document-quality.md",
+        "product_verification": "UNRUN"
       }
     },
     {
@@ -3943,7 +4009,13 @@
         "original_obligation_disposition: canonical owner decision; history preserved"
       ],
       "dependency_stage": "owner_readiness",
-      "completion_contract_ref": "execution/stage-requirements.json#default"
+      "completion_contract_ref": "execution/stage-requirements.json#default",
+      "r14_extension": {
+        "requirement": "Preserve vector/set-valued objectives and model-sensitive/incomparable choices in DES-03/06; no implicit social weights or scalar promotion winner.",
+        "detail": "solutions/13-productive-design.md#extensions",
+        "quality_ref": "assurance/08-productive-search-and-document-quality.md",
+        "product_verification": "UNRUN"
+      }
     },
     {
       "id": "GYD-32",
@@ -4074,7 +4146,13 @@
         }
       ],
       "dependency_stage": "owner_readiness",
-      "completion_contract_ref": "execution/stage-requirements.json#default"
+      "completion_contract_ref": "execution/stage-requirements.json#default",
+      "r14_extension": {
+        "requirement": "Check the meaning of emitted versus available instrument_family_coverage against actual selected S2 emissions. Preserve S2 bounded one-candidate scope; names/menu membership are not measured emitted coverage.",
+        "detail": "solutions/13-productive-design.md#extensions",
+        "quality_ref": "assurance/08-productive-search-and-document-quality.md",
+        "product_verification": "UNRUN"
+      }
     },
     {
       "id": "UI-01",
@@ -4276,7 +4354,13 @@
         }
       ],
       "dependency_stage": "owner_readiness",
-      "completion_contract_ref": "execution/stage-requirements.json#overrides/UI-02"
+      "completion_contract_ref": "execution/stage-requirements.json#overrides/UI-02",
+      "r14_extension": {
+        "requirement": "Data-only public practice remains unchanged. DES-06/07 private document drafting/export does not acquire public prose permission through this task.",
+        "detail": "solutions/13-productive-design.md#extensions",
+        "quality_ref": "assurance/08-productive-search-and-document-quality.md",
+        "product_verification": "UNRUN"
+      }
     },
     {
       "id": "UI-03",
@@ -4611,7 +4695,13 @@
           "consumer": "UI-05 repeated REVIEWER/MACHINE/PUBLIC exposures if those audiences are actually allowed; diff/hash/order/timing cannot bypass rights."
         }
       ],
-      "pa2_scope_rule": "DS9 owns the bounded PA2 pre-action gate; DS14 owns PA3 compression-loss/authority-delta projection. If DS14 remains proposal-only, classify external action out_of_scope with no action buttons; preserve the accepted DS9 bounded receipt, never claim universal PA2 coverage."
+      "pa2_scope_rule": "DS9 owns the bounded PA2 pre-action gate; DS14 owns PA3 compression-loss/authority-delta projection. If DS14 remains proposal-only, classify external action out_of_scope with no action buttons; preserve the accepted DS9 bounded receipt, never claim universal PA2 coverage.",
+      "r14_extension": {
+        "requirement": "Pass exact framing/unknowns to DES-01 and show authorized candidate references. G6 remains bounded intake; PUBLIC raw recommendation text remains out of scope.",
+        "detail": "solutions/13-productive-design.md#extensions",
+        "quality_ref": "assurance/08-productive-search-and-document-quality.md",
+        "product_verification": "UNRUN"
+      }
     },
     {
       "id": "UI-06",
@@ -6465,7 +6555,13 @@
       "dependency_stage_overrides": {
         "CNT-02": "interface_agreement"
       },
-      "interface_agreement_scope_ref": "execution/07-scoped-readiness.md#edge-decisions"
+      "interface_agreement_scope_ref": "execution/07-scoped-readiness.md#edge-decisions",
+      "r14_extension": {
+        "requirement": "Supply selected multi-provision case sources, exceptions/transition/competence and appropriate review inputs for DES-05. This remains a content/data/config lane; DES-05 owns generic Lex/Scientist source delta. Preserve current law versus proposed amendment.",
+        "detail": "solutions/13-productive-design.md#extensions",
+        "quality_ref": "assurance/08-productive-search-and-document-quality.md",
+        "product_verification": "UNRUN"
+      }
     },
     {
       "id": "CNT-05",
@@ -7012,7 +7108,13 @@
         }
       ],
       "dependency_stage": "owner_readiness",
-      "completion_contract_ref": "execution/stage-requirements.json#default"
+      "completion_contract_ref": "execution/stage-requirements.json#default",
+      "r14_extension": {
+        "requirement": "Compare DES-05 interpretation branches and DES-08 influence lineage when selected; preserve disagreement, source dependence and no automatic current authority from history.",
+        "detail": "solutions/13-productive-design.md#extensions",
+        "quality_ref": "assurance/08-productive-search-and-document-quality.md",
+        "product_verification": "UNRUN"
+      }
     },
     {
       "id": "CNT-09",
@@ -7188,7 +7290,13 @@
         }
       ],
       "dependency_stage": "owner_readiness",
-      "completion_contract_ref": "execution/stage-requirements.json#overrides/CNT-09"
+      "completion_contract_ref": "execution/stage-requirements.json#overrides/CNT-09",
+      "r14_extension": {
+        "requirement": "For selected substantive-design case, consume actual DES alternative, legal and document artifacts; prove changed premise changes the design/document. Authentic commissioning remains separate from controlled positive proof.",
+        "detail": "solutions/13-productive-design.md#extensions",
+        "quality_ref": "assurance/08-productive-search-and-document-quality.md",
+        "product_verification": "UNRUN"
+      }
     },
     {
       "id": "OPS-01",
@@ -7790,7 +7898,13 @@
         "original_obligation_disposition: canonical owner decision; history preserved"
       ],
       "dependency_stage": "owner_readiness",
-      "completion_contract_ref": "execution/stage-requirements.json#default"
+      "completion_contract_ref": "execution/stage-requirements.json#default",
+      "r14_extension": {
+        "requirement": "Reuse existing permits, costs, cancellation and resource accounting for model calls, numeric trials and document re-evaluation; no independent DES budget ledger.",
+        "detail": "solutions/13-productive-design.md#extensions",
+        "quality_ref": "assurance/08-productive-search-and-document-quality.md",
+        "product_verification": "UNRUN"
+      }
     },
     {
       "id": "OPS-08",
@@ -9121,7 +9235,13 @@
       ],
       "dependency_stage": "owner_readiness",
       "completion_contract_ref": "execution/stage-requirements.json#default",
-      "dispatch_condition": "Actual E02 acceptance; completed task-scoped accepted-source rebind under execution/07-scoped-readiness.md; exact required upstream stage/interface pins; non-overlapping write lease and phase-specific resource permit. Global P0 completion is not required for a reconciled independent scope."
+      "dispatch_condition": "Actual E02 acceptance; completed task-scoped accepted-source rebind under execution/07-scoped-readiness.md; exact required upstream stage/interface pins; non-overlapping write lease and phase-specific resource permit. Global P0 completion is not required for a reconciled independent scope.",
+      "r14_extension": {
+        "requirement": "Where selected, independent print/accessibility/readability checks cover actual DES-06 document carrier; content-type or HTML preview does not prove DOCX fidelity.",
+        "detail": "solutions/13-productive-design.md#extensions",
+        "quality_ref": "assurance/08-productive-search-and-document-quality.md",
+        "product_verification": "UNRUN"
+      }
     },
     {
       "id": "DEB-11",
@@ -9345,7 +9465,17 @@
         "DEB-13",
         "DEB-14",
         "UI-20",
-        "P0-REBIND"
+        "P0-REBIND",
+        "DES-01",
+        "DES-02",
+        "DES-03",
+        "DES-04",
+        "DES-05",
+        "DES-06",
+        "DES-07",
+        "DES-08",
+        "DES-09",
+        "DES-10"
       ],
       "source_ids": [],
       "owner_paths": [
@@ -9375,7 +9505,13 @@
       ],
       "dependency_stage": "owner_readiness",
       "completion_contract_ref": "execution/stage-requirements.json#default",
-      "release_credit": null
+      "release_credit": null,
+      "r14_extension": {
+        "requirement": "Include DES mechanism readiness and DES-10 reviewed comparison preparation; do not require final live/audience comparison to satisfy its own freeze predecessor.",
+        "detail": "solutions/13-productive-design.md#extensions",
+        "quality_ref": "assurance/08-productive-search-and-document-quality.md",
+        "product_verification": "UNRUN"
+      }
     },
     {
       "id": "FINAL-REVIEW",
@@ -9465,12 +9601,19 @@
         "GYD-19",
         "GYD-20",
         "GYD-21",
-        "GYD-22"
+        "GYD-22",
+        "DES-10"
       ],
       "acceptance_evidence_requirements": [
         "Complete selected frozen verification matrix, including every required GY, Atlas/browser/MACHINE/a11y, R9 acquisition/lifecycle and operational row. One source/input/backend identity per compatible shard; no omitted or substituted row.",
         "Actual LIF-09 and GYD-16–22 deciding outputs plus all matrix-bound Atlas/operational outputs; preserve failures, interruptions, skipped backends and genuine unavailable inputs. No product acceptance from receipt count."
-      ]
+      ],
+      "r14_extension": {
+        "requirement": "Execute DES-10 in this same frozen wave; join actual R14 obligations separately from unchanged original GY/Atlas/debt/R9 outcomes.",
+        "detail": "solutions/13-productive-design.md#extensions",
+        "quality_ref": "assurance/08-productive-search-and-document-quality.md",
+        "product_verification": "UNRUN"
+      }
     },
     {
       "id": "FINAL-USE",
@@ -9521,6 +9664,12 @@
         "rule": "Read the entire rebound original set and each required predicate; each mandatory original needs accepted evidence or competent-owner formal closure under its original criterion. Preserved historical closures need no reopening absent a material delta. Correct refusal, owner-readiness, test PASS, unselected-by-preference and planned external request do not close an original obligation.",
         "human_scope_change": "Only explicit human scope change can authorize earlier use with deferred mandatory work; record exact IDs, claims, risks and validity, never infer it.",
         "negative": "Leave GY-O0-NC-01 or another mandatory original unresolved after all local tasks are ready: FINAL-USE remains blocked."
+      },
+      "r14_extension": {
+        "requirement": "In addition to original programme obligations, reconcile every R14 capability obligation and selected required quality claim. Unavailable live-model or audience evidence cannot silently disappear. Controlled PASS is not authentic usefulness; explicit competent scope change required for deferral.",
+        "detail": "solutions/13-productive-design.md#extensions",
+        "quality_ref": "assurance/08-productive-search-and-document-quality.md",
+        "product_verification": "UNRUN"
       }
     },
     {
@@ -9580,7 +9729,13 @@
       "dependency_stage": "owner_readiness",
       "completion_contract_ref": "execution/stage-requirements.json#default",
       "owner_paths_role": "Metric definition/producer owns this new residual. GYD-23 consumes the selected lawful result where relevant; core SearchLedger retains its native writer. No duplicate VOI budget owner.",
-      "dispatch_condition": "Actual E02 acceptance; completed task-scoped accepted-source rebind under execution/07-scoped-readiness.md; exact required upstream stage/interface pins; non-overlapping write lease and phase-specific resource permit. Global P0 completion is not required for a reconciled independent scope."
+      "dispatch_condition": "Actual E02 acceptance; completed task-scoped accepted-source rebind under execution/07-scoped-readiness.md; exact required upstream stage/interface pins; non-overlapping write lease and phase-specific resource permit. Global P0 completion is not required for a reconciled independent scope.",
+      "r14_extension": {
+        "requirement": "Expose established gross/net EVSI distinctly to DES-04 when selected. Unsupported EVSI remains limited; other native justified acquisition routes continue without fabricated numeric ranking.",
+        "detail": "solutions/13-productive-design.md#extensions",
+        "quality_ref": "assurance/08-productive-search-and-document-quality.md",
+        "product_verification": "UNRUN"
+      }
     },
     {
       "id": "DEB-14",
@@ -9704,6 +9859,855 @@
       "completion_contract_ref": "execution/stage-requirements.json#default",
       "issuer_semantics": "Private issuer means internal exhaustive/branded presentation constructor, not external institutional signer. Actual promotion authority remains typed owner evidence; no self-appointment.",
       "dispatch_condition": "Actual E02 acceptance; completed task-scoped accepted-source rebind under execution/07-scoped-readiness.md; exact required upstream stage/interface pins; non-overlapping write lease and phase-specific resource permit. Global P0 completion is not required for a reconciled independent scope."
+    },
+    {
+      "implementation_status": "planned_after_E02_acceptance",
+      "product_verification": "UNRUN",
+      "source_code_observation": "dccea950845cda5b38f026e7770c07819d31f4d9",
+      "dispatch_condition": "Actual E02 acceptance; completed task-scoped accepted-source rebind under execution/07-scoped-readiness.md; exact required upstream stage/interface pins; non-overlapping write lease and phase-specific resource permit. Global P0 completion is not required for a reconciled independent scope.",
+      "acceptance_steps": [
+        "Resolve original criterion and accepted E02 source; trace current producer and full consumer/companion footprint.",
+        "Pin expected property and independent oracle where needed; reproduce a distinguishing baseline negative.",
+        "Implement the smallest native-owner invariant and actual use; preserve native status/authority/time semantics.",
+        "Prove positive, adversarial and matched removal signals below through persisted state and fresh consumer; include public/generated companions.",
+        "Review exact candidate independently, resolve blockers, run scoped gates under resource permit, read back committed delivery and report limitations."
+      ],
+      "test_path_rule": "Use mirrored tests adjacent to actual affected modules after P0 rebind. Proposed paths in prose are not asserted existing. Record exact paths/commands before execution.",
+      "mandatory_companions": [
+        "native schema/rule version if changed",
+        "all actual consumers and generated family if affected",
+        "migration/retirement proof",
+        "task journal and original obligation disposition",
+        "deciding outputs and independent review"
+      ],
+      "lease_rule": "Resolve every key instance and exact path overlap before dispatch. Human-friendly resource_locks are descriptions, never independent mutex identities. Any shared file or semantic owner wins over differing labels.",
+      "completion_planes": [
+        "owner_delivery: reviewed native result with scoped local proof",
+        "composed_acceptance: actual emitted dependencies and fresh consumer on bound source",
+        "original_obligation_disposition: canonical owner decision; history preserved"
+      ],
+      "dependency_stage": "owner_readiness",
+      "completion_contract_ref": "execution/stage-requirements.json#default",
+      "id": "DES-01",
+      "title": "Preserve intent and competing problem framings through actual design intake",
+      "preferred_solution_ref": "solutions/13-productive-design.md#DES-01",
+      "source_ids": [
+        "R14 user-requested substantive capability residual; assurance/07-r14-capability-audit.md",
+        "architecture/04-generative-search-learning-and-documents.md"
+      ],
+      "requires_other_mechanisms": [
+        "UI-05 owns Clerk/API wiring; DES-01 owns native intent bridge only. Shared formulator edits with DES-02/08 need one writer.",
+        "Actual N4 output is required for composed acceptance; interface agreement permits early independent intake preparation."
+      ],
+      "owner_paths": [
+        "existing: policy-engine/src/polisyos/runtime/quality/proving_ground/bounded_request_agent.py",
+        "existing: policy-engine/src/polisyos/scientist/policy_design/formulator.py",
+        "existing: policy-engine/src/polisyos/scientist/nodes/builtins/planning/draft_policy_options.py"
+      ],
+      "deliverable": "Extend the existing request-frame/formulator handoff, preserving the original question and distinct proposed framings, affected populations, goals, value assumptions, mechanism hypotheses and declared unknowns. G6 remains bounded intake and tool routing; N4 owns intervention generation. A suggested frame or user preference is not a political mandate. Carry original language and semantic-loss records into the persisted hypothesis/candidate owner.",
+      "positive": "An ambiguous but usable question yields distinct explicit framings; an authorized selected frame reaches N4 with exact original intent and unknowns. A known-solvable bounded case yields real candidate generation, not only clarification/refusal.",
+      "adversarial": "A prompt that substitutes a different population, goal, jurisdiction or value basis cannot silently become the chosen task. Prompt injection cannot expand tools or egress rights; unrepresentable ideas survive as unbound hypotheses.",
+      "removal": "Remove the original-intent/selection bridge while keeping frame IDs: fresh generation-input and reviewer comparisons detect the meaning loss.",
+      "surface": "UI-05 reviewer/expert intake and hypothesis/frontier refs; no G6 PUBLIC recommendation text.",
+      "resource_locks": [
+        "write:design-intent-formulator",
+        "write:g6-intake-if-changed"
+      ],
+      "canonical_lease_keys": [
+        "write:design-intent-formulator",
+        "write:g6-intake-if-changed"
+      ],
+      "canonical_write_candidates": [
+        "policy-engine/src/polisyos/runtime/quality/proving_ground/bounded_request_agent.py",
+        "policy-engine/src/polisyos/scientist/policy_design/formulator.py",
+        "policy-engine/src/polisyos/scientist/nodes/builtins/planning/draft_policy_options.py"
+      ],
+      "owner_paths_role": "Pinned research anchors, not blanket write permission. Exact native writer/consumer/companion closure rebind at P0; one lease per real semantic owner/shared path.",
+      "rollback": "Suspend affected new use; preserve immutable history and legally permitted receipts; revert behavior by a forward repair/version, not history rewrite. Never restore revoked authority or rights.",
+      "migration": "Version native artifacts and consumers where needed; legacy provenance/claims are not backfilled as verified. Read old outputs with explicit limits; re-evaluate only actual affected current uses.",
+      "workstream": "DES",
+      "detail": "workstreams/07-productive-policy-design.md",
+      "depends_on": [
+        "P0-ACCEPT",
+        "UI-05"
+      ],
+      "capability_delta_ref": "solutions/13-productive-design.md#DES-01",
+      "input_resolution_rule": "Classify missing inputs as internal engineering/allocation, existing source record, or genuine external fact/permission. Investigate native alternatives and supply internal gaps; only genuine external requirements justify a scoped hold.",
+      "genuine_external_inputs": [
+        "Existing request/frame/mandate records and exact user selection where needed; absent political mandate limits authority, not hypothetical framing."
+      ],
+      "product_status": "planning_only; not E02 acceptance or finding closure",
+      "dependency_stage_overrides": {
+        "UI-05": "interface_agreement"
+      },
+      "r14_canonical_writer": "DES-01 is the single formulator.py writer for this cut and composes DES-02/08/09 requests. DES-02 is the single hypothesis_ledger.py writer. DES-09 owns prompt_tool_ledger.py/context invocation receipt and supplies its ref; other tasks consume these interfaces. Independent preparation remains allowed on disjoint files."
+    },
+    {
+      "implementation_status": "planned_after_E02_acceptance",
+      "product_verification": "UNRUN",
+      "source_code_observation": "dccea950845cda5b38f026e7770c07819d31f4d9",
+      "dispatch_condition": "Actual E02 acceptance; completed task-scoped accepted-source rebind under execution/07-scoped-readiness.md; exact required upstream stage/interface pins; non-overlapping write lease and phase-specific resource permit. Global P0 completion is not required for a reconciled independent scope.",
+      "acceptance_steps": [
+        "Resolve original criterion and accepted E02 source; trace current producer and full consumer/companion footprint.",
+        "Pin expected property and independent oracle where needed; reproduce a distinguishing baseline negative.",
+        "Implement the smallest native-owner invariant and actual use; preserve native status/authority/time semantics.",
+        "Prove positive, adversarial and matched removal signals below through persisted state and fresh consumer; include public/generated companions.",
+        "Review exact candidate independently, resolve blockers, run scoped gates under resource permit, read back committed delivery and report limitations."
+      ],
+      "test_path_rule": "Use mirrored tests adjacent to actual affected modules after P0 rebind. Proposed paths in prose are not asserted existing. Record exact paths/commands before execution.",
+      "mandatory_companions": [
+        "native schema/rule version if changed",
+        "all actual consumers and generated family if affected",
+        "migration/retirement proof",
+        "task journal and original obligation disposition",
+        "deciding outputs and independent review"
+      ],
+      "lease_rule": "Resolve every key instance and exact path overlap before dispatch. Human-friendly resource_locks are descriptions, never independent mutex identities. Any shared file or semantic owner wins over differing labels.",
+      "completion_planes": [
+        "owner_delivery: reviewed native result with scoped local proof",
+        "composed_acceptance: actual emitted dependencies and fresh consumer on bound source",
+        "original_obligation_disposition: canonical owner decision; history preserved"
+      ],
+      "dependency_stage": "owner_readiness",
+      "completion_contract_ref": "execution/stage-requirements.json#default",
+      "id": "DES-02",
+      "title": "Generate genuinely different policy mechanisms and hypotheses through native N4",
+      "preferred_solution_ref": "solutions/13-productive-design.md#DES-02",
+      "source_ids": [
+        "R14 user-requested substantive capability residual; assurance/07-r14-capability-audit.md",
+        "architecture/04-generative-search-learning-and-documents.md"
+      ],
+      "requires_other_mechanisms": [
+        "DES-02 owns N4 generation; DES-03 owns native numerical trials; DES-04 owns N6 feedback/fronts.",
+        "N4 historical executed status is preserved; this task closes the explicit substantive-quality and persistence/composition residual, not a wholesale rewrite."
+      ],
+      "owner_paths": [
+        "existing: policy-engine/src/polisyos/runtime/quality/design_generation.py",
+        "existing: policy-engine/src/polisyos/scientist/policy_design/formulator.py",
+        "existing: policy-engine/src/polisyos/runtime/quality/hypothesis_ledger.py"
+      ],
+      "deliverable": "Wire/extend the existing N4 drafter/formalizer/critic and grammar fallback into a persisted alternative set. LLMs propose causal hypotheses, operators, target slots, direct effects, intended effects and combinations; native compilation reports exact representability and loss. Grounded executable proposals and unbound research hypotheses remain distinct. Do not manufacture diversity with names or random parameter changes.",
+      "positive": "On a known-groundable case the real N4 route produces the required alternative set, including an independently checked material mechanism distinction, persists it and a fresh N6 consumer reads it. A newly registered conforming operator is discovered without a search-code edit.",
+      "adversarial": "Synonyms/IDs do not inflate diversity; similarly worded but causally different proposals do not collapse. Missing world/evidence/law facts remain declared unknown and cannot execute a fake bound effect. A missing provider leaves an honest degraded mode and usable grammar candidates.",
+      "removal": "Replace the set with paraphrases while retaining count/diversity markers; the semantic check fails. Remove candidate-firewall/source binding; protected downstream consumers refuse.",
+      "surface": "Private/reviewer alternatives, unresolved hypothesis and compilation-loss view; per-channel source lineage and actual emitted coverage.",
+      "resource_locks": [
+        "write:n4-design-generation",
+        "write:design-intent-formulator",
+        "write:hypothesis-ledger"
+      ],
+      "canonical_lease_keys": [
+        "write:n4-design-generation",
+        "write:hypothesis-ledger"
+      ],
+      "canonical_write_candidates": [
+        "policy-engine/src/polisyos/runtime/quality/design_generation.py",
+        "policy-engine/src/polisyos/runtime/quality/hypothesis_ledger.py"
+      ],
+      "owner_paths_role": "Pinned research anchors, not blanket write permission. Exact native writer/consumer/companion closure rebind at P0; one lease per real semantic owner/shared path.",
+      "rollback": "Suspend affected new use; preserve immutable history and legally permitted receipts; revert behavior by a forward repair/version, not history rewrite. Never restore revoked authority or rights.",
+      "migration": "Version native artifacts and consumers where needed; legacy provenance/claims are not backfilled as verified. Read old outputs with explicit limits; re-evaluate only actual affected current uses.",
+      "workstream": "DES",
+      "detail": "workstreams/07-productive-policy-design.md",
+      "depends_on": [
+        "P0-ACCEPT",
+        "DES-01",
+        "DES-09"
+      ],
+      "capability_delta_ref": "solutions/13-productive-design.md#DES-02",
+      "input_resolution_rule": "Classify missing inputs as internal engineering/allocation, existing source record, or genuine external fact/permission. Investigate native alternatives and supply internal gaps; only genuine external requirements justify a scoped hold.",
+      "genuine_external_inputs": [
+        "Selected model access/allowed context for live LLM proof; grammar/resources and controlled multi-mechanism case. Model absence does not erase non-LLM candidates; live-LLM outcome remains UNRUN."
+      ],
+      "product_status": "planning_only; not E02 acceptance or finding closure",
+      "dependency_stage_overrides": {
+        "DES-01": "interface_agreement",
+        "DES-09": "interface_agreement"
+      },
+      "r14_review_refinement": "On the designated productive positive control, the alternative must answer a predeclared substantive decision need or identify a specific evidence path that resolves it. Structural validity/diversity alone does not establish productive capability. Independent labels and the frozen DES-10 criterion decide that bounded claim.",
+      "r14_canonical_writer": "DES-02 owns N4 and hypothesis_ledger.py; formulator.py edits are handed to DES-01 as the single writer. DES-09 supplies invocation refs. N4 fresh consumer must resolve the persisted invocation ref, not a declared model label.",
+      "read_only_mechanism_anchors": ["policy-engine/src/polisyos/scientist/policy_design/formulator.py"]
+    },
+    {
+      "implementation_status": "planned_after_E02_acceptance",
+      "product_verification": "UNRUN",
+      "source_code_observation": "dccea950845cda5b38f026e7770c07819d31f4d9",
+      "dispatch_condition": "Actual E02 acceptance; completed task-scoped accepted-source rebind under execution/07-scoped-readiness.md; exact required upstream stage/interface pins; non-overlapping write lease and phase-specific resource permit. Global P0 completion is not required for a reconciled independent scope.",
+      "acceptance_steps": [
+        "Resolve original criterion and accepted E02 source; trace current producer and full consumer/companion footprint.",
+        "Pin expected property and independent oracle where needed; reproduce a distinguishing baseline negative.",
+        "Implement the smallest native-owner invariant and actual use; preserve native status/authority/time semantics.",
+        "Prove positive, adversarial and matched removal signals below through persisted state and fresh consumer; include public/generated companions.",
+        "Review exact candidate independently, resolve blockers, run scoped gates under resource permit, read back committed delivery and report limitations."
+      ],
+      "test_path_rule": "Use mirrored tests adjacent to actual affected modules after P0 rebind. Proposed paths in prose are not asserted existing. Record exact paths/commands before execution.",
+      "mandatory_companions": [
+        "native schema/rule version if changed",
+        "all actual consumers and generated family if affected",
+        "migration/retirement proof",
+        "task journal and original obligation disposition",
+        "deciding outputs and independent review"
+      ],
+      "lease_rule": "Resolve every key instance and exact path overlap before dispatch. Human-friendly resource_locks are descriptions, never independent mutex identities. Any shared file or semantic owner wins over differing labels.",
+      "completion_planes": [
+        "owner_delivery: reviewed native result with scoped local proof",
+        "composed_acceptance: actual emitted dependencies and fresh consumer on bound source",
+        "original_obligation_disposition: canonical owner decision; history preserved"
+      ],
+      "dependency_stage": "owner_readiness",
+      "completion_contract_ref": "execution/stage-requirements.json#default",
+      "id": "DES-03",
+      "title": "Compose structural proposals with typed numerical and multiobjective search",
+      "preferred_solution_ref": "solutions/13-productive-design.md#DES-03",
+      "source_ids": [
+        "R14 user-requested substantive capability residual; assurance/07-r14-capability-audit.md",
+        "architecture/04-generative-search-learning-and-documents.md"
+      ],
+      "requires_other_mechanisms": [
+        "GYD-30 alone owns joint CompositionCertificate; GYD-31 owns ValueOuterSet. DES-03 consumes actual outputs, not new certificates.",
+        "GYD-23 Slice0 remains BIND/ESTIMATE/VERIFY; this richer search is a separately selected existing Scientist/N4-N6 route."
+      ],
+      "owner_paths": [
+        "existing: policy-engine/src/polisyos/scientist/policy_design/search.py",
+        "existing: policy-engine/src/polisyos/scientist/methods/search/strategies/space.py",
+        "existing: policy-engine/src/polisyos/scientist/methods/search/strategies/multi_objective.py",
+        "existing: policy-engine/src/polisyos/scientist/nodes/builtins/planning/run_hierarchical_policy_search.py"
+      ],
+      "deliverable": "Extend the canonical Scientist hierarchical coordinator: structural proposals define typed discrete/conditional spaces, native search methods evaluate numerical parameters and constraints, and existing joint simulation supplies candidate evaluation. Reuse BO/grid/random/multiobjective implementations by method suitability. Preserve a nondominated set and unknown/incomparable outcomes; no hidden social scalarization or second optimizer.",
+      "positive": "A mixed structural/parameter problem produces actual trials and a fresh-reader Pareto/model-sensitive set. Conflicting objectives retain tradeoffs; a two-intervention joint effect changes ranking/feasibility compared with isolated evaluation.",
+      "adversarial": "Wrong units, stale objective direction, impossible categories, high-score infeasible designs, missing required model completions and ungrounded weights cannot produce a feasible/robust winner. Provider-client presence alone cannot label a deterministic seed LLM-generated.",
+      "removal": "Remove real trial/joint-evaluation calls while retaining scores/certificates: consumer/oracle fails. Remove one required model completion: robust result becomes incomplete.",
+      "surface": "Existing frontier/dossier presents per-objective outcomes, feasibility, model dependence, actual cost and bounded search coverage.",
+      "resource_locks": [
+        "write:scientist-policy-search",
+        "write:native-search-space",
+        "write:native-multiobjective"
+      ],
+      "canonical_lease_keys": [
+        "write:scientist-policy-search",
+        "write:native-search-space",
+        "write:native-multiobjective"
+      ],
+      "canonical_write_candidates": [
+        "policy-engine/src/polisyos/scientist/policy_design/search.py",
+        "policy-engine/src/polisyos/scientist/methods/search/strategies/space.py",
+        "policy-engine/src/polisyos/scientist/methods/search/strategies/multi_objective.py",
+        "policy-engine/src/polisyos/scientist/nodes/builtins/planning/run_hierarchical_policy_search.py"
+      ],
+      "owner_paths_role": "Pinned research anchors, not blanket write permission. Exact native writer/consumer/companion closure rebind at P0; one lease per real semantic owner/shared path.",
+      "rollback": "Suspend affected new use; preserve immutable history and legally permitted receipts; revert behavior by a forward repair/version, not history rewrite. Never restore revoked authority or rights.",
+      "migration": "Version native artifacts and consumers where needed; legacy provenance/claims are not backfilled as verified. Read old outputs with explicit limits; re-evaluate only actual affected current uses.",
+      "workstream": "DES",
+      "detail": "workstreams/07-productive-policy-design.md",
+      "depends_on": [
+        "P0-ACCEPT",
+        "DES-02",
+        "GYD-30",
+        "GYD-31"
+      ],
+      "capability_delta_ref": "solutions/13-productive-design.md#DES-03",
+      "input_resolution_rule": "Classify missing inputs as internal engineering/allocation, existing source record, or genuine external fact/permission. Investigate native alternatives and supply internal gaps; only genuine external requirements justify a scoped hold.",
+      "genuine_external_inputs": [
+        "Native simulation/method contracts; selected objective/value basis. External weights or law are required only for claims that depend on them; retain set-valued candidate comparisons without them."
+      ],
+      "product_status": "planning_only; not E02 acceptance or finding closure",
+      "dependency_stage_overrides": {
+        "DES-02": "interface_agreement",
+        "GYD-30": "interface_agreement",
+        "GYD-31": "interface_agreement"
+      }
+    },
+    {
+      "implementation_status": "planned_after_E02_acceptance",
+      "product_verification": "UNRUN",
+      "source_code_observation": "dccea950845cda5b38f026e7770c07819d31f4d9",
+      "dispatch_condition": "Actual E02 acceptance; completed task-scoped accepted-source rebind under execution/07-scoped-readiness.md; exact required upstream stage/interface pins; non-overlapping write lease and phase-specific resource permit. Global P0 completion is not required for a reconciled independent scope.",
+      "acceptance_steps": [
+        "Resolve original criterion and accepted E02 source; trace current producer and full consumer/companion footprint.",
+        "Pin expected property and independent oracle where needed; reproduce a distinguishing baseline negative.",
+        "Implement the smallest native-owner invariant and actual use; preserve native status/authority/time semantics.",
+        "Prove positive, adversarial and matched removal signals below through persisted state and fresh consumer; include public/generated companions.",
+        "Review exact candidate independently, resolve blockers, run scoped gates under resource permit, read back committed delivery and report limitations."
+      ],
+      "test_path_rule": "Use mirrored tests adjacent to actual affected modules after P0 rebind. Proposed paths in prose are not asserted existing. Record exact paths/commands before execution.",
+      "mandatory_companions": [
+        "native schema/rule version if changed",
+        "all actual consumers and generated family if affected",
+        "migration/retirement proof",
+        "task journal and original obligation disposition",
+        "deciding outputs and independent review"
+      ],
+      "lease_rule": "Resolve every key instance and exact path overlap before dispatch. Human-friendly resource_locks are descriptions, never independent mutex identities. Any shared file or semantic owner wins over differing labels.",
+      "completion_planes": [
+        "owner_delivery: reviewed native result with scoped local proof",
+        "composed_acceptance: actual emitted dependencies and fresh consumer on bound source",
+        "original_obligation_disposition: canonical owner decision; history preserved"
+      ],
+      "dependency_stage": "owner_readiness",
+      "completion_contract_ref": "execution/stage-requirements.json#default",
+      "id": "DES-04",
+      "title": "Close substantive N6/N7 feedback, acquisition and alternative-retention loop",
+      "preferred_solution_ref": "solutions/13-productive-design.md#DES-04",
+      "source_ids": [
+        "R14 user-requested substantive capability residual; assurance/07-r14-capability-audit.md",
+        "architecture/04-generative-search-learning-and-documents.md"
+      ],
+      "requires_other_mechanisms": [
+        "DES-04 is the N6 bridge writer; CAP/GYD-24/DEB-13 keep their mechanisms. Evidence-policy/legal changes use existing LIF invalidation.",
+        "DES-08 may prepare memory interface concurrently; its later history influence is not required for the first within-run loop."
+      ],
+      "owner_paths": [
+        "existing: policy-engine/src/polisyos/runtime/quality/generation_cycle.py",
+        "existing: policy-engine/src/polisyos/runtime/quality/recursive_generation_cycle.py",
+        "existing: policy-engine/src/polisyos/runtime/quality/acquisition_planner.py"
+      ],
+      "deliverable": "Extend native N6/N7 bridges so actual failed assumptions, counterexamples, numerical outcomes and missing evidence alter the next candidate or acquisition decision. Preserve existing fronts and declared exploration limits. Historical deferred MCTS/meta/Portfolio machinery is not added as a prerequisite.",
+      "positive": "A material counterexample produces a revised mechanism or properly rejected branch; a genuine new input changes a subsequent trial/choice. Under honest budget exhaustion the set and next useful action remain visible.",
+      "adversarial": "Repeated paraphrases cannot appear as exploration; a high proxy/weak grounding candidate stays out of DecisionFront. Full declared input-family coverage cannot stand in for actual emitted/visited coverage.",
+      "removal": "Disable the feedback or acquisition-result bridge while retaining histories/front markers: the distinguishing next-choice test fails. Removing grammar fallback exposes lost reachable candidates.",
+      "surface": "Existing Cycle Board/frontier explains actual changes, terminal, research opportunities, costs and omitted branches. Public projections retain their existing boundaries.",
+      "resource_locks": [
+        "write:n6-generation-cycle",
+        "write:n7-acquisition-bridge"
+      ],
+      "canonical_lease_keys": [
+        "write:n6-generation-cycle",
+        "write:n7-acquisition-bridge"
+      ],
+      "canonical_write_candidates": [
+        "policy-engine/src/polisyos/runtime/quality/generation_cycle.py",
+        "policy-engine/src/polisyos/runtime/quality/recursive_generation_cycle.py",
+        "policy-engine/src/polisyos/runtime/quality/acquisition_planner.py"
+      ],
+      "owner_paths_role": "Pinned research anchors, not blanket write permission. Exact native writer/consumer/companion closure rebind at P0; one lease per real semantic owner/shared path.",
+      "rollback": "Suspend affected new use; preserve immutable history and legally permitted receipts; revert behavior by a forward repair/version, not history rewrite. Never restore revoked authority or rights.",
+      "migration": "Version native artifacts and consumers where needed; legacy provenance/claims are not backfilled as verified. Read old outputs with explicit limits; re-evaluate only actual affected current uses.",
+      "workstream": "DES",
+      "detail": "workstreams/07-productive-policy-design.md",
+      "depends_on": [
+        "P0-ACCEPT",
+        "DES-02",
+        "DES-03",
+        "GYD-24"
+      ],
+      "capability_delta_ref": "solutions/13-productive-design.md#DES-04",
+      "input_resolution_rule": "Classify missing inputs as internal engineering/allocation, existing source record, or genuine external fact/permission. Investigate native alternatives and supply internal gaps; only genuine external requirements justify a scoped hold.",
+      "genuine_external_inputs": [
+        "Actual counterexample or controlled owner output, permitted acquisition inputs and selected budgets. Lack of empirical evidence limits conclusions, not the entire candidate loop."
+      ],
+      "product_status": "planning_only; not E02 acceptance or finding closure",
+      "dependency_stage_overrides": {
+        "DES-02": "interface_agreement",
+        "DES-03": "interface_agreement",
+        "GYD-24": "interface_agreement"
+      }
+    },
+    {
+      "implementation_status": "planned_after_E02_acceptance",
+      "product_verification": "UNRUN",
+      "source_code_observation": "dccea950845cda5b38f026e7770c07819d31f4d9",
+      "dispatch_condition": "Actual E02 acceptance; completed task-scoped accepted-source rebind under execution/07-scoped-readiness.md; exact required upstream stage/interface pins; non-overlapping write lease and phase-specific resource permit. Global P0 completion is not required for a reconciled independent scope.",
+      "acceptance_steps": [
+        "Resolve original criterion and accepted E02 source; trace current producer and full consumer/companion footprint.",
+        "Pin expected property and independent oracle where needed; reproduce a distinguishing baseline negative.",
+        "Implement the smallest native-owner invariant and actual use; preserve native status/authority/time semantics.",
+        "Prove positive, adversarial and matched removal signals below through persisted state and fresh consumer; include public/generated companions.",
+        "Review exact candidate independently, resolve blockers, run scoped gates under resource permit, read back committed delivery and report limitations."
+      ],
+      "test_path_rule": "Use mirrored tests adjacent to actual affected modules after P0 rebind. Proposed paths in prose are not asserted existing. Record exact paths/commands before execution.",
+      "mandatory_companions": [
+        "native schema/rule version if changed",
+        "all actual consumers and generated family if affected",
+        "migration/retirement proof",
+        "task journal and original obligation disposition",
+        "deciding outputs and independent review"
+      ],
+      "lease_rule": "Resolve every key instance and exact path overlap before dispatch. Human-friendly resource_locks are descriptions, never independent mutex identities. Any shared file or semantic owner wins over differing labels.",
+      "completion_planes": [
+        "owner_delivery: reviewed native result with scoped local proof",
+        "composed_acceptance: actual emitted dependencies and fresh consumer on bound source",
+        "original_obligation_disposition: canonical owner decision; history preserved"
+      ],
+      "dependency_stage": "owner_readiness",
+      "completion_contract_ref": "execution/stage-requirements.json#default",
+      "id": "DES-05",
+      "title": "Compose source-bound legal interpretations into policy-design branches",
+      "preferred_solution_ref": "solutions/13-productive-design.md#DES-05",
+      "source_ids": [
+        "R14 user-requested substantive capability residual; assurance/07-r14-capability-audit.md",
+        "architecture/04-generative-search-learning-and-documents.md"
+      ],
+      "requires_other_mechanisms": [
+        "CAP-05 retains source-relation producer; DES-05 owns generic interpretation composition in native Lex and the commissioned design adapter; CNT-04 no shared source writes. CNT-08 compares bases; CNT-09 composes selected real case.",
+        "DES-06 consumes branch artifacts, never reinterprets law independently. Shared legal files/schema changes have one exact-path writer."
+      ],
+      "owner_paths": [
+        "existing: policy-engine/src/polisyos/lex/normpack/applicability.py",
+        "existing: policy-engine/src/polisyos/lex/normpack/conflict_check.py",
+        "existing: policy-engine/src/polisyos/lex/interventions/compiler.py",
+        "existing: policy-engine/src/polisyos/data_forge/domains/legal/batch/consistency_checker.py"
+      ],
+      "deliverable": "Extend the existing Lex/NormPack and selected Scientist consumer with versioned multi-norm interpretation branches. Reuse provision/reference extraction and relation verification; synthesize exceptions, definitions, transitions, delegation and competing readings as candidates. Separate current-law admissibility from proposed-law amendment design. No second legal knowledge store or universal jurisdiction precedence table.",
+      "positive": "A selected multi-provision case with reference, exception and transition changes design/limitations across legal dates or readings. A lawful amendment-design branch survives current-law incompatibility while its present-tense authority claim remains refused.",
+      "adversarial": "Retrieved text is not entailment; fake citation, omitted exception, conflicting translation, wrong jurisdiction, invalid end date and asserted precedence cannot produce verified current permission. Do not fabricate ambiguity on unambiguous cases or a single winner where genuine disagreement remains.",
+      "removal": "Remove the exception/source binding or branch-to-design bridge while keeping citation/count/status fields: affected consumer must change/refuse; omit change subscription and the stale-projection probe fails.",
+      "surface": "Private legal-branch comparison and candidate policy text with support/contrary spans, current-vs-proposed law and explicit unresolved matters; permitted CNT-09 projections.",
+      "resource_locks": [
+        "write:lex-interpretation-composition",
+        "write:legal-consistency-if-changed",
+        "write:legal-design-adapter"
+      ],
+      "canonical_lease_keys": [
+        "write:lex-interpretation-composition",
+        "write:legal-consistency-if-changed",
+        "write:legal-design-adapter"
+      ],
+      "canonical_write_candidates": [
+        "policy-engine/src/polisyos/lex/normpack/applicability.py",
+        "policy-engine/src/polisyos/lex/normpack/conflict_check.py",
+        "policy-engine/src/polisyos/lex/interventions/compiler.py",
+        "policy-engine/src/polisyos/data_forge/domains/legal/batch/consistency_checker.py"
+      ],
+      "owner_paths_role": "Pinned research anchors, not blanket write permission. Exact native writer/consumer/companion closure rebind at P0; one lease per real semantic owner/shared path.",
+      "rollback": "Suspend affected new use; preserve immutable history and legally permitted receipts; revert behavior by a forward repair/version, not history rewrite. Never restore revoked authority or rights.",
+      "migration": "Version native artifacts and consumers where needed; legacy provenance/claims are not backfilled as verified. Read old outputs with explicit limits; re-evaluate only actual affected current uses.",
+      "workstream": "DES",
+      "detail": "workstreams/07-productive-policy-design.md",
+      "depends_on": [
+        "P0-ACCEPT",
+        "CAP-05",
+        "CNT-04",
+        "DES-02"
+      ],
+      "capability_delta_ref": "solutions/13-productive-design.md#DES-05",
+      "input_resolution_rule": "Classify missing inputs as internal engineering/allocation, existing source record, or genuine external fact/permission. Investigate native alternatives and supply internal gaps; only genuine external requirements justify a scoped hold.",
+      "genuine_external_inputs": [
+        "Selected official/source relation evidence via CAP-05; CNT-04 case corpus and applicable interpretation/competence evidence. Unknown authority permits declared hypothetical analysis, not enacted-law claims."
+      ],
+      "product_status": "planning_only; not E02 acceptance or finding closure",
+      "dependency_stage_overrides": {
+        "CAP-05": "interface_agreement",
+        "CNT-04": "interface_agreement",
+        "DES-02": "interface_agreement"
+      },
+      "r14_review_refinement": "Current-law permission requires actual CAP-05 emitted, content-bound relation/applicability evidence through the relevant native verifier, not an agreed interface or citation marker. Its absence leaves that conclusion limited/refused while hypothetical/amendment branches remain available. Separate legal-valid time, observed/received/verified time and analysis/knowledge as-of; late correction of earlier effectivity preserves historical knowledge replay and invalidates affected current uses."
+    },
+    {
+      "implementation_status": "planned_after_E02_acceptance",
+      "product_verification": "UNRUN",
+      "source_code_observation": "dccea950845cda5b38f026e7770c07819d31f4d9",
+      "dispatch_condition": "Actual E02 acceptance; completed task-scoped accepted-source rebind under execution/07-scoped-readiness.md; exact required upstream stage/interface pins; non-overlapping write lease and phase-specific resource permit. Global P0 completion is not required for a reconciled independent scope.",
+      "acceptance_steps": [
+        "Resolve original criterion and accepted E02 source; trace current producer and full consumer/companion footprint.",
+        "Pin expected property and independent oracle where needed; reproduce a distinguishing baseline negative.",
+        "Implement the smallest native-owner invariant and actual use; preserve native status/authority/time semantics.",
+        "Prove positive, adversarial and matched removal signals below through persisted state and fresh consumer; include public/generated companions.",
+        "Review exact candidate independently, resolve blockers, run scoped gates under resource permit, read back committed delivery and report limitations."
+      ],
+      "test_path_rule": "Use mirrored tests adjacent to actual affected modules after P0 rebind. Proposed paths in prose are not asserted existing. Record exact paths/commands before execution.",
+      "mandatory_companions": [
+        "native schema/rule version if changed",
+        "all actual consumers and generated family if affected",
+        "migration/retirement proof",
+        "task journal and original obligation disposition",
+        "deciding outputs and independent review"
+      ],
+      "lease_rule": "Resolve every key instance and exact path overlap before dispatch. Human-friendly resource_locks are descriptions, never independent mutex identities. Any shared file or semantic owner wins over differing labels.",
+      "completion_planes": [
+        "owner_delivery: reviewed native result with scoped local proof",
+        "composed_acceptance: actual emitted dependencies and fresh consumer on bound source",
+        "original_obligation_disposition: canonical owner decision; history preserved"
+      ],
+      "dependency_stage": "owner_readiness",
+      "completion_contract_ref": "execution/stage-requirements.json#default",
+      "id": "DES-06",
+      "title": "Author useful policy-document packages with exact semantic bindings",
+      "preferred_solution_ref": "solutions/13-productive-design.md#DES-06",
+      "source_ids": [
+        "R14 user-requested substantive capability residual; assurance/07-r14-capability-audit.md",
+        "architecture/04-generative-search-learning-and-documents.md"
+      ],
+      "requires_other_mechanisms": [
+        "DES-06 writes document producer/schema/export, DES-07 imports/edits through shared interface; one document/schema writer per cut. UI-05 is intake, not document owner.",
+        "Independent bounded fixtures permit producer preparation. Composed packet includes DES-01/02/03/04/05 outputs only when selected; no blanket wait for every legal/learning task. CNT-09 consumes the selected real case."
+      ],
+      "owner_paths": [
+        "existing: policy-engine/src/polisyos/scientist/policy_design/output.py",
+        "existing: policy-engine/src/polisyos/runtime/http/services/bureaucratic_rendering.py",
+        "existing: policy-engine/src/polisyos/core/contracts/runtime.py"
+      ],
+      "deliverable": "Extend native PolicyArtifactBundle/BureaucraticDocument rendering to author source-bound candidate policy documents: options paper, draft provisions, explanation, impact and monitoring materials as selected profiles, not closed domain templates. Each material statement/table cell binds its semantic role and exact candidate/claim/metric/provision; LLM prose does not become an authority source.",
+      "positive": "A fresh consumer opens a substantive options/proposed-measure/explanation set, traces material claims and recomputes numbers; an independent actual DOCX reader can read its text/tables/roles. A new format profile preserves the same semantic basis without central domain-code changes.",
+      "adversarial": "Unsupported assertions stay marked proposals; missing qualifications, changed denominator/rounding, invented legal act, counterfeit DOCX and audience/rights mismatch cannot produce a trusted view. A document genre is not mandate or enactment.",
+      "removal": "Remove evidence/quantity/status binding but keep citations and watermark: fidelity checks fail. Replace real DOCX bytes with HTML-in-JSON while keeping MIME/name: format proof fails.",
+      "surface": "Authorized private/REVIEWER/EXPERT editor/view, actual document exports and MACHINE/audit refs. Public prose release is outside this initial route and needs its separately ratified projection; UI-02 alone supplies no such permission.",
+      "resource_locks": [
+        "write:policy-document-owner",
+        "write:policy-output",
+        "write:runtime-api-generated-family if changed"
+      ],
+      "canonical_lease_keys": [
+        "write:policy-document-owner",
+        "write:policy-output",
+        "write:runtime-api-generated-family if changed"
+      ],
+      "canonical_write_candidates": [
+        "policy-engine/src/polisyos/scientist/policy_design/output.py",
+        "policy-engine/src/polisyos/runtime/http/services/bureaucratic_rendering.py",
+        "policy-engine/src/polisyos/core/contracts/runtime.py"
+      ],
+      "owner_paths_role": "Pinned research anchors, not blanket write permission. Exact native writer/consumer/companion closure rebind at P0; one lease per real semantic owner/shared path.",
+      "rollback": "Suspend affected new use; preserve immutable history and legally permitted receipts; revert behavior by a forward repair/version, not history rewrite. Never restore revoked authority or rights.",
+      "migration": "Version native artifacts and consumers where needed; legacy provenance/claims are not backfilled as verified. Read old outputs with explicit limits; re-evaluate only actual affected current uses.",
+      "workstream": "DES",
+      "detail": "workstreams/07-productive-policy-design.md",
+      "depends_on": [
+        "P0-ACCEPT"
+      ],
+      "capability_delta_ref": "solutions/13-productive-design.md#DES-06",
+      "input_resolution_rule": "Classify missing inputs as internal engineering/allocation, existing source record, or genuine external fact/permission. Investigate native alternatives and supply internal gaps; only genuine external requirements justify a scoped hold.",
+      "genuine_external_inputs": [
+        "Selected packet and allowed document audience; native numerical/legal suppliers only for chosen claims. Form/language profile and reader-study participants for usability claims, not for mechanical source binding."
+      ],
+      "product_status": "planning_only; not E02 acceptance or finding closure",
+      "r14_review_refinement": "Bind actual displayed/exported DOCX paragraphs and cells to the semantic sidecar and exact revision. Independently change a sentence/cell while keeping IDs and old sidecar: fresh reader must detect unbound/stale meaning and reject inherited support. Independent format parsing alone is insufficient."
+    },
+    {
+      "implementation_status": "planned_after_E02_acceptance",
+      "product_verification": "UNRUN",
+      "source_code_observation": "dccea950845cda5b38f026e7770c07819d31f4d9",
+      "dispatch_condition": "Actual E02 acceptance; completed task-scoped accepted-source rebind under execution/07-scoped-readiness.md; exact required upstream stage/interface pins; non-overlapping write lease and phase-specific resource permit. Global P0 completion is not required for a reconciled independent scope.",
+      "acceptance_steps": [
+        "Resolve original criterion and accepted E02 source; trace current producer and full consumer/companion footprint.",
+        "Pin expected property and independent oracle where needed; reproduce a distinguishing baseline negative.",
+        "Implement the smallest native-owner invariant and actual use; preserve native status/authority/time semantics.",
+        "Prove positive, adversarial and matched removal signals below through persisted state and fresh consumer; include public/generated companions.",
+        "Review exact candidate independently, resolve blockers, run scoped gates under resource permit, read back committed delivery and report limitations."
+      ],
+      "test_path_rule": "Use mirrored tests adjacent to actual affected modules after P0 rebind. Proposed paths in prose are not asserted existing. Record exact paths/commands before execution.",
+      "mandatory_companions": [
+        "native schema/rule version if changed",
+        "all actual consumers and generated family if affected",
+        "migration/retirement proof",
+        "task journal and original obligation disposition",
+        "deciding outputs and independent review"
+      ],
+      "lease_rule": "Resolve every key instance and exact path overlap before dispatch. Human-friendly resource_locks are descriptions, never independent mutex identities. Any shared file or semantic owner wins over differing labels.",
+      "completion_planes": [
+        "owner_delivery: reviewed native result with scoped local proof",
+        "composed_acceptance: actual emitted dependencies and fresh consumer on bound source",
+        "original_obligation_disposition: canonical owner decision; history preserved"
+      ],
+      "dependency_stage": "owner_readiness",
+      "completion_contract_ref": "execution/stage-requirements.json#default",
+      "id": "DES-07",
+      "title": "Round-trip human document edits into design and evidence re-evaluation",
+      "preferred_solution_ref": "solutions/13-productive-design.md#DES-07",
+      "source_ids": [
+        "R14 user-requested substantive capability residual; assurance/07-r14-capability-audit.md",
+        "architecture/04-generative-search-learning-and-documents.md"
+      ],
+      "requires_other_mechanisms": [
+        "DES-06/07 share one schema; agreement permits parallel preparation, completed render implementation is not required first. Existing LIF/currentness and native owners recompute actual semantics.",
+        "Canonical semantic nodes stay native; free prose remains text with scoped mapping, not forced into an invented universal AST of all law."
+      ],
+      "owner_paths": [
+        "existing: policy-engine/src/polisyos/runtime/http/services/bureaucratic_rendering.py",
+        "existing: policy-engine/src/polisyos/runtime/http/routes/artifacts.py",
+        "existing: policy-engine/src/polisyos/core/contracts/runtime.py"
+      ],
+      "deliverable": "Add revision/import/edit bridges to the same document owner. Preserve human-authored bytes or exact permitted references and immutable parentage only under existing storage/processing/retention rights, align stable AST/span/cell IDs first, and interpret semantic deltas as candidate patches to native design/method/legal owners. Ambiguity is explicit; a hash or second LLM does not prove arbitrary prose equivalence.",
+      "positive": "A threshold edit changes the native numerical trial and table; a new exception changes legal/design comparison; a mechanism edit creates a new candidate. Reimport with stripped IDs preserves text as unbound rather than falsely equivalent.",
+      "adversarial": "Concurrently edited base, renamed target, copied citation with changed assertion, injected macros/external relationships, removed uncertainty and reordered paragraphs cannot silently inherit prior status or execute imported content.",
+      "removal": "Disable edit→owner dispatch or conflict detection while keeping revision IDs: fresh recomputation/concurrency probe fails. Hash-only semantic equivalence must be falsified by a changed material clause.",
+      "surface": "Private authorized human editor/import/revision diff with explicit map, unresolved changes, affected computations and unchanged historical versions; no institutional submission workflow.",
+      "resource_locks": [
+        "write:policy-document-owner",
+        "write:artifact-document-route",
+        "write:runtime-api-generated-family if changed"
+      ],
+      "canonical_lease_keys": [
+        "write:policy-document-owner",
+        "write:artifact-document-route",
+        "write:runtime-api-generated-family if changed"
+      ],
+      "canonical_write_candidates": [
+        "policy-engine/src/polisyos/runtime/http/services/bureaucratic_rendering.py",
+        "policy-engine/src/polisyos/runtime/http/routes/artifacts.py",
+        "policy-engine/src/polisyos/core/contracts/runtime.py"
+      ],
+      "owner_paths_role": "Pinned research anchors, not blanket write permission. Exact native writer/consumer/companion closure rebind at P0; one lease per real semantic owner/shared path.",
+      "rollback": "Suspend affected new use; preserve immutable history and legally permitted receipts; revert behavior by a forward repair/version, not history rewrite. Never restore revoked authority or rights.",
+      "migration": "Version native artifacts and consumers where needed; legacy provenance/claims are not backfilled as verified. Read old outputs with explicit limits; re-evaluate only actual affected current uses.",
+      "workstream": "DES",
+      "detail": "workstreams/07-productive-policy-design.md",
+      "depends_on": [
+        "P0-ACCEPT",
+        "DES-06"
+      ],
+      "capability_delta_ref": "solutions/13-productive-design.md#DES-07",
+      "input_resolution_rule": "Classify missing inputs as internal engineering/allocation, existing source record, or genuine external fact/permission. Investigate native alternatives and supply internal gaps; only genuine external requirements justify a scoped hold.",
+      "genuine_external_inputs": [
+        "Actual edited carrier or UI revision; explicit human mapping/choice only for materially ambiguous edits. The system itself supplies deterministic alignment and recomputation wherever possible."
+      ],
+      "product_status": "planning_only; not E02 acceptance or finding closure",
+      "dependency_stage_overrides": {
+        "DES-06": "interface_agreement"
+      },
+      "r14_review_refinement": "Normal import, history, processing and export obey existing LIF-05 rights/retention, not just rollback. Revocation/expiry with intact revision IDs must prevent prohibited copy/use/egress and retain only permitted custody receipts. Sidecar alignment does not supersede actual edited carrier content."
+    },
+    {
+      "implementation_status": "planned_after_E02_acceptance",
+      "product_verification": "UNRUN",
+      "source_code_observation": "dccea950845cda5b38f026e7770c07819d31f4d9",
+      "dispatch_condition": "Actual E02 acceptance; completed task-scoped accepted-source rebind under execution/07-scoped-readiness.md; exact required upstream stage/interface pins; non-overlapping write lease and phase-specific resource permit. Global P0 completion is not required for a reconciled independent scope.",
+      "acceptance_steps": [
+        "Resolve original criterion and accepted E02 source; trace current producer and full consumer/companion footprint.",
+        "Pin expected property and independent oracle where needed; reproduce a distinguishing baseline negative.",
+        "Implement the smallest native-owner invariant and actual use; preserve native status/authority/time semantics.",
+        "Prove positive, adversarial and matched removal signals below through persisted state and fresh consumer; include public/generated companions.",
+        "Review exact candidate independently, resolve blockers, run scoped gates under resource permit, read back committed delivery and report limitations."
+      ],
+      "test_path_rule": "Use mirrored tests adjacent to actual affected modules after P0 rebind. Proposed paths in prose are not asserted existing. Record exact paths/commands before execution.",
+      "mandatory_companions": [
+        "native schema/rule version if changed",
+        "all actual consumers and generated family if affected",
+        "migration/retirement proof",
+        "task journal and original obligation disposition",
+        "deciding outputs and independent review"
+      ],
+      "lease_rule": "Resolve every key instance and exact path overlap before dispatch. Human-friendly resource_locks are descriptions, never independent mutex identities. Any shared file or semantic owner wins over differing labels.",
+      "completion_planes": [
+        "owner_delivery: reviewed native result with scoped local proof",
+        "composed_acceptance: actual emitted dependencies and fresh consumer on bound source",
+        "original_obligation_disposition: canonical owner decision; history preserved"
+      ],
+      "dependency_stage": "owner_readiness",
+      "completion_contract_ref": "execution/stage-requirements.json#default",
+      "id": "DES-08",
+      "title": "Make cross-run experience change search without laundering evidence",
+      "preferred_solution_ref": "solutions/13-productive-design.md#DES-08",
+      "source_ids": [
+        "R14 user-requested substantive capability residual; assurance/07-r14-capability-audit.md",
+        "architecture/04-generative-search-learning-and-documents.md"
+      ],
+      "requires_other_mechanisms": [
+        "DES-08 and DES-03 share search.py writer; DES-08 owns retrieval adapter, not numerical evaluator. LIF-07 owns influence lineage/cascade.",
+        "DES-10 measures transfer quality; GYD-25 retains retrieval adequacy, which does not by itself establish transfer utility."
+      ],
+      "owner_paths": [
+        "existing: policy-engine/src/polisyos/scientist/policy_design/search.py",
+        "existing: policy-engine/src/polisyos/scientist/methods/search/lessons.py",
+        "existing: policy-engine/src/polisyos/scientist/orchestration/memory/retrieval.py",
+        "existing: policy-engine/src/polisyos/scientist/orchestration/memory/balanced.py"
+      ],
+      "deliverable": "Wire existing LessonRegistry, balanced retrieval, transfer/Pareto seeds and hypothesis ledger into later candidate generation and strategy selection. Separate actual evaluated success/failure/opportunity lessons from prior LLM hypotheses. Preserve the native ban on active influence modes for LLM-origin BalancedMemory; candidate hypotheses use their existing candidate-only envelope, not a bypass of that ban.",
+      "positive": "A later task actually changes a candidate or search choice using a compatible evaluated lesson; fresh-process retrieval resolves exact refs. A useful opportunity survives failure-heavy memory, with actual cost/benefit measured separately.",
+      "adversarial": "Wrong population/unit/jurisdiction/objective/model generation, revoked rights, fake success, held-out contamination or LLM reflection cannot enter an evaluated-evidence lane. Candidate memory cannot mutate O1 posterior or O3 world.",
+      "removal": "Remove retrieval while keeping lesson refs: measured controlled influence disappears. Remove persistence: next process cannot see the record. Retain candidate labels but attempt authority use: protected consumer refuses.",
+      "surface": "Search-history explanation of chosen/rejected experience, scope, cost and influence; separate O1/O2/O3 learning dashboards and unchanged WP activation.",
+      "resource_locks": [
+        "write:scientist-policy-search",
+        "write:search-lessons",
+        "write:balanced-memory-consumer"
+      ],
+      "canonical_lease_keys": [
+        "write:scientist-policy-search",
+        "write:search-lessons",
+        "write:balanced-memory-consumer"
+      ],
+      "canonical_write_candidates": [
+        "policy-engine/src/polisyos/scientist/policy_design/search.py",
+        "policy-engine/src/polisyos/scientist/methods/search/lessons.py",
+        "policy-engine/src/polisyos/scientist/orchestration/memory/retrieval.py",
+        "policy-engine/src/polisyos/scientist/orchestration/memory/balanced.py"
+      ],
+      "owner_paths_role": "Pinned research anchors, not blanket write permission. Exact native writer/consumer/companion closure rebind at P0; one lease per real semantic owner/shared path.",
+      "rollback": "Suspend affected new use; preserve immutable history and legally permitted receipts; revert behavior by a forward repair/version, not history rewrite. Never restore revoked authority or rights.",
+      "migration": "Version native artifacts and consumers where needed; legacy provenance/claims are not backfilled as verified. Read old outputs with explicit limits; re-evaluate only actual affected current uses.",
+      "workstream": "DES",
+      "detail": "workstreams/07-productive-policy-design.md",
+      "depends_on": [
+        "P0-ACCEPT",
+        "LIF-07",
+        "DES-04"
+      ],
+      "capability_delta_ref": "solutions/13-productive-design.md#DES-08",
+      "input_resolution_rule": "Classify missing inputs as internal engineering/allocation, existing source record, or genuine external fact/permission. Investigate native alternatives and supply internal gaps; only genuine external requirements justify a scoped hold.",
+      "genuine_external_inputs": [
+        "Actual evaluated source runs and reuse rights; candidate-only hypotheses need truthful provenance. Genuine confirmation inputs/activation remain GYD-09/12 obligations, not prerequisites for candidate search learning."
+      ],
+      "product_status": "planning_only; not E02 acceptance or finding closure",
+      "dependency_stage_overrides": {
+        "LIF-07": "interface_agreement",
+        "DES-04": "interface_agreement"
+      },
+      "r14_canonical_writer": "DES-08 owns retrieval adapter; durable formulator sink delta is sent to DES-01 and hypothesis binding to DES-02. It does not acquire their shared file writes."
+    },
+    {
+      "implementation_status": "planned_after_E02_acceptance",
+      "product_verification": "UNRUN",
+      "source_code_observation": "dccea950845cda5b38f026e7770c07819d31f4d9",
+      "dispatch_condition": "Actual E02 acceptance; completed task-scoped accepted-source rebind under execution/07-scoped-readiness.md; exact required upstream stage/interface pins; non-overlapping write lease and phase-specific resource permit. Global P0 completion is not required for a reconciled independent scope.",
+      "acceptance_steps": [
+        "Resolve original criterion and accepted E02 source; trace current producer and full consumer/companion footprint.",
+        "Pin expected property and independent oracle where needed; reproduce a distinguishing baseline negative.",
+        "Implement the smallest native-owner invariant and actual use; preserve native status/authority/time semantics.",
+        "Prove positive, adversarial and matched removal signals below through persisted state and fresh consumer; include public/generated companions.",
+        "Review exact candidate independently, resolve blockers, run scoped gates under resource permit, read back committed delivery and report limitations."
+      ],
+      "test_path_rule": "Use mirrored tests adjacent to actual affected modules after P0 rebind. Proposed paths in prose are not asserted existing. Record exact paths/commands before execution.",
+      "mandatory_companions": [
+        "native schema/rule version if changed",
+        "all actual consumers and generated family if affected",
+        "migration/retirement proof",
+        "task journal and original obligation disposition",
+        "deciding outputs and independent review"
+      ],
+      "lease_rule": "Resolve every key instance and exact path overlap before dispatch. Human-friendly resource_locks are descriptions, never independent mutex identities. Any shared file or semantic owner wins over differing labels.",
+      "completion_planes": [
+        "owner_delivery: reviewed native result with scoped local proof",
+        "composed_acceptance: actual emitted dependencies and fresh consumer on bound source",
+        "original_obligation_disposition: canonical owner decision; history preserved"
+      ],
+      "dependency_stage": "owner_readiness",
+      "completion_contract_ref": "execution/stage-requirements.json#default",
+      "id": "DES-09",
+      "title": "Bind real LLM execution, contextual evidence and resource use to native ledgers",
+      "preferred_solution_ref": "solutions/13-productive-design.md#DES-09",
+      "source_ids": [
+        "R14 user-requested substantive capability residual; assurance/07-r14-capability-audit.md",
+        "architecture/04-generative-search-learning-and-documents.md"
+      ],
+      "requires_other_mechanisms": [
+        "DES-02/05/06/08 consume shared invocation contract, not new gate semantics. OPS-07/CAP/LIF retain permits, egress and lifecycle.",
+        "Interface agreement enables producer preparation; real external calls require actual rights and compute permits. No source code execution from model text through G6."
+      ],
+      "owner_paths": [
+        "existing: policy-engine/src/polisyos/runtime/quality/prompt_tool_ledger.py",
+        "existing: policy-engine/src/polisyos/runtime/quality/hypothesis_ledger.py",
+        "existing: policy-engine/src/polisyos/scientist/policy_design/formulator.py"
+      ],
+      "deliverable": "Reuse existing traced gateway, prompt/tool ledger and resource owners for all selected generation, critique, legal and document calls. Bind actual input/context selection and allowed output to provider/model/profile, tools, parent artifacts, rights, purpose, time and cost. A connection, provider name, schema-valid answer or second model vote is not invocation, usefulness or authority.",
+      "positive": "A permitted real call is traceable through selected context to a persisted candidate and actual usage; recorded replay is separately labelled. Missing-provider mode preserves allowed existing grammar work without fabricated live evidence.",
+      "adversarial": "Context injection, private-query exfiltration, provider drift, stale cache, lost legal exception and client-without-call fail their actual property checks. Removing a qualifier during summarization cannot produce a stronger claim.",
+      "removal": "Stub out actual invocation or strip decisive context while retaining ledger/model markers: provenance/semantic tests detect the change. Cancelled work cannot retain phantom successful call/result.",
+      "surface": "Authorized operational/audit view of model/context/selection/version/cost and replay limitations; sensitive content only under existing rights, safe public summaries only where already admitted.",
+      "resource_locks": [
+        "write:traced-llm-context",
+        "write:prompt-tool-ledger",
+        "write:design-intent-formulator if changed"
+      ],
+      "canonical_lease_keys": [
+        "write:traced-llm-context",
+        "write:prompt-tool-ledger"
+      ],
+      "canonical_write_candidates": [
+        "policy-engine/src/polisyos/runtime/quality/prompt_tool_ledger.py",
+        "existing traced gateway/context projection owner: exact path at accepted-source rebind"
+      ],
+      "owner_paths_role": "Pinned research anchors, not blanket write permission. Exact native writer/consumer/companion closure rebind at P0; one lease per real semantic owner/shared path.",
+      "rollback": "Suspend affected new use; preserve immutable history and legally permitted receipts; revert behavior by a forward repair/version, not history rewrite. Never restore revoked authority or rights.",
+      "migration": "Version native artifacts and consumers where needed; legacy provenance/claims are not backfilled as verified. Read old outputs with explicit limits; re-evaluate only actual affected current uses.",
+      "workstream": "DES",
+      "detail": "workstreams/07-productive-policy-design.md",
+      "depends_on": [
+        "P0-ACCEPT",
+        "LIF-05",
+        "OPS-07"
+      ],
+      "capability_delta_ref": "solutions/13-productive-design.md#DES-09",
+      "input_resolution_rule": "Classify missing inputs as internal engineering/allocation, existing source record, or genuine external fact/permission. Investigate native alternatives and supply internal gaps; only genuine external requirements justify a scoped hold.",
+      "genuine_external_inputs": [
+        "Permitted provider access/credentials and selected model profile for live proof. Existing rights/cost owners supply authorization; missing internal connector or adapter is assigned engineering, not external authority."
+      ],
+      "product_status": "planning_only; not E02 acceptance or finding closure",
+      "dependency_stage_overrides": {
+        "LIF-05": "interface_agreement",
+        "OPS-07": "interface_agreement"
+      },
+      "r14_canonical_writer": "DES-09 owns prompt_tool_ledger.py and the exact existing gateway/context projection path resolved at P0. formulator.py and hypothesis_ledger.py are read-only suppliers: submit interface requests to DES-01 and DES-02 respectively. No alternate spelling of their lease creates an independent writer.",
+      "read_only_mechanism_anchors": ["policy-engine/src/polisyos/runtime/quality/hypothesis_ledger.py", "policy-engine/src/polisyos/scientist/policy_design/formulator.py"]
+    },
+    {
+      "implementation_status": "planned_after_E02_acceptance",
+      "product_verification": "UNRUN",
+      "source_code_observation": "dccea950845cda5b38f026e7770c07819d31f4d9",
+      "dispatch_condition": "Actual E02 acceptance; completed task-scoped accepted-source rebind under execution/07-scoped-readiness.md; exact required upstream stage/interface pins; non-overlapping write lease and phase-specific resource permit. Global P0 completion is not required for a reconciled independent scope.",
+      "acceptance_steps": [
+        "Resolve original criterion and accepted E02 source; trace current producer and full consumer/companion footprint.",
+        "Pin expected property and independent oracle where needed; reproduce a distinguishing baseline negative.",
+        "Implement the smallest native-owner invariant and actual use; preserve native status/authority/time semantics.",
+        "Prove positive, adversarial and matched removal signals below through persisted state and fresh consumer; include public/generated companions.",
+        "Review exact candidate independently, resolve blockers, run scoped gates under resource permit, read back committed delivery and report limitations."
+      ],
+      "test_path_rule": "Use mirrored tests adjacent to actual affected modules after P0 rebind. Proposed paths in prose are not asserted existing. Record exact paths/commands before execution.",
+      "mandatory_companions": [
+        "native schema/rule version if changed",
+        "all actual consumers and generated family if affected",
+        "migration/retirement proof",
+        "task journal and original obligation disposition",
+        "deciding outputs and independent review"
+      ],
+      "lease_rule": "Resolve every key instance and exact path overlap before dispatch. Human-friendly resource_locks are descriptions, never independent mutex identities. Any shared file or semantic owner wins over differing labels.",
+      "completion_planes": [
+        "owner_delivery: reviewed native result with scoped local proof",
+        "composed_acceptance: actual emitted dependencies and fresh consumer on bound source",
+        "original_obligation_disposition: canonical owner decision; history preserved"
+      ],
+      "dependency_stage": "owner_readiness",
+      "completion_contract_ref": "execution/stage-requirements.json#productive_verification_preparation",
+      "id": "DES-10",
+      "title": "Verify productive search, learning and readable policy outputs with independent comparisons",
+      "preferred_solution_ref": "solutions/13-productive-design.md#DES-10",
+      "source_ids": [
+        "R14 user-requested substantive capability residual; assurance/07-r14-capability-audit.md",
+        "architecture/04-generative-search-learning-and-documents.md"
+      ],
+      "requires_other_mechanisms": [
+        "DES-10 owns comparison preparation/execution join, not a new search engine or all original GY verification. GYD-17/18/20/22/25/26 and CNT-09 provide their named existing scopes.",
+        "owner_readiness = reviewed recipe/oracles/local verifier checks; full comparison remains UNRUN until FINAL-REPLAY. Actual live results and all declared required endpoints join FINAL-USE disposition."
+      ],
+      "owner_paths": [
+        "existing: policy-engine/src/polisyos/runtime/quality/design_generation.py",
+        "existing: policy-engine/src/polisyos/runtime/quality/generation_cycle.py"
+      ],
+      "deliverable": "Extend existing GY V2/V3/V5/V7 and D3 benchmark consumers with a separate productive-capability comparison. Prepare the frozen corpus, independent semantics/oracles and method before freeze; execute the composed comparison in the single FINAL-REPLAY wave. Safety refusals, schema validity, fluent prose and retrieval hits do not demonstrate useful design or learning.",
+      "positive": "A known-solvable real path produces material alternatives and a coherent document; all-abstain/all-no-op implementations cannot pass. Selected equal-ceiling comparisons report useful and harmful/null outcomes without universal superiority claims.",
+      "adversarial": "Paraphrase inflation, invented model invocation, self-scored novelty, omitted failed arms, contaminated holdout, prompt-position legal exception loss, copied citations, unsupported enacted-law prose and hidden subgroup failures are caught. Unavailable live/audience inputs never become simulated authentic PASS.",
+      "removal": "Remove generation, retrieval/feedback, numerical execution, source binding or document edit bridge one at a time but keep report markers; the corresponding actual endpoint fails or loses its measured effect.",
+      "surface": "Reviewer/expert quality report resolving each candidate/case/evaluator/trace and limitations; GYD-22 consumes diagnostics. No authority is conferred by benchmark score.",
+      "resource_locks": [
+        "write:productive-evaluation-recipe",
+        "resource:replay-profile/{selected_profile}"
+      ],
+      "canonical_lease_keys": [
+        "write:productive-evaluation-recipe",
+        "resource:replay-profile/{selected_profile}"
+      ],
+      "canonical_write_candidates": ["proposed: mirrored tests/recipe at the accepted native GY/Scientist evaluation owner; exact path appointed after scoped rebind"],
+      "owner_paths_role": "Pinned research anchors, not blanket write permission. Exact native writer/consumer/companion closure rebind at P0; one lease per real semantic owner/shared path.",
+      "rollback": "Suspend affected new use; preserve immutable history and legally permitted receipts; revert behavior by a forward repair/version, not history rewrite. Never restore revoked authority or rights.",
+      "migration": "Version native artifacts and consumers where needed; legacy provenance/claims are not backfilled as verified. Read old outputs with explicit limits; re-evaluate only actual affected current uses.",
+      "workstream": "DES",
+      "detail": "workstreams/07-productive-policy-design.md",
+      "depends_on": [
+        "P0-ACCEPT"
+      ],
+      "capability_delta_ref": "solutions/13-productive-design.md#DES-10",
+      "input_resolution_rule": "Classify missing inputs as internal engineering/allocation, existing source record, or genuine external fact/permission. Investigate native alternatives and supply internal gaps; only genuine external requirements justify a scoped hold.",
+      "genuine_external_inputs": [
+        "Internal frozen cases and exact real-path suppliers; lawful live model access, selected independent reviewers/target readers and legitimate domain inputs for their respective claims. Sample size insufficient for superiority yields descriptive evidence."
+      ],
+      "product_status": "planning_only; not E02 acceptance or finding closure",
+      "task_mode": "verification_or_verifier_delta",
+      "execute_during": "FINAL-REPLAY",
+      "acceptance_dependencies": [
+        "FINAL-REVIEW"
+      ],
+      "execution_gate": "Single composed comparison after explicit FINAL-REVIEW; local oracle/preparation work may precede freeze.",
+      "final_execution_property": "All R14 capability obligations in assurance/r14-capability-obligations.json accounted for by actual bound outputs, with unavailable evidence explicit; no promotion from benchmark score.",
+      "r14_review_refinement": "Freeze a decision-relevant positive criterion, independently labelled, for designated known-solvable controls: a candidate answers the declared decision need or a specific acquisition/evidence path resolves it. Feasible diverse but irrelevant alternatives must not pass this criterion. All-null decision-support outcomes leave productive capability not_established even if plumbing passes. This is a bounded acceptance discriminator, never a useful_design_rate optimization/reward/promotion target. No-op and deliberate removal arms are comparators expected to fail productivity, not implementations required to produce an intervention. Reviewer panels belong to evaluation, not per-run/manual authority gates."
     }
   ]
 }

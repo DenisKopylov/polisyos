@@ -75,3 +75,7 @@ Cutover derives its compatibility classes from the complete affected retained sc
 ## Scope of verification
 
 The shared invariants above are reviewed once at their owner, then each distinct consumer proves that it actually uses them. This avoids both duplicate frameworks and trusting an unwired contract. Final composed replay covers the actual accepted source/input/backend profile after all blocking reviews. Product execution remains UNRUN while this document is being prepared.
+
+## R14 native owner delta
+
+[DES allocation](../workstreams/07-productive-policy-design.md) and [explicit cards](../solutions/13-productive-design.md) extend existing N4/N6, Scientist search/memory, Lex/NormPack and document renderer. CAP-05 owns relation proof; CNT-04 remains case data/config; DES-05 owns generic interpretation composition. DES-06/07 share one document owner; DES-09 supplies shared invocation context while CAP/LIF/OPS retain rights/resources. No duplicate optimizer, scheduler, legal store, memory service or budget ledger. Historical G6 PUBLIC raw-text prohibition and UI-02 data-only practice remain binding.

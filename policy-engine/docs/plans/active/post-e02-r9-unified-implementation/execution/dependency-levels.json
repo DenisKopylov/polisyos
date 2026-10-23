@@ -1,7 +1,7 @@
 {
   "meaning": "Collapsed task-ID projection of stage-qualified prerequisite edges, not a dispatch or completion schedule. Interface agreements may precede supplier completion; scoped rebind, selected composition/execution and exact leases further constrain work. No runnable width or speedup claim.",
-  "tasks": 109,
-  "hard_edges": 318,
+  "tasks": 119,
+  "hard_edges": 355,
   "levels": [
     [
       "P0-ACCEPT"
@@ -20,6 +20,8 @@
       "DEB-11",
       "DEB-12",
       "DEB-13",
+      "DES-06",
+      "DES-10",
       "GYD-01",
       "GYD-02",
       "GYD-03",
@@ -70,6 +72,8 @@
       "CAP-02",
       "CNT-02",
       "DEB-09",
+      "DES-01",
+      "DES-07",
       "GYD-09",
       "GYD-18",
       "GYD-20",
@@ -115,13 +119,25 @@
     ],
     [
       "CNT-09",
+      "DES-09",
       "OPS-09",
       "OPS-10",
       "OPS-11",
       "UI-17"
     ],
     [
+      "DES-02",
       "OPS-12"
+    ],
+    [
+      "DES-03",
+      "DES-05"
+    ],
+    [
+      "DES-04"
+    ],
+    [
+      "DES-08"
     ],
     [
       "FINAL-FREEZE"
@@ -137,5 +153,5 @@
       "FINAL-USE"
     ]
   ],
-  "max_logical_width": 58
+  "max_logical_width": 60
 }

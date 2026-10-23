@@ -1093,3 +1093,5 @@ Shards под actualresourceleases; completionjoins не startbarriers. Rule/sch
 **Входы:** Operationalreadiness internal; lawfulcommissioning/mandate и explicituserscopechange genuineinputs.
 
 [Предпочтительное решение](12-execution.md#FINAL-USE).
+
+Historical scope: this review and root-review.json cover R13 at the prior baseline. The R14 additions/changed rows have separate [delta review](../assurance/r14-review-disposition.md) and do not inherit a green review from unchanged R13 fields.

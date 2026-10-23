@@ -69,7 +69,10 @@
         "CAP-01",
         "CAP-03",
         "CAP-04",
-        "DEB-14"
+        "DEB-14",
+        "DES-01",
+        "DES-06",
+        "DES-07"
       ],
       "anchors": [
         "schemas/runtime_api_v1.openapi.json",
@@ -330,9 +333,103 @@
         "Native generated promotion union and private presentation issuer (exact paths at P0)"
       ],
       "resolution": "UI-20 private issuer is internal constructor/branding, not institutional appointment. Consume true promotion evidence; common generated family remains single-writer."
+    },
+    {
+      "id": "n4-intent-hypotheses",
+      "classification": "mixed_reference_roles",
+      "tasks": [
+        "DES-01",
+        "DES-02",
+        "DES-08",
+        "DES-09"
+      ],
+      "anchors": [
+        "src/polisyos/scientist/policy_design/formulator.py",
+        "src/polisyos/runtime/quality/hypothesis_ledger.py"
+      ],
+      "resolution": "DES-01 is the single formulator.py writer for this cut and composes DES-02/08/09 requests. DES-02 is the single hypothesis_ledger.py writer. DES-09 owns prompt_tool_ledger.py/context invocation receipt and supplies its ref; other tasks consume these interfaces. Independent preparation remains allowed on disjoint files."
+    },
+    {
+      "id": "scientist-structure-parameter-memory",
+      "classification": "mixed_reference_roles",
+      "tasks": [
+        "DES-03",
+        "DES-08"
+      ],
+      "anchors": [
+        "src/polisyos/scientist/policy_design/search.py"
+      ],
+      "resolution": "DES-03 owns coordinator/trials, DES-08 proposes retrieval adapter. One writer composes shared file; memory/evaluator reviews and separate adapters can proceed in parallel."
+    },
+    {
+      "id": "n6-loop-consumers",
+      "classification": "mixed_reference_roles",
+      "tasks": [
+        "DES-02",
+        "DES-04",
+        "DES-10",
+        "GYD-17",
+        "GYD-18",
+        "GYD-22"
+      ],
+      "anchors": [
+        "src/polisyos/runtime/quality/design_generation.py",
+        "src/polisyos/runtime/quality/generation_cycle.py"
+      ],
+      "resolution": "DES-02 owns N4; DES-04 owns N6 bridge. Verification consumers do not receive product writes merely by reading them; same final source is reviewed before comparison."
+    },
+    {
+      "id": "legal-synthesis",
+      "classification": "mixed_reference_roles",
+      "tasks": [
+        "CAP-05",
+        "CNT-04",
+        "CNT-08",
+        "DES-05"
+      ],
+      "anchors": [
+        "src/polisyos/lex/normpack",
+        "src/polisyos/data_forge/domains/legal/batch/consistency_checker.py"
+      ],
+      "resolution": "CAP-05 relation/source evidence and DES-05 synthesis agree native schema boundary, one writer per actual shared module. CNT-04/08 supply case facts/comparison, not shared engine source."
+    },
+    {
+      "id": "policy-documents",
+      "classification": "mixed_reference_roles",
+      "tasks": [
+        "DES-06",
+        "DES-07",
+        "CNT-09",
+        "UI-02",
+        "DEB-10"
+      ],
+      "anchors": [
+        "src/polisyos/core/contracts/runtime.py",
+        "src/polisyos/runtime/http/services/bureaucratic_rendering.py",
+        "src/polisyos/runtime/http/routes/artifacts.py",
+        "apps/runtime-dashboard/src/features/artifacts/bureaucratic"
+      ],
+      "resolution": "DES-06 document schema/render/export owner, DES-07 edit/import adapter; one shared-schema/route writer. UI-02 existing data-only publication is not raw-text permission. CNT-09 and DEB-10 are consumers/reviewers; exact UI files assigned before editing."
+    },
+    {
+      "id": "llm-context-rights",
+      "classification": "mixed_reference_roles",
+      "tasks": [
+        "DES-09",
+        "CAP-01",
+        "CAP-03",
+        "LIF-05",
+        "OPS-07"
+      ],
+      "anchors": [
+        "src/polisyos/runtime/quality/prompt_tool_ledger.py",
+        "existing traced gateway/context projection owner (exact path at rebind)"
+      ],
+      "resolution": "DES-09 consumes actual egress/rights/permit contracts and owns context/invocation binding, not their services. Serialize only actual common files/credentials/resource, not all LLM research."
     }
   ],
   "unknown_rule": "A task with unresolved actual write/read/generated set is not a certified disjoint writer. Root maps it before dispatch; independent read-only work can continue.",
   "family_source": "policy-engine/architecture/generated_artifacts.toml#runtime-api-client,runtime-dashboard-api-types plus Runtime OpenAPI family; rebind before execution",
-  "verification": "Static source/reference review only; no generators or product probes run."
+  "verification": "Static source/reference review only; no generators or product probes run.",
+  "r14_delta": "DES owner relations added against c8986d baseline; exact accepted E02 write paths and generated family rebind remain mandatory. This registry describes conflicts, not blanket directory locks."
 }

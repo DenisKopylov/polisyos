@@ -1,4 +1,4 @@
-# Индекс 109 предпочтительных решений
+# Индекс 119 предпочтительных решений
 
 Критерии и scheduling stages сохраняются в [tasks.json](../tasks.json). Эти карточки дают рекомендуемый способ исполнения, а не новый договор authority. Начать с [общих решений](00-shared-decisions.md), затем читать свой полный исходный task. Каждая карточка связана с [самостоятельным review](root-review.md) и первичными источниками.
 
@@ -16,6 +16,7 @@
 | Развёртывание и эксплуатация | 12 | [10-operations.md](10-operations.md) |
 | Остаточные долги | 14 | [11-debt.md](11-debt.md) |
 | Вход, freeze, review и replay | 6 | [12-execution.md](12-execution.md) |
+| Содержательный дизайн и обучение | 10 | [13-productive-design.md](13-productive-design.md) |
 
 ## Все task IDs
 
@@ -130,3 +131,20 @@
 | FINAL-REVIEW | Independent composed review and blocking delta closure | [карточка](12-execution.md#FINAL-REVIEW) |
 | FINAL-REPLAY | One source-bound composed replay and commissioning wave | [карточка](12-execution.md#FINAL-REPLAY) |
 | FINAL-USE | Full programme disposition and first-use admission proposal | [карточка](12-execution.md#FINAL-USE) |
+
+## R14: дополнения
+
+[24 обязательных дополнения прежних задач](13-productive-design.md#extensions) читаются вместе с исходными карточками. Старый root-review относится к R13; новые/изменённые строки связаны с [R14 review](../assurance/r14-review-disposition.md).
+
+| Task | Название | Решение |
+|---|---|---|
+| DES-01 | Preserve intent and competing problem framings through actual design intake | [карточка](13-productive-design.md#DES-01) |
+| DES-02 | Generate genuinely different policy mechanisms and hypotheses through native N4 | [карточка](13-productive-design.md#DES-02) |
+| DES-03 | Compose structural proposals with typed numerical and multiobjective search | [карточка](13-productive-design.md#DES-03) |
+| DES-04 | Close substantive N6/N7 feedback, acquisition and alternative-retention loop | [карточка](13-productive-design.md#DES-04) |
+| DES-05 | Compose source-bound legal interpretations into policy-design branches | [карточка](13-productive-design.md#DES-05) |
+| DES-06 | Author useful policy-document packages with exact semantic bindings | [карточка](13-productive-design.md#DES-06) |
+| DES-07 | Round-trip human document edits into design and evidence re-evaluation | [карточка](13-productive-design.md#DES-07) |
+| DES-08 | Make cross-run experience change search without laundering evidence | [карточка](13-productive-design.md#DES-08) |
+| DES-09 | Bind real LLM execution, contextual evidence and resource use to native ledgers | [карточка](13-productive-design.md#DES-09) |
+| DES-10 | Verify productive search, learning and readable policy outputs with independent comparisons | [карточка](13-productive-design.md#DES-10) |

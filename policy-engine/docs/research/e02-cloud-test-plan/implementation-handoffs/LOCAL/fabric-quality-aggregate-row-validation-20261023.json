@@ -1,0 +1,167 @@
+{
+  "schema": "policyos.e02.implementation_handoff.v1",
+  "unit": "LOCAL",
+  "slice": "fabric-quality-aggregate-row-validation",
+  "branch": "codex/e02-unified-local-20261009",
+  "slice_base_sha": "eba2e49a1aacf5d641f535429a2b5ea057467bc0",
+  "implementation_commits": [
+    "62eec42311fa8d4fe57a790b6f02bc4a0245a33f"
+  ],
+  "candidate_tree_sha": "5fb4e177f64914c0992b337581a01bd6667eb58e",
+  "candidate_parents": [
+    "eba2e49a1aacf5d641f535429a2b5ea057467bc0"
+  ],
+  "closure_ids": [],
+  "proposals": {
+    "formal_G_acceptance": "pending",
+    "finding_closures_proposed": [],
+    "bounded_code_proposal": "Adopt the existing quality owner result validation and optional-report narrowing; full E09 typing/native closeout remains pending."
+  },
+  "changed_paths": [
+    {
+      "path": "policy-engine/src/polisyos/fabric/quality/quality.py",
+      "sha256": "5b008b1ffcce335c8c2081ecad332bc774549486d98f1f0b46af8c52eb734af4"
+    },
+    {
+      "path": "policy-engine/tests/unit/fabric/test_quality_indicators.py",
+      "sha256": "3fbe3abcdf5c15eff53881845d64240a780d2949d29d25ce6bfb6fe686f4bb8c"
+    }
+  ],
+  "selected_profile": {
+    "python": "3.14.3",
+    "backend": "DuckDB query owner; installed dependency profile",
+    "duckdb_distribution_version": "1.4.4"
+  },
+  "property": {
+    "statement": "Quality computation distinguishes an absent anomaly report from a present empty report and requires genuine integer aggregate rows; malformed supplied rows cannot become an observed zero.",
+    "runtime_path": [
+      "existing DuckDB quality aggregate queries",
+      "shared validated integer-row reader",
+      "DataQualityReport/AnomalyReport",
+      "quality indicators and quality gate scoring"
+    ],
+    "surface": "Existing quality-report consumer API; no new DTO, facade, or external authority.",
+    "negative_controls": [
+      "missing or empty aggregate row",
+      "NULL, boolean, or non-integer aggregate value",
+      "all three aggregate queries use the same reader",
+      "failure retains connection cleanup",
+      "absent report fallback versus explicit zero report"
+    ],
+    "proxy_divergence": "A truthy/coercible result or a declared report presence is weaker than the actual typed aggregate observation."
+  },
+  "predicate_basis": "recomputed",
+  "checks": [
+    {
+      "name": "canonical-owner-regression",
+      "outcome": "PASS",
+      "command": {
+        "cwd": "/Users/deniskopylov/.codex/worktrees/e02-unified-local-20261009/polisyos/policy-engine",
+        "python": "/Users/deniskopylov/.codex/worktrees/e02-unified-local-20261009/polisyos/policy-engine/.venv/bin/python",
+        "argv": [
+          "-q",
+          "-p",
+          "no:cacheprovider",
+          "--basetemp=/Users/deniskopylov/.codex/worktrees/e02-unified-local-20261009/polisyos/policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/root-active-resume-20261023-r2/n6-s3-canonical-regression-r1/pytest-data",
+          "--junitxml=/Users/deniskopylov/.codex/worktrees/e02-unified-local-20261009/polisyos/policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/root-active-resume-20261023-r2/n6-s3-canonical-regression-r1/junit.xml",
+          "tests/unit/fabric/test_quality_indicators.py",
+          "tests/unit/fabric/connectors/types/test_units_core.py",
+          "tests/unit/data_forge/domains/catalog/knowledge/test_overlay.py",
+          "tests/unit/runtime/quality/test_value_gate.py::test_n8_fresh_consumer_reads_recomputed_fixed_unit_owner_projection"
+        ],
+        "source_mode": "canonical source bytes compiled directly; no overlay and no pyc reuse for repository files"
+      },
+      "source_frame": {
+        "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/root-active-resume-20261023-r2/n6-quality-root-application-r1/full-composed-source-frame.json",
+        "sha256": "dc3fad2599d40f6244614614865bad2d9659008c2da6f079ae903b8d84ee68ce"
+      },
+      "output": {
+        "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/root-active-resume-20261023-r2/n6-s3-canonical-regression-r1/execution/stdout",
+        "sha256": "7702338039f7d7a84658cdd4a0ee62ae5e3e7c6215ab8091faab42fbedd36ca2"
+      },
+      "receipt": {
+        "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/root-active-resume-20261023-r2/n6-s3-canonical-regression-r1/execution/receipt.json",
+        "sha256": "154cf3e2ce6a1856eade654ca8be31c1682ce27843a23bb0c303eedb1be9cd5f"
+      },
+      "junit": {
+        "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/root-active-resume-20261023-r2/n6-s3-canonical-regression-r1/junit.xml",
+        "sha256": "1b28c49e1beaf6a3e4806c273bebff3ce0714110ef03af875cf5c092b2862d74"
+      },
+      "reconciliation": {
+        "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/root-active-resume-20261023-r2/n6-s3-case-reconciliation.json",
+        "sha256": "bbda1a09eb70553114b16e82d1267567ed2fa3e898f9dfd4de0b5af8c2586d92"
+      },
+      "n6_result": {
+        "tests.unit.fabric.test_quality_indicators.TestQualityIndicatorsCalculation": {
+          "passed": 12,
+          "failed": 0,
+          "errors": 0,
+          "skipped": 0
+        },
+        "tests.unit.fabric.test_quality_indicators.TestQualityLevelScoring": {
+          "passed": 6,
+          "failed": 0,
+          "errors": 0,
+          "skipped": 0
+        },
+        "tests.unit.fabric.test_quality_indicators.TestDuckDBQualityComputation": {
+          "passed": 10,
+          "failed": 0,
+          "errors": 0,
+          "skipped": 0
+        },
+        "tests.unit.fabric.test_quality_indicators.TestQualityGatePassIntegration": {
+          "passed": 3,
+          "failed": 0,
+          "errors": 0,
+          "skipped": 0
+        },
+        "tests.unit.fabric.test_quality_indicators.TestDataFitnessReport": {
+          "passed": 4,
+          "failed": 0,
+          "errors": 0,
+          "skipped": 0
+        }
+      },
+      "qualification": "35 N6 owner cases passed; the broader four-target command had 121 PASS and 2 FAIL in separate S3 profile fixtures. This is not a globally green command or clean-commit receipt."
+    },
+    {
+      "name": "scoped-candidate-mypy-and-59-case-replay",
+      "outcome": "PASS_bounded_prior_candidate",
+      "independent_review": {
+        "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/n6-quality-fresh-independent-review-20261023-r2/review.json",
+        "sha256": "4cbdb0503f4cf269fe01d7e7d15b5463ef2094a990ae1af37e1391157ff502c1"
+      },
+      "qualification": "Exact N6 candidate hashes match the implementation files. Read the independent review for command/source/config qualifications; no full 306-source Mypy green is claimed."
+    },
+    {
+      "name": "physical-canonical-ruff",
+      "outcome": "PASS_for_N6_paths",
+      "results": {
+        "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/root-active-resume-20261023-r2/n6-s3-canonical-lint-r1/results.json",
+        "sha256": "4ba84683d2679ef6123d3f354e247f1e9ec73b6f60a408433a607bbac1971767"
+      },
+      "qualification": "Ruff check passed all seven selected files. Format checked N6 files unchanged; the combined format command failed only S3 test_value_gate.py. Full native gates remain unrun."
+    }
+  ],
+  "source_custody": {
+    "implementation_readback": {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/root-active-resume-20261023-r2/n6-quality-implementation-commit-r1/readback.json",
+      "sha256": "dd89e2bebc595435176fda992e93fb024ad2bf4dabe34f600e90828f00f0c905"
+    },
+    "test_compiled_origins": {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/root-active-resume-20261023-r2/n6-s3-canonical-regression-r1/origins.json",
+      "sha256": "2fe97d95e1fb6fb7f585bb952938bd1c101a91153e80ba9e400e17fa54317f24"
+    },
+    "source_context": "The bounded checks used the canonical composed working tree with declared uncommitted peer E02 work. They do not qualify the whole committed tree, installed wheel, or final freeze.",
+    "raw_availability": "Local ignored RAW paths retained on this machine; G must request/replay if these exact outputs are inaccessible."
+  },
+  "capability_state_or_finding_state": "bounded_implemented_proposal; full_verification_pending",
+  "limitations_and_next_owner": [
+    "Root: finish E09 companion families and replay the complete current 306-source typecheck after source freeze.",
+    "Root: repair the separate S3 fixture expectations and retain their failures; no inherited-red attribution is made.",
+    "Root/G: final source/input/backend freeze, actual native gates, installed consumers and independent source acceptance remain pending.",
+    "No new law, issuer/currentness, production claim or formal finding closure."
+  ],
+  "source_freeze": false
+}

@@ -1,0 +1,381 @@
+{
+  "schema": "e02.local.slice-handoff.v1",
+  "slice": "g528-finite-pag-member-producer-20261023",
+  "source": {
+    "slice_base": "27c0b3baf7e92b7e4be5a97bc133d6a0610e4461",
+    "slice_base_tree": "af4ff4d8a79e85734195d25daca6dc7ba82c5422",
+    "candidate": "22f02755d0e5a2ffd1bd9180fdbefc76dd32cc7b",
+    "tree": "6d3f3941e131f8e1288d83d452230ac853220c26",
+    "parents": [
+      "ebd0ab61924d47d20d78bfe2890f9642bf179bc1"
+    ],
+    "branch": "codex/e02-unified-local-20261009",
+    "G_architecture_checkpoint": "528ec2576393e8aa9a0238ae4172336ccf76a057",
+    "G_architecture_checkpoint_tree": "0c10670d4221e75376a311dea7023718a4433326",
+    "G_architecture_checkpoint_parent": "40edeb635417124366da0237e20e8447d7c5199b",
+    "G_architecture_accepted_code": false,
+    "entry_scope": "Ordinary append-only own candidate topic; G checkpoint is a design input, not automatically merged or accepted source.",
+    "implementation_commits": [
+      "ebd0ab61924d47d20d78bfe2890f9642bf179bc1",
+      "22f02755d0e5a2ffd1bd9180fdbefc76dd32cc7b"
+    ],
+    "verification_dependency_scope": "Native runtime was exercised on the exact committed producer/test bytes with the pinned unfrozen composed dependency frame. A clean-branch-only runtime receipt is not established by this packet."
+  },
+  "source_implementation": {
+    "api": "evaluate_pag_member_family(graph, *, profile_id, profile_revision, budget)",
+    "mechanism": "Canonical finite endpoint assignments; reject non-ancestral/nonmaximal proposals; independently verify each proposed no-selection MAG against source PAG using public FCI+d-separation; retain lossless DAG/ADMG member with counts and stopping evidence.",
+    "profile": {
+      "profile_id": "pag.no_selection.finite_member_sensitivity",
+      "profile_revision": "1",
+      "api": "evaluate_pag_member_family(graph, *, profile_id, profile_revision, budget)",
+      "budget_fields": [
+        "max_proposals",
+        "max_members",
+        "max_oracle_operations",
+        "max_elapsed_seconds",
+        "max_output_bytes"
+      ],
+      "admitted_member_fields": [
+        "proposal_ordinal",
+        "assignment_sha256",
+        "member_sha256",
+        "graph"
+      ],
+      "graph_field": "PAGAdmittedMember.graph: CausalGraphModel (DAG or lossless ADMG)"
+    },
+    "history": "Existing scalar PAG/CPDAG refusal is preserved; this adds an internal finite-member producer."
+  },
+  "full_code_test_config_companion_footprint": [
+    {
+      "path": "policy-engine/src/polisyos/foundry/methods/catalog/causal/pag_member_family.py",
+      "sha256": "33cdec064524f8c0fa26c235a7f6f18b5d49a4e2b3ff5393d66b69d404d653c8"
+    },
+    {
+      "path": "policy-engine/tests/unit/foundry/methods/catalog/causal/test_pag_member_family.py",
+      "sha256": "5f2e71a5216fe6cd664123ac2199ef97f0b83b5b03b55311da2b1e32c4cedd93"
+    },
+    {
+      "path": "policy-engine/release-fragments/unreleased/2026-10-23-e02-finite-pag-member-producer.toml",
+      "sha256": "908569f441274b97765aa48b369b602e25fcb7adf8e5904adf3938a31753aa3b"
+    }
+  ],
+  "verification_source_boundary": {
+    "kind": "native_canonical_paths_in_unfrozen_composed_checkout",
+    "source_frame": {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/root-active-resume-20261023-r2/pag-result-reconciliation-root-application-r1/full-composed-source-frame.json",
+      "sha256": "2c524d402a109761e0ca29f12bab5a3471e6c3dc5d0208bcae047b47022e0658"
+    },
+    "source_preserved": true,
+    "target_pins": {
+      "src/polisyos/foundry/methods/catalog/causal/pag_member_family.py": "33cdec064524f8c0fa26c235a7f6f18b5d49a4e2b3ff5393d66b69d404d653c8",
+      "tests/unit/foundry/methods/catalog/causal/test_pag_member_family.py": "5f2e71a5216fe6cd664123ac2199ef97f0b83b5b03b55311da2b1e32c4cedd93"
+    },
+    "qualification": "These fresh runtime receipts cover the exact committed producer/test bytes in the recorded composed dependency frame. They are not a claim that all remaining dirty E02 changes or the full repository are accepted.",
+    "runtime_execution_head": "ebd0ab61924d47d20d78bfe2890f9642bf179bc1",
+    "implementation_committed_readback": {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/root-active-resume-20261023-r2/pag-reconciliation-ordinary-code-commit-r1/readback.json",
+      "sha256": "d80153e7edbb4f861575f8021872c8b638a6440b4dad6b66327fd589e165b580",
+      "availability": "local_read_only_raw_retained"
+    }
+  },
+  "selected_input_profile_backend": {
+    "input": "Controlled two-node, latent-confounded and discriminating-path PAG fixtures plus malformed and resource-stop variants in the committed test module. No production payload was copied.",
+    "profile_id": "pag.no_selection.finite_member_sensitivity",
+    "profile_revision": "1",
+    "backend": {
+      "package": "causal-learn",
+      "version": "0.1.4.4",
+      "route": "public causallearn.search.ConstraintBased.FCI.fci with d_separation; not DAG2PAG",
+      "fci_source_sha256": "8f0f14f9d31847efa30fa056a162f1f9d21d07595880c1ad2b099ec11e544ead",
+      "cit_source_sha256": "0d3db11083985b7cb0edbaa44662307c28f27bc135053a65751cd52f451ddc8f",
+      "runtime_identity_fields": [
+        "backend_id",
+        "backend_version",
+        "fci_source_sha256",
+        "cit_source_sha256",
+        "adapter_source_sha256"
+      ]
+    },
+    "runtime": {
+      "python": "3.14.3",
+      "platform": "macOS-27.0.1-arm64-arm-64bit-Mach-O",
+      "causal-learn": "0.1.4.4",
+      "networkx": "3.6.1",
+      "numpy": "2.3.5"
+    },
+    "backend_source_bindings": {
+      "package": "causal-learn",
+      "version": "0.1.4.4",
+      "route": "public causallearn.search.ConstraintBased.FCI.fci with d_separation; not DAG2PAG",
+      "fci_source_sha256": "8f0f14f9d31847efa30fa056a162f1f9d21d07595880c1ad2b099ec11e544ead",
+      "cit_source_sha256": "0d3db11083985b7cb0edbaa44662307c28f27bc135053a65751cd52f451ddc8f",
+      "runtime_identity_fields": [
+        "backend_id",
+        "backend_version",
+        "fci_source_sha256",
+        "cit_source_sha256",
+        "adapter_source_sha256"
+      ]
+    },
+    "deadline_boundary": "Producer cooperative elapsed checks between synchronous oracle calls; hard deadline requires existing supervised worker. Cleanup/Linux/late-write remains UNRUN."
+  },
+  "verification": {
+    "counts": {
+      "total": 22,
+      "fail": 0,
+      "error": 0,
+      "skip": 0,
+      "pass": 22
+    },
+    "gates": [
+      {
+        "label": "ruff",
+        "command": [
+          "/Users/deniskopylov/.codex/worktrees/e02-unified-local-20261009/polisyos/policy-engine/.venv/bin/python",
+          "-B",
+          "-m",
+          "ruff",
+          "check",
+          "--no-cache",
+          "src/polisyos/foundry/methods/catalog/causal/pag_member_family.py",
+          "tests/unit/foundry/methods/catalog/causal/test_pag_member_family.py"
+        ],
+        "exit_code": 0,
+        "seconds": 0.18332475004717708,
+        "stdout_sha256": "82b3e6a6c090a57601d22943bd23fca9218d1031dbe5a7b754092f9a156b4f18",
+        "stderr_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+        "cwd": "policy-engine",
+        "stdout": {
+          "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/root-active-resume-20261023-r2/pag-native-canonical-wave-r3/ruff.stdout",
+          "sha256": "82b3e6a6c090a57601d22943bd23fca9218d1031dbe5a7b754092f9a156b4f18",
+          "availability": "local_read_only_raw_retained"
+        },
+        "stderr": {
+          "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/root-active-resume-20261023-r2/pag-native-canonical-wave-r3/ruff.stderr",
+          "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+          "availability": "local_read_only_raw_retained"
+        }
+      },
+      {
+        "label": "format",
+        "command": [
+          "/Users/deniskopylov/.codex/worktrees/e02-unified-local-20261009/polisyos/policy-engine/.venv/bin/python",
+          "-B",
+          "-m",
+          "ruff",
+          "format",
+          "--check",
+          "--no-cache",
+          "src/polisyos/foundry/methods/catalog/causal/pag_member_family.py",
+          "tests/unit/foundry/methods/catalog/causal/test_pag_member_family.py"
+        ],
+        "exit_code": 0,
+        "seconds": 0.07516395789571106,
+        "stdout_sha256": "3bc53bf3e981a98a34a852e175bf9b77af841edea74fca595d9aedcbaf9a4938",
+        "stderr_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+        "cwd": "policy-engine",
+        "stdout": {
+          "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/root-active-resume-20261023-r2/pag-native-canonical-wave-r3/format.stdout",
+          "sha256": "3bc53bf3e981a98a34a852e175bf9b77af841edea74fca595d9aedcbaf9a4938",
+          "availability": "local_read_only_raw_retained"
+        },
+        "stderr": {
+          "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/root-active-resume-20261023-r2/pag-native-canonical-wave-r3/format.stderr",
+          "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+          "availability": "local_read_only_raw_retained"
+        }
+      },
+      {
+        "label": "pytest",
+        "command": [
+          "/Users/deniskopylov/.codex/worktrees/e02-unified-local-20261009/polisyos/policy-engine/.venv/bin/python",
+          "-B",
+          "-m",
+          "pytest",
+          "-c",
+          "/Users/deniskopylov/.codex/worktrees/e02-unified-local-20261009/polisyos/policy-engine/pytest.ini",
+          "-o",
+          "cache_dir=/Users/deniskopylov/.codex/worktrees/e02-unified-local-20261009/polisyos/policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/root-active-resume-20261023-r2/pag-native-canonical-wave-r3/pytest-cache",
+          "--junitxml=/Users/deniskopylov/.codex/worktrees/e02-unified-local-20261009/polisyos/policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/root-active-resume-20261023-r2/pag-native-canonical-wave-r3/junit.xml",
+          "-q",
+          "tests/unit/foundry/methods/catalog/causal/test_pag_member_family.py"
+        ],
+        "exit_code": 0,
+        "seconds": 30.68955208407715,
+        "stdout_sha256": "e2289c230135b682d66e48107f8caab30f5b37878e8daf2e9fb92df9aebb1375",
+        "stderr_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+        "cwd": "policy-engine",
+        "stdout": {
+          "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/root-active-resume-20261023-r2/pag-native-canonical-wave-r3/pytest.stdout",
+          "sha256": "e2289c230135b682d66e48107f8caab30f5b37878e8daf2e9fb92df9aebb1375",
+          "availability": "local_read_only_raw_retained"
+        },
+        "stderr": {
+          "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/root-active-resume-20261023-r2/pag-native-canonical-wave-r3/pytest.stderr",
+          "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+          "availability": "local_read_only_raw_retained"
+        }
+      }
+    ],
+    "complete_deciding_output_receipt": {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/root-active-resume-20261023-r2/pag-native-canonical-wave-r3/execution-r1/receipt.json",
+      "sha256": "d5aeeb40d6943a272e15cc66fbbef6bcc5d38669d11a25e93ead5e604da83912",
+      "availability": "local_read_only_raw_retained"
+    },
+    "junit": {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/root-active-resume-20261023-r2/pag-native-canonical-wave-r3/junit.xml",
+      "sha256": "662089239fe8a6f7220d7dc9f64f8a63870402f89bb7b008abe38fb9f1d9ccf2",
+      "availability": "local_read_only_raw_retained"
+    },
+    "results": {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/root-active-resume-20261023-r2/pag-native-canonical-wave-r3/results.json",
+      "sha256": "07077635f8b3464983d15214efd08dc60d52dd9b0690e331f3c016bad440fbc2",
+      "availability": "local_read_only_raw_retained"
+    },
+    "ordinary_commit_hooks": {
+      "stdout": {
+        "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/root-active-resume-20261023-r2/pag-producer-ordinary-code-commit-r1/commit.stdout",
+        "sha256": "e0ff682e2cf2cdfb306347eebc0695e16f9488a2dc0e664a375c278541e0cc48",
+        "availability": "local_read_only_raw_retained"
+      },
+      "stderr": {
+        "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/root-active-resume-20261023-r2/pag-producer-ordinary-code-commit-r1/commit.stderr",
+        "sha256": "27e707b01500c6b7e121a878b648430de34a014ce02d4869a8753733dfd6c3e1",
+        "availability": "local_read_only_raw_retained"
+      },
+      "qualification": "Lefthook completed; Python/native readiness is established only by the explicitly recorded native commands, not hook skips.",
+      "reconciliation_commit": {
+        "stdout": {
+          "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/root-active-resume-20261023-r2/pag-reconciliation-ordinary-code-commit-r1/commit.stdout",
+          "sha256": "c21e08c59ce835270acc850b1e40f0f0e65e1238aa049c47bae4443ec32bdf6d",
+          "availability": "local_read_only_raw_retained"
+        },
+        "stderr": {
+          "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/root-active-resume-20261023-r2/pag-reconciliation-ordinary-code-commit-r1/commit.stderr",
+          "sha256": "aceb56b7f986c974c84e4bcfca4a8fb6d07a3d840fbcb29fc97f03d271cd8941",
+          "availability": "local_read_only_raw_retained"
+        }
+      }
+    }
+  },
+  "independent_source_review": {
+    "source_review": {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/g528-pag-independent-conformance-20261023-r2/pag-producer-independent-source-review.md",
+      "sha256": "fd4f2f83236f1ee967756588b71b14762cb8826a97c3b96fb6c5dc8f59838c35",
+      "availability": "local_read_only_raw_retained"
+    },
+    "backend_conformance_review": {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/g528-pag-independent-conformance-20261023-r2/pag-independent-conformance-review.md",
+      "sha256": "e6f10fed4b233e21d701aa29a6785611bc52891a254933245cabbfbe4500a290",
+      "availability": "local_read_only_raw_retained"
+    },
+    "format_delta": {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/root-active-resume-20261023-r2/pag-format-budget-application-plan-r1/independent-format-review.json",
+      "sha256": "65ab8ee05b86463a112bdd10951a607e9bde4c2b8f861a8d1542b8fc9c3691a4",
+      "availability": "local_read_only_raw_retained"
+    },
+    "release_companion": {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/pag-release-companion-independent-review-20261023-r1/review/review.json",
+      "sha256": "7254ce4e52ae12e7f6756fd84f929d914c9b0d7272187fa7d6c82dddbe0cfbe1",
+      "availability": "local_read_only_raw_retained"
+    },
+    "G_acceptance": false,
+    "reconciliation_delta": {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/pag-producer-receipt-independent-review-20261023-r1/pag-producer-receipt-independent-review-20261023-r3/review.json",
+      "sha256": "2c15883ebed62223a72b4aaf73200e498f0ac74f792b4263e826399988f76995",
+      "availability": "local_read_only_raw_retained"
+    }
+  },
+  "real_chain": {
+    "verified": "Selected controlled PAG → finite assignment producer → ancestral/maximal/MAG membership checks → typed returned trace and lossless member graphs → native test consumer. Disposition counts reconcile generically from every trace row; admitted proposals and returned members bind by ordinal and assignment digest.",
+    "persisted_artifact": "Not established by this standalone producer slice; the R4 orchestration companion owns graph/result/report CAS persistence.",
+    "orchestration_bridge": "Separate RAW candidate, not accepted in this handoff.",
+    "fresh_consumer": "Separate R4 fresh-consumer verification remains UNRUN for this slice."
+  },
+  "adversarial_and_removal_controls": [
+    "PAGMemberCounts reconciles assignment_space_size = proposals_attempted + unattempted_proposals across undercount and overcount negatives and a 5000-digit positive",
+    "PAGMemberCounts rejects oracle_operations > proposals_attempted and admitted > oracle_operations",
+    "two-node PAG exact three oracle-verified member graph witnesses",
+    "latent-confounded PAG exact five member witnesses",
+    "R4 discriminating-path PAG exact eight member witnesses with fixed compelled marks",
+    "full family semantic invariance under node and edge-order reversal",
+    "source PAG with omitted compelled endpoint receives pag_membership_mismatch on first canonical proposal and admits no member",
+    "cyclic directed proposal rejected before oracle call",
+    "ancestral but nonmaximal inducing-path proposal rejected before oracle call",
+    "selection tail-tail source and wrong profile return typed unsupported",
+    "oracle exception yields validation_incomplete, not a negative member or empty-family claim",
+    "small output budget produces a retained typed stop without a member claim",
+    "reversed directed member preserves source evidence/confidence/metadata fields",
+    "Trace-derived disposition totals reject forged count claims while all producer markers remain.",
+    "Every ADMITTED proposal has exactly one returned member with the same ordinal and assignment digest; missing, extra and crossed assignments are rejected."
+  ],
+  "consumer_surface": {
+    "internal": "polisyos.foundry.methods.catalog.causal.pag_member_family.evaluate_pag_member_family",
+    "external_API_dashboard": "surface_missing until R4 composed companions and genuine fresh read are verified.",
+    "capability_state": "implemented_but_not_orchestrated"
+  },
+  "warnings": [
+    "Upstream FCI may print orientation diagnostics; output verbosity is recorded debt.",
+    "No G code acceptance or finding closure is inferred from native PASS."
+  ],
+  "limitations": [
+    "No sample-selection absence fact is asserted; no-selection is an explicit hypothetical profile assumption.",
+    "No external law, issuer, permission, custody/currentness, calibration, probability or real-world causal truth is created.",
+    "Synchronous FCI calls cannot be interrupted inside this producer; elapsed budget is checked between calls and the consumer must apply the supervised execution deadline.",
+    "The candidate producer alone does not establish producer→persisted artifact→bridge→consumer integration; orchestration/DTO siblings own that path.",
+    "Full native SOTA, all affected consumers, Linux timeout descendant/late-write, wheel and rebuilt-sdist installed consumers remain UNRUN.",
+    "The finite witness set is not a probability distribution, calibration, proof of population ATE, or proof for every graph outside the declared enumeration.",
+    "No law/issuer/permission/custody/currentness input is invented.",
+    "Result-constructor validation is not source attestation: dangling duplicate ordinals and claimed graph digests require the independently resolving fresh-consumer checks detailed in bounded_residuals.",
+    "These residuals are explicitly bounded under P40; no additional DTO-only ladder repair is claimed. The generic consumer integrity mechanism is the next check."
+  ],
+  "patterns": {
+    "relevant": [
+      "P01",
+      "P05",
+      "P10",
+      "P29",
+      "P32",
+      "P35",
+      "P37",
+      "P38",
+      "P40",
+      "P41"
+    ],
+    "target": "Producer with real independent membership check; preserve explicit bounded scope and fail closed on oracle/resource uncertainty.",
+    "remaining": [
+      "artifact_missing",
+      "bridge_missing",
+      "consumer_missing",
+      "surface_missing"
+    ],
+    "P41": "No inherited gate debt claimed; full repository gates UNRUN for this slice."
+  },
+  "proposals": {
+    "technical_slice": "Review exact bounded producer implementation; whole PAG or E02 closure is not proposed.",
+    "finding_proposals": [],
+    "formal_closure_ids": []
+  },
+  "source_freeze": false,
+  "G_acceptance": {
+    "code_acceptance": false,
+    "integration_publication": false,
+    "formal_adjudication": false
+  },
+  "closure_ids": [],
+  "bounded_residuals": [
+    {
+      "property": "A duplicate trace points to an earlier admitted member of the same graph partition.",
+      "verified_boundary": "Ordinary factory production creates consistent rows; result DTO alone accepts dangling duplicate_of=99.",
+      "required_check": "Fresh consumer must resolve every duplicate ordinal against the actual prior admitted-member set and compare graph identity.",
+      "state": "verification_missing"
+    },
+    {
+      "property": "Every retained member_sha256 binds the actual member.graph bytes.",
+      "verified_boundary": "Ordinary factory hashes actual graph content; result DTO alone accepts a self-consistent claimed digest unrelated to graph content.",
+      "required_check": "Fresh typed consumer must recompute graph content identity and compare the persisted selected graph/ref and retained member digest, without treating DTO parse as attestation.",
+      "state": "verification_missing"
+    }
+  ],
+  "tracked_handoff_intent": "implementation-handoffs/LOCAL/g528-finite-pag-member-producer-22f02755-20261023.json; implementation and receipt commits remain separate; this packet does not name its future receipt commit."
+}

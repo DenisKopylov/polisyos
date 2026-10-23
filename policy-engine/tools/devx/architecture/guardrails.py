@@ -815,12 +815,102 @@ def _symbol_binding_nodes(tree: ast.Module, symbol: str) -> Iterator[ast.AST]:
                 yield node
 
 
+def _module_scope_nodes(tree: ast.Module) -> Iterator[ast.AST]:
+    """Walk module execution syntax while excluding function and class bodies."""
+    type_checking = {
+        alias.asname or alias.name
+        for statement in tree.body
+        if isinstance(statement, ast.ImportFrom)
+        and statement.module == "typing"
+        and statement.level == 0
+        for alias in statement.names
+        if alias.name == "TYPE_CHECKING"
+    }
+
+    def visit(node: ast.AST) -> Iterator[ast.AST]:
+        yield node
+        if isinstance(node, (ast.FunctionDef, ast.AsyncFunctionDef, ast.ClassDef, ast.Lambda)):
+            return
+        if (
+            isinstance(node, ast.If)
+            and isinstance(node.test, ast.Name)
+            and node.test.id in type_checking
+        ):
+            for child in node.orelse:
+                yield from visit(child)
+            return
+        for child in ast.iter_child_nodes(node):
+            yield from visit(child)
+
+    yield from visit(tree)
+
+
+def _module_scope_symbol_bindings(tree: ast.Module, symbol: str) -> Iterator[ast.AST]:
+    """Find source bindings and collection writes in module execution scope."""
+    mutation_methods = {
+        "update",
+        "extend",
+        "clear",
+        "pop",
+        "popitem",
+        "setdefault",
+        "__setitem__",
+        "__delitem__",
+        "items",
+    }
+    for node in _module_scope_nodes(tree):
+        targets: list[ast.AST] = []
+        if isinstance(node, (ast.Assign, ast.Delete)):
+            targets = node.targets
+        elif isinstance(node, (ast.AnnAssign, ast.AugAssign, ast.NamedExpr, ast.TypeAlias)):
+            targets = [node.target if hasattr(node, "target") else node.name]
+        elif isinstance(node, (ast.For, ast.AsyncFor)):
+            targets = [node.target]
+        elif isinstance(node, (ast.With, ast.AsyncWith)):
+            targets = [item.optional_vars for item in node.items if item.optional_vars is not None]
+        if any(
+            isinstance(child, ast.Name) and child.id == symbol
+            for target in targets
+            for child in ast.walk(target)
+        ):
+            yield node
+        elif isinstance(node, (ast.FunctionDef, ast.AsyncFunctionDef, ast.ClassDef)):
+            if node.name == symbol:
+                yield node
+        elif (
+            isinstance(node, (ast.ExceptHandler, ast.MatchAs, ast.MatchStar))
+            and node.name == symbol
+        ):
+            yield node
+        elif isinstance(node, (ast.Import, ast.ImportFrom)):
+            if isinstance(node, ast.ImportFrom) and node.module == "__future__":
+                continue
+            if any(
+                alias.name == "*" or (alias.asname or alias.name.split(".")[0]) == symbol
+                for alias in node.names
+            ):
+                yield node
+        elif (
+            isinstance(node, ast.Call)
+            and isinstance(node.func, ast.Attribute)
+            and node.func.attr in mutation_methods
+            and isinstance(node.func.value, ast.Name)
+            and node.func.value.id == symbol
+        ):
+            yield node
+
+
 def _export_source_locator(source: Path) -> str:
     """Use a canonical repository locator in reproducible generated refusals."""
     return source.relative_to(REPO_ROOT).as_posix()
 
 
-def _module_namespace_uses_are_closed(tree: ast.Module, source: Path | None = None) -> bool:
+def _module_namespace_uses_are_closed(
+    tree: ast.Module,
+    source: Path | None = None,
+    *,
+    allowed_sequence_extensions: frozenset[int] = frozenset(),
+) -> bool:
     """Accept only read-only namespace access and exact lazy-name caching.
 
     Export names are static evidence only when no source construct can rebind the
@@ -889,6 +979,20 @@ def _module_namespace_uses_are_closed(tree: ast.Module, source: Path | None = No
             return all(safe_dir_expression(item) for item in node.elts)
         if isinstance(node, ast.BinOp) and isinstance(node.op, ast.Add):
             return safe_dir_expression(node.left) and safe_dir_expression(node.right)
+        if isinstance(node, ast.BinOp) and isinstance(node.op, ast.BitOr):
+
+            def is_unshadowed_set(value: ast.AST) -> bool:
+                return (
+                    isinstance(value, ast.Call)
+                    and isinstance(value.func, ast.Name)
+                    and value.func.id == "set"
+                    and len(value.args) == 1
+                    and not value.keywords
+                    and not list(_symbol_binding_nodes(tree, "set"))
+                    and safe_dir_expression(value.args[0])
+                )
+
+            return is_unshadowed_set(node.left) and is_unshadowed_set(node.right)
         if isinstance(node, ast.Call) and isinstance(node.func, ast.Name):
             if node.func.id == "globals":
                 return globals_call(node)
@@ -979,8 +1083,6 @@ def _module_namespace_uses_are_closed(tree: ast.Module, source: Path | None = No
     for node in ast.walk(tree):
         if isinstance(node, ast.Attribute) and isinstance(node.ctx, (ast.Store, ast.Del)):
             return False
-        if enclosing_function(node) is None:
-            continue
         if isinstance(node, ast.Subscript) and isinstance(node.ctx, (ast.Store, ast.Del)):
             if not (isinstance(node.ctx, ast.Store) and valid_getattr_cache(node.value)):
                 return False
@@ -1089,6 +1191,14 @@ def _module_namespace_uses_are_closed(tree: ast.Module, source: Path | None = No
                     return False
         if isinstance(node, ast.Constant) and node.value == "__dict__":
             return False
+    closed_sequence_extensions = set(allowed_sequence_extensions)
+    if source is not None:
+        declaration_resolver = _StaticExportResolver(source, tree)
+        for statement in tree.body:
+            if isinstance(
+                statement, ast.Expr
+            ) and declaration_resolver._admit_static_sequence_extension(source, statement.value):
+                closed_sequence_extensions.add(id(statement.value))
     return "__getattr__" not in top_functions or _facade_callable_effects_are_closed(
         tree,
         source,
@@ -1097,6 +1207,7 @@ def _module_namespace_uses_are_closed(tree: ast.Module, source: Path | None = No
         globals_call,
         valid_getattr_cache,
         valid_dir_function,
+        frozenset(closed_sequence_extensions),
     )
 
 
@@ -1108,6 +1219,7 @@ def _facade_callable_effects_are_closed(
     globals_call: Callable[[ast.AST], bool],
     valid_getattr_cache: Callable[[ast.Call], bool],
     valid_dir_function: Callable[[ast.FunctionDef | ast.AsyncFunctionDef], bool],
+    allowed_sequence_extensions: frozenset[int] = frozenset(),
 ) -> bool:
     """Bound facade call effects to loader, finite-map, and read-only hook forms.
 
@@ -1193,6 +1305,111 @@ def _facade_callable_effects_are_closed(
             return pure_loader_helper(next_helper, seen | {function.name})
         return imported_surface_helper(value.func.id)
 
+    def non_hook_helpers_preserve_selector_state() -> bool:
+        """Reject helper call chains that can expose or mutate facade selectors."""
+        hook_names = {"__getattr__", "__dir__"}
+        container_names = {"__all__"}
+        for statement in tree.body:
+            if isinstance(statement, ast.Assign) and isinstance(
+                statement.value, (ast.List, ast.Tuple, ast.Set, ast.Dict)
+            ):
+                container_names.update(
+                    target.id for target in statement.targets if isinstance(target, ast.Name)
+                )
+            elif (
+                isinstance(statement, ast.AnnAssign)
+                and isinstance(statement.target, ast.Name)
+                and isinstance(statement.value, (ast.List, ast.Tuple, ast.Set, ast.Dict))
+            ):
+                container_names.add(statement.target.id)
+        parents = {
+            child: parent for parent in ast.walk(tree) for child in ast.iter_child_nodes(parent)
+        }
+        module_imports: set[str] = set()
+        for statement in tree.body:
+            if isinstance(statement, ast.Import):
+                module_imports.update(
+                    alias.asname or alias.name.split(".")[0] for alias in statement.names
+                )
+            elif isinstance(statement, ast.ImportFrom):
+                module_imports.update(alias.asname or alias.name for alias in statement.names)
+        hook_containers = set(container_names)
+        for hook_name in hook_names:
+            hook = top_functions.get(hook_name)
+            if hook is None:
+                continue
+            for node in ast.walk(hook):
+                if not isinstance(node, ast.Name) or not isinstance(node.ctx, ast.Load):
+                    continue
+                if node.id in container_names:
+                    hook_containers.add(node.id)
+                    continue
+                if node.id not in module_imports:
+                    continue
+                parent = parents.get(node)
+                if (
+                    (isinstance(parent, ast.Subscript) and parent.value is node)
+                    or (
+                        isinstance(parent, ast.Compare)
+                        and node in parent.comparators
+                        and any(
+                            isinstance(operator, (ast.In, ast.NotIn)) for operator in parent.ops
+                        )
+                    )
+                    or (
+                        isinstance(parent, ast.Attribute)
+                        and parent.value is node
+                        and parent.attr in {"get", "items", "keys", "values"}
+                    )
+                ):
+                    hook_containers.add(node.id)
+        mutators = {
+            "add",
+            "append",
+            "clear",
+            "discard",
+            "extend",
+            "pop",
+            "popitem",
+            "remove",
+            "setdefault",
+            "update",
+        }
+        sensitive: set[str] = set()
+        calls_by_function: dict[str, set[str]] = {}
+        for name, function in top_functions.items():
+            if name in hook_names:
+                continue
+            callees: set[str] = set()
+            for node in ast.walk(function):
+                if (
+                    isinstance(node, ast.Name)
+                    and isinstance(node.ctx, ast.Load)
+                    and node.id in hook_containers
+                ):
+                    sensitive.add(name)
+                if not isinstance(node, ast.Call):
+                    continue
+                if isinstance(node.func, ast.Name) and node.func.id in top_functions:
+                    callees.add(node.func.id)
+                if any(
+                    isinstance(child, ast.Name) and child.id in hook_containers
+                    for argument in [*node.args, *(keyword.value for keyword in node.keywords)]
+                    for child in ast.walk(argument)
+                ):
+                    sensitive.add(name)
+                if isinstance(node.func, ast.Attribute) and node.func.attr in mutators:
+                    sensitive.add(name)
+            calls_by_function[name] = callees
+        changed = True
+        while changed:
+            changed = False
+            for name, callees in calls_by_function.items():
+                if name not in sensitive and callees & sensitive:
+                    sensitive.add(name)
+                    changed = True
+        return not sensitive
+
     def function_call_is_closed(
         call: ast.Call,
         function: ast.FunctionDef | ast.AsyncFunctionDef,
@@ -1264,25 +1481,98 @@ def _facade_callable_effects_are_closed(
                     )
             return False
 
+        if function in top_functions.values():
+            # The inventory measures import-time declarations. Non-hook function
+            # bodies are not executed during import; their namespace writes,
+            # reflection, decorators, defaults, and annotations are checked above.
+            # A helper reachable from __getattr__ is still checked at its call site
+            # by pure_loader_helper.
+            return True
         return pure_loader_helper(function)
+
+    def pkgutil_extend_path_is_closed(call: ast.Call) -> bool:
+        if (
+            not isinstance(call.func, ast.Name)
+            or call.func.id != "extend_path"
+            or len(call.args) != 2
+            or call.keywords
+            or not all(isinstance(argument, ast.Name) for argument in call.args)
+            or call.args[0].id != "__path__"
+            or call.args[1].id != "__name__"
+        ):
+            return False
+        import_bindings = [
+            statement
+            for statement in tree.body
+            if isinstance(statement, ast.ImportFrom)
+            and statement.level == 0
+            and statement.module == "pkgutil"
+            and len(statement.names) == 1
+            and statement.names[0].name == "extend_path"
+            and (statement.names[0].asname or statement.names[0].name) == "extend_path"
+        ]
+        path_assignments = [
+            statement
+            for statement in tree.body
+            if isinstance(statement, ast.Assign)
+            and len(statement.targets) == 1
+            and isinstance(statement.targets[0], ast.Name)
+            and statement.targets[0].id == "__path__"
+            and statement.value is call
+        ]
+        all_calls = [
+            node
+            for node in ast.walk(tree)
+            if isinstance(node, ast.Call)
+            and isinstance(node.func, ast.Name)
+            and node.func.id == "extend_path"
+        ]
+        return (
+            len(import_bindings) == 1
+            and list(_module_scope_symbol_bindings(tree, "extend_path")) == import_bindings
+            and len(path_assignments) == 1
+            and list(_module_scope_symbol_bindings(tree, "__path__")) == path_assignments
+            and all_calls == [call]
+        )
 
     def module_call_is_closed(call: ast.Call) -> bool:
         if isinstance(call.func, ast.Name):
+            if call.func.id == "extend_path":
+                return pkgutil_extend_path_is_closed(call)
             if call.func.id in {"frozenset", "tuple", "list", "set", "dict"}:
                 return (
                     not list(_symbol_binding_nodes(tree, call.func.id))
                     and len(call.args) == 1
                     and not call.keywords
                 )
+            if call.func.id in {"sorted", "list", "tuple", "set"}:
+                return (
+                    not list(_symbol_binding_nodes(tree, call.func.id))
+                    and len(call.args) == 1
+                    and isinstance(call.args[0], ast.Name)
+                    and has_static_dict_initializer(call.args[0].id)
+                    and not call.keywords
+                )
             return imported_surface_helper(call.func.id) and not call.args and not call.keywords
         if isinstance(call.func, ast.Attribute):
             receiver = call.func.value
-            if not isinstance(receiver, ast.Name) or not has_static_dict_initializer(receiver.id):
+            if not isinstance(receiver, ast.Name):
+                return False
+            if call.func.attr == "extend":
+                return (
+                    id(call) in allowed_sequence_extensions
+                    and len(call.args) == 1
+                    and not call.keywords
+                )
+            if not has_static_dict_initializer(receiver.id):
                 return False
             if call.func.attr == "items":
                 return not call.args and not call.keywords
             if call.func.attr == "update":
                 return len(call.args) == 1 and not call.keywords
+        return False
+
+    if not non_hook_helpers_preserve_selector_state():
         return False
 
     for call in (node for node in ast.walk(tree) if isinstance(node, ast.Call)):
@@ -1357,13 +1647,844 @@ class _StaticExportResolver:
         self._allowed_reads: set[tuple[Path, int]] = set()
         self._allowed_calls: set[tuple[Path, int]] = set()
         self._allowed_operations: set[tuple[Path, int]] = set()
+        self._allowed_mapping_updates: set[tuple[Path, int]] = set()
+        self._allowed_sequence_extensions: set[tuple[Path, int]] = set()
+        self._mapping_active: set[tuple[Path, str]] = set()
         self._passive_active: set[tuple[Path, str]] = set()
         self._passive_modules: set[Path] = set()
+        self._lazy_facade_cache: dict[Path, bool] = {}
 
     def _tree(self, source: Path) -> ast.Module:
         if source not in self._trees:
             self._trees[source] = ast.parse(admitted_read_bytes(source, REPO_ROOT))
         return self._trees[source]
+
+    @staticmethod
+    def _direct_mapping_update(tree: ast.Module, symbol: str, node: ast.AST) -> bool:
+        return (
+            isinstance(node, ast.Call)
+            and isinstance(node.func, ast.Attribute)
+            and node.func.attr == "update"
+            and isinstance(node.func.value, ast.Name)
+            and node.func.value.id == symbol
+            and len(node.args) == 1
+            and not node.keywords
+            and any(
+                isinstance(statement, ast.Expr) and statement.value is node
+                for statement in tree.body
+            )
+        )
+
+    @staticmethod
+    def _direct_mapping_item_assignment(tree: ast.Module, symbol: str, node: ast.AST) -> bool:
+        """Recognize one literal-key write into a module-scope mapping."""
+        return not (
+            not isinstance(node, ast.Assign)
+            or len(node.targets) != 1
+            or not isinstance(node.targets[0], ast.Subscript)
+            or not isinstance(node.targets[0].value, ast.Name)
+            or node.targets[0].value.id != symbol
+            or not isinstance(node.targets[0].slice, ast.Constant)
+            or not isinstance(node.targets[0].slice.value, str)
+            or node not in tree.body
+        )
+
+    @staticmethod
+    def _direct_mapping_items_iteration(tree: ast.Module, symbol: str, node: ast.AST) -> bool:
+        """Admit a read-only module-level loop over a statically selected map."""
+        return any(
+            isinstance(statement, (ast.For, ast.AsyncFor))
+            and not statement.orelse
+            and statement.iter is node
+            and isinstance(node, ast.Call)
+            and isinstance(node.func, ast.Attribute)
+            and node.func.attr == "items"
+            and isinstance(node.func.value, ast.Name)
+            and node.func.value.id == symbol
+            and not node.args
+            and not node.keywords
+            for statement in tree.body
+        )
+
+    @staticmethod
+    def _mapping_values_are_immutable(mapping: dict[object, object]) -> bool:
+        def immutable(value: object) -> bool:
+            if value is None or isinstance(value, (str, int, float, bool, bytes)):
+                return True
+            return isinstance(value, tuple) and all(immutable(item) for item in value)
+
+        return all(immutable(value) for value in mapping.values())
+
+    def _closed_static_value(
+        self,
+        source: Path,
+        node: ast.AST,
+        local_values: dict[str, object],
+    ) -> object:
+        if isinstance(node, ast.Constant):
+            return node.value
+        if (
+            isinstance(node, ast.Call)
+            and isinstance(node.func, ast.Name)
+            and node.func.id == "MappingProxyType"
+            and len(node.args) == 1
+            and not node.keywords
+        ):
+            bindings = list(_module_scope_symbol_bindings(self._tree(source), "MappingProxyType"))
+            if len(bindings) != 1 or not isinstance(bindings[0], ast.ImportFrom):
+                raise _UnresolvedExportDeclarationError(
+                    f"Unresolved mapping wrapper: {_export_source_locator(source)}"
+                )
+            imported = bindings[0]
+            if imported.module != "types" or not any(
+                alias.name == "MappingProxyType"
+                and (alias.asname or alias.name) == "MappingProxyType"
+                for alias in imported.names
+            ):
+                raise _UnresolvedExportDeclarationError(
+                    f"Unresolved mapping wrapper: {_export_source_locator(source)}"
+                )
+            wrapped = self._closed_static_value(source, node.args[0], local_values)
+            if not isinstance(wrapped, dict):
+                raise _UnresolvedExportDeclarationError(
+                    f"Unresolved mapping wrapper value: {_export_source_locator(source)}"
+                )
+            return wrapped
+        if isinstance(node, ast.Name):
+            if node.id in local_values:
+                return local_values[node.id]
+            self._allowed_reads.add((source, id(node)))
+            bindings = list(_module_scope_symbol_bindings(self._tree(source), node.id))
+            if any((source, node.id) == active for active in self._mapping_active):
+                raise _UnresolvedExportDeclarationError(
+                    f"Unresolved static mapping cycle: {_export_source_locator(source)}:{node.id}"
+                )
+            if (
+                len(bindings) == 1
+                and isinstance(bindings[0], (ast.Assign, ast.AnnAssign))
+                and isinstance(bindings[0].value, ast.Dict)
+            ):
+                return self._closed_static_mapping(source, node.id)
+            return self.resolve(source, node.id)
+        if isinstance(node, ast.Tuple):
+            return tuple(
+                self._closed_static_value(source, item, local_values) for item in node.elts
+            )
+        if isinstance(node, ast.List):
+            return [self._closed_static_value(source, item, local_values) for item in node.elts]
+        if isinstance(node, ast.Set):
+            return {self._closed_static_value(source, item, local_values) for item in node.elts}
+        if isinstance(node, ast.Dict):
+            mapping: dict[object, object] = {}
+            for key_node, value_node in zip(node.keys, node.values, strict=True):
+                if key_node is None:
+                    expanded = self._closed_static_value(source, value_node, local_values)
+                    if not isinstance(expanded, dict):
+                        raise _UnresolvedExportDeclarationError(
+                            f"Unresolved static mapping expansion: {_export_source_locator(source)}"
+                        )
+                    mapping.update(expanded)
+                    continue
+                key = self._closed_static_value(source, key_node, local_values)
+                value = self._closed_static_value(source, value_node, local_values)
+                try:
+                    hash(key)
+                except TypeError as exc:
+                    raise _UnresolvedExportDeclarationError(
+                        f"Unresolved unhashable static mapping key: {_export_source_locator(source)}"
+                    ) from exc
+                mapping[key] = value
+            return mapping
+        if isinstance(node, ast.JoinedStr):
+            pieces: list[str] = []
+            for item in node.values:
+                if isinstance(item, ast.Constant) and isinstance(item.value, str):
+                    pieces.append(item.value)
+                    continue
+                if (
+                    not isinstance(item, ast.FormattedValue)
+                    or item.conversion != -1
+                    or item.format_spec is not None
+                ):
+                    raise _UnresolvedExportDeclarationError(
+                        f"Unresolved static mapping format: {_export_source_locator(source)}"
+                    )
+                value = self._closed_static_value(source, item.value, local_values)
+                if not isinstance(value, str):
+                    raise _UnresolvedExportDeclarationError(
+                        f"Unresolved non-string static mapping format: {_export_source_locator(source)}"
+                    )
+                pieces.append(value)
+            return "".join(pieces)
+        if isinstance(node, ast.DictComp):
+            if len(node.generators) != 1 or node.generators[0].is_async or node.generators[0].ifs:
+                raise _UnresolvedExportDeclarationError(
+                    f"Unresolved static mapping comprehension: {_export_source_locator(source)}"
+                )
+            generator = node.generators[0]
+            iterable = self._closed_static_value(source, generator.iter, local_values)
+            if isinstance(iterable, (dict, tuple, list)):
+                items = tuple(iterable)
+            else:
+                raise _UnresolvedExportDeclarationError(
+                    f"Unresolved static mapping iteration: {_export_source_locator(source)}"
+                )
+
+            def bind_target(target: ast.AST, value: object) -> dict[str, object]:
+                if isinstance(target, ast.Name):
+                    return {target.id: value}
+                if isinstance(target, (ast.Tuple, ast.List)) and isinstance(value, (tuple, list)):
+                    if len(target.elts) != len(value):
+                        raise _UnresolvedExportDeclarationError(
+                            f"Unresolved static mapping unpack: {_export_source_locator(source)}"
+                        )
+                    bound: dict[str, object] = {}
+                    for child, item in zip(target.elts, value, strict=True):
+                        bound.update(bind_target(child, item))
+                    return bound
+                raise _UnresolvedExportDeclarationError(
+                    f"Unresolved static mapping target: {_export_source_locator(source)}"
+                )
+
+            mapping = {}
+            for item in items:
+                child_values = {**local_values, **bind_target(generator.target, item)}
+                key = self._closed_static_value(source, node.key, child_values)
+                value = self._closed_static_value(source, node.value, child_values)
+                try:
+                    hash(key)
+                except TypeError as exc:
+                    raise _UnresolvedExportDeclarationError(
+                        f"Unresolved unhashable static mapping key: {_export_source_locator(source)}"
+                    ) from exc
+                mapping[key] = value
+            return mapping
+        raise _UnresolvedExportDeclarationError(
+            f"Unresolved static mapping value: {_export_source_locator(source)}:{ast.unparse(node)}"
+        )
+
+    def _mapping_references_are_closed(
+        self,
+        source: Path,
+        symbol: str,
+        declaration: ast.AST,
+        updates: list[ast.Call],
+    ) -> bool:
+        """Close aliases and writes in the import-time dependency slice only."""
+        tree = self._tree(source)
+        update_ids = {id(node) for node in updates}
+        allowed_item_target_ids = {
+            id(node.targets[0])
+            for node in updates
+            if isinstance(node, ast.Assign)
+            and len(node.targets) == 1
+            and isinstance(node.targets[0], ast.Subscript)
+        }
+        alias_names = {symbol}
+        alias_initializers: set[int] = set()
+
+        def is_literal_container(value: ast.AST, names: set[str]) -> bool:
+            if isinstance(value, ast.Constant):
+                return True
+            if isinstance(value, ast.Name):
+                if value.id in names:
+                    return True
+                bindings = list(_module_scope_symbol_bindings(tree, value.id))
+                return len(bindings) == 1 and bindings[0] in tree.body
+            if isinstance(value, (ast.List, ast.Tuple, ast.Set)):
+                return all(is_literal_container(item, names) for item in value.elts)
+            if isinstance(value, ast.Dict):
+                return all(
+                    key is not None
+                    and is_literal_container(key, names)
+                    and is_literal_container(item, names)
+                    for key, item in zip(value.keys, value.values, strict=True)
+                )
+            return False
+
+        module_nodes = list(_module_scope_nodes(tree))
+        changed = True
+        while changed:
+            changed = False
+            for node in module_nodes:
+                if not isinstance(node, (ast.Assign, ast.AnnAssign, ast.NamedExpr)):
+                    continue
+                if node is declaration or id(node) in alias_initializers or node.value is None:
+                    continue
+                targets = node.targets if isinstance(node, ast.Assign) else [node.target]
+                if len(targets) != 1 or not isinstance(targets[0], ast.Name):
+                    continue
+                target_name = targets[0].id
+                referenced = {
+                    child.id
+                    for child in ast.walk(node.value)
+                    if isinstance(child, ast.Name)
+                    and child.id in alias_names
+                    and isinstance(child.ctx, ast.Load)
+                }
+                if not referenced:
+                    continue
+                if isinstance(node.value, ast.Name):
+                    # A selected alias in the closed declaration dependency cone is
+                    # trackable; an unselected alias could escape and mutate the map.
+                    if (source, id(node.value)) in self._allowed_reads:
+                        if target_name not in alias_names:
+                            alias_names.add(target_name)
+                            alias_initializers.add(id(node))
+                            changed = True
+                        continue
+                    return False
+                if is_literal_container(node.value, alias_names):
+                    if target_name not in alias_names:
+                        alias_names.add(target_name)
+                        alias_initializers.add(id(node))
+                        changed = True
+
+        for node in module_nodes:
+            if isinstance(node, (ast.Assign, ast.AnnAssign, ast.NamedExpr)):
+                targets = node.targets if isinstance(node, ast.Assign) else [node.target]
+                if any(
+                    isinstance(child, ast.Name) and child.id in alias_names
+                    for target in targets
+                    for child in ast.walk(target)
+                ):
+                    if (
+                        node is declaration
+                        or id(node) in update_ids
+                        or id(node) in alias_initializers
+                    ):
+                        pass
+                    else:
+                        return False
+                if node.value is not None:
+                    reads = [
+                        child
+                        for child in ast.walk(node.value)
+                        if isinstance(child, ast.Name)
+                        and child.id in alias_names
+                        and isinstance(child.ctx, ast.Load)
+                    ]
+                    if (
+                        reads
+                        and id(node) not in alias_initializers
+                        and not all((source, id(child)) in self._allowed_reads for child in reads)
+                    ):
+                        target = (
+                            node.targets[0]
+                            if isinstance(node, ast.Assign) and len(node.targets) == 1
+                            else None
+                        )
+                        map_consumer = False
+                        if (
+                            isinstance(target, ast.Subscript)
+                            and isinstance(target.value, ast.Name)
+                            and isinstance(target.slice, ast.Constant)
+                            and isinstance(target.slice.value, str)
+                            and isinstance(node.value, ast.Name)
+                        ):
+                            map_name = target.value.id
+                            map_bindings = list(_module_scope_symbol_bindings(tree, map_name))
+                            map_consumer = (
+                                len(map_bindings) >= 1
+                                and any(
+                                    isinstance(binding, (ast.Assign, ast.AnnAssign))
+                                    and getattr(binding, "value", None) is not None
+                                    and isinstance(binding.value, ast.Dict)
+                                    for binding in map_bindings
+                                )
+                                and all(
+                                    (
+                                        isinstance(binding, (ast.Assign, ast.AnnAssign, ast.Expr))
+                                        or self._direct_mapping_item_assignment(
+                                            tree, map_name, binding
+                                        )
+                                        or self._direct_mapping_update(tree, map_name, binding)
+                                        or self._direct_mapping_items_iteration(
+                                            tree, map_name, binding
+                                        )
+                                    )
+                                    for binding in map_bindings
+                                )
+                            )
+                        if not map_consumer:
+                            return False
+            if isinstance(node, (ast.Delete, ast.AugAssign)):
+                targets = node.targets if isinstance(node, ast.Delete) else [node.target]
+                if any(
+                    isinstance(child, ast.Name) and child.id in alias_names
+                    for target in targets
+                    for child in ast.walk(target)
+                ):
+                    return False
+            if isinstance(node, ast.Call):
+                if self._direct_mapping_items_iteration(tree, symbol, node):
+                    continue
+                receiver_reads = [
+                    child
+                    for child in ast.walk(node.func)
+                    if isinstance(child, ast.Name)
+                    and child.id in alias_names
+                    and isinstance(child.ctx, ast.Load)
+                ]
+                if receiver_reads:
+                    if (
+                        id(node) in update_ids
+                        and isinstance(node.func, ast.Attribute)
+                        and isinstance(node.func.value, ast.Name)
+                        and node.func.value.id == symbol
+                    ):
+                        continue
+                    return False
+                argument_reads = [
+                    child
+                    for argument in (*node.args, *(kw.value for kw in node.keywords))
+                    for child in ast.walk(argument)
+                    if isinstance(child, ast.Name)
+                    and child.id in alias_names
+                    and isinstance(child.ctx, ast.Load)
+                ]
+                if argument_reads and not (
+                    (
+                        (source, id(node)) in self._allowed_calls
+                        or (source, id(node)) in self._allowed_mapping_updates
+                        or (source, id(node)) in self._allowed_sequence_extensions
+                    )
+                    and all((source, id(child)) in self._allowed_reads for child in argument_reads)
+                ):
+                    return False
+            if isinstance(node, ast.Subscript) and isinstance(node.ctx, (ast.Store, ast.Del)):
+                if (
+                    any(
+                        isinstance(child, ast.Name) and child.id in alias_names
+                        for child in ast.walk(node.value)
+                    )
+                    and id(node) not in allowed_item_target_ids
+                ):
+                    return False
+        return True
+
+    def _closed_static_mapping(self, source: Path, symbol: str) -> dict[object, object]:
+        key = (source, symbol)
+        if key in self._mapping_active:
+            raise _UnresolvedExportDeclarationError(
+                f"Unresolved static mapping cycle: {_export_source_locator(source)}:{symbol}"
+            )
+        self._mapping_active.add(key)
+        try:
+            tree = self._tree(source)
+            bindings = list(_module_scope_symbol_bindings(tree, symbol))
+            if len(bindings) == 1 and isinstance(bindings[0], ast.ImportFrom):
+                imported = bindings[0]
+                matches = [
+                    alias
+                    for alias in imported.names
+                    if alias.name != "*" and (alias.asname or alias.name) == symbol
+                ]
+                info = _module_name_for_path(source)
+                module = _resolve_import_module(*info, imported) if info is not None else None
+                if len(matches) != 1 or module is None or not module.startswith("polisyos."):
+                    raise _UnresolvedExportDeclarationError(
+                        f"Unresolved imported static mapping: {_export_source_locator(source)}:{symbol}"
+                    )
+                self._allowed_reads.add((source, id(imported)))
+                return self._closed_static_mapping(_facade_source_for(module), matches[0].name)
+            updates = [
+                node
+                for node in bindings
+                if self._direct_mapping_update(tree, symbol, node)
+                or self._direct_mapping_item_assignment(tree, symbol, node)
+            ]
+            read_only = [
+                node
+                for node in bindings
+                if self._direct_mapping_items_iteration(tree, symbol, node)
+            ]
+            base = [node for node in bindings if node not in updates and node not in read_only]
+            if (
+                len(base) != 1
+                or base[0] not in tree.body
+                or not isinstance(base[0], (ast.Assign, ast.AnnAssign))
+                or (
+                    isinstance(base[0], ast.Assign)
+                    and (
+                        len(base[0].targets) != 1
+                        or not isinstance(base[0].targets[0], ast.Name)
+                        or base[0].targets[0].id != symbol
+                    )
+                )
+                or (
+                    isinstance(base[0], ast.AnnAssign)
+                    and (not isinstance(base[0].target, ast.Name) or base[0].target.id != symbol)
+                )
+                or base[0].value is None
+                or not (
+                    isinstance(base[0].value, ast.Dict)
+                    or (
+                        isinstance(base[0].value, ast.Call)
+                        and isinstance(base[0].value.func, ast.Name)
+                        and base[0].value.func.id == "MappingProxyType"
+                        and len(base[0].value.args) == 1
+                        and not base[0].value.keywords
+                    )
+                )
+                or any(node.lineno <= base[0].end_lineno for node in updates)
+            ):
+                raise _UnresolvedExportDeclarationError(
+                    f"Unresolved static mapping declaration: {_export_source_locator(source)}:{symbol}"
+                )
+            mapping = self._closed_static_value(source, base[0].value, {})
+            if not isinstance(mapping, dict):
+                raise _UnresolvedExportDeclarationError(
+                    f"Unresolved static mapping declaration: {_export_source_locator(source)}:{symbol}"
+                )
+            for update in sorted(updates, key=lambda item: item.lineno):
+                if self._direct_mapping_item_assignment(tree, symbol, update):
+                    target = update.targets[0]
+                    if not isinstance(target, ast.Subscript):
+                        raise _UnresolvedExportDeclarationError(
+                            f"Unresolved direct mapping update: {_export_source_locator(source)}:{symbol}"
+                        )
+                    mapping_key = ast.literal_eval(target.slice)
+                    value = self._closed_static_value(source, update.value, {})
+                    mapping[mapping_key] = value
+                    self._allowed_mapping_updates.add((source, id(update)))
+                    continue
+                addition = self._closed_static_value(source, update.args[0], {})
+                if not isinstance(addition, dict):
+                    raise _UnresolvedExportDeclarationError(
+                        f"Unresolved static mapping update: {_export_source_locator(source)}:{symbol}"
+                    )
+                mapping.update(addition)
+                self._allowed_mapping_updates.add((source, id(update)))
+                self._allowed_reads.add((source, id(update.func.value)))
+            if not self._mapping_values_are_immutable(mapping):
+                raise _UnresolvedExportDeclarationError(
+                    f"Unresolved mutable static mapping values: {_export_source_locator(source)}:{symbol}"
+                )
+            if not self._mapping_references_are_closed(source, symbol, base[0], updates):
+                raise _UnresolvedExportDeclarationError(
+                    f"Unresolved static mapping consumer: {_export_source_locator(source)}:{symbol}"
+                )
+            return mapping
+        finally:
+            self._mapping_active.remove(key)
+
+    @staticmethod
+    def _direct_sequence_extension(tree: ast.Module, symbol: str, node: ast.AST) -> bool:
+        return (
+            isinstance(node, ast.Call)
+            and isinstance(node.func, ast.Attribute)
+            and node.func.attr == "extend"
+            and isinstance(node.func.value, ast.Name)
+            and node.func.value.id == symbol
+            and len(node.args) == 1
+            and not node.keywords
+            and any(
+                isinstance(statement, ast.Expr) and statement.value is node
+                for statement in tree.body
+            )
+        )
+
+    def _closed_static_sequence(self, source: Path, symbol: str) -> list[str]:
+        key = (source, symbol)
+        if key in self._mapping_active:
+            raise _UnresolvedExportDeclarationError(
+                f"Unresolved static sequence cycle: {_export_source_locator(source)}:{symbol}"
+            )
+        self._mapping_active.add(key)
+        try:
+            tree = self._tree(source)
+            bindings = list(_module_scope_symbol_bindings(tree, symbol))
+            extensions = [
+                node for node in bindings if self._direct_sequence_extension(tree, symbol, node)
+            ]
+            base = [node for node in bindings if node not in extensions]
+            if (
+                len(base) != 1
+                or base[0] not in tree.body
+                or not isinstance(base[0], (ast.Assign, ast.AnnAssign))
+                or (
+                    isinstance(base[0], ast.Assign)
+                    and (
+                        len(base[0].targets) != 1
+                        or not isinstance(base[0].targets[0], ast.Name)
+                        or base[0].targets[0].id != symbol
+                    )
+                )
+                or (
+                    isinstance(base[0], ast.AnnAssign)
+                    and (not isinstance(base[0].target, ast.Name) or base[0].target.id != symbol)
+                )
+                or not isinstance(base[0].value, ast.List)
+                or any(node.lineno <= base[0].end_lineno for node in extensions)
+            ):
+                raise _UnresolvedExportDeclarationError(
+                    f"Unresolved static sequence declaration: {_export_source_locator(source)}:{symbol}"
+                )
+            values = self._value(source, base[0].value)
+            if not isinstance(values, list) or not all(isinstance(item, str) for item in values):
+                raise _UnresolvedExportDeclarationError(
+                    f"Unresolved static export sequence: {_export_source_locator(source)}:{symbol}"
+                )
+            for extension in extensions:
+                addition = self._value(source, extension.args[0])
+                if not isinstance(addition, (list, tuple)) or not all(
+                    isinstance(item, str) for item in addition
+                ):
+                    raise _UnresolvedExportDeclarationError(
+                        f"Unresolved static sequence extension: {_export_source_locator(source)}:{symbol}"
+                    )
+                values.extend(addition)
+                self._allowed_sequence_extensions.add((source, id(extension)))
+                self._allowed_reads.add((source, id(extension.func.value)))
+            if not self._mapping_references_are_closed(source, symbol, base[0], extensions):
+                raise _UnresolvedExportDeclarationError(
+                    f"Unresolved static sequence consumer: {_export_source_locator(source)}:{symbol}"
+                )
+            return values
+        finally:
+            self._mapping_active.remove(key)
+
+    def _admit_static_sequence_extension(self, source: Path, node: ast.AST) -> bool:
+        if not isinstance(node, ast.Call) or not isinstance(node.func, ast.Attribute):
+            return False
+        if not isinstance(node.func.value, ast.Name):
+            return False
+        symbol = node.func.value.id
+        if not self._direct_sequence_extension(self._tree(source), symbol, node):
+            return False
+        try:
+            self._closed_static_sequence(source, symbol)
+        except (OSError, ValueError, TypeError, SyntaxError):
+            return False
+        self._allowed_sequence_extensions.add((source, id(node)))
+        self._allowed_reads.add((source, id(node.func.value)))
+        return True
+
+    def _admit_static_mapping_update(self, source: Path, node: ast.AST) -> bool:
+        if not isinstance(node, ast.Call) or not isinstance(node.func, ast.Attribute):
+            return False
+        if not isinstance(node.func.value, ast.Name):
+            return False
+        symbol = node.func.value.id
+        if not self._direct_mapping_update(self._tree(source), symbol, node):
+            return False
+        try:
+            self._closed_static_mapping(source, symbol)
+        except (OSError, ValueError, TypeError, SyntaxError):
+            return False
+        self._allowed_mapping_updates.add((source, id(node)))
+        self._allowed_reads.add((source, id(node.func.value)))
+        return True
+
+    def _type_checking_uses_are_closed(self, tree: ast.Module, local_name: str) -> bool:
+        guards = [
+            node
+            for node in tree.body
+            if isinstance(node, ast.If)
+            and isinstance(node.test, ast.Name)
+            and node.test.id == local_name
+            and not node.orelse
+            and all(
+                isinstance(statement, (ast.Import, ast.ImportFrom, ast.Pass))
+                and not (
+                    isinstance(statement, ast.ImportFrom)
+                    and any(alias.name == "*" for alias in statement.names)
+                )
+                for statement in node.body
+            )
+        ]
+        uses = [
+            node
+            for node in ast.walk(tree)
+            if isinstance(node, ast.Name)
+            and node.id == local_name
+            and isinstance(node.ctx, ast.Load)
+        ]
+        return all(any(node is guard.test for guard in guards) for node in uses)
+
+    def _typing_import_is_declaration_only(self, source: Path, node: ast.ImportFrom) -> bool:
+        tree = self._tree(source)
+        if (
+            node.level != 0
+            or node.module != "typing"
+            or not node.names
+            or any(alias.name == "*" for alias in node.names)
+        ):
+            return False
+        future_annotations = any(
+            isinstance(statement, ast.ImportFrom)
+            and statement.module == "__future__"
+            and any(alias.name == "annotations" for alias in statement.names)
+            and _supported_future_import_is_passive(tree, statement)
+            for statement in tree.body
+        )
+        annotation_ids: set[int] = set()
+        for statement in ast.walk(tree):
+            expressions: list[ast.AST | None] = []
+            if isinstance(statement, ast.arg):
+                expressions.append(statement.annotation)
+            elif isinstance(statement, (ast.FunctionDef, ast.AsyncFunctionDef)):
+                expressions.append(statement.returns)
+            elif isinstance(statement, ast.AnnAssign):
+                expressions.append(statement.annotation)
+            for expression in expressions:
+                if expression is not None:
+                    annotation_ids.update(id(child) for child in ast.walk(expression))
+        for alias in node.names:
+            local_name = alias.asname or alias.name
+            if alias.name == "TYPE_CHECKING":
+                binding_nodes = list(_module_scope_symbol_bindings(tree, local_name))
+                if (
+                    len(binding_nodes) != 1
+                    or binding_nodes[0] is not node
+                    or not self._type_checking_uses_are_closed(tree, local_name)
+                ):
+                    return False
+                continue
+            if not future_annotations:
+                return False
+            if any(
+                isinstance(child, ast.Name)
+                and child.id == local_name
+                and isinstance(child.ctx, ast.Load)
+                and id(child) not in annotation_ids
+                for child in ast.walk(tree)
+            ):
+                return False
+        return True
+
+    def _type_checking_block_is_passive(self, source: Path, node: ast.If) -> bool:
+        tree = self._tree(source)
+        if node not in tree.body or not isinstance(node.test, ast.Name) or node.orelse:
+            return False
+        local_name = node.test.id
+        bindings = list(_module_scope_symbol_bindings(tree, local_name))
+        if len(bindings) != 1 or not isinstance(bindings[0], ast.ImportFrom):
+            return False
+        binding = bindings[0]
+        return (
+            binding.level == 0
+            and binding.module == "typing"
+            and any(
+                alias.name == "TYPE_CHECKING" and (alias.asname or alias.name) == local_name
+                for alias in binding.names
+            )
+            and self._typing_import_is_declaration_only(source, binding)
+        )
+
+    def _source_is_closed_lazy_facade(self, source: Path) -> bool:
+        cached = self._lazy_facade_cache.get(source)
+        if cached is not None:
+            return cached
+        result = False
+        info = _module_name_for_path(source)
+        if info is not None and info[1]:
+            tree = self._tree(source)
+            getter = _top_level_function(tree, "__getattr__")
+            exports = _static_string_collection(source, tree, "__all__")
+            if (
+                getter is not None
+                and _has_exact_positional_parameters(getter, "name")
+                and exports is not None
+                and _module_namespace_uses_are_closed(tree, source)
+            ):
+                parents = {
+                    child: parent
+                    for parent in ast.walk(tree)
+                    for child in ast.iter_child_nodes(parent)
+                }
+
+                def enclosing_function(
+                    node: ast.AST,
+                ) -> ast.FunctionDef | ast.AsyncFunctionDef | None:
+                    parent = parents.get(node)
+                    while parent is not None:
+                        if isinstance(parent, (ast.FunctionDef, ast.AsyncFunctionDef)):
+                            return parent
+                        parent = parents.get(parent)
+                    return None
+
+                import_bindings: list[tuple[str, str, ast.stmt]] = []
+                for statement in tree.body:
+                    if isinstance(statement, ast.Import):
+                        for alias in statement.names:
+                            if alias.name == "importlib":
+                                import_bindings.append(
+                                    (alias.asname or alias.name.split(".")[0], "module", statement)
+                                )
+                            elif alias.name.startswith("importlib."):
+                                return False
+                    elif isinstance(statement, ast.ImportFrom) and statement.module == "importlib":
+                        if (
+                            statement.level != 0
+                            or not statement.names
+                            or any(alias.name != "import_module" for alias in statement.names)
+                        ):
+                            return False
+                        import_bindings.extend(
+                            (alias.asname or alias.name, "callable", statement)
+                            for alias in statement.names
+                        )
+                calls = [
+                    node
+                    for node in ast.walk(tree)
+                    if isinstance(node, ast.Call)
+                    and _import_module_callable_is_stdlib(tree, node.func)
+                ]
+                exact_calls = bool(calls) and all(
+                    enclosing_function(call) is not None
+                    and len(call.args) == 1
+                    and not call.keywords
+                    for call in calls
+                )
+                exact_bindings = bool(import_bindings) and len(import_bindings) == 1
+                if exact_calls and exact_bindings:
+                    local_name, binding_kind, import_node = import_bindings[0]
+                    bound_uses_are_calls = True
+                    for child in ast.walk(tree):
+                        if not (
+                            isinstance(child, ast.Name)
+                            and child.id == local_name
+                            and isinstance(child.ctx, ast.Load)
+                        ):
+                            continue
+                        parent = parents.get(child)
+                        if binding_kind == "callable":
+                            valid = isinstance(parent, ast.Call) and parent.func is child
+                        else:
+                            valid = (
+                                isinstance(parent, ast.Attribute)
+                                and parent.value is child
+                                and parent.attr == "import_module"
+                                and isinstance(parents.get(parent), ast.Call)
+                                and parents.get(parent).func is parent
+                            )
+                        if not valid:
+                            bound_uses_are_calls = False
+                            break
+                    result = bound_uses_are_calls and import_node in tree.body
+        self._lazy_facade_cache[source] = result
+        return result
+
+    def _lazy_facade_importlib_statement_is_closed(
+        self, source: Path, node: ast.Import | ast.ImportFrom
+    ) -> bool:
+        if not self._source_is_closed_lazy_facade(source):
+            return False
+        if isinstance(node, ast.Import):
+            return (
+                len(node.names) == 1
+                and node.names[0].name == "importlib"
+                and node in self._tree(source).body
+            )
+        return (
+            node.level == 0
+            and node.module == "importlib"
+            and bool(node.names)
+            and all(alias.name == "import_module" for alias in node.names)
+            and node in self._tree(source).body
+        )
 
     def resolve(self, source: Path, symbol: str) -> object:
         key = (source, symbol)
@@ -1374,8 +2495,31 @@ class _StaticExportResolver:
         self._active.add(key)
         try:
             tree = self._tree(source)
+            bindings = list(_module_scope_symbol_bindings(tree, symbol))
+            extensions = [
+                node for node in bindings if self._direct_sequence_extension(tree, symbol, node)
+            ]
+            if extensions:
+                values = self._closed_static_sequence(source, symbol)
+                base = [node for node in bindings if node not in extensions]
+                if len(base) != 1:
+                    raise _UnresolvedExportDeclarationError(
+                        f"Unresolved conditional/mutated exports: {_export_source_locator(source)}:{symbol}"
+                    )
+                self._resolved[key] = base[0].end_lineno
+                return values
+            updates = [node for node in bindings if self._direct_mapping_update(tree, symbol, node)]
+            if updates:
+                mapping = self._closed_static_mapping(source, symbol)
+                base = [node for node in bindings if node not in updates]
+                if len(base) != 1:
+                    raise _UnresolvedExportDeclarationError(
+                        f"Unresolved conditional/mutated exports: {_export_source_locator(source)}:{symbol}"
+                    )
+                self._resolved[key] = base[0].end_lineno
+                return dict.fromkeys(mapping)
             direct_nodes = {id(node) for node in tree.body}
-            for node in _symbol_binding_nodes(tree, symbol):
+            for node in _module_scope_symbol_bindings(tree, symbol):
                 supported_assignment = isinstance(node, (ast.Assign, ast.AnnAssign)) and any(
                     isinstance(target, ast.Name) and target.id == symbol
                     for target in (node.targets if isinstance(node, ast.Assign) else [node.target])
@@ -1450,95 +2594,24 @@ class _StaticExportResolver:
             self._active.remove(key)
 
     def selected_collection_consumers_are_closed(self) -> bool:
-        """Refuse export collections with opaque consumers or source mutation."""
-
-        def safe_collection_expression(tree: ast.Module, node: ast.AST, symbol: str) -> bool:
-            if isinstance(node, ast.Name):
-                return node.id == symbol
-            if isinstance(node, ast.Constant):
-                return isinstance(node.value, (str, int, bool, type(None)))
-            if isinstance(node, (ast.List, ast.Tuple, ast.Set)):
-                return all(safe_collection_expression(tree, item, symbol) for item in node.elts)
-            if isinstance(node, ast.BinOp) and isinstance(node.op, ast.Add):
-                return safe_collection_expression(
-                    tree, node.left, symbol
-                ) and safe_collection_expression(tree, node.right, symbol)
-            if not isinstance(node, ast.Call) or node.keywords:
-                return False
-            if isinstance(node.func, ast.Name):
-                if list(_symbol_binding_nodes(tree, node.func.id)):
-                    return False
-                if node.func.id in {"sorted", "tuple", "frozenset", "list"}:
-                    return len(node.args) == 1 and safe_collection_expression(
-                        tree, node.args[0], symbol
-                    )
-                return node.func.id == "globals" and not node.args
-            return (
-                isinstance(node.func, ast.Attribute)
-                and node.func.attr == "keys"
-                and not node.args
-                and isinstance(node.func.value, ast.Call)
-                and isinstance(node.func.value.func, ast.Name)
-                and node.func.value.func.id == "globals"
-                and not list(_symbol_binding_nodes(tree, "globals"))
-                and not node.func.value.args
-                and not node.func.value.keywords
-            )
-
+        """Validate only selected declaration collections and their import-time aliases."""
         for source, symbol in self._resolved:
             tree = self._tree(source)
-            bindings = list(_symbol_binding_nodes(tree, symbol))
-            if len(bindings) != 1 or bindings[0] not in tree.body:
+            bindings = list(_module_scope_symbol_bindings(tree, symbol))
+            updates = [
+                node
+                for node in bindings
+                if (source, id(node)) in self._allowed_mapping_updates
+                or (source, id(node)) in self._allowed_sequence_extensions
+            ]
+            base = [node for node in bindings if node not in updates]
+            if len(base) != 1 or base[0] not in tree.body:
                 return False
-            declaration = bindings[0]
-            try:
-                value = self.resolve(source, symbol)
-            except (OSError, ValueError, TypeError, SyntaxError):
+            value = self.resolve(source, symbol)
+            if isinstance(
+                value, (list, tuple, set, dict)
+            ) and not self._mapping_references_are_closed(source, symbol, base[0], updates):
                 return False
-            mutable = isinstance(value, (list, set, dict))
-            for node in ast.walk(tree):
-                if isinstance(node, ast.Call):
-                    if isinstance(node.func, ast.Attribute) and any(
-                        isinstance(child, ast.Name) and child.id == symbol
-                        for child in ast.walk(node.func.value)
-                    ):
-                        return False
-                    symbol_is_argument = any(
-                        isinstance(child, ast.Name)
-                        and child.id == symbol
-                        and isinstance(child.ctx, ast.Load)
-                        for argument in (*node.args, *(keyword.value for keyword in node.keywords))
-                        for child in ast.walk(argument)
-                    )
-                    if symbol_is_argument and not safe_collection_expression(tree, node, symbol):
-                        return False
-                if mutable and isinstance(node, (ast.Assign, ast.AnnAssign, ast.NamedExpr)):
-                    if node is declaration:
-                        continue
-                    targets = node.targets if isinstance(node, ast.Assign) else [node.target]
-                    if any(
-                        isinstance(child, ast.Name) and child.id == symbol
-                        for target in targets
-                        for child in ast.walk(target)
-                    ):
-                        return False
-                    assigned_value = node.value
-                    if assigned_value is not None and any(
-                        isinstance(child, ast.Name) and child.id == symbol
-                        for child in ast.walk(assigned_value)
-                    ):
-                        return False
-                if isinstance(node, ast.Delete) and any(
-                    isinstance(child, ast.Name) and child.id == symbol
-                    for target in node.targets
-                    for child in ast.walk(target)
-                ):
-                    return False
-                if isinstance(node, (ast.AugAssign, ast.For, ast.AsyncFor)) and any(
-                    isinstance(child, ast.Name) and child.id == symbol
-                    for child in ast.walk(node.target)
-                ):
-                    return False
         return True
 
     def _value(self, source: Path, node: ast.AST) -> object:
@@ -1552,10 +2625,12 @@ class _StaticExportResolver:
             for item in node.elts:
                 if isinstance(item, ast.Starred):
                     expanded = self._value(source, item.value)
-                    if not isinstance(expanded, (list, tuple, set, frozenset)):
+                    if not isinstance(expanded, (list, tuple, set, frozenset, dict)):
                         raise _UnresolvedExportDeclarationError(
                             f"Unresolved export expansion: {_export_source_locator(source)}"
                         )
+                    # Python iterates a mapping over its keys. Match that source
+                    # declaration semantics without evaluating the mapping owner.
                     values.extend(expanded)
                 else:
                     values.append(self._value(source, item))
@@ -1573,7 +2648,7 @@ class _StaticExportResolver:
                 node.func.id in {"set", "frozenset"}
                 and len(node.args) == 1
                 and not node.keywords
-                and not any(_symbol_binding_nodes(self._tree(source), node.func.id))
+                and not any(_module_scope_symbol_bindings(self._tree(source), node.func.id))
             ):
                 value = self._value(source, node.args[0])
                 if isinstance(value, (list, tuple, set, frozenset)) and all(
@@ -1600,6 +2675,27 @@ class _StaticExportResolver:
                         f"Unresolved export mapping key: {_export_source_locator(source)}"
                     )
             return keys
+        if isinstance(node, ast.JoinedStr):
+            pieces: list[str] = []
+            for item in node.values:
+                if isinstance(item, ast.Constant) and isinstance(item.value, str):
+                    pieces.append(item.value)
+                    continue
+                if (
+                    not isinstance(item, ast.FormattedValue)
+                    or item.conversion != -1
+                    or item.format_spec is not None
+                ):
+                    raise _UnresolvedExportDeclarationError(
+                        f"Unresolved export string format: {_export_source_locator(source)}"
+                    )
+                value = self._value(source, item.value)
+                if not isinstance(value, str):
+                    raise _UnresolvedExportDeclarationError(
+                        f"Unresolved non-string export format: {_export_source_locator(source)}"
+                    )
+                pieces.append(value)
+            return "".join(pieces)
         if isinstance(node, ast.BinOp) and isinstance(node.op, ast.Add):
             left, right = self._value(source, node.left), self._value(source, node.right)
             if isinstance(left, (list, tuple)) and isinstance(right, (list, tuple)):
@@ -1612,7 +2708,7 @@ class _StaticExportResolver:
             and len(node.args) == 1
             and not node.keywords
         ):
-            if any(_symbol_binding_nodes(self._tree(source), node.func.id)):
+            if any(_module_scope_symbol_bindings(self._tree(source), node.func.id)):
                 raise _UnresolvedExportDeclarationError(
                     f"Unresolved shadowed export builtin: {_export_source_locator(source)}:{node.func.id}"
                 )
@@ -1658,7 +2754,7 @@ class _StaticExportResolver:
             if not self._passive_container(value):
                 return False
             for target in targets:
-                bindings = list(_symbol_binding_nodes(tree, target.id))
+                bindings = list(_module_scope_symbol_bindings(tree, target.id))
                 if len(bindings) != 1 or bindings[0] is not declaration:
                     return False
             for target in targets:
@@ -1734,9 +2830,38 @@ class _StaticExportResolver:
             raise _UnresolvedExportDeclarationError(
                 f"Unresolved passive binding cycle: {_export_source_locator(source)}:{name}"
             )
-        bindings = list(_symbol_binding_nodes(self._tree(source), name))
+        bindings = list(_module_scope_symbol_bindings(self._tree(source), name))
         if not bindings and name in vars(builtins) and not module_binding:
             return
+        updates = [
+            node for node in bindings if self._direct_mapping_update(self._tree(source), name, node)
+        ]
+        extensions = [
+            node
+            for node in bindings
+            if self._direct_sequence_extension(self._tree(source), name, node)
+        ]
+        if updates and extensions:
+            raise _UnresolvedExportDeclarationError(
+                f"Unresolved mixed passive collection updates: {_export_source_locator(source)}:{name}"
+            )
+        if updates or extensions:
+            mutations = updates or extensions
+            base = [node for node in bindings if node not in mutations]
+            if len(base) != 1 or base[0] not in self._tree(source).body:
+                raise _UnresolvedExportDeclarationError(
+                    f"Unresolved passive collection binding: {_export_source_locator(source)}:{name}"
+                )
+            try:
+                if updates:
+                    self._closed_static_mapping(source, name)
+                else:
+                    self._closed_static_sequence(source, name)
+            except (OSError, ValueError, TypeError, SyntaxError) as exc:
+                raise _UnresolvedExportDeclarationError(
+                    f"Unresolved passive collection binding: {_export_source_locator(source)}:{name}"
+                ) from exc
+            bindings = base
         if len(bindings) != 1 or bindings[0] not in self._tree(source).body:
             raise _UnresolvedExportDeclarationError(
                 f"Unresolved passive binding: {_export_source_locator(source)}:{name}"
@@ -1752,6 +2877,11 @@ class _StaticExportResolver:
                 if node.module == "__future__":
                     if not _supported_future_import_is_passive(self._tree(source), node):
                         self._refuse_effect(source, node)
+                    if not any((alias.asname or alias.name) == name for alias in node.names):
+                        self._refuse_effect(source, node)
+                elif self._typing_import_is_declaration_only(
+                    source, node
+                ) or self._lazy_facade_importlib_statement_is_closed(source, node):
                     if not any((alias.asname or alias.name) == name for alias in node.names):
                         self._refuse_effect(source, node)
                 else:
@@ -1772,7 +2902,7 @@ class _StaticExportResolver:
     def _mapping_binding(self, source: Path, node: ast.AST) -> bool:
         if not isinstance(node, ast.Name):
             return False
-        bindings = list(_symbol_binding_nodes(self._tree(source), node.id))
+        bindings = list(_module_scope_symbol_bindings(self._tree(source), node.id))
         if len(bindings) != 1 or bindings[0] not in self._tree(source).body:
             return False
         binding = bindings[0]
@@ -1783,7 +2913,9 @@ class _StaticExportResolver:
             alias = next(
                 alias for alias in binding.names if (alias.asname or alias.name) == node.id
             )
-            imported_bindings = list(_symbol_binding_nodes(self._tree(imported), alias.name))
+            imported_bindings = list(
+                _module_scope_symbol_bindings(self._tree(imported), alias.name)
+            )
             return (
                 len(imported_bindings) == 1
                 and isinstance(imported_bindings[0], (ast.Assign, ast.AnnAssign))
@@ -1803,6 +2935,13 @@ class _StaticExportResolver:
         if isinstance(node, ast.Name):
             self._passive_binding(source, node.id)
             return
+        if isinstance(node, ast.Starred):
+            if not isinstance(node.value, ast.Name):
+                self._refuse_effect(source, node)
+            expanded = self._value(source, node.value)
+            if not isinstance(expanded, (list, tuple, set, frozenset, dict)):
+                self._refuse_effect(source, node)
+            return
         if isinstance(node, (ast.List, ast.Tuple)):
             for value in node.elts:
                 self._audit_expression(source, value, allow_calls=allow_calls)
@@ -1819,6 +2958,15 @@ class _StaticExportResolver:
                         self._refuse_effect(source, key)
                 self._audit_expression(source, value, allow_calls=allow_calls)
             return
+        if (
+            allow_calls
+            and isinstance(node, ast.Call)
+            and (
+                (source, id(node)) in self._allowed_mapping_updates
+                or (source, id(node)) in self._allowed_sequence_extensions
+            )
+        ):
+            return
         if allow_calls and isinstance(node, ast.Call) and (source, id(node)) in self._allowed_calls:
             for value in node.args:
                 self._audit_expression(source, value, allow_calls=allow_calls)
@@ -1833,21 +2981,35 @@ class _StaticExportResolver:
             return
         self._refuse_effect(source, node)
 
+    def _future_annotations_are_passive(self, source: Path) -> bool:
+        tree = self._tree(source)
+        return any(
+            isinstance(statement, ast.ImportFrom)
+            and statement.module == "__future__"
+            and statement.level == 0
+            and any(alias.name == "annotations" for alias in statement.names)
+            and _supported_future_import_is_passive(tree, statement)
+            for statement in tree.body
+        )
+
     def _audit_function_header(
         self, source: Path, node: ast.FunctionDef | ast.AsyncFunctionDef
     ) -> None:
         if node.decorator_list or node.type_params:
             self._refuse_effect(source, node)
-        expressions = [*node.args.defaults, *node.args.kw_defaults, node.returns]
-        arguments = [*node.args.posonlyargs, *node.args.args, *node.args.kwonlyargs]
-        arguments += [arg for arg in (node.args.vararg, node.args.kwarg) if arg is not None]
-        expressions += [arg.annotation for arg in arguments]
+        expressions = [*node.args.defaults, *node.args.kw_defaults]
+        if not self._future_annotations_are_passive(source):
+            expressions.append(node.returns)
+            arguments = [*node.args.posonlyargs, *node.args.args, *node.args.kwonlyargs]
+            arguments += [arg for arg in (node.args.vararg, node.args.kwarg) if arg is not None]
+            expressions += [arg.annotation for arg in arguments]
         for expression in expressions:
             if expression is not None:
                 self._audit_expression(source, expression, allow_calls=False)
         # Function bodies are deliberately outside the import-time selector.
 
     def _audit_statement(self, source: Path, node: ast.stmt) -> None:
+        closed_lazy_facade = self._source_is_closed_lazy_facade(source)
         if source in self._passive_modules:
             bound_names = {
                 child.id
@@ -1856,11 +3018,16 @@ class _StaticExportResolver:
             }
             if isinstance(node, (ast.Import, ast.ImportFrom)):
                 bound_names.update(alias.asname or alias.name.split(".")[0] for alias in node.names)
-            # A passive value can still be bound to a module protocol name.
-            # Imported owners/initializers cannot declare dunder bindings; the
-            # explicit export declaration is the sole data-metadata exception.
+            elif isinstance(node, (ast.FunctionDef, ast.AsyncFunctionDef)):
+                bound_names.add(node.name)
+            # A passive value can still be bound to a module protocol name. The
+            # explicit export declaration is always allowed; exact lazy-facade
+            # hooks are allowed only after their finite namespace proof succeeds.
+            allowed_dunders = {"__all__"}
+            if closed_lazy_facade:
+                allowed_dunders.update({"__getattr__", "__dir__"})
             if any(
-                name.startswith("__") and name.endswith("__") and name != "__all__"
+                name.startswith("__") and name.endswith("__") and name not in allowed_dunders
                 for name in bound_names
             ):
                 self._refuse_effect(source, node)
@@ -1868,23 +3035,33 @@ class _StaticExportResolver:
             targets = node.targets if isinstance(node, ast.Assign) else [node.target]
             if not all(isinstance(target, ast.Name) for target in targets):
                 self._refuse_effect(source, node)
-            if isinstance(node, ast.AnnAssign):
+            if isinstance(node, ast.AnnAssign) and not self._future_annotations_are_passive(source):
                 self._audit_expression(source, node.annotation, allow_calls=False)
             if node.value is not None:
                 self._audit_expression(source, node.value)
         elif isinstance(node, ast.Expr):
+            if self._admit_static_mapping_update(source, node.value):
+                return
+            if self._admit_static_sequence_extension(source, node.value):
+                return
             self._audit_expression(source, node.value)
         elif isinstance(node, (ast.FunctionDef, ast.AsyncFunctionDef)):
-            # Imported modules/initializers execute import protocols. Their
-            # callable definitions are outside the passive dependency profile,
-            # even when an explicitly requested binding already exists.
-            if source in self._passive_modules:
+            # Function bodies do not execute during import. Passive dependencies
+            # may define them only inside a closed lazy package facade; decorators,
+            # defaults and annotations remain subject to the import-time audit.
+            if source in self._passive_modules and not closed_lazy_facade:
                 self._refuse_effect(source, node)
             self._audit_function_header(source, node)
+        elif isinstance(node, ast.If) and self._type_checking_block_is_passive(source, node):
+            return
         elif isinstance(node, ast.ImportFrom):
             if node.module == "__future__" and _supported_future_import_is_passive(
                 self._tree(source), node
             ):
+                return
+            if self._typing_import_is_declaration_only(source, node):
+                return
+            if self._lazy_facade_importlib_statement_is_closed(source, node):
                 return
             if any(alias.name == "*" for alias in node.names):
                 self._refuse_effect(source, node)
@@ -1894,6 +3071,8 @@ class _StaticExportResolver:
                 # Only an actual passive owner binding avoids that protocol.
                 self._passive_binding(imported, alias.name, module_binding=True)
         elif isinstance(node, ast.Import):
+            if self._lazy_facade_importlib_statement_is_closed(source, node):
+                return
             for alias in node.names:
                 self._import_source(source, node, alias.name)
         elif not isinstance(node, ast.Pass):
@@ -1901,16 +3080,23 @@ class _StaticExportResolver:
 
 
 class _IncompleteExportDeclarationError(_UnresolvedExportDeclarationError):
-    """A literal prefix is readable, but its extension has no static total."""
+    """A verified direct literal prefix remains below an unresolved full export contract."""
 
-    def __init__(self, prefix: tuple[str, ...]) -> None:
-        super().__init__("Unresolved __all__.extend; literal prefix only, total unknown", prefix)
+    def __init__(
+        self,
+        prefix: tuple[str, ...],
+        *,
+        reason: str = "Unresolved __all__.extend; literal prefix only, total unknown",
+        exports_scope: str = "direct unconditional literal prefix; extension total unresolved",
+    ) -> None:
+        super().__init__(reason, prefix)
         self.prefix = prefix
+        self.exports_scope = exports_scope
 
 
 def _literal_prefix_before_extensions(tree: ast.Module) -> tuple[str, ...] | None:
-    """Retain only a direct literal prefix followed solely by standalone extends."""
-    bindings = list(_symbol_binding_nodes(tree, "__all__"))
+    """Retain a direct literal prefix only when selected mutation stays finite."""
+    bindings = list(_module_scope_symbol_bindings(tree, "__all__"))
     declarations = [node for node in bindings if isinstance(node, (ast.Assign, ast.AnnAssign))]
     if len(declarations) != 1 or len(bindings) < 2:
         return None
@@ -1923,74 +3109,1679 @@ def _literal_prefix_before_extensions(tree: ast.Module) -> tuple[str, ...] | Non
     prefix = _string_list_value(declaration.value)
     if prefix is None or not isinstance(declaration.value, ast.List):
         return None
-    standalone_calls = {
-        id(node.value)
-        for node in _module_level_nodes(tree)
-        if isinstance(node, ast.Expr) and isinstance(node.value, ast.Call)
-    }
     allowed_names = {id(targets[0])}
-    allowed_calls: set[int] = set()
     for node in bindings:
         if node is declaration:
             continue
         if not (
             isinstance(node, ast.Call)
-            and id(node) in standalone_calls
             and isinstance(node.func, ast.Attribute)
             and isinstance(node.func.value, ast.Name)
             and node.func.value.id == "__all__"
             and node.func.attr == "extend"
             and len(node.args) == 1
-            and _string_list_value(node.args[0]) is not None
             and not isinstance(node.args[0], ast.Starred)
             and not node.keywords
             and node.lineno > declaration.end_lineno
+            and any(
+                isinstance(statement, ast.Expr) and statement.value is node
+                for statement in tree.body
+            )
         ):
             return None
         allowed_names.add(id(node.func.value))
-        allowed_calls.add(id(node))
-    # An alias or other use may mutate the prefix indirectly; do not claim it.
     if any(
-        isinstance(node, ast.Name) and node.id == "__all__" and id(node) not in allowed_names
-        for node in _module_level_nodes(tree)
+        isinstance(node, ast.Name)
+        and node.id == "__all__"
+        and isinstance(node.ctx, ast.Load)
+        and id(node) not in allowed_names
+        for node in _module_scope_nodes(tree)
     ):
-        return None
-    if any(
-        isinstance(node, ast.Call) and id(node) not in allowed_calls
-        for node in _module_level_nodes(tree)
-    ):
-        return None
-    if any(isinstance(node, ast.ClassDef) for node in _module_level_nodes(tree)):
         return None
     return prefix
 
 
+def _export_namespace_write_may_change(
+    tree: ast.Module,
+    selected_names: frozenset[str],
+    source: Path | None = None,
+) -> bool:
+    """Reject reflective writes whose key can change a selected export or route."""
+    parents = {child: parent for parent in ast.walk(tree) for child in ast.iter_child_nodes(parent)}
+    namespace_factories = {"globals", "locals", "vars"}
+    builtin_modules: set[str] = set()
+    sys_modules: set[str] = set()
+    module_aliases: set[str] = set()
+    for statement in tree.body:
+        if isinstance(statement, ast.Import):
+            for alias in statement.names:
+                local = alias.asname or alias.name.split(".", 1)[0]
+                if alias.name == "builtins":
+                    builtin_modules.add(local)
+                if alias.name == "sys":
+                    sys_modules.add(local)
+                if source is not None:
+                    info = _module_name_for_path(source)
+                    if info is not None and alias.name == info[0]:
+                        module_aliases.add(local)
+        elif isinstance(statement, ast.ImportFrom):
+            if statement.module == "builtins" and statement.level == 0:
+                for alias in statement.names:
+                    if alias.name in {"globals", "locals", "vars"}:
+                        namespace_factories.add(alias.asname or alias.name)
+            if statement.module == "sys" and statement.level == 0:
+                for alias in statement.names:
+                    if alias.name == "modules":
+                        sys_modules.add(alias.asname or alias.name)
+
+    namespace_aliases: set[str] = set()
+    module_object_aliases: set[str] = set()
+    module_nodes = list(_module_scope_nodes(tree))
+
+    def module_bindings(name: str) -> tuple[list[ast.AST], bool]:
+        """Return module bindings without mistaking target reads for stores."""
+        bindings: list[ast.AST] = []
+        wildcard_import = False
+        for statement in module_nodes:
+            if isinstance(statement, ast.Import):
+                for alias in statement.names:
+                    local = alias.asname or alias.name.split(".", 1)[0]
+                    if local == name:
+                        bindings.append(statement)
+            elif isinstance(statement, ast.ImportFrom):
+                if statement.level == 0 and any(alias.name == "*" for alias in statement.names):
+                    wildcard_import = True
+                for alias in statement.names:
+                    if alias.name != "*" and (alias.asname or alias.name) == name:
+                        bindings.append(statement)
+            elif isinstance(statement, (ast.FunctionDef, ast.AsyncFunctionDef, ast.ClassDef)):
+                if statement.name == name:
+                    bindings.append(statement)
+            elif isinstance(statement, (ast.Assign, ast.Delete)):
+                targets = statement.targets
+                if any(
+                    isinstance(child, ast.Name)
+                    and child.id == name
+                    and isinstance(child.ctx, (ast.Store, ast.Del))
+                    for target in targets
+                    for child in ast.walk(target)
+                ):
+                    bindings.append(statement)
+            elif isinstance(
+                statement, (ast.AnnAssign, ast.AugAssign, ast.NamedExpr, ast.TypeAlias)
+            ):
+                target = statement.target if hasattr(statement, "target") else statement.name
+                if any(
+                    isinstance(child, ast.Name)
+                    and child.id == name
+                    and isinstance(child.ctx, (ast.Store, ast.Del))
+                    for child in ast.walk(target)
+                ):
+                    bindings.append(statement)
+            elif isinstance(statement, (ast.For, ast.AsyncFor)):
+                if any(
+                    isinstance(child, ast.Name)
+                    and child.id == name
+                    and isinstance(child.ctx, ast.Store)
+                    for child in ast.walk(statement.target)
+                ):
+                    bindings.append(statement)
+            elif isinstance(statement, (ast.With, ast.AsyncWith)):
+                if any(
+                    item.optional_vars is not None
+                    and any(
+                        isinstance(child, ast.Name)
+                        and child.id == name
+                        and isinstance(child.ctx, ast.Store)
+                        for child in ast.walk(item.optional_vars)
+                    )
+                    for item in statement.items
+                ):
+                    bindings.append(statement)
+            elif (
+                isinstance(statement, (ast.ExceptHandler, ast.MatchAs, ast.MatchStar))
+                and getattr(statement, "name", None) == name
+            ):
+                bindings.append(statement)
+        return bindings, wildcard_import
+
+    def imported_builtin_binding(name: str, allowed: set[str]) -> bool:
+        bindings, wildcard_import = module_bindings(name)
+        return (
+            not wildcard_import
+            and len(bindings) == 1
+            and isinstance(bindings[0], ast.ImportFrom)
+            and bindings[0].level == 0
+            and bindings[0].module == "builtins"
+            and any(
+                alias.name in allowed and (alias.asname or alias.name) == name
+                for alias in bindings[0].names
+            )
+        )
+
+    def builtin_name_is_unshadowed(name: str) -> bool:
+        bindings, wildcard_import = module_bindings(name)
+        return (
+            not wildcard_import
+            and not bindings
+            and name in {"globals", "locals", "vars", "getattr"}
+        )
+
+    def direct_builtin_factory(node: ast.AST) -> bool:
+        if isinstance(node, ast.Name):
+            name = node.id
+            return builtin_name_is_unshadowed(name) or imported_builtin_binding(
+                name, {"globals", "locals", "vars"}
+            )
+        if isinstance(node, ast.Attribute) and isinstance(node.value, ast.Name):
+            return node.value.id in builtin_modules and node.attr in {"globals", "locals", "vars"}
+        if (
+            isinstance(node, ast.Call)
+            and isinstance(node.func, ast.Name)
+            and node.func.id == "getattr"
+        ):
+            return (
+                builtin_name_is_unshadowed("getattr")
+                and len(node.args) == 2
+                and not node.keywords
+                and isinstance(node.args[0], ast.Name)
+                and node.args[0].id in builtin_modules
+                and isinstance(node.args[1], ast.Constant)
+                and node.args[1].value in {"globals", "locals", "vars"}
+            )
+        return False
+
+    def namespace_factory_call(node: ast.AST) -> bool:
+        return (
+            isinstance(node, ast.Call)
+            and not node.args
+            and not node.keywords
+            and direct_builtin_factory(node.func)
+        )
+
+    def namespace_factory_candidate(node: ast.AST) -> bool:
+        """Recognize a shadowed factory-shaped call conservatively at write sites."""
+        return (
+            isinstance(node, ast.Call)
+            and not node.args
+            and not node.keywords
+            and isinstance(node.func, ast.Name)
+            and node.func.id in namespace_factories
+        )
+
+    def sys_modules_expression(node: ast.AST) -> bool:
+        if isinstance(node, ast.Name):
+            return node.id in sys_modules
+        if isinstance(node, ast.Attribute) and isinstance(node.value, ast.Name):
+            return node.value.id in sys_modules and node.attr == "modules"
+        if (
+            isinstance(node, ast.Call)
+            and isinstance(node.func, ast.Name)
+            and node.func.id == "getattr"
+        ):
+            return (
+                builtin_name_is_unshadowed("getattr")
+                and len(node.args) == 2
+                and not node.keywords
+                and isinstance(node.args[0], ast.Name)
+                and node.args[0].id in sys_modules
+                and isinstance(node.args[1], ast.Constant)
+                and node.args[1].value == "modules"
+            )
+        return False
+
+    def module_object_expression(node: ast.AST) -> bool:
+        if isinstance(node, ast.Name):
+            return node.id in module_aliases or node.id in module_object_aliases
+        return (
+            isinstance(node, ast.Subscript)
+            and sys_modules_expression(node.value)
+            and isinstance(node.slice, ast.Name)
+            and node.slice.id == "__name__"
+        )
+
+    def module_namespace_dict_expression(node: ast.AST) -> bool:
+        return (
+            isinstance(node, ast.Attribute)
+            and node.attr == "__dict__"
+            and module_object_expression(node.value)
+        )
+
+    def namespace_dict_expression(node: ast.AST) -> bool:
+        return (
+            namespace_factory_call(node)
+            or namespace_factory_candidate(node)
+            or (isinstance(node, ast.Name) and node.id in namespace_aliases)
+        )
+
+    def is_static_empty_mapping_loop(node: ast.AST) -> bool:
+        if (
+            not isinstance(node, ast.For)
+            or node.orelse
+            or not isinstance(node.iter, ast.Call)
+            or node.iter.args
+            or node.iter.keywords
+            or not isinstance(node.iter.func, ast.Attribute)
+            or node.iter.func.attr != "items"
+            or not isinstance(node.iter.func.value, ast.Name)
+        ):
+            return False
+        mapping_name = node.iter.func.value.id
+        definitions = [
+            statement
+            for statement in tree.body
+            if isinstance(statement, ast.Assign)
+            and len(statement.targets) == 1
+            and isinstance(statement.targets[0], ast.Name)
+            and statement.targets[0].id == mapping_name
+            and isinstance(statement.value, ast.Dict)
+            and not statement.value.keys
+        ]
+        if len(definitions) != 1:
+            return False
+        definition_target = definitions[0].targets[0]
+        loop_read = node.iter.func.value
+        if any(
+            isinstance(child, (ast.Global, ast.Nonlocal)) and mapping_name in child.names
+            for child in ast.walk(tree)
+        ):
+            return False
+        return all(
+            child is definition_target or child is loop_read
+            for child in ast.walk(tree)
+            if isinstance(child, ast.Name) and child.id == mapping_name
+        )
+
+    empty_mapping_loops = {node for node in ast.walk(tree) if is_static_empty_mapping_loop(node)}
+
+    def inside_static_empty_mapping_body(node: ast.AST) -> bool:
+        current = node
+        while current in parents:
+            parent = parents[current]
+            if parent in empty_mapping_loops and any(
+                current is statement for statement in parent.body
+            ):
+                return True
+            current = parent
+        return False
+
+    changed = True
+    while changed:
+        changed = False
+        for node in module_nodes:
+            if not isinstance(node, (ast.Assign, ast.AnnAssign, ast.NamedExpr)):
+                continue
+            targets = node.targets if isinstance(node, ast.Assign) else [node.target]
+            if len(targets) != 1 or not isinstance(targets[0], ast.Name):
+                continue
+            value = node.value
+            if value is None:
+                continue
+            target = targets[0].id
+            if target not in namespace_aliases and (
+                namespace_dict_expression(value)
+                or (isinstance(value, ast.Name) and value.id in namespace_aliases)
+            ):
+                namespace_aliases.add(target)
+                changed = True
+            if target not in module_object_aliases and (
+                module_object_expression(value)
+                or (isinstance(value, ast.Name) and value.id in module_object_aliases)
+            ):
+                module_object_aliases.add(target)
+                changed = True
+
+    for node in ast.walk(tree):
+        if isinstance(node, ast.Global) and selected_names.intersection(node.names):
+            return True
+        if isinstance(node, ast.Nonlocal) and selected_names.intersection(node.names):
+            return True
+
+    top_getters = [
+        node
+        for node in tree.body
+        if isinstance(node, (ast.FunctionDef, ast.AsyncFunctionDef)) and node.name == "__getattr__"
+    ]
+
+    def enclosing_function(node: ast.AST) -> ast.FunctionDef | ast.AsyncFunctionDef | None:
+        parent = parents.get(node)
+        while parent is not None:
+            if isinstance(parent, (ast.FunctionDef, ast.AsyncFunctionDef)):
+                return parent
+            parent = parents.get(parent)
+        return None
+
+    def allowed_lazy_cache(target: ast.AST, statement: ast.AST) -> bool:
+        return (
+            len(top_getters) == 1
+            and isinstance(target, ast.Subscript)
+            and namespace_factory_call(target.value)
+            and isinstance(target.slice, ast.Name)
+            and target.slice.id == "name"
+            and isinstance(statement, ast.Assign)
+            and len(statement.targets) == 1
+            and statement.targets[0] is target
+            and isinstance(statement.value, ast.Name)
+            and enclosing_function(statement) is top_getters[0]
+            and _has_exact_positional_parameters(top_getters[0], "name")
+        )
+
+    collection_aliases = {"__all__"}
+    collection_helpers: set[str] = set()
+
+    def selected_collection_expression(node: ast.AST) -> bool:
+        if isinstance(node, ast.Name):
+            return node.id in collection_aliases
+        return (
+            isinstance(node, ast.Call)
+            and isinstance(node.func, ast.Name)
+            and node.func.id in collection_helpers
+            and not node.args
+            and not node.keywords
+        )
+
+    changed = True
+    top_functions = {
+        node.name: node
+        for node in tree.body
+        if isinstance(node, (ast.FunctionDef, ast.AsyncFunctionDef))
+    }
+    while changed:
+        changed = False
+        for statement in tree.body:
+            if isinstance(statement, ast.Assign) and len(statement.targets) == 1:
+                target = statement.targets[0]
+                if (
+                    isinstance(target, ast.Name)
+                    and target.id not in collection_aliases
+                    and selected_collection_expression(statement.value)
+                ):
+                    collection_aliases.add(target.id)
+                    changed = True
+            elif isinstance(statement, ast.AnnAssign) and isinstance(statement.target, ast.Name):
+                if (
+                    statement.target.id not in collection_aliases
+                    and statement.value is not None
+                    and selected_collection_expression(statement.value)
+                ):
+                    collection_aliases.add(statement.target.id)
+                    changed = True
+        for name, function in top_functions.items():
+            if name in collection_helpers:
+                continue
+            if isinstance(function, ast.FunctionDef):
+                returns = _function_return_expressions(function)
+            else:
+                returns = []
+            if returns and all(selected_collection_expression(value) for value in returns):
+                collection_helpers.add(name)
+                changed = True
+
+    collection_mutators = {
+        "add",
+        "append",
+        "clear",
+        "discard",
+        "extend",
+        "insert",
+        "pop",
+        "popitem",
+        "remove",
+        "reverse",
+        "setdefault",
+        "sort",
+        "update",
+    }
+    allowed_sequence_extensions: set[int] = set()
+    if source is not None:
+        declaration_resolver = _StaticExportResolver(source, tree)
+        allowed_sequence_extensions = {
+            id(statement.value)
+            for statement in tree.body
+            if isinstance(statement, ast.Expr)
+            and declaration_resolver._admit_static_sequence_extension(source, statement.value)
+        }
+    for node in ast.walk(tree):
+        if inside_static_empty_mapping_body(node):
+            continue
+        if not (
+            isinstance(node, ast.Call)
+            and isinstance(node.func, ast.Attribute)
+            and node.func.attr in collection_mutators
+        ):
+            continue
+        if selected_collection_expression(node.func.value):
+            if node.func.attr == "extend" and id(node) in allowed_sequence_extensions:
+                continue
+            return True
+        if (
+            isinstance(node.func.value, ast.Attribute)
+            and node.func.value.attr in selected_names
+            and module_object_expression(node.func.value.value)
+        ):
+            return True
+        if isinstance(node, (ast.Assign, ast.Delete, ast.AnnAssign, ast.AugAssign, ast.NamedExpr)):
+            targets = node.targets if isinstance(node, (ast.Assign, ast.Delete)) else [node.target]
+            if any(
+                isinstance(target, ast.Subscript) and selected_collection_expression(target.value)
+                for target in targets
+            ):
+                return True
+
+    for node in ast.walk(tree):
+        if inside_static_empty_mapping_body(node):
+            continue
+        if isinstance(node, ast.Call):
+            if isinstance(node.func, ast.Name) and node.func.id in {"exec", "eval"}:
+                return True
+            if isinstance(node.func, ast.Attribute) and namespace_dict_expression(node.func.value):
+                if node.func.attr in {"clear", "popitem", "__setitem__", "__delitem__"}:
+                    return True
+                if node.func.attr in {"update", "setdefault", "pop"}:
+                    if not node.args:
+                        return True
+                    try:
+                        value = ast.literal_eval(node.args[0])
+                    except (ValueError, TypeError):
+                        return True
+                    keys = set(value) if isinstance(value, dict) else {value}
+                    if not all(isinstance(key, str) for key in keys):
+                        return True
+                    if keys & selected_names:
+                        return True
+            if (
+                isinstance(node.func, ast.Name)
+                and node.func.id in {"setattr", "delattr"}
+                and len(node.args) >= 2
+                and (
+                    namespace_dict_expression(node.args[0])
+                    or module_object_expression(node.args[0])
+                )
+            ):
+                try:
+                    attribute = ast.literal_eval(node.args[1])
+                except (ValueError, TypeError):
+                    return True
+                if not isinstance(attribute, str) or attribute in selected_names:
+                    return True
+
+        targets: list[ast.AST] = []
+        if isinstance(node, (ast.Assign, ast.Delete)):
+            targets = node.targets
+        elif isinstance(node, (ast.AnnAssign, ast.AugAssign, ast.NamedExpr)):
+            targets = [node.target]
+        for target in targets:
+            if isinstance(target, ast.Subscript) and (
+                namespace_dict_expression(target.value)
+                or module_namespace_dict_expression(target.value)
+            ):
+                try:
+                    key = ast.literal_eval(target.slice)
+                except (ValueError, TypeError):
+                    if allowed_lazy_cache(target, node):
+                        continue
+                    return True
+                if (not isinstance(key, str) or key in selected_names) and not allowed_lazy_cache(
+                    target, node
+                ):
+                    return True
+            if (
+                isinstance(target, ast.Attribute)
+                and target.attr in selected_names
+                and (
+                    namespace_dict_expression(target.value)
+                    or module_object_expression(target.value)
+                    or module_namespace_dict_expression(target.value)
+                )
+            ):
+                return True
+    return False
+
+
+def _module_scope_binding_index(
+    tree: ast.Module,
+) -> tuple[dict[str, list[ast.AST]], list[ast.ImportFrom]]:
+    """Index actual module bindings once for the selected export dependency slice."""
+    bindings: dict[str, list[ast.AST]] = {}
+    wildcard_imports: list[ast.ImportFrom] = []
+    for node in _module_scope_nodes(tree):
+        targets: list[ast.AST] = []
+        if isinstance(node, (ast.Assign, ast.Delete)):
+            targets = node.targets
+        elif isinstance(node, (ast.AnnAssign, ast.AugAssign, ast.NamedExpr, ast.TypeAlias)):
+            targets = [node.target if hasattr(node, "target") else node.name]
+        elif isinstance(node, (ast.For, ast.AsyncFor)):
+            targets = [node.target]
+        elif isinstance(node, (ast.With, ast.AsyncWith)):
+            targets = [item.optional_vars for item in node.items if item.optional_vars is not None]
+        for target in targets:
+            for child in ast.walk(target):
+                if isinstance(child, ast.Name):
+                    bindings.setdefault(child.id, []).append(node)
+        if isinstance(node, (ast.FunctionDef, ast.AsyncFunctionDef, ast.ClassDef)) or (
+            isinstance(node, (ast.ExceptHandler, ast.MatchAs, ast.MatchStar)) and node.name
+        ):
+            bindings.setdefault(node.name, []).append(node)
+        elif isinstance(node, (ast.Import, ast.ImportFrom)):
+            if isinstance(node, ast.ImportFrom) and node.module == "__future__":
+                continue
+            if isinstance(node, ast.ImportFrom) and any(alias.name == "*" for alias in node.names):
+                wildcard_imports.append(node)
+            for alias in node.names:
+                if alias.name == "*":
+                    continue
+                local = alias.asname or (
+                    alias.name.split(".")[0] if isinstance(node, ast.Import) else alias.name
+                )
+                bindings.setdefault(local, []).append(node)
+    return bindings, wildcard_imports
+
+
+def _indexed_symbol_bindings(
+    binding_index: dict[str, list[ast.AST]],
+    wildcard_imports: list[ast.ImportFrom],
+    symbol: str,
+) -> list[ast.AST]:
+    return [*binding_index.get(symbol, ()), *wildcard_imports]
+
+
+def _future_public_binding(tree: ast.Module, symbol: str) -> ast.ImportFrom | None:
+    """Resolve a legal named future import as its real module binding."""
+    if list(_module_scope_symbol_bindings(tree, symbol)):
+        return None
+    matches: list[ast.ImportFrom] = []
+    for statement in tree.body:
+        if (
+            not isinstance(statement, ast.ImportFrom)
+            or statement.module != "__future__"
+            or not _supported_future_import_is_passive(tree, statement)
+        ):
+            continue
+        aliases = [
+            alias
+            for alias in statement.names
+            if alias.name != "*" and (alias.asname or alias.name) == symbol
+        ]
+        if aliases:
+            if len(aliases) != 1:
+                return None
+            matches.append(statement)
+    return matches[0] if len(matches) == 1 else None
+
+
+def _direct_public_binding(
+    tree: ast.Module,
+    symbol: str,
+    bindings: list[ast.AST] | None = None,
+) -> ast.AST | None:
+    bindings = list(_module_scope_symbol_bindings(tree, symbol)) if bindings is None else bindings
+    if not bindings:
+        future_binding = _future_public_binding(tree, symbol)
+        if future_binding is not None:
+            return future_binding
+    if len(bindings) != 1 or bindings[0] not in tree.body:
+        return None
+    binding = bindings[0]
+    if isinstance(binding, ast.Assign):
+        if (
+            len(binding.targets) == 1
+            and isinstance(binding.targets[0], ast.Name)
+            and binding.targets[0].id == symbol
+            and binding.value is not None
+        ):
+            return binding
+        return None
+    if isinstance(binding, ast.AnnAssign):
+        if (
+            isinstance(binding.target, ast.Name)
+            and binding.target.id == symbol
+            and binding.value is not None
+        ):
+            return binding
+        return None
+    if isinstance(binding, ast.ImportFrom):
+        if binding.module == "__future__":
+            return None
+        matches = [
+            alias
+            for alias in binding.names
+            if alias.name != "*" and (alias.asname or alias.name) == symbol
+        ]
+        return binding if len(matches) == 1 else None
+    if isinstance(binding, ast.Import):
+        matches = [
+            alias for alias in binding.names if (alias.asname or alias.name.split(".")[0]) == symbol
+        ]
+        return binding if len(matches) == 1 else None
+    if isinstance(binding, (ast.FunctionDef, ast.AsyncFunctionDef, ast.ClassDef)):
+        return binding
+    if isinstance(binding, ast.TypeAlias):
+        return binding
+    return None
+
+
+def _public_alias_target_is_bound(
+    tree: ast.Module,
+    symbol: str,
+    seen: frozenset[str] = frozenset(),
+    *,
+    binding_index: dict[str, list[ast.AST]] | None = None,
+    wildcard_imports: list[ast.ImportFrom] | None = None,
+) -> bool:
+    if symbol in seen:
+        return False
+    if symbol in vars(builtins):
+        return True
+    bindings = (
+        list(_module_scope_symbol_bindings(tree, symbol))
+        if binding_index is None or wildcard_imports is None
+        else _indexed_symbol_bindings(binding_index, wildcard_imports, symbol)
+    )
+    binding = _direct_public_binding(tree, symbol, bindings)
+    if binding is None:
+        return False
+    if isinstance(binding, (ast.Assign, ast.AnnAssign)) and isinstance(binding.value, ast.Name):
+        return _public_alias_target_is_bound(
+            tree,
+            binding.value.id,
+            seen | {symbol},
+            binding_index=binding_index,
+            wildcard_imports=wildcard_imports,
+        )
+    return True
+
+
+def _lazy_export_provider_is_declared(tree: ast.Module) -> bool:
+    getter = _top_level_function(tree, "__getattr__")
+    bindings = list(_module_scope_symbol_bindings(tree, "__getattr__"))
+    return (
+        getter is not None
+        and len(bindings) == 1
+        and bindings[0] is getter
+        and _has_exact_positional_parameters(getter, "name")
+    )
+
+
+def _lazy_owner_map_accesses(getter: ast.FunctionDef | ast.AsyncFunctionDef) -> set[str]:
+    """Find finite owner maps selected by the lazy export name."""
+    names: set[str] = set()
+    parents = {
+        child: parent for parent in ast.walk(getter) for child in ast.iter_child_nodes(parent)
+    }
+    for node in ast.walk(getter):
+        if (
+            isinstance(node, ast.Subscript)
+            and isinstance(node.value, ast.Name)
+            and isinstance(node.slice, ast.Name)
+            and node.slice.id == "name"
+        ):
+            names.add(node.value.id)
+        if isinstance(node, ast.Compare) and isinstance(node.left, ast.Name):
+            if node.left.id == "name" and len(node.ops) == len(node.comparators):
+                for op, comparator in zip(node.ops, node.comparators, strict=True):
+                    if isinstance(op, (ast.In, ast.NotIn)) and isinstance(comparator, ast.Name):
+                        names.add(comparator.id)
+        if not isinstance(node, ast.Call):
+            continue
+        if (
+            isinstance(node.func, ast.Attribute)
+            and node.func.attr == "get"
+            and isinstance(node.func.value, ast.Name)
+            and len(node.args) == 1
+            and isinstance(node.args[0], ast.Name)
+            and node.args[0].id == "name"
+            and not node.keywords
+        ):
+            names.add(node.func.value.id)
+        passed_name = any(
+            isinstance(argument, ast.Name) and argument.id == "name"
+            for argument in (*node.args, *(keyword.value for keyword in node.keywords))
+        )
+        direct_return = isinstance(parents.get(node), ast.Return) and parents[node].value is node
+        owner_maps = [
+            keyword.value.id
+            for keyword in node.keywords
+            if keyword.arg in {"exports", "owner_map", "mapping"}
+            and isinstance(keyword.value, ast.Name)
+        ]
+        if passed_name and direct_return:
+            names.update(owner_maps)
+    names.discard("name")
+    return names
+
+
+def _owner_target_is_valid(value: object, export_name: str) -> bool:
+    if isinstance(value, str):
+        module, symbol = value, export_name
+    elif (
+        isinstance(value, tuple)
+        and len(value) == 2
+        and all(isinstance(item, str) for item in value)
+    ):
+        module, symbol = value
+    else:
+        return False
+    return (
+        module.startswith("polisyos.")
+        and all(part.isidentifier() for part in module.split("."))
+        and bool(symbol)
+        and symbol.isidentifier()
+    )
+
+
+def _derived_lazy_owner_map(
+    source: Path,
+    tree: ast.Module,
+    target_symbol: str,
+) -> dict[str, str] | None:
+    """Unfold a closed grouped-owner map into a name-to-module lazy route."""
+    info = _module_name_for_path(source)
+    if info is None:
+        return None
+    module = info[0]
+    resolver = _StaticExportResolver(source, tree)
+    target_bindings = list(_module_scope_symbol_bindings(tree, target_symbol))
+    base = [
+        node
+        for node in target_bindings
+        if isinstance(node, (ast.Assign, ast.AnnAssign))
+        and getattr(node, "value", None) is not None
+        and isinstance(node.value, ast.Dict)
+        and node in tree.body
+    ]
+    if len(base) != 1 or not isinstance(base[0].value, ast.Dict) or base[0].value.keys:
+        return None
+    loops: list[tuple[ast.For, dict[str, str]]] = []
+    for outer in tree.body:
+        if not isinstance(outer, ast.For) or outer.orelse:
+            continue
+        if (
+            not isinstance(outer.target, (ast.Tuple, ast.List))
+            or len(outer.target.elts) != 2
+            or not all(isinstance(item, ast.Name) for item in outer.target.elts)
+            or not isinstance(outer.iter, ast.Call)
+            or outer.iter.args
+            or outer.iter.keywords
+            or not isinstance(outer.iter.func, ast.Attribute)
+            or outer.iter.func.attr != "items"
+            or not isinstance(outer.iter.func.value, ast.Name)
+        ):
+            continue
+        relative_name, group_name = (item.id for item in outer.target.elts)
+        group_symbol = outer.iter.func.value.id
+        if len(outer.body) != 2:
+            continue
+        owner_assignment, inner = outer.body
+        if (
+            not isinstance(owner_assignment, ast.Assign)
+            or len(owner_assignment.targets) != 1
+            or not isinstance(owner_assignment.targets[0], ast.Name)
+            or not isinstance(owner_assignment.value, ast.JoinedStr)
+            or not isinstance(inner, ast.For)
+            or inner.orelse
+            or not isinstance(inner.target, ast.Name)
+            or not isinstance(inner.iter, ast.Name)
+            or inner.iter.id != group_name
+            or len(inner.body) != 1
+            or not isinstance(inner.body[0], ast.Assign)
+            or len(inner.body[0].targets) != 1
+            or not isinstance(inner.body[0].targets[0], ast.Subscript)
+        ):
+            continue
+        target = inner.body[0].targets[0]
+        if (
+            not isinstance(target.value, ast.Name)
+            or target.value.id != target_symbol
+            or not isinstance(target.slice, ast.Name)
+            or target.slice.id != inner.target.id
+            or not isinstance(inner.body[0].value, ast.Name)
+            or inner.body[0].value.id != owner_assignment.targets[0].id
+        ):
+            continue
+        formatted = [
+            value
+            for value in owner_assignment.value.values
+            if isinstance(value, ast.FormattedValue)
+        ]
+        constants = [
+            value.value
+            for value in owner_assignment.value.values
+            if isinstance(value, ast.Constant) and isinstance(value.value, str)
+        ]
+        if (
+            len(formatted) != 1
+            or not isinstance(formatted[0].value, ast.Name)
+            or formatted[0].value.id != relative_name
+            or formatted[0].conversion != -1
+            or formatted[0].format_spec is not None
+            or "".join(constants) != module
+        ):
+            continue
+        try:
+            groups = resolver._closed_static_mapping(source, group_symbol)
+        except (OSError, ValueError, TypeError, SyntaxError):
+            continue
+        if not groups or any(
+            not isinstance(relative, str)
+            or not relative.startswith(".")
+            or not isinstance(names, (tuple, list))
+            or not all(isinstance(name, str) and name.isidentifier() for name in names)
+            for relative, names in groups.items()
+        ):
+            continue
+        derived: dict[str, str] = {}
+        invalid_owner = False
+        for relative, names in groups.items():
+            owner = f"{module}{relative}"
+            if not all(part.isidentifier() for part in owner.split(".")):
+                invalid_owner = True
+                break
+            for name in names:
+                # Match ordered dict iteration and the facade's repeated indexed
+                # assignment: the last explicit owner wins, as in Python source.
+                derived[name] = owner
+        if invalid_owner:
+            continue
+        loops.append((outer, derived))
+    if len(loops) != 1:
+        return None
+    loop, mapping = loops[0]
+    writes = [
+        node
+        for node in target_bindings
+        if isinstance(node, (ast.Assign, ast.AnnAssign, ast.Expr, ast.For, ast.AsyncFor))
+        and node is not base[0]
+    ]
+    expected_writes = {id(loop)}
+    inner_assign = loop.body[1].body[0]
+    expected_writes.add(id(inner_assign))
+    for node in tree.body:
+        if (
+            isinstance(node, ast.Expr)
+            and isinstance(node.value, ast.Call)
+            and isinstance(node.value.func, ast.Attribute)
+            and isinstance(node.value.func.value, ast.Name)
+            and node.value.func.value.id == target_symbol
+            and node.value.func.attr == "update"
+        ):
+            call = node.value
+            if len(call.args) != 1 or call.keywords or node.lineno <= loop.end_lineno:
+                return None
+            try:
+                addition = resolver._closed_static_value(source, call.args[0], {})
+            except (OSError, ValueError, TypeError, SyntaxError):
+                return None
+            if not isinstance(addition, dict) or any(
+                not isinstance(key, str) or not isinstance(value, str)
+                for key, value in addition.items()
+            ):
+                return None
+            mapping.update(addition)
+            expected_writes.add(id(call))
+    if any(id(node) not in expected_writes for node in writes):
+        return None
+    if not _StaticExportResolver._mapping_values_are_immutable(mapping):
+        return None
+    return mapping
+
+
+def _guarded_export_names(test: ast.AST) -> frozenset[str]:
+    """Read finite equality or membership guards over the lazy name parameter."""
+    if not (isinstance(test, ast.Compare) and len(test.ops) == 1 and len(test.comparators) == 1):
+        return frozenset()
+    left, op, right = test.left, test.ops[0], test.comparators[0]
+    if isinstance(left, ast.Name) and left.id == "name":
+        if (
+            isinstance(op, ast.Eq)
+            and isinstance(right, ast.Constant)
+            and isinstance(right.value, str)
+        ):
+            return frozenset({right.value})
+        if isinstance(op, ast.In) and isinstance(right, (ast.Set, ast.List, ast.Tuple)):
+            values = [item.value for item in right.elts if isinstance(item, ast.Constant)]
+            if len(values) == len(right.elts) and all(isinstance(value, str) for value in values):
+                return frozenset(values)
+    if isinstance(left, ast.Constant) and isinstance(left.value, str) and isinstance(op, ast.In):
+        if isinstance(right, ast.Name) and right.id == "name":
+            return frozenset({left.value})
+    return frozenset()
+
+
+def _lazy_import_module_target(
+    module: str, source: Path, tree: ast.Module, call: ast.Call, export_name: str
+) -> str | None:
+    """Resolve a literal import_module call to its requested logical module."""
+    if not call.args or not _import_module_callable_is_stdlib(tree, call.func):
+        return None
+    if len(call.args) > 2 or any(keyword.arg != "package" for keyword in call.keywords):
+        return None
+    package = None
+    if len(call.args) == 2 or call.keywords:
+        package_node = call.args[1] if len(call.args) == 2 else call.keywords[0].value
+        if not (isinstance(package_node, ast.Name) and package_node.id == "__name__"):
+            return None
+        package = module
+    imported = _static_module_name(call.args[0], parent_module=module, alias_name=export_name)
+    if imported is None:
+        return None
+    if imported.startswith("."):
+        if package is None:
+            return None
+        info = _module_name_for_path(source)
+        if info is None:
+            return None
+        suffix = imported.lstrip(".")
+        level = len(imported) - len(suffix)
+        return _resolve_import_module(
+            module, info[1], ast.ImportFrom(module=suffix or None, names=[], level=level)
+        )
+    return imported if imported.startswith("polisyos.") else None
+
+
+def _lazy_function_literal_mapping_routes(
+    source: Path, tree: ast.Module, names: frozenset[str]
+) -> frozenset[str]:
+    """Resolve a local finite name-to-owner map consumed by an import/getattr route."""
+    info = _module_name_for_path(source)
+    getter = _top_level_function(tree, "__getattr__")
+    if info is None or getter is None or not _has_exact_positional_parameters(getter, "name"):
+        return frozenset()
+    body = _function_body_without_docstring(getter)
+    resolver = _StaticExportResolver(source, tree)
+    routes: set[str] = set()
+    for assignment in body:
+        if (
+            not isinstance(assignment, ast.Assign)
+            or len(assignment.targets) != 1
+            or not isinstance(assignment.targets[0], ast.Name)
+            or not isinstance(assignment.value, ast.Dict)
+        ):
+            continue
+        map_name = assignment.targets[0].id
+        try:
+            mapping = resolver._closed_static_value(source, assignment.value, {})
+        except (OSError, ValueError, TypeError, SyntaxError):
+            continue
+        if (
+            not isinstance(mapping, dict)
+            or not mapping
+            or any(
+                not isinstance(key, str) or not _owner_target_is_valid(value, key)
+                for key, value in mapping.items()
+            )
+        ):
+            continue
+        guards = [
+            statement
+            for statement in body
+            if isinstance(statement, ast.If)
+            and not statement.orelse
+            and isinstance(statement.test, ast.Compare)
+            and isinstance(statement.test.left, ast.Name)
+            and statement.test.left.id == "name"
+            and len(statement.test.ops) == 1
+            and isinstance(statement.test.ops[0], ast.In)
+            and len(statement.test.comparators) == 1
+            and isinstance(statement.test.comparators[0], ast.Name)
+            and statement.test.comparators[0].id == map_name
+        ]
+        if len(guards) != 1 or body.index(assignment) >= body.index(guards[0]):
+            continue
+        branch = guards[0].body
+        if len(branch) not in {4, 5}:
+            continue
+        unpack, import_assignment, value_assignment = branch[:3]
+        if (
+            not isinstance(unpack, ast.Assign)
+            or len(unpack.targets) != 1
+            or not isinstance(unpack.targets[0], (ast.Tuple, ast.List))
+            or len(unpack.targets[0].elts) != 2
+            or not all(isinstance(item, ast.Name) for item in unpack.targets[0].elts)
+            or not isinstance(unpack.value, ast.Subscript)
+            or not isinstance(unpack.value.value, ast.Name)
+            or unpack.value.value.id != map_name
+            or not isinstance(unpack.value.slice, ast.Name)
+            or unpack.value.slice.id != "name"
+            or not isinstance(import_assignment, ast.Assign)
+            or len(import_assignment.targets) != 1
+            or not isinstance(import_assignment.targets[0], ast.Name)
+            or not isinstance(import_assignment.value, ast.Call)
+            or not isinstance(import_assignment.value.func, ast.Attribute)
+            or import_assignment.value.func.attr != "import_module"
+            or not isinstance(import_assignment.value.func.value, ast.Name)
+            or not isinstance(value_assignment, ast.Assign)
+            or len(value_assignment.targets) != 1
+            or not isinstance(value_assignment.targets[0], ast.Name)
+            or not isinstance(value_assignment.value, ast.Call)
+            or not isinstance(value_assignment.value.func, ast.Name)
+            or value_assignment.value.func.id != "getattr"
+            or len(value_assignment.value.args) != 2
+            or value_assignment.value.keywords
+        ):
+            continue
+        module_name, attribute_name = (item.id for item in unpack.targets[0].elts)
+        module_local = import_assignment.targets[0].id
+        imported = import_assignment.value
+        value_local = value_assignment.targets[0].id
+        if (
+            len(imported.args) != 1
+            or not isinstance(imported.args[0], ast.Name)
+            or imported.args[0].id != module_name
+            or not isinstance(value_assignment.value.args[0], ast.Name)
+            or value_assignment.value.args[0].id != module_local
+            or not isinstance(value_assignment.value.args[1], ast.Name)
+            or value_assignment.value.args[1].id != attribute_name
+            or not isinstance(branch[-1], ast.Return)
+            or not isinstance(branch[-1].value, ast.Name)
+            or branch[-1].value.id != value_local
+        ):
+            continue
+        module_importlib_imports = [
+            statement
+            for statement in tree.body
+            if isinstance(statement, ast.Import)
+            and any(
+                alias.name == "importlib" and (alias.asname or alias.name) == "importlib"
+                for alias in statement.names
+            )
+        ]
+        module_importlib_is_unique = (
+            len(module_importlib_imports) == 1
+            and list(_module_scope_symbol_bindings(tree, "importlib")) == module_importlib_imports
+        )
+        local_importlib_is_unique = _local_getter_importlib_binding(tree, getter, "importlib")
+        if (
+            not (module_importlib_is_unique or local_importlib_is_unique)
+            or not isinstance(imported.func.value, ast.Name)
+            or imported.func.value.id != "importlib"
+            or list(_module_scope_symbol_bindings(tree, "getattr"))
+            or any(
+                isinstance(node, ast.Name)
+                and node.id == "getattr"
+                and isinstance(node.ctx, (ast.Store, ast.Del))
+                for node in ast.walk(getter)
+            )
+        ):
+            continue
+        cache = branch[3:-1]
+        if len(cache) > 1 or any(
+            not isinstance(statement, ast.Assign)
+            or len(statement.targets) != 1
+            or not isinstance(statement.targets[0], ast.Subscript)
+            or not isinstance(statement.targets[0].value, ast.Call)
+            or not isinstance(statement.targets[0].value.func, ast.Name)
+            or statement.targets[0].value.func.id != "globals"
+            or not isinstance(statement.targets[0].slice, ast.Name)
+            or statement.targets[0].slice.id != "name"
+            or not isinstance(statement.value, ast.Name)
+            or statement.value.id != value_local
+            for statement in cache
+        ):
+            continue
+        map_stores = [
+            node
+            for node in ast.walk(getter)
+            if isinstance(node, ast.Name)
+            and node.id == map_name
+            and isinstance(node.ctx, ast.Store)
+        ]
+        map_loads = [
+            node
+            for node in ast.walk(getter)
+            if isinstance(node, ast.Name) and node.id == map_name and isinstance(node.ctx, ast.Load)
+        ]
+        parents = {
+            child: parent for parent in ast.walk(getter) for child in ast.iter_child_nodes(parent)
+        }
+        allowed_loads = 0
+        for load in map_loads:
+            parent = parents.get(load)
+            if (
+                isinstance(parent, ast.Compare)
+                and load in parent.comparators
+                and any(isinstance(op, ast.In) for op in parent.ops)
+            ) or (isinstance(parent, ast.Subscript) and parent.value is load):
+                allowed_loads += 1
+            else:
+                allowed_loads = -100
+                break
+        if len(map_stores) != 1 or allowed_loads != 2:
+            continue
+        if any(
+            isinstance(node, ast.Call)
+            and isinstance(node.func, ast.Attribute)
+            and isinstance(node.func.value, ast.Name)
+            and node.func.value.id == map_name
+            for node in ast.walk(getter)
+        ):
+            continue
+        routes.update(key for key in names if key in mapping)
+    return frozenset(routes)
+
+
+def _lazy_attribute_map_routes(
+    source: Path, tree: ast.Module, names: frozenset[str]
+) -> frozenset[str]:
+    """Resolve a closed name-to-attribute map against one literal lazy module owner."""
+    info = _module_name_for_path(source)
+    getter = _top_level_function(tree, "__getattr__")
+    if (
+        info is None
+        or getter is None
+        or not _has_exact_positional_parameters(getter, "name")
+        or list(_module_scope_symbol_bindings(tree, "getattr"))
+        or any(
+            isinstance(node, ast.Name)
+            and node.id == "getattr"
+            and isinstance(node.ctx, (ast.Store, ast.Del))
+            for node in ast.walk(getter)
+        )
+    ):
+        return frozenset()
+    resolver = _StaticExportResolver(source, tree)
+    for map_name in sorted(_lazy_owner_map_accesses(getter)):
+        try:
+            mapping = resolver._closed_static_mapping(source, map_name)
+        except (OSError, ValueError, TypeError, SyntaxError):
+            continue
+        if (
+            not isinstance(mapping, dict)
+            or not mapping
+            or any(
+                not isinstance(key, str) or not isinstance(value, str) or not value.isidentifier()
+                for key, value in mapping.items()
+            )
+        ):
+            continue
+        parents = {
+            child: parent for parent in ast.walk(getter) for child in ast.iter_child_nodes(parent)
+        }
+        for call in ast.walk(getter):
+            if (
+                not isinstance(call, ast.Call)
+                or not isinstance(call.func, ast.Name)
+                or call.func.id != "getattr"
+                or len(call.args) != 2
+                or call.keywords
+                or not isinstance(call.args[0], ast.Name)
+            ):
+                continue
+            selected = call.args[1]
+            selected_map = (
+                isinstance(selected, ast.Subscript)
+                and isinstance(selected.value, ast.Name)
+                and selected.value.id == map_name
+                and isinstance(selected.slice, ast.Name)
+                and selected.slice.id == "name"
+            ) or (
+                isinstance(selected, ast.Call)
+                and isinstance(selected.func, ast.Attribute)
+                and selected.func.attr == "get"
+                and isinstance(selected.func.value, ast.Name)
+                and selected.func.value.id == map_name
+                and len(selected.args) == 1
+                and isinstance(selected.args[0], ast.Name)
+                and selected.args[0].id == "name"
+                and not selected.keywords
+            )
+            if not selected_map:
+                continue
+            owner_local = call.args[0].id
+            owner_assignments = [
+                node
+                for node in ast.walk(getter)
+                if isinstance(node, ast.Assign)
+                and len(node.targets) == 1
+                and isinstance(node.targets[0], ast.Name)
+                and node.targets[0].id == owner_local
+                and isinstance(node.value, ast.Call)
+                and _import_module_callable_is_stdlib(tree, node.value.func)
+                and len(node.value.args) == 1
+                and not node.value.keywords
+                and isinstance(node.value.args[0], ast.Constant)
+                and isinstance(node.value.args[0].value, str)
+                and node.value.args[0].value.startswith("polisyos.")
+            ]
+            if len(owner_assignments) != 1:
+                continue
+            returned_names = {
+                node.value.id
+                for node in ast.walk(getter)
+                if isinstance(node, ast.Return) and isinstance(node.value, ast.Name)
+            }
+            parent = parents.get(call)
+            if isinstance(parent, ast.Assign):
+                if (
+                    len(parent.targets) != 1
+                    or not isinstance(parent.targets[0], ast.Name)
+                    or parent.targets[0].id not in returned_names
+                ):
+                    continue
+            elif not isinstance(parent, ast.Return):
+                continue
+            guarded = [
+                node
+                for node in ast.walk(getter)
+                if isinstance(node, ast.If)
+                and isinstance(node.test, ast.Compare)
+                and isinstance(node.test.left, ast.Name)
+                and node.test.left.id == "name"
+                and len(node.test.ops) == 1
+                and isinstance(node.test.ops[0], ast.NotIn)
+                and len(node.test.comparators) == 1
+                and isinstance(node.test.comparators[0], ast.Name)
+                and node.test.comparators[0].id == map_name
+                and any(isinstance(child, ast.Raise) for child in node.body)
+                and node.lineno < call.lineno
+            ]
+            if len(guarded) == 1:
+                return frozenset(key for key in names if key in mapping)
+    return frozenset()
+
+
+def _lazy_named_owner_routes(source: Path, tree: ast.Module) -> dict[str, str]:
+    """Resolve finite name-gated imports and same-name attribute loads statically."""
+    info = _module_name_for_path(source)
+    getter = _top_level_function(tree, "__getattr__")
+    if info is None or getter is None or not _has_exact_positional_parameters(getter, "name"):
+        return {}
+    module = info[0]
+    route_targets: dict[str, set[str]] = {}
+    for branch in _function_body_without_docstring(getter):
+        if not isinstance(branch, ast.If) or branch.orelse:
+            continue
+        guarded = _guarded_export_names(branch.test)
+        if not guarded:
+            continue
+        modules: dict[str, dict[str, str]] = {}
+        values: dict[str, dict[str, str]] = {}
+        imports: dict[str, dict[str, tuple[str, str]]] = {}
+        for statement in branch.body:
+            if isinstance(statement, ast.ImportFrom):
+                owner = _resolve_import_module(*info, statement)
+                if owner and owner.startswith("polisyos."):
+                    children = (
+                        _source_child_module_names(owner)
+                        if statement.module is None and statement.level > 0
+                        else ()
+                    )
+                    for alias in statement.names:
+                        local = alias.asname or alias.name
+                        if alias.name in (children or ()):
+                            child_owner = f"{owner}.{alias.name}"
+                            modules.setdefault(local, {}).update(
+                                dict.fromkeys(guarded, child_owner)
+                            )
+                        else:
+                            imports.setdefault(local, {})[alias.name] = (owner, alias.name)
+            elif (
+                isinstance(statement, ast.Assign)
+                and len(statement.targets) == 1
+                and isinstance(statement.targets[0], ast.Name)
+            ):
+                local = statement.targets[0].id
+                value = statement.value
+                if isinstance(value, ast.Call) and _import_module_callable_is_stdlib(
+                    tree, value.func
+                ):
+                    targets = {
+                        name: target
+                        for name in guarded
+                        if (target := _lazy_import_module_target(module, source, tree, value, name))
+                        is not None
+                    }
+                    if targets:
+                        modules.setdefault(local, {}).update(targets)
+                elif (
+                    isinstance(value, ast.Call)
+                    and isinstance(value.func, ast.Name)
+                    and value.func.id == "getattr"
+                    and len(value.args) == 2
+                    and isinstance(value.args[0], ast.Name)
+                    and isinstance(value.args[1], ast.Name)
+                    and value.args[1].id == "name"
+                    and not value.keywords
+                ):
+                    values.setdefault(local, {}).update(modules.get(value.args[0].id, {}))
+                elif isinstance(value, ast.Name):
+                    values.setdefault(local, {}).update(values.get(value.id, {}))
+                    modules.setdefault(local, {}).update(modules.get(value.id, {}))
+                    imports.setdefault(local, {}).update(imports.get(value.id, {}))
+            elif isinstance(statement, ast.Return):
+                returned: dict[str, str] = {}
+                value = statement.value
+                if (
+                    isinstance(value, ast.Call)
+                    and isinstance(value.func, ast.Name)
+                    and value.func.id == "getattr"
+                    and len(value.args) == 2
+                    and isinstance(value.args[0], ast.Name)
+                    and isinstance(value.args[1], ast.Name)
+                    and value.args[1].id == "name"
+                    and not value.keywords
+                ):
+                    returned = modules.get(value.args[0].id, {})
+                elif isinstance(value, ast.Name):
+                    returned = values.get(value.id, {})
+                    returned.update(
+                        {
+                            name: owner
+                            for name, owner in modules.get(value.id, {}).items()
+                            if owner.rsplit(".", 1)[-1] == name
+                        }
+                    )
+                    returned.update(
+                        {
+                            name: owner
+                            for name, (owner, symbol) in imports.get(value.id, {}).items()
+                            if name == symbol
+                        }
+                    )
+                for name in guarded:
+                    if name in returned:
+                        route_targets.setdefault(name, set()).add(returned[name])
+    return {name: next(iter(owners)) for name, owners in route_targets.items() if len(owners) == 1}
+
+
+def _delegated_lazy_owner_routes(
+    source: Path, tree: ast.Module, exports: tuple[str, ...]
+) -> frozenset[str]:
+    """Follow __all__ and __getattr__ imported together from one source owner."""
+    info = _module_name_for_path(source)
+    if info is None:
+        return frozenset()
+    all_bindings = list(_module_scope_symbol_bindings(tree, "__all__"))
+    getter_bindings = list(_module_scope_symbol_bindings(tree, "__getattr__"))
+    if (
+        len(all_bindings) != 1
+        or len(getter_bindings) != 1
+        or not isinstance(all_bindings[0], ast.ImportFrom)
+        or not isinstance(getter_bindings[0], ast.ImportFrom)
+    ):
+        return frozenset()
+    all_import, getter_import = all_bindings[0], getter_bindings[0]
+    all_alias = next((a for a in all_import.names if (a.asname or a.name) == "__all__"), None)
+    getter_alias = next(
+        (a for a in getter_import.names if (a.asname or a.name) == "__getattr__"), None
+    )
+    owner = _resolve_import_module(*info, all_import)
+    if (
+        all_alias is None
+        or all_alias.name != "__all__"
+        or getter_alias is None
+        or getter_alias.name != "__getattr__"
+        or owner is None
+        or owner != _resolve_import_module(*info, getter_import)
+        or not owner.startswith("polisyos.")
+    ):
+        return frozenset()
+    try:
+        owner_source = _facade_source_for(owner)
+        owner_tree = ast.parse(admitted_read_bytes(owner_source, REPO_ROOT))
+    except (OSError, ValueError, SyntaxError):
+        return frozenset()
+    direct, wildcard = _module_scope_binding_index(owner_tree)
+    direct_names = {
+        name
+        for name in exports
+        if _direct_public_binding(
+            owner_tree, name, _indexed_symbol_bindings(direct, wildcard, name)
+        )
+        is not None
+    }
+    map_names = _lazy_exports_have_owner_routes(owner_source, owner_tree, frozenset(exports))
+    branch_names = _lazy_named_owner_routes(owner_source, owner_tree)
+    return frozenset(
+        name
+        for name in exports
+        if name in direct_names or name in map_names or name in branch_names
+    )
+
+
+def _lazy_exports_have_owner_routes(
+    source: Path,
+    tree: ast.Module,
+    names: frozenset[str],
+) -> frozenset[str]:
+    """Resolve lazy names only through a finite map selected by the getter."""
+    getter = _top_level_function(tree, "__getattr__")
+    if getter is None or not _has_exact_positional_parameters(getter, "name"):
+        return frozenset()
+    accessed_maps = _lazy_owner_map_accesses(getter)
+    if not accessed_maps:
+        return frozenset()
+    resolver = _StaticExportResolver(source, tree)
+    try:
+        declaration = resolver.resolve(source, "__all__")
+    except (OSError, ValueError, TypeError, SyntaxError):
+        return frozenset()
+    if not isinstance(declaration, (tuple, list)) or not all(
+        isinstance(item, str) for item in declaration
+    ):
+        return frozenset()
+    owner_maps: list[dict[object, object]] = []
+    for symbol in sorted(accessed_maps):
+        try:
+            mapping = resolver._closed_static_mapping(source, symbol)
+        except (OSError, ValueError, TypeError, SyntaxError):
+            mapping = _derived_lazy_owner_map(source, tree, symbol)
+        if mapping and all(
+            isinstance(key, str) and _owner_target_is_valid(value, key)
+            for key, value in mapping.items()
+        ):
+            owner_maps.append(mapping)
+    routes: dict[str, int] = {}
+    for mapping in owner_maps:
+        for name in names:
+            if name in mapping:
+                routes[name] = routes.get(name, 0) + 1
+    unique_routes = {name for name, count in routes.items() if count == 1}
+    unique_routes.update(_lazy_function_literal_mapping_routes(source, tree, names))
+    unique_routes.update(_lazy_attribute_map_routes(source, tree, names))
+    return frozenset(unique_routes)
+
+
+def _runtime_module_statements(tree: ast.Module) -> tuple[ast.stmt, ...]:
+    """Return module execution statements, unwrapping the standard TYPE_CHECKING split."""
+    type_checking = {
+        alias.asname or alias.name
+        for statement in tree.body
+        if isinstance(statement, ast.ImportFrom)
+        and statement.module == "typing"
+        and statement.level == 0
+        for alias in statement.names
+        if alias.name == "TYPE_CHECKING"
+    }
+    statements: list[ast.stmt] = []
+    for statement in tree.body:
+        if (
+            isinstance(statement, ast.If)
+            and isinstance(statement.test, ast.Name)
+            and statement.test.id in type_checking
+        ):
+            statements.extend(statement.orelse)
+        else:
+            statements.append(statement)
+    return tuple(statements)
+
+
+def _branch_bindings(statements: list[ast.stmt], name: str) -> list[ast.AST]:
+    """Find bindings in one straight branch without interpreting nested control flow."""
+    module = ast.Module(body=statements, type_ignores=[])
+    return [node for node in _module_scope_symbol_bindings(module, name) if node in statements]
+
+
+def _branch_imports_selected_symbol(
+    statements: list[ast.stmt], name: str
+) -> tuple[str, str] | None:
+    """Identify one import that binds the requested public symbol directly."""
+    if len(statements) != 1 or not isinstance(statements[0], (ast.Import, ast.ImportFrom)):
+        return None
+    statement = statements[0]
+    if len(statement.names) != 1:
+        return None
+    alias = statement.names[0]
+    if alias.name == "*":
+        return None
+    if isinstance(statement, ast.ImportFrom):
+        if alias.name != name or (alias.asname or alias.name) != name:
+            return None
+        return ("symbol", name)
+    bound_name = alias.asname or alias.name.split(".", 1)[0]
+    if bound_name != name:
+        return None
+    return ("module", name)
+
+
+def _optional_import_export_binding(tree: ast.Module, name: str, bindings: list[ast.AST]) -> bool:
+    """Prove one selected name is bound in every direct optional-import outcome."""
+    if len(bindings) < 2:
+        return False
+    for statement in _runtime_module_statements(tree):
+        if not isinstance(statement, ast.Try) or not statement.handlers:
+            continue
+        contained = {id(node) for node in ast.walk(statement)}
+        if not all(id(binding) in contained for binding in bindings):
+            continue
+        try_bindings = _branch_bindings(statement.body, name)
+        try_identity = _branch_imports_selected_symbol(statement.body, name)
+        if try_identity is None or len(try_bindings) != 1:
+            continue
+        if _branch_bindings(statement.orelse, name) or _branch_bindings(statement.finalbody, name):
+            continue
+        valid_handlers = True
+        for handler in statement.handlers:
+            if handler.type is None:
+                valid_handlers = False
+                break
+            exception_names: set[str] = set()
+            if isinstance(handler.type, ast.Name):
+                exception_names.add(handler.type.id)
+            elif isinstance(handler.type, ast.Tuple) and all(
+                isinstance(item, ast.Name) for item in handler.type.elts
+            ):
+                exception_names.update(item.id for item in handler.type.elts)
+            else:
+                valid_handlers = False
+                break
+            if (
+                not exception_names
+                or not exception_names
+                <= {
+                    "ImportError",
+                    "ModuleNotFoundError",
+                    "SyntaxError",
+                    "IndentationError",
+                }
+                or any(list(_module_scope_symbol_bindings(tree, item)) for item in exception_names)
+                or _branch_imports_selected_symbol(handler.body, name) != try_identity
+            ):
+                valid_handlers = False
+                break
+        if not valid_handlers:
+            continue
+        allowed = {id(item) for item in try_bindings}
+        allowed.update(
+            id(binding)
+            for handler in statement.handlers
+            for binding in _branch_bindings(handler.body, name)
+        )
+        if {id(binding) for binding in bindings} == allowed:
+            return True
+    return False
+
+
+def _exported_names_have_bindings(source: Path, tree: ast.Module, exports: tuple[str, ...]) -> None:
+    if _export_namespace_write_may_change(tree, frozenset((*exports, "__all__")), source):
+        raise _UnresolvedExportDeclarationError(
+            f"Unresolved reflective module-namespace write: {_export_source_locator(source)}"
+        )
+    lazy_routes = _lazy_exports_have_owner_routes(source, tree, frozenset(exports))
+    named_routes = _lazy_named_owner_routes(source, tree)
+    delegated_routes = _delegated_lazy_owner_routes(source, tree, exports)
+    module_info = _module_name_for_path(source)
+    module = None if module_info is None else module_info[0]
+    binding_index, wildcard_imports = _module_scope_binding_index(tree)
+    child_routes: set[str] = set()
+    if module is not None:
+        children = _source_child_module_names(module)
+        if children is not None:
+            for name in exports:
+                if (
+                    name in children
+                    and _facade_lazy_child_target(module, source, tree, name) == f"{module}.{name}"
+                ):
+                    child_routes.add(name)
+    for name in exports:
+        bindings = _indexed_symbol_bindings(binding_index, wildcard_imports, name)
+        binding = _direct_public_binding(tree, name, bindings)
+        if binding is None and _optional_import_export_binding(tree, name, bindings):
+            continue
+        if binding is not None:
+            if (
+                isinstance(binding, (ast.Assign, ast.AnnAssign))
+                and isinstance(binding.value, ast.Name)
+                and not _public_alias_target_is_bound(
+                    tree,
+                    binding.value.id,
+                    frozenset({name}),
+                    binding_index=binding_index,
+                    wildcard_imports=wildcard_imports,
+                )
+            ):
+                raise _UnresolvedExportDeclarationError(
+                    f"Unresolved exported alias target: {_export_source_locator(source)}:{name}"
+                )
+            continue
+        if name in child_routes:
+            continue
+        if name in lazy_routes:
+            continue
+        if name in named_routes:
+            continue
+        if name in delegated_routes:
+            continue
+        raise _UnresolvedExportDeclarationError(
+            f"Unresolved exported binding: {_export_source_locator(source)}:{name}"
+        )
+
+
 def _extract_exports(tree: ast.Module, source_file: Path | None = None) -> tuple[str, ...]:
     source = source_file or SRC_ROOT / "polisyos" / "__static_exports__.py"
+    try:
+        compile(tree, str(source), "exec", dont_inherit=True)
+    except SyntaxError as exc:
+        raise _UnresolvedExportDeclarationError(
+            f"Invalid source syntax for public export inventory: {_export_source_locator(source)}: {exc.msg}"
+        ) from exc
     resolver = _StaticExportResolver(source, tree)
-    if source_file is not None:
-        info = _module_name_for_path(source)
-        if info is not None:
-            resolver._read_package_initializers(info[0])
-    if not any(_symbol_binding_nodes(tree, "__all__")):
-        # Absence of a syntactic binding does not excuse reflective module effects.
-        resolver.audit_consumers()
-        return ()
-    prefix = _literal_prefix_before_extensions(tree)
-    if prefix is not None:
-        resolver._allowed_calls.update(
-            (source, id(node)) for node in _module_level_nodes(tree) if isinstance(node, ast.Call)
+    if not any(_module_scope_symbol_bindings(tree, "__all__")):
+        if _export_namespace_write_may_change(tree, frozenset({"__all__"})):
+            raise _UnresolvedExportDeclarationError(
+                f"Unresolved reflective __all__ declaration: {_export_source_locator(source)}"
+            )
+        binding_index, wildcard_imports = _module_scope_binding_index(tree)
+        public_names = sorted(
+            name for name in binding_index if not name.startswith("_") and name != "annotations"
         )
-        try:
-            resolver.audit_consumers()
-        except _UnresolvedExportDeclarationError as exc:
-            raise _UnresolvedExportDeclarationError(str(exc), prefix) from exc
-        raise _IncompleteExportDeclarationError(prefix)
+        if wildcard_imports or public_names:
+            rendered = ", ".join(public_names[:8]) or "wildcard import"
+            raise _UnresolvedExportDeclarationError(
+                f"Missing explicit __all__ for source-defined public bindings "
+                f"({_export_source_locator(source)}: {rendered})"
+            )
+        return ()
     try:
         exports = resolver.resolve(source, "__all__")
     except _UnresolvedExportDeclarationError as exc:
-        # These are source declarations only: mutations or extension can change
-        # the native namespace. They never supply a complete export verdict.
+        prefix = _literal_prefix_before_extensions(tree)
+        if prefix is not None:
+            try:
+                _exported_names_have_bindings(source, tree, prefix)
+            except _UnresolvedExportDeclarationError:
+                prefix = None
+        if prefix is not None:
+            raise _IncompleteExportDeclarationError(prefix) from exc
         literals = [
             _string_list_value(node.value)
             for node in tree.body
@@ -2006,9 +4797,29 @@ def _extract_exports(tree: ast.Module, source_file: Path | None = None) -> tuple
         raise _UnresolvedExportDeclarationError(
             f"Export declaration must resolve to string sequence: {_export_source_locator(source)}"
         )
+    if len(exports) != len(set(exports)):
+        raise _UnresolvedExportDeclarationError(
+            f"Unresolved duplicate exported names: {_export_source_locator(source)}"
+        )
     try:
-        resolver.audit_consumers()
+        if not resolver.selected_collection_consumers_are_closed():
+            raise _UnresolvedExportDeclarationError(
+                f"Unresolved selected export declaration dependency: {_export_source_locator(source)}"
+            )
+        _exported_names_have_bindings(source, tree, tuple(exports))
     except _UnresolvedExportDeclarationError as exc:
+        prefix = _literal_prefix_before_extensions(tree)
+        if prefix is not None:
+            try:
+                _exported_names_have_bindings(source, tree, prefix)
+            except _UnresolvedExportDeclarationError:
+                prefix = None
+        if prefix is not None:
+            raise _IncompleteExportDeclarationError(
+                prefix,
+                reason=str(exc),
+                exports_scope="verified direct literal prefix; complete selected export contract unresolved",
+            ) from exc
         raise _UnresolvedExportDeclarationError(str(exc), tuple(exports)) from exc
     return tuple(exports)
 
@@ -2051,7 +4862,7 @@ def _entrypoint_inventory(module: str) -> SupportedEntrypointInventory:
                 exports = exc.prefix
                 declared_candidates = exc.declared_candidates
                 incomplete_reason = str(exc)
-                exports_scope = "direct unconditional literal prefix; extensions unresolved"
+                exports_scope = exc.exports_scope
             except _UnresolvedExportDeclarationError as exc:
                 exports = ()
                 declared_candidates = exc.declared_candidates
@@ -2073,16 +4884,15 @@ def _entrypoint_inventory(module: str) -> SupportedEntrypointInventory:
             "not included in known_export_count and not a completeness verdict."
         )
     export_resolution["selector"] = (
-        "Declared __all__; literal sequences/mapping keys, named/imported declarations, "
-        "concatenation and sorted/list/tuple. Every read local module is audited against "
-        "a finite pure import-time declaration grammar; external imports, control/context "
-        "statements, class construction, decorated/type-parameterized function headers "
-        "and foreign attribute/subscript/operator/callback protocols remain unknown. "
-        "Imported local dependencies and package initializers additionally require "
-        "a passive-binding-only profile without callable definitions or dunder bindings "
-        "other than the explicit __all__ declaration; imported names "
-        "must have explicit owner bindings, never ambient builtin fallbacks. Plain "
-        "selected-module function bodies are excluded. No module execution or runtime dispatch."
+        "Declared __all__; finite literal sequences/mapping keys and explicitly bound "
+        "selected declaration dependencies are resolved without executing source. Completeness "
+        "requires one closed __all__ dependency slice plus one unique direct export binding, "
+        "an owner-map route visibly selected by the module lazy getter, or the exact lazy-child "
+        "route. Unrelated imports and function bodies do not affect the selected export slice. "
+        "Dynamic declarations, opaque writes or aliases, missing bindings, ambiguous owner maps, "
+        "and unsupported lazy routes remain unresolved. Runtime __all__/getattr confirmation is "
+        "separate and applies only to the exact installed artifact/environment; logical module "
+        "names do not establish physical import origin."
     )
     function_names = {node.name for node in tree.body if isinstance(node, ast.FunctionDef)}
     summary = (ast.get_docstring(tree) or "").strip().splitlines()
@@ -2247,17 +5057,14 @@ def _static_string_collection(
     if isinstance(value, (list, tuple, set, frozenset)) and all(
         isinstance(item, str) for item in value
     ):
-        if (
-            not resolver.selected_collection_consumers_are_closed()
-            or not _module_namespace_uses_are_closed(tree, source)
-        ):
+        if not resolver.selected_collection_consumers_are_closed():
             return None
         return tuple(value)
     return None
 
 
 def _module_level_assignment(tree: ast.Module, symbol: str) -> ast.Assign | ast.AnnAssign | None:
-    bindings = list(_symbol_binding_nodes(tree, symbol))
+    bindings = list(_module_scope_symbol_bindings(tree, symbol))
     if len(bindings) != 1 or bindings[0] not in tree.body:
         return None
     binding = bindings[0]
@@ -2298,30 +5105,89 @@ def _has_exact_positional_parameters(function: ast.FunctionDef, *names: str) -> 
     )
 
 
+def _local_getter_importlib_binding(
+    tree: ast.Module,
+    getter: ast.FunctionDef | ast.AsyncFunctionDef,
+    local_name: str,
+) -> bool:
+    """Prove one leading stdlib importlib binding local to the selected getter."""
+    body = _function_body_without_docstring(getter)
+    imports = [
+        statement
+        for statement in body
+        if isinstance(statement, ast.Import)
+        and any(
+            alias.name == "importlib"
+            and (alias.asname or alias.name.split(".", 1)[0]) == local_name
+            for alias in statement.names
+        )
+    ]
+    if (
+        len(imports) != 1
+        or body[0] is not imports[0]
+        or list(_module_scope_symbol_bindings(tree, local_name))
+    ):
+        return False
+    nested_imports = [
+        node
+        for node in ast.walk(getter)
+        if isinstance(node, ast.Import)
+        and any((alias.asname or alias.name.split(".", 1)[0]) == local_name for alias in node.names)
+    ]
+    if nested_imports != imports:
+        return False
+    parents = {
+        child: parent for parent in ast.walk(getter) for child in ast.iter_child_nodes(parent)
+    }
+    for node in ast.walk(getter):
+        if not isinstance(node, ast.Name) or node.id != local_name:
+            continue
+        if isinstance(node.ctx, (ast.Store, ast.Del)):
+            return False
+        if isinstance(node.ctx, ast.Load):
+            parent = parents.get(node)
+            if not (
+                isinstance(parent, ast.Attribute)
+                and parent.value is node
+                and parent.attr == "import_module"
+                and isinstance(parents.get(parent), ast.Call)
+                and parents[parent].func is parent
+            ):
+                return False
+    return True
+
+
 def _import_module_callable_is_stdlib(tree: ast.Module, function: ast.AST) -> bool:
+    """Resolve stdlib importlib import bindings through module or getter scope."""
     if isinstance(function, ast.Attribute) and function.attr == "import_module":
         if not isinstance(function.value, ast.Name):
             return False
-        bindings = list(_symbol_binding_nodes(tree, function.value.id))
-        if len(bindings) != 1 or not isinstance(bindings[0], ast.Import):
-            return False
-        return any(
-            alias.name == "importlib"
-            and (alias.asname or alias.name.split(".")[0]) == function.value.id
-            for alias in bindings[0].names
-        )
-    if isinstance(function, ast.Name):
-        bindings = list(_symbol_binding_nodes(tree, function.id))
-        if len(bindings) != 1 or not isinstance(bindings[0], ast.ImportFrom):
-            return False
-        binding = bindings[0]
-        return (
-            binding.level == 0
-            and binding.module == "importlib"
+        local = function.value.id
+        bindings = list(_module_scope_symbol_bindings(tree, local))
+        if not bindings:
+            getter = _top_level_function(tree, "__getattr__")
+            return getter is not None and _local_getter_importlib_binding(tree, getter, local)
+        return all(
+            isinstance(binding, ast.Import)
             and any(
-                alias.name == "import_module" and (alias.asname or alias.name) == function.id
+                alias.name.split(".", 1)[0] == "importlib"
+                and (alias.asname or alias.name.split(".", 1)[0]) == local
                 for alias in binding.names
             )
+            for binding in bindings
+        )
+    if isinstance(function, ast.Name):
+        local = function.id
+        bindings = list(_module_scope_symbol_bindings(tree, local))
+        return bool(bindings) and all(
+            isinstance(binding, ast.ImportFrom)
+            and binding.level == 0
+            and binding.module == "importlib"
+            and any(
+                alias.name == "import_module" and (alias.asname or alias.name) == local
+                for alias in binding.names
+            )
+            for binding in bindings
         )
     return False
 
@@ -2369,6 +5235,84 @@ def _function_body_without_docstring(function: ast.FunctionDef) -> list[ast.stmt
         if isinstance(body[0].value.value, str):
             body.pop(0)
     return body
+
+
+def _read_api_surface_route_mappings(
+    source: Path, tree: ast.Module, mapping_names: tuple[str, str]
+) -> tuple[dict[str, str], dict[str, str]] | None:
+    """Read the two literal route maps only from a pure local owner module."""
+    info = _module_name_for_path(source)
+    if info is None:
+        return None
+    imports: dict[str, tuple[str, str]] = {}
+    for statement in tree.body:
+        if not isinstance(statement, ast.ImportFrom):
+            continue
+        module = _resolve_import_module(*info, statement)
+        if module is None:
+            continue
+        for alias in statement.names:
+            local_name = alias.asname or alias.name
+            if local_name in mapping_names:
+                if alias.name == "*" or local_name in imports:
+                    return None
+                imports[local_name] = (module, alias.name)
+    if set(imports) != set(mapping_names) or len({item[0] for item in imports.values()}) != 1:
+        return None
+    route_module = next(iter(imports.values()))[0]
+    if route_module != "polisyos.data_forge.read_api.surface_routes":
+        return None
+    try:
+        route_source = _facade_source_for(route_module)
+        route_tree = ast.parse(admitted_read_bytes(route_source, REPO_ROOT))
+    except (OSError, ValueError, SyntaxError):
+        return None
+    remote_names = {remote for _, remote in imports.values()}
+    mappings: dict[str, dict[str, str]] = {}
+    for statement in route_tree.body:
+        if (
+            isinstance(statement, ast.Expr)
+            and isinstance(statement.value, ast.Constant)
+            and isinstance(statement.value.value, str)
+        ):
+            continue
+        if isinstance(statement, ast.ImportFrom) and statement.module == "__future__":
+            if not _supported_future_import_is_passive(route_tree, statement):
+                return None
+            continue
+        if not isinstance(statement, (ast.Assign, ast.AnnAssign)):
+            return None
+        targets = statement.targets if isinstance(statement, ast.Assign) else [statement.target]
+        if len(targets) != 1 or not isinstance(targets[0], ast.Name):
+            return None
+        name = targets[0].id
+        if (
+            name not in remote_names
+            or not isinstance(statement.value, ast.Dict)
+            or name in mappings
+        ):
+            return None
+        values: dict[str, str] = {}
+        for key, value in zip(statement.value.keys, statement.value.values, strict=True):
+            if key is None:
+                return None
+            try:
+                key_value, item_value = ast.literal_eval(key), ast.literal_eval(value)
+            except (ValueError, TypeError):
+                return None
+            if (
+                not isinstance(key_value, str)
+                or not isinstance(item_value, str)
+                or key_value in values
+            ):
+                return None
+            values[key_value] = item_value
+        mappings[name] = values
+    if set(mappings) != remote_names or len(mappings) != 2:
+        return None
+    first = mappings[imports[mapping_names[0]][1]]
+    second = mappings[imports[mapping_names[1]][1]]
+    return first, second
 
 
 def _read_api_surface_records(
@@ -2433,30 +5377,50 @@ def _read_api_surface_records(
     if surfaces_binding is None or surfaces_binding.value is None:
         return None
     records_node = surfaces_binding.value
-    if not isinstance(records_node, (ast.Tuple, ast.List)):
-        return None
     records: dict[str, str] = {}
-    for node in records_node.elts:
-        if not isinstance(node, ast.Call) or not isinstance(node.func, ast.Name):
+    expected_routes = ast.parse(
+        "tuple(ReadApiSurface(name=name, module=module, summary=READ_API_SURFACE_SUMMARIES[name]) "
+        "for name, module in READ_API_SURFACE_MODULES.items())",
+        mode="eval",
+    ).body
+    if ast.dump(records_node, include_attributes=False) == ast.dump(
+        expected_routes, include_attributes=False
+    ):
+        route_maps = _read_api_surface_route_mappings(
+            source, tree, ("READ_API_SURFACE_MODULES", "READ_API_SURFACE_SUMMARIES")
+        )
+        if route_maps is None:
             return None
-        if node.func.id != "ReadApiSurface" or node.args:
-            return None
-        fields_by_name = {
-            keyword.arg: keyword.value for keyword in node.keywords if keyword.arg is not None
-        }
-        if set(fields_by_name) != {"name", "module", "summary"}:
-            return None
-        name_node, module_node = fields_by_name["name"], fields_by_name["module"]
-        if not (
-            isinstance(name_node, ast.Constant)
-            and isinstance(name_node.value, str)
-            and isinstance(module_node, ast.Constant)
-            and isinstance(module_node.value, str)
+        module_routes, summaries = route_maps
+        if set(module_routes) != set(summaries) or not all(
+            module.startswith("polisyos.") for module in module_routes.values()
         ):
             return None
-        if name_node.value in records:
-            return None
-        records[name_node.value] = module_node.value
+        records = dict(module_routes)
+    elif isinstance(records_node, (ast.Tuple, ast.List)):
+        for node in records_node.elts:
+            if not isinstance(node, ast.Call) or not isinstance(node.func, ast.Name):
+                return None
+            if node.func.id != "ReadApiSurface" or node.args:
+                return None
+            fields_by_name = {
+                keyword.arg: keyword.value for keyword in node.keywords if keyword.arg is not None
+            }
+            if set(fields_by_name) != {"name", "module", "summary"}:
+                return None
+            name_node, module_node = fields_by_name["name"], fields_by_name["module"]
+            if not (
+                isinstance(name_node, ast.Constant)
+                and isinstance(name_node.value, str)
+                and isinstance(module_node, ast.Constant)
+                and isinstance(module_node.value, str)
+            ):
+                return None
+            if name_node.value in records:
+                return None
+            records[name_node.value] = module_node.value
+    else:
+        return None
 
     by_name = _module_level_assignment(tree, "_SURFACES_BY_NAME")
     if by_name is None or not isinstance(by_name.value, ast.DictComp):
@@ -2470,17 +5434,21 @@ def _read_api_surface_records(
         return None
 
     available = _top_level_function(tree, "available_surfaces")
-    expected_names = ast.parse(
-        "tuple(surface.name for surface in READ_API_SURFACES)", mode="eval"
-    ).body
+    expected_names = (
+        ast.parse("tuple(surface.name for surface in READ_API_SURFACES)", mode="eval").body,
+        ast.parse("tuple(READ_API_SURFACE_MODULES)", mode="eval").body,
+    )
     available_body = [] if available is None else _function_body_without_docstring(available)
     if (
         available is None
         or not _has_exact_positional_parameters(available)
         or len(available_body) != 1
         or not isinstance(available_body[0], ast.Return)
-        or ast.dump(available_body[0].value, include_attributes=False)
-        != ast.dump(expected_names, include_attributes=False)
+        or not any(
+            ast.dump(available_body[0].value, include_attributes=False)
+            == ast.dump(expected, include_attributes=False)
+            for expected in expected_names
+        )
     ):
         return None
 
@@ -2511,15 +5479,40 @@ def _read_api_surface_records(
 
     loader = _top_level_function(tree, "load_surface")
     expected_load = ast.parse("import_module(get_surface(name).module)", mode="eval").body
+    expected_mapped_loader = ast.parse(
+        """
+try:
+    module = READ_API_SURFACE_MODULES[name]
+except KeyError as exc:
+    raise KeyError(f"unknown Data Forge read_api surface: {name}") from exc
+return import_module(module)
+"""
+    ).body
     loader_body = [] if loader is None else _function_body_without_docstring(loader)
+    simple_loader = (
+        len(loader_body) == 1
+        and isinstance(loader_body[0], ast.Return)
+        and ast.dump(loader_body[0].value, include_attributes=False)
+        == ast.dump(expected_load, include_attributes=False)
+    )
+    mapped_loader = ast.dump(
+        ast.Module(body=loader_body, type_ignores=[]), include_attributes=False
+    ) == ast.dump(
+        ast.Module(body=expected_mapped_loader, type_ignores=[]), include_attributes=False
+    )
+    import_call = (
+        expected_load
+        if simple_loader
+        else loader_body[-1].value
+        if mapped_loader and isinstance(loader_body[-1], ast.Return)
+        else None
+    )
     if (
         loader is None
         or not _has_exact_positional_parameters(loader, "name")
-        or len(loader_body) != 1
-        or not isinstance(loader_body[0], ast.Return)
-        or ast.dump(loader_body[0].value, include_attributes=False)
-        != ast.dump(expected_load, include_attributes=False)
-        or not _import_module_callable_is_stdlib(tree, expected_load.func)
+        or import_call is None
+        or not isinstance(import_call, ast.Call)
+        or not _import_module_callable_is_stdlib(tree, import_call.func)
     ):
         return None
     if not all(module.startswith("polisyos.") for module in records.values()):
@@ -2772,6 +5765,86 @@ def _block_returns_exact_child_module(
     return False
 
 
+def _lazy_route_import_bindings_are_closed(
+    tree: ast.Module,
+    getter: ast.FunctionDef | ast.AsyncFunctionDef,
+) -> bool:
+    """Keep only the stdlib loader binding used by the selected lazy getter."""
+    calls = [
+        node
+        for node in ast.walk(getter)
+        if isinstance(node, ast.Call) and _import_module_callable_is_stdlib(tree, node.func)
+    ]
+    loader_names: dict[str, str] = {}
+    for call in calls:
+        if isinstance(call.func, ast.Attribute) and isinstance(call.func.value, ast.Name):
+            loader_names[call.func.value.id] = "module"
+        elif isinstance(call.func, ast.Name):
+            loader_names[call.func.id] = "callable"
+        else:
+            return False
+    if not loader_names:
+        return True
+
+    parents = {child: parent for parent in ast.walk(tree) for child in ast.iter_child_nodes(parent)}
+    for local_name, kind in loader_names.items():
+        bindings = list(_module_scope_symbol_bindings(tree, local_name))
+        if (
+            kind == "module"
+            and not bindings
+            and _local_getter_importlib_binding(tree, getter, local_name)
+        ):
+            continue
+        if len(bindings) != 1:
+            return False
+        binding = bindings[0]
+        if kind == "module":
+            if not isinstance(binding, ast.Import) or not any(
+                alias.name == "importlib"
+                and (alias.asname or alias.name.split(".", 1)[0]) == local_name
+                for alias in binding.names
+            ):
+                return False
+        elif not (
+            isinstance(binding, ast.ImportFrom)
+            and binding.level == 0
+            and binding.module == "importlib"
+            and any(
+                alias.name == "import_module" and (alias.asname or alias.name) == local_name
+                for alias in binding.names
+            )
+        ):
+            return False
+
+        for node in ast.walk(tree):
+            if isinstance(node, ast.Name) and node.id == local_name:
+                if isinstance(node.ctx, (ast.Store, ast.Del)):
+                    return False
+                if isinstance(node.ctx, ast.Load):
+                    parent = parents.get(node)
+                    if kind == "module":
+                        valid = (
+                            isinstance(parent, ast.Attribute)
+                            and parent.value is node
+                            and parent.attr == "import_module"
+                            and isinstance(parents.get(parent), ast.Call)
+                            and parents[parent].func is parent
+                        )
+                    else:
+                        valid = isinstance(parent, ast.Call) and parent.func is node
+                    if not valid:
+                        return False
+            if isinstance(node, (ast.Attribute, ast.Subscript)) and isinstance(
+                node.ctx, (ast.Store, ast.Del)
+            ):
+                if any(
+                    isinstance(child, ast.Name) and child.id == local_name
+                    for child in ast.walk(node.value)
+                ):
+                    return False
+    return True
+
+
 def _facade_lazy_child_target(
     module: str,
     source: Path,
@@ -2791,7 +5864,15 @@ def _facade_lazy_child_target(
     if exports is None or alias_name not in exports:
         return None
     getter = _top_level_function(tree, "__getattr__")
-    if getter is None or not _has_exact_positional_parameters(getter, "name"):
+    if (
+        getter is None
+        or list(_module_scope_symbol_bindings(tree, "__getattr__")) != [getter]
+        or not _has_exact_positional_parameters(getter, "name")
+        or _export_namespace_write_may_change(
+            tree, frozenset((*exports, "__all__", "__getattr__")), source
+        )
+        or not _lazy_route_import_bindings_are_closed(tree, getter)
+    ):
         return None
     expected_module = f"{module}.{alias_name}"
     body = _function_body_without_docstring(getter)
@@ -2842,7 +5923,7 @@ def _facade_star_exports(
             cache[module] = None
         else:
             source, tree = facade
-            declared = bool(list(_symbol_binding_nodes(tree, "__all__")))
+            declared = bool(list(_module_scope_symbol_bindings(tree, "__all__")))
             dynamic_getattr = any(
                 isinstance(node, (ast.FunctionDef, ast.AsyncFunctionDef))
                 and node.name == "__getattr__"

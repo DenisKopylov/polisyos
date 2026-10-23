@@ -70,10 +70,25 @@ def test_lazy_module_facade_children_are_source_proved_and_not_deep_edges() -> N
         "polisyos.ir.observation",
     }
     supported = {entrypoint for policy in policies for entrypoint in policy.supported_entrypoints}
-    assert expected.isdisjoint(supported)
+    intentional_supported = {
+        "polisyos.core.registry",
+        "polisyos.data_forge.read_api.legal",
+    }
+    assert expected & supported == intentional_supported
+
+    core_contracts = _facade_path("core.contracts")
+    core_tree = ast.parse(core_contracts.read_bytes(), filename=str(core_contracts))
+    for child in ("chronology", "epoch"):
+        assert (
+            guardrail_module._facade_lazy_child_target(
+                "polisyos.core.contracts", core_contracts, core_tree, child
+            )
+            == f"polisyos.core.contracts.{child}"
+        )
+
     assert documented <= supported
-    assert "polisyos.fabric.ingestion" not in supported
-    assert "polisyos.scientist.policy_design" not in supported
+    assert "polisyos.fabric.ingestion" in supported
+    assert "polisyos.scientist.policy_design" in supported
     assert len(expected) == 10
     assert not (unresolved & expected), sorted(unresolved & expected)
     internal_candidates = {
@@ -193,6 +208,35 @@ def __getattr__(name):
     assert records(surfaces, mutable_records_tree) is None
 
 
+def test_selected_local_owner_map_resolves_only_through_leading_stdlib_import(
+    monkeypatch,
+) -> None:
+    guardrail_module = _guardrails()
+    source = SRC_ROOT / "scientist" / "agent" / "__init__.py"
+    tree = ast.parse(source.read_bytes(), filename=str(source))
+
+    assert guardrail_module._lazy_function_literal_mapping_routes(
+        source, tree, frozenset({"BaseAgent"})
+    ) == frozenset({"BaseAgent"})
+    row = guardrail_module._entrypoint_inventory("polisyos.scientist.agent")
+    assert row.export_count == 102
+    assert "BaseAgent" in row.exports
+
+    mutated = source.read_text(encoding="utf-8").replace(
+        "    import importlib\n",
+        "    import impostor as importlib\n",
+        1,
+    )
+    assert mutated != source.read_text(encoding="utf-8")
+    tree = ast.parse(mutated, filename=str(source))
+    assert (
+        guardrail_module._lazy_function_literal_mapping_routes(
+            source, tree, frozenset({"BaseAgent"})
+        )
+        == frozenset()
+    )
+
+
 def test_internal_markdown_is_not_admitted_by_child_existence_or_fromlist_fallback() -> None:
     source = SRC_ROOT / "common" / "__init__.py"
     tree = ast.parse(source.read_text(encoding="utf-8"))
@@ -240,6 +284,107 @@ assert resolved is importlib.import_module(child)
             )
 
 
+def _literal_assignment(tree: ast.Module, name: str) -> object:
+    for node in tree.body:
+        if isinstance(node, ast.Assign) and any(
+            isinstance(target, ast.Name) and target.id == name for target in node.targets
+        ):
+            return ast.literal_eval(node.value)
+        if (
+            isinstance(node, ast.AnnAssign)
+            and isinstance(node.target, ast.Name)
+            and node.target.id == name
+        ):
+            return ast.literal_eval(node.value)
+    raise AssertionError(f"missing literal source assignment: {name}")
+
+
+def _read_api_typechecking_modules(tree: ast.Module) -> set[str]:
+    modules: set[str] = set()
+    for node in tree.body:
+        if (
+            isinstance(node, ast.If)
+            and isinstance(node.test, ast.Name)
+            and node.test.id == "TYPE_CHECKING"
+        ):
+            for child in ast.walk(node):
+                if isinstance(child, ast.ImportFrom) and child.level == 1 and child.module is None:
+                    modules.update(alias.name for alias in child.names if alias.name)
+    return modules
+
+
+def test_read_api_advertised_module_routes_are_complete_and_lazy() -> None:
+    """Every declared read_api module route is discoverable and resolves lazily."""
+    facade_path = SRC_ROOT / "data_forge" / "read_api" / "__init__.py"
+    route_path = SRC_ROOT / "data_forge" / "read_api" / "surface_routes.py"
+    facade_tree = ast.parse(facade_path.read_text(encoding="utf-8"), filename=str(facade_path))
+    route_tree = ast.parse(route_path.read_text(encoding="utf-8"), filename=str(route_path))
+    advertised = set(_literal_assignment(facade_tree, "__all__"))
+    declared_modules = _read_api_typechecking_modules(facade_tree)
+    routes = _literal_assignment(route_tree, "READ_API_SURFACE_MODULES")
+    summaries = _literal_assignment(route_tree, "READ_API_SURFACE_SUMMARIES")
+    assert set(routes) == declared_modules
+    assert set(summaries) == set(routes)
+    assert set(routes) <= advertised
+    assert all(module == f"polisyos.data_forge.read_api.{name}" for name, module in routes.items())
+    for name, module in routes.items():
+        relative = Path(*module.split("."))
+        assert (SRC_ROOT.parent / relative / "__init__.py").is_file() or (
+            SRC_ROOT.parent / relative.with_suffix(".py")
+        ).is_file(), (name, module)
+    env = os.environ.copy()
+    env["PYTHONPATH"] = os.pathsep.join((str(REPO_ROOT / "src"), str(REPO_ROOT)))
+    all_children = tuple(routes.values())
+    for name, module in routes.items():
+        script = f"""
+import importlib, importlib.util, sys
+from pathlib import Path
+parent = importlib.import_module('polisyos.data_forge.read_api')
+name = {name!r}
+child_name = {module!r}
+all_children = {all_children!r}
+assert name in parent.__all__ and name in dir(parent)
+assert name not in vars(parent)
+assert not (set(all_children) & set(sys.modules))
+spec = importlib.util.find_spec(child_name)
+assert spec is not None and spec.origin is not None and Path(spec.origin).is_file()
+assert not (set(all_children) & set(sys.modules))
+unknown = '__e02_unknown_read_api_route__'
+assert unknown not in dir(parent)
+try:
+    getattr(parent, unknown)
+except AttributeError:
+    pass
+else:
+    raise AssertionError('unknown route unexpectedly resolved')
+assert not (set(all_children) & set(sys.modules))
+resolved = getattr(parent, name)
+assert resolved is importlib.import_module(child_name)
+assert resolved.__name__ == child_name
+assert name in vars(parent) and name in dir(parent)
+assert Path(resolved.__file__).resolve() == Path(spec.origin).resolve()
+expected_module = Path({str(REPO_ROOT)!r}) / 'src' / Path(*child_name.split('.'))
+expected_origin = expected_module / '__init__.py' if (expected_module / '__init__.py').is_file() else expected_module.with_suffix('.py')
+assert Path(resolved.__file__).resolve() == expected_origin.resolve()
+assert not ((set(all_children) - {{child_name}}) & set(sys.modules))
+"""
+        subprocess.run([sys.executable, "-c", script], cwd=REPO_ROOT, env=env, check=True)
+    from polisyos.data_forge.read_api.surfaces import (
+        available_surfaces,
+        get_surface,
+        load_surface,
+        surface_module,
+    )
+
+    assert set(available_surfaces()) == set(routes)
+    for name, module in routes.items():
+        surface = get_surface(name)
+        assert surface.module == module
+        assert surface.summary == summaries[name]
+        assert surface_module(name) == module
+        assert load_surface(name) is importlib.import_module(module)
+
+
 def _run_synthetic_facade(source_path: Path, source_text: str) -> dict[str, object]:
     real_parent = sys.modules.get("polisyos.common")
     trusted_source = '__name__ = "polisyos.common"\n' + source_text
@@ -262,6 +407,15 @@ def test_namespace_reflection_rebinding_and_unproven_loader_effects_are_not_prov
     cases = {
         "string_key_rebind": """from importlib import import_module
 __all__ = ("logger",)
+globals()["__all__"] = ()
+def __getattr__(name):
+    if name not in __all__:
+        raise AttributeError(name)
+    return import_module(f"{__name__}.{name}")
+""",
+        "shadowed_namespace_factory": """from importlib import import_module
+__all__ = ("logger",)
+globals = lambda: {}
 globals()["__all__"] = ()
 def __getattr__(name):
     if name not in __all__:

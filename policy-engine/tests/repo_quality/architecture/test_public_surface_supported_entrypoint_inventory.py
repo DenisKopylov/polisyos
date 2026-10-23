@@ -19,6 +19,51 @@ def _inventory() -> list[guardrails.PackageInventory]:
     return guardrails.build_public_surface_inventory(policies)
 
 
+def test_read_api_compliance_module_is_lazily_routed_from_the_owned_map(
+    monkeypatch: pytest.MonkeyPatch,
+) -> None:
+    import importlib.util
+    import sys
+
+    import polisyos.data_forge.read_api as read_api
+
+    route_path = REPO_ROOT / "src/polisyos/data_forge/read_api/surface_routes.py"
+    spec = importlib.util.spec_from_file_location(
+        "polisyos.data_forge.read_api._candidate_surface_routes",
+        route_path,
+    )
+    assert spec is not None and spec.loader is not None
+    routes = importlib.util.module_from_spec(spec)
+    spec.loader.exec_module(routes)
+
+    target = "polisyos.data_forge.read_api.compliance"
+    assert "compliance" in read_api.__all__
+    assert routes.READ_API_SURFACE_MODULES["compliance"] == target
+    assert "compliance" in routes.READ_API_SURFACE_SUMMARIES
+
+    monkeypatch.setattr(
+        read_api,
+        "_READ_API_SURFACE_MODULES",
+        dict(routes.READ_API_SURFACE_MODULES),
+    )
+    monkeypatch.delattr(read_api, "compliance", raising=False)
+    monkeypatch.delitem(sys.modules, target, raising=False)
+
+    assert "compliance" in dir(read_api)
+    assert "compliance" not in read_api.__dict__
+    assert target not in sys.modules
+
+    compliance = read_api.compliance
+    assert compliance.__name__ == target
+    assert (
+        Path(compliance.__file__).resolve()
+        == Path(read_api.__file__).with_name("compliance.py").resolve()
+    )
+    unknown_name = "unknown_surface"
+    with pytest.raises(AttributeError):
+        getattr(read_api, unknown_name)
+
+
 def test_public_surface_inventory_enumerates_every_supported_entrypoint_facade() -> None:
     manifest = tomllib.loads(
         (REPO_ROOT / "architecture/public_surface/contract.toml").read_text(encoding="utf-8")
@@ -64,10 +109,10 @@ def test_foundry_public_surface_registers_backend_entrypoint_without_leaking_exp
     )
     foundry = next(package for package in _inventory() if package.module == "polisyos.foundry")
     root_entrypoint = next(row for row in foundry.entrypoints if row.module == foundry.module)
-    assert foundry.export_count is None
-    assert foundry.known_export_count == 0
-    assert root_entrypoint.export_resolution["complete"] is False
-    assert "not an empty runtime namespace" in root_entrypoint.export_resolution["exports_scope"]
+    assert foundry.export_count == len(facade.__all__)
+    assert foundry.known_export_count == len(facade.__all__)
+    assert root_entrypoint.export_resolution["complete"] is True
+    assert set(root_entrypoint.exports) == set(facade.__all__)
     # Real declaration consumers preserve the original embedding boundary;
     # import/name checks do not execute any optional estimator backend.
     root_exports = set(facade.__all__)
@@ -125,9 +170,11 @@ def test_runtime_quality_inventory_contains_human_decision_record() -> None:
     )
 
     assert entrypoint.source_file == "src/polisyos/runtime/quality/__init__.py"
-    assert entrypoint.export_count is None and entrypoint.known_export_count == 0
-    assert entrypoint.export_resolution["complete"] is False
-    assert "HumanDecisionRecord" in entrypoint.export_resolution["declared_export_candidates"]
+    assert entrypoint.export_count == len(native.__all__)
+    assert entrypoint.known_export_count == len(native.__all__)
+    assert entrypoint.export_resolution["complete"] is True
+    assert set(entrypoint.exports) == set(native.__all__)
+    assert "HumanDecisionRecord" in entrypoint.exports
     source_read = next(
         row
         for row in entrypoint.export_resolution["inputs"]
@@ -137,7 +184,7 @@ def test_runtime_quality_inventory_contains_human_decision_record() -> None:
         source_read["sha256"]
         == hashlib.sha256((REPO_ROOT / entrypoint.source_file).read_bytes()).hexdigest()
     )
-    assert any(
+    assert not any(
         row.subject == entrypoint.module and row.detail == "incomplete_exports"
         for row in guardrails._check_public_surface_contracts(inventory)
     )
@@ -353,11 +400,12 @@ def test_ddm_facade_policy_matches_observed_lazy_boundary() -> None:
     ddm = next(package for package in inventory if package.module == "polisyos.ddm")
 
     assert ddm.facade_mode_expected == "lazy_facade"
-    assert ddm.facade_mode_observed == "unresolved_exports"
-    assert ddm.export_count is None and ddm.known_export_count == 0
+    assert ddm.facade_mode_observed == "lazy_facade"
+    assert ddm.export_count == len(native.__all__)
+    assert ddm.known_export_count == len(native.__all__)
     entrypoint = ddm.entrypoints[0]
-    assert entrypoint.export_resolution["complete"] is False
-    assert entrypoint.export_resolution["declared_export_candidates"] == native.__all__
+    assert entrypoint.export_resolution["complete"] is True
+    assert set(entrypoint.exports) == set(native.__all__)
     source_read = next(
         row
         for row in entrypoint.export_resolution["inputs"]
@@ -367,7 +415,7 @@ def test_ddm_facade_policy_matches_observed_lazy_boundary() -> None:
         source_read["sha256"]
         == hashlib.sha256((REPO_ROOT / entrypoint.source_file).read_bytes()).hexdigest()
     )
-    assert any(
+    assert not any(
         row.subject == ddm.module and row.detail == "incomplete_exports"
         for row in guardrails._check_public_surface_contracts(inventory)
     )

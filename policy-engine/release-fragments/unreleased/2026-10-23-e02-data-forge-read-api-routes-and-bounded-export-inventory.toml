@@ -1,0 +1,21 @@
+id = "2026-10-23-e02-data-forge-read-api-routes-and-bounded-export-inventory"
+title = "Restore declared Data Forge read API module routes"
+type = "fixed"
+component = "data-forge"
+owner = "team-data-forge"
+summary = "The read_api runtime route map now matches every module advertised by its existing facade declarations, and the architecture inventory uses bounded source-derived export resolution."
+evidence = [
+  "src/polisyos/data_forge/read_api/surface_routes.py",
+  "tests/repo_quality/architecture/test_lazy_facade_guardrails.py",
+  "tools/devx/architecture/guardrails.py",
+]
+compatibility = "This restores runtime module access already declared by read_api.__all__ and TYPE_CHECKING imports. No public-surface contract entry or stable API guarantee is added for compliance or provenance."
+change_class = "internal"
+surface_classification = "internal: source inventory and runtime route completeness within the existing experimental Data Forge facade; no supported contract row is added"
+migration = "No migration is required; existing declarations and exports retain their names."
+api = "The runtime route map now covers all six existing TYPE_CHECKING module imports. The static inventory remains bounded and reports unresolved dynamic or reflective cases rather than treating them as complete."
+limitations = "Source analysis is not installed-wheel or production-currentness evidence. compliance and provenance remain absent from the supported public-surface contract."
+generated_client_compatibility = "not_applicable"
+public_surface_inventory_reviewed = false
+migration_docs = []
+runbook_docs = []

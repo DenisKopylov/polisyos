@@ -1,5 +1,7 @@
 {
   "schema": "policyos.e02.implementation_handoff.v1",
+  "receipt_revision": 2,
+  "supersedes_receipt": {"commit":"4cba3191977d85d18a92b78459889d62195be058","sha256":"0082890da36647bd78893d86925dc3775ee39537ed4a6f68571a855b7cb43627","reason":"Correct the composed test input frame from the earlier N6-only application snapshot to the S3-adopted frame actually tested. Implementation files, commands and outcomes are unchanged."},
   "unit": "LOCAL",
   "slice": "fabric-quality-aggregate-row-validation",
   "branch": "codex/e02-unified-local-20261009",
@@ -72,8 +74,8 @@
         "source_mode": "canonical source bytes compiled directly; no overlay and no pyc reuse for repository files"
       },
       "source_frame": {
-        "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/root-active-resume-20261023-r2/n6-quality-root-application-r1/full-composed-source-frame.json",
-        "sha256": "dc3fad2599d40f6244614614865bad2d9659008c2da6f079ae903b8d84ee68ce"
+        "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/root-active-resume-20261023-r2/s3-r14-root-application-r1/full-composed-source-frame.json",
+        "sha256": "a23b1fc85784687be8391c75a563deed59dd8dd308baad850826ea7618e4073d"
       },
       "output": {
         "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/root-active-resume-20261023-r2/n6-s3-canonical-regression-r1/execution/stdout",

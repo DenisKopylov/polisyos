@@ -8,7 +8,7 @@
 
 ## Как читать
 
-1. [Executive summary R13 — PDF, 10 страниц](executive/summary.pdf), [текст с отметкой версии](executive/summary.md) и дополнения [R14](executive/r14-capabilities.md) / [R15](executive/r15-adaptive-and-models.md).
+1. [Executive summary R13 — PDF, 10 страниц](executive/summary.pdf), [текст с отметкой версии](executive/summary.md) и дополнения [R14](executive/r14-capabilities.md) / [R15](executive/r15-adaptive-and-models.md) / [R16](executive/r16-composed-models.md).
 2. [Границы, источники и правила перехода](execution/01-charter-and-entry.md).
 3. [Сверенный остаток](inventory/README.md), [исходные версии](inventory/sources.json), полные GY/Atlas/debt crosswalks.
 4. [Архитектура композиции](architecture/01-integration-boundaries.md): кто пишет общий механизм, кто только потребляет.
@@ -54,3 +54,7 @@ R13 receipts и PDF — исторический снимок до R14; их has
 Актуальный manifest содержит **121 task object**: DES-11/12 добавлены к полным 119 предыдущим; **28 существующих строк** имеют обязательные `r15_extension`. Это не число независимых engines. [Две implementation cards](solutions/14-adaptive-trajectories-and-studies.md), [восемь технических профилей](solutions/15-technical-method-lifecycle.md), [full-cycle архитектура](architecture/05-adaptive-design-and-research.md), [semantic acceptance](assurance/09-adaptive-research-and-method-quality.md), [обязательства](assurance/r15-capability-obligations.json), [редтим/root review](assurance/r15-review-disposition.md) и [документарная проверка](assurance/r15-validation.json).
 
 Отдельное [исследование совместного исполнения разнородных моделей](research/heterogeneous-model-execution.md) выбирает native DAG/fixed-point reuse и условные дальнейшие extensions; оно не вводит новый обязательный simulator или SDD. R13 PDF и R14 receipts сохранены как исторические версии; актуальное executive дополнение — [R15](executive/r15-adaptive-and-models.md). Реализация по-прежнему только после приёмки E02.
+
+## R16: неоднородные модели и пересчёт
+
+[Executive R16](executive/r16-composed-models.md), [архитектура](architecture/06-composition-and-reexecution.md), [восемь исполнимых slices](solutions/16-composed-execution-and-revisions.md), [17 quality cases](assurance/10-composition-reexecution-quality.md), [dispatch](execution/08-composition-stages.md), [исследование](research/composition-reexecution-r16.md), [independent redteam и root review](assurance/r16-review.md). `r16_extension` дополняет 28 из 121 задач; обязательства зеркальны в preferred-solutions. Новый scheduler и новый root task не создаются. Реализация только после E02; продуктовые проверки UNRUN.

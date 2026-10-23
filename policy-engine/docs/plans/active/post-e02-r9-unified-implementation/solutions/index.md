@@ -153,3 +153,7 @@
 | DES-12 | Decision-informative studies and returned evidence | [карточка](14-adaptive-trajectories-and-studies.md#DES-12) |
 
 R15: читать также 28 `r15_extension` в task/solution manifests и [полный технический цикл методов](15-technical-method-lifecycle.md). [Совместное исполнение моделей](../research/heterogeneous-model-execution.md) — отдельный research dossier, условное руководство GYD-30, не новый общий dependency.
+
+## R16 additive решения
+
+[Композиции, sequences/cycles и revisions](16-composed-execution-and-revisions.md) содержат C1–C8 внутри existing owners. `r16_extension` в tasks.json и preferred-solutions обязателен вместе с исходным решением и R15, а не вместо них. [Quality Q01–Q17](../assurance/10-composition-reexecution-quality.md); [coverage](../assurance/r16-capability-obligations.json). Optional protocol не становится обязательной библиотекой; новый adapter должен исполняться и потребляться реально.

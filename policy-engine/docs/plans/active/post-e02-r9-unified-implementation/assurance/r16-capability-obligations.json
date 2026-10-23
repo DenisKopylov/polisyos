@@ -1,0 +1,244 @@
+{
+  "kind": "additive_planning_obligations_not_new_product_tasks_or_original_findings",
+  "baseline": "4633fc44df0aedeb3f9989b7a68036349cca2969",
+  "implementation_gate": "actual_E02_G_acceptance",
+  "task_denominator": 121,
+  "extension_task_ids": [
+    "GYD-30",
+    "GYD-32",
+    "DES-11",
+    "LIF-07",
+    "DES-03",
+    "DES-04",
+    "LIF-04",
+    "CAP-04",
+    "LIF-02",
+    "CNT-06",
+    "CNT-08",
+    "GYD-09",
+    "GYD-10",
+    "GYD-12",
+    "DES-08",
+    "DES-12",
+    "LIF-06",
+    "OPS-08",
+    "OPS-09",
+    "CAP-06",
+    "DES-06",
+    "UI-06",
+    "UI-08",
+    "DES-10",
+    "FINAL-FREEZE",
+    "FINAL-REVIEW",
+    "FINAL-REPLAY",
+    "FINAL-USE"
+  ],
+  "extension_source": "tasks.json#r16_extension",
+  "mirror": "solutions/preferred-solutions.json",
+  "coverage_rule": "Preserve all original and R15 criteria. Every extension task and selected quality case belongs to an actual delivery slice and final readiness. Slices are work within existing tasks, not new scheduler nodes or blanket dependency barriers.",
+  "obligations": [
+    {
+      "id": "R16-C1",
+      "task_ids": [
+        "GYD-30",
+        "GYD-32"
+      ],
+      "criterion": "Typed executable coverage and true joint behavior",
+      "criterion_ref": "solutions/16-composed-execution-and-revisions.md#C1",
+      "quality_refs": [
+        "assurance/10-composition-reexecution-quality.md#Q01",
+        "assurance/10-composition-reexecution-quality.md#Q03",
+        "assurance/10-composition-reexecution-quality.md#Q04",
+        "assurance/10-composition-reexecution-quality.md#Q06",
+        "assurance/10-composition-reexecution-quality.md#Q12",
+        "assurance/10-composition-reexecution-quality.md#Q15",
+        "assurance/10-composition-reexecution-quality.md#Q16"
+      ],
+      "verification": "UNRUN",
+      "closure": "not_adjudicated",
+      "status": "planned_after_E02_acceptance"
+    },
+    {
+      "id": "R16-C2",
+      "task_ids": [
+        "DES-11",
+        "GYD-30"
+      ],
+      "criterion": "Clock/state purity and compatible temporal recovery",
+      "criterion_ref": "solutions/16-composed-execution-and-revisions.md#C2",
+      "quality_refs": [
+        "assurance/10-composition-reexecution-quality.md#Q01",
+        "assurance/10-composition-reexecution-quality.md#Q03",
+        "assurance/10-composition-reexecution-quality.md#Q04",
+        "assurance/10-composition-reexecution-quality.md#Q05",
+        "assurance/10-composition-reexecution-quality.md#Q06",
+        "assurance/10-composition-reexecution-quality.md#Q12",
+        "assurance/10-composition-reexecution-quality.md#Q13",
+        "assurance/10-composition-reexecution-quality.md#Q14",
+        "assurance/10-composition-reexecution-quality.md#Q15"
+      ],
+      "verification": "UNRUN",
+      "closure": "not_adjudicated",
+      "status": "planned_after_E02_acceptance"
+    },
+    {
+      "id": "R16-C3",
+      "task_ids": [
+        "LIF-07",
+        "DES-03",
+        "GYD-30"
+      ],
+      "criterion": "Exact influence, negative dependencies and qualified reuse",
+      "criterion_ref": "solutions/16-composed-execution-and-revisions.md#C3",
+      "quality_refs": [
+        "assurance/10-composition-reexecution-quality.md#Q01",
+        "assurance/10-composition-reexecution-quality.md#Q02",
+        "assurance/10-composition-reexecution-quality.md#Q03",
+        "assurance/10-composition-reexecution-quality.md#Q04",
+        "assurance/10-composition-reexecution-quality.md#Q06",
+        "assurance/10-composition-reexecution-quality.md#Q07",
+        "assurance/10-composition-reexecution-quality.md#Q08",
+        "assurance/10-composition-reexecution-quality.md#Q10",
+        "assurance/10-composition-reexecution-quality.md#Q12",
+        "assurance/10-composition-reexecution-quality.md#Q15",
+        "assurance/10-composition-reexecution-quality.md#Q17"
+      ],
+      "verification": "UNRUN",
+      "closure": "not_adjudicated",
+      "status": "planned_after_E02_acceptance"
+    },
+    {
+      "id": "R16-C4",
+      "task_ids": [
+        "CAP-04",
+        "LIF-02"
+      ],
+      "criterion": "Actual coherent change delivery and immediate currentness reaction",
+      "criterion_ref": "solutions/16-composed-execution-and-revisions.md#C4",
+      "quality_refs": [
+        "assurance/10-composition-reexecution-quality.md#Q08",
+        "assurance/10-composition-reexecution-quality.md#Q09",
+        "assurance/10-composition-reexecution-quality.md#Q11",
+        "assurance/10-composition-reexecution-quality.md#Q13"
+      ],
+      "verification": "UNRUN",
+      "closure": "not_adjudicated",
+      "status": "planned_after_E02_acceptance"
+    },
+    {
+      "id": "R16-C5",
+      "task_ids": [
+        "DES-04",
+        "DES-03",
+        "LIF-04"
+      ],
+      "criterion": "Actual bounded rerun, revision fences and fairness",
+      "criterion_ref": "solutions/16-composed-execution-and-revisions.md#C5",
+      "quality_refs": [
+        "assurance/10-composition-reexecution-quality.md#Q02",
+        "assurance/10-composition-reexecution-quality.md#Q04",
+        "assurance/10-composition-reexecution-quality.md#Q06",
+        "assurance/10-composition-reexecution-quality.md#Q07",
+        "assurance/10-composition-reexecution-quality.md#Q08",
+        "assurance/10-composition-reexecution-quality.md#Q09",
+        "assurance/10-composition-reexecution-quality.md#Q12",
+        "assurance/10-composition-reexecution-quality.md#Q13",
+        "assurance/10-composition-reexecution-quality.md#Q16",
+        "assurance/10-composition-reexecution-quality.md#Q17"
+      ],
+      "verification": "UNRUN",
+      "closure": "not_adjudicated",
+      "status": "planned_after_E02_acceptance"
+    },
+    {
+      "id": "R16-C6",
+      "task_ids": [
+        "CNT-06",
+        "CNT-08",
+        "GYD-09",
+        "GYD-10",
+        "GYD-12",
+        "DES-08",
+        "DES-12"
+      ],
+      "criterion": "Scientific dependence, mechanism/scenario separation and authorized activation",
+      "criterion_ref": "solutions/16-composed-execution-and-revisions.md#C6",
+      "quality_refs": [
+        "assurance/10-composition-reexecution-quality.md#Q02",
+        "assurance/10-composition-reexecution-quality.md#Q07",
+        "assurance/10-composition-reexecution-quality.md#Q08",
+        "assurance/10-composition-reexecution-quality.md#Q10",
+        "assurance/10-composition-reexecution-quality.md#Q11",
+        "assurance/10-composition-reexecution-quality.md#Q12",
+        "assurance/10-composition-reexecution-quality.md#Q13",
+        "assurance/10-composition-reexecution-quality.md#Q14",
+        "assurance/10-composition-reexecution-quality.md#Q17"
+      ],
+      "verification": "UNRUN",
+      "closure": "not_adjudicated",
+      "status": "planned_after_E02_acceptance"
+    },
+    {
+      "id": "R16-C7",
+      "task_ids": [
+        "LIF-06",
+        "OPS-08",
+        "OPS-09",
+        "CAP-06"
+      ],
+      "criterion": "Full resource/effect denominator and selected real adapters",
+      "criterion_ref": "solutions/16-composed-execution-and-revisions.md#C7",
+      "quality_refs": [
+        "assurance/10-composition-reexecution-quality.md#Q04",
+        "assurance/10-composition-reexecution-quality.md#Q06",
+        "assurance/10-composition-reexecution-quality.md#Q09",
+        "assurance/10-composition-reexecution-quality.md#Q13",
+        "assurance/10-composition-reexecution-quality.md#Q14",
+        "assurance/10-composition-reexecution-quality.md#Q15",
+        "assurance/10-composition-reexecution-quality.md#Q16",
+        "assurance/10-composition-reexecution-quality.md#Q17"
+      ],
+      "verification": "UNRUN",
+      "closure": "not_adjudicated",
+      "status": "planned_after_E02_acceptance"
+    },
+    {
+      "id": "R16-C8",
+      "task_ids": [
+        "DES-10",
+        "DES-06",
+        "UI-06",
+        "UI-08",
+        "FINAL-FREEZE",
+        "FINAL-REVIEW",
+        "FINAL-REPLAY",
+        "FINAL-USE"
+      ],
+      "criterion": "Useful fresh consumers and complete same-wave verification",
+      "criterion_ref": "solutions/16-composed-execution-and-revisions.md#C8",
+      "quality_refs": [
+        "assurance/10-composition-reexecution-quality.md#Q01",
+        "assurance/10-composition-reexecution-quality.md#Q02",
+        "assurance/10-composition-reexecution-quality.md#Q03",
+        "assurance/10-composition-reexecution-quality.md#Q04",
+        "assurance/10-composition-reexecution-quality.md#Q05",
+        "assurance/10-composition-reexecution-quality.md#Q06",
+        "assurance/10-composition-reexecution-quality.md#Q07",
+        "assurance/10-composition-reexecution-quality.md#Q08",
+        "assurance/10-composition-reexecution-quality.md#Q09",
+        "assurance/10-composition-reexecution-quality.md#Q10",
+        "assurance/10-composition-reexecution-quality.md#Q11",
+        "assurance/10-composition-reexecution-quality.md#Q12",
+        "assurance/10-composition-reexecution-quality.md#Q13",
+        "assurance/10-composition-reexecution-quality.md#Q14",
+        "assurance/10-composition-reexecution-quality.md#Q15",
+        "assurance/10-composition-reexecution-quality.md#Q16",
+        "assurance/10-composition-reexecution-quality.md#Q17"
+      ],
+      "verification": "UNRUN",
+      "closure": "not_adjudicated",
+      "status": "planned_after_E02_acceptance"
+    }
+  ],
+  "product_execution": "UNRUN"
+}

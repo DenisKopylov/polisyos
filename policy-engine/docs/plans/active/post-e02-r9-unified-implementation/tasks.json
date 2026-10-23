@@ -451,7 +451,35 @@
       ],
       "dependency_stage": "owner_readiness",
       "completion_contract_ref": "execution/stage-requirements.json#default",
-      "refusal_seam_rule": "Existing data_forge/domains/legal/source_relation.py is a candidate/refusal seam, not an established event producer. Preserve fail-closed behavior; CAP-05 supplies independently verified legal relation evidence; CAP-04 gets a real source-event adapter without minting authority in this refusal module."
+      "refusal_seam_rule": "Existing data_forge/domains/legal/source_relation.py is a candidate/refusal seam, not an established event producer. Preserve fail-closed behavior; CAP-05 supplies independently verified legal relation evidence; CAP-04 gets a real source-event adapter without minting authority in this refusal module.",
+      "r16_extension": {
+        "requirement": "Supply actual source change events with native incarnation/position and captured consistency scope. Append accepted history before computational coalescing; distinguish observation correction, source content, rights and semantic changes.",
+        "positive": "Events across snapshot-to-enrollment race are replayed and reach fresh affected consumer; source reset is distinguished from duplicate delivery.",
+        "adversarial": "Wall-clock ordering, watermark or several snapshots cannot invent all-source transactionality; history below replay floor cannot establish currentness.",
+        "removal": "Remove actual source identity/replay delivery while keeping cursor markers; stale-head control fails.",
+        "delivery_slices": [
+          "solutions/16-composed-execution-and-revisions.md#C4"
+        ],
+        "quality_cases": [
+          "assurance/10-composition-reexecution-quality.md#Q08",
+          "assurance/10-composition-reexecution-quality.md#Q09",
+          "assurance/10-composition-reexecution-quality.md#Q13"
+        ],
+        "product_verification": "UNRUN"
+      },
+      "dependency_stage_overrides": {
+        "LIF-02": "interface_agreement"
+      },
+      "conditional_acceptance_requirements": [
+        {
+          "when": "CAP-04 claims delivered source change has affected current-use or public-claim status",
+          "suppliers": [
+            "LIF-02"
+          ],
+          "output": "Actual owner enrollment/replay and fresh currentness reaction to real source event; source-only adapter readiness is not this composed claim",
+          "consumer": "CAP-04 to native claim/publication currentness; agreed interface cannot replace the actual consumer"
+        }
+      ]
     },
     {
       "id": "CAP-05",
@@ -686,6 +714,23 @@
         "quality_ref": "assurance/09-adaptive-research-and-method-quality.md",
         "technical_profiles": [
           "solutions/15-technical-method-lifecycle.md#TP07"
+        ],
+        "product_verification": "UNRUN"
+      },
+      "r16_extension": {
+        "requirement": "For an actually selected remote/private cell, use native durable provider/result/rights contracts for each evaluation, full roster and effect domain. Freeze acquisition before replayable maps where possible; new semantic adapter requires conformance.",
+        "positive": "Permitted remote participant is actually called and its result reaches fresh qualified composition with reconciled uncertain attempts.",
+        "adversarial": "Nonreplayable effect inside solver, missing participant default, dropout hidden by aggregation, duplicated charge or tenant-existence leak cannot retain claim.",
+        "removal": "Remove actual roster/use/effect/fence enforcement, retain remote labels; selected numerical or custody consumer fails.",
+        "delivery_slices": [
+          "solutions/16-composed-execution-and-revisions.md#C7"
+        ],
+        "quality_cases": [
+          "assurance/10-composition-reexecution-quality.md#Q04",
+          "assurance/10-composition-reexecution-quality.md#Q09",
+          "assurance/10-composition-reexecution-quality.md#Q13",
+          "assurance/10-composition-reexecution-quality.md#Q15",
+          "assurance/10-composition-reexecution-quality.md#Q16"
         ],
         "product_verification": "UNRUN"
       }
@@ -970,6 +1015,23 @@
           "solutions/15-technical-method-lifecycle.md#TP07"
         ],
         "product_verification": "UNRUN"
+      },
+      "r16_extension": {
+        "requirement": "Reuse semantic-epoch/claim-head owners for immediate affected-use reaction and enrollment replay. Semantic epoch is not a numerical scheduler. Rights or authority changes may invalidate use without rerunning unchanged arithmetic.",
+        "positive": "Current public claim reacts before expensive computation completes, new-basis result binds actual admission and history remains as-of readable.",
+        "adversarial": "Incomparable semantic heads resolved by newest timestamp, stale admission transferred across purposes, or scalar-equal pruning of revocation cannot remain current.",
+        "removal": "Remove actual epoch/currentness/completion consumption while keeping fields; protected fresh reader fails.",
+        "delivery_slices": [
+          "solutions/16-composed-execution-and-revisions.md#C4",
+          "solutions/16-composed-execution-and-revisions.md#C5"
+        ],
+        "quality_cases": [
+          "assurance/10-composition-reexecution-quality.md#Q08",
+          "assurance/10-composition-reexecution-quality.md#Q09",
+          "assurance/10-composition-reexecution-quality.md#Q11",
+          "assurance/10-composition-reexecution-quality.md#Q13"
+        ],
+        "product_verification": "UNRUN"
       }
     },
     {
@@ -1230,7 +1292,24 @@
         }
       ],
       "dependency_stage": "owner_readiness",
-      "completion_contract_ref": "execution/stage-requirements.json#default"
+      "completion_contract_ref": "execution/stage-requirements.json#default",
+      "r16_extension": {
+        "requirement": "Extend native long-running duty/attempt recovery for composition revision intents, branch-local desired-head fence, cancellation reconciliation and external effect identities. Durable replay is distinct from scientific re-evaluation.",
+        "positive": "A paused old attempt cannot overwrite current revision; historical output retained lawfully, unrelated branch can complete.",
+        "adversarial": "Lease expiry/cancel is not termination; CAS/store/provider boundaries do not yield global exactly-once; a new provider reply is not automatically independent evidence.",
+        "removal": "Remove actual completion/effect fence while retaining operation IDs; interleaving/effect oracle fails.",
+        "delivery_slices": [
+          "solutions/16-composed-execution-and-revisions.md#C5",
+          "solutions/16-composed-execution-and-revisions.md#C7"
+        ],
+        "quality_cases": [
+          "assurance/10-composition-reexecution-quality.md#Q04",
+          "assurance/10-composition-reexecution-quality.md#Q09",
+          "assurance/10-composition-reexecution-quality.md#Q13",
+          "assurance/10-composition-reexecution-quality.md#Q16"
+        ],
+        "product_verification": "UNRUN"
+      }
     },
     {
       "id": "LIF-05",
@@ -1495,7 +1574,23 @@
         "original_obligation_disposition: canonical owner decision; history preserved"
       ],
       "dependency_stage": "owner_readiness",
-      "completion_contract_ref": "execution/stage-requirements.json#default"
+      "completion_contract_ref": "execution/stage-requirements.json#default",
+      "r16_extension": {
+        "requirement": "Extend native aggregate resource/effect accounting over nested coupling, Jacobian/multistart, revisions, retries and finalization reserve. Separate monetary, CPU, RAM, stored/read bytes and disclosure obligations; no second scheduler. The accounting denominator is the actual invocation closure, including nominally outside-SCC nodes repeated by a whole-plan callback; an SCC label cannot shrink it.",
+        "positive": "All actual calls and held resources fit declared admission and terminal policy; parent-child permits cannot deadlock.",
+        "adversarial": "One-graph estimate masks whole solver cost; cancel releases live resource; finalization needed for guarantee is omitted then success claimed.",
+        "removal": "Remove aggregate accounting/reserve/reconciliation, keep budget labels; actual denominator control fails.",
+        "delivery_slices": [
+          "solutions/16-composed-execution-and-revisions.md#C7"
+        ],
+        "quality_cases": [
+          "assurance/10-composition-reexecution-quality.md#Q04",
+          "assurance/10-composition-reexecution-quality.md#Q13",
+          "assurance/10-composition-reexecution-quality.md#Q14",
+          "assurance/10-composition-reexecution-quality.md#Q16"
+        ],
+        "product_verification": "UNRUN"
+      }
     },
     {
       "id": "LIF-07",
@@ -1627,6 +1722,24 @@
           "solutions/15-technical-method-lifecycle.md#TP02",
           "solutions/15-technical-method-lifecycle.md#TP05",
           "solutions/15-technical-method-lifecycle.md#TP07"
+        ],
+        "product_verification": "UNRUN"
+      },
+      "r16_extension": {
+        "requirement": "Extend native manifest/lineage for computational influence including positive, negative, membership, selection, executable and dynamic read dependencies. Separate current-use qualification. Unknown read closure requires conservative scoped recompute/limitation; no duplicate universal graph.",
+        "positive": "Unrelated input reuses permitted artifact; relevant present/absent/input/code change agrees with clean recompute and current-use consumer.",
+        "adversarial": "Scalar equality, missing negative reads, same ABI, copied derivative evidence or unknown dependencies cannot justify exact reuse or independent support.",
+        "removal": "Remove actual dependency/use consumption while keeping parent fields; changed-basis fresh oracle fails.",
+        "delivery_slices": [
+          "solutions/16-composed-execution-and-revisions.md#C3",
+          "solutions/16-composed-execution-and-revisions.md#C6"
+        ],
+        "quality_cases": [
+          "assurance/10-composition-reexecution-quality.md#Q06",
+          "assurance/10-composition-reexecution-quality.md#Q07",
+          "assurance/10-composition-reexecution-quality.md#Q08",
+          "assurance/10-composition-reexecution-quality.md#Q10",
+          "assurance/10-composition-reexecution-quality.md#Q12"
         ],
         "product_verification": "UNRUN"
       }
@@ -2561,6 +2674,21 @@
           "solutions/15-technical-method-lifecycle.md#TP08"
         ],
         "product_verification": "UNRUN"
+      },
+      "r16_extension": {
+        "requirement": "Extend existing O1 confirmatory updater only with qualified evidence-update rules, complete dependence basis and correction/retraction handling. Existing activation authority remains binding.",
+        "positive": "Actual independent new observation updates scoped estimate; duplicate does not; lawful supported retraction/refit supplies a corrected estimate.",
+        "adversarial": "Unadjusted repeated evidence, exploratory hypothesis or retrospective smoothing cannot be declared past confirmatory knowledge.",
+        "removal": "Remove evidence/dependence/knowledge-cut binding and retain O1 labels; protected inference consumer fails.",
+        "delivery_slices": [
+          "solutions/16-composed-execution-and-revisions.md#C6"
+        ],
+        "quality_cases": [
+          "assurance/10-composition-reexecution-quality.md#Q10",
+          "assurance/10-composition-reexecution-quality.md#Q11",
+          "assurance/10-composition-reexecution-quality.md#Q17"
+        ],
+        "product_verification": "UNRUN"
       }
     },
     {
@@ -2638,6 +2766,21 @@
         "technical_profiles": [
           "solutions/15-technical-method-lifecycle.md#TP02",
           "solutions/15-technical-method-lifecycle.md#TP08"
+        ],
+        "product_verification": "UNRUN"
+      },
+      "r16_extension": {
+        "requirement": "Keep O2 discovery/FDR output candidate while allowing useful new alternative mechanisms and studies. Bind informational history and feedback without promoting model-generated descendants to empirical evidence.",
+        "positive": "New anomaly/counterexample proposes a discriminating mechanism or study; candidate reaches real design consumer.",
+        "adversarial": "LLM/memory/synthetic confirmation activates world or counts as independent confirmatory evidence.",
+        "removal": "Remove candidate/independence boundary while retaining discovery labels; authority consumer rejects.",
+        "delivery_slices": [
+          "solutions/16-composed-execution-and-revisions.md#C6"
+        ],
+        "quality_cases": [
+          "assurance/10-composition-reexecution-quality.md#Q02",
+          "assurance/10-composition-reexecution-quality.md#Q11",
+          "assurance/10-composition-reexecution-quality.md#Q17"
         ],
         "product_verification": "UNRUN"
       }
@@ -2787,6 +2930,21 @@
           "solutions/15-technical-method-lifecycle.md#TP02",
           "solutions/15-technical-method-lifecycle.md#TP06",
           "solutions/15-technical-method-lifecycle.md#TP08"
+        ],
+        "product_verification": "UNRUN"
+      },
+      "r16_extension": {
+        "requirement": "Consume actual authorized O1-confirmed versioned world write-back, preserving historical information sets and scoped activation. Scenario/mechanism candidates and old attempt completions cannot bypass this route.",
+        "positive": "Qualified new world version reaches actual world consumer and superseded outputs stay historically bound.",
+        "adversarial": "Hypothetical branch, O2 output, stale completion or same-valued changed premise silently replaces operative world.",
+        "removal": "Remove actual authorized activation/basis fence while keeping version tags; fresh consumer fails.",
+        "delivery_slices": [
+          "solutions/16-composed-execution-and-revisions.md#C6"
+        ],
+        "quality_cases": [
+          "assurance/10-composition-reexecution-quality.md#Q10",
+          "assurance/10-composition-reexecution-quality.md#Q11",
+          "assurance/10-composition-reexecution-quality.md#Q13"
         ],
         "product_verification": "UNRUN"
       }
@@ -4081,6 +4239,43 @@
           "solutions/15-technical-method-lifecycle.md#TP06"
         ],
         "product_verification": "UNRUN"
+      },
+      "r16_extension": {
+        "requirement": "Extend actual native compiler/graph and method-chain executor for complete order/coverage, typed participant bindings and selected joint/SCC execution. Bind executable, semantic output and final actual residual. Consume native influence/reuse contract; never create another lineage or scheduler owner. Bind actual solver-map invocation closure: preferred native subplan freezes upstream boundary, repeats only admitted block and materializes downstream afterward. Existing whole-plan callback must prove repeatability and account for every actually invoked member or limit/refuse that profile. Required facets derive from resolved content-bound native producer/consumer/selected-guarantee contracts, never adapter self-declaration.",
+        "positive": "Actual multi-participant output reaches fresh joint consumer and matches independent coupled oracle; supported disjoint DAG still works.",
+        "adversarial": "Missing/duplicate active node, raw-order fallback, hidden mutable participant, same ABI with new law or stale final residual cannot support a completed joint result. A non-repeatable source/effect outside the declared SCC still invoked by the full-plan map exposes the actual scope; a consumer-required facet labeled optional by the adapter cannot disappear.",
+        "removal": "Remove actual joint/adapter/coverage or finalization property while retaining labels; independent native output oracle fails.",
+        "delivery_slices": [
+          "solutions/16-composed-execution-and-revisions.md#C1",
+          "solutions/16-composed-execution-and-revisions.md#C2",
+          "solutions/16-composed-execution-and-revisions.md#C3"
+        ],
+        "quality_cases": [
+          "assurance/10-composition-reexecution-quality.md#Q01",
+          "assurance/10-composition-reexecution-quality.md#Q03",
+          "assurance/10-composition-reexecution-quality.md#Q04",
+          "assurance/10-composition-reexecution-quality.md#Q06",
+          "assurance/10-composition-reexecution-quality.md#Q12",
+          "assurance/10-composition-reexecution-quality.md#Q15"
+        ],
+        "product_verification": "UNRUN"
+      },
+      "r16_owner_alignment": {
+        "role": "Native compiled composition, shared execution/result and binding adapters; resolve exact accepted-E02 writer leases before edits, no blanket module ownership",
+        "write_candidates": [
+          "policy-engine/src/polisyos/foundry/compile/_graph.py",
+          "policy-engine/src/polisyos/foundry/execute/api.py",
+          "policy-engine/src/polisyos/foundry/execute/_internal/graph/__init__.py",
+          "policy-engine/src/polisyos/foundry/methods/backends/chain_executor.py",
+          "policy-engine/src/polisyos/core/contracts/foundry.py"
+        ],
+        "companion_rule": "Full actual compiler, registry bootstrap, method-chain, DTO/API/installed consumer and tests closure; mandatory companions not a mechanism path cap",
+        "other_owners": {
+          "DES-11": "temporal/trajectory adapter, not second shared executor writer",
+          "DES-03": "search coordinator/trials",
+          "LIF-07": "native influence/lineage meaning",
+          "LIF-02": "claim/epoch currentness"
+        }
       }
     },
     {
@@ -4239,6 +4434,22 @@
         "technical_profiles": [
           "solutions/15-technical-method-lifecycle.md#TP03",
           "solutions/15-technical-method-lifecycle.md#TP06"
+        ],
+        "product_verification": "UNRUN"
+      },
+      "r16_extension": {
+        "requirement": "Verify real extensibility through registered execution/bootstrap and typed facets, using shared compiler/executor writer GYD-30. A new supported participant requires no central family branch. A genuinely new semantic class requires a reviewed adapter, not an unverified profile label. Requiredness is recomputed by the native verifier from versioned owning producer/consumer/profile contracts, with unknown/conflicting obligations preserved. Declarative security/registry admission is allowed; no per-family dispatch switch.",
+        "positive": "A third conforming participant changes output through actual dispatch and a non-first fresh consumer.",
+        "adversarial": "Registry-only fake capability, ignored newly required facet, unbounded hidden work or downloaded executable inferred from LLM output is rejected. Make an owner-required facet optional only in the adapter declaration: the native consumer still refuses/limits the affected guarantee.",
+        "removal": "Remove third participant dispatch/non-first consumer and keep registration; semantic positive fails.",
+        "delivery_slices": [
+          "solutions/16-composed-execution-and-revisions.md#C1",
+          "solutions/16-composed-execution-and-revisions.md#C7"
+        ],
+        "quality_cases": [
+          "assurance/10-composition-reexecution-quality.md#Q01",
+          "assurance/10-composition-reexecution-quality.md#Q15",
+          "assurance/10-composition-reexecution-quality.md#Q16"
         ],
         "product_verification": "UNRUN"
       }
@@ -4990,6 +5201,25 @@
           "solutions/15-technical-method-lifecycle.md#TP08"
         ],
         "product_verification": "UNRUN"
+      },
+      "r16_extension": {
+        "requirement": "Project native result/learning/currentness differences across source, mechanism, scenario and as-of versions. Explain what recomputed/reused, why recommendation changed or stayed stable, uncertainty, limitations and next action. No authority recomputation in text/UI.",
+        "positive": "Fresh permitted surface distinguishes historical/current/candidate results and links actual basis, update and selected joint behavior.",
+        "adversarial": "Fluent narrative hides missing member, stale epoch, unrun study, future leakage, restricted identity or invented robust/causal conclusion.",
+        "removal": "Remove owner-result binding but retain text/visual sections; semantic surface fidelity oracle fails.",
+        "delivery_slices": [
+          "solutions/16-composed-execution-and-revisions.md#C8"
+        ],
+        "quality_cases": [
+          "assurance/10-composition-reexecution-quality.md#Q02",
+          "assurance/10-composition-reexecution-quality.md#Q05",
+          "assurance/10-composition-reexecution-quality.md#Q08",
+          "assurance/10-composition-reexecution-quality.md#Q10",
+          "assurance/10-composition-reexecution-quality.md#Q11",
+          "assurance/10-composition-reexecution-quality.md#Q13",
+          "assurance/10-composition-reexecution-quality.md#Q17"
+        ],
+        "product_verification": "UNRUN"
       }
     },
     {
@@ -5181,6 +5411,25 @@
           "solutions/15-technical-method-lifecycle.md#TP01",
           "solutions/15-technical-method-lifecycle.md#TP02",
           "solutions/15-technical-method-lifecycle.md#TP08"
+        ],
+        "product_verification": "UNRUN"
+      },
+      "r16_extension": {
+        "requirement": "Project native result/learning/currentness differences across source, mechanism, scenario and as-of versions. Explain what recomputed/reused, why recommendation changed or stayed stable, uncertainty, limitations and next action. No authority recomputation in text/UI.",
+        "positive": "Fresh permitted surface distinguishes historical/current/candidate results and links actual basis, update and selected joint behavior.",
+        "adversarial": "Fluent narrative hides missing member, stale epoch, unrun study, future leakage, restricted identity or invented robust/causal conclusion.",
+        "removal": "Remove owner-result binding but retain text/visual sections; semantic surface fidelity oracle fails.",
+        "delivery_slices": [
+          "solutions/16-composed-execution-and-revisions.md#C8"
+        ],
+        "quality_cases": [
+          "assurance/10-composition-reexecution-quality.md#Q02",
+          "assurance/10-composition-reexecution-quality.md#Q05",
+          "assurance/10-composition-reexecution-quality.md#Q08",
+          "assurance/10-composition-reexecution-quality.md#Q10",
+          "assurance/10-composition-reexecution-quality.md#Q11",
+          "assurance/10-composition-reexecution-quality.md#Q13",
+          "assurance/10-composition-reexecution-quality.md#Q17"
         ],
         "product_verification": "UNRUN"
       }
@@ -7046,6 +7295,23 @@
           "solutions/15-technical-method-lifecycle.md#TP08"
         ],
         "product_verification": "UNRUN"
+      },
+      "r16_extension": {
+        "requirement": "Supply method-specific estimand, support, dependence, update/retraction and transport grounds for selected heterogeneous causal/inference methods; no universal Bayesian wrapper or automatic independence.",
+        "positive": "Correlated/duplicate evidence qualifies correctly; controlled independent update and retraction/refit match an independent oracle.",
+        "adversarial": "Same cohort under different publications, posterior summary treated invertible, conditional prediction relabeled intervention or small residual relabeled causal validity is rejected.",
+        "removal": "Remove dependence/target/operation verifier while keeping evidence refs; claimed inference fails.",
+        "delivery_slices": [
+          "solutions/16-composed-execution-and-revisions.md#C6"
+        ],
+        "quality_cases": [
+          "assurance/10-composition-reexecution-quality.md#Q02",
+          "assurance/10-composition-reexecution-quality.md#Q08",
+          "assurance/10-composition-reexecution-quality.md#Q10",
+          "assurance/10-composition-reexecution-quality.md#Q11",
+          "assurance/10-composition-reexecution-quality.md#Q14"
+        ],
+        "product_verification": "UNRUN"
       }
     },
     {
@@ -7360,6 +7626,22 @@
           "solutions/15-technical-method-lifecycle.md#TP02",
           "solutions/15-technical-method-lifecycle.md#TP07",
           "solutions/15-technical-method-lifecycle.md#TP08"
+        ],
+        "product_verification": "UNRUN"
+      },
+      "r16_extension": {
+        "requirement": "Bind scenario driver/path/structural assumptions as explicit alternatives with applicable target/context. Separate assumptions from observations, authority and social values; probabilities/weights require a stated qualified basis only when used.",
+        "positive": "Same design evaluated under distinct scenario and mechanism revisions retains conditional results and comparable/incomparable dimensions.",
+        "adversarial": "Scenario hypothesis mutates operative world, omitted model completion or invented weights produces an unwarranted robust winner.",
+        "removal": "Remove scenario/mechanism basis consumption while keeping scenario names; independent contrasting oracle fails.",
+        "delivery_slices": [
+          "solutions/16-composed-execution-and-revisions.md#C6"
+        ],
+        "quality_cases": [
+          "assurance/10-composition-reexecution-quality.md#Q02",
+          "assurance/10-composition-reexecution-quality.md#Q11",
+          "assurance/10-composition-reexecution-quality.md#Q12",
+          "assurance/10-composition-reexecution-quality.md#Q17"
         ],
         "product_verification": "UNRUN"
       }
@@ -8256,6 +8538,24 @@
           "solutions/15-technical-method-lifecycle.md#TP05"
         ],
         "product_verification": "UNRUN"
+      },
+      "r16_extension": {
+        "requirement": "Measure selected composition/reexecution resource performance against matched fresh recompute and input/profile/usefulness controls. Include failures, omitted members, memory, read/spill/persisted work and repeated solver evaluations.",
+        "positive": "Selective execution reduces affected work with equivalent selected guarantee and useful fresh result on commissioned environment.",
+        "adversarial": "Faster all-abstain, wrong-basis comparison, hidden spill/provider work or unjustified asymptotic/memory claim cannot pass.",
+        "removal": "Remove real work/denominator consumer and keep timing markers; matched property comparison fails.",
+        "delivery_slices": [
+          "solutions/16-composed-execution-and-revisions.md#C7",
+          "solutions/16-composed-execution-and-revisions.md#C8"
+        ],
+        "quality_cases": [
+          "assurance/10-composition-reexecution-quality.md#Q06",
+          "assurance/10-composition-reexecution-quality.md#Q13",
+          "assurance/10-composition-reexecution-quality.md#Q14",
+          "assurance/10-composition-reexecution-quality.md#Q16",
+          "assurance/10-composition-reexecution-quality.md#Q17"
+        ],
+        "product_verification": "UNRUN"
       }
     },
     {
@@ -8351,6 +8651,23 @@
         "quality_ref": "assurance/09-adaptive-research-and-method-quality.md",
         "technical_profiles": [
           "solutions/15-technical-method-lifecycle.md#TP07"
+        ],
+        "product_verification": "UNRUN"
+      },
+      "r16_extension": {
+        "requirement": "For an actually selected remote/private cell, use native durable provider/result/rights contracts for each evaluation, full roster and effect domain. Freeze acquisition before replayable maps where possible; new semantic adapter requires conformance.",
+        "positive": "Permitted remote participant is actually called and its result reaches fresh qualified composition with reconciled uncertain attempts.",
+        "adversarial": "Nonreplayable effect inside solver, missing participant default, dropout hidden by aggregation, duplicated charge or tenant-existence leak cannot retain claim.",
+        "removal": "Remove actual roster/use/effect/fence enforcement, retain remote labels; selected numerical or custody consumer fails.",
+        "delivery_slices": [
+          "solutions/16-composed-execution-and-revisions.md#C7"
+        ],
+        "quality_cases": [
+          "assurance/10-composition-reexecution-quality.md#Q04",
+          "assurance/10-composition-reexecution-quality.md#Q09",
+          "assurance/10-composition-reexecution-quality.md#Q13",
+          "assurance/10-composition-reexecution-quality.md#Q15",
+          "assurance/10-composition-reexecution-quality.md#Q16"
         ],
         "product_verification": "UNRUN"
       }
@@ -9800,6 +10117,35 @@
           "solutions/15-technical-method-lifecycle.md#TP02"
         ],
         "product_verification": "UNRUN"
+      },
+      "r16_extension": {
+        "requirement": "Include every r16_extension and claim-selected Q-case in native readiness, same frozen final wave and original obligation disposition. No extra broad replay or E02 closure; optional profile disposition is explicit, required capability never disappears.",
+        "positive": "Complete source/input/profile/review identity and actual owning evidence support exactly the admitted scoped capabilities and useful first application.",
+        "adversarial": "A new scope silently drops failed members, required properties, authentic inputs or admission boundaries to make counts green.",
+        "removal": "Omit one active obligation or actual required supplier while keeping summary counts; completeness/admission reconciliation fails.",
+        "delivery_slices": [
+          "solutions/16-composed-execution-and-revisions.md#C8"
+        ],
+        "quality_cases": [
+          "assurance/10-composition-reexecution-quality.md#Q01",
+          "assurance/10-composition-reexecution-quality.md#Q02",
+          "assurance/10-composition-reexecution-quality.md#Q03",
+          "assurance/10-composition-reexecution-quality.md#Q04",
+          "assurance/10-composition-reexecution-quality.md#Q05",
+          "assurance/10-composition-reexecution-quality.md#Q06",
+          "assurance/10-composition-reexecution-quality.md#Q07",
+          "assurance/10-composition-reexecution-quality.md#Q08",
+          "assurance/10-composition-reexecution-quality.md#Q09",
+          "assurance/10-composition-reexecution-quality.md#Q10",
+          "assurance/10-composition-reexecution-quality.md#Q11",
+          "assurance/10-composition-reexecution-quality.md#Q12",
+          "assurance/10-composition-reexecution-quality.md#Q13",
+          "assurance/10-composition-reexecution-quality.md#Q14",
+          "assurance/10-composition-reexecution-quality.md#Q15",
+          "assurance/10-composition-reexecution-quality.md#Q16",
+          "assurance/10-composition-reexecution-quality.md#Q17"
+        ],
+        "product_verification": "UNRUN"
       }
     },
     {
@@ -9841,7 +10187,36 @@
       ],
       "dependency_stage": "frozen_review_candidate",
       "completion_contract_ref": "execution/stage-requirements.json#default",
-      "final_identity_rule": "Initial freeze is the review candidate. After blocking fixes and independent delta review, root records the final replay source/tree plus exact input/backend/upstream identities; prior review carries only across demonstrably unchanged bound scope."
+      "final_identity_rule": "Initial freeze is the review candidate. After blocking fixes and independent delta review, root records the final replay source/tree plus exact input/backend/upstream identities; prior review carries only across demonstrably unchanged bound scope.",
+      "r16_extension": {
+        "requirement": "Independently review every selected R16 property and complete active Q-case denominator on the actual frozen source/input/profile identity before the existing expensive wave. Reconcile actual supplier, authority, useful positive and removal evidence, including technical/numerical and scientific validity boundaries; late blocking change requires batched correction and delta re-review.",
+        "positive": "Complete source/input/profile/review identity and actual owning evidence support exactly the admitted scoped capabilities and useful first application.",
+        "adversarial": "A new scope silently drops failed members, required properties, authentic inputs or admission boundaries to make counts green.",
+        "removal": "Omit one active obligation or actual required supplier while keeping summary counts; completeness/admission reconciliation fails.",
+        "delivery_slices": [
+          "solutions/16-composed-execution-and-revisions.md#C8"
+        ],
+        "quality_cases": [
+          "assurance/10-composition-reexecution-quality.md#Q01",
+          "assurance/10-composition-reexecution-quality.md#Q02",
+          "assurance/10-composition-reexecution-quality.md#Q03",
+          "assurance/10-composition-reexecution-quality.md#Q04",
+          "assurance/10-composition-reexecution-quality.md#Q05",
+          "assurance/10-composition-reexecution-quality.md#Q06",
+          "assurance/10-composition-reexecution-quality.md#Q07",
+          "assurance/10-composition-reexecution-quality.md#Q08",
+          "assurance/10-composition-reexecution-quality.md#Q09",
+          "assurance/10-composition-reexecution-quality.md#Q10",
+          "assurance/10-composition-reexecution-quality.md#Q11",
+          "assurance/10-composition-reexecution-quality.md#Q12",
+          "assurance/10-composition-reexecution-quality.md#Q13",
+          "assurance/10-composition-reexecution-quality.md#Q14",
+          "assurance/10-composition-reexecution-quality.md#Q15",
+          "assurance/10-composition-reexecution-quality.md#Q16",
+          "assurance/10-composition-reexecution-quality.md#Q17"
+        ],
+        "product_verification": "UNRUN"
+      }
     },
     {
       "id": "FINAL-REPLAY",
@@ -9921,6 +10296,35 @@
           "solutions/15-technical-method-lifecycle.md#TP08"
         ],
         "product_verification": "UNRUN"
+      },
+      "r16_extension": {
+        "requirement": "Include every r16_extension and claim-selected Q-case in native readiness, same frozen final wave and original obligation disposition. No extra broad replay or E02 closure; optional profile disposition is explicit, required capability never disappears.",
+        "positive": "Complete source/input/profile/review identity and actual owning evidence support exactly the admitted scoped capabilities and useful first application.",
+        "adversarial": "A new scope silently drops failed members, required properties, authentic inputs or admission boundaries to make counts green.",
+        "removal": "Omit one active obligation or actual required supplier while keeping summary counts; completeness/admission reconciliation fails.",
+        "delivery_slices": [
+          "solutions/16-composed-execution-and-revisions.md#C8"
+        ],
+        "quality_cases": [
+          "assurance/10-composition-reexecution-quality.md#Q01",
+          "assurance/10-composition-reexecution-quality.md#Q02",
+          "assurance/10-composition-reexecution-quality.md#Q03",
+          "assurance/10-composition-reexecution-quality.md#Q04",
+          "assurance/10-composition-reexecution-quality.md#Q05",
+          "assurance/10-composition-reexecution-quality.md#Q06",
+          "assurance/10-composition-reexecution-quality.md#Q07",
+          "assurance/10-composition-reexecution-quality.md#Q08",
+          "assurance/10-composition-reexecution-quality.md#Q09",
+          "assurance/10-composition-reexecution-quality.md#Q10",
+          "assurance/10-composition-reexecution-quality.md#Q11",
+          "assurance/10-composition-reexecution-quality.md#Q12",
+          "assurance/10-composition-reexecution-quality.md#Q13",
+          "assurance/10-composition-reexecution-quality.md#Q14",
+          "assurance/10-composition-reexecution-quality.md#Q15",
+          "assurance/10-composition-reexecution-quality.md#Q16",
+          "assurance/10-composition-reexecution-quality.md#Q17"
+        ],
+        "product_verification": "UNRUN"
       }
     },
     {
@@ -9989,6 +10393,35 @@
         "technical_profiles": [
           "solutions/15-technical-method-lifecycle.md#TP01",
           "solutions/15-technical-method-lifecycle.md#TP02"
+        ],
+        "product_verification": "UNRUN"
+      },
+      "r16_extension": {
+        "requirement": "Include every r16_extension and claim-selected Q-case in native readiness, same frozen final wave and original obligation disposition. No extra broad replay or E02 closure; optional profile disposition is explicit, required capability never disappears.",
+        "positive": "Complete source/input/profile/review identity and actual owning evidence support exactly the admitted scoped capabilities and useful first application.",
+        "adversarial": "A new scope silently drops failed members, required properties, authentic inputs or admission boundaries to make counts green.",
+        "removal": "Omit one active obligation or actual required supplier while keeping summary counts; completeness/admission reconciliation fails.",
+        "delivery_slices": [
+          "solutions/16-composed-execution-and-revisions.md#C8"
+        ],
+        "quality_cases": [
+          "assurance/10-composition-reexecution-quality.md#Q01",
+          "assurance/10-composition-reexecution-quality.md#Q02",
+          "assurance/10-composition-reexecution-quality.md#Q03",
+          "assurance/10-composition-reexecution-quality.md#Q04",
+          "assurance/10-composition-reexecution-quality.md#Q05",
+          "assurance/10-composition-reexecution-quality.md#Q06",
+          "assurance/10-composition-reexecution-quality.md#Q07",
+          "assurance/10-composition-reexecution-quality.md#Q08",
+          "assurance/10-composition-reexecution-quality.md#Q09",
+          "assurance/10-composition-reexecution-quality.md#Q10",
+          "assurance/10-composition-reexecution-quality.md#Q11",
+          "assurance/10-composition-reexecution-quality.md#Q12",
+          "assurance/10-composition-reexecution-quality.md#Q13",
+          "assurance/10-composition-reexecution-quality.md#Q14",
+          "assurance/10-composition-reexecution-quality.md#Q15",
+          "assurance/10-composition-reexecution-quality.md#Q16",
+          "assurance/10-composition-reexecution-quality.md#Q17"
         ],
         "product_verification": "UNRUN"
       }
@@ -10424,7 +10857,8 @@
         "P0-ACCEPT",
         "DES-02",
         "GYD-30",
-        "GYD-31"
+        "GYD-31",
+        "LIF-07"
       ],
       "capability_delta_ref": "solutions/13-productive-design.md#DES-03",
       "input_resolution_rule": "Classify missing inputs as internal engineering/allocation, existing source record, or genuine external fact/permission. Investigate native alternatives and supply internal gaps; only genuine external requirements justify a scoped hold.",
@@ -10435,7 +10869,8 @@
       "dependency_stage_overrides": {
         "DES-02": "interface_agreement",
         "GYD-30": "interface_agreement",
-        "GYD-31": "interface_agreement"
+        "GYD-31": "interface_agreement",
+        "LIF-07": "interface_agreement"
       },
       "r15_extension": {
         "requirement": "Consume native adaptive trajectories and selected incumbent-policy context; preserve separate uncertainty/value/model axes. Select exact solver or surrogate only on a declared case need; no second optimizer or hidden social objective.",
@@ -10451,7 +10886,37 @@
           "solutions/15-technical-method-lifecycle.md#TP08"
         ],
         "product_verification": "UNRUN"
-      }
+      },
+      "r16_extension": {
+        "requirement": "Consume native composition, LIF-07 influence and actual revision-aware trials in existing structural/parameter coordinator. Maintain separate mechanism/scenario branches, model/value partial order and bounded search cost.",
+        "positive": "Material changed basis executes affected trials and alters justified frontier or establishes qualified stability; exact reuse beats redundant computation without changing guarantee.",
+        "adversarial": "A dirty marker without trials, stale cache after structural change, hidden scenario probabilities or scalar-only pruning cannot produce a valid new frontier.",
+        "removal": "Remove actual rerun/cache-basis/joint consumer bridge while preserving scores; useful comparison fails.",
+        "delivery_slices": [
+          "solutions/16-composed-execution-and-revisions.md#C3",
+          "solutions/16-composed-execution-and-revisions.md#C5",
+          "solutions/16-composed-execution-and-revisions.md#C6"
+        ],
+        "quality_cases": [
+          "assurance/10-composition-reexecution-quality.md#Q02",
+          "assurance/10-composition-reexecution-quality.md#Q06",
+          "assurance/10-composition-reexecution-quality.md#Q07",
+          "assurance/10-composition-reexecution-quality.md#Q08",
+          "assurance/10-composition-reexecution-quality.md#Q12",
+          "assurance/10-composition-reexecution-quality.md#Q17"
+        ],
+        "product_verification": "UNRUN"
+      },
+      "conditional_acceptance_requirements": [
+        {
+          "when": "The selected composition claims changed-basis selective execution or cross-run artifact reuse",
+          "suppliers": [
+            "LIF-07"
+          ],
+          "output": "Actual native influence/read-set/use qualification consumed by real search/execution cache path",
+          "consumer": "DES-03 fresh trial and frontier; interface agreement alone cannot establish reuse"
+        }
+      ]
     },
     {
       "implementation_status": "planned_after_E02_acceptance",
@@ -10548,6 +11013,23 @@
           "solutions/15-technical-method-lifecycle.md#TP01",
           "solutions/15-technical-method-lifecycle.md#TP02",
           "solutions/15-technical-method-lifecycle.md#TP08"
+        ],
+        "product_verification": "UNRUN"
+      },
+      "r16_extension": {
+        "requirement": "Wire admitted revision/study-return/counterexample into durable existing generation-cycle continuation for a selected bounded reevaluation duty. Duty binds branches, demand, permitted scope, resource/fairness and terminal policy; no duty means visible next action, not fictitious rerun.",
+        "positive": "Actual event leads to durable intent and native trial under the selected duty, including independently returned study evidence.",
+        "adversarial": "Continuous-update starvation, erased revocation during coalescing, retry called new study or historical case automatically spawning unbounded work is disallowed.",
+        "removal": "Remove actual dispatch/study-return bridge, keep dirty event and completed-study markers; positive fails.",
+        "delivery_slices": [
+          "solutions/16-composed-execution-and-revisions.md#C5",
+          "solutions/16-composed-execution-and-revisions.md#C6"
+        ],
+        "quality_cases": [
+          "assurance/10-composition-reexecution-quality.md#Q06",
+          "assurance/10-composition-reexecution-quality.md#Q09",
+          "assurance/10-composition-reexecution-quality.md#Q13",
+          "assurance/10-composition-reexecution-quality.md#Q17"
         ],
         "product_verification": "UNRUN"
       }
@@ -10731,6 +11213,25 @@
         "technical_profiles": [
           "solutions/15-technical-method-lifecycle.md#TP01",
           "solutions/15-technical-method-lifecycle.md#TP02"
+        ],
+        "product_verification": "UNRUN"
+      },
+      "r16_extension": {
+        "requirement": "Project native result/learning/currentness differences across source, mechanism, scenario and as-of versions. Explain what recomputed/reused, why recommendation changed or stayed stable, uncertainty, limitations and next action. No authority recomputation in text/UI.",
+        "positive": "Fresh permitted surface distinguishes historical/current/candidate results and links actual basis, update and selected joint behavior.",
+        "adversarial": "Fluent narrative hides missing member, stale epoch, unrun study, future leakage, restricted identity or invented robust/causal conclusion.",
+        "removal": "Remove owner-result binding but retain text/visual sections; semantic surface fidelity oracle fails.",
+        "delivery_slices": [
+          "solutions/16-composed-execution-and-revisions.md#C8"
+        ],
+        "quality_cases": [
+          "assurance/10-composition-reexecution-quality.md#Q02",
+          "assurance/10-composition-reexecution-quality.md#Q05",
+          "assurance/10-composition-reexecution-quality.md#Q08",
+          "assurance/10-composition-reexecution-quality.md#Q10",
+          "assurance/10-composition-reexecution-quality.md#Q11",
+          "assurance/10-composition-reexecution-quality.md#Q13",
+          "assurance/10-composition-reexecution-quality.md#Q17"
         ],
         "product_verification": "UNRUN"
       }
@@ -10919,6 +11420,23 @@
           "solutions/15-technical-method-lifecycle.md#TP08"
         ],
         "product_verification": "UNRUN"
+      },
+      "r16_extension": {
+        "requirement": "Transfer learning/search experience through native influence and eligibility: distinguish performance memory, actual evidence, source exposure and causal validity. Updated/retracted basis invalidates affected memory use.",
+        "positive": "Memory-on use improves selected search choice or explains no-transfer against memory-off without adding false empirical support.",
+        "adversarial": "Cached synthetic siblings, duplicate studies, old mechanism/currentness or leaked holdout cannot improve claimed evidence independence.",
+        "removal": "Remove actual eligibility/influence consumer and keep provenance labels; contaminated-transfer control fails.",
+        "delivery_slices": [
+          "solutions/16-composed-execution-and-revisions.md#C3",
+          "solutions/16-composed-execution-and-revisions.md#C6"
+        ],
+        "quality_cases": [
+          "assurance/10-composition-reexecution-quality.md#Q07",
+          "assurance/10-composition-reexecution-quality.md#Q10",
+          "assurance/10-composition-reexecution-quality.md#Q11",
+          "assurance/10-composition-reexecution-quality.md#Q17"
+        ],
+        "product_verification": "UNRUN"
       }
     },
     {
@@ -11105,6 +11623,35 @@
           "solutions/15-technical-method-lifecycle.md#TP08"
         ],
         "product_verification": "UNRUN"
+      },
+      "r16_extension": {
+        "requirement": "Coordinate independent actual-path oracles for all selected R16 properties in existing final productive comparison. Preserve GY-AS2 and all previous obligations; math accuracy, useful design, external validity and authority are separate judgments.",
+        "positive": "Useful composed revision/study cycle and independent clean-vs-selective oracle pass on exact same basis/profile with complete denominator.",
+        "adversarial": "All-refusal pseudo-success, omitted failed alternatives or marker-based proof cannot establish capability.",
+        "removal": "Remove real participant, rerun, influence, study or fresh surface independently; corresponding positive fails.",
+        "delivery_slices": [
+          "solutions/16-composed-execution-and-revisions.md#C8"
+        ],
+        "quality_cases": [
+          "assurance/10-composition-reexecution-quality.md#Q01",
+          "assurance/10-composition-reexecution-quality.md#Q02",
+          "assurance/10-composition-reexecution-quality.md#Q03",
+          "assurance/10-composition-reexecution-quality.md#Q04",
+          "assurance/10-composition-reexecution-quality.md#Q05",
+          "assurance/10-composition-reexecution-quality.md#Q06",
+          "assurance/10-composition-reexecution-quality.md#Q07",
+          "assurance/10-composition-reexecution-quality.md#Q08",
+          "assurance/10-composition-reexecution-quality.md#Q09",
+          "assurance/10-composition-reexecution-quality.md#Q10",
+          "assurance/10-composition-reexecution-quality.md#Q11",
+          "assurance/10-composition-reexecution-quality.md#Q12",
+          "assurance/10-composition-reexecution-quality.md#Q13",
+          "assurance/10-composition-reexecution-quality.md#Q14",
+          "assurance/10-composition-reexecution-quality.md#Q15",
+          "assurance/10-composition-reexecution-quality.md#Q16",
+          "assurance/10-composition-reexecution-quality.md#Q17"
+        ],
+        "product_verification": "UNRUN"
       }
     },
     {
@@ -11200,7 +11747,25 @@
         "Actual capacity/incumbent/transition/observation grounds and mandate only for claims that need them; external institutions authorize and execute policy. Unknowns permit conditional candidate analysis, not fabricated current facts."
       ],
       "technical_lifecycle_ref": "solutions/15-technical-method-lifecycle.md#TP01",
-      "runtime_capability_status": "not_established_by_static_planning_review"
+      "runtime_capability_status": "not_established_by_static_planning_review",
+      "r16_extension": {
+        "requirement": "Extend trajectory adapter with declared clocks/events, full participant state recovery, nonanticipation and compatible suffix replay. Warm start after a change is only a guess unless stronger equivalence is proved.",
+        "positive": "Late correction changes actual affected suffix, old lawfully retained as-known-then result remains readable; deletion/unavailability is projected honestly when retention is forbidden; selected stateful participants restore consistently.",
+        "adversarial": "Backdated knowledge, inconsistent clocks, hidden state, warm-start-selected social root or unsupported step-error bound cannot establish the trajectory claim. Expected-map equilibrium cannot follow from one lucky zero sampled residual or a noise_sd field: use a validated selected stochastic rule or typed limitation.",
+        "removal": "Remove actual cutoff/state/reset or temporal binding; independent history/quantity oracle fails.",
+        "delivery_slices": [
+          "solutions/16-composed-execution-and-revisions.md#C2",
+          "solutions/16-composed-execution-and-revisions.md#C5"
+        ],
+        "quality_cases": [
+          "assurance/10-composition-reexecution-quality.md#Q04",
+          "assurance/10-composition-reexecution-quality.md#Q05",
+          "assurance/10-composition-reexecution-quality.md#Q12",
+          "assurance/10-composition-reexecution-quality.md#Q13",
+          "assurance/10-composition-reexecution-quality.md#Q14"
+        ],
+        "product_verification": "UNRUN"
+      }
     },
     {
       "implementation_status": "planned_after_E02_acceptance",
@@ -11300,7 +11865,24 @@
           "when": "A numeric scientific EVSI claim is selected; do not require for justified nonnumeric/bounded designs.",
           "required_stage": "actual_qualified_result"
         }
-      ]
+      ],
+      "r16_extension": {
+        "requirement": "Consume new model-sensitive alternatives and revision history in existing study designer; design a feasible distinguishing information acquisition and bind returned actual evidence. Preserve original authorization, EVSI/compute-VOI distinction and no-default priors/budgets.",
+        "positive": "A controlled informative return changes justified comparison; duplicated observationally equivalent information does not falsely resolve the distinction.",
+        "adversarial": "Post-hoc scenario selection, independent-claim reuse of the same cohort, default probabilities or fabricated study execution cannot resolve a contested mechanism.",
+        "removal": "Remove actual model-discrimination/result-return bridge while keeping protocol and completed labels; useful study-cycle oracle fails.",
+        "delivery_slices": [
+          "solutions/16-composed-execution-and-revisions.md#C5",
+          "solutions/16-composed-execution-and-revisions.md#C6"
+        ],
+        "quality_cases": [
+          "assurance/10-composition-reexecution-quality.md#Q02",
+          "assurance/10-composition-reexecution-quality.md#Q10",
+          "assurance/10-composition-reexecution-quality.md#Q11",
+          "assurance/10-composition-reexecution-quality.md#Q17"
+        ],
+        "product_verification": "UNRUN"
+      }
     }
   ]
 }

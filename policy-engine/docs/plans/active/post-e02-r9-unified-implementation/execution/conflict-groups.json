@@ -441,9 +441,13 @@
       ],
       "anchors": [
         "src/polisyos/foundry/execute/api.py",
+        "src/polisyos/foundry/compile/_graph.py",
+        "src/polisyos/foundry/execute/_internal/graph/__init__.py",
+        "src/polisyos/foundry/methods/backends/chain_executor.py",
+        "src/polisyos/core/contracts/foundry.py",
         "src/polisyos/foundry/agent_sim/temporal_executor.py"
       ],
-      "resolution": "GYD-30 owns shared joint-result bridge; DES-11 owns admitted trajectory adapter/oracle only. Exact files and native schema rebind before writers; no blanket Foundry lock."
+      "resolution": "GYD-30 owns shared joint-result bridge; DES-11 owns admitted trajectory adapter/oracle only. Exact files and native schema rebind before writers; no blanket Foundry lock. R16 GYD-30 composes shared compiler/executor/binding/schema changes; LIF-07 owns influence meaning and DES-03 owns search readers. Separate adapters/oracles do not acquire the shared writer lease."
     },
     {
       "id": "study-design-acquisition",

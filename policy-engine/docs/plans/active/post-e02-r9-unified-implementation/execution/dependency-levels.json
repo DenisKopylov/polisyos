@@ -1,7 +1,7 @@
 {
   "meaning": "Collapsed task-ID projection of stage-qualified prerequisite edges, not a dispatch or completion schedule. Interface agreements may precede supplier completion; scoped rebind, selected composition/execution and exact leases further constrain work. No runnable width or speedup claim.",
-  "tasks": 119,
-  "hard_edges": 355,
+  "tasks": 121,
+  "hard_edges": 368,
   "levels": [
     [
       "P0-ACCEPT"
@@ -134,10 +134,12 @@
       "DES-05"
     ],
     [
-      "DES-04"
+      "DES-04",
+      "DES-11"
     ],
     [
-      "DES-08"
+      "DES-08",
+      "DES-12"
     ],
     [
       "FINAL-FREEZE"

@@ -59,3 +59,7 @@ Pattern pass: P01/P02/P05/P07/P13/P27/P29/P35/P37/P38/P41. Falsifiers: unrelated
 ## R15 conditional composition
 
 For DES-12, `conditional_composition_dependencies` is a claim-selected composition requirement, not a preparation edge. Select it when a numeric scientific EVSI claim is made; bind the actual qualified DEB-13 result then. Otherwise record not-applicable with the chosen nonnumeric/bounded design basis. Do not silently fill scientific EVSI from a compute-ranking score. Every `r15_extension` must be included in its task readiness/acceptance and recomputed final obligation coverage. Technical-profile references list possible methods; only the selected guarantee activates its corresponding checks.
+
+## R16 composition stages
+
+Новая связь DES-03/LIF-07 — `interface_agreement` для подготовки actual reuse reader; selected cross-run/selective reuse acceptance требует настоящего influence producer и fresh recompute comparison. Это добавление к историческим 21 edges R12 и последующим R14/R15 edges, не их повторный census. Существующая CAP-04/LIF-02 связь получает `interface_agreement` для source-adapter подготовки, сохраняя реальный LIF-02 enrollment/replay/currentness supplier для composed claims; остальные prerequisites не снимаются. Прочие R16 supplier joins следуют claimed property, не становятся all-to-all whole-task start barriers. [Stage map](08-composition-stages.md) задаёт writers, consumers и ресурсы. Каждый r16_extension обязателен при readiness и включается в existing final wave.

@@ -1,0 +1,17 @@
+id = "2026-10-23-e02-finite-pag-member-producer"
+title = "Validate bounded no-selection PAG member families"
+type = "added"
+component = "foundry"
+owner = "team-foundry"
+summary = "Generate a bounded family of DAG or lossless ADMG members and check each against the source PAG through the supported optional causal-learn seam."
+evidence = ["src/polisyos/foundry/methods/catalog/causal/pag_member_family.py", "tests/unit/foundry/methods/catalog/causal/test_pag_member_family.py"]
+compatibility = "The existing scalar PAG/CPDAG refusal and prior sampler behavior are unchanged. The internal producer is additive."
+change_class = "internal"
+surface_classification = "internal: bounded finite-member producer; transport orchestration and persisted consumer adoption remain in progress"
+migration = "No persisted history is rewritten; no data or client migration is required for this internal producer."
+api = "The producer reports member graphs, proposal dispositions, independently checked membership, exact counts, termination, and implementation/backend identities under explicit operation, elapsed-time, and output limits."
+limitations = "Admitted members and successful solver counts do not establish a probability, calibration, population effect, legal applicability, or protected eligibility for the entire PAG class. The current profile excludes selection variables. Synchronous upstream oracle calls require the existing supervised worker for a hard execution deadline. This slice does not claim the transport producer-to-CAS-to-fresh-consumer chain."
+generated_client_compatibility = "not_applicable"
+public_surface_inventory_reviewed = false
+migration_docs = []
+runbook_docs = []

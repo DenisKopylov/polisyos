@@ -22,6 +22,7 @@ from polisyos.fabric.connectors.base import (
 from polisyos.fabric.connectors.cache import (
     CachingConnectorProxy,
     ConnectorCacheStore,
+    InvalidationEvent,
     InvalidationOrchestrator,
     InvalidationTrigger,
     LRUPolicy,
@@ -32,6 +33,7 @@ from polisyos.fabric.connectors.cache import (
     TTLPolicy,
 )
 from polisyos.fabric.connectors.cache.store import ResultSerializer
+from polisyos.fabric.connectors.registry_core_parts import ConnectorRegistry
 from polisyos.fabric.connectors.resilience import CacheFallback, with_fallback
 from polisyos.fabric.connectors.types import FreshnessResult, FreshnessStatus
 from polisyos.fabric.security import ArtifactGovernanceError, DataClassification
@@ -113,6 +115,59 @@ class _ProfiledSourceConnector(BaseConnector[dict[str, object]]):
             "fetch_number": self.fetch_count,
         }
         return _make_result(data)
+
+
+class _RegistryCacheConnector(BaseConnector[dict[str, object]]):
+    """Minimal real registry provider for cache-consumer contract coverage."""
+
+    connector_id: ClassVar[str] = "test_registry_cache"
+    capabilities: ClassVar[ConnectorCapability] = (
+        ConnectorCapability.FULL_FETCH | ConnectorCapability.FRESHNESS_CHECK
+    )
+    metadata: ClassVar[ConnectorMetadataSpec] = ConnectorMetadataSpec(
+        connector_id="test_registry_cache",
+        version="1.0.0",
+        namespace="test",
+        source_name="Registry cache fixture",
+        source_organization="PolicyOS tests",
+        trust_level=TrustLevel.HIGH,
+        quality_tier=QualityTier.GOLD,
+        capabilities=(ConnectorCapability.FULL_FETCH | ConnectorCapability.FRESHNESS_CHECK).value,
+    )
+    fetch_calls: ClassVar[int] = 0
+    freshness_calls: ClassVar[int] = 0
+
+    async def connect(self, config: ConnectionConfig) -> ConnectionHandle:
+        return self._create_handle(config)
+
+    async def disconnect(self, handle: ConnectionHandle) -> None:
+        del handle
+
+    async def health_check(self, handle: ConnectionHandle) -> HealthStatus:
+        del handle
+        return HealthStatus(healthy=True)
+
+    async def fetch(
+        self,
+        handle: ConnectionHandle,
+        request: FetchRequest,
+    ) -> FetchResult[dict[str, object]]:
+        del handle, request
+        type(self).fetch_calls += 1
+        return _make_result({"fetch_number": type(self).fetch_calls})
+
+    async def check_freshness(
+        self,
+        handle: ConnectionHandle,
+        dataset_id: str,
+        cached_version: DataVersion,
+    ) -> FreshnessResult:
+        del handle, dataset_id, cached_version
+        type(self).freshness_calls += 1
+        return FreshnessResult(
+            status=FreshnessStatus.STALE,
+            message="test provider reports stale",
+        )
 
 
 class _CounterStub:
@@ -394,6 +449,57 @@ def test_hard_delete_removes_entry(cache):
     count = cache.hard_delete(dataset_id="test.dataset")
     assert count == 1
     assert cache.get(request, connector_id="test.connector") is None
+
+
+def test_cache_date_filters_decode_iso_and_preserve_index_times(
+    cache: ConnectorCacheStore,
+) -> None:
+    start = datetime(2024, 1, 1, tzinfo=UTC)
+    end = datetime(2024, 1, 10, tzinfo=UTC)
+    other_start = datetime(2024, 1, 20, tzinfo=UTC)
+    other_end = datetime(2024, 1, 30, tzinfo=UTC)
+    request = FetchRequest(dataset_id="test.date-match", date_start=start, date_end=end)
+    other_request = FetchRequest(
+        dataset_id="test.date-other",
+        date_start=other_start,
+        date_end=other_end,
+    )
+
+    metadata = cache.put(request, _make_result({"x": 1}), connector_id="test.connector")
+    other_metadata = cache.put(
+        other_request,
+        _make_result({"x": 2}),
+        connector_id="test.connector",
+    )
+    assert cache.get(request, connector_id="test.connector") is not None
+
+    entry = cache._index.get_entry(metadata.cache_key)
+    assert entry is not None
+    assert entry.cached_at == metadata.cached_at
+    assert entry.expires_at == metadata.expires_at
+    assert entry.last_accessed_at is not None
+    assert entry.date_start == start
+    assert entry.date_end == end
+
+    parsed_filters = {
+        "date_start": "2024-01-05T00:00:00Z",
+        "date_end": "2024-01-07T00:00:00+00:00",
+    }
+    string_matches = cache._index.list_by_filters(**parsed_filters)
+    datetime_matches = cache._index.list_by_filters(date_start=start, date_end=end)
+    assert string_matches == datetime_matches == [metadata.cache_key]
+
+    with pytest.raises(ValueError, match="must not be empty"):
+        cache._index.list_by_filters(date_start="")
+    with pytest.raises(ValueError, match="must not be empty"):
+        cache.invalidate("soft_mark", date_start="")
+    assert cache.get(request, connector_id="test.connector") is not None
+
+    invalidated = cache.invalidate("soft_mark", **parsed_filters)
+    assert invalidated == 1
+    assert cache.get(request, connector_id="test.connector") is None
+    assert cache.get(other_request, connector_id="test.connector") is not None
+    assert other_metadata.cache_key != metadata.cache_key
 
 
 def test_cache_hit_rate_is_atomic_under_concurrency(tmp_path) -> None:
@@ -1466,6 +1572,63 @@ def test_cache_components_use_injected_observability(
         assert metrics.connector_cache_entries_total.calls
 
     asyncio.run(_run())
+
+
+def test_real_registry_cached_provider_runs_prefetch_and_invalidation(tmp_path: Path) -> None:
+    ConnectorRegistry.reset_instance()
+    cache_store = ConnectorCacheStore(
+        FileSystemCAS(tmp_path / ".polisyos"),
+        TTLPolicy(ttl=timedelta(hours=1)),
+    )
+    registry = ConnectorRegistry.get_instance(bootstrap=False)
+    try:
+        registry.configure_cache(cache_store)
+        registry.register(
+            _RegistryCacheConnector,
+            config=ConnectionConfig(url="https://cache-provider.test"),
+        )
+        _RegistryCacheConnector.fetch_calls = 0
+        _RegistryCacheConnector.freshness_calls = 0
+
+        provider = registry.get(_RegistryCacheConnector.connector_id)
+        assert isinstance(provider, CachingConnectorProxy)
+
+        request = FetchRequest(dataset_id="test.registry-cache-provider")
+        job = PrefetchJob(
+            dataset_id=request.dataset_id,
+            connector_id=_RegistryCacheConnector.connector_id,
+            request=request,
+        )
+
+        async def _exercise() -> list[InvalidationEvent]:
+            scheduler = PrefetchScheduler(cache_store, registry, max_retries=0)
+            await scheduler._run_job(job)
+            assert (
+                cache_store.get(
+                    request,
+                    connector_id=_RegistryCacheConnector.connector_id,
+                )
+                is not None
+            )
+            return await InvalidationOrchestrator(cache_store, registry).scan_and_invalidate()
+
+        events = asyncio.run(_exercise())
+
+        assert [(event.trigger_type, event.dataset_id) for event in events] == [
+            ("freshness_check", request.dataset_id)
+        ]
+        assert _RegistryCacheConnector.fetch_calls == 1
+        assert _RegistryCacheConnector.freshness_calls == 1
+        assert (
+            cache_store.get(
+                request,
+                connector_id=_RegistryCacheConnector.connector_id,
+            )
+            is None
+        )
+    finally:
+        ConnectorRegistry.reset_instance()
+        cache_store.close()
 
 
 def test_invalidation_orchestrator(tmp_path):

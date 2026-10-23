@@ -48,6 +48,30 @@ if TYPE_CHECKING:
 
 logger = get_logger(__name__)
 
+
+def _wrap_fetch_with_slo_metrics[**FetchArgs, FetchResultT](
+    fetch: Callable[FetchArgs, Awaitable[FetchResultT]],
+    *,
+    metrics: MetricsRegistry,
+    connector_id: str,
+) -> Callable[FetchArgs, Awaitable[FetchResultT]]:
+    # Keep the owner fetch callable's complete parameter and result contract.
+    @wraps(fetch)
+    async def _wrapped_fetch(
+        *args: FetchArgs.args,
+        **kwargs: FetchArgs.kwargs,
+    ) -> FetchResultT:
+        try:
+            result = await fetch(*args, **kwargs)
+        except Exception:
+            metrics.record_slo_connector_request("error", connector_id=connector_id)
+            raise
+        metrics.record_slo_connector_request("ok", connector_id=connector_id)
+        return result
+
+    return _wrapped_fetch
+
+
 __all__ = ["RegistryLifecycleMixin"]
 
 
@@ -1039,17 +1063,15 @@ class RegistryLifecycleMixin:
                     connector, "fetch_with_receipt", None
                 )
 
-                @wraps(original_fetch)
-                async def _wrapped_fetch(*args: object, **kwargs: object) -> FetchResult[Any]:
-                    try:
-                        result = await original_fetch(*args, **kwargs)
-                    except Exception:
-                        metrics.record_slo_connector_request("error", connector_id=connector_id)
-                        raise
-                    metrics.record_slo_connector_request("ok", connector_id=connector_id)
-                    return result
-
-                _set_dynamic_attribute(connector, "fetch", _wrapped_fetch)
+                _set_dynamic_attribute(
+                    connector,
+                    "fetch",
+                    _wrap_fetch_with_slo_metrics(
+                        original_fetch,
+                        metrics=metrics,
+                        connector_id=connector_id,
+                    ),
+                )
                 if callable(original_fetch_with_receipt):
 
                     @wraps(original_fetch_with_receipt)

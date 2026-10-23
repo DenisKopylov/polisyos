@@ -7,14 +7,14 @@ from collections import OrderedDict
 from dataclasses import dataclass, field
 from datetime import UTC, datetime, timedelta
 from random import SystemRandom
-from typing import TYPE_CHECKING, Any, cast
+from typing import TYPE_CHECKING
 
 from polisyos.common.logger import get_logger
 from polisyos.core.observability import get_metrics
 
 if TYPE_CHECKING:
     from polisyos.core.observability import MetricsRegistry
-    from polisyos.fabric.connectors.base import ConnectionHandle, FetchRequest, SourceConnector
+    from polisyos.fabric.connectors.base import FetchRequest
     from polisyos.fabric.connectors.cache.invalidation import _ConnectorRegistry
 
     from .store import CacheMetadata, ConnectorCacheStore
@@ -210,11 +210,8 @@ class PrefetchScheduler:
                 return
 
         try:
-            connector = cast("SourceConnector[Any]", self._registry.get(job.connector_id))
-            handle = cast(
-                "ConnectionHandle",
-                await self._registry.get_connection(job.connector_id),
-            )
+            connector = self._registry.get(job.connector_id)
+            handle = await self._registry.get_connection(job.connector_id)
         except Exception as exc:
             logger.warning("Prefetch connect failed", connector_id=job.connector_id, error=str(exc))
             await self._maybe_retry(job)

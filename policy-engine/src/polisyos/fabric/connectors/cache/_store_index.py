@@ -15,6 +15,7 @@ from pathlib import Path
 from typing import TYPE_CHECKING, Any, Protocol
 
 from polisyos.core.artifacts import ArtifactID
+from polisyos.fabric.data_plane.temporal import parse_datetime_utc
 from polisyos.ir.connectors import DataVersion
 
 from ._store_models import (
@@ -44,6 +45,12 @@ def _optional_text_column(row: _StringKeyedValueReader, column: str) -> str | No
     if value is None or isinstance(value, str):
         return value
     raise TypeError(f"cache index column {column!r} must contain text or null")
+
+
+def _date_filter_to_ts(value: str | datetime | None, *, field: str) -> float | None:
+    if value is None:
+        return None
+    return _dt_to_ts(parse_datetime_utc(value, what=f"cache index {field} filter"))
 
 
 class CacheIndex:
@@ -326,8 +333,8 @@ class CacheIndex:
         date_start = filters.get("date_start")
         date_end = filters.get("date_end")
         if date_start is not None or date_end is not None:
-            start_ts = _dt_to_ts(date_start) if date_start else None
-            end_ts = _dt_to_ts(date_end) if date_end else None
+            start_ts = _date_filter_to_ts(date_start, field="date_start")
+            end_ts = _date_filter_to_ts(date_end, field="date_end")
             if end_ts is not None:
                 clauses.append("(date_start IS NULL OR date_start <= ?)")
                 params.append(end_ts)

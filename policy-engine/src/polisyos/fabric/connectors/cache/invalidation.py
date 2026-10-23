@@ -9,7 +9,7 @@ from pathlib import Path
 from typing import Any, Protocol
 
 from polisyos.common.logger import get_logger
-from polisyos.fabric.connectors.base import ConnectionHandle, SourceConnector
+from polisyos.fabric.connectors.base import ConnectionHandle, SourceConnectorValue
 from polisyos.fabric.connectors.contracts import ConnectorSchemaContract, EvolutionReport
 from polisyos.fabric.connectors.types import FreshnessStatus
 from polisyos.ir.connectors import ConnectorCapability, DataVersion
@@ -20,7 +20,7 @@ logger = get_logger(__name__)
 
 
 class _ConnectorRegistry(Protocol):
-    def get(self, connector_id: str) -> SourceConnector[Any]: ...
+    def get(self, connector_id: str) -> SourceConnectorValue[Any]: ...
 
     async def get_connection(self, connector_id: str) -> ConnectionHandle: ...
 
@@ -51,7 +51,7 @@ class InvalidationTrigger:
 
     async def check_for_updates(
         self,
-        connector: SourceConnector[Any],
+        connector: SourceConnectorValue[Any],
         handle: ConnectionHandle,
         dataset_id: str,
         cached_version: DataVersion | None,

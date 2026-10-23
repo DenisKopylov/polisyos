@@ -1,6 +1,7 @@
 from __future__ import annotations
 
 import importlib.util
+import json
 import sys
 from pathlib import Path
 from typing import TYPE_CHECKING, Never
@@ -487,3 +488,267 @@ def test_counts_reject_inconsistent_oracle_aggregates(
             validation_incomplete=0,
             oracle_operations=oracle_operations,
         )
+
+
+def test_family_result_rejects_json_disposition_counts_that_disagree_with_rows() -> None:
+    module = _load_candidate()
+    digest = "0" * 64
+    payload = {
+        "profile_id": "pag.no_selection.finite_member_sensitivity",
+        "profile_revision": "1",
+        "budget": {
+            "max_proposals": 1,
+            "max_members": 1,
+            "max_oracle_operations": 1,
+            "max_elapsed_seconds": 1,
+            "max_output_bytes": 1024,
+        },
+        "status": "budget_exhausted",
+        "coverage": "not_established",
+        "assumptions": [],
+        "elapsed_seconds": 0,
+        "proposals": [
+            {
+                "ordinal": 0,
+                "assignment_sha256": digest,
+                "disposition": "invalid",
+                "reason_code": "directed_cycle",
+            }
+        ],
+        "members": [],
+        "counts": {
+            "assignment_space_size": "1",
+            "proposals_attempted": 1,
+            "unattempted_proposals": "0",
+            "admitted": 0,
+            "duplicate": 1,
+            "invalid": 0,
+            "unsupported": 0,
+            "validation_incomplete": 0,
+            "oracle_operations": 0,
+        },
+        "trace_bytes": 0,
+        "trace_sha256": digest,
+    }
+
+    with pytest.raises(ValidationError, match="proposal disposition counts"):
+        module.PAGMemberFamilyResult.model_validate_json(json.dumps(payload))
+
+
+def test_family_result_reconciles_every_disposition_bucket_from_proposal_rows() -> None:
+    from copy import deepcopy
+
+    module = _load_candidate()
+    digest = "0" * 64
+    graph = {
+        "graph_type": GraphType.DAG.value,
+        "nodes": ["X"],
+        "edges": [],
+        "discovery_method": "fixture",
+    }
+    proposals = []
+    members = []
+    reported = {}
+    dispositions = tuple(module.PAGProposalDisposition)
+    for ordinal, disposition in enumerate(dispositions):
+        member_sha = f"{ordinal + 1:064x}"
+        row = {
+            "ordinal": ordinal,
+            "assignment_sha256": f"{ordinal + 11:064x}",
+            "disposition": disposition.value,
+        }
+        if disposition is module.PAGProposalDisposition.ADMITTED:
+            row["member_sha256"] = member_sha
+            members.append(
+                {
+                    "proposal_ordinal": ordinal,
+                    "assignment_sha256": row["assignment_sha256"],
+                    "member_sha256": member_sha,
+                    "graph": graph,
+                }
+            )
+        elif disposition is module.PAGProposalDisposition.DUPLICATE:
+            row["duplicate_of"] = 0
+        else:
+            row["reason_code"] = "fixture_disposition"
+        proposals.append(row)
+        reported[disposition.value] = 1
+
+    payload = {
+        "profile_id": "pag.no_selection.finite_member_sensitivity",
+        "profile_revision": "1",
+        "budget": {
+            "max_proposals": len(dispositions),
+            "max_members": len(dispositions),
+            "max_oracle_operations": len(dispositions),
+            "max_elapsed_seconds": 1,
+            "max_output_bytes": 4096,
+        },
+        "status": "budget_exhausted",
+        "coverage": "not_established",
+        "assumptions": [],
+        "elapsed_seconds": 0,
+        "proposals": proposals,
+        "members": members,
+        "counts": {
+            "assignment_space_size": str(len(dispositions)),
+            "proposals_attempted": len(dispositions),
+            "unattempted_proposals": "0",
+            **reported,
+            "oracle_operations": len(dispositions),
+        },
+        "trace_bytes": 0,
+        "trace_sha256": digest,
+    }
+
+    for disposition in dispositions:
+        other = next(candidate for candidate in dispositions if candidate is not disposition)
+        corrupted = deepcopy(payload)
+        corrupted["counts"][disposition.value] -= 1
+        corrupted["counts"][other.value] += 1
+
+        with pytest.raises(ValidationError, match="proposal disposition counts"):
+            module.PAGMemberFamilyResult.model_validate_json(json.dumps(corrupted))
+
+
+def test_family_result_rejects_duplicate_member_links_and_missing_admitted_member() -> None:
+    module = _load_candidate()
+    digest_a = "1" * 64
+    digest_b = "2" * 64
+    graph = {
+        "graph_type": GraphType.DAG.value,
+        "nodes": ["X"],
+        "edges": [],
+        "discovery_method": "fixture",
+    }
+    proposals = [
+        {
+            "ordinal": 0,
+            "assignment_sha256": "3" * 64,
+            "disposition": "admitted",
+            "member_sha256": digest_a,
+        },
+        {
+            "ordinal": 1,
+            "assignment_sha256": "4" * 64,
+            "disposition": "admitted",
+            "member_sha256": digest_b,
+        },
+    ]
+    base = {
+        "profile_id": "pag.no_selection.finite_member_sensitivity",
+        "profile_revision": "1",
+        "budget": {
+            "max_proposals": 2,
+            "max_members": 2,
+            "max_oracle_operations": 2,
+            "max_elapsed_seconds": 1,
+            "max_output_bytes": 4096,
+        },
+        "status": "budget_exhausted",
+        "coverage": "not_established",
+        "assumptions": [],
+        "elapsed_seconds": 0,
+        "proposals": proposals,
+        "counts": {
+            "assignment_space_size": "2",
+            "proposals_attempted": 2,
+            "unattempted_proposals": "0",
+            "admitted": 2,
+            "duplicate": 0,
+            "invalid": 0,
+            "unsupported": 0,
+            "validation_incomplete": 0,
+            "oracle_operations": 2,
+        },
+        "trace_bytes": 0,
+        "trace_sha256": "0" * 64,
+    }
+    first_member = {
+        "proposal_ordinal": 0,
+        "assignment_sha256": proposals[0]["assignment_sha256"],
+        "member_sha256": digest_a,
+        "graph": graph,
+    }
+    duplicate_link_payload = {
+        **base,
+        "members": [first_member, dict(first_member)],
+    }
+
+    with pytest.raises(ValidationError, match="member rows"):
+        module.PAGMemberFamilyResult.model_validate_json(json.dumps(duplicate_link_payload))
+
+    missing_member_payload = {**base, "members": [first_member]}
+    with pytest.raises(ValidationError, match="member"):
+        module.PAGMemberFamilyResult.model_validate_json(json.dumps(missing_member_payload))
+
+    second_member = {
+        "proposal_ordinal": 1,
+        "assignment_sha256": proposals[1]["assignment_sha256"],
+        "member_sha256": digest_b,
+        "graph": graph,
+    }
+    duplicate_proposal_payload = {
+        **base,
+        "proposals": [proposals[0], {**proposals[1], "ordinal": 0}],
+        "members": [first_member, second_member],
+    }
+    with pytest.raises(ValidationError, match="unique ordinals"):
+        module.PAGMemberFamilyResult.model_validate_json(json.dumps(duplicate_proposal_payload))
+
+
+def test_family_result_rejects_member_link_with_foreign_assignment_digest() -> None:
+    module = _load_candidate()
+    digest = "1" * 64
+    payload = {
+        "profile_id": "pag.no_selection.finite_member_sensitivity",
+        "profile_revision": "1",
+        "budget": {
+            "max_proposals": 1,
+            "max_members": 1,
+            "max_oracle_operations": 1,
+            "max_elapsed_seconds": 1,
+            "max_output_bytes": 2048,
+        },
+        "status": "budget_exhausted",
+        "coverage": "not_established",
+        "assumptions": [],
+        "elapsed_seconds": 0,
+        "proposals": [
+            {
+                "ordinal": 0,
+                "assignment_sha256": digest,
+                "disposition": "admitted",
+                "member_sha256": "2" * 64,
+            }
+        ],
+        "members": [
+            {
+                "proposal_ordinal": 0,
+                "assignment_sha256": "3" * 64,
+                "member_sha256": "2" * 64,
+                "graph": {
+                    "graph_type": GraphType.DAG.value,
+                    "nodes": ["X"],
+                    "edges": [],
+                    "discovery_method": "fixture",
+                },
+            }
+        ],
+        "counts": {
+            "assignment_space_size": "1",
+            "proposals_attempted": 1,
+            "unattempted_proposals": "0",
+            "admitted": 1,
+            "duplicate": 0,
+            "invalid": 0,
+            "unsupported": 0,
+            "validation_incomplete": 0,
+            "oracle_operations": 1,
+        },
+        "trace_bytes": 0,
+        "trace_sha256": "0" * 64,
+    }
+
+    with pytest.raises(ValidationError, match="member rows"):
+        module.PAGMemberFamilyResult.model_validate_json(json.dumps(payload))

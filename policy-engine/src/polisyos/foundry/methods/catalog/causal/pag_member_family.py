@@ -133,6 +133,15 @@ class PAGProposalRecord(BaseModel):
         return self
 
 
+def _proposal_disposition_counts(
+    proposals: Iterable[PAGProposalRecord],
+) -> dict[PAGProposalDisposition, int]:
+    counts = dict.fromkeys(PAGProposalDisposition, 0)
+    for proposal in proposals:
+        counts[proposal.disposition] += 1
+    return counts
+
+
 class PAGAdmittedMember(BaseModel):
     """A validated no-selection MAG represented losslessly as a DAG or ADMG."""
 
@@ -161,13 +170,12 @@ class PAGMemberCounts(BaseModel):
 
     @model_validator(mode="after")
     def _attempts_reconcile(self) -> PAGMemberCounts:
-        terminal = (
-            self.admitted
-            + self.duplicate
-            + self.invalid
-            + self.unsupported
-            + self.validation_incomplete
-        )
+        for disposition in PAGProposalDisposition:
+            if disposition.value not in type(self).model_fields:
+                raise ValueError(
+                    f"proposal disposition count field is missing for {disposition.value}"
+                )
+        terminal = sum(getattr(self, disposition.value) for disposition in PAGProposalDisposition)
         if terminal != self.proposals_attempted:
             raise ValueError("proposal disposition counts must reconcile to attempted proposals")
         reconciled_space = _add_decimal_text(
@@ -210,6 +218,13 @@ class PAGMemberFamilyResult(BaseModel):
     def _result_reconciles(self) -> PAGMemberFamilyResult:
         if len(self.proposals) != self.counts.proposals_attempted:
             raise ValueError("proposal rows must equal the attempted proposal count")
+        disposition_counts = _proposal_disposition_counts(self.proposals)
+        for disposition, expected_count in disposition_counts.items():
+            field_name = disposition.value
+            if field_name not in type(self.counts).model_fields:
+                raise ValueError(f"proposal disposition count field is missing for {field_name}")
+            if getattr(self.counts, field_name) != expected_count:
+                raise ValueError("proposal disposition counts must match the proposal rows")
         if len(self.members) != self.counts.admitted:
             raise ValueError("admitted member rows must equal admitted proposal count")
         if self.counts.oracle_operations > self.budget.max_oracle_operations:
@@ -229,14 +244,30 @@ class PAGMemberFamilyResult(BaseModel):
                 )
         elif self.status is PAGMemberFamilyStatus.COMPLETED:
             raise ValueError("completed status must account for the entire finite proposal family")
-        admitted_by_ordinal = {
-            proposal.ordinal: proposal.member_sha256
-            for proposal in self.proposals
-            if proposal.disposition is PAGProposalDisposition.ADMITTED
-        }
+        proposal_ordinals: set[int] = set()
+        admitted_links: dict[int, tuple[str, str]] = {}
+        for proposal in self.proposals:
+            if proposal.ordinal in proposal_ordinals:
+                raise ValueError("proposal rows must have unique ordinals")
+            proposal_ordinals.add(proposal.ordinal)
+            if proposal.disposition is PAGProposalDisposition.ADMITTED:
+                if proposal.member_sha256 is None:
+                    raise ValueError("admitted proposal must carry a member digest")
+                admitted_links[proposal.ordinal] = (
+                    proposal.assignment_sha256,
+                    proposal.member_sha256,
+                )
+
+        member_links: dict[int, tuple[str, str]] = {}
         for member in self.members:
-            if admitted_by_ordinal.get(member.proposal_ordinal) != member.member_sha256:
-                raise ValueError("member row must match its admitted proposal")
+            if member.proposal_ordinal in member_links:
+                raise ValueError("member rows must have unique proposal ordinals")
+            member_links[member.proposal_ordinal] = (
+                member.assignment_sha256,
+                member.member_sha256,
+            )
+        if member_links != admitted_links:
+            raise ValueError("member rows must be a one-to-one match for admitted proposal links")
         return self
 
 
@@ -787,21 +818,18 @@ def _make_result(
     oracle_operations: int,
     started_at: float,
 ) -> PAGMemberFamilyResult:
-    counts_by_disposition = {
-        disposition: sum(row.disposition is disposition for row in proposals)
+    counts_by_disposition = _proposal_disposition_counts(proposals)
+    unattempted = assignment_space_size - len(proposals)
+    disposition_fields = {
+        disposition.value: counts_by_disposition[disposition]
         for disposition in PAGProposalDisposition
     }
-    unattempted = assignment_space_size - len(proposals)
     counts = PAGMemberCounts(
         assignment_space_size=_decimal_text(assignment_space_size),
         proposals_attempted=len(proposals),
         unattempted_proposals=_decimal_text(unattempted),
-        admitted=counts_by_disposition[PAGProposalDisposition.ADMITTED],
-        duplicate=counts_by_disposition[PAGProposalDisposition.DUPLICATE],
-        invalid=counts_by_disposition[PAGProposalDisposition.INVALID],
-        unsupported=counts_by_disposition[PAGProposalDisposition.UNSUPPORTED],
-        validation_incomplete=counts_by_disposition[PAGProposalDisposition.VALIDATION_INCOMPLETE],
         oracle_operations=oracle_operations,
+        **disposition_fields,
     )
     assumptions = (
         "complete_observational_pag_assumed_by_explicit_request",
@@ -1221,20 +1249,16 @@ def _counts_preview(
     proposals: list[PAGProposalRecord],
     oracle_operations: int,
 ) -> PAGMemberCounts:
-    totals = {
-        disposition: sum(row.disposition is disposition for row in proposals)
-        for disposition in PAGProposalDisposition
+    disposition_fields = {
+        disposition.value: count
+        for disposition, count in _proposal_disposition_counts(proposals).items()
     }
     return PAGMemberCounts(
         assignment_space_size=_decimal_text(assignment_space_size),
         proposals_attempted=len(proposals),
         unattempted_proposals=_decimal_text(assignment_space_size - len(proposals)),
-        admitted=totals[PAGProposalDisposition.ADMITTED],
-        duplicate=totals[PAGProposalDisposition.DUPLICATE],
-        invalid=totals[PAGProposalDisposition.INVALID],
-        unsupported=totals[PAGProposalDisposition.UNSUPPORTED],
-        validation_incomplete=totals[PAGProposalDisposition.VALIDATION_INCOMPLETE],
         oracle_operations=oracle_operations,
+        **disposition_fields,
     )
 
 

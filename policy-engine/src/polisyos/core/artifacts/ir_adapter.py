@@ -2,11 +2,23 @@
 
 from __future__ import annotations
 
+import ast
+import builtins as _builtins
 from collections.abc import Mapping, Sequence
-from dataclasses import dataclass, replace
-from typing import TYPE_CHECKING, Any, TypeGuard, cast, overload
+from dataclasses import dataclass, fields, is_dataclass, replace
+from typing import (
+    TYPE_CHECKING,
+    Annotated,
+    Any,
+    ClassVar,
+    TypeGuard,
+    cast,
+    get_args,
+    get_origin,
+    overload,
+)
 
-from pydantic import BaseModel
+from pydantic import BaseModel, WithJsonSchema
 
 from polisyos.common.canonical_profile import (
     _normalize_canonical_profile_mapping,
@@ -263,16 +275,62 @@ def _coerce_core_artifact_selector(value: Any) -> ArtifactID | CoreArtifactRef:
     if isinstance(value, str):
         return ArtifactID.model_validate(value)
 
+    root_model = _is_string_root_model(value)
+    if root_model and isinstance(value, BaseModel):
+        original_snapshot = _core_string_root_snapshot(value)
+        try:
+            stored_id = ArtifactID.model_validate(original_snapshot[0])
+        except (TypeError, ValueError) as exc:
+            raise TypeError("Invalid Core artifact selector") from exc
+        model_dump = getattr(value, "model_dump", None)
+        if _core_string_root_snapshot(value) != original_snapshot:
+            raise TypeError("Invalid Core artifact selector")
+        if not callable(model_dump):
+            raise TypeError("Invalid Core artifact selector")
+        dumped = model_dump(mode="python")
+        if _core_string_root_snapshot(value) != original_snapshot:
+            raise TypeError("Invalid Core artifact selector")
+        if type(dumped) is not str:
+            raise TypeError("Invalid Core artifact selector")
+        try:
+            projected_id = ArtifactID.model_validate(dumped)
+        except (TypeError, ValueError) as exc:
+            raise TypeError("Invalid Core artifact selector") from exc
+        if projected_id.root != stored_id.root:
+            raise TypeError("Invalid Core artifact selector")
+        return stored_id
+
+    allowed_fields = frozenset({"root"}) if root_model else None
+    original_selector_fields = _core_selector_public_fields(value)
+    _refuse_unknown_core_selector_fields(
+        value,
+        selector_fields=original_selector_fields,
+        allowed_fields=allowed_fields,
+    )
     model_dump = getattr(value, "model_dump", None)
+    # Attribute lookup may itself be caller-controlled. Preserve the pre-lookup snapshot and
+    # reject any new fields before invoking a returned projection method.
+    original_selector_fields |= _core_selector_public_fields(value)
+    _refuse_unknown_core_selector_fields(
+        value,
+        selector_fields=original_selector_fields,
+        allowed_fields=allowed_fields,
+    )
     if callable(model_dump):
         dumped = model_dump(mode="python")
+        original_selector_fields |= _core_selector_public_fields(value)
+        _refuse_unknown_core_selector_fields(
+            value,
+            selector_fields=original_selector_fields,
+            allowed_fields=allowed_fields,
+        )
         if isinstance(dumped, str):
-            if not _is_string_root_model(value):
+            if not root_model:
                 raise TypeError("Invalid Core artifact selector")
             return ArtifactID.model_validate(dumped)
         if not isinstance(dumped, Mapping):
             raise TypeError("Invalid Core artifact selector")
-        _refuse_unknown_core_selector_fields(value)
+        _refuse_unknown_core_selector_fields(dumped)
         value = dumped
 
     if (
@@ -281,7 +339,14 @@ def _coerce_core_artifact_selector(value: Any) -> ArtifactID | CoreArtifactRef:
         or hasattr(value, "__dict__")
     ):
         try:
-            _refuse_unknown_core_selector_fields(value)
+            if callable(model_dump):
+                _refuse_unknown_core_selector_fields(value)
+            else:
+                _refuse_unknown_core_selector_fields(
+                    value,
+                    selector_fields=original_selector_fields,
+                    allowed_fields=allowed_fields,
+                )
             payload = _coerce_payload(value)
         except (TypeError, ValueError) as exc:
             raise TypeError("Invalid Core artifact selector") from exc
@@ -307,22 +372,64 @@ def _coerce_core_artifact_selector(value: Any) -> ArtifactID | CoreArtifactRef:
     raise TypeError("Invalid Core artifact selector")
 
 
+def _is_schema_only_string_annotation(annotation: Any) -> bool:
+    """Recognize string annotations carrying JSON Schema metadata only."""
+    if annotation is str:
+        return True
+    if get_origin(annotation) is not Annotated:
+        return False
+    arguments = get_args(annotation)
+    return (
+        len(arguments) > 1
+        and arguments[0] is str
+        and all(type(metadata) is WithJsonSchema for metadata in arguments[1:])
+    )
+
+
 def _is_string_root_model(value: Any) -> bool:
     """Recognize exact Pydantic string roots, including the Core/IR ArtifactID ABI."""
     model_fields = getattr(type(value), "model_fields", None)
     root_field = model_fields.get("root") if isinstance(model_fields, Mapping) else None
     return (
-        getattr(type(value), "__pydantic_root_model__", False) is True
+        isinstance(value, BaseModel)
+        and getattr(type(value), "__pydantic_root_model__", False) is True
         and isinstance(model_fields, Mapping)
         and set(model_fields) == {"root"}
-        and getattr(root_field, "annotation", None) is str
+        and _is_schema_only_string_annotation(getattr(root_field, "annotation", None))
     )
 
 
-def _refuse_unknown_core_selector_fields(value: Any) -> None:
-    """Reject every supplied or declared field outside Core ``ArtifactRef``."""
-    allowed = set(CoreArtifactRef.model_fields)
+def _is_classvar_annotation(annotation: object) -> bool:
+    """Recognize ClassVar without evaluating future-annotation strings."""
+    if annotation is ClassVar or get_origin(annotation) is ClassVar:
+        return True
+    if not isinstance(annotation, str):
+        return False
+    try:
+        expression = ast.parse(annotation, mode="eval").body
+    except SyntaxError:
+        return False
+    if isinstance(expression, ast.Subscript):
+        expression = expression.value
+    if isinstance(expression, ast.Name):
+        return expression.id == "ClassVar"
+    return (
+        isinstance(expression, ast.Attribute)
+        and expression.attr == "ClassVar"
+        and isinstance(expression.value, ast.Name)
+        and expression.value.id in {"typing", "typing_extensions"}
+    )
+
+
+def _core_selector_public_fields(value: Any) -> frozenset[str]:
+    """Inventory public selector fields without invoking a caller projection method."""
     supplied: set[str] = set()
+    scalar_root_model = _is_string_root_model(value) and isinstance(value, BaseModel)
+    if scalar_root_model:
+        try:
+            supplied.update(_pydantic_option_payload(value, "artifact selector"))
+        except TypeError as exc:
+            raise TypeError("Invalid Core artifact selector") from exc
     if isinstance(value, Mapping):
         if not all(isinstance(key, str) for key in value):
             raise TypeError("Invalid Core artifact selector")
@@ -332,25 +439,74 @@ def _refuse_unknown_core_selector_fields(value: Any) -> None:
         supplied.update(model_fields)
     if hasattr(value, "__dict__"):
         supplied.update(name for name in vars(value) if not name.startswith("_"))
-    if hasattr(value, "__dataclass_fields__"):
-        supplied.update(name for name in value.__dataclass_fields__ if not name.startswith("_"))
+    if is_dataclass(value):
+        supplied.update(item.name for item in fields(value) if not item.name.startswith("_"))
     for cls in type(value).__mro__:
         if cls is BaseModel:
             break
-        supplied.update(
-            name for name in cls.__dict__.get("__annotations__", {}) if not name.startswith("_")
-        )
+        annotations = cls.__dict__.get("__annotations__", {})
+        class_vars = cls.__dict__.get("__class_vars__", ())
+        if not isinstance(class_vars, (set, frozenset, tuple, list)):
+            class_vars = ()
         supplied.update(
             name
-            for name, member in cls.__dict__.items()
-            if not name.startswith("_") and isinstance(member, property)
+            for name, annotation in annotations.items()
+            if not name.startswith("_")
+            and name not in class_vars
+            and not _is_classvar_annotation(annotation)
         )
+        if not scalar_root_model:
+            supplied.update(
+                name
+                for name, member in cls.__dict__.items()
+                if not name.startswith("_") and isinstance(member, property)
+            )
         slots = cls.__dict__.get("__slots__", ())
         if isinstance(slots, str):
             slots = (slots,)
         supplied.update(
             name for name in slots if isinstance(name, str) and not name.startswith("_")
         )
+    return frozenset(supplied)
+
+
+def _core_string_root_snapshot(value: BaseModel) -> tuple[str, frozenset[str]]:
+    """Snapshot a typed scalar root from its stored Pydantic input fields."""
+    try:
+        payload = _pydantic_option_payload(value, "artifact selector")
+    except TypeError as exc:
+        raise TypeError("Invalid Core artifact selector") from exc
+    if set(payload) != {"root"} or not isinstance(payload["root"], str):
+        raise TypeError("Invalid Core artifact selector")
+    root_text = _builtins.str.__str__(payload["root"])
+    if type(root_text) is not str:
+        raise TypeError("Invalid Core artifact selector")
+    selector_fields = _core_selector_public_fields(value)
+    _refuse_unknown_core_selector_fields(
+        value,
+        selector_fields=selector_fields,
+        allowed_fields=frozenset({"root"}),
+    )
+    return root_text, selector_fields
+
+
+def _refuse_unknown_core_selector_fields(
+    value: Any,
+    *,
+    selector_fields: frozenset[str] | set[str] | None = None,
+    allowed_fields: frozenset[str] | set[str] | None = None,
+) -> None:
+    """Reject every inventoried field outside Core ``ArtifactRef`` or a typed root."""
+    supplied = (
+        _core_selector_public_fields(value)
+        if selector_fields is None
+        else frozenset(selector_fields)
+    )
+    allowed = (
+        frozenset(CoreArtifactRef.model_fields)
+        if allowed_fields is None
+        else frozenset(allowed_fields)
+    )
     unexpected_fields = supplied - allowed
     if unexpected_fields:
         unexpected = ", ".join(sorted(unexpected_fields))
@@ -424,13 +580,13 @@ class CoreToIRArtifactStoreAdapter:
             return ref
         return self.store.put_bytes(data, write_options)
 
-    def get_bytes(self, artifact_id: ArtifactSelector) -> bytes:
+    def get_bytes(self, artifact_id: ArtifactSelector | CoreArtifactRef) -> bytes:
         return self.store.get_bytes(_coerce_core_artifact_selector(artifact_id))
 
-    def has(self, artifact_id: ArtifactSelector) -> bool:
+    def has(self, artifact_id: ArtifactSelector | CoreArtifactRef) -> bool:
         return self.store.has(_coerce_core_artifact_selector(artifact_id))
 
-    def get_manifest(self, artifact_id: ArtifactSelector) -> Any:
+    def get_manifest(self, artifact_id: ArtifactSelector | CoreArtifactRef) -> ArtifactManifest:
         return self.store.get_manifest(_coerce_core_artifact_selector(artifact_id))
 
     def get_manifest_by_profile(
@@ -452,7 +608,7 @@ class CoreToIRArtifactStoreAdapter:
 
     def get_raw_manifest_bytes(
         self,
-        artifact_id: ArtifactSelector,
+        artifact_id: ArtifactSelector | CoreArtifactRef,
         *,
         manifest_profile_sha256: str | None = None,
     ) -> bytes:
@@ -473,11 +629,11 @@ class CoreToIRArtifactStoreAdapter:
             raise TypeError("Core get_raw_manifest_bytes() must return bytes")
         return raw
 
-    def get_manifest_bytes(self, artifact_id: ArtifactSelector) -> bytes:
+    def get_manifest_bytes(self, artifact_id: ArtifactSelector | CoreArtifactRef) -> bytes:
         """Return the exact selected raw sidecar bytes from the wrapped Core owner."""
         return self.get_raw_manifest_bytes(artifact_id)
 
-    def verify(self, artifact_id: ArtifactSelector) -> VerificationReport:
+    def verify(self, artifact_id: ArtifactSelector | CoreArtifactRef) -> VerificationReport:
         """Verify a selector against its exact Core artifact and manifest view."""
         return self.store.verify(_coerce_core_artifact_selector(artifact_id))
 

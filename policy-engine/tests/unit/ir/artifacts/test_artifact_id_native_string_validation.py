@@ -1,7 +1,9 @@
 from __future__ import annotations
 
+import json
 from typing import ClassVar, cast
 
+import jsonschema
 import pytest
 from pydantic import ValidationError
 
@@ -34,6 +36,9 @@ def test_prefix_subclass_cannot_change_normalized_artifact_text() -> None:
 
     assert validated.root == "sha256:" + DIGEST
     assert constructed.root == "sha256:" + DIGEST
+    schema = DerivedArtifactID.model_json_schema(mode="validation")
+    assert schema["pattern"] == r"^sha256:[0-9A-Fa-f]{64}$"
+    assert schema["minLength"] == schema["maxLength"] == 71
     assert callbacks == []
 
 
@@ -119,3 +124,62 @@ def test_nonstring_callbacks_and_their_errors_remain_observable() -> None:
     with pytest.raises(TypeError):
         ArtifactID.from_sha256_hex(InvalidLowerable())
     assert callbacks[-1] == "invalid.lower"
+
+
+def test_native_json_schema_enforces_validation_and_serialization_grammar() -> None:
+    validation_schema = ArtifactID.model_json_schema(mode="validation")
+    serialization_schema = ArtifactID.model_json_schema(mode="serialization")
+    assert validation_schema["pattern"] == r"^sha256:[0-9A-Fa-f]{64}$"
+    assert serialization_schema["pattern"] == r"^sha256:[0-9a-f]{64}$"
+    assert validation_schema["minLength"] == validation_schema["maxLength"] == 71
+    assert serialization_schema["minLength"] == serialization_schema["maxLength"] == 71
+
+    validation = jsonschema.validators.validator_for(validation_schema)(validation_schema)
+    serialization = jsonschema.validators.validator_for(serialization_schema)(serialization_schema)
+    canonical = "sha256:" + DIGEST
+    uppercase = "sha256:" + ("A" * 64)
+    terminal_newline = chr(10)
+    assert validation.is_valid(canonical)
+    assert validation.is_valid(uppercase)
+    assert not validation.is_valid("sha256:" + DIGEST + terminal_newline)
+    pattern_only_schema = dict(validation_schema)
+    pattern_only_schema.pop("minLength")
+    pattern_only_schema.pop("maxLength")
+    pattern_only = jsonschema.validators.validator_for(pattern_only_schema)(pattern_only_schema)
+    assert pattern_only.is_valid("sha256:" + DIGEST + terminal_newline)
+    assert not validation.is_valid("sha256:" + ("a" * 63))
+    assert not validation.is_valid("sha384:" + DIGEST)
+    assert not validation.is_valid("sha256:" + DIGEST + "0")
+
+    normalized = ArtifactID.model_validate(uppercase)
+    assert normalized.root == canonical
+    serialized = json.loads(normalized.model_dump_json())
+    assert serialization.is_valid(serialized)
+    assert not serialization.is_valid(uppercase)
+
+    with pytest.raises(ValidationError):
+        ArtifactID.model_validate(uppercase + terminal_newline)
+    with pytest.raises(ValueError):
+        ArtifactID.from_sha256_hex(DIGEST + terminal_newline)
+    bypassed = ArtifactID.model_construct(root=canonical + terminal_newline)
+    with pytest.raises(ValueError, match="Invalid sha256 hex"):
+        _ = bypassed.hex
+
+
+def test_native_json_schema_preserves_derived_prefix_behavior() -> None:
+    class AlternateArtifactID(ArtifactID):
+        prefix: ClassVar[str] = "artifact:"
+
+    validation_schema = AlternateArtifactID.model_json_schema(mode="validation")
+    serialization_schema = AlternateArtifactID.model_json_schema(mode="serialization")
+    assert validation_schema["pattern"] == r"^artifact:[0-9A-Fa-f]{64}$"
+    assert validation_schema["minLength"] == validation_schema["maxLength"] == 73
+    assert serialization_schema["pattern"] == r"^artifact:[0-9a-f]{64}$"
+    validator = jsonschema.validators.validator_for(validation_schema)(validation_schema)
+    serializer = jsonschema.validators.validator_for(serialization_schema)(serialization_schema)
+    uppercase = "artifact:" + ("A" * 64)
+    assert validator.is_valid(uppercase)
+    assert not validator.is_valid("sha256:" + DIGEST)
+    normalized = AlternateArtifactID.model_validate(uppercase)
+    assert normalized.root == "artifact:" + DIGEST
+    assert serializer.is_valid(json.loads(normalized.model_dump_json()))

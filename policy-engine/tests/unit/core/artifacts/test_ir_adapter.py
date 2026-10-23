@@ -2,15 +2,28 @@ from __future__ import annotations
 
 import json
 from collections.abc import Mapping
+from dataclasses import dataclass
 from datetime import UTC, date, datetime
 from decimal import Decimal
 from hashlib import sha256
+from pathlib import Path
 from types import MappingProxyType
-from typing import Protocol, get_args, get_origin
+from typing import Annotated, Any, ClassVar, Protocol, get_args, get_origin
 
 import pytest
-from pydantic import BaseModel, ConfigDict, Field
+from pydantic import (
+    BaseModel,
+    ConfigDict,
+    Field,
+    GetCoreSchemaHandler,
+    PlainValidator,
+    RootModel,
+    WithJsonSchema,
+)
+from pydantic_core import CoreSchema, core_schema
 
+import polisyos.core.artifacts.ir_adapter as core_ir_adapter
+import polisyos.ir.artifacts.contracts as ir_artifact_contracts
 import polisyos.ir.model_layer.canon as ir_canon
 from polisyos.core.artifacts import (
     ArtifactIntegrityError,
@@ -200,6 +213,13 @@ def test_ir_adapter_refuses_selector_objects_with_unrecognized_fields(tmp_path) 
         def schema_name(self) -> str:
             return "unrecognized-mapping-property-selector-field"
 
+    @dataclass
+    class DataclassSelectorWithExtra:
+        artifact_id: object
+        kind: str
+        media_type: str
+        schema_name: str
+
     class RootOnlyObject:
         root = ref.artifact_id
 
@@ -209,6 +229,12 @@ def test_ir_adapter_refuses_selector_objects_with_unrecognized_fields(tmp_path) 
 
     invalid_selectors = (
         SelectorWithExtraField(),
+        DataclassSelectorWithExtra(
+            artifact_id=ref.artifact_id,
+            kind=ref.kind,
+            media_type=ref.media_type,
+            schema_name="unrecognized-dataclass-selector-field",
+        ),
         PropertySelectorWithExtraField(),
         SelectorModelWithExcludedExtra(
             artifact_id=ref.artifact_id,
@@ -2037,3 +2063,383 @@ def test_raw_core_bypass_with_shaped_profile_cannot_authorize_core_only_tag(tmp_
 
     assert reader.manifest_reads == reader.byte_reads == 1
     assert fresh.get_bytes(ref) == exact_bytes
+
+
+def test_annotated_artifact_id_roots_cross_ir_adapter_and_refuse_other_root_semantics(
+    tmp_path,
+) -> None:
+    """Admit exact schema-only strings and refuse metadata subclasses with runtime hooks."""
+    core_store = FileSystemCAS(tmp_path / "artifact-id-root-bridge")
+    ir_store = ensure_ir_artifact_store(core_store)
+    payload = {"source": "IR producer, Core CAS, both readers"}
+    selected_ref = put_json_artifact(
+        ir_store,
+        payload,
+        kind="test.artifactid-root-bridge",
+        schema_name="test.artifactid-root-bridge",
+        schema_version="1",
+        return_selected_profile=True,
+    )
+    assert selected_ref["manifest_profile_sha256"]
+
+    core_id = CoreArtifactID.model_validate(selected_ref["artifact_id"])
+    ir_id = IRArtifactID.model_validate(selected_ref["artifact_id"])
+    assert get_json_artifact(ir_store, core_id) == payload
+    assert ir_store.get_bytes(ir_id) == to_ir_canonical_bytes(payload, IRCanonSpec())
+
+    def return_non_text(_value: object) -> int:
+        return 7
+
+    class AnnotatedIntegerRoot(RootModel[Annotated[int, WithJsonSchema({"type": "integer"})]]):
+        pass
+
+    unsupported_model_dump_calls: list[str] = []
+
+    class RuntimeValidatorStringRoot(RootModel[Annotated[str, PlainValidator(return_non_text)]]):
+        def model_dump(self, *, mode: str = "python") -> dict[str, Any]:
+            unsupported_model_dump_calls.append(mode)
+            return super().model_dump(mode=mode)
+
+    non_string = AnnotatedIntegerRoot(7)
+    custom_validator = RuntimeValidatorStringRoot("arbitrary")
+    assert custom_validator.root == 7
+
+    with pytest.raises(TypeError, match="Invalid Core artifact selector"):
+        ir_store.get_bytes(non_string)
+    with pytest.raises(IRCanonViolation, match="ir_artifact_view_selector_invalid"):
+        get_json_artifact(ir_store, non_string)
+
+    with pytest.raises(TypeError, match="Invalid Core artifact selector"):
+        ir_store.get_bytes(custom_validator)
+    assert unsupported_model_dump_calls == []
+    with pytest.raises(IRCanonViolation, match="ir_artifact_view_selector_invalid"):
+        get_json_artifact(ir_store, custom_validator)
+    assert unsupported_model_dump_calls == []
+
+    target_wire_id = str(core_id)
+    source_wire_id = str(CoreArtifactID.from_sha256_hex(sha256(b"unpersisted source").hexdigest()))
+    assert source_wire_id != target_wire_id
+
+    class RewritingWithJsonSchema(WithJsonSchema):
+        def __get_pydantic_core_schema__(
+            self, source_type: Any, handler: GetCoreSchemaHandler
+        ) -> CoreSchema:
+            return core_schema.no_info_after_validator_function(
+                lambda _value: target_wire_id,
+                handler(source_type),
+            )
+
+    validation_metadata = {
+        "type": "string",
+        "pattern": "^[0-9A-Fa-f]{64}$",
+        "minLength": 64,
+        "maxLength": 64,
+    }
+    serialization_metadata = {
+        "type": "string",
+        "pattern": "^[0-9a-f]{64}$",
+        "minLength": 64,
+        "maxLength": 64,
+    }
+
+    class RewrittenCoreArtifactID(
+        RootModel[
+            Annotated[
+                str,
+                RewritingWithJsonSchema(validation_metadata, mode="validation"),
+                RewritingWithJsonSchema(serialization_metadata, mode="serialization"),
+            ]
+        ]
+    ):
+        pass
+
+    class RewrittenIRArtifactID(
+        RootModel[
+            Annotated[
+                str,
+                RewritingWithJsonSchema(validation_metadata, mode="validation"),
+                RewritingWithJsonSchema(serialization_metadata, mode="serialization"),
+            ]
+        ]
+    ):
+        pass
+
+    rewritten_core_id = RewrittenCoreArtifactID(source_wire_id)
+    rewritten_ir_id = RewrittenIRArtifactID(source_wire_id)
+    assert rewritten_core_id.root == rewritten_ir_id.root == target_wire_id
+    assert rewritten_core_id.root != source_wire_id
+    assert (
+        RewrittenCoreArtifactID.model_json_schema(mode="validation")["pattern"]
+        == validation_metadata["pattern"]
+    )
+    assert (
+        RewrittenCoreArtifactID.model_json_schema(mode="serialization")["pattern"]
+        == serialization_metadata["pattern"]
+    )
+    assert core_ir_adapter._is_string_root_model(rewritten_core_id) is False
+    assert ir_artifact_contracts._is_string_root_model(rewritten_ir_id) is False
+
+    with pytest.raises(TypeError, match="Invalid Core artifact selector"):
+        ir_store.get_bytes(rewritten_core_id)
+    with pytest.raises(IRCanonViolation, match="ir_artifact_view_selector_invalid"):
+        get_json_artifact(ir_store, rewritten_ir_id)
+
+
+@pytest.mark.parametrize("selector_shape", ["ordinary", "model_dump"])
+def test_adapter_rejects_classvar_rogue_before_bytes(tmp_path: Path, selector_shape: str) -> None:
+    """Forged ClassVar annotations cannot hide actual selector instance values."""
+    payload = b"selector target"
+    target = FileSystemCAS(tmp_path / f"classvar-reject-{selector_shape}")
+    ref = target.put_bytes(
+        payload,
+        ArtifactWriteOptions(kind="test.classvar-selector", media_type="application/octet-stream"),
+    )
+
+    class SelectorBase:
+        __annotations__ = {"rogue": "ClassVar[str]"}
+
+        def __init__(self, *, rogue: bool) -> None:
+            self.artifact_id = ref.artifact_id
+            self.kind = ref.kind
+            self.media_type = ref.media_type
+            self.manifest_profile_sha256 = ref.manifest_profile_sha256
+            if rogue:
+                self.rogue = "unexpected"
+
+    class ModelDumpSelector(SelectorBase):
+        def model_dump(self, *, mode: str) -> dict[str, object]:
+            del self.rogue
+            return {
+                "artifact_id": self.artifact_id,
+                "kind": self.kind,
+                "media_type": self.media_type,
+                "manifest_profile_sha256": self.manifest_profile_sha256,
+            }
+
+    class CountingCoreStore:
+        def __init__(self) -> None:
+            self.payload_reads = 0
+
+        def __getattr__(self, name: str) -> object:
+            return getattr(target, name)
+
+        def get_bytes(self, selector: object) -> bytes:
+            self.payload_reads += 1
+            return target.get_bytes(selector)
+
+    reader = CountingCoreStore()
+    adapter = CoreToIRArtifactStoreAdapter(reader)
+    selector_type = ModelDumpSelector if selector_shape == "model_dump" else SelectorBase
+
+    selector = selector_type(rogue=True)
+    with pytest.raises(TypeError, match="Invalid Core artifact selector"):
+        adapter.get_bytes(selector)
+
+    assert reader.payload_reads == 0
+    if selector_shape == "model_dump":
+        assert selector.rogue == "unexpected"
+
+
+@pytest.mark.parametrize("selector_shape", ["ordinary", "model_dump"])
+def test_adapter_accepts_classvar_only_selector(tmp_path: Path, selector_shape: str) -> None:
+    """A genuine ClassVar-only declaration is excluded from selector fields."""
+    payload = b"selector target"
+    target = FileSystemCAS(tmp_path / f"classvar-accept-{selector_shape}")
+    ref = target.put_bytes(
+        payload,
+        ArtifactWriteOptions(kind="test.classvar-selector", media_type="application/octet-stream"),
+    )
+
+    class SelectorBase:
+        __annotations__ = {"rogue": "ClassVar[str]"}
+
+        def __init__(self) -> None:
+            self.artifact_id = ref.artifact_id
+            self.kind = ref.kind
+            self.media_type = ref.media_type
+            self.manifest_profile_sha256 = ref.manifest_profile_sha256
+
+    class ModelDumpSelector(SelectorBase):
+        def model_dump(self, *, mode: str) -> dict[str, object]:
+            return {
+                "artifact_id": self.artifact_id,
+                "kind": self.kind,
+                "media_type": self.media_type,
+                "manifest_profile_sha256": self.manifest_profile_sha256,
+            }
+
+    class CountingCoreStore:
+        def __init__(self) -> None:
+            self.payload_reads = 0
+
+        def __getattr__(self, name: str) -> object:
+            return getattr(target, name)
+
+        def get_bytes(self, selector: object) -> bytes:
+            self.payload_reads += 1
+            return target.get_bytes(selector)
+
+    reader = CountingCoreStore()
+    adapter = CoreToIRArtifactStoreAdapter(reader)
+    selector_type = ModelDumpSelector if selector_shape == "model_dump" else SelectorBase
+
+    assert adapter.get_bytes(selector_type()) == payload
+    assert reader.payload_reads == 1
+
+
+def test_adapter_accepts_foreign_ir_artifact_id_with_computed_hex_property(
+    tmp_path: Path,
+) -> None:
+    """A typed scalar root keeps its utility properties outside the selector payload."""
+    payload = b"typed scalar root"
+    target = FileSystemCAS(tmp_path / "foreign-ir-artifact-id")
+    stored = target.put_bytes(
+        payload,
+        ArtifactWriteOptions(
+            kind="test.foreign-ir-artifact-id", media_type="application/octet-stream"
+        ),
+    )
+    selector = IRArtifactID(str(stored.artifact_id))
+
+    assert selector.hex == stored.artifact_id.hex
+    assert CoreToIRArtifactStoreAdapter(target).get_bytes(selector) == payload
+
+
+def test_adapter_rejects_unknown_stored_foreign_root_before_model_dump(
+    tmp_path: Path,
+) -> None:
+    """An unknown scalar-root value cannot be erased by a caller projection."""
+    payload = b"typed scalar root"
+    target = FileSystemCAS(tmp_path / "foreign-ir-artifact-id-rogue")
+    stored = target.put_bytes(
+        payload,
+        ArtifactWriteOptions(
+            kind="test.foreign-ir-artifact-id", media_type="application/octet-stream"
+        ),
+    )
+    projection_calls: list[str] = []
+
+    class MutatingIRArtifactID(IRArtifactID):
+        def model_dump(self, *, mode: str = "python") -> str:
+            projection_calls.append(mode)
+            object.__getattribute__(self, "__dict__").pop("rogue", None)
+            return self.root
+
+    selector = MutatingIRArtifactID(str(stored.artifact_id))
+    object.__setattr__(selector, "rogue", "unexpected")
+
+    class CountingReader:
+        def __init__(self) -> None:
+            self.payload_reads = 0
+
+        def __getattr__(self, name: str) -> object:
+            return getattr(target, name)
+
+        def get_bytes(self, value: object) -> bytes:
+            self.payload_reads += 1
+            return target.get_bytes(value)
+
+    reader = CountingReader()
+    adapter = CoreToIRArtifactStoreAdapter(reader)
+    with pytest.raises(TypeError, match="Invalid Core artifact selector"):
+        adapter.get_bytes(selector)
+
+    assert reader.payload_reads == 0
+    assert projection_calls == []
+    assert object.__getattribute__(selector, "__dict__")["rogue"] == "unexpected"
+
+
+@pytest.mark.parametrize("stored_root_is_valid", [True, False])
+def test_adapter_rejects_scalar_root_projection_substitution_before_bytes(
+    tmp_path: Path, stored_root_is_valid: bool
+) -> None:
+    payload = b"scalar root projection"
+    target = FileSystemCAS(tmp_path / "scalar-root-projection")
+    stored = target.put_bytes(
+        payload,
+        ArtifactWriteOptions(
+            kind="test.scalar-root-projection", media_type="application/octet-stream"
+        ),
+    )
+    alternate_hex = "0" * 64 if stored.artifact_id.hex != "0" * 64 else "1" * 64
+    alternate_id = "sha256:" + alternate_hex
+    projection_calls: list[str] = []
+
+    class SubstitutingIRArtifactID(IRArtifactID):
+        def model_dump(self, *, mode: str = "python") -> str:
+            projection_calls.append(mode)
+            return alternate_id
+
+    selector = SubstitutingIRArtifactID(str(stored.artifact_id))
+    stored_root = str(stored.artifact_id) if stored_root_is_valid else "not-an-artifact-id"
+    if not stored_root_is_valid:
+        object.__setattr__(selector, "root", stored_root)
+
+    class CountingReader:
+        def __init__(self) -> None:
+            self.payload_reads = 0
+
+        def __getattr__(self, name: str) -> object:
+            return getattr(target, name)
+
+        def get_bytes(self, value: object) -> bytes:
+            self.payload_reads += 1
+            return target.get_bytes(value)
+
+    reader = CountingReader()
+    adapter = CoreToIRArtifactStoreAdapter(reader)
+    with pytest.raises(TypeError, match="Invalid Core artifact selector"):
+        adapter.get_bytes(selector)
+
+    assert reader.payload_reads == 0
+    assert projection_calls == (["python"] if stored_root_is_valid else [])
+    assert object.__getattribute__(selector, "__dict__")["root"] == stored_root
+
+
+def test_adapter_rejects_fake_scalar_root_markers_with_rogue_property_before_bytes(
+    tmp_path: Path,
+) -> None:
+    payload = b"fake scalar root"
+    target = FileSystemCAS(tmp_path / "fake-scalar-root")
+    stored = target.put_bytes(
+        payload,
+        ArtifactWriteOptions(kind="test.fake-scalar-root", media_type="application/octet-stream"),
+    )
+    projection_calls: list[str] = []
+
+    class FakeRootField:
+        annotation = str
+
+    class FakeRootSelector:
+        __pydantic_root_model__ = True
+        model_fields: ClassVar[dict[str, object]] = {"root": FakeRootField()}
+
+        @property
+        def root(self) -> str:
+            return str(stored.artifact_id)
+
+        @property
+        def rogue(self) -> str:
+            return "unexpected"
+
+        def model_dump(self, *, mode: str = "python") -> str:
+            projection_calls.append(mode)
+            return str(stored.artifact_id)
+
+    class CountingReader:
+        def __init__(self) -> None:
+            self.payload_reads = 0
+
+        def __getattr__(self, name: str) -> object:
+            return getattr(target, name)
+
+        def get_bytes(self, value: object) -> bytes:
+            self.payload_reads += 1
+            return target.get_bytes(value)
+
+    reader = CountingReader()
+    with pytest.raises(TypeError, match="Invalid Core artifact selector"):
+        CoreToIRArtifactStoreAdapter(reader).get_bytes(FakeRootSelector())
+
+    assert reader.payload_reads == 0
+    assert projection_calls == []

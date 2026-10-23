@@ -2,6 +2,7 @@
 
 from __future__ import annotations
 
+import ast
 import builtins as _builtins
 import re
 from collections.abc import Mapping
@@ -9,20 +10,69 @@ from dataclasses import Field as DataclassField
 from dataclasses import asdict, dataclass, fields, is_dataclass
 from typing import (
     TYPE_CHECKING,
+    Annotated,
     Any,
     ClassVar,
     Protocol,
+    get_args,
+    get_origin,
     runtime_checkable,
 )
 
-from pydantic import BaseModel, ConfigDict, Field, RootModel, field_validator
+from pydantic import (
+    BaseModel,
+    ConfigDict,
+    Field,
+    RootModel,
+    WithJsonSchema,
+    field_validator,
+)
 
 if TYPE_CHECKING:
     from collections.abc import Sequence
 
     from polisyos.ir.model_layer.canon import CanonSpec
 
-_SHA256_HEX_RE = re.compile(r"^[0-9a-f]{64}$")
+_SHA256_HEX_RE = re.compile(r"[0-9a-f]{64}")
+
+
+_ARTIFACT_ID_VALIDATION_SCHEMA_PATTERN = r"^[0-9A-Fa-f]{64}$"
+_ARTIFACT_ID_SERIALIZATION_SCHEMA_PATTERN = r"^[0-9a-f]{64}$"
+
+
+def _add_artifact_id_json_schema_constraints(schema: dict[str, Any], model: type[Any]) -> None:
+    """Bind schema-only wire grammar to the owning ArtifactID prefix."""
+    schema_pattern = schema.get("pattern")
+    if schema_pattern == _ARTIFACT_ID_VALIDATION_SCHEMA_PATTERN:
+        hex_pattern = "[0-9A-Fa-f]"
+    elif schema_pattern == _ARTIFACT_ID_SERIALIZATION_SCHEMA_PATTERN:
+        hex_pattern = "[0-9a-f]"
+    else:
+        raise ValueError("ArtifactID JSON Schema is missing its typed wire marker")
+
+    prefix = _builtins.str.__str__(model.prefix)
+    wire_length = _builtins.len(prefix) + 64
+    schema.update(
+        {
+            "pattern": f"^{re.escape(prefix)}{hex_pattern}{{64}}$",
+            "minLength": wire_length,
+            "maxLength": wire_length,
+        }
+    )
+
+
+def _is_schema_only_string_annotation(annotation: Any) -> bool:
+    """Recognize string annotations carrying JSON Schema metadata only."""
+    if annotation is str:
+        return True
+    if get_origin(annotation) is not Annotated:
+        return False
+    arguments = get_args(annotation)
+    return (
+        len(arguments) > 1
+        and arguments[0] is str
+        and all(type(metadata) is WithJsonSchema for metadata in arguments[1:])
+    )
 
 
 def _is_string_root_model(value: object) -> bool:
@@ -30,10 +80,11 @@ def _is_string_root_model(value: object) -> bool:
     model_fields = getattr(type(value), "model_fields", None)
     root_field = model_fields.get("root") if isinstance(model_fields, Mapping) else None
     return (
-        getattr(type(value), "__pydantic_root_model__", False) is True
+        isinstance(value, BaseModel)
+        and getattr(type(value), "__pydantic_root_model__", False) is True
         and isinstance(model_fields, Mapping)
         and set(model_fields) == {"root"}
-        and getattr(root_field, "annotation", None) is str
+        and _is_schema_only_string_annotation(getattr(root_field, "annotation", None))
     )
 
 
@@ -45,17 +96,52 @@ def _normalize_scalar_artifact_id(value: object) -> ArtifactID:
         return value
     if not _is_string_root_model(value):
         raise TypeError("Artifact ID selector must be a string scalar")
+    original_snapshot = _string_root_model_snapshot(value)
+    stored_id = ArtifactID.model_validate(original_snapshot[0])
     model_dump = getattr(value, "model_dump", None)
+    if _string_root_model_snapshot(value) != original_snapshot:
+        raise TypeError("Artifact ID root model changed during projection lookup")
     if not callable(model_dump):
         raise TypeError("Artifact ID root model must expose model_dump()")
     dumped = model_dump(mode="python")
-    if not isinstance(dumped, str):
-        raise TypeError("Artifact ID root model must dump to a string")
-    return ArtifactID.model_validate(dumped)
+    if _string_root_model_snapshot(value) != original_snapshot:
+        raise TypeError("Artifact ID root model changed during projection")
+    if type(dumped) is not str:
+        raise TypeError("Artifact ID root model projection must be a native string")
+    projected_id = ArtifactID.model_validate(dumped)
+    if projected_id.root != stored_id.root:
+        raise TypeError("Artifact ID root model projection changed its stored root")
+    return stored_id
 
 
-class ArtifactID(RootModel[str]):
+class ArtifactID(
+    RootModel[
+        Annotated[
+            str,
+            WithJsonSchema(
+                {
+                    "type": "string",
+                    "pattern": _ARTIFACT_ID_VALIDATION_SCHEMA_PATTERN,
+                    "minLength": 64,
+                    "maxLength": 64,
+                },
+                mode="validation",
+            ),
+            WithJsonSchema(
+                {
+                    "type": "string",
+                    "pattern": _ARTIFACT_ID_SERIALIZATION_SCHEMA_PATTERN,
+                    "minLength": 64,
+                    "maxLength": 64,
+                },
+                mode="serialization",
+            ),
+        ]
+    ]
+):
     """IR-local artifact ID model compatible with CAS interfaces."""
+
+    model_config = ConfigDict(json_schema_extra=_add_artifact_id_json_schema_constraints)
 
     prefix: ClassVar[str] = "sha256:"
 
@@ -70,7 +156,7 @@ class ArtifactID(RootModel[str]):
         if not value.startswith(prefix):
             raise ValueError("ArtifactID must start with sha256:")
         hex64 = value[_builtins.len(prefix) :].lower()
-        if not _SHA256_HEX_RE.match(hex64):
+        if not _SHA256_HEX_RE.fullmatch(hex64):
             raise ValueError("sha256 hex must be 64 lowercase characters [0-9a-f]")
         return f"{prefix}{hex64}"
 
@@ -82,7 +168,7 @@ class ArtifactID(RootModel[str]):
         if isinstance(hex64, str):
             # Preserve external .lower() callbacks while normalizing their subclass result.
             hex64 = _builtins.str.__str__(hex64)
-        if not _SHA256_HEX_RE.match(hex64):
+        if not _SHA256_HEX_RE.fullmatch(hex64):
             raise ValueError("sha256 hex must be 64 characters [0-9a-f]")
         prefix = _builtins.str.__str__(cls.prefix)
         return cls(f"{prefix}{hex64}")
@@ -92,7 +178,7 @@ class ArtifactID(RootModel[str]):
         algo, hex64 = self.root.split(":", 1)
         if algo != "sha256":
             raise ValueError(f"Unsupported algo: {algo}")
-        if not _SHA256_HEX_RE.match(hex64):
+        if not _SHA256_HEX_RE.fullmatch(hex64):
             raise ValueError("Invalid sha256 hex")
         return hex64
 
@@ -420,27 +506,29 @@ def normalize_artifact_ref(ref: object) -> dict[str, str]:
     from polisyos.ir.registry.refs import ArtifactRefModel
 
     field_inventory = _validated_dataclass_field_inventory(ref)
-    if field_inventory is not None:
-        _refuse_unknown_model_fields(
-            {name for name in field_inventory.raw_names if not name.startswith("_")},
-            ArtifactRefModel.model_fields,
-        )
+    original_selector_fields = frozenset(_selector_public_fields(ref, field_inventory))
+    _refuse_unknown_model_fields(original_selector_fields, ArtifactRefModel.model_fields)
 
+    # Freeze the caller's actual shape before even looking up a projection method. A custom
+    # model_dump can mutate the selector before returning a narrower mapping.
     model_dump = getattr(ref, "model_dump", None)
+    selector_fields = original_selector_fields | frozenset(
+        _selector_public_fields(ref, field_inventory)
+    )
+    _refuse_unknown_model_fields(selector_fields, ArtifactRefModel.model_fields)
     if callable(model_dump):
         model_fields = getattr(type(ref), "model_fields", None)
         _refuse_unknown_model_fields(model_fields, ArtifactRefModel.model_fields)
         payload = model_dump(mode="python")
         if not isinstance(payload, Mapping):
             raise TypeError("Artifact reference model_dump() must return a mapping")
-        _refuse_unknown_model_fields(_declared_public_fields(ref), ArtifactRefModel.model_fields)
+        selector_fields |= frozenset(_selector_public_fields(ref, field_inventory))
+        _refuse_unknown_model_fields(selector_fields, ArtifactRefModel.model_fields)
         payload = dict(payload)
     elif isinstance(ref, Mapping):
         payload = dict(ref)
-        declared_fields = _declared_public_fields(ref)
-        if hasattr(ref, "__dict__"):
-            declared_fields.update(name for name in vars(ref) if not name.startswith("_"))
-        _refuse_unknown_model_fields(declared_fields, ArtifactRefModel.model_fields)
+        selector_fields |= frozenset(_selector_public_fields(ref, field_inventory))
+        _refuse_unknown_model_fields(selector_fields, ArtifactRefModel.model_fields)
     elif is_dataclass(ref):
         if isinstance(ref, type):
             raise TypeError("Artifact reference dataclass selector must be an instance")
@@ -464,23 +552,142 @@ def normalize_artifact_ref(ref: object) -> dict[str, str]:
                 ) from exc
             if frozenset(payload) != field_inventory.value_names:
                 raise TypeError("Artifact reference dataclass selector has malformed field values")
-            _refuse_unknown_model_fields(
-                _selector_public_fields(ref, field_inventory), ArtifactRefModel.model_fields
-            )
+            selector_fields |= frozenset(_selector_public_fields(ref, field_inventory))
+            _refuse_unknown_model_fields(selector_fields, ArtifactRefModel.model_fields)
         else:
             # Empty marker metadata is not dataclass attestation; require the ordinary object shape.
             payload = _object_artifact_ref_payload(
-                ref, ArtifactRefModel.model_fields, field_inventory=field_inventory
+                ref,
+                ArtifactRefModel.model_fields,
+                field_inventory=field_inventory,
+                selector_fields=selector_fields,
             )
     elif hasattr(ref, "__dict__"):
-        payload = _object_artifact_ref_payload(ref, ArtifactRefModel.model_fields)
+        payload = _object_artifact_ref_payload(
+            ref,
+            ArtifactRefModel.model_fields,
+            field_inventory=field_inventory,
+            selector_fields=selector_fields,
+        )
     else:
         model_fields = ArtifactRefModel.model_fields
-        payload = _structural_artifact_ref_payload(ref, model_fields)
+        payload = _structural_artifact_ref_payload(
+            ref,
+            model_fields,
+            field_inventory=field_inventory,
+            selector_fields=selector_fields,
+        )
     if not all(isinstance(key, str) for key in payload):
         raise TypeError("Artifact reference payload keys must be strings")
     validated = ArtifactRefModel.model_validate(payload)
     return {key: str(value) for key, value in dict(validated).items()}
+
+
+def _pydantic_model_input_fields(value: BaseModel) -> frozenset[str]:
+    """Inventory a Pydantic instance from stored values, fields-set, and extras."""
+    try:
+        raw_fields = object.__getattribute__(value, "__dict__")
+        model_fields = getattr(type(value), "model_fields", None)
+        fields_set = object.__getattribute__(value, "__pydantic_fields_set__")
+        extras = object.__getattribute__(value, "__pydantic_extra__")
+    except AttributeError as exc:
+        raise TypeError("Artifact reference model has malformed field metadata") from exc
+    if (
+        not isinstance(raw_fields, Mapping)
+        or not isinstance(model_fields, Mapping)
+        or not isinstance(fields_set, (set, frozenset))
+    ):
+        raise TypeError("Artifact reference model has malformed field metadata")
+    names = set(raw_fields) | set(model_fields) | set(fields_set)
+    if extras is not None:
+        if not isinstance(extras, Mapping):
+            raise TypeError("Artifact reference model has malformed extra fields")
+        names.update(extras)
+    if not all(isinstance(name, str) for name in names):
+        raise TypeError("Artifact reference model has malformed field names")
+    return frozenset(names)
+
+
+def _string_root_model_snapshot(
+    value: object,
+) -> tuple[str, frozenset[str], frozenset[str]]:
+    """Snapshot only stored inputs for a schema-only scalar Pydantic root."""
+    if not isinstance(value, BaseModel):
+        raise TypeError("Artifact ID root model has malformed stored fields")
+    fields = _pydantic_model_input_fields(value)
+    try:
+        raw_fields = object.__getattribute__(value, "__dict__")
+        model_fields = getattr(type(value), "model_fields", None)
+        fields_set = object.__getattribute__(value, "__pydantic_fields_set__")
+    except AttributeError as exc:
+        raise TypeError("Artifact ID root model has malformed stored fields") from exc
+    if (
+        not isinstance(raw_fields, Mapping)
+        or not isinstance(model_fields, Mapping)
+        or set(model_fields) != {"root"}
+        or not isinstance(fields_set, (set, frozenset))
+        or not all(isinstance(name, str) for name in fields_set)
+    ):
+        raise TypeError("Artifact ID root model has malformed stored fields")
+
+    declared_fields = set(fields)
+    for cls in type(value).__mro__:
+        if cls is BaseModel:
+            break
+        annotations = cls.__dict__.get("__annotations__", {})
+        if not isinstance(annotations, Mapping):
+            raise TypeError("Artifact ID root model has malformed annotations")
+        class_vars = cls.__dict__.get("__class_vars__", ())
+        if not isinstance(class_vars, (set, frozenset, tuple, list)):
+            raise TypeError("Artifact ID root model has malformed class-variable metadata")
+        declared_fields.update(
+            name
+            for name, annotation in annotations.items()
+            if not name.startswith("_")
+            and name not in class_vars
+            and not _is_classvar_annotation(annotation)
+        )
+        slots = cls.__dict__.get("__slots__", ())
+        if isinstance(slots, str):
+            slots = (slots,)
+        elif not isinstance(slots, (tuple, list)):
+            raise TypeError("Artifact ID root model has malformed slots")
+        if not all(isinstance(name, str) for name in slots):
+            raise TypeError("Artifact ID root model has malformed slots")
+        declared_fields.update(name for name in slots if not name.startswith("_"))
+
+    public_fields = frozenset(name for name in declared_fields if not name.startswith("_"))
+    if public_fields != frozenset({"root"}) or "root" not in raw_fields:
+        raise TypeError("Artifact ID root model has unexpected stored fields")
+    root = raw_fields["root"]
+    if not isinstance(root, str):
+        raise TypeError("Artifact ID root model must store a string root")
+    root_text = _builtins.str.__str__(root)
+    if type(root_text) is not str:
+        raise TypeError("Artifact ID root model must store a native string root")
+    return root_text, public_fields, frozenset(fields_set)
+
+
+def _is_classvar_annotation(annotation: object) -> bool:
+    """Recognize ClassVar without evaluating future-annotation strings."""
+    if annotation is ClassVar or get_origin(annotation) is ClassVar:
+        return True
+    if not isinstance(annotation, str):
+        return False
+    try:
+        expression = ast.parse(annotation, mode="eval").body
+    except SyntaxError:
+        return False
+    if isinstance(expression, ast.Subscript):
+        expression = expression.value
+    if isinstance(expression, ast.Name):
+        return expression.id == "ClassVar"
+    return (
+        isinstance(expression, ast.Attribute)
+        and expression.attr == "ClassVar"
+        and isinstance(expression.value, ast.Name)
+        and expression.value.id in {"typing", "typing_extensions"}
+    )
 
 
 def _declared_public_fields(value: object) -> set[str]:
@@ -489,8 +696,16 @@ def _declared_public_fields(value: object) -> set[str]:
     for cls in type(value).__mro__:
         if cls is BaseModel:
             break
+        annotations = cls.__dict__.get("__annotations__", {})
+        class_vars = cls.__dict__.get("__class_vars__", ())
+        if not isinstance(class_vars, (set, frozenset, tuple, list)):
+            class_vars = ()
         names.update(
-            name for name in cls.__dict__.get("__annotations__", {}) if not name.startswith("_")
+            name
+            for name, annotation in annotations.items()
+            if not name.startswith("_")
+            and name not in class_vars
+            and not _is_classvar_annotation(annotation)
         )
         names.update(
             name
@@ -510,6 +725,8 @@ def _selector_public_fields(
 ) -> set[str]:
     """Collect public selector fields before projecting a supported ref shape."""
     names = _declared_public_fields(value)
+    if isinstance(value, BaseModel):
+        names.update(_pydantic_model_input_fields(value))
     if isinstance(value, Mapping):
         names.update(name for name in value if isinstance(name, str))
     if hasattr(value, "__dict__"):
@@ -526,6 +743,7 @@ def _object_artifact_ref_payload(
     model_fields: Mapping[str, Any],
     *,
     field_inventory: _DataclassFieldInventory | None = None,
+    selector_fields: frozenset[str] | None = None,
 ) -> dict[str, Any]:
     """Normalize an ordinary object selector without trusting dataclass-shaped markers."""
     instance_payload = (
@@ -534,26 +752,41 @@ def _object_artifact_ref_payload(
         else {}
     )
     required_fields = {name for name, field in model_fields.items() if field.is_required()}
-    _refuse_unknown_model_fields(_selector_public_fields(ref, field_inventory), model_fields)
+    if selector_fields is None:
+        selector_fields = frozenset(_selector_public_fields(ref, field_inventory))
+    _refuse_unknown_model_fields(selector_fields, model_fields)
     if required_fields <= set(instance_payload):
         return instance_payload
-    return _structural_artifact_ref_payload(ref, model_fields)
+    return _structural_artifact_ref_payload(
+        ref,
+        model_fields,
+        field_inventory=field_inventory,
+        selector_fields=selector_fields,
+    )
 
 
 def _structural_artifact_ref_payload(
     ref: object,
     model_fields: Mapping[str, Any],
+    *,
+    field_inventory: _DataclassFieldInventory | None = None,
+    selector_fields: frozenset[str] | None = None,
 ) -> dict[str, Any]:
     """Project only an exact structural ref, rejecting declared extensions."""
+    if selector_fields is None:
+        selector_fields = frozenset(_selector_public_fields(ref, field_inventory))
+    _refuse_unknown_model_fields(selector_fields, model_fields)
     required_fields = tuple(name for name, field in model_fields.items() if field.is_required())
     if not all(hasattr(ref, name) for name in required_fields):
         raise TypeError("Artifact reference selector does not expose the required fields")
-    _refuse_unknown_model_fields(_declared_public_fields(ref), model_fields)
-    return {
+    payload = {
         field_name: getattr(ref, field_name)
         for field_name in model_fields
         if hasattr(ref, field_name)
     }
+    projected_fields = frozenset(_selector_public_fields(ref, field_inventory))
+    _refuse_unknown_model_fields(selector_fields | projected_fields, model_fields)
+    return payload
 
 
 def _refuse_unknown_model_fields(
@@ -561,12 +794,9 @@ def _refuse_unknown_model_fields(
     allowed: Mapping[str, Any],
 ) -> None:
     """Refuse declared selector fields outside the canonical ref model."""
-    if isinstance(supplied, Mapping):
-        supplied_fields = set(supplied)
-    elif isinstance(supplied, set):
-        supplied_fields = supplied
-    else:
+    if not isinstance(supplied, (Mapping, set, frozenset)):
         return
+    supplied_fields = set(supplied)
     unknown = supplied_fields - set(allowed)
     if unknown:
         names = ", ".join(sorted(unknown))

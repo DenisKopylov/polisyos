@@ -1,0 +1,112 @@
+{
+  "schema_version": 1,
+  "slice": "ad01-selected-method-dispatch-20261023",
+  "status": "committed_source_candidate_with_composed_scoped_validation; formal_acceptance_pending",
+  "proposed_tracked_path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/ad01-selected-method-dispatch-20261023.json",
+  "slice_base": "e9fcb20492e2355ac179e396a631842c55d1c2f7",
+  "candidate": "0032c2102e96fbfc647b7338481a21736b8a9632",
+  "tree": "95f74fa609e5619091b41b436b5ea66e74948c31",
+  "parents": [
+    "b3a0734a3d458395e6538c8e3ffd09e370f204de"
+  ],
+  "branch": "codex/e02-unified-local-20261009",
+  "source_freeze": false,
+  "closure_ids": [],
+  "lineage": {
+    "reviewed_application_base": "d77ffbfe504b19e34bb32f1fea4b42cb5791585e",
+    "composed_wave_head_and_base": "fb4fdc858d5db44bb433b927f0f1b737a26ce306",
+    "qualification": "Wave ran on a composed WIP frame, not the isolated commit tree; all 13 AD01 commit paths match the wave's pinned AD01 path bytes."
+  },
+  "source_footprint": [
+    "policy-engine/release-fragments/unreleased/2026-10-23-e02-ad01-method-plan-to-program-graph.toml@05fe4f719c131a1903e15740d913cb468826a4543ce5fa42f5abd17486b00d71",
+    "policy-engine/src/polisyos/core/contracts/foundry.py@f88d2b773122786aacd4899d5b68c09df1eac5d2a5b4563b352091fa51cb35a1",
+    "policy-engine/src/polisyos/foundry/README.md@2c45eda57c36954170dbd52413da6d5cd36ed6f02277ee979ac19f3733453e52",
+    "policy-engine/src/polisyos/foundry/compile/_graph.py@fefb8fafeb2427f5cc51da0235295bbf064f45f9ccf0f8b7bd26e24b3f876ca0",
+    "policy-engine/src/polisyos/foundry/compile/trinity_compiler.py@e5073e14f21e5b551c5d1c3d23ea19012804b2a47ddfd06b060602183530f57b",
+    "policy-engine/src/polisyos/foundry/execute/_internal/graph/README.md@9a828dbf7229ad4533804c3fdd4863dcb12f50bd255756ae06ef4a08ef3261e5",
+    "policy-engine/src/polisyos/scientist/nodes/builtins/compile/compile_foundry.py@c087cbdb2b04a4f37909a4f0941c01a8fca001d7fdfe0586cdb3cf3b84560753",
+    "policy-engine/src/polisyos/scientist/nodes/builtins/planning/build_execution_plan.py@90339c36381765d8e649ae65e2b809408d88e1d3975e76a2345ea8e1e0f454eb",
+    "policy-engine/src/polisyos/scientist/orchestration/llm/README.md@6e5dd34d5d63ca19331f473efa689b3585828925e4e16fb6f3c05eb5fbb9b08a",
+    "policy-engine/src/polisyos/scientist/orchestration/llm/cycle.py@fa783507217b9856afa221db5b828e26ca339abc54b94919cb7816a24e1f9d6f",
+    "policy-engine/tests/integration/foundry/test_compiled_method_metric_projection.py@ce20486f8b38e58fd73c569b1b7afaa6ce35d066867e156535dde64f484e3b87",
+    "policy-engine/tests/unit/foundry/compile/test_unified_dag_method_nodes.py@fca31dca8255b9004d883920673ceef33b43f5b3e73db4579e07549fd649d8a7",
+    "policy-engine/tests/unit/scientist/nodes/builtins/planning/test_build_execution_plan.py@91cdedb1c93efebad2088a10924e784638c781f5fdf548c71f12fc6698d51913"
+  ],
+  "source_and_chain": [
+    "BuildExecutionPlanNode consumes the selected run-state inputs and persists the selected ExecutionPlan with its policy_candidate source reference and manifest profile; the integration case follows the selected candidate ref through metric admission.",
+    "CompileRequest v1.2 carries optional method_execution_plan_ref into the existing compiler; a selected plan with method_dag nodes OR method_edges and no supported binding is typed-refused before compilation or artifact emission, while the prior no-method route remains available.",
+    "The existing ProgramGraph adapter preserves selected node IDs, edges, registered method identity/version, params, reads/writes, dependencies, and backend, or refuses unsupported structure; registered signature/output-slot mismatches and return-slot consumers are refused.",
+    "The existing registered Foundry dispatcher invokes ExAnteSimulationEstimator; its pure return is captured as a MethodExecutionBundle occurrence and CAS MethodOutputPayload, with ProgramGraph.outputs empty and no state-patch conversion.",
+    "The existing verifier and fresh CAS-backed method-metric reader consume persisted simulation, bundle, binding, and selected-source references.",
+    "In the controlled fixture, baseline [10, 20] and scenario [12, 20] yield independently expected mean change 1.0, which the fresh reader projects as metric_ex_ante_mean_change in unit value; this establishes software behavior, not external policy truth or causal calibration."
+  ],
+  "source_evidence": {
+    "candidate_readback": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/root-ad01-implementation-commit-20261023-r1/readback.json@0e01a9da27f4c1e444ca005201f16e185c940e170043b34385429532b8052491",
+    "commit_result": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/root-ad01-implementation-commit-20261023-r1/commit-result.json@08e80c298114563eaa85fb3773bf2f73def2a916442bce9209a9f5c9bebb9c52",
+    "source_manifest": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/root-ready-reviewed-composition-20261023-r1/ad01-implementation-commit.json@169f92323f0a6be937e08c6b093d9d68fd6cfabac0c99e01596493103dee9c03",
+    "commit_intent": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/root-ad01-implementation-commit-20261023-r1/intent.json@65d14f634a539b0ee2f0b60de8a75ba2edbc4bde011245b3ad3b8711db17cf29",
+    "reviewed_application": {
+      "intent": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/root-ad01-r2-reviewed-application-20261023-r1/intent.json@e82b1b07a9a17ae2da91369a2eb7b1b80131aa05ee929f21d2e8ea4800c72636",
+      "readback": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/root-ad01-r2-reviewed-application-20261023-r1/readback.json@fcb61b66f078ea736b742a8d7e423c806ff156064d883fc338d6be74af6b7437",
+      "base": "d77ffbfe504b19e34bb32f1fea4b42cb5791585e",
+      "source_freeze": false,
+      "closure_ids": []
+    }
+  },
+  "independent_review": {
+    "record": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/ad01-zero-binding-independent-review-20261023-r2/review.json@ba09520ee5e62c542f220e6fc488d142f34a5ea1dc75f062db2a11eb5ccec91a",
+    "decision": "GO to compose exact candidate after source readback; not canonical acceptance/formal closure; reviewer did not replay source tests.",
+    "p40_class": "SAME_CLASS_DEEPER",
+    "prior_finding": "AD01-R72-01",
+    "delta": "No-binding refusal now covers method_dag nodes OR method_edges; edge-only 0-node/1-edge is refused before compiler/artifact side effects."
+  },
+  "composed_validation": {
+    "receipt": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/root-ad01-fabric-composed-canonical-wave-20261023-r1/receipt.json@90fc847292a09022c6d241ce5ec397b8434dd40d528bbf65d0e659f9a31d8a58",
+    "manifest": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/root-ad01-fabric-composed-canonical-wave-20261023-r1/manifest.json@d1ff54ee38efa91dbed32a8551892f2017ba0335c7e636e49ee4f077081890fe",
+    "source_frame": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/root-r3-facet-base-reviewed-application-20261023-r1/full-composed-source-frame.json@ae836b16b2a4071b6df76cc99fcd475fbe420bc8ff87ff98693f00a301ffc592",
+    "run_head": "fb4fdc858d5db44bb433b927f0f1b737a26ce306",
+    "unchanged_during_run": true,
+    "manifest_targets": 23,
+    "pytest_targets": 8,
+    "ad01_commit_paths_matching_wave": "13/13",
+    "pytest": {
+      "tests": 34,
+      "failures": 0,
+      "errors": 0,
+      "skipped": 0
+    },
+    "junit": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/root-ad01-fabric-composed-canonical-wave-20261023-r1/junit.xml@c6439328801936c1e21ab3a79c40d1036204dfc809ccbc19681d7d883e01ce3b",
+    "deciding_outputs": [
+      "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/root-ad01-fabric-composed-canonical-wave-20261023-r1/pytest.stdout@fcc0159e4e9f9a6d2d64f1a1b752e5d3c7dff236840630db8690ea0bcffae15d",
+      "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/root-ad01-fabric-composed-canonical-wave-20261023-r1/pytest.stderr@e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/root-ad01-fabric-composed-canonical-wave-20261023-r1/ruff-check.stdout@a7e06d4cab738ac86c6b7cc36faf16a0de5feff075e869c070cf71d9157f6c89",
+      "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/root-ad01-fabric-composed-canonical-wave-20261023-r1/ruff-check.stderr@e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/root-ad01-fabric-composed-canonical-wave-20261023-r1/ruff-format-check.stdout@613884a5b6489b448abb8058e1a94dff1c940ee5bf56dd39f62288c16fdb05dd",
+      "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/root-ad01-fabric-composed-canonical-wave-20261023-r1/ruff-format-check.stderr@e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    ],
+    "ruff_check_exit_code": 0,
+    "ruff_format_check_exit_code": 0,
+    "exact_commands_and_test_selection": "Pinned by manifest; not duplicated here.",
+    "full_backend_verification": "UNRUN",
+    "native_architecture_full": "UNRUN",
+    "source_freeze": false,
+    "closure_ids": []
+  },
+  "format_reconciliation": {
+    "result": "Five committed Python paths differ bytewise from reviewed postimages only by formatting: ast.parse(type_comments=True) plus ast.dump(include_attributes=False) was equivalent on all five; targeted diffs showed blank-line, wrapping, or redundant-parenthesis changes.",
+    "detailed_hash_record": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/root-ad01-implementation-commit-20261023-r1/selected-method-dispatch-handoff-20261023-r1/ad01-selected-method-dispatch-20261023.json@9d629eef2051ee6d61b9dd855a4923995f298ca366a8b9eae152f2b7f6b2e648#source_qualification.post_review_format_reconciliation"
+  },
+  "controls": [
+    "Selected bound plan integrates compile, dispatch, bundle/CAS capture, and fresh metric projection; edge-only selected graph without binding is refused before compile.",
+    "Signature-slot mismatch, direct/aliased return-slot consumers, non-pure methods, and lowered mechanisms consuming return slots are refused; pure returns are occurrences, not Program state patches.",
+    "The composed integration target includes the no-method/empty-plan compatibility/removal case. R2 review marks prior compatibility evidence inherited and did not independently replay it."
+  ],
+  "surfaces": "Existing Compile API, registered dispatcher, CAS MethodExecutionBundle, and metric-projection reader. No ProgramGraph schema, engine, lowering, or state-patch semantics change; external/audit/dashboard claims are out of scope.",
+  "limitations": [
+    "This is composed AD01+Fabric WIP-frame validation, not isolated-commit or full-source execution.",
+    "Full source/input/backend freeze, full backend, native architecture, installed-wheel, and production-consumer verification remain unrun.",
+    "The controlled local fixture does not establish external authority, policy validity, or causal calibration.",
+    "No formal closure IDs, closure proposal, or G decision receipt is included."
+  ],
+  "next_check": "Root may transfer this RAW evidence into the proposed tracked handoff after exact readback. Keep source_freeze=false and closure_ids empty. Before formal closure, freeze the full exact input/source/backend denominator, run native-architecture/full-backend and installed-wheel/production-consumer checks, and separately resolve any required G decision on pinned evidence."
+}

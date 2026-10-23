@@ -5,12 +5,15 @@ from __future__ import annotations
 from dataclasses import dataclass, field, replace
 from typing import Any
 
+from pydantic import ValidationError
+
 from polisyos.core.components import (
     Capability,
     ComponentId,
     ComponentKind,
     ComponentMetadata,
 )
+from polisyos.core.contracts.execution_plan import ExecutionPlan, ExecutionPlanRef
 from polisyos.core.contracts.foundry import (
     CompileRequest,
     FoundryCompileConfig,
@@ -40,6 +43,14 @@ from polisyos.scientist.orchestration.engine.protocol import (
 from polisyos.scientist.orchestration.engine.state import ExperimentState
 from polisyos.scientist.orchestration.engine.state_branching import branch_state
 
+_EXECUTION_PLAN_INPUT_LOAD_ERRORS = (
+    OSError,
+    RuntimeError,
+    TypeError,
+    ValueError,
+    ValidationError,
+)
+
 _METADATA = ComponentMetadata(
     component_id=ComponentId.parse("scientist.node_compile_foundry@1.0.0"),
     kind=ComponentKind.SCIENTIST_NODE,
@@ -55,6 +66,7 @@ _SPEC = NodeSpec(
     state_reads=[
         f"inputs.{INPUT_TRINITY_BUNDLE_REF}",
         f"inputs.{INPUT_REGISTRY_BUNDLE_REF}",
+        "execution_plan_ref",
     ],
     state_writes=[
         f"reports_index.{REPORT_COMPILE_REPORT_REF}",
@@ -152,10 +164,77 @@ class CompileFoundryNode:
 
         registry_ref = state.inputs.get(INPUT_REGISTRY_BUNDLE_REF)
 
+        method_execution_plan_ref: ExecutionPlanRef | None = None
+        schema_version = "1.0"
+        selected_plan_ref = state.execution_plan_ref
+        if not self.method_metric_bindings and selected_plan_ref is not None:
+            try:
+                from polisyos.core.artifacts import load_core_json_artifact
+
+                typed_plan_ref = ExecutionPlanRef.model_validate(
+                    selected_plan_ref.model_dump(mode="python")
+                )
+                selected_plan = ExecutionPlan.model_validate(
+                    load_core_json_artifact(ctx.store, typed_plan_ref)
+                )
+            except _EXECUTION_PLAN_INPUT_LOAD_ERRORS as exc:
+                error = NodeError(
+                    code=node_errors.ERROR_INVALID_STATE,
+                    message=f"Failed to load selected execution plan: {exc}",
+                )
+                return NodeOutcome(status="fail", state=state, error=error)
+            if selected_plan.method_dag or selected_plan.method_edges:
+                error = NodeError(
+                    code=node_errors.ERROR_INVALID_STATE,
+                    message=(
+                        "Selected method execution plan has no supported method metric bindings"
+                    ),
+                    details={
+                        "execution_plan_ref": typed_plan_ref.model_dump(mode="json"),
+                        "method_dag_node_count": len(selected_plan.method_dag),
+                        "method_edge_count": len(selected_plan.method_edges),
+                        "required": ["method_metric_bindings"],
+                    },
+                )
+                return NodeOutcome(status="fail", state=state, error=error)
+
+        if self.method_metric_bindings:
+            selected_plan_ref = state.execution_plan_ref
+            if selected_plan_ref is None:
+                error = NodeError(
+                    code=node_errors.ERROR_MISSING_INPUT,
+                    message="Method metric selection requires the selected execution plan",
+                    details={"required": ["execution_plan_ref"]},
+                )
+                return NodeOutcome(status="fail", state=state, error=error)
+            try:
+                method_execution_plan_ref = ExecutionPlanRef.model_validate(
+                    selected_plan_ref.model_dump(mode="python")
+                )
+            except (TypeError, ValueError) as exc:
+                error = NodeError(
+                    code=node_errors.ERROR_INVALID_STATE,
+                    message=f"Selected execution plan ref is invalid: {exc}",
+                )
+                return NodeOutcome(status="fail", state=state, error=error)
+            if (
+                method_execution_plan_ref.kind != "scientist.execution_plan"
+                or method_execution_plan_ref.media_type != "application/json"
+                or method_execution_plan_ref.manifest_profile_sha256 is None
+                or policy_ref.manifest_profile_sha256 is None
+            ):
+                error = NodeError(
+                    code=node_errors.ERROR_INVALID_STATE,
+                    message="Method metric selection requires exact selected plan and candidate refs",
+                )
+                return NodeOutcome(status="fail", state=state, error=error)
+            schema_version = "1.2"
+
         request = CompileRequest(
-            schema_version="1.1" if self.method_metric_bindings else "1.0",
+            schema_version=schema_version,
             input_kind="trinity",
             policy_ref=policy_ref,
+            method_execution_plan_ref=method_execution_plan_ref,
             registry_bundle_ref=registry_ref,
             compile_config=self.compile_config,
             validation_flags=self.validation_flags,

@@ -27,6 +27,7 @@ from polisyos.ir.registry.refs import WelfareBundleRef
 from ..artifacts.environment import EnvironmentManifestRef as EnvironmentManifestRef
 from ..artifacts.manifest import ArtifactRef, InputRef
 from .distributional import DistributionalReportRef
+from .execution_plan import ExecutionPlanRef
 from .scientist import FairnessAuditReportRef, MetricValidationReportRef
 from .uncertainty import UncertaintyEnvelopeRef
 
@@ -1327,10 +1328,11 @@ class CompileRequest(BaseModel):
 
     model_config = ConfigDict(extra="forbid")
 
-    schema_version: Literal["1.0", "1.1"] = "1.0"
+    schema_version: Literal["1.0", "1.1", "1.2"] = "1.0"
 
     input_kind: Literal["auto", "trinity"] = "auto"
     policy_ref: ArtifactRef
+    method_execution_plan_ref: ExecutionPlanRef | None = None
 
     registry_bundle_ref: ArtifactRef | None = None
     compile_config: FoundryCompileConfig = Field(
@@ -1344,8 +1346,24 @@ class CompileRequest(BaseModel):
 
     @model_validator(mode="after")
     def validate_method_metric_request_version(self) -> CompileRequest:
-        if self.method_metric_bindings and self.schema_version != "1.1":
-            raise ValueError("method_metric_bindings_require_compile_request_schema_1_1")
+        if self.method_metric_bindings and self.schema_version not in {"1.1", "1.2"}:
+            raise ValueError("method_metric_bindings_require_compile_request_schema_1_1_or_1_2")
+        if self.method_execution_plan_ref is not None:
+            if self.schema_version != "1.2":
+                raise ValueError("method_execution_plan_ref_requires_compile_request_schema_1_2")
+            if (
+                self.method_execution_plan_ref.kind != "scientist.execution_plan"
+                or self.method_execution_plan_ref.media_type != "application/json"
+                or self.method_execution_plan_ref.manifest_profile_sha256 is None
+            ):
+                raise ValueError("method_execution_plan_ref_must_be_exact_selected_execution_plan")
+            if (
+                self.policy_ref.kind != "ir.trinity_bundle"
+                or self.policy_ref.manifest_profile_sha256 is None
+            ):
+                raise ValueError("method_execution_plan_ref_requires_exact_trinity_candidate_ref")
+        elif self.schema_version == "1.2":
+            raise ValueError("compile_request_schema_1_2_requires_method_execution_plan_ref")
         return self
 
     notes: list[str] = Field(default_factory=list)

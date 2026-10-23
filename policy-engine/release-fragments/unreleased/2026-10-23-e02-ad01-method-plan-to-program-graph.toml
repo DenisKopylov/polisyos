@@ -1,0 +1,36 @@
+id = "2026-10-23-e02-ad01-method-plan-to-program-graph"
+title = "Compile selected PURE method plans through the existing graph"
+type = "fixed"
+component = "foundry/scientist"
+owner = "team-polisyos"
+summary = "The existing selected ExecutionPlan producer can bind one exact Trinity candidate profile and the compiler can adapt supported PURE method nodes to the existing ProgramGraph and MethodDispatcher. Exact declared return slots stay bound in the source plan and metric capture while ProgramNode.outputs stays the state-patch plane; unsupported return consumers, non-PURE methods, and graph data transfers refuse as a whole. A selected nonempty method graph (nodes or declared edges) without a supported metric binding also refuses before compile artifacts are emitted."
+evidence = [
+  "src/polisyos/foundry/compile/_graph.py",
+  "src/polisyos/foundry/compile/trinity_compiler.py",
+  "src/polisyos/scientist/nodes/builtins/planning/build_execution_plan.py",
+  "tests/integration/foundry/test_compiled_method_metric_projection.py",
+]
+compatibility = "CompileRequest 1.0 and 1.1 requests without a selected method execution plan preserve existing behavior. Version 1.2 requires an exact selected plan ref and the matching candidate profile. A selected nonempty method graph (nodes or declared edges) without supported metric bindings refuses before compilation; empty plans retain the existing mechanism-only path. Unsupported plans refuse without dropping nodes or normalizing slots."
+change_class = "internal"
+surface_classification = "internal: internal-only"
+migration = "No persisted artifact rewrite is needed. Existing request versions remain accepted; callers opt into version 1.2 only when carrying an exact candidate-bound selected plan."
+api = "Adds the optional method_execution_plan_ref field under CompileRequest schema version 1.2; no package export or endpoint is added."
+limitations = "Only the existing ExAnte selected-output path is demonstrated. PURE returned values are not ProgramGraph state patches, and the adapter rejects method/mechanism consumers and unsupported transfer. This does not establish scientific validity, causal identification, policy effectiveness, or publication authority."
+generated_client_compatibility = "not_applicable"
+public_surface_inventory_reviewed = false
+migration_docs = []
+runbook_docs = []
+
+[[compatibility_change]]
+id = "e02-ad01-method-plan-to-program-graph"
+change_class = "internal"
+impact = "internal"
+surface = "internal: selected Foundry compile request"
+owner = "team-polisyos"
+version_owner = "team-polisyos"
+deprecation_window = "not_applicable"
+release_note = "Thread the exact selected Scientist method plan through the existing Foundry compiler and dispatcher while preserving its CAS candidate lineage. Keep PURE method return capture separate from ProgramGraph state patches and refuse unsupported plan transfer."
+generated_client_compatibility = "not_applicable"
+public_surface_inventory_reviewed = false
+migration_docs = []
+runbook_docs = []

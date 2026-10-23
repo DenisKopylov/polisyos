@@ -6,7 +6,14 @@ import graphlib
 from datetime import UTC, datetime
 from typing import TYPE_CHECKING, Any
 
-from polisyos.core.artifacts.manifest import InputRef, SchemaInfo
+from polisyos.core.artifacts import artifact_ref_for_manifest
+from polisyos.core.artifacts.manifest import (
+    ArtifactRef,
+    InputRef,
+    SchemaInfo,
+    input_ref_from_artifact_ref,
+)
+from polisyos.core.artifacts.protocol import require_return_selected_profile_writer
 from polisyos.core.artifacts.write_contract import ArtifactWriteOptions
 from polisyos.core.canon import CanonSpec, fingerprint
 from polisyos.core.contracts.execution_plan import (
@@ -399,7 +406,8 @@ def persist_execution_plan(
     *,
     inputs: list[InputRef] | None = None,
 ) -> ExecutionPlanRef:
-    """Persist execution plan helper."""
+    """Persist an execution plan and retain the profile selected by this write."""
+    require_return_selected_profile_writer(store, "put_json")
     payload_ref = store.put_json(
         plan,
         ArtifactWriteOptions(
@@ -409,8 +417,57 @@ def persist_execution_plan(
             inputs=list(inputs or []),
         ),
         canon_spec=CanonSpec(forbid_floats=False),
+        return_selected_profile=True,
     )
-    return ExecutionPlanRef(artifact_id=payload_ref.artifact_id)
+    if (
+        payload_ref.kind != "scientist.execution_plan"
+        or payload_ref.media_type != "application/json"
+        or payload_ref.manifest_profile_sha256 is None
+    ):
+        raise ValueError("execution_plan_selected_write_ref_incomplete")
+    return ExecutionPlanRef.model_validate(payload_ref.model_dump(mode="python"))
+
+
+def persist_candidate_execution_plan(
+    store: ArtifactStore,
+    plan: ExecutionPlan,
+    candidate_ref: ArtifactRef,
+    *,
+    source_plan_ref: ExecutionPlanRef | None = None,
+) -> tuple[ExecutionPlanRef, ArtifactRef]:
+    """Persist the selected plan with exact candidate and optional source lineage."""
+    if candidate_ref.kind != "ir.trinity_bundle" or candidate_ref.media_type != "application/json":
+        raise ValueError("execution_plan_candidate_ref_kind_invalid")
+    candidate_manifest = store.get_manifest(candidate_ref)
+    if (
+        candidate_manifest.artifact_id != candidate_ref.artifact_id
+        or candidate_manifest.kind != "ir.trinity_bundle"
+        or candidate_manifest.media_type != "application/json"
+    ):
+        raise ValueError("execution_plan_candidate_manifest_mismatch")
+    exact_candidate_ref = artifact_ref_for_manifest(candidate_manifest)
+    if exact_candidate_ref.manifest_profile_sha256 is None:
+        raise ValueError("execution_plan_candidate_selected_profile_missing")
+    lineage: list[InputRef] = []
+    if source_plan_ref is not None:
+        if (
+            source_plan_ref.kind != "scientist.execution_plan"
+            or source_plan_ref.media_type != "application/json"
+        ):
+            raise ValueError("execution_plan_source_ref_kind_invalid")
+        source_manifest = store.get_manifest(source_plan_ref)
+        if (
+            source_manifest.artifact_id != source_plan_ref.artifact_id
+            or source_manifest.kind != "scientist.execution_plan"
+            or source_manifest.media_type != "application/json"
+        ):
+            raise ValueError("execution_plan_source_manifest_mismatch")
+        exact_source_ref = artifact_ref_for_manifest(source_manifest)
+        if exact_source_ref.manifest_profile_sha256 is None:
+            raise ValueError("execution_plan_source_selected_profile_missing")
+        lineage.append(input_ref_from_artifact_ref(exact_source_ref, role="source_plan"))
+    lineage.append(input_ref_from_artifact_ref(exact_candidate_ref, role="policy_candidate"))
+    return persist_execution_plan(store, plan, inputs=lineage), exact_candidate_ref
 
 
 def persist_preflight_report(

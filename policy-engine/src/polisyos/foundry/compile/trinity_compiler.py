@@ -17,15 +17,18 @@ from polisyos.core.artifacts.manifest import (
     ArtifactRef,
     InputRef,
     SchemaInfo,
+    artifact_ref_identity_key,
     input_ref_from_artifact_ref,
 )
-from polisyos.core.artifacts.store import FileSystemCAS, PutOptions
+from polisyos.core.artifacts.protocol import ArtifactStore, CoreJSONArtifactStore
+from polisyos.core.artifacts.store import PutOptions
 from polisyos.core.canon import CanonSpec
 from polisyos.core.compiler.report import (
     CompileReport,
     put_compile_report,
     put_link_report,
 )
+from polisyos.core.contracts.execution_plan import ExecutionPlan
 from polisyos.core.contracts.foundry import (
     METHOD_METRIC_BINDING_LIMIT,
     CompileRequest,
@@ -33,6 +36,7 @@ from polisyos.core.contracts.foundry import (
     DerivedArtifact,
     ExecPlan,
     ExecPlanRef,
+    ExecutionPlanRef,
     MethodMetricBinding,
     MethodMetricBindingRequest,
     MethodMetricBindingSet,
@@ -40,16 +44,21 @@ from polisyos.core.contracts.foundry import (
     ProgramGraph,
     ProgramGraphRef,
 )
-from polisyos.core.registry import load_registry_bundle, load_registry_bundle_content
+from polisyos.core.registry import (
+    RegistryBundleContent,
+    load_registry_bundle,
+    load_registry_bundle_content,
+)
 from polisyos.foundry.compile.randomization import (
     TREASURY_SALTS_PROFILE,
     build_treasury_plan,
 )
 from polisyos.foundry.methods.base import SlotType
-from polisyos.foundry.methods.cost_model import CostBudget, CostModel
 from polisyos.foundry.methods.registry import MethodRegistry
+from polisyos.foundry.methods.selection.cost_model import CostBudget, CostModel
 from polisyos.foundry.validation.conflict_checker import CompileTimeConflictChecker
 from polisyos.ir import build_slot_layout
+from polisyos.ir.governance.problem_frame import ObjectiveSpec
 from polisyos.ir.kernel.method_metrics import (
     METHOD_METRIC_DIRECT_OUTPUT_LAW_ID,
     METHOD_METRIC_DIRECT_OUTPUT_LAW_VERSION,
@@ -79,7 +88,7 @@ def _require_bounded_method_metric_bindings(request: CompileRequest) -> None:
         raise ValueError("method_metric_binding_inventory_exceeds_capture_limit")
 
 
-def compile_trinity(store: FileSystemCAS, request: CompileRequest) -> CompileResult:
+def compile_trinity(store: CoreJSONArtifactStore, request: CompileRequest) -> CompileResult:
     """Compile a Trinity bundle and persist the execution graph artifacts.
 
     Args:
@@ -100,10 +109,32 @@ def compile_trinity(store: FileSystemCAS, request: CompileRequest) -> CompileRes
     # Method metric bindings require complete selected-profile lineage for every
     # compiled reference they cross. Upgrade this compile call locally; the
     # caller's request remains unchanged.
-    if request.method_metric_bindings and not request.return_selected_profile:
+    if (
+        request.method_metric_bindings or request.method_execution_plan_ref is not None
+    ) and not request.return_selected_profile:
         request = request.model_copy(update={"return_selected_profile": True})
 
     policy_ref = request.policy_ref
+    method_plan: ExecutionPlan | None = None
+    exact_method_plan_ref: ExecutionPlanRef | None = None
+    if request.method_execution_plan_ref is not None:
+        try:
+            method_plan, exact_method_plan_ref = _load_selected_method_execution_plan(
+                store,
+                policy_ref=policy_ref,
+                method_plan_ref=request.method_execution_plan_ref,
+            )
+        except Exception as exc:
+            return _compile_error(
+                store,
+                ok=False,
+                policy_ref=policy_ref,
+                registry_bundle_ref=None,
+                link_report_ref=None,
+                notes=[_method_execution_plan_failure_note(exc)],
+                lowered_ir_ref=None,
+                semantic_closure_notes=[],
+            )
     bundle = validate_core_model_json_artifact(TrinityBundle, store, policy_ref)
 
     registry_bundle_ref = _resolve_registry_bundle_ref(
@@ -124,6 +155,7 @@ def compile_trinity(store: FileSystemCAS, request: CompileRequest) -> CompileRes
     registry_content = load_registry_bundle_content(store, registry_bundle_ref)
 
     registries = RegistryBundle(
+        schema_version="1.0",
         mechanisms=registry_content.mechanism_registry,
         slots=registry_content.slot_registry,
         merge_rules=registry_content.merge_registry,
@@ -191,13 +223,28 @@ def compile_trinity(store: FileSystemCAS, request: CompileRequest) -> CompileRes
             semantic_closure_notes=[],
         )
 
-    program_graph, params_refs = build_program_graph(
-        store,
-        ir_ref=policy_ref,
-        lowered_ir_ref=lowered_ir_ref,
-        mechanisms=lowered_ir.mechanisms,
-        constraint_ids=[item.constraint_id for item in lowered_ir.constraints],
-    )
+    try:
+        program_graph, params_refs = build_program_graph(
+            store,
+            ir_ref=policy_ref,
+            lowered_ir_ref=lowered_ir_ref,
+            mechanisms=lowered_ir.mechanisms,
+            constraint_ids=[item.constraint_id for item in lowered_ir.constraints],
+            method_plan=method_plan,
+        )
+    except (TypeError, ValueError) as exc:
+        if method_plan is None:
+            raise
+        return _compile_error(
+            store,
+            ok=False,
+            policy_ref=policy_ref,
+            registry_bundle_ref=registry_bundle_ref,
+            link_report_ref=link_report_ref,
+            notes=compile_notes + [_method_execution_plan_failure_note(exc)],
+            lowered_ir_ref=lowered_ir_ref,
+            semantic_closure_notes=semantic_notes,
+        )
 
     conflict_checker = CompileTimeConflictChecker(
         slot_registry=registry_content.slot_registry,
@@ -257,6 +304,7 @@ def compile_trinity(store: FileSystemCAS, request: CompileRequest) -> CompileRes
         link_report_ref=link_report_ref,
         lowered_ir_ref=lowered_ir_ref,
         params_refs=params_refs,
+        method_execution_plan_ref=exact_method_plan_ref,
     )
     program_ref = store.put_json(
         program_graph,
@@ -377,6 +425,7 @@ def compile_trinity(store: FileSystemCAS, request: CompileRequest) -> CompileRes
     )
 
     compile_report = CompileReport(
+        schema_version="1.0",
         ok=True,
         policy_ref=policy_ref,
         registry_bundle_ref=registry_bundle_ref,
@@ -421,6 +470,7 @@ def compile_trinity(store: FileSystemCAS, request: CompileRequest) -> CompileRes
         )
 
     return CompileResult(
+        schema_version="1.0",
         ok=True,
         exec_plan_ref=exec_plan_ref,
         compile_report_ref=compile_report_ref,
@@ -443,7 +493,65 @@ def _resolve_registry_bundle_ref(
     )
 
 
-def _selected_profile_ref(store: FileSystemCAS, ref: ArtifactRef) -> ArtifactRef:
+def _load_selected_method_execution_plan(
+    store: CoreJSONArtifactStore,
+    *,
+    policy_ref: ArtifactRef,
+    method_plan_ref: ExecutionPlanRef,
+) -> tuple[ExecutionPlan, ExecutionPlanRef]:
+    """Read one selected plan only when its manifest binds the exact candidate profile."""
+    from polisyos.core.artifacts import validate_core_model_json_artifact
+
+    if (
+        policy_ref.kind != "ir.trinity_bundle"
+        or policy_ref.media_type != "application/json"
+        or policy_ref.manifest_profile_sha256 is None
+    ):
+        raise ValueError("method_execution_plan_exact_candidate_ref_missing")
+    if (
+        method_plan_ref.kind != "scientist.execution_plan"
+        or method_plan_ref.media_type != "application/json"
+        or method_plan_ref.manifest_profile_sha256 is None
+    ):
+        raise ValueError("method_execution_plan_exact_plan_ref_missing")
+    exact_policy_ref = _selected_profile_ref(store, policy_ref)
+    if artifact_ref_identity_key(exact_policy_ref) != artifact_ref_identity_key(policy_ref):
+        raise ValueError("method_execution_plan_candidate_profile_mismatch")
+    exact_plan_ref = _selected_profile_ref(store, method_plan_ref)
+    if artifact_ref_identity_key(exact_plan_ref) != artifact_ref_identity_key(method_plan_ref):
+        raise ValueError("method_execution_plan_selected_profile_mismatch")
+    manifest = store.get_manifest(exact_plan_ref)
+    if (
+        manifest.kind != "scientist.execution_plan"
+        or manifest.media_type != "application/json"
+        or manifest.artifact_schema is None
+        or manifest.artifact_schema.name != "polisyos.core.ExecutionPlan"
+        or manifest.artifact_schema.version != "1.0"
+    ):
+        raise ValueError("method_execution_plan_manifest_schema_mismatch")
+    candidate_edges = [item for item in manifest.inputs if item.role == "policy_candidate"]
+    if len(candidate_edges) != 1:
+        raise ValueError("method_execution_plan_requires_one_policy_candidate_edge")
+    candidate_edge = candidate_edges[0]
+    if (
+        candidate_edge.artifact_id != exact_policy_ref.artifact_id
+        or candidate_edge.manifest_profile_sha256 != exact_policy_ref.manifest_profile_sha256
+    ):
+        raise ValueError("method_execution_plan_policy_candidate_edge_mismatch")
+    plan = validate_core_model_json_artifact(ExecutionPlan, store, exact_plan_ref)
+    return plan, ExecutionPlanRef.model_validate(exact_plan_ref.model_dump(mode="python"))
+
+
+def _method_execution_plan_failure_note(error: BaseException) -> str:
+    """Keep selected-plan refusal reasons bounded and stable in compile output."""
+    reason = str(error)
+    allowed_prefixes = ("method_execution_plan_", "execution_plan_method_")
+    if reason.startswith(allowed_prefixes):
+        return reason[:256]
+    return "method_execution_plan_invalid"
+
+
+def _selected_profile_ref(store: CoreJSONArtifactStore, ref: ArtifactRef) -> ArtifactRef:
     """Bind a reference to the exact manifest profile currently read from CAS."""
     from polisyos.core.artifacts import artifact_ref_for_manifest
 
@@ -454,20 +562,20 @@ def _selected_profile_ref(store: FileSystemCAS, ref: ArtifactRef) -> ArtifactRef
 
 
 def _compile_method_metric_binding_set(
-    store: FileSystemCAS,
+    store: CoreJSONArtifactStore,
     *,
     request: CompileRequest,
     bundle: TrinityBundle,
     program_graph: ProgramGraph,
     program_graph_ref: ProgramGraphRef,
     registry_bundle_ref: ArtifactRef,
-    registry_content: object,
+    registry_content: RegistryBundleContent,
 ) -> MethodMetricBindingSetRef:
     """Compile only the objective/node/slot bindings explicitly selected by caller."""
     _require_bounded_method_metric_bindings(request)
     from polisyos.core.contracts.foundry import MethodMetricSemanticContract
 
-    objectives_by_id: dict[str, list[object]] = {}
+    objectives_by_id: dict[str, list[ObjectiveSpec]] = {}
     for objective in bundle.problem_frame.objectives:
         objectives_by_id.setdefault(objective.objective_id, []).append(objective)
     nodes_by_id = {node.node_id: node for node in program_graph.nodes}
@@ -489,8 +597,8 @@ def _compile_method_metric_binding_set(
     registry_bundle = load_registry_bundle(store, registry_bundle_ref)
     metric_registry_ref = registry_bundle.metric_registry
     units_registry_ref = registry_bundle.units_registry
-    metric_registry = getattr(registry_content, "metric_registry", None)
-    units_registry = getattr(registry_content, "units_registry", None)
+    metric_registry = registry_content.metric_registry
+    units_registry = registry_content.units_registry
     if metric_registry_ref is None or units_registry_ref is None:
         raise ValueError("method_metric_registry_member_missing")
     if metric_registry is None or units_registry is None:
@@ -696,6 +804,7 @@ def _program_graph_inputs(
     link_report_ref: ArtifactRef | None,
     lowered_ir_ref: ArtifactRef | None,
     params_refs: dict[str, ArtifactRef],
+    method_execution_plan_ref: ExecutionPlanRef | None = None,
 ) -> list[InputRef]:
     inputs = [input_ref_from_artifact_ref(policy_ref, role="ir")]
     if registry_bundle_ref is not None:
@@ -704,6 +813,10 @@ def _program_graph_inputs(
         inputs.append(input_ref_from_artifact_ref(link_report_ref, role="link_report"))
     if lowered_ir_ref is not None:
         inputs.append(input_ref_from_artifact_ref(lowered_ir_ref, role="lowered_ir"))
+    if method_execution_plan_ref is not None:
+        inputs.append(
+            input_ref_from_artifact_ref(method_execution_plan_ref, role="execution_plan_source")
+        )
     for node_id, ref in sorted(params_refs.items()):
         inputs.append(input_ref_from_artifact_ref(ref, role=f"params:{node_id}"))
     return inputs
@@ -747,7 +860,7 @@ def _compile_inputs(
 
 
 def _compile_error(
-    store: FileSystemCAS,
+    store: CoreJSONArtifactStore,
     *,
     ok: bool,
     policy_ref: ArtifactRef,
@@ -758,6 +871,7 @@ def _compile_error(
     notes: list[str],
 ) -> CompileResult:
     compile_report = CompileReport(
+        schema_version="1.0",
         ok=ok,
         policy_ref=policy_ref,
         registry_bundle_ref=registry_bundle_ref,
@@ -784,6 +898,7 @@ def _compile_error(
     if link_report_ref is not None:
         derived_refs.append(DerivedArtifact(role="link_report", ref=link_report_ref))
     return CompileResult(
+        schema_version="1.0",
         ok=ok,
         exec_plan_ref=None,
         compile_report_ref=compile_report_ref,

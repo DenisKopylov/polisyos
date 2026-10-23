@@ -361,3 +361,24 @@ available on this path. The legacy `admit_execution_source` API keeps its prior
 compatibility behavior. Runtime admission, candidate projection, and a real
 Core-backed bounded-reader replay are separate verification work; this package
 does not claim them complete.
+
+
+## Selected method plans
+
+A version 1.2 CompileRequest may carry an exact selected scientist.execution_plan
+reference. The plan manifest must bind the same selected Trinity candidate profile;
+the compiled ProgramGraph keeps that plan as execution_plan_source. The compiler
+adapts only registered PURE methods whose complete signature, backend, parameters,
+input slots, return slots, and dependencies match the selected plan. Unsupported or
+malformed plans refuse as a whole.
+
+Method return slots remain in the plan and method metric binding, while
+ProgramNode.outputs remains the state-patch plane. The current adapter does not
+transfer a method return into another planned method or lowered mechanism; it refuses
+a plan that declares such a consumer, including a consumer reachable by dependency
+whose slot name appears aliased. A selected nonempty method graph (nodes or declared edges) without a
+supported method metric binding is typed-refused before the compiler runs or
+compile artifacts are emitted. Empty selected plans and absent selected refs
+retain the legacy mechanism-only route; request versions 1.0 and 1.1 retain
+their no-plan behavior. This candidate execution chain does not establish
+scientific appropriateness or publication authority.

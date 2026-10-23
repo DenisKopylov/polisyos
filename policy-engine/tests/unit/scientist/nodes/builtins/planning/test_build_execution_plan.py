@@ -72,6 +72,7 @@ def test_plan_builder_uses_branch_state_for_declared_outputs(execution_context, 
     assert observed["write_paths"] == (
         "params.execution_plan_ref",
         "inputs.execution_plan_ref",
+        "inputs.trinity_bundle_ref",
         "artifacts_index.execution_plan_ref",
         "execution_plan_ref",
     )

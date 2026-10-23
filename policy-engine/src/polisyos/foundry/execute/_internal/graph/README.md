@@ -49,3 +49,14 @@ and occurrence inventories in its trajectory rows. The existing LocalBackend
 consumer retains producer artifacts, while AD02 owns the JobResult projection.
 The default WorkspaceLoop and registered S2 routes do not call this graph
 producer, and no policy-authority claim follows from the capture.
+
+
+The selected plan adapter permits only PURE method returns in its current capture
+path. Their exact registered return slots remain bound by the source plan and
+metric-binding artifacts, but they are not ProgramGraph state patches. The current
+bridge rejects a planned method or lowered mechanism that consumes such a return,
+including a dependency-reachable alias, before persisting the graph; it also rejects
+non-PURE methods and method reads from lowered mechanism outputs. The dispatcher
+captures only the selected output occurrence for the existing fresh point/unit
+consumer. This limitation is explicit; no general method-to-method dataflow is
+claimed.

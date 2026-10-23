@@ -1,0 +1,670 @@
+{
+  "receipt_schema": "policyos.e02.local-source-slice-receipt.v1",
+  "record": "F3 Fabric source-reference alias admission and expected-family precedence",
+  "proposed_tracked_destination": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/fabric-source-alias-admission-20261023.json",
+  "source": {
+    "role": "implementation author; candidate handoff for independent G review",
+    "branch": "codex/e02-unified-local-20261009",
+    "checkout": "/Users/deniskopylov/.codex/worktrees/e02-unified-local-20261009/polisyos",
+    "base": {
+      "commit": "5431ae1d272d411c330dae5c9428da1a9c4ab20f",
+      "tree": "27cff43c4721a65dc2c75532aa674cbe1b9a0c30"
+    },
+    "candidate": {
+      "commit": "5a69611e5410a65e576baa8794c5d23c3fa22285",
+      "tree": "81848d73c92864975d5c1c06020a1118214129d8",
+      "parents": [
+        "5431ae1d272d411c330dae5c9428da1a9c4ab20f"
+      ]
+    },
+    "readback": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/root-f3-source-alias-admission-implementation-commit-20261023-r1/readback.json@sha256:23343b7229f684dd20db86b75094242b7083ce913e439ba44c6e7560d85c0b05",
+    "frame": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/root-f3-source-alias-admission-implementation-commit-20261023-r1/full-composed-source-frame.json@sha256:2be68a366d807f2eb9b40912cb67c5884ed1fd79fbe393ca96869907f10ba5bf",
+    "whole_worktree_clean": false,
+    "exact_committed_footprint": [
+      [
+        "policy-engine/src/polisyos/fabric/catalog/source_selection_audit.py",
+        "2002933ebc00f4244a24588031303e6594214b1250d2ca35396acd6adcb934d4",
+        "source mechanism"
+      ],
+      [
+        "policy-engine/tests/unit/fabric/test_source_selection_audit.py",
+        "9e059f7bf95ea67e85937bc9da16c2517df628e94a19a91bd601d025a84e4cf6",
+        "existing mirrored tests"
+      ],
+      [
+        "policy-engine/tests/unit/fabric/test_source_ref_alias_presence.py",
+        "1d02d1de512e190f1ead7eaf9ea9b2497ed1d725dab98f9549bd5232bb44340c",
+        "alias and family matrix"
+      ],
+      [
+        "policy-engine/tests/unit/tools/test_canary_fabric_reference_admission.py",
+        "5ce810b2ef96df269fca4a73f9c5d1a6a00ad18a458c3f1845187419c8b14627",
+        "runtime/CAS/canary companion"
+      ],
+      [
+        "policy-engine/release-fragments/unreleased/2026-10-23-e02-fabric-source-alias-admission.toml",
+        "9564ec3572ef7cc577f5c5ac92abc588a359645524833477e650b998592b7b8a",
+        "release fragment"
+      ]
+    ]
+  },
+  "behavior": [
+    "Validate and normalize report-declared and caller-supplied expected-family lists separately before precedence; trim valid strings and compare case-insensitively. Malformed present lists are refused. A normalized-empty caller list cannot erase a report expectation.",
+    "Resolve the whole declared 12-facet / 30-path source-reference alias table by presence. A truly absent alias retains lower-priority fallback. Present empty or malformed values are explicit no-reference input and cannot fall through or be masked by preprojected facets.",
+    "Report family declarations remain candidate assertions; this does not establish external admissibility."
+  ],
+  "independent_reviews": [
+    {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/resume-q2-archive-route-author-20261022-r1/f3-family-precedence-r7-independent-review-20261023-r1/review.json",
+      "sha256": "b6827328ef8765b78d62b6e2339c6039b7925e21507428888a06801850c0c642",
+      "verdict": "GO_BOUNDED",
+      "source_freeze": false,
+      "closure_ids": [],
+      "manifest_sha256": "28d68cfefee70434c5adb155572ec6c59115fc4359f3ae5926f164cfbc1ec34a",
+      "patch_sha256": "ef5556f228baecf1efa7fb58e2cd0faccbb96f30d6b63507e342a928bc7ce23c",
+      "p40": "SAME_CLASS_DEEPER; review says both full expected-family lists are normalized before precedence; alias mechanism unchanged.",
+      "manifest_path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/resume-fabric-source-contract-f10-20261022/f3-family-precedence-r7-freeze/manifest.json",
+      "patch_path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/resume-fabric-source-contract-f10-20261022/f3-family-precedence-r7-freeze/f3-family-precedence.patch"
+    },
+    {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/resume-q2-archive-route-author-20261022-r1/f3-public-surface-scope-review-20261023-r2/review.json",
+      "sha256": "52ce7042958b11b8a90ff4d422ea07160598c2b72958a7af13895d69ccd1675a",
+      "scope": "Affected names/signatures/callers and committed inventory for public_experimental normalize_quality_evidence/build_quality_scorecard. The source-selection leaf is internal by contract but its behavior is observable through these exports. Global export resolution and G acceptance remain not established."
+    },
+    {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/resume-q2-archive-route-author-20261022-r1/f3-full-file-implementation-boundary-review-20261023-r1/review.json",
+      "sha256": "64861f7c5155b3d64338cbcea2dbed2bb2c0ef69a546c8783ec6d62b69ff0bb8",
+      "status": "Historical pre-R7 review found padded family text false-refusal; R7 corrected it and later exact-source replay passed padded/tab/newline/case variants. This is not a review of the committed candidate."
+    }
+  ],
+  "composed_wave": {
+    "manifest": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/root-f3-final-alias-publication-composed-native-wave-20261023-r1/manifest.json@sha256:2865f9ea9e0684b228c62729fdde0e450bec6a2a80eabc6c6b781c2d5deaaa66",
+    "receipt": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/root-f3-final-alias-publication-composed-native-wave-20261023-r1/receipt.json@sha256:4a256a58e1016a2386ceffd55c74a39ba714cddf146f9bf73c8e413996597394",
+    "source_frame": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/root-quality-publication-basis-reviewed-application-20261023-r1/full-composed-source-frame.json@sha256:026031a0511dafe204594bd6caba38b8321c1ce68ab1b3873af63031ed7a30b4",
+    "base": "5431ae1d272d411c330dae5c9428da1a9c4ab20f",
+    "relation": "Wave ran before commit on the exact five file hashes subsequently committed; there was no separate post-commit rerun. Receipt says source unchanged during wave.",
+    "env": {
+      "os": "macOS",
+      "python": "3.14.3",
+      "pytest": "9.0.2",
+      "basedpyright": "1.39.0",
+      "backend": "test-generated FileSystemCAS plus temporary SQLite ControlPlaneStore",
+      "config": [
+        [
+          "policy-engine/architecture/tooling/ruff/workspace_root.toml",
+          "879bfc2fa77909e595e661679fdeb9c771c3d34308a52e7c41971114f6a4ed99"
+        ],
+        [
+          "policy-engine/basedpyright.toml",
+          "c7921e8bf04131158f84ee1b3b28f9620ba7cc8cfa36c64cabd90478e958f1b2"
+        ],
+        [
+          "policy-engine/pytest.ini",
+          "61270205a9f573a090b3c051a4b78351e67308a49e21660dbf33e76186d799eb"
+        ],
+        [
+          "policy-engine/pyproject.toml",
+          "5f65308cb088086b6fc0aa40a5bae6ed852ae3a2e261103bd0d4158d97c1e8f2"
+        ],
+        [
+          "policy-engine/uv.lock",
+          "ccfdca0e741dc77795f5af61871af5d62e73feebf55c7ffb28cd16e55fe207e9"
+        ]
+      ],
+      "read_context": [
+        [
+          "policy-engine/src/polisyos/runtime/quality/authority.py",
+          "eaea4046d6df22c3608de915f636c9689d100b5f44c647753c112448db1f1ecd"
+        ],
+        [
+          "policy-engine/src/polisyos/runtime/quality/scorecard.py",
+          "1f2f99b04b919297ae169f3218d13a92da536076ee5a002ab8309c9983c5be63"
+        ],
+        [
+          "policy-engine/src/polisyos/core/artifacts/ids.py",
+          "6fbfc522d960556af66e44a8c3d6b59e478ca1ff4578b49a3573c95d33c01b4d"
+        ],
+        [
+          "policy-engine/src/polisyos/ir/artifacts/contracts.py",
+          "7a0c8c55e0cd1b5074e3dd48a716dcc607330a935427a520872ca43784bd7d06"
+        ],
+        [
+          "policy-engine/src/polisyos/core/contracts/runtime.py",
+          "75a74fb0280ad2671c955dc3001483d086bb448a5a0320f0435a3c73bb98ca92"
+        ],
+        [
+          "policy-engine/tests/conftest.py",
+          "691bf0914650edbef7cc5ededdb2828a8992c513abcaa875f0eb5ac7b318dbdd"
+        ]
+      ],
+      "note": "scorecard.py was context-only, not in this slice footprint; unrelated broader worktree deltas remain."
+    },
+    "commands": [
+      {
+        "name": "ruff-check",
+        "argv": [
+          "/Users/deniskopylov/.codex/worktrees/e02-unified-local-20261009/polisyos/policy-engine/.venv/bin/python",
+          "-B",
+          "-m",
+          "tools.devx.workspace.ruff_sources",
+          "--manifest",
+          "/Users/deniskopylov/.codex/worktrees/e02-unified-local-20261009/polisyos/policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/root-f3-final-alias-publication-composed-native-wave-20261023-r1/ruff-manifest.json",
+          "--operation",
+          "check"
+        ],
+        "cwd": "/Users/deniskopylov/.codex/worktrees/e02-unified-local-20261009/polisyos/policy-engine",
+        "exit_code": 0,
+        "output": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/root-f3-final-alias-publication-composed-native-wave-20261023-r1/ruff-check.stdout@sha256:390f5d4604cbc0072c3cbcacc94f845072530a6e2751ab82e7a2ff5d0b784d0e",
+        "stderr": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/root-f3-final-alias-publication-composed-native-wave-20261023-r1/ruff-check.stderr@sha256:e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+      },
+      {
+        "name": "ruff-format-check",
+        "argv": [
+          "/Users/deniskopylov/.codex/worktrees/e02-unified-local-20261009/polisyos/policy-engine/.venv/bin/python",
+          "-B",
+          "-m",
+          "tools.devx.workspace.ruff_sources",
+          "--manifest",
+          "/Users/deniskopylov/.codex/worktrees/e02-unified-local-20261009/polisyos/policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/root-f3-final-alias-publication-composed-native-wave-20261023-r1/ruff-manifest.json",
+          "--operation",
+          "format-check"
+        ],
+        "cwd": "/Users/deniskopylov/.codex/worktrees/e02-unified-local-20261009/polisyos/policy-engine",
+        "exit_code": 0,
+        "output": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/root-f3-final-alias-publication-composed-native-wave-20261023-r1/ruff-format-check.stdout@sha256:866866e03919779ada9c2979b486a15d41795660dd4c5b1a5ef2f90adf44976d",
+        "stderr": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/root-f3-final-alias-publication-composed-native-wave-20261023-r1/ruff-format-check.stderr@sha256:e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+      },
+      {
+        "name": "basedpyright-targeted",
+        "argv": [
+          "/Users/deniskopylov/.codex/worktrees/e02-unified-local-20261009/polisyos/policy-engine/.venv/bin/basedpyright",
+          "--baselinemode",
+          "lock",
+          "--project",
+          "/Users/deniskopylov/.codex/worktrees/e02-unified-local-20261009/polisyos/policy-engine/basedpyright.toml",
+          "--outputjson",
+          "src/polisyos/fabric/catalog/source_selection_audit.py"
+        ],
+        "cwd": "/Users/deniskopylov/.codex/worktrees/e02-unified-local-20261009/polisyos/policy-engine",
+        "exit_code": 0,
+        "output": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/root-f3-final-alias-publication-composed-native-wave-20261023-r1/basedpyright.stdout@sha256:06dad974f8392be5f37e65fdb1d22eb377fef42d2a9a91265f62940b11eb2d0c",
+        "stderr": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/root-f3-final-alias-publication-composed-native-wave-20261023-r1/basedpyright.stderr@sha256:e664314bdc5e1dd3cb6000cf2aea3aecde7508671018243af37b61dc66ec8be1",
+        "caveat": "One file, zero errors/warnings; baseline lock unchanged (before/after SHA 8ceca56253ec877284553b09de0ff1295a75583a6a4fc2238ef002cf9518b6af); stderr notes 1136 baselined errors decreased and the locked baseline was not updated."
+      },
+      {
+        "name": "pytest-composed-focused",
+        "argv": [
+          "/Users/deniskopylov/.codex/worktrees/e02-unified-local-20261009/polisyos/policy-engine/.venv/bin/python",
+          "-B",
+          "-m",
+          "pytest",
+          "-q",
+          "-o",
+          "cache_dir=/Users/deniskopylov/.codex/worktrees/e02-unified-local-20261009/polisyos/policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/root-f3-final-alias-publication-composed-native-wave-20261023-r1/pytest-cache",
+          "--basetemp=/Users/deniskopylov/.codex/worktrees/e02-unified-local-20261009/polisyos/policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/root-f3-final-alias-publication-composed-native-wave-20261023-r1/temp",
+          "--junitxml=/Users/deniskopylov/.codex/worktrees/e02-unified-local-20261009/polisyos/policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/root-f3-final-alias-publication-composed-native-wave-20261023-r1/junit.xml",
+          "tests/unit/fabric/test_source_ref_alias_presence.py",
+          "tests/unit/fabric/test_source_selection_audit.py",
+          "tests/unit/tools/test_canary_fabric_reference_admission.py"
+        ],
+        "cwd": "/Users/deniskopylov/.codex/worktrees/e02-unified-local-20261009/polisyos/policy-engine",
+        "exit_code": 0,
+        "elapsed_seconds": 35.476,
+        "junit": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/root-f3-final-alias-publication-composed-native-wave-20261023-r1/junit.xml@sha256:a802be3bffc6e7dc28656512f4137c280f6dfdaf1a9f11bc6a60da6d208d706a",
+        "stdout": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/root-f3-final-alias-publication-composed-native-wave-20261023-r1/pytest.stdout@sha256:c8d5ae7ad5beefa04e4ec55e6cf04d6c682be678c8048ed3688cd372904d43eb",
+        "stderr_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+        "result": {
+          "tests": 294,
+          "failures": 0,
+          "errors": 0,
+          "skipped": 0
+        },
+        "stderr": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/root-f3-final-alias-publication-composed-native-wave-20261023-r1/pytest.stderr@sha256:e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+      }
+    ],
+    "generated_input_profile_sample": {
+      "case": "absent-uses-required-fields-fallback",
+      "source_input_artifact": "sha256:68637a3c8d22bb3f81deea5006fbccdea34b94bcfce8df436703123d51dae543",
+      "source_input_manifest_sha256": "aef60e525f0e836a83a5de90ca4382b91b2e68eb34af0e140372f713e3515f02",
+      "source_input_profile_sha256": "sha256:10c4d382c09b9553d448415516f289db4e0f00298334590128265a74528d23e9",
+      "selected_trace_artifact": "sha256:816c04f94e615bd2c015165592b1dcdea25de37332aa7e63facd7616e812a131",
+      "selected_trace_manifest_sha256": "495e77308f1ad1eeecc5ea2e36851dbb567c9b9392bfa0bca9e3c7f070982027",
+      "selected_trace_profile_sha256": "sha256:0fe42dd394f58e39a3c35ef5676cde806ec0a0bc8ae71d489a1933ef27de2865",
+      "authority_envelope_profile_sha256": "sha256:ff779221a01a8e9b917d0090823e893068c1303bc427176d3730a268ddeff210",
+      "diagnostic_event_profile_sha256": "sha256:a84a3e698a26f121abf0d40ad0c8454aa0d25d3b2560b00440d0f540e99d1232",
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/root-f3-final-alias-publication-composed-native-wave-20261023-r1/temp/test_canary_scorecard_recomput0/cas/artifacts/sha256/81/6c/816c04f94e615bd2c015165592b1dcdea25de37332aa7e63facd7616e812a131.view.0fe42dd394f58e39a3c35ef5676cde806ec0a0bc8ae71d489a1933ef27de2865.manifest.json@sha256:495e77308f1ad1eeecc5ea2e36851dbb567c9b9392bfa0bca9e3c7f070982027",
+      "note": "The profile was computed from the generated persisted manifest and checked against the ArtifactRef; this is one synthetic per-run fixture, not production currentness."
+    }
+  },
+  "runtime_chain": [
+    "Controlled JSON source-selection input is written to FileSystemCAS with return_selected_profile=True, then read back with get_bytes before the producer builds its trace.",
+    "The runtime authority writer persists kind fabric.retrieval_trace, media application/json, schema polisyos.fabric.SourceSelectionTrace@1.0 and producer polisyos.runtime.quality.fabric_retrieval_trace; it sets authority role runtime_blocker and a deliberate same-input closure status not_closed.",
+    "The event log is checked against the persisted trace artifact ref. A typed ArtifactRef carries the manifest-derived profile SHA.",
+    "The canary assembler consumes that CAS/profile ref alongside a deliberately conflicting inline trace; the output follows persisted CAS bytes and its scorecard preserves the independent blocking gate for the unclosed input basis."
+  ],
+  "adversarial_controls": {
+    "alias_cases": "11 canary parameters cover true omission/fallback, present null, empty list/string, false, scalar 17, malformed mapping, recognized ref, empty/malformed values over valid preprojected facets, and omitted alias with preprojected facet/no lower fallback.",
+    "family_cases": "Committed matrix covers valid padded/tab/newline/case variants, omitted/empty/blank/malformed report and supplied shapes, and report-vs-caller match/mismatch; malformed report shapes are refused even with supplied values.",
+    "alias_property_removal": {
+      "earlier_control_output": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/resume-fabric-source-contract-f10-20261022/f3-source-ref-alias-r9-empty-preprojected-removal-control/stdout@sha256:6752bb4019837e85d823df48d4bc27eec7b3338eea1068dddf1f0316e626e7c2",
+      "invocation": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/resume-fabric-source-contract-f10-20261022/f3-source-ref-alias-r9-empty-preprojected-removal-control/invocation.json@sha256:5962888720fe6ae26851f13850c034185f9d67355ff4c9761daeb62630022ba0",
+      "result": "Three expected failures when the present-empty-over-preprojected property was removed and markers remained; R7 review states the alias mechanism is unchanged by the family-precedence patch."
+    },
+    "family_property_removal": {
+      "wrapper_stdout": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/resume-fabric-source-contract-f10-20261022/f3-family-precedence-r7-remove-control/stdout@sha256:31279f978e61a758324bf278c723342c67f95bbfcfee90158877c76231ba3df7",
+      "wrapper_invocation": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/resume-fabric-source-contract-f10-20261022/f3-family-precedence-r7-remove-control/invocation.json@sha256:5e1602026181631d5dfb465c13b0a3f91a4a8f3e235e3b7897f284f1f6b1ac89",
+      "wrapper_summary": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/resume-fabric-source-contract-f10-20261022/f3-family-precedence-r7-remove-control/summary.json@sha256:b5d290b854d795efb19cf124f68f492d786c63bb5c6916543f57b31756007302",
+      "inner_pytest_stdout_sha256_only": "cc3dbefdeba8e6576e57ad2c530b29ef609e49518f4acee9dfbb2f6a34e11930",
+      "inner_pytest_stdout_file": "Not retained separately; this digest is recorded only inside wrapper summary.json.",
+      "junit": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/resume-fabric-source-contract-f10-20261022/f3-family-precedence-r7-remove-control/junit.xml@sha256:dc243a886448dd9c2e6e8fbfc23eef8c38440dc7e289d89f23e34b284f4b9ce9",
+      "result": {
+        "passed": 33,
+        "failed": 3,
+        "errors": 0,
+        "skipped": 0
+      },
+      "selector": "-k expected_family_precedence",
+      "output_semantics": "The retained stdout file is wrapper/composite output and is bound above to its actual file SHA. It is not the separately hashed inner pytest stdout. The complete test result is retained as JUnit; the inner stdout digest is present only in summary.json, with no standalone inner-stdout path claimed."
+    }
+  },
+  "closeout": {
+    "source_freeze": false,
+    "closure_ids": [],
+    "G_adjudication": "not performed",
+    "remaining": [
+      "Formal mapping of this bounded mechanism to original TASKS/findings occurrences and independent G closure decisions.",
+      "Full E02 source/input/backend freeze; Linux, installed wheel/sdist consumers, production evidence/currentness, global public-surface regeneration, and complete native repository gates remain pending."
+    ],
+    "authority_limits": "No external authority, source custody/currentness, qualifying production workload, or policy outcome is asserted."
+  },
+  "release_checks": [
+    {
+      "name": "compatibility-release-gate",
+      "cwd": "/Users/deniskopylov/.codex/worktrees/e02-unified-local-20261009/polisyos/policy-engine",
+      "argv": [
+        "/Users/deniskopylov/.codex/worktrees/e02-unified-local-20261009/polisyos/policy-engine/.venv/bin/python",
+        "-B",
+        "-m",
+        "tools.ops_runners.release.check_compatibility_release_gates",
+        "--repo-root",
+        "/Users/deniskopylov/.codex/worktrees/e02-unified-local-20261009/polisyos/policy-engine",
+        "--fragments-dir",
+        "/Users/deniskopylov/.codex/worktrees/e02-unified-local-20261009/polisyos/policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/resume-fabric-source-contract-f10-20261022/f3-family-precedence-r7-freeze/candidate/policy-engine/release-fragments/unreleased",
+        "--fail-on-contract-errors"
+      ],
+      "exit_code": 0,
+      "stdout": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/resume-fabric-source-contract-f10-20261022/f3-family-precedence-r7-freeze/compatibility-gate.stdout@sha256:8ad4505eebc5c093f291d0d76289d1ce2e9524baa3247e6de84ca838f86ed537",
+      "stderr_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "stderr": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/resume-fabric-source-contract-f10-20261022/f3-family-precedence-r7-freeze/compatibility-gate.stderr@sha256:e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    {
+      "name": "release-notes-builder",
+      "cwd": "/Users/deniskopylov/.codex/worktrees/e02-unified-local-20261009/polisyos/policy-engine",
+      "argv": [
+        "/Users/deniskopylov/.codex/worktrees/e02-unified-local-20261009/polisyos/policy-engine/.venv/bin/python",
+        "-B",
+        "-m",
+        "tools.ops_runners.release.build_release_notes",
+        "--version",
+        "0.0.0-candidate",
+        "--fragments-dir",
+        "/Users/deniskopylov/.codex/worktrees/e02-unified-local-20261009/polisyos/policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/resume-fabric-source-contract-f10-20261022/f3-family-precedence-r7-freeze/candidate/policy-engine/release-fragments/unreleased",
+        "--output",
+        "/Users/deniskopylov/.codex/worktrees/e02-unified-local-20261009/polisyos/policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/resume-fabric-source-contract-f10-20261022/f3-family-precedence-r7-freeze/rendered-release-notes.md",
+        "--date",
+        "2026-10-23"
+      ],
+      "exit_code": 0,
+      "stdout_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "stderr_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "stdout": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/resume-fabric-source-contract-f10-20261022/f3-family-precedence-r7-freeze/release-builder.stdout@sha256:e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "stderr": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/resume-fabric-source-contract-f10-20261022/f3-family-precedence-r7-freeze/release-builder.stderr@sha256:e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    }
+  ],
+  "supersedes": {
+    "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/resume-fabric-source-contract-f10-20261022/f3-local-closeout-receipt-20261023-r5/fabric-source-alias-admission-20261023.json",
+    "sha256": "0750f2fb4ed519977b64166a6efe2b802e0204e5938cff670654e1e28fe1d4cd"
+  },
+  "receipt_revision": "R6  \u0014 corrected receipt path/hash binding after independent review",
+  "reference_audit": {
+    "scope": "All inline path@sha256 values; object path+sha256 and *_path+*_sha256 pairs; and arrays whose first two entries are path and sha256. Digest-only artifact/profile identifiers and prose paths are excluded.",
+    "method": "Resolve relative paths from the repository root; reject symlink path components and non-regular/missing targets; SHA-256 the referenced file bytes. JSON pointers identify each reference occurrence.",
+    "reference_count": 47,
+    "matching_count": 47,
+    "mismatch_count": 0,
+    "missing_or_unreadable_count": 0,
+    "mismatches": [],
+    "references": [
+      {
+        "json_pointer": "/source/readback",
+        "kind": "inline path@sha256",
+        "expected_sha256": "23343b7229f684dd20db86b75094242b7083ce913e439ba44c6e7560d85c0b05",
+        "actual_sha256": "23343b7229f684dd20db86b75094242b7083ce913e439ba44c6e7560d85c0b05",
+        "match": true
+      },
+      {
+        "json_pointer": "/source/frame",
+        "kind": "inline path@sha256",
+        "expected_sha256": "2be68a366d807f2eb9b40912cb67c5884ed1fd79fbe393ca96869907f10ba5bf",
+        "actual_sha256": "2be68a366d807f2eb9b40912cb67c5884ed1fd79fbe393ca96869907f10ba5bf",
+        "match": true
+      },
+      {
+        "json_pointer": "/source/exact_committed_footprint/0",
+        "kind": "array[0]=path,[1]=sha256",
+        "expected_sha256": "2002933ebc00f4244a24588031303e6594214b1250d2ca35396acd6adcb934d4",
+        "actual_sha256": "2002933ebc00f4244a24588031303e6594214b1250d2ca35396acd6adcb934d4",
+        "match": true
+      },
+      {
+        "json_pointer": "/source/exact_committed_footprint/1",
+        "kind": "array[0]=path,[1]=sha256",
+        "expected_sha256": "9e059f7bf95ea67e85937bc9da16c2517df628e94a19a91bd601d025a84e4cf6",
+        "actual_sha256": "9e059f7bf95ea67e85937bc9da16c2517df628e94a19a91bd601d025a84e4cf6",
+        "match": true
+      },
+      {
+        "json_pointer": "/source/exact_committed_footprint/2",
+        "kind": "array[0]=path,[1]=sha256",
+        "expected_sha256": "1d02d1de512e190f1ead7eaf9ea9b2497ed1d725dab98f9549bd5232bb44340c",
+        "actual_sha256": "1d02d1de512e190f1ead7eaf9ea9b2497ed1d725dab98f9549bd5232bb44340c",
+        "match": true
+      },
+      {
+        "json_pointer": "/source/exact_committed_footprint/3",
+        "kind": "array[0]=path,[1]=sha256",
+        "expected_sha256": "5ce810b2ef96df269fca4a73f9c5d1a6a00ad18a458c3f1845187419c8b14627",
+        "actual_sha256": "5ce810b2ef96df269fca4a73f9c5d1a6a00ad18a458c3f1845187419c8b14627",
+        "match": true
+      },
+      {
+        "json_pointer": "/source/exact_committed_footprint/4",
+        "kind": "array[0]=path,[1]=sha256",
+        "expected_sha256": "9564ec3572ef7cc577f5c5ac92abc588a359645524833477e650b998592b7b8a",
+        "actual_sha256": "9564ec3572ef7cc577f5c5ac92abc588a359645524833477e650b998592b7b8a",
+        "match": true
+      },
+      {
+        "json_pointer": "/independent_reviews/0",
+        "kind": "object.path+sha256",
+        "expected_sha256": "b6827328ef8765b78d62b6e2339c6039b7925e21507428888a06801850c0c642",
+        "actual_sha256": "b6827328ef8765b78d62b6e2339c6039b7925e21507428888a06801850c0c642",
+        "match": true
+      },
+      {
+        "json_pointer": "/independent_reviews/0/manifest_path",
+        "kind": "object.manifest_path+manifest_sha256",
+        "expected_sha256": "28d68cfefee70434c5adb155572ec6c59115fc4359f3ae5926f164cfbc1ec34a",
+        "actual_sha256": "28d68cfefee70434c5adb155572ec6c59115fc4359f3ae5926f164cfbc1ec34a",
+        "match": true
+      },
+      {
+        "json_pointer": "/independent_reviews/0/patch_path",
+        "kind": "object.patch_path+patch_sha256",
+        "expected_sha256": "ef5556f228baecf1efa7fb58e2cd0faccbb96f30d6b63507e342a928bc7ce23c",
+        "actual_sha256": "ef5556f228baecf1efa7fb58e2cd0faccbb96f30d6b63507e342a928bc7ce23c",
+        "match": true
+      },
+      {
+        "json_pointer": "/independent_reviews/1",
+        "kind": "object.path+sha256",
+        "expected_sha256": "52ce7042958b11b8a90ff4d422ea07160598c2b72958a7af13895d69ccd1675a",
+        "actual_sha256": "52ce7042958b11b8a90ff4d422ea07160598c2b72958a7af13895d69ccd1675a",
+        "match": true
+      },
+      {
+        "json_pointer": "/independent_reviews/2",
+        "kind": "object.path+sha256",
+        "expected_sha256": "64861f7c5155b3d64338cbcea2dbed2bb2c0ef69a546c8783ec6d62b69ff0bb8",
+        "actual_sha256": "64861f7c5155b3d64338cbcea2dbed2bb2c0ef69a546c8783ec6d62b69ff0bb8",
+        "match": true
+      },
+      {
+        "json_pointer": "/composed_wave/manifest",
+        "kind": "inline path@sha256",
+        "expected_sha256": "2865f9ea9e0684b228c62729fdde0e450bec6a2a80eabc6c6b781c2d5deaaa66",
+        "actual_sha256": "2865f9ea9e0684b228c62729fdde0e450bec6a2a80eabc6c6b781c2d5deaaa66",
+        "match": true
+      },
+      {
+        "json_pointer": "/composed_wave/receipt",
+        "kind": "inline path@sha256",
+        "expected_sha256": "4a256a58e1016a2386ceffd55c74a39ba714cddf146f9bf73c8e413996597394",
+        "actual_sha256": "4a256a58e1016a2386ceffd55c74a39ba714cddf146f9bf73c8e413996597394",
+        "match": true
+      },
+      {
+        "json_pointer": "/composed_wave/source_frame",
+        "kind": "inline path@sha256",
+        "expected_sha256": "026031a0511dafe204594bd6caba38b8321c1ce68ab1b3873af63031ed7a30b4",
+        "actual_sha256": "026031a0511dafe204594bd6caba38b8321c1ce68ab1b3873af63031ed7a30b4",
+        "match": true
+      },
+      {
+        "json_pointer": "/composed_wave/env/config/0",
+        "kind": "array[0]=path,[1]=sha256",
+        "expected_sha256": "879bfc2fa77909e595e661679fdeb9c771c3d34308a52e7c41971114f6a4ed99",
+        "actual_sha256": "879bfc2fa77909e595e661679fdeb9c771c3d34308a52e7c41971114f6a4ed99",
+        "match": true
+      },
+      {
+        "json_pointer": "/composed_wave/env/config/1",
+        "kind": "array[0]=path,[1]=sha256",
+        "expected_sha256": "c7921e8bf04131158f84ee1b3b28f9620ba7cc8cfa36c64cabd90478e958f1b2",
+        "actual_sha256": "c7921e8bf04131158f84ee1b3b28f9620ba7cc8cfa36c64cabd90478e958f1b2",
+        "match": true
+      },
+      {
+        "json_pointer": "/composed_wave/env/config/2",
+        "kind": "array[0]=path,[1]=sha256",
+        "expected_sha256": "61270205a9f573a090b3c051a4b78351e67308a49e21660dbf33e76186d799eb",
+        "actual_sha256": "61270205a9f573a090b3c051a4b78351e67308a49e21660dbf33e76186d799eb",
+        "match": true
+      },
+      {
+        "json_pointer": "/composed_wave/env/config/3",
+        "kind": "array[0]=path,[1]=sha256",
+        "expected_sha256": "5f65308cb088086b6fc0aa40a5bae6ed852ae3a2e261103bd0d4158d97c1e8f2",
+        "actual_sha256": "5f65308cb088086b6fc0aa40a5bae6ed852ae3a2e261103bd0d4158d97c1e8f2",
+        "match": true
+      },
+      {
+        "json_pointer": "/composed_wave/env/config/4",
+        "kind": "array[0]=path,[1]=sha256",
+        "expected_sha256": "ccfdca0e741dc77795f5af61871af5d62e73feebf55c7ffb28cd16e55fe207e9",
+        "actual_sha256": "ccfdca0e741dc77795f5af61871af5d62e73feebf55c7ffb28cd16e55fe207e9",
+        "match": true
+      },
+      {
+        "json_pointer": "/composed_wave/env/read_context/0",
+        "kind": "array[0]=path,[1]=sha256",
+        "expected_sha256": "eaea4046d6df22c3608de915f636c9689d100b5f44c647753c112448db1f1ecd",
+        "actual_sha256": "eaea4046d6df22c3608de915f636c9689d100b5f44c647753c112448db1f1ecd",
+        "match": true
+      },
+      {
+        "json_pointer": "/composed_wave/env/read_context/1",
+        "kind": "array[0]=path,[1]=sha256",
+        "expected_sha256": "1f2f99b04b919297ae169f3218d13a92da536076ee5a002ab8309c9983c5be63",
+        "actual_sha256": "1f2f99b04b919297ae169f3218d13a92da536076ee5a002ab8309c9983c5be63",
+        "match": true
+      },
+      {
+        "json_pointer": "/composed_wave/env/read_context/2",
+        "kind": "array[0]=path,[1]=sha256",
+        "expected_sha256": "6fbfc522d960556af66e44a8c3d6b59e478ca1ff4578b49a3573c95d33c01b4d",
+        "actual_sha256": "6fbfc522d960556af66e44a8c3d6b59e478ca1ff4578b49a3573c95d33c01b4d",
+        "match": true
+      },
+      {
+        "json_pointer": "/composed_wave/env/read_context/3",
+        "kind": "array[0]=path,[1]=sha256",
+        "expected_sha256": "7a0c8c55e0cd1b5074e3dd48a716dcc607330a935427a520872ca43784bd7d06",
+        "actual_sha256": "7a0c8c55e0cd1b5074e3dd48a716dcc607330a935427a520872ca43784bd7d06",
+        "match": true
+      },
+      {
+        "json_pointer": "/composed_wave/env/read_context/4",
+        "kind": "array[0]=path,[1]=sha256",
+        "expected_sha256": "75a74fb0280ad2671c955dc3001483d086bb448a5a0320f0435a3c73bb98ca92",
+        "actual_sha256": "75a74fb0280ad2671c955dc3001483d086bb448a5a0320f0435a3c73bb98ca92",
+        "match": true
+      },
+      {
+        "json_pointer": "/composed_wave/env/read_context/5",
+        "kind": "array[0]=path,[1]=sha256",
+        "expected_sha256": "691bf0914650edbef7cc5ededdb2828a8992c513abcaa875f0eb5ac7b318dbdd",
+        "actual_sha256": "691bf0914650edbef7cc5ededdb2828a8992c513abcaa875f0eb5ac7b318dbdd",
+        "match": true
+      },
+      {
+        "json_pointer": "/composed_wave/commands/0/output",
+        "kind": "inline path@sha256",
+        "expected_sha256": "390f5d4604cbc0072c3cbcacc94f845072530a6e2751ab82e7a2ff5d0b784d0e",
+        "actual_sha256": "390f5d4604cbc0072c3cbcacc94f845072530a6e2751ab82e7a2ff5d0b784d0e",
+        "match": true
+      },
+      {
+        "json_pointer": "/composed_wave/commands/0/stderr",
+        "kind": "inline path@sha256",
+        "expected_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+        "actual_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+        "match": true
+      },
+      {
+        "json_pointer": "/composed_wave/commands/1/output",
+        "kind": "inline path@sha256",
+        "expected_sha256": "866866e03919779ada9c2979b486a15d41795660dd4c5b1a5ef2f90adf44976d",
+        "actual_sha256": "866866e03919779ada9c2979b486a15d41795660dd4c5b1a5ef2f90adf44976d",
+        "match": true
+      },
+      {
+        "json_pointer": "/composed_wave/commands/1/stderr",
+        "kind": "inline path@sha256",
+        "expected_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+        "actual_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+        "match": true
+      },
+      {
+        "json_pointer": "/composed_wave/commands/2/output",
+        "kind": "inline path@sha256",
+        "expected_sha256": "06dad974f8392be5f37e65fdb1d22eb377fef42d2a9a91265f62940b11eb2d0c",
+        "actual_sha256": "06dad974f8392be5f37e65fdb1d22eb377fef42d2a9a91265f62940b11eb2d0c",
+        "match": true
+      },
+      {
+        "json_pointer": "/composed_wave/commands/2/stderr",
+        "kind": "inline path@sha256",
+        "expected_sha256": "e664314bdc5e1dd3cb6000cf2aea3aecde7508671018243af37b61dc66ec8be1",
+        "actual_sha256": "e664314bdc5e1dd3cb6000cf2aea3aecde7508671018243af37b61dc66ec8be1",
+        "match": true
+      },
+      {
+        "json_pointer": "/composed_wave/commands/3/junit",
+        "kind": "inline path@sha256",
+        "expected_sha256": "a802be3bffc6e7dc28656512f4137c280f6dfdaf1a9f11bc6a60da6d208d706a",
+        "actual_sha256": "a802be3bffc6e7dc28656512f4137c280f6dfdaf1a9f11bc6a60da6d208d706a",
+        "match": true
+      },
+      {
+        "json_pointer": "/composed_wave/commands/3/stdout",
+        "kind": "inline path@sha256",
+        "expected_sha256": "c8d5ae7ad5beefa04e4ec55e6cf04d6c682be678c8048ed3688cd372904d43eb",
+        "actual_sha256": "c8d5ae7ad5beefa04e4ec55e6cf04d6c682be678c8048ed3688cd372904d43eb",
+        "match": true
+      },
+      {
+        "json_pointer": "/composed_wave/commands/3/stderr",
+        "kind": "inline path@sha256",
+        "expected_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+        "actual_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+        "match": true
+      },
+      {
+        "json_pointer": "/composed_wave/generated_input_profile_sample/path",
+        "kind": "inline path@sha256",
+        "expected_sha256": "495e77308f1ad1eeecc5ea2e36851dbb567c9b9392bfa0bca9e3c7f070982027",
+        "actual_sha256": "495e77308f1ad1eeecc5ea2e36851dbb567c9b9392bfa0bca9e3c7f070982027",
+        "match": true
+      },
+      {
+        "json_pointer": "/adversarial_controls/alias_property_removal/earlier_control_output",
+        "kind": "inline path@sha256",
+        "expected_sha256": "6752bb4019837e85d823df48d4bc27eec7b3338eea1068dddf1f0316e626e7c2",
+        "actual_sha256": "6752bb4019837e85d823df48d4bc27eec7b3338eea1068dddf1f0316e626e7c2",
+        "match": true
+      },
+      {
+        "json_pointer": "/adversarial_controls/alias_property_removal/invocation",
+        "kind": "inline path@sha256",
+        "expected_sha256": "5962888720fe6ae26851f13850c034185f9d67355ff4c9761daeb62630022ba0",
+        "actual_sha256": "5962888720fe6ae26851f13850c034185f9d67355ff4c9761daeb62630022ba0",
+        "match": true
+      },
+      {
+        "json_pointer": "/adversarial_controls/family_property_removal/wrapper_stdout",
+        "kind": "inline path@sha256",
+        "expected_sha256": "31279f978e61a758324bf278c723342c67f95bbfcfee90158877c76231ba3df7",
+        "actual_sha256": "31279f978e61a758324bf278c723342c67f95bbfcfee90158877c76231ba3df7",
+        "match": true
+      },
+      {
+        "json_pointer": "/adversarial_controls/family_property_removal/wrapper_invocation",
+        "kind": "inline path@sha256",
+        "expected_sha256": "5e1602026181631d5dfb465c13b0a3f91a4a8f3e235e3b7897f284f1f6b1ac89",
+        "actual_sha256": "5e1602026181631d5dfb465c13b0a3f91a4a8f3e235e3b7897f284f1f6b1ac89",
+        "match": true
+      },
+      {
+        "json_pointer": "/adversarial_controls/family_property_removal/wrapper_summary",
+        "kind": "inline path@sha256",
+        "expected_sha256": "b5d290b854d795efb19cf124f68f492d786c63bb5c6916543f57b31756007302",
+        "actual_sha256": "b5d290b854d795efb19cf124f68f492d786c63bb5c6916543f57b31756007302",
+        "match": true
+      },
+      {
+        "json_pointer": "/adversarial_controls/family_property_removal/junit",
+        "kind": "inline path@sha256",
+        "expected_sha256": "dc243a886448dd9c2e6e8fbfc23eef8c38440dc7e289d89f23e34b284f4b9ce9",
+        "actual_sha256": "dc243a886448dd9c2e6e8fbfc23eef8c38440dc7e289d89f23e34b284f4b9ce9",
+        "match": true
+      },
+      {
+        "json_pointer": "/release_checks/0/stdout",
+        "kind": "inline path@sha256",
+        "expected_sha256": "8ad4505eebc5c093f291d0d76289d1ce2e9524baa3247e6de84ca838f86ed537",
+        "actual_sha256": "8ad4505eebc5c093f291d0d76289d1ce2e9524baa3247e6de84ca838f86ed537",
+        "match": true
+      },
+      {
+        "json_pointer": "/release_checks/0/stderr",
+        "kind": "inline path@sha256",
+        "expected_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+        "actual_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+        "match": true
+      },
+      {
+        "json_pointer": "/release_checks/1/stdout",
+        "kind": "inline path@sha256",
+        "expected_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+        "actual_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+        "match": true
+      },
+      {
+        "json_pointer": "/release_checks/1/stderr",
+        "kind": "inline path@sha256",
+        "expected_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+        "actual_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+        "match": true
+      },
+      {
+        "json_pointer": "/supersedes",
+        "kind": "object.path+sha256",
+        "expected_sha256": "0750f2fb4ed519977b64166a6efe2b802e0204e5938cff670654e1e28fe1d4cd",
+        "actual_sha256": "0750f2fb4ed519977b64166a6efe2b802e0204e5938cff670654e1e28fe1d4cd",
+        "match": true
+      }
+    ],
+    "interpretation": "Wrapper stdout is bound to its on-disk wrapper file hash; inner pytest stdout SHA is reported only as a digest embedded in summary.json, not as a file reference."
+  }
+}

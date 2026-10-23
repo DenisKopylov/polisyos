@@ -3,84 +3,222 @@
 from __future__ import annotations
 
 from collections.abc import Mapping, Sequence
-from typing import Any
+from typing import Any, Literal
+
+from pydantic import TypeAdapter
 
 SCHEMA_VERSION = "policyos.fabric.source_selection_trace.v1"
 SERIOUS_CANARY_KINDS = {"production", "governed", "research"}
 FIXTURE_MARKERS = ("fixture", "mock", "stub", "demo")
 PLAUSIBLE_RELEVANCE_THRESHOLD = 0.5
+_FLOAT_ADAPTER = TypeAdapter(float)
 
-WAVE13_REQUIRED_SOURCE_FACETS: tuple[tuple[str, str, str], ...] = (
+WAVE13_REQUIRED_SOURCE_FACETS: tuple[tuple[str, str, str, Literal["text", "reference"]], ...] = (
     (
         "source_rights",
         "selected_source_missing_source_rights",
         "Record source rights/license evidence for every selected Fabric source.",
+        "text",
     ),
     (
         "dictionary_ref",
         "selected_source_missing_dictionary_ref",
         "Record the data dictionary ref for every selected Fabric source.",
+        "reference",
     ),
     (
         "schema_ref",
         "selected_source_missing_schema_ref",
         "Record the schema ref for every selected Fabric source.",
+        "reference",
     ),
     (
         "field_refs",
         "selected_source_missing_field_refs",
         "Record field-level refs for every selected Fabric source.",
+        "reference",
     ),
     (
         "unit_refs",
         "selected_source_missing_unit_refs",
         "Record unit refs for every selected Fabric source.",
+        "reference",
     ),
     (
         "geography_refs",
         "selected_source_missing_geography_refs",
         "Record geography coverage refs for every selected Fabric source.",
+        "reference",
     ),
     (
         "time_coverage_refs",
         "selected_source_missing_time_coverage_refs",
         "Record time coverage refs for every selected Fabric source.",
+        "reference",
     ),
     (
         "quality_refs",
         "selected_source_missing_quality_refs",
         "Record quality evidence refs for every selected Fabric source.",
+        "reference",
     ),
     (
         "missingness_refs",
         "selected_source_missing_missingness_refs",
         "Record missingness evidence refs for every selected Fabric source.",
+        "reference",
     ),
     (
         "freshness_refs",
         "selected_source_missing_freshness_refs",
         "Record freshness evidence refs for every selected Fabric source.",
+        "reference",
     ),
     (
         "lineage_refs",
         "selected_source_missing_lineage_refs",
         "Record field/source lineage refs for every selected Fabric source.",
+        "reference",
     ),
     (
         "transformation_refs",
         "selected_source_missing_transformation_refs",
         "Record transformation refs for every selected Fabric source.",
+        "reference",
     ),
     (
         "data_forge_snapshot_refs",
         "selected_source_missing_data_forge_snapshot_refs",
         "Bind every selected Fabric source to Wave 12 Data Forge snapshot refs.",
+        "reference",
     ),
 )
 
 
+def _checked_mapping(value: object, *, field: str) -> dict[str, Any]:
+    if not isinstance(value, Mapping):
+        raise ValueError(f"fabric_source_selection_{field}_must_be_mapping")
+    result: dict[str, Any] = {}
+    for key, item in value.items():
+        if not isinstance(key, str):
+            raise ValueError(f"fabric_source_selection_{field}_key_must_be_text")
+        result[key] = item
+    return result
+
+
+def _checked_record_list(value: object, *, field: str) -> list[dict[str, Any]]:
+    if not isinstance(value, list):
+        raise ValueError(f"fabric_source_selection_{field}_must_be_list")
+    return [_checked_mapping(item, field=f"{field}[{index}]") for index, item in enumerate(value)]
+
+
+_SOURCE_ROW_MAPPING_FIELDS = (
+    "diagnostics",
+    "freshness",
+    "coverage",
+    "schema_compatibility",
+    "quality",
+    "source_facets",
+)
+_SOURCE_ROW_LIST_FIELDS = ("derived_features", "derived_feature_bindings")
+
+
+# These ordered paths are the complete set of source-reference aliases consumed
+# by this builder. Presence, rather than truthiness, chooses a legacy alias:
+# explicit empty values remain empty evidence and cannot promote a lower alias.
+_SOURCE_REFERENCE_FACET_ALIASES: dict[str, tuple[tuple[str, ...], ...]] = {
+    "dataset_ref": (("dataset_ref",), ("dataset_id",)),
+    "dictionary_ref": (("dictionary_ref",), ("data_dictionary_ref",)),
+    "schema_ref": (("schema_ref",), ("schema_id",)),
+    "field_refs": (
+        ("field_refs",),
+        ("fields",),
+        ("available_columns",),
+        ("columns",),
+        ("schema_compatibility", "required_fields"),
+    ),
+    "unit_refs": (("unit_refs",), ("units",)),
+    "geography_refs": (("geography_refs",), ("geography",), ("coverage", "geography")),
+    "time_coverage_refs": (
+        ("time_coverage_refs",),
+        ("time_coverage",),
+        ("time_window",),
+        ("coverage", "time_window"),
+    ),
+    "quality_refs": (("quality_refs",), ("quality", "ref")),
+    "missingness_refs": (("missingness_refs",), ("missingness",)),
+    "freshness_refs": (("freshness_refs",), ("freshness", "ref")),
+    "lineage_refs": (("lineage_refs",), ("lineage",)),
+    "transformation_refs": (("transformation_refs",), ("transformations",)),
+}
+_REFERENCE_VALUE_KEYS = (
+    "ref",
+    "id",
+    "artifact_ref",
+    "artifact_id",
+    "snapshot_ref",
+    "manifest_ref",
+    "field_ref",
+    "source_ref",
+    "source_id",
+)
+_SINGULAR_SOURCE_REFERENCE_FACETS = frozenset({"dataset_ref", "dictionary_ref", "schema_ref"})
+
+
+def _checked_optional_record_rows(value: object, *, field: str) -> None:
+    """Validate the record rows consumed by source and snapshot projections."""
+    if value is None:
+        return
+    if isinstance(value, Mapping):
+        _checked_mapping(value, field=f"{field}[0]")
+        return
+    if not isinstance(value, Sequence) or isinstance(value, str | bytes | bytearray):
+        raise ValueError(f"fabric_source_selection_{field}_must_be_record_rows")
+    for index, row in enumerate(value):
+        _checked_mapping(row, field=f"{field}[{index}]")
+
+
+def _checked_source_row(source: Mapping[str, Any]) -> dict[str, Any]:
+    """Check every map/row collection consumed from one source record."""
+    checked = _checked_mapping(source, field="source")
+    for field in _SOURCE_ROW_MAPPING_FIELDS:
+        if field in checked and checked[field] is not None:
+            _checked_mapping(checked[field], field=f"source.{field}")
+    for field in _SOURCE_ROW_LIST_FIELDS:
+        if field in checked:
+            _checked_optional_record_rows(checked[field], field=f"source.{field}")
+    return checked
+
+
+def _optional_report_mapping(report: Mapping[str, Any], field: str) -> dict[str, Any] | None:
+    if field not in report or report[field] is None:
+        return None
+    return _checked_mapping(report[field], field=field)
+
+
+def _report_record_list(report: Mapping[str, Any], field: str) -> list[dict[str, Any]]:
+    if field not in report:
+        return []
+    return _checked_record_list(report[field], field=field)
+
+
+def _report_text_list(report: Mapping[str, Any], field: str) -> list[str] | None:
+    if field not in report or report[field] is None:
+        return None
+    value = report[field]
+    if not isinstance(value, list) or any(not isinstance(item, str) for item in value):
+        raise ValueError(f"fabric_source_selection_{field}_must_be_text_list")
+    return value
+
+
 def _text(value: object) -> str:
     return str(value or "").strip()
+
+
+def _normalized_expected_family_list(value: object, *, field: str) -> list[str]:
+    if not isinstance(value, list) or any(not isinstance(item, str) for item in value):
+        raise ValueError(f"fabric_source_selection_{field}_must_be_text_list")
+    return [normalized for item in value if (normalized := _text(item))]
 
 
 def _source_id(source: dict[str, Any]) -> str:
@@ -113,6 +251,12 @@ def _status_value(value: object) -> str:
 def _optional_text(value: object) -> str | None:
     text = _text(value)
     return text or None
+
+
+def _reference_text(value: object) -> str | None:
+    if not isinstance(value, str):
+        return None
+    return value.strip() or None
 
 
 def _issue(
@@ -163,7 +307,7 @@ def _source_relevance_score(source: dict[str, Any]) -> float | None:
     if isinstance(raw_score, bool):
         return None
     try:
-        return float(raw_score)
+        return _FLOAT_ADAPTER.validate_python(raw_score)
     except (TypeError, ValueError):
         return None
 
@@ -181,6 +325,7 @@ def _normalize_source(
     *,
     data_forge_snapshot_refs: Sequence[str] = (),
 ) -> dict[str, Any]:
+    source = _checked_source_row(source)
     normalized = dict(source)
     source_id = _source_id(source)
     source_family = _source_family(source)
@@ -408,9 +553,9 @@ def _validate_selected_source(
     facets = source.get("source_facets")
     if not isinstance(facets, dict):
         facets = {}
-    for field, code, next_action in WAVE13_REQUIRED_SOURCE_FACETS:
+    for field, code, next_action, facet_kind in WAVE13_REQUIRED_SOURCE_FACETS:
         value = facets.get(field)
-        if _facet_present(value):
+        if _facet_present(value, facet_kind=facet_kind):
             continue
         issues.append(
             _issue(
@@ -463,14 +608,15 @@ def _scenario_data_requirements(
 ) -> list[dict[str, Any]]:
     if not isinstance(scenario_evidence_contract, Mapping):
         return []
-    requirements = scenario_evidence_contract.get("requirements")
-    if not isinstance(requirements, list):
+    if "requirements" not in scenario_evidence_contract:
         return []
+    requirements = _checked_record_list(
+        scenario_evidence_contract["requirements"], field="scenario_requirements"
+    )
     return [
-        dict(requirement)
+        requirement
         for requirement in requirements
-        if isinstance(requirement, Mapping)
-        and _text(requirement.get("domain")).casefold() == "data"
+        if _text(requirement.get("domain")).casefold() == "data"
         and _text(requirement.get("expected_family"))
     ]
 
@@ -490,10 +636,12 @@ def _contract_binding_findings(
 ) -> list[dict[str, Any]]:
     if not isinstance(production_data_contract_binding_report, Mapping):
         return []
-    findings = production_data_contract_binding_report.get("scenario_binding_findings")
-    if not isinstance(findings, list):
+    if "scenario_binding_findings" not in production_data_contract_binding_report:
         return []
-    return [dict(finding) for finding in findings if isinstance(finding, Mapping)]
+    return _checked_record_list(
+        production_data_contract_binding_report["scenario_binding_findings"],
+        field="scenario_binding_findings",
+    )
 
 
 def _scenario_contract_id_from_inputs(
@@ -506,7 +654,11 @@ def _scenario_contract_id_from_inputs(
         if contract_id:
             return contract_id
     if isinstance(production_data_contract_binding_report, Mapping):
-        for key in ("scenario_contract_id", "contract_id", "scenario_evidence_contract_id"):
+        for key in (
+            "scenario_contract_id",
+            "contract_id",
+            "scenario_evidence_contract_id",
+        ):
             contract_id = _optional_text(production_data_contract_binding_report.get(key))
             if contract_id:
                 return contract_id
@@ -592,7 +744,7 @@ def _source_family_contract_projection(
         finding = findings_by_family.get(expected_family)
         candidate_ref = _text(finding.get("candidate_ref")) if finding else ""
         candidate_selected = bool(candidate_ref and candidate_ref in selected_source_ids)
-        if candidate_selected:
+        if finding is not None and candidate_selected:
             projection = _contract_binding_projection(
                 finding,
                 selection_status="selected",
@@ -600,6 +752,7 @@ def _source_family_contract_projection(
             )
             selected_bindings.append(projection)
             if projection["status"] != "satisfied":
+                message = "Selected source family has an incomplete contract binding."
                 blocker = {
                     "code": "source_contract_binding_unsatisfied",
                     "status": "failed",
@@ -607,14 +760,14 @@ def _source_family_contract_projection(
                     "candidate_ref": finding.get("candidate_ref"),
                     "missing_facets": list(finding.get("missing_facets") or ()),
                     "selected_source_ids": source_ids,
-                    "message": "Selected source family has an incomplete contract binding.",
+                    "message": message,
                 }
                 blockers.append(blocker)
                 issues.append(
                     _issue(
                         code="source_contract_binding_unsatisfied",
                         source_id=_text(finding.get("candidate_ref")) or None,
-                        message=blocker["message"],
+                        message=message,
                         next_action=(
                             "Complete the missing dictionary, schema, field, quality, "
                             "lineage, or claim-bindability facets before selection."
@@ -638,6 +791,10 @@ def _source_family_contract_projection(
                     if candidate_ref
                     else "source_contract_binding_missing"
                 )
+                message = (
+                    "Selected source family has no selected admissible "
+                    "production-data contract binding."
+                )
                 blocker = {
                     "code": blocker_code,
                     "status": "failed",
@@ -645,17 +802,14 @@ def _source_family_contract_projection(
                     "candidate_ref": candidate_ref or None,
                     "requirement_id": finding.get("requirement_id") if finding else None,
                     "selected_source_ids": source_ids,
-                    "message": (
-                        "Selected source family has no selected admissible "
-                        "production-data contract binding."
-                    ),
+                    "message": message,
                 }
                 blockers.append(blocker)
                 issues.append(
                     _issue(
                         code=blocker_code,
                         source_id=candidate_ref or None,
-                        message=blocker["message"],
+                        message=message,
                         next_action=(
                             "Select the exact production-data contract-index candidate "
                             "or emit a typed source-family blocker."
@@ -672,6 +826,7 @@ def _source_family_contract_projection(
                     reason_code="required_source_family_not_selected",
                 )
             )
+        message = "No selected Fabric source matched the scenario source family."
         blocker = {
             "code": "source_family_mismatch",
             "status": "failed",
@@ -679,14 +834,14 @@ def _source_family_contract_projection(
             "selected_source_families": sorted(selected_families),
             "candidate_ref": finding.get("candidate_ref") if finding else None,
             "requirement_id": finding.get("requirement_id") if finding else None,
-            "message": "No selected Fabric source matched the scenario source family.",
+            "message": message,
         }
         blockers.append(blocker)
         issues.append(
             _issue(
                 code="source_family_mismatch",
                 source_id=_text(finding.get("candidate_ref")) if finding else None,
-                message=blocker["message"],
+                message=message,
                 next_action=(
                     "Select a Fabric source whose source_family matches the scenario "
                     "contract, or emit a typed absent-source blocker."
@@ -824,6 +979,28 @@ def build_fabric_source_selection_trace(
     production_data_contract_binding_report: Mapping[str, Any] | None = None,
 ) -> dict[str, Any]:
     """Build a strict source-selection audit trace from Fabric candidates."""
+    query_intent = _checked_mapping(query_intent, field="query_intent")
+    candidate_sources = _checked_record_list(candidate_sources, field="candidate_sources")
+    rejected_sources = _checked_record_list(rejected_sources, field="rejected_sources")
+    if scenario_evidence_contract is not None:
+        scenario_evidence_contract = _checked_mapping(
+            scenario_evidence_contract, field="scenario_evidence_contract"
+        )
+    if production_data_contract_binding_report is not None:
+        production_data_contract_binding_report = _checked_mapping(
+            production_data_contract_binding_report,
+            field="production_data_contract_binding_report",
+        )
+    if data_forge_snapshot_binding is not None:
+        data_forge_snapshot_binding = _checked_mapping(
+            data_forge_snapshot_binding, field="data_forge_snapshot_binding"
+        )
+    if materialization_refs is not None:
+        materialization_refs = _checked_mapping(materialization_refs, field="materialization_refs")
+    if production_data_evidence_context is not None:
+        production_data_evidence_context = _checked_mapping(
+            production_data_evidence_context, field="production_data_evidence_context"
+        )
     scenario_expected_families = _scenario_expected_source_families(scenario_evidence_contract)
     expected_families = {
         source_family.casefold()
@@ -952,58 +1129,52 @@ def build_fabric_source_selection_trace(
 
 
 def normalize_fabric_retrieval_trace(
-    report: dict[str, Any],
+    report: object,
     *,
     expected_source_families: list[str] | None = None,
     canary_kind: str = "production",
     data_forge_snapshot_binding: Mapping[str, Any] | None = None,
 ) -> dict[str, Any]:
     """Recompute Fabric retrieval trace status from source-selection evidence."""
-    if not isinstance(report, dict):
-        return build_fabric_source_selection_trace(
-            query_intent={},
-            candidate_sources=[],
-            selected_source_ids=[],
-            rejected_sources=[],
-            expected_source_families=expected_source_families,
-            canary_kind=canary_kind,
-            data_forge_snapshot_binding=data_forge_snapshot_binding,
-        )
-
-    query_intent = report.get("query_intent")
-    query_intent = query_intent if isinstance(query_intent, dict) else {}
-    selected_sources = [
-        source for source in report.get("selected_sources", []) if isinstance(source, dict)
-    ]
-    candidate_sources = [
-        source for source in report.get("candidate_sources", []) if isinstance(source, dict)
-    ]
+    report = _checked_mapping(report, field="report")
+    raw_query_intent = report.get("query_intent")
+    query_intent = (
+        {} if raw_query_intent is None else _checked_mapping(raw_query_intent, field="query_intent")
+    )
+    selected_sources = _report_record_list(report, "selected_sources")
+    candidate_sources = _report_record_list(report, "candidate_sources")
     if not candidate_sources:
         candidate_sources = list(selected_sources)
-    selected_source_ids = report.get("selected_source_ids")
-    if not isinstance(selected_source_ids, list):
+    selected_source_ids_value = report.get("selected_source_ids")
+    if selected_source_ids_value is None:
         selected_source_ids = [_source_id(source) for source in selected_sources]
-    rejected_sources = [
-        source for source in report.get("rejected_sources", []) if isinstance(source, dict)
-    ]
-    expected = expected_source_families or report.get("expected_source_families") or []
-    expected = (
-        [_text(value) for value in expected if _text(value)]
-        if isinstance(
-            expected,
-            list,
+    else:
+        selected_source_ids = _report_text_list(report, "selected_source_ids") or []
+    rejected_sources = _report_record_list(report, "rejected_sources")
+    report_expected_families = (
+        _normalized_expected_family_list(
+            report["expected_source_families"],
+            field="expected_source_families",
         )
+        if "expected_source_families" in report
         else []
     )
-    scenario_contract_payload = (
-        dict(report.get("scenario_evidence_contract"))
-        if isinstance(report.get("scenario_evidence_contract"), dict)
-        else None
+    supplied_expected_families = (
+        _normalized_expected_family_list(
+            expected_source_families,
+            field="expected_source_families",
+        )
+        if expected_source_families is not None
+        else []
     )
-    contract_binding_report = (
-        dict(report.get("production_data_contract_binding_report"))
-        if isinstance(report.get("production_data_contract_binding_report"), dict)
-        else None
+    expected = supplied_expected_families or report_expected_families
+    scenario_contract_payload = _optional_report_mapping(report, "scenario_evidence_contract")
+    contract_binding_report = _optional_report_mapping(
+        report, "production_data_contract_binding_report"
+    )
+    materialization_refs = _optional_report_mapping(report, "materialization_refs")
+    production_data_evidence_context = _optional_report_mapping(
+        report, "production_data_evidence_context"
     )
 
     normalized = build_fabric_source_selection_trace(
@@ -1013,16 +1184,8 @@ def normalize_fabric_retrieval_trace(
         rejected_sources=rejected_sources,
         expected_source_families=expected,
         canary_kind=canary_kind,
-        materialization_refs=(
-            dict(report.get("materialization_refs"))
-            if isinstance(report.get("materialization_refs"), dict)
-            else None
-        ),
-        production_data_evidence_context=(
-            dict(report.get("production_data_evidence_context"))
-            if isinstance(report.get("production_data_evidence_context"), dict)
-            else None
-        ),
+        materialization_refs=materialization_refs,
+        production_data_evidence_context=production_data_evidence_context,
         fabric_retrieval_trace_ref=_text(report.get("fabric_retrieval_trace_ref")),
         data_forge_snapshot_binding=data_forge_snapshot_binding,
         scenario_evidence_contract=scenario_contract_payload,
@@ -1032,10 +1195,13 @@ def normalize_fabric_retrieval_trace(
         scenario_evidence_contract=scenario_contract_payload,
         production_data_contract_binding_report=contract_binding_report,
     )
+    original_contract_id = report.get("scenario_evidence_contract_id")
+    if original_contract_id is not None and not isinstance(original_contract_id, str):
+        raise ValueError("fabric_source_selection_scenario_evidence_contract_id_must_be_text")
     if (
         "scenario_evidence_contract_id" in report
         and consumed_contract_id
-        and not _optional_text(report.get("scenario_evidence_contract_id"))
+        and not _optional_text(original_contract_id)
     ):
         issues = list(normalized.get("issues") or [])
         issues.append(
@@ -1065,17 +1231,37 @@ def _source_facets(
     data_forge_snapshot_refs: Sequence[str],
 ) -> dict[str, Any]:
     existing = source.get("source_facets")
-    facets = dict(existing) if isinstance(existing, Mapping) else {}
+    facets = {} if existing is None else _checked_mapping(existing, field="source.source_facets")
     source_id = _source_id(dict(source))
-    diagnostics = source.get("diagnostics") if isinstance(source.get("diagnostics"), dict) else {}
-    freshness = source.get("freshness") if isinstance(source.get("freshness"), dict) else {}
-    coverage = source.get("coverage") if isinstance(source.get("coverage"), dict) else {}
-    schema_compatibility = (
-        source.get("schema_compatibility")
-        if isinstance(source.get("schema_compatibility"), dict)
+    freshness_value = source.get("freshness")
+    freshness = (
+        _checked_mapping(freshness_value, field="source.freshness")
+        if freshness_value is not None
         else {}
     )
-    quality = source.get("quality") if isinstance(source.get("quality"), dict) else {}
+    quality_value = source.get("quality")
+    quality = (
+        _checked_mapping(quality_value, field="source.quality") if quality_value is not None else {}
+    )
+
+    alias_presence: dict[str, bool] = {}
+    for facet, paths in _SOURCE_REFERENCE_FACET_ALIASES.items():
+        present, value = _first_present_reference_value(source, paths)
+        alias_presence[facet] = present
+        if not present:
+            continue
+        refs = _refs_from_value(value)
+        if not _reference_value_is_supported(value) or not refs:
+            # A present empty or malformed alias cannot be hidden by preprojected evidence.
+            facets[facet] = None if facet in _SINGULAR_SOURCE_REFERENCE_FACETS else ()
+            continue
+        if facet in facets:
+            continue
+        if facet in _SINGULAR_SOURCE_REFERENCE_FACETS:
+            facets[facet] = refs[0] if refs else None
+        else:
+            facets[facet] = refs
+
     facets.setdefault("source_ref", source_id)
     facets.setdefault("source_family", _source_family(dict(source)))
     facets.setdefault(
@@ -1084,60 +1270,24 @@ def _source_facets(
             source.get("source_rights") or source.get("rights") or source.get("license")
         ),
     )
-    facets.setdefault("dataset_ref", _first_ref(source, "dataset_ref", "dataset_id") or source_id)
-    facets.setdefault("dictionary_ref", _first_ref(source, "dictionary_ref", "data_dictionary_ref"))
-    facets.setdefault("schema_ref", _first_ref(source, "schema_ref", "schema_id"))
-    facets.setdefault(
-        "field_refs",
-        _refs_from_value(
-            source.get("field_refs")
-            or source.get("fields")
-            or source.get("available_columns")
-            or source.get("columns")
-            or schema_compatibility.get("required_fields")
-        ),
-    )
-    facets.setdefault("unit_refs", _refs_from_value(source.get("unit_refs") or source.get("units")))
-    facets.setdefault(
-        "geography_refs",
-        _refs_from_value(
-            source.get("geography_refs")
-            or source.get("geography")
-            or coverage.get("geography")
-            or diagnostics.get("geography")
-        ),
-    )
-    facets.setdefault(
-        "time_coverage_refs",
-        _refs_from_value(
-            source.get("time_coverage_refs")
-            or source.get("time_coverage")
-            or source.get("time_window")
-            or coverage.get("time_window")
-        ),
-    )
-    facets.setdefault(
-        "quality_refs",
-        _refs_from_value(source.get("quality_refs") or quality.get("ref"))
-        or ((f"quality:{source_id}",) if source_id and _status_pass(quality) else ()),
-    )
-    facets.setdefault(
-        "missingness_refs",
-        _refs_from_value(source.get("missingness_refs") or source.get("missingness")),
-    )
-    facets.setdefault(
-        "freshness_refs",
-        _refs_from_value(source.get("freshness_refs") or freshness.get("ref"))
-        or ((f"freshness:{source_id}",) if source_id and _status_pass(freshness) else ()),
-    )
-    facets.setdefault(
-        "lineage_refs",
-        _refs_from_value(source.get("lineage_refs") or source.get("lineage")),
-    )
-    facets.setdefault(
-        "transformation_refs",
-        _refs_from_value(source.get("transformation_refs") or source.get("transformations")),
-    )
+    facets.setdefault("dataset_ref", source_id if not alias_presence["dataset_ref"] else None)
+    facets.setdefault("dictionary_ref", None)
+    facets.setdefault("schema_ref", None)
+    for facet in _SOURCE_REFERENCE_FACET_ALIASES:
+        if facet in _SINGULAR_SOURCE_REFERENCE_FACETS:
+            continue
+        if facet == "quality_refs" and not alias_presence[facet]:
+            facets.setdefault(
+                facet,
+                (f"quality:{source_id}",) if source_id and _status_pass(quality) else (),
+            )
+        elif facet == "freshness_refs" and not alias_presence[facet]:
+            facets.setdefault(
+                facet,
+                (f"freshness:{source_id}",) if source_id and _status_pass(freshness) else (),
+            )
+        else:
+            facets.setdefault(facet, ())
     explicit_data_forge_refs = _refs_from_value(source.get("data_forge_snapshot_refs"))
     facets.setdefault(
         "data_forge_snapshot_refs",
@@ -1176,6 +1326,10 @@ def _data_forge_snapshot_refs(
 ) -> tuple[str, ...]:
     refs: list[str] = []
     if isinstance(data_forge_snapshot_binding, Mapping):
+        _checked_optional_record_rows(
+            data_forge_snapshot_binding.get("bindings"),
+            field="data_forge_snapshot_binding.bindings",
+        )
         for row in _rows_from(data_forge_snapshot_binding.get("bindings")):
             for key in ("snapshot_ref", "manifest_ref", "manifest_artifact_id"):
                 refs.extend(_refs_from_value(row.get(key)))
@@ -1184,11 +1338,35 @@ def _data_forge_snapshot_refs(
     return tuple(dict.fromkeys(refs))
 
 
-def _first_ref(payload: Mapping[str, Any], *keys: str) -> str | None:
-    for key in keys:
-        for ref in _refs_from_value(payload.get(key)):
-            return ref
-    return None
+def _first_present_reference_value(
+    payload: Mapping[str, Any],
+    paths: Sequence[Sequence[str]],
+) -> tuple[bool, object]:
+    for path in paths:
+        current: object = payload
+        for key in path:
+            if not isinstance(current, Mapping) or key not in current:
+                break
+            current = current[key]
+        else:
+            return True, current
+    return False, None
+
+
+def _reference_value_is_supported(value: object) -> bool:
+    """Return whether a present reference alias uses the existing ref grammar."""
+    if value is None or isinstance(value, str):
+        return True
+    if isinstance(value, Mapping):
+        if any(not isinstance(key, str) for key in value):
+            return False
+        recognized_keys = [key for key in _REFERENCE_VALUE_KEYS if key in value]
+        return bool(recognized_keys) and all(
+            value[key] is None or isinstance(value[key], str) for key in recognized_keys
+        )
+    if isinstance(value, Sequence) and not isinstance(value, str | bytes | bytearray):
+        return all(_reference_value_is_supported(item) for item in value)
+    return False
 
 
 def _refs_from_value(value: object) -> tuple[str, ...]:
@@ -1198,16 +1376,13 @@ def _refs_from_value(value: object) -> tuple[str, ...]:
         text = _text(value)
         return (text,) if text else ()
     if isinstance(value, Mapping):
-        ref = (
-            _optional_text(value.get("ref"))
-            or _optional_text(value.get("id"))
-            or _optional_text(value.get("artifact_ref"))
-            or _optional_text(value.get("artifact_id"))
-            or _optional_text(value.get("snapshot_ref"))
-            or _optional_text(value.get("manifest_ref"))
-            or _optional_text(value.get("field_ref"))
-            or _optional_text(value.get("source_ref"))
-            or _optional_text(value.get("source_id"))
+        ref = next(
+            (
+                text
+                for key in _REFERENCE_VALUE_KEYS
+                if (text := _reference_text(value.get(key))) is not None
+            ),
+            None,
         )
         return (ref,) if ref else ()
     if isinstance(value, Sequence) and not isinstance(value, str | bytes | bytearray):
@@ -1215,8 +1390,7 @@ def _refs_from_value(value: object) -> tuple[str, ...]:
         for item in value:
             refs.extend(_refs_from_value(item))
         return tuple(dict.fromkeys(refs))
-    text = _optional_text(value)
-    return (text,) if text else ()
+    return ()
 
 
 def _rows_from(value: object) -> tuple[Mapping[str, Any], ...]:
@@ -1227,12 +1401,14 @@ def _rows_from(value: object) -> tuple[Mapping[str, Any], ...]:
     return ()
 
 
-def _facet_present(value: object) -> bool:
-    if isinstance(value, str):
-        return bool(value.strip())
-    if isinstance(value, Sequence) and not isinstance(value, str | bytes | bytearray):
-        return any(_facet_present(item) for item in value)
-    return value is not None
+def _facet_present(
+    value: object,
+    *,
+    facet_kind: Literal["text", "reference"],
+) -> bool:
+    if facet_kind == "reference":
+        return bool(_refs_from_value(value))
+    return isinstance(value, str) and bool(value.strip())
 
 
 def _json_like(value: object) -> object:

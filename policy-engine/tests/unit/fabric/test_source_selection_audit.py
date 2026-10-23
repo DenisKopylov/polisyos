@@ -1,9 +1,13 @@
 from __future__ import annotations
 
+import pytest
+
 from polisyos.fabric.catalog.source_selection_audit import (
+    WAVE13_REQUIRED_SOURCE_FACETS,
     build_fabric_source_selection_trace,
     normalize_fabric_retrieval_trace,
 )
+from polisyos.runtime.quality.scorecard import normalize_quality_evidence
 
 
 def _source(**overrides: object) -> dict[str, object]:
@@ -592,6 +596,108 @@ def test_source_selection_trace_requires_wave13_facets_for_selected_source() -> 
     } <= issue_codes
 
 
+@pytest.mark.parametrize(
+    ("facet", "issue_code"),
+    [
+        (field, code)
+        for field, code, _, facet_kind in WAVE13_REQUIRED_SOURCE_FACETS
+        if facet_kind == "reference"
+    ],
+)
+def test_required_reference_facet_needs_a_recognized_text_ref(
+    facet: str,
+    issue_code: str,
+) -> None:
+    source = _source(source_facets={facet: {"unrecognized": "field:income"}})
+    trace = build_fabric_source_selection_trace(
+        query_intent={"policy_domain": "wartime_msme_support"},
+        candidate_sources=[source],
+        selected_source_ids=["prod-msme-panel"],
+        rejected_sources=[],
+        expected_source_families=["production_msme_panel"],
+        canary_kind="production",
+    )
+
+    assert trace["status"] == "fail"
+    assert issue_code in {issue["code"] for issue in trace["issues"]}
+
+
+@pytest.mark.parametrize("unusable_reference", [17, {"field_ref": 17}])
+@pytest.mark.parametrize(
+    ("facet", "issue_code"),
+    [
+        (field, code)
+        for field, code, _, facet_kind in WAVE13_REQUIRED_SOURCE_FACETS
+        if facet_kind == "reference"
+    ],
+)
+def test_required_reference_facets_reject_nontext_values(
+    facet: str,
+    issue_code: str,
+    unusable_reference: object,
+) -> None:
+    source = _source(source_facets={facet: unusable_reference})
+    trace = build_fabric_source_selection_trace(
+        query_intent={"policy_domain": "wartime_msme_support"},
+        candidate_sources=[source],
+        selected_source_ids=["prod-msme-panel"],
+        rejected_sources=[],
+        expected_source_families=["production_msme_panel"],
+        canary_kind="production",
+    )
+
+    assert trace["status"] == "fail"
+    assert issue_code in {issue["code"] for issue in trace["issues"]}
+
+
+@pytest.mark.parametrize("source_location", ["top_level", "source_facets"])
+@pytest.mark.parametrize("unusable_reference", [17, {"field_ref": 17}])
+def test_quality_evidence_normalizer_recomputes_reference_facets(
+    source_location: str,
+    unusable_reference: object,
+) -> None:
+    source = _source(schema_compatibility={"status": "pass"})
+    if source_location == "top_level":
+        source["field_refs"] = unusable_reference
+    else:
+        source["source_facets"] = {"field_refs": unusable_reference}
+    normalized = normalize_quality_evidence(
+        {
+            "fabric_retrieval_trace": {
+                "status": "pass",
+                "query_intent": {"policy_domain": "wartime_msme_support"},
+                "selected_sources": [source],
+                "rejected_sources": [],
+            }
+        },
+        canary_kind="production",
+    )
+
+    trace = normalized["fabric_retrieval_trace"]
+    assert isinstance(trace, dict)
+    assert trace["status"] == "fail"
+    assert "selected_source_missing_field_refs" in {issue["code"] for issue in trace["issues"]}
+
+
+def test_reference_facets_accept_symbolic_and_cas_reference_forms() -> None:
+    source = _source(
+        source_facets={"field_refs": {"field_ref": "field:prod-msme-panel.income"}},
+        data_forge_snapshot_refs=["cas://sha256/" + "4" * 64],
+    )
+    trace = build_fabric_source_selection_trace(
+        query_intent={"policy_domain": "wartime_msme_support"},
+        candidate_sources=[source],
+        selected_source_ids=["prod-msme-panel"],
+        rejected_sources=[],
+        expected_source_families=["production_msme_panel"],
+        canary_kind="production",
+    )
+
+    assert trace["status"] == "pass"
+    selected = trace["selected_sources"][0]
+    assert selected["source_facets"]["field_refs"] == {"field_ref": "field:prod-msme-panel.income"}
+
+
 def test_normalize_trace_refuses_raw_pass_for_fixture_source() -> None:
     normalized = normalize_fabric_retrieval_trace(
         {
@@ -613,3 +719,127 @@ def test_normalize_trace_refuses_raw_pass_for_fixture_source() -> None:
     issue_codes = {issue["code"] for issue in normalized["issues"]}
     assert normalized["status"] == "fail"
     assert "fixture_or_mock_source_selected" in issue_codes
+
+
+def test_scorecard_consumer_refuses_malformed_present_fabric_report_fields() -> None:
+    """Malformed present report evidence cannot disappear into an empty projection."""
+    valid_trace = {
+        "query_intent": {"policy_domain": "wartime_msme_support"},
+        "selected_sources": [_source()],
+        "rejected_sources": [],
+    }
+    normalized = normalize_quality_evidence(
+        {"fabric_retrieval_trace": valid_trace},
+        canary_kind="production",
+    )
+    assert normalized["fabric_retrieval_trace"]["status"] == "pass"
+
+    malformed_variants = [
+        {**valid_trace, "scenario_evidence_contract": "supplied-but-not-a-mapping"},
+        {
+            **valid_trace,
+            "production_data_contract_binding_report": {
+                "scenario_binding_findings": {"candidate_ref": "wrong-shape"}
+            },
+        },
+        {**valid_trace, "selected_sources": ["supplied-but-not-a-source-record"]},
+    ]
+    for trace in malformed_variants:
+        with pytest.raises(ValueError, match="fabric_source_selection_"):
+            normalize_quality_evidence(
+                {"fabric_retrieval_trace": trace},
+                canary_kind="production",
+            )
+
+
+@pytest.mark.parametrize(
+    "field",
+    [
+        "diagnostics",
+        "freshness",
+        "coverage",
+        "schema_compatibility",
+        "quality",
+        "source_facets",
+    ],
+)
+def test_source_selection_refuses_malformed_present_source_maps(field: str) -> None:
+    """Every consumed source map is checked before it can be defaulted or rebuilt."""
+    source = _source(**{field: "supplied-but-not-a-mapping"})
+    with pytest.raises(ValueError, match="fabric_source_selection_"):
+        build_fabric_source_selection_trace(
+            query_intent={"policy_domain": "wartime_msme_support"},
+            candidate_sources=[source],
+            selected_source_ids=["prod-msme-panel"],
+            rejected_sources=[],
+            expected_source_families=["production_msme_panel"],
+        )
+
+
+@pytest.mark.parametrize(
+    ("primary", "alias"),
+    [("derived_features", None), ("derived_features", "derived_feature_bindings")],
+)
+def test_source_selection_refuses_malformed_present_feature_rows(
+    primary: str, alias: str | None
+) -> None:
+    """Malformed feature rows cannot be silently filtered from the selected source."""
+    source = _source(derived_features=["malformed-feature-row"])
+    if alias is not None:
+        source[primary] = []
+        source[alias] = ["malformed-feature-row"]
+    with pytest.raises(ValueError, match="fabric_source_selection_"):
+        build_fabric_source_selection_trace(
+            query_intent={"policy_domain": "wartime_msme_support"},
+            candidate_sources=[source],
+            selected_source_ids=["prod-msme-panel"],
+            rejected_sources=[],
+            expected_source_families=["production_msme_panel"],
+        )
+
+
+def test_source_selection_refuses_malformed_data_forge_binding_rows() -> None:
+    """Snapshot binding rows are consumed as records and cannot be filtered out."""
+    with pytest.raises(ValueError, match="fabric_source_selection_"):
+        build_fabric_source_selection_trace(
+            query_intent={"policy_domain": "wartime_msme_support"},
+            candidate_sources=[_source()],
+            selected_source_ids=["prod-msme-panel"],
+            rejected_sources=[],
+            expected_source_families=["production_msme_panel"],
+            data_forge_snapshot_binding={
+                "bindings": [{"snapshot_ref": "sha256:" + "4" * 64}, "malformed-row"]
+            },
+        )
+
+
+def test_source_selection_keeps_absent_optional_source_maps_supported() -> None:
+    """Absent or explicit-null optional map fields keep their existing behavior."""
+    source = _source(source_facets=None, diagnostics=None, quality=None)
+    trace = build_fabric_source_selection_trace(
+        query_intent={"policy_domain": "wartime_msme_support"},
+        candidate_sources=[source],
+        selected_source_ids=["prod-msme-panel"],
+        rejected_sources=[],
+        expected_source_families=["production_msme_panel"],
+    )
+    assert trace["status"] == "pass"
+
+
+def test_normalizer_empty_override_keeps_report_candidate_expectation() -> None:
+    """An empty caller list cannot erase a supplied report expectation."""
+    normalized = normalize_fabric_retrieval_trace(
+        {
+            "query_intent": {"policy_domain": "wartime_msme_support"},
+            "selected_sources": [_source()],
+            "rejected_sources": [],
+            "expected_source_families": ["report-required-but-unmatched"],
+        },
+        expected_source_families=[],
+        canary_kind="production",
+    )
+    assert normalized["expected_source_families"] == ["report-required-but-unmatched"]
+    assert normalized["status"] == "fail"
+    assert "selected_source_family_not_admissible" in {
+        issue["code"] for issue in normalized["issues"]
+    }

@@ -1,0 +1,39 @@
+id = "2026-10-23-e02-fabric-source-alias-admission"
+title = "Keep Fabric source expectations and reference fallback honest"
+type = "fixed"
+component = "fabric"
+owner = "team-polisyos"
+summary = "Fabric normalizes both report and caller expected-family lists before precedence, so a caller list that normalizes empty cannot erase a report expectation; present empty or malformed references cannot silently fall through."
+evidence = [
+  "policy-engine/src/polisyos/fabric/catalog/source_selection_audit.py (candidate SHA-256: 2002933ebc00f4244a24588031303e6594214b1250d2ca35396acd6adcb934d4)",
+  "policy-engine/tests/unit/fabric/test_source_ref_alias_presence.py (candidate SHA-256: 1d02d1de512e190f1ead7eaf9ea9b2497ed1d725dab98f9549bd5232bb44340c)",
+  "policy-engine/tests/unit/tools/test_canary_fabric_reference_admission.py (R9 integrated candidate SHA-256: 94d1efd485bd8c4e4a63d3756447b3e4b5f99d597eb526409089965398e62091; 11-case R9 replay, before this family-text correction)",
+  "policy-engine/architecture/public_surface/contract.toml (SHA-256: cce2e7cd4d96b4595ae5bf0721002776265d70f878d4fbfcd51570f9d89f10c9)",
+  "implementation-handoffs/LOCAL/raw/resume-q2-archive-route-author-20261022-r1/f3-full-file-implementation-boundary-review-20261023-r1/review.json (SHA-256: 64861f7c5155b3d64338cbcea2dbed2bb2c0ef69a546c8783ec6d62b69ff0bb8)",
+  "implementation-handoffs/LOCAL/raw/resume-q2-archive-route-author-20261022-r1/f3-public-surface-scope-review-20261023-r2/review.json (SHA-256: 52ce7042958b11b8a90ff4d422ea07160598c2b72958a7af13895d69ccd1675a)",
+  "policy-engine/src/polisyos/fabric/catalog/__init__.py (SHA-256: 6b5a4026af2dded174eaf750fe4566062847e30100b30334c10e789a5667e516)"
+]
+compatibility = "Valid family values retain existing trim and case-insensitive matching. Both present report-declared and caller-supplied family lists are shape-validated and normalized before precedence; a caller list that normalizes empty falls back to the report list rather than erasing it. Malformed present lists are refused. A genuinely omitted source-reference alias retains its existing fallback; a present empty or malformed alias remains explicit no-reference input and cannot fall through to a lower alias or preprojected facet."
+change_class = "python-public-api"
+surface_classification = "public_experimental: polisyos.runtime.quality.normalize_quality_evidence, polisyos.runtime.quality.build_quality_scorecard; internal: polisyos.fabric.catalog.source_selection_audit"
+migration = "Omit an optional reference alias when the existing fallback is intended. Do not use null, empty, or malformed alias values to request fallback. A caller-supplied family list that normalizes empty does not erase a report-declared expectation; valid family text continues to be trimmed and case-folded."
+api = "The source-selection leaf is internal by contract and is not re-exported from fabric.catalog. Its normalization feeds the existing public_experimental exports polisyos.runtime.quality.normalize_quality_evidence and build_quality_scorecard, so valid padded family values and source-reference alias handling can change externally observable normalized evidence. The scoped review checked the affected exported names, signatures, callers, and committed inventory; no export or signature change is introduced. This change-specific review does not establish global export resolution or G acceptance."
+limitations = "Report-declared family expectations remain candidate declarations; their normalization does not establish independent external admissibility. The R9 11-case canary CAS matrix predates this family-precedence correction and is not an integrated receipt for this candidate. The current 216-case focused matrix exercises direct normalization and the exported scorecard consumer. No external authority, custody/currentness, or qualifying production claim is established."
+generated_client_compatibility = "not_applicable"
+public_surface_inventory_reviewed = true
+migration_docs = []
+runbook_docs = []
+
+[[compatibility_change]]
+id = "fabric-source-family-normalization-and-alias-admission"
+change_class = "python-public-api"
+impact = "compatible"
+surface = "public_experimental: polisyos.runtime.quality.normalize_quality_evidence, polisyos.runtime.quality.build_quality_scorecard"
+owner = "team-polisyos"
+version_owner = "team-polisyos"
+deprecation_window = "not_applicable"
+release_note = "Report and caller expected-family lists are normalized before precedence, preserving a nonempty report expectation when the caller list normalizes empty; malformed present inputs and present empty or malformed reference aliases cannot silently fall through."
+generated_client_compatibility = "not_applicable"
+public_surface_inventory_reviewed = true
+migration_docs = []
+runbook_docs = []

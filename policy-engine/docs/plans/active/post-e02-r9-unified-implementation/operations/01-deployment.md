@@ -131,3 +131,16 @@ old artifact does not promise every historic writer or format. Derive the actual
 matrix from native declared support and consumers, exercise incompatible pairs,
 and reject unsupported directions honestly. No universal N-1-only shortcut or
 all-versions-forever mandate is introduced.
+
+## R24: границы восстановления и rollback
+
+OPS-04 откатывает отдельный компонент при доказанной совместимости направления;
+API/worker pair обязателен только для такого selected profile. Восстановленный
+permitted derivative не становится запрещённым только из-за удалённого raw parent:
+OPS-05 проверяет достаточность retained basis и права actual use. Raw-dependent
+recompute остаётся unavailable. Hash проверки связывается с actual consumed
+object/version/stream; path после проверки нельзя незаметно заменить. Scoped
+verified streaming разрешён native contract, protected use ждёт требуемой integrity;
+до этого integrity-dependent exports/irreversible effects также provisional.
+Qualified chunk release не заявляет whole-stream integrity. Это не приказ
+сканировать весь архив или держать payload в RAM.

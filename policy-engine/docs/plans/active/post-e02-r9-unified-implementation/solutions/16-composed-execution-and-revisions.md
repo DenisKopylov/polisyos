@@ -59,7 +59,7 @@ Preferred behavior: для активного case допускается зар
 
 1. DES-04 связывает admitted change/counterexample/study-return с существующим generation-cycle request. LIF-04 обеспечивает intent/attempt/recovery, DES-03 — trial, GYD-30 — execution result. Existing owners согласуют smallest native boundary; передача event самому себе не test.
 2. Для duty определить допустимое coalescing, demanded output, new-basis relation, cancellation/finish strategy, max outstanding work, deadline/fairness и terminal partial/pending surface. Никакой фиксированный global timeout или вечное «ждём последний update».
-3. Каждый новый scenario/mechanism имеет immutable branch identity; transport retry той же операции остаётся attempt. Changed provider reply — новый evidence artifact, не новая independent study автоматически.
+3. Каждый новый scenario/mechanism имеет immutable branch identity; transport retry той же операции остаётся attempt. Changed provider reply — отдельный attempt-output artifact внутри того же invocation/evidence unit; он не добавляет trial/observation и не подменяет accepted realization. Новый replicate получает отдельный basis; независимость всё равно определяется method contract.
 4. Stale completion связывается с historical basis и не проходит expected desired revision/head fence своего case/branch. Не блокировать независимые branches одним global current-result lock. Cancel/lease expiry не освобождает реально занятую capacity без reconciliation.
 5. Для unsupported automated producer сохранять typed pending/limitation и конкретный next action; исполнителю сначала проверить существующий native route, а не объявить внешнюю причину у отсутствующего bridge.
 
@@ -125,3 +125,25 @@ original age and accountable continuation/escalation or owner-permitted cutoff;
 LIF-02 exposes missed custody coverage without waiting for compute/review.
 Only the class’s actual promised progress is scored as service; explicit
 best-effort refusal remains a truthful, distinct disposition.
+
+### R24 C3/C5/C7: recovery сохраняет смысл trial и принятой duty
+
+DES-03/GYD-30 связывают native invocation/trial, attempts, выбранный realization
+или набор realizations и accepted result; LIF-04 использует этот же intent при
+orchestration recovery. LIF-01/07 и CAP-03 потребляют эту связь. Поздний ответ того
+же intent не становится новым независимым свидетельством. Это не запрет
+multiple samples внутри одного method invocation: набор и dependence определяет
+его contract. Qualified pure replay допускается; replacement realization имеет
+явный successor basis, учёт failures/selection и запрет тихо заменить уже
+сосланный результат. Нельзя выбирать удачный draw повторением после неудачи.
+Новый replicate имеет новый basis, но не автоматически независимость.
+
+LIF-04 сохраняет admitted service commitment и durable next trigger в existing
+control store. Wakeup только ускоряет выборку due work; потеря уведомления или
+перезапуск не удаляют duty. Ревизия class policy не обнуляет старое обещание;
+current safety/rights/caps применяются сразу, с честной фиксацией lapse, когда
+прежнее обещание исполнить нельзя. Это не новая очередь и не универсальный SLA.
+
+Проверки даны в actual task/solution rows и [R24](../assurance/r24-redteam.md).
+Новых start edges нет; LIF-02 имеет только условный composition witness для
+selected custody promise и fresh claim/public-history consumer.

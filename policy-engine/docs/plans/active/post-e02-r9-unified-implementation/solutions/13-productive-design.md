@@ -117,10 +117,14 @@ Extend the canonical Scientist hierarchical coordinator: structural proposals de
 
 **Композиция и границы:**
 
+- Recover a stochastic invocation through its existing native intent/trial/attempt owner: bind the selected realization or method-qualified realization set to that intent and its accepted result. Late, duplicate or changed replies under the same intent remain attempt outputs, not additional independent evidence; preserve their actual outcomes/cost and dependence. A safe pure retry may reconstruct a qualified frozen stream/state or use a method-qualified replacement realization with an explicit successor basis and full failure/selection denominator. Do not silently replace an already referenced realization, use retry-until-favourable selection, or force every pure local retry into external-effect reconciliation. Only an explicit new replicate changes the replicate basis; independence still needs the method criterion. No universal one-draw-per-job restriction, RNG schema, new intent ledger or global result lock; see R16 C3/C5 R24 companion.
+
 - GYD-30 alone owns joint CompositionCertificate; GYD-31 owns ValueOuterSet. DES-03 consumes actual outputs, not new certificates.
 - GYD-23 Slice0 remains BIND/ESTIMATE/VERIFY; this richer search is a separately selected existing Scientist/N4-N6 route.
 
 **Acceptance / adversarial / removal:**
+
+- For the selected stochastic method, interrupt between evaluation and result persistence, retry the same native intent and deliver the old completion late. The fresh trial/reuse consumer resolves one accepted realization set for that intent, counts no extra independent replicate, and preserves failed/unknown attempts and selection effects. Qualified pure replay/replacement progresses without a generic human gate; an explicit new replicate has a distinct basis and declared dependence. Remove intent-to-realization/result binding but retain seed, retry and artifact markers: double counting or silent substitution must fail the discriminator.
 
 - A mixed structural/parameter problem produces actual trials and a fresh-reader Pareto/model-sensitive set. Conflicting objectives retain tradeoffs; a two-intervention joint effect changes ranking/feasibility compared with isolated evaluation.
 - Wrong units, stale objective direction, impossible categories, high-score infeasible designs, missing required model completions and ungrounded weights cannot produce a feasible/robust winner. Provider-client presence alone cannot label a deterministic seed LLM-generated.
@@ -257,12 +261,16 @@ Extend native PolicyArtifactBundle/BureaucraticDocument rendering to author sour
 
 **Композиция и границы:**
 
+- A historical erased parent does not by itself forbid every retained derivative. A permitted retained assessment/model/result may support its qualified use if its own retention, current-use rights and sufficient verification basis survive. Recomputations or claims needing the missing raw basis remain unavailable; a receipt, hash or displayed number alone cannot establish that sufficient basis. Apply LIF-05/LIF-07 to the actual use/dependency relation, including any valid derivative-specific rule, and retain only allowed identifiers and replay limitations. No revived old head, invented raw replay or permission to reconstruct erased input.
+
 - DES-06 writes document producer/schema/export, DES-07 imports/edits through shared interface; one document/schema writer per cut. UI-05 is intake, not document owner.
 - Independent bounded fixtures permit producer preparation. Composed packet includes DES-01/02/03/04/05 outputs only when selected; no blanket wait for every legal/learning task. CNT-09 consumes the selected real case.
 
 **Acceptance / adversarial / removal:**
 
-- A fresh consumer opens a substantive options/proposed-measure/explanation set, traces material claims and recomputes numbers; an independent actual DOCX reader can read its text/tables/roles. A new format profile preserves the same semantic basis without central domain-code changes.
+- After verified lawful raw erasure, a separately permitted and sufficiently verified retained result supports its selected historical/derivative use with explicit replay limits. A raw-dependent recomputation or unpermitted new purpose remains refused/limited; a mere receipt is insufficient. Remove actual dependency/current-use qualification while retaining erasure and result markers: both blanket false refusal and unsupported admission are detected.
+
+- A fresh consumer opens a substantive options/proposed-measure/explanation set, traces material claims and recomputes selected numerical derivations where their required basis is available and permitted; otherwise it verifies the permitted retained result/receipt through its sufficient bound evidence, displays replay limits, and refuses only uses requiring the unavailable basis; an independent actual DOCX reader can read its text/tables/roles. A new format profile preserves the same semantic basis without central domain-code changes.
 - Unsupported assertions stay marked proposals; missing qualifications, changed denominator/rounding, invented legal act, counterfeit DOCX and audience/rights mismatch cannot produce a trusted view. A document genre is not mandate or enactment.
 - Remove evidence/quantity/status binding but keep citations and watermark: fidelity checks fail. Replace real DOCX bytes with HTML-in-JSON while keeping MIME/name: format proof fails.
 

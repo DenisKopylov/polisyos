@@ -169,3 +169,6 @@ R15: читать также 28 `r15_extension` в task/solution manifests и [�
 Актуальный redteam cross-owner решений и source-bound corrections: [R22](../assurance/r22-redteam.md).
 
 Самостоятельное содержательное review R22 и актуальные уточнения: [R23](../assurance/r23-self-review.md).
+
+Актуальный redteam R23 и согласованные recovery/retention/service corrections:
+[R24](../assurance/r24-redteam.md), [S19](00-shared-decisions.md#s19-r24-сохранять-обязательство-и-основание-через-сбойсмену-версии).

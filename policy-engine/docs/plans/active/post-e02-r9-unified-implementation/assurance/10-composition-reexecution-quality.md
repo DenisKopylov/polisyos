@@ -158,3 +158,19 @@ Pattern pass: P01/P02/P04/P05/P07/P08/P10/P14/P15/P27/P29/P31/P32/P33/P35/P37/P3
 
 Это будущие selected-path cases; сейчас runtime **UNRUN**. Полные task mirrors:
 [LIF](../solutions/02-custody.md), [lineage/resources](../solutions/03-lineage.md).
+
+## R24: retry и duty-policy discriminators
+
+Расширить Q06/Q13 выбранными cases из DES-03/GYD-30/LIF-04: сбой после draw до
+persistence, повтор того же intent, изменившийся response и late completion.
+Fresh consumer не увеличивает evidence denominator по числу attempts; qualified
+replay/replacement проходит с полной failure/selection basis, новый replicate
+имеет отдельную identity. Removal удаляет связь intent→realization, сохраняя markers.
+
+Для selected service promise принять v1 duty, заменить policy на v2, потерять
+wakeup и перезапустить worker через due time. Старое обязательство и missed
+interval сохраняются либо явно переводятся; новые admissions используют v2.
+Новая safety restriction действует немедленно. Удаление persisted commitment или
+durable due recovery должно нарушить проверяемое свойство. Join с LIF-02 и fresh
+selected UI-02/UI-19/API consumer проверяет coverage, а не только queue receipts.
+Это future checks после E02, здесь runtime UNRUN.

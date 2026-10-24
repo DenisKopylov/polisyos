@@ -97,3 +97,18 @@ Selected local/team/hybrid/public mode показывает одну честн�
 У каждой `r17_extension` есть requirement, positive, adversarial, removal, D-slice и Q-case. [Machine obligations](r17-capability-obligations.json) выводятся из полного набора изменённых строк, mirror должен совпадать. Cases Q01–Q18 — группы свойств, не конечный allowlist schemas/consumers и не 18 независимых full suites. Обязательные inputs выводятся из native contracts; candidate fixture никогда не доказывает внешний реальный факт. Accepted source/input/backend freeze и независимые reviews предшествуют одной существующей дорогой wave; targeted checks до неё учитывают blast radius.
 
 Pattern pass: P01/P02/P03/P04/P05/P07/P08/P09/P10/P13/P14/P15/P27/P29/P31/P32/P33/P35/P37/P38/P40/P41. Runtime evidence в этом документе отсутствует; сохранённые исследовательские outputs не являются PASS.
+
+## R24: lawful derivative и actual read
+
+Для Q03/selected recovery проверить отдельно permitted retained derivative после
+raw erasure и use, которому всё ещё нужен raw parent. Первый может пройти при
+достаточной retained verification/current-use basis; второй остаётся limited.
+DES-06 показывает эту границу и не обещает невозможный raw replay. Удаление
+actual dependency/rights qualification обязано обнаружить как false admission,
+так и blanket false refusal. Затем заменить cold locator/version или late chunk
+между verification и consumption: protected reader не должен принять иные bytes.
+Late-corrupt-final-chunk probe проверяет actual egress/effect sink: integrity-dependent
+partial output не выходит до whole-stream verification. Chunk release допускается
+только по qualified per-unit verification без заявления whole-stream integrity;
+removal release fence должен обнаружить ранний выход, даже если final hash красный.
+Повтор whole archive scan и RAM materialization не являются критерием качества.

@@ -196,3 +196,23 @@ Original criteria и поддержанные native contracts остаются 
 Каждая selected guarantee получает свой positive, adversarial и removal signal.
 Неподдержанная гарантия ограничивает соответствующий use, а не все native methods,
 все архивы или все источники. Это плановые engineering corrections, не acceptance.
+
+## S19. R24: сохранять обязательство и основание через сбой/смену версии
+
+[Редтим R23](../assurance/r24-redteam.md) уточняет существующих owners:
+
+- stochastic retry сохраняет native evidence unit и accepted-result binding;
+  qualified pure retry/replacement разрешён с failure/selection accounting;
+- duty хранит admission commitment и durable trigger; новые safety/rights/caps
+  применяются сразу без переписывания старого lapse;
+- scoped duty→claim witness является completion join, не start barrier;
+- erased raw parent не запрещает все independently qualified retained uses;
+  raw-required use и historical/current authority остаются различными;
+- verification связывается с actual consumed bytes, допускает native bounded
+  streaming без нового archive/ledger;
+- rollback использует фактическую directional compatibility, не универсальную
+  API/worker lockstep пару. UI history подчиняется actual retention rights.
+
+Ни новых SDD решений, ни product acceptance это дополнение не создаёт.
+Conservative source scopes остаются допустимы без доказанной независимости;
+free-grow не требует выдумывать precision, которого native source не даёт.

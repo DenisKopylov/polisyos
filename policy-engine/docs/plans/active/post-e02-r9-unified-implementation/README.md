@@ -8,7 +8,7 @@
 
 ## Как читать
 
-1. [Executive summary R13 — PDF, 10 страниц](executive/summary.pdf), [текст с отметкой версии](executive/summary.md) и дополнения [R14](executive/r14-capabilities.md) / [R15](executive/r15-adaptive-and-models.md) / [R16](executive/r16-composed-models.md) / [R17](executive/r17-design-lifetimes.md) / [R19](executive/r19-full-lifecycle-solutions.md). Общее review — [R20](assurance/r20-general-review.md); самостоятельный delta и устранённые free-grow барьеры — [R21](assurance/r21-self-review.md); redteam технических стыков — [R22](assurance/r22-redteam.md); актуальный самостоятельный разбор — [R23](assurance/r23-self-review.md).
+1. [Executive summary R13 — PDF, 10 страниц](executive/summary.pdf), [текст с отметкой версии](executive/summary.md) и дополнения [R14](executive/r14-capabilities.md) / [R15](executive/r15-adaptive-and-models.md) / [R16](executive/r16-composed-models.md) / [R17](executive/r17-design-lifetimes.md) / [R19](executive/r19-full-lifecycle-solutions.md). Общее review — [R20](assurance/r20-general-review.md); самостоятельный delta и устранённые free-grow барьеры — [R21](assurance/r21-self-review.md); redteam технических стыков — [R22](assurance/r22-redteam.md); самостоятельный разбор — [R23](assurance/r23-self-review.md); актуальный redteam — [R24](assurance/r24-redteam.md).
 2. [Границы, источники и правила перехода](execution/01-charter-and-entry.md).
 3. [Сверенный остаток](inventory/README.md), [исходные версии](inventory/sources.json), полные GY/Atlas/debt crosswalks.
 4. [Архитектура композиции](architecture/01-integration-boundaries.md): кто пишет общий механизм, кто только потребляет.
@@ -100,3 +100,12 @@ reuse для случайных методов, порядок перекрыв�
 Исправлены существующие задачи и их human/machine acceptance; новые start edges,
 сервисы и нормативные SDD не введены. [Проверка документации](assurance/r23-validation.json).
 Реализация и продуктовые проверки по-прежнему только после фактической приёмки E02.
+
+## R24: redteam восстановления, обязательств и fresh consumers
+
+[Findings, решения и независимые delta reviews](assurance/r24-redteam.md)
+устраняют оставшийся rollback lockstep, уточняют stochastic retry, durable
+service commitments, actual-read integrity и lawful retained-use границы.
+Состав задач и start DAG сохраняются; added conditional join относится только
+к selected custody promise. [Документарная проверка](assurance/r24-validation.json).
+Реализация и runtime проверки остаются UNRUN до фактической приёмки E02.

@@ -129,3 +129,15 @@ CAP-04 observation-journal emission → LIF-02 bounded-observation enrollment/re
 journal can close the local enrollment race without proving external currentness.
 The existing source-native route and its original acceptance remain required for
 claims that assert source continuity.
+
+## R24: условный service-duty → claim join
+
+`LIF-02.conditional_acceptance_requirements` добавляет actual LIF-04 duty outcome
+только когда claim обещает соответствующую continuing custody coverage.
+Приёмка соединяет admission commitment/due state → continuation/cutoff/lapse →
+enrolled claim → выбранный fresh UI-02/UI-19/API reader. OPS-11 и LIF-06/OPS-08
+имеют отдельные conditional composition requirements только для заявленного ими свойства.
+Applicability выводится из native enrolled claim–duty relation/coverage contract;
+missing required relation не делает обещание inapplicable. Это не обратная start edge:
+LIF-02 readiness позволяет LIF-04 preparation, а scoped composition проверяется
+после появления обоих native outputs. Whole-task completion не требуется.

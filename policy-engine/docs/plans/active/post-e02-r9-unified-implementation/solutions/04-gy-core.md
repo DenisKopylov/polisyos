@@ -1055,6 +1055,7 @@ Classify each input at accepted-source rebind as internal engineering output/all
 
 Reconcile PDC/IR duplicate CompositionCertificate to one canonical GY-G owner, then extend resolve_bind_verify and actual workflow consumers. Preserve two-chapter composition, feedback-decomposition refusal and grounded emergent cap. Measure source-derived full set of verified Ukraine method contracts/families through real caller, produced result and fresh consumer or exact original limitation; do not hardcode 13 or extrapolate first family. Non-first consumer removal with first family intact must fail. B01 grounds are claim-type-specific; C01 accepts exact validated joint derivation for actual whole-joint property, never pairwise/marginal substitute; C02 permits justified plurality. Prevent correlated evidence independence inflation.
 
+
 ### Что переиспользовать
 
 - `policy-engine/src/polisyos/pdc/_impl/gy_waist.py@dccea950845cda5b38f026e7770c07819d31f4d9` — `CompositionCertificate`. Duplicate with IR owner; reconcile before extension.
@@ -1065,6 +1066,7 @@ Reconcile PDC/IR duplicate CompositionCertificate to one canonical GY-G owner, t
 
 Наблюдение на историческом pin не устанавливает текущую реализацию или принятую базу.
 
+
 ### Последовательность реализации
 
 1. Select/confirm canonical owner and retire/delegate duplicate.
@@ -1072,11 +1074,13 @@ Reconcile PDC/IR duplicate CompositionCertificate to one canonical GY-G owner, t
 3. Bind certificate to verified evidence, actual joint property, rule/source version and workflow outputs.
 4. Probe non-first consumer deletion; test exact joint witness vs pairwise-only and correlated derivations.
 
+
 ### Рассмотренные альтернативы
 
 - **Third certificate type** — Deepens P27 duplication.
 - **Pairwise/marginal substitute** — Does not prove whole-joint property (C01).
 - **Single derivation only / count correlation independent** — Contradicts C02 and inflates independence (P14).
+
 
 ### Free-grow и ресурсы
 
@@ -1095,12 +1099,14 @@ Preserve historic GY-G repair; keep invalid candidates unpromoted and do not mer
 - Claim-type-specific grounds (B01); exact joint witness only for actual joint property, never pairwise/marginal substitute (C01); justified plurality (C02).
 - Verified intake resolves/binds/verifies provenance.
 - GY-G composition distinct from GY-S2 knowledge binding.
+- Recover a stochastic invocation through its existing native intent/trial/attempt owner: bind the selected realization or method-qualified realization set to that intent and its accepted result. Late, duplicate or changed replies under the same intent remain attempt outputs, not additional independent evidence; preserve their actual outcomes/cost and dependence. A safe pure retry may reconstruct a qualified frozen stream/state or use a method-qualified replacement realization with an explicit successor basis and full failure/selection denominator. Do not silently replace an already referenced realization, use retry-until-favourable selection, or force every pure local retry into external-effect reconciliation. Only an explicit new replicate changes the replicate basis; independence still needs the method criterion. No universal one-draw-per-job restriction, RNG schema, new intent ledger or global result lock; see R16 C3/C5 R24 companion.
 
 
 ### Acceptance и различающие проверки
 
 - All source-derived families reach actual workflow result/consumer or exact limitation.
 - Deleting non-first consumer while first remains fails complete coverage.
+- For the selected stochastic method, interrupt between evaluation and result persistence, retry the same native intent and deliver the old completion late. The fresh trial/reuse consumer resolves one accepted realization set for that intent, counts no extra independent replicate, and preserves failed/unknown attempts and selection effects. Qualified pure replay/replacement progresses without a generic human gate; an explicit new replicate has a distinct basis and declared dependence. Remove intent-to-realization/result binding but retain seed, retry and artifact markers: double counting or silent substitution must fail the discriminator.
 
 
 ### Входы и ответственность за их получение
@@ -1112,8 +1118,8 @@ Preserve historic GY-G repair; keep invalid candidates unpromoted and do not mer
 
 - If count differs historical 13, reconcile measured set. Unproven joint property stays limited/contested.
 
-
 Classify each input at accepted-source rebind as internal engineering output/allocation, existing source record, or genuine external fact/permission. Missing native producer/bridge is assigned work, not an external blocker. Only the last class can justify an external-input hold after supplier/alternative investigation. See root-review.md for the task-specific distinction.
+
 
 ### Исследование и предел переноса
 

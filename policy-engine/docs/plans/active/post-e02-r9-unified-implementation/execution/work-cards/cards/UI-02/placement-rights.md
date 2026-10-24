@@ -26,6 +26,15 @@
 
 **Граница контекста.** Placement-specific condition не блокирует самостоятельную PR1a подготовку.
 
+## Первые действия и передача
+
+1. На E02/source rebind перечислить выбранные managed placements и фактические readers, attached metadata/cache/export paths; root закрепляет exact paths/leases, перечень не становится фиксированным списком всех transport типов.
+2. Проследить LIF-05 owner-qualified rights/retention result до каждого выбранного egress, а LIF-02 currentness — до exact issued view. Для restore consume OPS-05 cut; UI-02 не создаёт новое restore admission.
+3. Использовать permitted-history positive и protected canary, включая identifier/link/count/cache. При тех же inputs отключить один rights join: независимая no-egress assertion должна FAIL на фактическом sink.
+4. Передать fresh-reader evidence и незавершённые selected joins root; UI-04 пишет history event, UI-02 связывает issued view и correction/current status. Не обещать recall downloaded или unknown copies.
+
+Первые действия не добавляют start edges; actual commands и selected input/consumer denominator задаются при source rebind.
+
 ## Место в цепочке
 
 | Отношение | Точный смысл |
@@ -54,13 +63,13 @@ Source-manifest base: `ec3d7d38b4d246b3e1d225a1c0fc9aefae9ced0d`; это не pl
   `solution.composition_contracts[5]`
 - **join** — Tests authorized history and owner-qualified erasure across selected readers/caches/restores. Source selectors: solution.acceptance_discriminators[8].
   `solution.acceptance_discriminators[8]`
-- **binding** — tasks.json#UI-02.task.r19_extension.question_slices[1] value-matches question_ids[1]. Current coverage destination/role are sound: placement-rights is the selected managed-reader join and its existing implementation step 7 covers placement effects; bind the LIF-02 currentness/correction-lineage requirement there, without treating old issued bytes as current or promising recall.
+- **binding** — tasks.json#UI-02.task.r19_extension.question_slices[1] value-matches question_ids[1]. Placement-rights is the selected managed-reader join; existing implementation step 7 covers placement effects; bind the LIF-02 currentness/correction-lineage requirement there, without treating old issued bytes as current or promising recall.
   `task.r19_extension.question_slices[1]` (`R18-D12-Q05`); `task.r19_extension.question_ids[1]` (`R18-D12-Q05`)
-- **binding** — tasks.json#UI-02.task.r19_extension.question_slices[2] value-matches question_ids[2]. Current coverage points to placement-rights, but its reason text imports UI-01's generic-404/path-closure description; replace that rationale with this slice's exact selected public/MACHINE export, rights-before-egress, audience-bound cache, and absent/denied no-value property. The card's conditional LIF-05 reader work is already executed by preferred-solutions implementation_step[7].
+- **binding** — tasks.json#UI-02.task.r19_extension.question_slices[2] value-matches question_ids[2]. Bind selected public/MACHINE export readers to the owner-qualified LIF-05 rights result before egress, including audience-bound caches and export/index metadata. Absent or denied inputs emit no value; removing the rights join from one selected path must expose the canary.
   `task.r19_extension.question_slices[2]` (`R18-D12-Q06`); `task.r19_extension.question_ids[2]` (`R18-D12-Q06`)
-- **binding** — tasks.json#UI-02.task.r19_extension.question_slices[3] value-matches question_ids[4] (not question_ids[3]). Current destination is the right managed selected-reader owner, but its coverage rationale wrongly says UI-02 appends the response; this parent consumes and links the exact issue to the managed correction/current-status view, binds only evidenced placements, and makes no unknown-copy recall claim.
+- **binding** — tasks.json#UI-02.task.r19_extension.question_slices[3] value-matches question_ids[4] (not question_ids[3]). The managed selected-reader links the exact issued view to its current correction/status projection for evidenced placements, distinguishing the historical signed original, changed derivative, and current correction without claiming recall of unknown or downloaded copies.
   `task.r19_extension.question_slices[3]` (`R18-D22-Q03`); `task.r19_extension.question_ids[4]` (`R18-D22-Q03`)
-- **binding** — tasks.json#UI-02.task.r19_extension.question_slices[4] value-matches question_ids[3] (not question_ids[4]). Current coverage destination/role are correct for owner-qualified per-placement disclosure/retention effects; keep this UI-02 slice as a consumer of authorized correction/history and evidenced copy-control, not a writer or universal-erasure claim.
+- **binding** — tasks.json#UI-02.task.r19_extension.question_slices[4] value-matches question_ids[3] (not question_ids[4]). Consume authorized correction/history and owner-qualified per-placement disclosure/retention outcomes. Claim copy-control only where evidenced; make no universal-erasure claim.
   `task.r19_extension.question_slices[4]` (`R18-D14-Q04`); `task.r19_extension.question_ids[3]` (`R18-D14-Q04`)
 
 Inherited owner/lease/stage/activation constraints указаны в parent contract. Root/lead проверяет полное parent coverage; output этой карточки не закрывает siblings. При обнаружении пропуска остановить только affected writes/acceptance, назвать точный clause и reconciled next owner.

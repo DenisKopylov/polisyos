@@ -14,17 +14,26 @@
 
 **Выход и consumer.** Recomputable production run/row census with fixture exclusion and provenance.
 
-**Что можно готовить независимо.** Rebind source, owner, consumer and exact lease after P0-ACCEPT where applicable; any earlier census/preparation is only what the original parent stage permits. This card neither adds nor removes a start barrier.
+**Что можно готовить независимо.** После разрешённого исходным stage contract source/lease rebind выполнить первые действия ниже; до разрешённой стадии — только назначенное read-only discovery. Actual supplier outputs нужны при их потреблении, а не для всей независимой подготовки. Карточка не добавляет start barrier.
 
 **Где результат соединяется с другими.** Read the named output through Fresh GY-GAP5 evidence/register consumer.; composition is limited to this property and the exact original scope.
 
-**Positive.** The accepted inputs produce the bounded result and the fresh consumer accepts the scoped property: GY-GAP5 enumerates complete production recursive-cycle runs/rows; fixtures stay outside numerator and repeated views are not new cases.
+**Positive.** Census перечисляет все production recursive-cycle runs/rows в заявленном периоде по owner source records; fixture rows не входят в числитель, а повторные показы одного события считаются один раз. GY consumer принимает эту сверенную совокупность.
 
-**Distinguishing negative.** One fixture or repeated presentation cannot inflate production numerator or independence.
+**Distinguishing negative.** Fixture run, повторный просмотр одного production event или пропуск owner-recorded run не подтверждает production population и не увеличивает число независимых случаев.
 
-**Matched removal.** Remove the decisive binding for this property while retaining declarations/markers; the named consumer must fail or return its typed unknown/refusal: GY-GAP5 enumerates complete production recursive-cycle runs/rows; fixtures stay outside numerator and repeated views are not new cases.
+**Matched removal.** Mechanism-removal probe (неизменённая проверка denominator находится вне отключённого census filter): отключить fixture exclusion/dedup, оставив `complete production census` marker, затем предъявить fixture или повторный event. Сравнение результата с owner source denominator должно показать лишнюю строку и FAIL; сам отключённый filter не считается отказывающим.
 
 **Граница контекста.** This is a production population property, distinct from GAP6 per-row movement and GAP3 transcript.
+
+## Первые действия и передача
+
+1. Сформировать перечень production recursive-cycle run IDs и row IDs из записей production owner, отдельно отметив environment и provenance каждого run.
+2. Сверить полный перечень с owner-provided denominator, вывести fixture IDs отдельно и сгруппировать повторные представления одного run/event.
+
+**Ответственность и handoff.** Production run enumerator и denominator принадлежат существующему production owner; отдельная exploratory family/assumptions нужна только если её отдельно ratify-нули.
+
+Порядок действий внутри назначения не добавляет dependency edges. Примеры проверок дополняют полный назначенный criterion; actual commands/paths закрепляются в [packet](../../../task-decomposition/work-packet.md) после source rebind.
 
 ## Место в цепочке
 

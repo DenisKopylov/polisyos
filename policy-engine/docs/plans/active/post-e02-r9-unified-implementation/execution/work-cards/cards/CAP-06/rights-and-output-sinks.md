@@ -44,7 +44,7 @@ Source-manifest base: `ec3d7d38b4d246b3e1d225a1c0fc9aefae9ced0d`; это не pl
   `task.r17_extension.requirement`; `task.r17_extension.positive`; `task.r17_extension.adversarial`; `task.r17_extension.removal`; `solution.implementation_steps[3]`; `solution.composition_contracts[1]`; `solution.composition_contracts[2]`; `solution.acceptance_discriminators[2]`; `solution.acceptance_discriminators[3]`; `solution.deviation_triggers[1]`; `solution.inputs_to_resolve[0]`; `solution.inputs_to_resolve[2]`
 - **binding** — R17 Q15/Q17 probes check actual recipient/sink/canaries and preserve allowed derived output while unrelated transfer is refused.
   `task.r17_extension.quality_cases[0]`; `task.r17_extension.quality_cases[1]`; `task.r17_extension.quality_cases[2]`
-- **execute** — Current route matches: resume/cache/restore/export must resolve the current LIF-05 decision and policy version while preserving the original reservation/outcome.
+- **execute** — resume/cache/restore/export must resolve the current LIF-05 decision and policy version while preserving the original reservation/outcome.
   `task.r19_extension.question_slices[2]` (`R18-D14-Q03`); `task.r19_extension.question_ids[2]` (`R18-D14-Q03`)
 
 ### Обязанности внутри составных fragments

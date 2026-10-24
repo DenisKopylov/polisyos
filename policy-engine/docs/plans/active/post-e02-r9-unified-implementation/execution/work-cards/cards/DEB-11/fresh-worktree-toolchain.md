@@ -14,17 +14,26 @@
 
 **Выход и consumer.** Source-qualified setup receipt with explicit tooling versus product finding.
 
-**Что можно готовить независимо.** Rebind source, owner, consumer and exact lease after P0-ACCEPT where applicable; any earlier census/preparation is only what the original parent stage permits. This card neither adds nor removes a start barrier.
+**Что можно готовить независимо.** После разрешённого исходным stage contract source/lease rebind выполнить первые действия ниже; до разрешённой стадии — только назначенное read-only discovery. Actual supplier outputs нужны при их потреблении, а не для всей независимой подготовки. Карточка не добавляет start barrier.
 
 **Где результат соединяется с другими.** Read the named output through Fresh workspace doctor/check consumer under tools/devx/workspace.; composition is limited to this property and the exact original scope.
 
-**Positive.** The accepted inputs produce the bounded result and the fresh consumer accepts the scoped property: Documented fresh-checkout command uses intended editable source, lock, package links and toolchain; setup non-receipt stays distinct from product defect.
+**Positive.** Receipt exact owner command связывает intended editable checkout и source revision с pinned lock, package links и toolchain; consumer видит, что import/package resolution направлены в этот checkout. Это подтверждает setup только в заявленном baseline scope.
 
-**Distinguishing negative.** Wrong editable checkout or missing package links is a setup non-receipt, not a product pass or unrelated product defect.
+**Distinguishing negative.** Неверный editable checkout или отсутствующие package links дают setup non-receipt; это не product pass и само по себе не product defect.
 
-**Matched removal.** Remove the decisive binding for this property while retaining declarations/markers; the named consumer must fail or return its typed unknown/refusal: Documented fresh-checkout command uses intended editable source, lock, package links and toolchain; setup non-receipt stays distinct from product defect.
+**Matched removal.** Reconciliation probe (existing workspace doctor/check invocation remains intact): produce the setup receipt with a wrong editable-checkout or package-link destination while the observed checkout/link target is unchanged, preserving `workspace ready`. Compare the receipt to those observed identities; the existing setup assertion must report mismatch and reject the baseline receipt.
 
 **Граница контекста.** This checks environment identity only, not overall verification and not aiohttp handler behavior.
+
+## Первые действия и передача
+
+1. Выписать из original DS19 criterion точную fresh-checkout команду, ожидаемый source/lock/package-link набор и зафиксированные toolchain semantics.
+2. Создать read-only identity sheet текущего целевого worktree: editable source root, lock path/hash, package-link destinations и доступные версии инструментов; отсутствующую setup часть отметить как non-receipt.
+
+**Ответственность и handoff.** Fresh-worktree/toolchain baseline — внутренняя engineering/setup обязанность. Отсутствие настройки не является внешним permission/input и не закрывает исходную DS1/DS19 обязанность.
+
+Порядок действий внутри назначения не добавляет dependency edges. Примеры проверок дополняют полный назначенный criterion; actual commands/paths закрепляются в [packet](../../../task-decomposition/work-packet.md) после source rebind.
 
 ## Место в цепочке
 

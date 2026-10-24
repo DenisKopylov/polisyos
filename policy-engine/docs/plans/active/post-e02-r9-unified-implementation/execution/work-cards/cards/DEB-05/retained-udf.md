@@ -14,17 +14,27 @@
 
 **Выход и consumer.** Typed parsed/invalid/unreadable/valid-empty result persisted with provenance and version.
 
-**Что можно готовить независимо.** Rebind source, owner, consumer and exact lease after P0-ACCEPT where applicable; any earlier census/preparation is only what the original parent stage permits. This card neither adds nor removes a start barrier.
+**Что можно готовить независимо.** После разрешённого исходным stage contract source/lease rebind выполнить первые действия ниже; до разрешённой стадии — только назначенное read-only discovery. Actual supplier outputs нужны при их потреблении, а не для всей независимой подготовки. Карточка не добавляет start barrier.
 
 **Где результат соединяется с другими.** Read the named output through Fresh retained-source portfolio reader.; composition is limited to this property and the exact original scope.
 
-**Positive.** The accepted inputs produce the bounded result and the fresh consumer accepts the scoped property: Malformed/unreadable retained source remains distinct from a valid empty source record.
+**Positive.** Корректная valid-empty запись сохраняется и читается как пустая; read error и malformed schema на том же пути сохраняют отдельные typed outcomes.
 
-**Distinguishing negative.** Malformed or unreadable bytes never become an empty valid portfolio.
+**Distinguishing negative.** Malformed bytes или unreadable source не превращаются в `valid_empty` и не дают portfolio consumer-у ложное пустое множество.
 
-**Matched removal.** Remove the decisive binding for this property while retaining declarations/markers; the named consumer must fail or return its typed unknown/refusal: Malformed/unreadable retained source remains distinct from a valid empty source record.
+**Matched removal.** Отключить parse/read-error различение и fallback guard, сохранив markers; неизменённый test на том же malformed payload должен упасть, если статусы схлопываются с valid-empty.
 
 **Граница контекста.** This is input-source validity; it does not own calibration default grammar or runtime fixture authority.
+
+## Первые действия и передача
+
+1. Собрать actual retained-UDF producer payloads и schema variants; сохранить отдельные примеры read error, malformed record и valid empty record.
+2. Запустить каждый пример через canonical parser/producer и сравнить typed outcome плюс persisted provenance/version.
+3. Прочитать созданные artifacts fresh portfolio reader-ом и сохранить, что malformed/unreadable не стали пустым portfolio.
+
+**Ответственность и handoff.** Retained-source schema/producer owner записывает canonical DTO; fresh portfolio reader потребляет его. CAS сохранение bytes не является schema validation.
+
+Порядок действий внутри назначения не добавляет dependency edges. Примеры проверок дополняют полный назначенный criterion; actual commands/paths закрепляются в [packet](../../../task-decomposition/work-packet.md) после source rebind.
 
 ## Место в цепочке
 

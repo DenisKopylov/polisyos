@@ -14,17 +14,26 @@
 
 **Выход и consumer.** Versioned W5 row-to-role/scope/evidence crosswalk and unresolved slot list.
 
-**Что можно готовить независимо.** Rebind source, owner, consumer and exact lease after P0-ACCEPT where applicable; any earlier census/preparation is only what the original parent stage permits. This card neither adds nor removes a start barrier.
+**Что можно готовить независимо.** После разрешённого исходным stage contract source/lease rebind выполнить первые действия ниже; до разрешённой стадии — только назначенное read-only discovery. Actual supplier outputs нужны при их потреблении, а не для всей независимой подготовки. Карточка не добавляет start barrier.
 
 **Где результат соединяется с другими.** Existing scientist/validation/decision_validity.py and the selected DS15 admission consumer read only the role-bound evidence their actual claim/route requires; no slot intake implements the applied decision.
 
-**Positive.** The accepted inputs produce the bounded result and the fresh consumer accepts the scoped property: Every original W5 route slot retains distinct meaning, owner, current status and evidence need; similar vocabulary is not equivalence.
+**Positive.** Crosswalk сохраняет каждый original W5 slot как отдельную строку со своим owner/status/evidence need; пять slot outputs разрешаются к предназначенным строкам, и свежий reconciliation consumer подтверждает покрытие полного inventory.
 
-**Distinguishing negative.** A shared source ID, role string, generic signature or local default cannot fill multiple authority slots.
+**Distinguishing negative.** Общий source ID, строка роли, generic signature или local default не заполняет два разных W5 slots; пропуск или подмена остаётся unresolved.
 
-**Matched removal.** Remove the decisive binding for this property while retaining declarations/markers; the named consumer must fail or return its typed unknown/refusal: Every original W5 route slot retains distinct meaning, owner, current status and evidence need; similar vocabulary is not equivalence.
+**Matched removal.** Reconciliation probe (существующая сверка полного W5 inventory остаётся включена): объединить два original slot IDs в одну crosswalk row, сохранив `complete` marker. Сравнение с исходным inventory должно показать незакрытый слот, даже если число отображённых строк не изменилось.
 
 **Граница контекста.** The role-to-claim-scope matrix is an intake contract, not an appointment or applied authority decision. Reconcile five slot outputs here; GYD-01 S7 and GYD-15 N8 remain separate consumers and are not blanket dependencies.
+
+## Первые действия и передача
+
+1. Экспортировать полный original W5 slot inventory с неизменёнными source IDs, каждым slot owner, current status и требуемым evidence type.
+2. Сопоставить выход каждой из пяти slot-карточек только с её original rows; пустые и неоднозначные соответствия записать как unresolved, а не объединять по похожему названию роли.
+
+**Ответственность и handoff.** Внешние учреждения поставляют свои acts; crosswalk и существующая внутренняя verifier/intake machinery лишь сверяют их. Матрица — intake contract, не назначение и не applied authority decision.
+
+Порядок действий внутри назначения не добавляет dependency edges. Примеры проверок дополняют полный назначенный criterion; actual commands/paths закрепляются в [packet](../../../task-decomposition/work-packet.md) после source rebind.
 
 ## Место в цепочке
 

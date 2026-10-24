@@ -14,17 +14,25 @@
 
 **Выход и consumer.** Source-qualified use dossier with every original row, accepted evidence/formal closure, residuals, validity/reissue triggers and explicit human decision record.
 
-**Что можно готовить независимо.** Rebind source, owner, consumer and exact lease after P0-ACCEPT where applicable; any earlier census/preparation is only what the original parent stage permits. This card neither adds nor removes a start barrier.
+**Что можно готовить независимо.** После разрешённого исходным stage contract source/lease rebind выполнить первые действия ниже; до разрешённой стадии — только назначенное read-only discovery. Actual supplier outputs нужны при их потреблении, а не для всей независимой подготовки. Карточка не добавляет start barrier.
 
 **Где результат соединяется с другими.** Read the named output through Competent authorized human/institution is the actual first-use decision consumer.; composition is limited to this property and the exact original scope.
 
-**Positive.** The accepted inputs produce the bounded result and the fresh consumer accepts the scoped property: Every rebound mandatory original is accepted or formally closed by its competent owner; dossier names commissioned scope, current external facts, limitations and competent human/institution decision.
+**Positive.** Every mandatory original predicate has accepted evidence or competent-owner closure, current external facts and the actual commissioned scope are bound, and the authorized human/institution decision is explicit before first use.
 
-**Distinguishing negative.** Any mandatory original unresolved (including GY-O0-NC-01), stale external fact, changed audience/profile or missing permission blocks first use absent explicit human scope change.
+**Distinguishing negative.** Any unresolved mandatory original, stale time-sensitive basis, missing external permission, or executor-only scope reduction keeps first-use admission unavailable; a successful demo, owner-readiness, or replay receipt alone is insufficient.
 
-**Matched removal.** Remove the decisive binding for this property while retaining declarations/markers; the named consumer must fail or return its typed unknown/refusal: Every rebound mandatory original is accepted or formally closed by its competent owner; dossier names commissioned scope, current external facts, limitations and competent human/institution decision.
+**Matched removal.** Delete a source-row disposition binding while retaining a summary count; complete-set reconciliation detects the omission and withholds the first-use proposal.
 
 **Граница контекста.** One coordination card; no automatic PolicyOS deployment authority, profile-based waiver or hidden leaf work.
+
+## Первые действия и передача
+
+1. At the proposed use date, read back the accepted replay identity and revalidate time-sensitive source, law, data, calibration, permissions, and scope inputs.
+2. Enumerate the complete rebound original set from the canonical GY, Atlas, debt, and R9 inventories; bind accepted evidence or competent-owner formal closure for every mandatory predicate and preserve historical dispositions and open limitations.
+3. Confirm the commissioned case/profile, audience, surface, validity period, external permissions, and any explicit human scope change; prepare the source-qualified dossier and record the competent human/institution's decision and re-entry triggers.
+
+Порядок действий внутри назначения не добавляет dependency edges. Примеры проверок дополняют полный назначенный criterion; actual commands/paths закрепляются в [packet](../../../task-decomposition/work-packet.md) после source rebind.
 
 ## Место в цепочке
 

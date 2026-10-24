@@ -14,17 +14,27 @@
 
 **Выход и consumer.** Source-bound owner/path/meaning/use/producer/consumer disposition for every current destination.
 
-**Что можно готовить независимо.** Rebind source, owner, consumer and exact lease after P0-ACCEPT where applicable; any earlier census/preparation is only what the original parent stage permits. This card neither adds nor removes a start barrier.
+**Что можно готовить независимо.** После разрешённого исходным stage contract source/lease rebind выполнить первые действия ниже; до разрешённой стадии — только назначенное read-only discovery. Actual supplier outputs нужны при их потреблении, а не для всей независимой подготовки. Карточка не добавляет start barrier.
 
 **Где результат соединяется с другими.** Read the named output through Fresh destination-specific CORR consumers.; composition is limited to this property and the exact original scope.
 
-**Positive.** The accepted inputs produce the bounded result and the fresh consumer accepts the scoped property: Every current CORR destination/ceiling has distinct native owner, exact meaning, producer, consumer and typed unknown/incomparable result; no historical five/five denominator is treated as current.
+**Positive.** Каждый текущий source-enumerated destination/meaning имеет отдельный owner, exact use, producer и consumer; settled решения сохраняются, а открытая семантика явно остаётся proposal/open без фиктивного общего count.
 
-**Distinguishing negative.** Four-of-five counts, labels without consumer, or scalarized incompatible ceilings cannot close a semantic slot.
+**Distinguishing negative.** Неполный набор строк, label без consumer или scalarized incomparable ceilings не закрывают слот и не дают положительного общего результата.
 
-**Matched removal.** Remove the decisive binding for this property while retaining declarations/markers; the named consumer must fail or return its typed unknown/refusal: Every current CORR destination/ceiling has distinct native owner, exact meaning, producer, consumer and typed unknown/incomparable result; no historical five/five denominator is treated as current.
+**Matched removal.** Повредить/удалить source-bound строку одного destination при сохранённом `complete` marker; неизменённый reconciliation test должен упасть, если строка без owner/meaning/consumer всё ещё считается закрытой.
 
 **Граница контекста.** This is meaning/owner allocation; estimand relations, cost, DS15 and case-union keep their own producers.
+
+## Первые действия и передача
+
+1. Из accepted source составить полный список текущих CORR/INT-R2 destinations и ceiling meanings с IDs и denominator; пометить исторические 5/5 и 4/5 как snapshots.
+2. Для каждого slot заполнить source-qualified owner/path, exact meaning/use, producer, distinct consumer и settled/open disposition.
+3. Сверить отдельные vocabulary rows с original meaning и consumer; для открытых B1 reviewer/profile и B2 producer записать назначенного внутреннего owner или конкретное unresolved действие вместе с первыми regime/consumer propositions.
+
+**Ответственность и handoff.** Team-architecture координирует allocation; destination owners определяют semantics и canonical writes, их consumers читают результат. UI-06 подключается только при выбранной projection.
+
+Порядок действий внутри назначения не добавляет dependency edges. Примеры проверок дополняют полный назначенный criterion; actual commands/paths закрепляются в [packet](../../../task-decomposition/work-packet.md) после source rebind.
 
 ## Место в цепочке
 

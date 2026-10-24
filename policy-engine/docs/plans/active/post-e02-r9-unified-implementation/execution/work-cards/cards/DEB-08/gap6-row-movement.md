@@ -14,17 +14,26 @@
 
 **Выход и consumer.** Per-row movement receipt and typed GY disposition.
 
-**Что можно готовить независимо.** Rebind source, owner, consumer and exact lease after P0-ACCEPT where applicable; any earlier census/preparation is only what the original parent stage permits. This card neither adds nor removes a start barrier.
+**Что можно готовить независимо.** После разрешённого исходным stage contract source/lease rebind выполнить первые действия ниже; до разрешённой стадии — только назначенное read-only discovery. Actual supplier outputs нужны при их потреблении, а не для всей независимой подготовки. Карточка не добавляет start barrier.
 
 **Где результат соединяется с другими.** Read the named output through Fresh GY-GAP6 evidence/register consumer.; composition is limited to this property and the exact original scope.
 
-**Positive.** The accepted inputs produce the bounded result and the fresh consumer accepts the scoped property: Each GY-GAP6 row has evidence linking actual re-entry to deeper terminal movement.
+**Positive.** Для каждой закрываемой GY-GAP6 строки конкретный re-entry event ведёт к более глубокому terminal event той же строки; GY evidence consumer принимает отдельный receipt и disposition для каждой такой пары.
 
-**Distinguishing negative.** Repeated views, aggregate totals or a re-entry without deeper terminal movement do not satisfy the row.
+**Distinguishing negative.** Re-entry без последующего deeper terminal, terminal от соседней строки или агрегатный счётчик без row mapping оставляют строку незакрытой.
 
-**Matched removal.** Remove the decisive binding for this property while retaining declarations/markers; the named consumer must fail or return its typed unknown/refusal: Each GY-GAP6 row has evidence linking actual re-entry to deeper terminal movement.
+**Matched removal.** Reconciliation probe (существующий GY consumer включён): переназначить terminal event на соседний row ID, сохранив `movement achieved` marker. Проверка сопоставляет row ID обоих событий и должна показать mismatch для неизменённого утверждения о deeper-terminal movement этой строки.
 
 **Граница контекста.** Owns the GAP6 per-row re-entry/deeper-terminal property. The mixed original step also names DS15 receipt admission; consume that separate sibling output at parent composition without taking its producer or GY register writer.
+
+## Первые действия и передача
+
+1. Собрать для каждого точного GY-GAP6 row ID ссылку на route-loop re-entry event и более глубокий terminal event, включая время и source receipt.
+2. Пометить строки без обеих связанных записей как unresolved и передать в GY admission только per-row связи, не общий итоговый счётчик.
+
+**Ответственность и handoff.** Route-loop producer владеет event; GY владеет evidence admission. Отдельный DS15 receipt-admission subclause остаётся за соседней карточкой.
+
+Порядок действий внутри назначения не добавляет dependency edges. Примеры проверок дополняют полный назначенный criterion; actual commands/paths закрепляются в [packet](../../../task-decomposition/work-packet.md) после source rebind.
 
 ## Место в цепочке
 

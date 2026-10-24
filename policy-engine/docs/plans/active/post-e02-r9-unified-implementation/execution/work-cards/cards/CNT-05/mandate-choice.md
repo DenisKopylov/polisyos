@@ -18,11 +18,11 @@
 
 **Где результат соединяется с другими.** Join qualified metric results with authorized selection only for an operative collective choice. Absence of that choice does not demote independently supported conditional results. Metric arithmetic cannot invent, relax or repair a hard floor. Bind the existing public selected-basis/limitation projection with same-generation scope, audience and rights; missing reader remains surface_missing and is assigned to this card under its native projection owner.
 
-**Positive.** Authorized principal selects a valid basis and comparison shows alternatives/reversal.
+**Positive.** Authorized principal выбирает valid basis; comparison показывает alternatives/reversal, а fresh selector/history reader сохраняет prior authorized choice на исходных formula/principal/rule versions. Это selector-owned часть составного `task.positive` и уже назначенного `task.rollback`; пересчёт metric не переписывает историю выбора.
 
 **Distinguishing negative.** No principal/remit, incompatible measure, response count or preference is used as authority.
 
-**Matched removal.** Remove only collective mandate while preserving qualified calculation inputs: both supported conditional results retain their existing support status, but collective winner/endorsement fails. Remove formula or genuine hard-floor authority separately: mandate cannot repair either missing basis.
+**Matched removal.** Input-negative: при отсутствии collective mandate qualified conditional calculations сохраняют support, но winner/endorsement не выдаётся. Для mechanism removal оставить те же inputs, отключить только mandate admission в existing selector и проверить неизменённой независимой assertion отсутствие ложного winner; false endorsement должен дать FAIL. Отдельные formula/hard-floor negatives выполняются через своих owners в parent join: mandate не исправляет отсутствующую основу.
 
 **Граница контекста.** CNT-07 can support authority evidence, but normative selection stays here and never becomes a new central owner.
 

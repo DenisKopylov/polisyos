@@ -49,17 +49,17 @@ Source-manifest base: `ec3d7d38b4d246b3e1d225a1c0fc9aefae9ced0d`; это не pl
   `solution.free_grow.extension_boundary`
 - **execute** — Migration/rollback preserves indeterminate legacy outcomes, blocks dispatch on compromise/revoke, reconciles in-flight effects before status changes and preserves exact receipts.
   `solution.migration_and_rollback`
-- **execute** — Current route matches: bind the selected remote operation’s exact roots/executable/purpose/recipient and reconcile its result; do not infer statistical independence.
+- **execute** — bind the selected remote operation’s exact roots/executable/purpose/recipient and reconcile its result; do not infer statistical independence.
   `task.r19_extension.question_slices[0]` (`R18-D03-Q02`); `task.r19_extension.question_ids[0]` (`R18-D03-Q02`)
 - **execute** — Current route matches for a selected remote transform: bind exact source/input/executable/build/evaluator/rule/attempt and make the fresh consumer reproduce from resolved bytes.
   `task.r19_extension.question_slices[1]` (`R18-D14-Q01`); `task.r19_extension.question_ids[1]` (`R18-D14-Q01`)
-- **execute** — Current route matches: the selected remote capture needs a verifiable receipt/output bound to its recipient; completion/encryption is not meaning.
+- **execute** — the selected remote capture needs a verifiable receipt/output bound to its recipient; completion/encryption is not meaning.
   `task.r19_extension.question_slices[3]` (`R18-D18-Q04`); `task.r19_extension.question_ids[6]` (`R18-D18-Q04`)
-- **execute** — Current route matches: for selected private remote execution, reconcile the exact executable/effect receipt/recipient and keep uncertainty explicit.
+- **execute** — for selected private remote execution, reconcile the exact executable/effect receipt/recipient and keep uncertainty explicit.
   `task.r19_extension.question_slices[4]` (`R18-D17-Q01`); `task.r19_extension.question_ids[3]` (`R18-D17-Q01`)
-- **execute** — Current route matches: retain sent/not-sent/indeterminate effect receipt and reconcile the same operation across rollout; no duplicate or lost effect.
+- **execute** — retain sent/not-sent/indeterminate effect receipt and reconcile the same operation across rollout; no duplicate or lost effect.
   `task.r19_extension.question_slices[5]` (`R18-D17-Q02`); `task.r19_extension.question_ids[4]` (`R18-D17-Q02`)
-- **execute** — Current route matches: for selected private remote calls, bind exact executable/input/recipient and a verified or indeterminate receipt to the observed process generation.
+- **execute** — for selected private remote calls, bind exact executable/input/recipient and a verified or indeterminate receipt to the observed process generation.
   `task.r19_extension.question_slices[6]` (`R18-D17-Q03`); `task.r19_extension.question_ids[5]` (`R18-D17-Q03`)
 
 Inherited owner/lease/stage/activation constraints указаны в parent contract. Root/lead проверяет полное parent coverage; output этой карточки не закрывает siblings. При обнаружении пропуска остановить только affected writes/acceptance, назвать точный clause и reconciled next owner.

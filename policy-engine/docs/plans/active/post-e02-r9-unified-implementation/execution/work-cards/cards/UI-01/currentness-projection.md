@@ -42,7 +42,7 @@ Source-manifest base: `ec3d7d38b4d246b3e1d225a1c0fc9aefae9ced0d`; это не pl
 
 - **binding** — Binds the card's actual input/status/authority/time predicate and consumer behavior. Source selectors: solution.composition_contracts[3].
   `solution.composition_contracts[3]`
-- **execute** — tasks.json#UI-01.task.r19_extension.question_slices[0] (R18-D12-Q05) value-matches question_ids[0]. Current coverage sends both selectors to this card as binding, but UI-01 preferred-solutions implementation_steps[0..3] cover only authentication/read wiring and do not execute the LIF-02 currentness read; this card owns the fresh selected consumer, so route the missing consumer work as execute. Keep the source condition that base authentication can remain independently acceptable with currentness not_established.
+- **execute** — tasks.json#UI-01.task.r19_extension.question_slices[0] (R18-D12-Q05) value-matches question_ids[0]. UI-01.currentness-projection executes the LIF-02 currentness read at the fresh selected consumer; base authentication may remain independently acceptable when currentness is not_established.
   `task.r19_extension.question_slices[0]` (`R18-D12-Q05`); `task.r19_extension.question_ids[0]` (`R18-D12-Q05`)
 
 Inherited owner/lease/stage/activation constraints указаны в parent contract. Root/lead проверяет полное parent coverage; output этой карточки не закрывает siblings. При обнаружении пропуска остановить только affected writes/acceptance, назвать точный clause и reconciled next owner.

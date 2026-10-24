@@ -26,6 +26,15 @@
 
 **Граница контекста.** A use-based consumer contract, not archive enumeration or rights writer. Lazy per-object verification is bounded to the selected protected use and does not assert whole-archive integrity. P10/P32/P35 guard the discriminator and denominator.
 
+## Первые действия и передача
+
+1. На source rebind выбрать mixed archive case: retained payload, query-only result и verified-erased dependency; закрепить реальные LIF-05 rights и LIF-07 dependency/verification outputs для выбранного use.
+2. Для каждого representation/use разделить permitted retained result с достаточной verification, raw-dependent recomputation, неразрешённый purpose и неожиданно потерянный required object. Receipt без достаточной основы не заменяет result.
+3. Прочитать выбранные объекты свежим consumer, включая corrupt cold object до protected use. Проверить как отказ unsupported use, так и отсутствие ложного blanket отказа разрешённому independent/retained use.
+4. Передать per-use qualification в existing restore reader; restore-cut сохраняет ответственность за quarantine/currentness, byte-release — за consumed-byte integrity и egress. Lazy проверка объекта не утверждает целостность всего архива.
+
+Первые действия не добавляют start edges; actual commands и selected input/consumer denominator задаются при source rebind.
+
 ## Место в цепочке
 
 | Отношение | Точный смысл |
@@ -46,8 +55,14 @@ Source-manifest base: `ec3d7d38b4d246b3e1d225a1c0fc9aefae9ced0d`; это не pl
   `task.r17_extension.delivery_slices[2]`; `solution.composition_contracts[2]`; `solution.composition_contracts[3]`
 - **execute** — Direct result/preferred path for retained-uses; selectors solution.implementation_steps[2] name the work and native owner seam.
   `solution.implementation_steps[2]`
-- **join** — Distinguishing behavior, consumer surface, or acceptance evidence for retained-uses; selectors task.acceptance_steps[4], solution.acceptance_discriminators[3], solution.acceptance_discriminators[4] are checked at its actual reader/sink.
-  `task.acceptance_steps[4]`; `solution.acceptance_discriminators[3]`; `solution.acceptance_discriminators[4]`
+- **join** — Distinguishing behavior, consumer surface, or acceptance evidence for retained-uses; selectors solution.acceptance_discriminators[3], solution.acceptance_discriminators[4] are checked at its actual reader/sink.
+  `solution.acceptance_discriminators[3]`; `solution.acceptance_discriminators[4]`
+
+- **join** — The mixed-archive proof tests per-use retained payload, query-only result/receipt, erased dependency, required-object loss, and lazy verification before protected use. OPS-05.retained-uses classifies the selected representation and its sufficient basis for the fresh reader; restore-cut supplies the quarantined cut and current-read fence, not representation admission.
+  `task.acceptance_steps[5]`
+
+- **join** — After raw erasure, the retained-use consumer decides whether the separately permitted result has sufficient dependency/verification basis and current-use rights for the selected historical or derivative use. Raw-dependent recomputation and unpermitted purposes remain unavailable; this result does not establish restore currentness.
+  `task.acceptance_steps[6]`
 
 Inherited owner/lease/stage/activation constraints указаны в parent contract. Root/lead проверяет полное parent coverage; output этой карточки не закрывает siblings. При обнаружении пропуска остановить только affected writes/acceptance, назвать точный clause и reconciled next owner.
 

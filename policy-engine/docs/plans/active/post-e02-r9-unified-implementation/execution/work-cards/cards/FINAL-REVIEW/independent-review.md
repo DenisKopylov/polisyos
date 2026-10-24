@@ -14,17 +14,25 @@
 
 **Выход и consumer.** Bound review receipts, classified finding ledger, delta-review result and final immutable review identity.
 
-**Что можно готовить независимо.** Rebind source, owner, consumer and exact lease after P0-ACCEPT where applicable; any earlier census/preparation is only what the original parent stage permits. This card neither adds nor removes a start barrier.
+**Что можно готовить независимо.** После разрешённого исходным stage contract source/lease rebind выполнить первые действия ниже; до разрешённой стадии — только назначенное read-only discovery. Actual supplier outputs нужны при их потреблении, а не для всей независимой подготовки. Карточка не добавляет start barrier.
 
 **Где результат соединяется с другими.** Read the named output through FINAL-REPLAY dispatcher consumes accepted review identity and complete expected matrix.; composition is limited to this property and the exact original scope.
 
-**Positive.** The accepted inputs produce the bounded result and the fresh consumer accepts the scoped property: Independent semantic-scope reviews bind to one immutable freeze candidate; each finding is classified under P40 and blocking repairs are rebounded before replay.
+**Positive.** Each required review scope has an independent qualified decision on the bound candidate; blocking findings are resolved or dispositioned under the competent original criterion, and the exact final replay identity is read back.
 
-**Distinguishing negative.** Review against a moving candidate, reviewer self-attestation as independence, unclassified repeat class or omitted blocking delta cannot pass.
+**Distinguishing negative.** Self-review, a stale candidate, an unresolved blocking finding, or a post-review change to a load-bearing scope cannot satisfy review; nonblocking observations alone do not force a new expensive replay.
 
-**Matched removal.** Remove the decisive binding for this property while retaining declarations/markers; the named consumer must fail or return its typed unknown/refusal: Independent semantic-scope reviews bind to one immutable freeze candidate; each finding is classified under P40 and blocking repairs are rebounded before replay.
+**Matched removal.** Remove a reviewer-to-scope binding or the required delta-review receipt while leaving a green summary; FINAL-REPLAY must not receive a final reviewed identity for that scope.
 
 **Граница контекста.** The review aggregate does not implement product fixes or collapse all scopes into one reviewer/one exit code.
+
+## Первые действия и передача
+
+1. Use the immutable FINAL-FREEZE candidate and complete selected matrix to assign qualified independent reviewers by semantic/evidence scope; bind author, reviewer, candidate identity, and reviewed scope.
+2. Review the native owner/output/bridge/fresh-consumer chain and its status, authority, time, and required surface against original predicates; record blockers separately from nonblocking observations and classify findings as new or previously declared class.
+3. Batch blocking repairs on the integration branch, obtain independent delta review for changed and newly affected scopes, then read back and bind the final replay tree, inputs, profile, backend, and upstream identities.
+
+Порядок действий внутри назначения не добавляет dependency edges. Примеры проверок дополняют полный назначенный criterion; actual commands/paths закрепляются в [packet](../../../task-decomposition/work-packet.md) после source rebind.
 
 ## Место в цепочке
 

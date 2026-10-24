@@ -47,7 +47,7 @@ Source-manifest base: `ec3d7d38b4d246b3e1d225a1c0fc9aefae9ced0d`; это не pl
   `task.acceptance_steps[4]`
 - **binding** — Bind audience to admitted artifact; actual sink gate remains fresh-sink-rights.
   `task.surface_delivery.audiences`
-- **execute** — Current route matches: this owns exact content-root admission and binds only source-supported protocol/cohort lineage for CNT-08 to consume; CAP-03 supplies the roots and does not decide statistical independence.
+- **execute** — this owns exact content-root admission and binds only source-supported protocol/cohort lineage for CNT-08 to consume; CAP-03 supplies the roots and does not decide statistical independence.
   `task.r19_extension.question_slices[0]` (`R18-D03-Q02`); `task.r19_extension.question_ids[0]` (`R18-D03-Q02`)
 
 Inherited owner/lease/stage/activation constraints указаны в parent contract. Root/lead проверяет полное parent coverage; output этой карточки не закрывает siblings. При обнаружении пропуска остановить только affected writes/acceptance, назвать точный clause и reconciled next owner.

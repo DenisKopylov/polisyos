@@ -54,7 +54,7 @@ Source-manifest base: `ec3d7d38b4d246b3e1d225a1c0fc9aefae9ced0d`; это не pl
   `solution.composition_contracts[4]`
 - **join** — This signal exercises the actual card property at a fresh consumer; labels/shape cannot substitute. Source selectors: solution.acceptance_discriminators[6].
   `solution.acceptance_discriminators[6]`
-- **binding** — tasks.json#UI-04.task.r19_extension.question_slices[2] value-matches question_ids[2]. Current destination captures the LIF-05 rights-aware selected history read; replace the copied generic-404 rationale with the exact history/API/audit projection and attached-metadata closure, preserving only permitted historical issue and suppressing protected existence. Existing placement-currentness implementation_step[6] supplies the reader effect.
+- **binding** — tasks.json#UI-04.task.r19_extension.question_slices[2] value-matches question_ids[2]. Compose the selected history/API/audit projection with owner-qualified LIF-05 rights before display, close attached metadata, preserve only permitted historical issue, and suppress protected existence where required. Existing placement-currentness implementation_step[6] supplies the reader effect.
   `task.r19_extension.question_slices[2]` (`R18-D12-Q06`); `task.r19_extension.question_ids[2]` (`R18-D12-Q06`)
 
 ### Обязанности внутри составных fragments

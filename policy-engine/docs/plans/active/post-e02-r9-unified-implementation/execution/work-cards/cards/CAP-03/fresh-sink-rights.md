@@ -48,15 +48,15 @@ Source-manifest base: `ec3d7d38b4d246b3e1d225a1c0fc9aefae9ced0d`; это не pl
   `task.surface_delivery.negative`
 - **binding** — R17 D6 constrains exact source-use, recipient and output-release decisions at actual sinks; reuse existing authz/LIF-05 rather than creating a new IAM or provider owner.
   `task.r17_extension.delivery_slices[0]`
-- **execute** — Current route matches: re-resolve current LIF-05 outcome at derive/cache/export; a permitted derivative does not release restricted raw data.
+- **execute** — re-resolve current LIF-05 outcome at derive/cache/export; a permitted derivative does not release restricted raw data.
   `task.r19_extension.question_slices[1]` (`R18-D05-Q05`); `task.r19_extension.question_ids[1]` (`R18-D05-Q05`)
-- **execute** — Current route matches: read, analyze, derive, and public export are distinct actions requiring current action/purpose/recipient grants at the sink.
+- **execute** — read, analyze, derive, and public export are distinct actions requiring current action/purpose/recipient grants at the sink.
   `task.r19_extension.question_slices[2]` (`R18-D09-Q01`); `task.r19_extension.question_ids[2]` (`R18-D09-Q01`)
-- **execute** — Current route matches: bind the separate current read/analyze/derive/export/publish grants and recipient; a public URL/hash is not an IPD grant.
+- **execute** — bind the separate current read/analyze/derive/export/publish grants and recipient; a public URL/hash is not an IPD grant.
   `task.r19_extension.question_slices[3]` (`R18-D09-Q05`); `task.r19_extension.question_ids[3]` (`R18-D09-Q05`)
-- **execute** — Current route matches: cached/resumed use must resolve current LIF-05 policy version and preserve the original reservation/outcome.
+- **execute** — cached/resumed use must resolve current LIF-05 policy version and preserve the original reservation/outcome.
   `task.r19_extension.question_slices[4]` (`R18-D14-Q03`); `task.r19_extension.question_ids[4]` (`R18-D14-Q03`)
-- **execute** — Current route matches: grant to read does not authorize analysis, training, reuse, or publication; recheck rights at the later use.
+- **execute** — grant to read does not authorize analysis, training, reuse, or publication; recheck rights at the later use.
   `task.r19_extension.question_slices[5]` (`R18-D14-Q04`); `task.r19_extension.question_ids[5]` (`R18-D14-Q04`)
 
 Inherited owner/lease/stage/activation constraints указаны в parent contract. Root/lead проверяет полное parent coverage; output этой карточки не закрывает siblings. При обнаружении пропуска остановить только affected writes/acceptance, назвать точный clause и reconciled next owner.

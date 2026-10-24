@@ -38,7 +38,7 @@
 
 Source-manifest base: `ec3d7d38b4d246b3e1d225a1c0fc9aefae9ced0d`; это не plan_commit назначения. Точные immutable blobs/hash — [coverage.json](../../coverage.json), parent `CAP-04`. `task` выбирает строку tasks.json по id, `solution` — preferred-solutions.json по task_id; затем dot/index selector. Для R19 identity определяется значением question_id, не позицией в другом массиве. Полностью прочитайте назначенные fragments и нужные contracts; mixed clause нельзя усечь.
 
-- **execute** — Current route matches: complaints/adopter-operation evidence remains a provenance- and time-bound candidate until independently reconciled.
+- **execute** — complaints/adopter-operation evidence remains a provenance- and time-bound candidate until independently reconciled.
   `task.r19_extension.question_slices[6]` (`R18-D14-Q05`); `task.r19_extension.question_ids[2]` (`R18-D14-Q05`)
 
 Inherited owner/lease/stage/activation constraints указаны в parent contract. Root/lead проверяет полное parent coverage; output этой карточки не закрывает siblings. При обнаружении пропуска остановить только affected writes/acceptance, назвать точный clause и reconciled next owner.

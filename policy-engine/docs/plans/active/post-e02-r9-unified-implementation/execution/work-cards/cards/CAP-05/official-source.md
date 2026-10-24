@@ -43,7 +43,7 @@ Source-manifest base: `ec3d7d38b4d246b3e1d225a1c0fc9aefae9ced0d`; это не pl
 
 - **execute** — Bind exact official artifact/version/span/language and candidate legal relation; URL/signature/extraction/translation alone do not prove meaning.
   `task.r14_extension.requirement`; `task.r14_extension.detail`; `task.r14_extension.quality_ref`; `task.r14_extension.product_verification`; `solution.implementation_steps[0]`; `solution.implementation_steps[1]`; `solution.free_grow.data_or_config_growth`; `solution.free_grow.extension_boundary`; `solution.free_grow.resource_behavior`; `solution.composition_contracts[0]`; `solution.acceptance_discriminators[2]`; `solution.deviation_triggers[0]`; `solution.inputs_to_resolve[0]`; `solution.inputs_to_resolve[2]`
-- **execute** — Current route matches: bind exact official span, original language, translation relation, and candidate extraction; authentic text does not make the translation authoritative.
+- **execute** — bind exact official span, original language, translation relation, and candidate extraction; authentic text does not make the translation authoritative.
   `task.r19_extension.question_slices[1]` (`R18-D04-Q02`); `task.r19_extension.question_ids[1]` (`R18-D04-Q02`)
 
 ### Обязанности внутри составных fragments

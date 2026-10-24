@@ -40,9 +40,9 @@ Source-manifest base: `ec3d7d38b4d246b3e1d225a1c0fc9aefae9ced0d`; это не pl
 
 - **execute** — D4/Q10 and exposure/resource/worker-clock/actual-use facts remain source-bound records; plan, act, execution and worker due time differ.
   `task.r17_extension.delivery_slices[1]`; `task.r17_extension.quality_cases[2]`
-- **execute** — Current route matches: bind actual operational/exposure record, denominator/cut, cohort/site/period, provenance, and time; keep the measurement distinct from law, causal effect, or source event.
+- **execute** — bind actual operational/exposure record, denominator/cut, cohort/site/period, provenance, and time; keep the measurement distinct from law, causal effect, or source event.
   `task.r19_extension.question_slices[2]` (`R18-D22-Q01`); `task.r19_extension.question_ids[7]` (`R18-D22-Q01`)
-- **execute** — Current route is operational-records and remains primary for the measured source cut/resource evidence and the prohibition on estimating workforce. The slice also says “Emit source-cut event,” so keep that event subclause explicit and conditional on actual source/custodian support rather than synthesizing it from a metric.
+- **execute** — Operational-records supplies the measured source cut/resource evidence and the prohibition on estimating workforce. Source-cut event production stays conditional on actual source/custodian support; do not synthesize an event from a metric.
   `task.r19_extension.question_slices[3]` (`R18-D22-Q04`); `task.r19_extension.question_ids[8]` (`R18-D22-Q04`)
 
 Inherited owner/lease/stage/activation constraints указаны в parent contract. Root/lead проверяет полное parent coverage; output этой карточки не закрывает siblings. При обнаружении пропуска остановить только affected writes/acceptance, назвать точный clause и reconciled next owner.

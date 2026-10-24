@@ -14,17 +14,27 @@
 
 **Выход и consumer.** Versioned per-fragment break inventory and bound review receipt consumed at release admission.
 
-**Что можно готовить независимо.** Rebind source, owner, consumer and exact lease after P0-ACCEPT where applicable; any earlier census/preparation is only what the original parent stage permits. This card neither adds nor removes a start barrier.
+**Что можно готовить независимо.** После разрешённого исходным stage contract source/lease rebind выполнить первые действия ниже; до разрешённой стадии — только назначенное read-only discovery. Actual supplier outputs нужны при их потреблении, а не для всей независимой подготовки. Карточка не добавляет start barrier.
 
 **Где результат соединяется с другими.** Read the named output through Fresh release promotion/public-surface review consumer.; composition is limited to this property and the exact original scope.
 
-**Positive.** The accepted inputs produce the bounded result and the fresh consumer accepts the scoped property: For each originally named release fragment, public-break inventory matches current generated API/source delta and a content-bound competent owner review.
+**Positive.** Для каждого named fragment полный symbol delta совпадает с актуальным generated inventory, а promotion читает привязанный к этим bytes owner review и принимает именно эту версию.
 
-**Distinguishing negative.** Bare marker, stale inventory, incomplete symbol diff, or importability cannot stand in for content-bound review.
+**Distinguishing negative.** Один `reviewed` marker, stale inventory или неполный symbol diff без content-bound review не допускает promotion.
 
-**Matched removal.** Remove the decisive binding for this property while retaining declarations/markers; the named consumer must fail or return its typed unknown/refusal: For each originally named release fragment, public-break inventory matches current generated API/source delta and a content-bound competent owner review.
+**Matched removal.** Отключить resolve/content-binding review receipt, оставив `reviewed=true`; неизменённый promotion test с изменённым public symbol должен упасть, если marker один допускает promotion.
 
 **Граница контекста.** The named fragments and API promotion consumer are distinct from the complete private-name reach census.
+
+## Первые действия и передача
+
+1. Для каждого исходно названного release fragment вычислить актуальный source/API delta относительно regenerated public inventory и выписать затронутые symbols.
+2. Сохранить на каждый fragment отдельный content-bound review receipt с inventory version/hash и competent owner.
+3. Подать в существующий promotion consumer три записи: свежую, устаревшую и одну только с `reviewed` marker; сохранить решения.
+
+**Ответственность и handoff.** Public-surface/release owner выпускает inventory и review receipt; release promotion consumer проверяет их. Importability сама по себе не означает public API membership.
+
+Порядок действий внутри назначения не добавляет dependency edges. Примеры проверок дополняют полный назначенный criterion; actual commands/paths закрепляются в [packet](../../../task-decomposition/work-packet.md) после source rebind.
 
 ## Место в цепочке
 

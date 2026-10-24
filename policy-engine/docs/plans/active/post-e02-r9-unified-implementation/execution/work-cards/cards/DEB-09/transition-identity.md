@@ -14,17 +14,27 @@
 
 **Выход и consumer.** Role-bound transition/producer admission or explicit typed-empty status.
 
-**Что можно готовить независимо.** Rebind source, owner, consumer and exact lease after P0-ACCEPT where applicable; any earlier census/preparation is only what the original parent stage permits. This card neither adds nor removes a start barrier.
+**Что можно готовить независимо.** После разрешённого исходным stage contract source/lease rebind выполнить первые действия ниже; до разрешённой стадии — только назначенное read-only discovery. Actual supplier outputs нужны при их потреблении, а не для всей независимой подготовки. Карточка не добавляет start barrier.
 
 **Где результат соединяется с другими.** Read the named output through Fresh protected transition/current-decision consumer through scientist/validation/decision_validity.py.; composition is limited to this property and the exact original scope.
 
-**Positive.** The accepted inputs produce the bounded result and the fresh consumer accepts the scoped property: Transition-signing authority and producer identity bind to their intended claim role and remain distinct from policy signer and history holder.
+**Positive.** Transition signer evidence связывается с конкретным epoch transition, а producer identity — с соответствующим producer claim; свежий consumer различает обе роли от predicate-policy signer и history holder. GY-DEF23 учитывается только если rebind подтверждает именно эту роль.
 
-**Distinguishing negative.** Candidate ID, local default signer or policy-signer evidence cannot establish transition authority or producer identity.
+**Distinguishing negative.** Candidate ID, локальный default signer или policy-signer evidence, предъявленный как transition authority/producer identity, остаётся refused.
 
-**Matched removal.** Remove the decisive binding for this property while retaining declarations/markers; the named consumer must fail or return its typed unknown/refusal: Transition-signing authority and producer identity bind to their intended claim role and remain distinct from policy signer and history holder.
+**Matched removal.** Reconciliation probe (существующий role verifier остаётся включён): поменять местами claim-role references для transition signer и producer identity, оставив обе подписи и `verified` markers. Сверка role-to-claim должна обнаружить подмену и отклонить оба неверно привязанных назначения; GY-DEF23 участвует только если source rebind подтверждает эту роль.
 
 **Граница контекста.** Keep GY-DEF23 here only for its source-confirmed role; never absorb DEB-04 GY-DEF22 or sibling slots.
+
+## Первые действия и передача
+
+1. Сделать role matrix с отдельными строками для predicate-policy signer, transition signer, producer identity и independent history holder, привязав каждую к своему claim ID и source artifact.
+2. Перепривязать GY-DEF23 к оригинальному source row и включать его здесь только если этот row действительно описывает transition/producer identity; сохранить решение в crosswalk.
+3. Для реально предоставленных артефактов записать outcome существующего LIF-01 verifier по каждой роли, не переиспользуя роль другого slot.
+
+**Ответственность и handoff.** Подлинность transition signer и producer identity даёт соответствующая внешняя институция; раздельная роль-связка и verifier-приёмка — внутренняя инженерная работа. Не поглощать DEB-04 GY-DEF22.
+
+Порядок действий внутри назначения не добавляет dependency edges. Примеры проверок дополняют полный назначенный criterion; actual commands/paths закрепляются в [packet](../../../task-decomposition/work-packet.md) после source rebind.
 
 ## Место в цепочке
 

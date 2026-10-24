@@ -14,17 +14,27 @@
 
 **Выход и consumer.** Persisted scoped ruling with provenance, validity and currentness plus fresh UI-19 projection; currently contract_only until wired.
 
-**Что можно готовить независимо.** Rebind source, owner, consumer and exact lease after P0-ACCEPT where applicable; any earlier census/preparation is only what the original parent stage permits. This card neither adds nor removes a start barrier.
+**Что можно готовить независимо.** После разрешённого исходным stage contract source/lease rebind выполнить первые действия ниже; до разрешённой стадии — только назначенное read-only discovery. Actual supplier outputs нужны при их потреблении, а не для всей независимой подготовки. Карточка не добавляет start barrier.
 
 **Где результат соединяется с другими.** Read the named output through Fresh UI-19 governed projection consumer.; composition is limited to this property and the exact original scope.
 
-**Positive.** The accepted inputs produce the bounded result and the fresh consumer accepts the scoped property: Source-bound one-plane scope ruling persists through LIF-02 canonical lifecycle/head writer and appears in a fresh UI-19 governed projection; candidate stays non-authoritative.
+**Positive.** Для source-bound, independently reconciled single-plane predicates четыре кейса дают: отсутствие делает наш claim ложным → own; внешний результат меняет validity → integrate; меняется только отвечающий за claim → observe; иначе → out_of_scope. Admitted ruling сохраняется через единственный LIF-02 writer, изменение source/rule time вызывает reissue/limitation, а свежий UI-19 projection показывает currentness; candidate остаётся non-authoritative.
 
-**Distinguishing negative.** Candidate, declared predicate, marker or stale projection cannot be published as authority; remove lifecycle binding and fresh reader must fail.
+**Distinguishing negative.** Смешанные planes, unresolved/consumer-asserted basis или только `ScopeAdjudicationCandidate` с `authority_effect=none` не меняют authority head; неизвестное scope остаётся явным candidate limitation.
 
-**Matched removal.** Remove the decisive binding for this property while retaining declarations/markers; the named consumer must fail or return its typed unknown/refusal: Source-bound one-plane scope ruling persists through LIF-02 canonical lifecycle/head writer and appears in a fresh UI-19 governed projection; candidate stays non-authoritative.
+**Matched removal.** Reconciliation probe (existing source-resolution/content-bind/provenance verifier and LIF-02 admission remain enabled): replace the predicate source content digest while preserving signed/`admitted` markers and the ruling. The verifier must detect that the ruling no longer resolves to that source fact; the fresh LIF-02 reader rejects it and UI-19 does not show it as a current admitted claim.
 
 **Граница контекста.** One vertical sequences producer -> LIF-02 -> UI-19; candidate remains non-authoritative and native lease stays singular.
+
+## Первые действия и передача
+
+1. Составить predicate ledger по каждому source fact: одна plane, source/content binding, valid/known time, rule version и P37 basis label (`recomputed`, `independently_reconciled`, `consumer_asserted`, `institutionally_supplied` или `not_established`).
+2. Связать существующие candidate/evidence objects с фактическим producer, persistence record, LIF-02 head writer и UI-19 read path; отметить evidence для каждого перехода и отсутствующее ребро.
+3. Подготовить четыре single-plane cases по ратифицированным исходам own/integrate/observe/out_of_scope и отдельный mixed-plane decomposition; неизвестные predicate оставить candidate limitation.
+
+**Ответственность и handoff.** Четырёхстороннее правило и его source version уже ратифицированы: не добавлять authority, gate или appointment. Внешнее evidence требуется только для конкретной внешней функции; resolver, lifecycle bridge и projection — внутренняя работа.
+
+Порядок действий внутри назначения не добавляет dependency edges. Примеры проверок дополняют полный назначенный criterion; actual commands/paths закрепляются в [packet](../../../task-decomposition/work-packet.md) после source rebind.
 
 ## Место в цепочке
 

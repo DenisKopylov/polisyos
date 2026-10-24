@@ -18,13 +18,24 @@
 
 **Где результат соединяется с другими.** LIF-07 supplies influence/descendant closure only; LIF-02 owns currentness decision/head. Fresh Scientist claim-support/currentness readers consume the LIF-02 result, and selected surfaces apply their own audience filter.
 
-**Positive.** Verified correction changes affected status and basis; unrelated uses retain previous status.
+**Positive.** Проверенная correction меняет только связанные ветви/claims и их currentness; prior basis остаётся immutable, несвязанные claims остаются current, а решение/head пишет только LIF-02.
 
-**Distinguishing negative.** Arrival order selects law, same bytes erase measured drift, derivative text stales all claims or shared cache creates confirmation.
+**Distinguishing negative.** Порядок прихода не выбирает применимое право; одинаковые bytes не стирают измеренный drift; производный текст не stale-ит все claims; общий cache не становится подтверждением.
 
-**Matched removal.** Remove event→basis edge/scoped cascade while retaining hashes: affected status remains false-green or unrelated claims stale; fresh reader exposes it.
+**Matched removal.** Оставь то же verified event, immutable basis и LIF-07 closure, но отключи event→basis edge/scoped cascade. Неизменённая семантическая проверка ожидает обновление ровно affected uses и currentness unrelated uses; false-green либо лишняя stale-метка означает, что эта проверка должна FAIL при отключённом механизме. Отдельное отсутствие события не запускает synthetic recompute и не является removal probe.
 
 **Граница контекста.** Second sequence checkpoint is final composition only: actual event is conditional/external, LIF-07 owns influence closure, and LIF-02 owns currentness/head. CNT-08 creates neither a cascade nor a second currentness writer.
+
+## Первые действия и передача
+
+1. После принятого E02 и source/lease rebind сверь event interface с владельцами LIF-07 influence/descendant closure и LIF-02 currentness decision/head; зафиксируй точного поставщика выбранного correction/revocation/change event.
+2. Сопоставь проверенное событие с immutable basis и LIF-07 closure, чтобы получить только затронутые uses. Право/закон/permission подтверждает свой custodian; CNT-08 не выводит событие из даты, текста, hash или очередности поступления.
+3. Передай scoped affected-use set владельцу LIF-02 для решения/head и прочитай его результат свежим Scientist claim-support/currentness reader и выбранными audience-filtered surfaces.
+4. При отсутствии upstream event не синтезируй событие; независимые LIF-02 expiry/missed-duty rules продолжают действовать. Отсутствующий LIF-07/LIF-02 bridge — внутренняя интеграционная работа, не внешний blocker.
+
+**Ответственность и handoff.** Поставщик/issuer/rights holder/community authority отвечает за событие; LIF-07 владеет influence parents и affected-use closure; LIF-02 владеет currentness decision и claim head. CNT-08 только связывает результаты. Handoff: свежий Scientist claim-support/currentness reader и выбранные surface consumers; ни второй cascade, ни второй status writer.
+
+Порядок действий внутри назначения не добавляет dependency edges. Примеры проверок дополняют полный назначенный criterion; actual commands/paths закрепляются в [packet](../../../task-decomposition/work-packet.md) после source rebind.
 
 ## Место в цепочке
 

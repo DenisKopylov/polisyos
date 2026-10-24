@@ -49,7 +49,7 @@ Source-manifest base: `ec3d7d38b4d246b3e1d225a1c0fc9aefae9ced0d`; это не pl
   `solution.acceptance_discriminators[1]`
 - **binding** — Records a real owner input or its conditional use; it appoints no missing producer. Source selectors: solution.input_resolution_rule, solution.inputs_to_resolve[0], solution.inputs_to_resolve[1].
   `solution.inputs_to_resolve[0]`; `solution.inputs_to_resolve[1]`; `solution.input_resolution_rule`
-- **binding** — tasks.json#UI-04.task.r19_extension.question_slices[1] value-matches question_ids[1]. Current destination is right but current coverage's reason incorrectly characterizes this slice as a LIF-02 consumer; the exact slice is the primary-writer event contract. Keep it bound to event-history's already-executed producer steps 0..2: append to the exact edition with dissent/time/authority, without auto-resolution.
+- **binding** — tasks.json#UI-04.task.r19_extension.question_slices[1] value-matches question_ids[1]. Bind the exact-edition event append with source-qualified event, dissent, time, authority, and correction lineage; event-history does not automatically resolve the correction or testimony.
   `task.r19_extension.question_slices[1]` (`R18-D12-Q05`); `task.r19_extension.question_ids[1]` (`R18-D12-Q05`)
 - **binding** — tasks.json#UI-04.task.r19_extension.question_slices[3] value-matches question_ids[4] (not question_ids[3]). Event-history is the exact-parent append owner; its preferred-solution implementation_steps[0..2] already execute the producer, so this question route binds the S13 event's formal/informal/PolicyOS distinctions rather than appointing a second writer.
   `task.r19_extension.question_slices[3]` (`R18-D22-Q03`); `task.r19_extension.question_ids[4]` (`R18-D22-Q03`)

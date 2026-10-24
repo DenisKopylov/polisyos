@@ -14,17 +14,26 @@
 
 **Выход и consumer.** One wave journal with per-row source-bound result/status, complete inputs and actual consumer property outcomes; no overwritten historical receipts.
 
-**Что можно готовить независимо.** Rebind source, owner, consumer and exact lease after P0-ACCEPT where applicable; any earlier census/preparation is only what the original parent stage permits. This card neither adds nor removes a start barrier.
+**Что можно готовить независимо.** После разрешённого исходным stage contract source/lease rebind выполнить первые действия ниже; до разрешённой стадии — только назначенное read-only discovery. Actual supplier outputs нужны при их потреблении, а не для всей независимой подготовки. Карточка не добавляет start barrier.
 
 **Где результат соединяется с другими.** Read the named output through FINAL-USE consumes this replay identity and every original disposition; LIF-09, GYD-16–22 and DES-10 join as actual completion outcomes, not as global start barriers; original failure/skip/unrun/unavailable dispositions remain visible.; composition is limited to this property and the exact original scope.
 
-**Positive.** The accepted inputs produce the bounded result and the fresh consumer accepts the scoped property: One bounded replay wave covers the complete frozen expected matrix with source/input/backend/rule identity; join uses actual outputs and semantic properties, not marker counts or exit codes.
+**Positive.** Every selected frozen matrix row has an exact source/input/backend-qualified deciding output and the real consumer establishes its required predicate; the complete wave is accepted only for the properties that pass.
 
-**Distinguishing negative.** Missing/stale/mismatched/failed/skipped/unrun output, prior-tree receipt or same labels with changed rule/artifact cannot join as accepted.
+**Distinguishing negative.** A missing, stale, substituted, failed, skipped, unrun, or unverified required row prevents accepted replay, while a complete failed or incomplete diagnostic wave may still be recorded truthfully.
 
-**Matched removal.** Remove the decisive binding for this property while retaining declarations/markers; the named consumer must fail or return its typed unknown/refusal: One bounded replay wave covers the complete frozen expected matrix with source/input/backend/rule identity; join uses actual outputs and semantic properties, not marker counts or exit codes.
+**Matched removal.** Remove a required deciding output or producer binding while keeping the run-count/all-done summary; denominator reconciliation leaves the row unresolved and FINAL-USE cannot treat the wave as accepted.
 
 **Граница контекста.** A dispatcher/join is one aggregate card; it does not run all checks as a single leaf or infer concurrency from graph width. Acceptance dependencies LIF-09, GYD-16–22 and DES-10 are machine-routed completion outcomes; actual artifact paths remain source-bound and are resolved at FINAL-REVIEW/E02.
+
+## Первые действия и передача
+
+1. Consume the final reviewed replay identity; freeze exact tree, inputs, backend/profile, rule versions, upstream refs, and every selected expected row before dispatch.
+2. Partition work only by real dependencies and contended resources, then dispatch permitted independent shards under actual leases and capacity; join LIF-09 and GYD-16–22 at completion rather than making them start barriers for unrelated shards.
+3. Retain each shard's source-qualified deciding output and terminal state (PASS/FAIL/ERROR/SKIP/UNRUN) with row, run, input, version, upstream, and backend identity.
+4. Reconcile the full frozen denominator against actual outputs and consumer behavior; record accepted replay only when required predicates pass, otherwise retain the complete result as diagnostic/incomplete.
+
+Порядок действий внутри назначения не добавляет dependency edges. Примеры проверок дополняют полный назначенный criterion; actual commands/paths закрепляются в [packet](../../../task-decomposition/work-packet.md) после source rebind.
 
 ## Место в цепочке
 

@@ -39,7 +39,7 @@
 
 Source-manifest base: `ec3d7d38b4d246b3e1d225a1c0fc9aefae9ced0d`; это не plan_commit назначения. Точные immutable blobs/hash — [coverage.json](../../coverage.json), parent `UI-01`. `task` выбирает строку tasks.json по id, `solution` — preferred-solutions.json по task_id; затем dot/index selector. Для R19 identity определяется значением question_id, не позицией в другом массиве. Полностью прочитайте назначенные fragments и нужные contracts; mixed clause нельзя усечь.
 
-- **execute** — tasks.json#UI-01.task.r19_extension.question_slices[1] (R18-D12-Q06) value-matches question_ids[1]. Current coverage routes both selectors here as binding, while S12#R18-D12-Q06 assigns UI-01 as primary writer of the commissioned path census and matched disclosure closure; denied-absent owns that selected emitter/cache gate, so make its work executable. The exact selected path set is commissioned at P0, not a universal transport list.
+- **execute** — tasks.json#UI-01.task.r19_extension.question_slices[1] (R18-D12-Q06) value-matches question_ids[1]. UI-01.denied-absent executes the commissioned path census and matched absent/denied disclosure closure at the selected emitter/cache; P0 binds the selected path set, not a universal transport list.
   `task.r19_extension.question_slices[1]` (`R18-D12-Q06`); `task.r19_extension.question_ids[1]` (`R18-D12-Q06`)
 
 Inherited owner/lease/stage/activation constraints указаны в parent contract. Root/lead проверяет полное parent coverage; output этой карточки не закрывает siblings. При обнаружении пропуска остановить только affected writes/acceptance, назвать точный clause и reconciled next owner.

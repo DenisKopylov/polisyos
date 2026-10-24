@@ -14,17 +14,27 @@
 
 **Выход и consumer.** Bounded falsifier receipt and explicit not_established integrity residual.
 
-**Что можно готовить независимо.** Rebind source, owner, consumer and exact lease after P0-ACCEPT where applicable; any earlier census/preparation is only what the original parent stage permits. This card neither adds nor removes a start barrier.
+**Что можно готовить независимо.** После разрешённого исходным stage contract source/lease rebind выполнить первые действия ниже; до разрешённой стадии — только назначенное read-only discovery. Actual supplier outputs нужны при их потреблении, а не для всей независимой подготовки. Карточка не добавляет start barrier.
 
 **Где результат соединяется с другими.** Read the named output through Existing runner integrity consumer/falsifier; measurement intake is not accepted as its substitute.; composition is limited to this property and the exact original scope.
 
-**Positive.** The accepted inputs produce the bounded result and the fresh consumer accepts the scoped property: Intake evidence never proves executable integrity; the existing transitive-runner falsifier detects changed transitive bytes under unchanged entry identity, or the stronger claim remains not_established.
+**Positive.** При одинаковом entry identity изменённые байты transitive chunk обнаруживаются существующим falsifier; receipt остаётся intake-only и не заявляет integrity сверх наблюдаемого.
 
-**Distinguishing negative.** A self-hash, entry label or read receipt stays green if transitive-content observation is removed; the falsifier must detect that removal.
+**Distinguishing negative.** Один entry label/hash или read receipt при неизвестном transitive closure не подтверждает целостность runner; кандидат получает `not_established`.
 
-**Matched removal.** Remove the decisive binding for this property while retaining declarations/markers; the named consumer must fail or return its typed unknown/refusal: Intake evidence never proves executable integrity; the existing transitive-runner falsifier detects changed transitive bytes under unchanged entry identity, or the stronger claim remains not_established.
+**Matched removal.** Отключить сравнение transitive chunk bytes, оставив entry identity, receipt и тестовые маркеры; неизменённый falsifier test с тем же изменением chunk должен упасть, потому что изменение больше не наблюдается.
 
 **Граница контекста.** This is an independent runner trust boundary; do not merge it into the FileReadMeasurement disclosure result.
+
+## Первые действия и передача
+
+1. Снять baseline exact entry identity и полный список transitive executable/chunk inputs с их content identities для исходного falsifier.
+2. В неизменённом original falsifier изменить байты одного transitive chunk, сохранив entry identity; записать команду, точные refs обеих версий и delta без копирования tracked bytes и наблюдённый verdict.
+3. Сверить, что intake receipt сообщает только свои наблюдаемые reads; без независимо принятой runner identity записать `not_established` для executable integrity.
+
+**Ответственность и handoff.** Существующий runner/falsifier owner запускает исходную проверку и фиксирует residual. Intake owner не становится владельцем execution integrity; сервис syscall/network capture или новый attestation путь вне этой карточки.
+
+Порядок действий внутри назначения не добавляет dependency edges. Примеры проверок дополняют полный назначенный criterion; actual commands/paths закрепляются в [packet](../../../task-decomposition/work-packet.md) после source rebind.
 
 ## Место в цепочке
 

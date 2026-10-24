@@ -14,17 +14,25 @@
 
 **Выход и consumer.** Read-back acceptance record with immutable source/tree, precise admitted scope, inputs, backends, limitations, exclusions and decision provenance.
 
-**Что можно готовить независимо.** Obtain the existing G decision from its competent owner, then bind immutable source identity and exact boundary before opening any scope; this card does not depend on itself or create another acceptance path.
+**Что можно готовить независимо.** После разрешённого исходным stage contract source/lease rebind выполнить первые действия ниже; до разрешённой стадии — только назначенное read-only discovery. Actual supplier outputs нужны при их потреблении, а не для всей независимой подготовки. Карточка не добавляет start barrier.
 
 **Где результат соединяется с другими.** Read the named output through P0-REBIND root journal consumes this exact accepted decision and opens only matched scopes.; composition is limited to this property and the exact original scope.
 
-**Positive.** The accepted inputs produce the bounded result and the fresh consumer accepts the scoped property: Only the existing competent G decision, bound to its exact accepted source, scope, inputs, backends, limitations and authority boundary, opens the named entry scope.
+**Positive.** The existing competent G decision is read back against its immutable source, scope, inputs, backends, limitations, exclusions, and provenance; only scopes within that decision are opened.
 
-**Distinguishing negative.** A topic head, receipt-shaped file, presumed completion or broader scope never supplies the competent decision.
+**Distinguishing negative.** A topic head, local green check, assumed completion, or receipt-shaped file cannot open product implementation entry; a missing or ambiguous decision remains unresolved.
 
-**Matched removal.** Remove the decisive binding for this property while retaining declarations/markers; the named consumer must fail or return its typed unknown/refusal: Only the existing competent G decision, bound to its exact accepted source, scope, inputs, backends, limitations and authority boundary, opens the named entry scope.
+**Matched removal.** Remove the decision-to-source/scope binding while leaving planning declarations and an accepted label; the existing P0-REBIND consumer must leave entry unresolved or closed.
 
 **Граница контекста.** One external entry decision is a coordination result, not a new PolicyOS acceptance service or leaf implementation.
+
+## Первые действия и передача
+
+1. Read the existing G acceptance decision and its source-qualified evidence from the competent G owner; record who issued it and the exact decision identity.
+2. Resolve accepted commit/tree, exact scope, inputs, backends, limitations, exclusions, and authority boundary; record any absent or contradictory field as unresolved.
+3. Compare proposed entry scopes with that recorded boundary and append only matching scopes to the existing root journal; append a rebind requirement if the accepted source or scope changes.
+
+Порядок действий внутри назначения не добавляет dependency edges. Примеры проверок дополняют полный назначенный criterion; actual commands/paths закрепляются в [packet](../../../task-decomposition/work-packet.md) после source rebind.
 
 ## Место в цепочке
 

@@ -42,7 +42,7 @@ Source-manifest base: `ec3d7d38b4d246b3e1d225a1c0fc9aefae9ced0d`; это не pl
 
 - **execute** — Measure source/routes/languages/cut and known-item no-hit; U035 is D03-Q01 search adequacy and U053 allows only an admitted no-hit query.
   `solution.acceptance_discriminators[1]`
-- **execute** — Current route matches: the positive known-item/source-local recall, withheld-route limit, and matched-removal test all belong to claim-scoped coverage evidence.
+- **execute** — the positive known-item/source-local recall, withheld-route limit, and matched-removal test all belong to claim-scoped coverage evidence.
   `task.r19_extension.question_slices[0]` (`R18-D03-Q01`); `task.r19_extension.question_ids[0]` (`R18-D03-Q01`)
 - **execute** — Current route owns same-query/source/cut no-hit replay and prevents missing source or cutoff from implying global absence.
   `task.r19_extension.question_slices[2]` (`R18-D09-Q05`); `task.r19_extension.question_ids[2]` (`R18-D09-Q05`)

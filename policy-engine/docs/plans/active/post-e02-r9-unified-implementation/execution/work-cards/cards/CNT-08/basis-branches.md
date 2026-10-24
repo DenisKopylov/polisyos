@@ -18,13 +18,23 @@
 
 **Где результат соединяется с другими.** Event-recompute consumes manifest/edge set; fresh Scientist claim reader applies claim-specific method profile. Selected legal/participation premises only; no blanket gate.
 
-**Positive.** Shared cohort/mirror/repeated exposure collapses apparent independent count while valid distinct comparisons stay useful; cutoff leaves frontier incomplete.
+**Positive.** На двух поколениях с общим исследованием/когортой и изменившейся географией свежий reader показывает общее основание и изменённую premise, не считает публикации или hashes независимыми, сохраняет корректное сравнение разных моделей, а ограниченный поиск сообщает только «не найдено в маршрутах X к cutoff Y».
 
-**Distinguishing negative.** Different hash/paper/cache/trace becomes independence/currentness; unknown overlap or truncated search becomes full no-hit.
+**Distinguishing negative.** Одинаковый кэш, новый DOI/hash, повторный адаптивный просмотр или неизвестное перекрытие не дают независимое подтверждение; бюджетный cutoff, устаревший индекс или непросмотренный источник не дают полного no-hit. Не переносить право, target, время или калибровку по похожему ID.
 
-**Matched removal.** Remove ancestry/exposure/permission relation while retaining counts/hashes: independent confirmation drops/unknown; bounded search cannot claim absence.
+**Matched removal.** Оставь источники и ancestry refs доступными, отключи их consumption и подай два разных paper IDs с общей когортой. Неизменённая независимая семантическая проверка ожидает один dependent basis/unknown overlap; если без механизма reader допускает независимый count, именно эта проверка должна FAIL. Отдельное отсутствие ancestry/event даёт unknown/limited, но не доказывает removal property.
 
 **Граница контекста.** Analytical basis state, not new evidence source or universal Bayesian/independent-confirmation rule.
+
+## Первые действия и передача
+
+1. После принятого E02/source rebind найди фактических Fabric lineage и Scientist claim-support owners, их поколения, readers и точные leases.
+2. Для выбранной генерации зафиксируй immutable общие входы и difference по изменившейся premise (мера/мандат, право, источник, метод, testimony/permission или calibration); привяжи support, contradiction, ancestry, dependency и supersession к версиям.
+3. Сохрани common ancestry и partial/unknown overlap; search/exposure оставь bounded selection history с frontier, query/version/time, rights, result denominator, cutoff и blind spots. Передай manifest event-recompute и claim-specific basis свежему Scientist reader; independent/holdout basis требуется лишь claim, который заявляет независимое подтверждение.
+
+**Ответственность и handoff.** Fabric lineage owner пишет native ancestry/input edges; Scientist claim-support owner решает claim-specific support и method profile. Фактических владельцев и exact leases закрепляет source rebind; не вводить новый evidence/independence service. Потребители: event-recompute для manifest/dependencies и свежий Scientist claim-support reader для статуса конкретного claim.
+
+Порядок действий внутри назначения не добавляет dependency edges. Примеры проверок дополняют полный назначенный criterion; actual commands/paths закрепляются в [packet](../../../task-decomposition/work-packet.md) после source rebind.
 
 ## Место в цепочке
 

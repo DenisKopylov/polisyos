@@ -1,68 +1,120 @@
 # Prompt: canonical implementation writer
 
-**Scope R25:** `{parent_task_ids}` и `{slice_packet_ref@plan_commit}` задают
-точный assignment. Ни общий task ID, ни широкий linked document не
-расширяют lease; все необходимые clauses включаются в packet по
-[правилу полноты среза](#полнота-рабочего-среза-r25) ниже.
+Действующий консолидированный prompt R28. Используй его вместе с заполненным
+[work packet](../execution/task-decomposition/work-packet.md) и
+[порядком для исполнителя](../execution/work-cards/executor-guide.md).
+Реализация только после фактической приёмки E02. Не создавай детей и не делегируй.
 
-**Приоритет правил чтения R25.** При bounded-packet assignment все указания ниже
-«прочитай task/workstream/preferred solution/extension/семейство slices целиком»
-означают exact clauses и транзитивные contracts, назначенные в packet; широкие
-документы служат навигацией, если packet не требует конкретный selector.
-Root/lead читает полного родителя и обеспечивает полный маршрут обязательств.
-При прямом назначении полного parent сохраняются требования полного чтения.
-AGENTS, CONTRIBUTING и applicable repo rules этим не сужаются. Если необходимый
-clause пропущен, останови affected writes/acceptance и уточни packet; не считай
-его отсутствие разрешением нарушить контракт.
+## Назначение и обязательное чтение
 
-Assignment: `{task_ids}` from the pinned `tasks.json`; source obligations `{original_ids}`; accepted E02/base `{commit/tree}`; upstream outputs `{refs}`; exclusive write set `{paths}`, read set `{paths/refs}`, generated companions `{family}`, resource lease `{keys/budget}`. Read the task's detailed workstream, interface dossier, AGENTS, CONTRIBUTING and pattern register. No children or delegation.
+Root передаёт `{work_card_id}`, `{parent_task_ids}`, `{slice_packet_ref@plan_commit}`,
+`{original_ids}`, `{manifest_source_base/blobs}`, `{accepted_E02_commit/tree}`,
+`{selected_profile}`, `{upstream_output_refs}`, `{root_journal_ref/revision}`,
+`{exact_read_write_paths}`, `{semantic_owner/generated_family_leases}`,
+`{resource_permit}` и `{stage/expiry/recovery_rule}`. Шаблон с неразрешёнными
+обязательными полями не выдаётся за разрешение записи. Сверь branch attachment,
+source и actual journal до изменения; неожиданное состояние передай root без
+reset/rebase/checkout. Read-only discovery можно назначить отдельно.
 
-Confirm attached branch and exact base before any edit. Reuse → extend → consolidate → new only with a concrete missing owner capability. Close the general invariant through the real producer, durable artifact/event, bridge and consumer. Keep authority/time/status/rule/version/audience semantics and all mandatory public/generated companions. Do not edit another lease or create a second owner to avoid a collision.
+Прочитай AGENTS, CONTRIBUTING, pattern register, operative card и все exact
+clauses/транзитивные producer, consumer, surface, migration и shared contracts
+из packet. Root/lead учитывает **полного** parent, preferred solution и каждое
+присутствующее extension; leaf не наследует siblings как скрытое задание.
+Ссылки на workstreams и историю — навигация, если их конкретный clause не требуется
+назначению. Root включает применимые clauses из [shared decisions](../solutions/00-shared-decisions.md),
+[root review](../solutions/root-review.md) и [decision clarifications](../solutions/decision-clarifications.md);
+фактические leases сверяет с [conflict registry](../execution/conflict-groups.json). При прямом назначении полного parent действует полный scope; слишком
+широкое задание предложи разделить по проверяемым результатам без усечения смысла.
 
-Your task row supplies positive, adversarial and removal signals. Turn those into exact mirrored test paths after source rebind; use an independent oracle where the claim requires it. Record baseline and candidate commands, inputs, full deciding output, duration and limitations. Run the selected blast-radius checks only under the resource permit; request the expensive shared run from root. No production source or billable call without the actual operation-specific authorization.
+Пропущенный нужный clause требует affected rebind: приостанови только затронутые
+writes/acceptance, назови точный пропуск и продолжи независимую разрешённую работу.
+Количество страниц, файлов или checks не ограничивает обязательные companions.
+Точные selectors действуют только на pinned manifest; новое поле/consumer нельзя
+молча игнорировать. Исторический receipt остаётся на исходной версии.
 
-If a required input is missing, inspect existing suppliers and accepted E02 outputs and attempt a lawful alternative. If engineering can construct the missing bridge or investigate the rule, do that within scope. If an external fact cannot be supplied, record exact provider, attempted channel, required content/provenance, blocked claim and re-entry trigger; continue independent work. Send a concrete architecture proposal for an unresolved semantic decision. Do not manufacture authority from a fixture, self-attestation or signature presence.
+## Первые действия
 
-Deliver clean commits with complete footprint and migration/rollback, real capability labels, full outputs, remaining verification and upstream identities. Author recommendations are not G acceptance. Unexpected branch/tree changes stop affected writes and go to root without self-repair.
+1. Назови центральное свойство, существующий owner, output и свежего consumer.
+   Раздели доказанное существующее поведение, static observation и отсутствующую
+   связь. Выполни предметные первые шаги карточки; не повторяй исправление, если
+   принятый E02 уже удовлетворяет полному исходному критерию.
+2. Сверь выбранные supplier outputs и стадию их использования по
+   [stage contract](../execution/05-stage-and-release-contracts.md).
+   Interface-stage packet содержит реальное соглашение native producer/consumer
+   и полный scoped rebind; mock или название задачи не доказывают readiness.
+   Agreed interface разрешает предусмотренную isolated preparation, но actual
+   composition/protected execution требует настоящих входов и соответствующих
+   разрешений. Подготовка соседей не ждёт полного завершения чужого parent.
+3. Свяжи предпочитаемое решение с actual source: reuse → extend → consolidate →
+   new только при доказанно недостающей способности существующего owner.
+   Не создавай второй scheduler/store/gate/schema owner и не меняй чужой lease.
+4. Запиши сценарии positive, input-negative и matched removal с наблюдением и
+   oracle. После rebind назначь exact mirrored test paths/commands, selected
+   denominator и baseline. Запуск только под resource permit; дорогую общую волну
+   заказывает root. Production source и billable calls требуют actual
+   operation-specific authorization.
 
-Before dispatch use [stage/release contracts](../execution/05-stage-and-release-contracts.md) and [conflict registry](../execution/conflict-groups.json): bind the exact stage, actual source/file/generator leases, selected conditional suppliers and outputs, physical execution permits, and original-obligation disposition. An owner-ready task does not close its original criterion. Unknown write sets cannot enter a writer lane; fixture preparation does not discharge composed acceptance.
+## Реализация, ответственность и проверки
 
-For interface-stage assignments, root must supply the actual native producer/consumer agreement and complete scoped rebind; never infer readiness from a mock or task title. Isolated construction is permitted, protected execution and composed acceptance are not. Return exact emission/observation nodes for composition. Commit/read back and stop writes before releasing the mutation lease; independent review can then proceed on that immutable candidate.
+Проведи свойство через реальный producer → persisted artifact/event → bridge →
+fresh consumer → выбранную API/browser/audit/export surface. Status, authority,
+time, rule/schema version, provenance, audience, права и replay semantics сохраняются.
+Обязательные DTO/OpenAPI/generated/API/test/migration companions входят в scope
+или имеют именованного coordinating writer и join. Группа карточек не владеет кодом.
 
-Read the assigned task’s `preferred_solution_ref` from [tasks.json](../tasks.json), the [shared decisions](../solutions/00-shared-decisions.md), [root review](../solutions/root-review.md) and relevant [decision clarifications](../solutions/decision-clarifications.md). Use the recommended native solution as the starting point, not a second owner or a universal platform mandate. An evidence-backed engineering deviation records the changed observation, preserved predicates, alternatives/resource tradeoff, migration, consumers and distinguishing test; root reconciles interfaces and leases. Changes to ratified semantics or original criteria require their competent approval. Missing internal producers are assigned work; unavailable external authority is not fabricated. No implementation before actual E02 acceptance.
+Input-negative меняет вход в исправной реализации: тест ожидаемого ограничения
+проходит. Mechanism removal отключает выбранную enforcement/bridge функцию при
+тех же inputs/markers: неизменённая семантическая проверка должна **провалиться**.
+Для documentary reconciliation портится отдельная рабочая копия source/route,
+а проверка обязана обнаружить расхождение. Сохраняй baseline/candidate identities,
+полные deciding outputs, длительность и ограничения. Independent oracle применяй
+по исходному claim; labels, mocks и exit code не заменяют actual property.
 
-## R14 companion
+Покажи ближайший divergent/sibling case и полный selected consumer denominator.
+Inherited red устанавливается по P41 на slice-base, иначе `not_established`.
+На втором escape одного класса применяй P40: общий invariant или проверенная
+bounded limitation; не продолжай бесконечные частные ремонты. Не объявляй закрытым
+parent на основании локального PASS или непроверенной inherited limitation.
 
-For R14 work read solutions/13-productive-design.md plus the original task and r14_extension. Prove the actual productive path and its removal signal, not only safe refusal or schema validity. Native numerical execution evaluates LLM hypotheses; model prose never supplies outcome evidence. Internal missing producer/bridge is your scoped engineering work, not an external-input hold.
+## Применимые содержательные контракты
 
-R15 supplement: if the task has `r15_extension`, read the entire extension, `solutions/15-technical-method-lifecycle.md` selected profiles, and `assurance/09-adaptive-research-and-method-quality.md`. DES-11/12 own narrow native extensions; DES-03/04/GYD-30 retain shared writer roles. No numeric scientific EVSI requirement for a justified nonnumeric study. GYD-30 reads the heterogeneous-model research dossier before claiming a new coupling class. Complete original criteria and every applicable additive extension; no technology shopping or automatic authority from method diagnostics.
+Эта таблица помогает найти действующие требования; полный набор выводится из
+assigned source clauses, включая будущие extensions, а не из списка редакций.
+Читай относящиеся clauses полностью. Root включает их транзитивное замыкание.
 
-### Дополнение R16 для затронутой задачи
+| Назначенный результат | Обязательный смысл и источник |
+|---|---|
+| Содержательный поиск, гипотезы и документы | [Productive design](../solutions/13-productive-design.md): реальный useful path и removal, а не одни отказы; LLM — candidate, численный вывод даёт native execution. |
+| Адаптивная траектория или исследование | [Method lifecycle](../solutions/15-technical-method-lifecycle.md) и [quality](../assurance/09-adaptive-research-and-method-quality.md): выбранный профиль; nonnumeric study не требует scientific numeric EVSI. DES-11/12 расширяют узкие owners, DES-03/04/GYD-30 сохраняют общие роли. Для новой coupling class нужен относящийся heterogeneous-model dossier. |
+| Композиция, reuse и запуск по duty | Назначенные r16 delivery/quality clauses: calculation identity, current-use qualification и statistical independence различаются; reuse сравнивается с clean recompute по actual positive/negative dependencies, duty проходит event/observation → intent → trial. |
+| Долгая custody и succession | Назначенные r17 clauses и [archive](../architecture/07-completed-design-custody.md), [succession](../architecture/08-incumbent-policy-succession.md), [access](../architecture/09-design-isolation-and-access.md): old-as-known/current-use, rights-at-egress, scoped real-world succession; predicates выводятся из source, не из enum сегодняшних доменов. |
+| Сквозной жизненный цикл | Назначенные [R19 решения](../solutions/lifecycle-r19/README.md), [composition](../architecture/10-full-lifecycle-composition.md), [quality](../assurance/12-full-lifecycle-quality.md), [parallelism](../execution/10-full-lifecycle-parallelism.md): полезный условный результат, scientific support и institutional endorsement различаются; 84 вопроса не образуют 84 общих gates. Пять принятых SDD clauses имеют [свой acceptance record](../architecture/proposals/r19-system-design-clarifications.md); остальные proposals этим не ратифицированы. |
 
-Прочитай своё r16_extension, delivery_slices и quality_cases вместе с исходными критериями. Выбери existing owner и полный accepted-source footprint; не создавай новый scheduler/graph только ради task label. Различай calculation identity, current-use qualification и statistical evidence independence. Для selective reuse докажи actual positive/negative dependencies и сравнение с clean recompute; для duty исполни actual event→intent→trial, не только dirty marker. Подготовка по agreed interface не даёт composed acceptance. Не реализовывать до фактической приёмки E02.
+## Если обнаружено неизвестное или лучшее решение
 
-### R17 для затронутой задачи
+Проверь существующих suppliers и принятые E02 outputs; попробуй законную
+альтернативу. Внутренний missing producer/bridge — порученная engineering работа
+в пределах lease либо конкретное назначение через root. Для нерешённого смыслового
+или архитектурного вопроса исследуй правило и передай root/компетентному владельцу
+конкретную рекомендуемую архитектуру, альтернативы, сохраняемые predicates и falsifier.
+Назови зависимое решение и продолжай независимую работу; это не общий approval gate.
+Внешний факт не создаётся fixture,
+self-attestation или наличием подписи: укажи supplier, attempted channel,
+content/provenance, blocked claim и re-entry trigger. Продолжай независимую работу.
 
-Прочитай своё `r17_extension`, все D-slices/Q-cases и architecture/07–09 вместе с исходными критериями. Реализуй полный producer→persisted artifact→bridge→fresh reader/emitter. Особо проверь actual closure, old-as-known/current-use, rights-at-egress и scoped real-world succession. Перечень predicates/consumers выводи из accepted source; не создавай enum текущих доменов или default law. Не реализовывать до E02 acceptance.
+Предпочтительный native путь — отправная точка. Обоснованное инженерное отклонение
+записывает наблюдение, сохраняемые predicates, alternatives/resource tradeoff,
+migration, affected consumers и distinguishing test. Root согласует interfaces и
+leases; изменения ratified semantics/исходного критерия требуют компетентного
+решения, изменения SDD — пользовательского согласования. Не добавляй blanket
+approval для локальных решений внутри принятого контракта.
 
-### Обязательный companion R19
+## Передача результата
 
-Прочитай `r19_extension` назначенных задач в tasks.json/preferred-solutions и связанные карточки `solutions/lifecycle-r19/`. Примени `architecture/10-full-lifecycle-composition.md`, `assurance/12-full-lifecycle-quality.md` и stage-specific правила `execution/10-full-lifecycle-parallelism.md`. Сохраняй старые обязательства. Пять R19 SDD clauses приняты и применены 2026-10-24; ссылка на canonical acceptance record — в architecture/proposals/r19-system-design-clarifications.md. Они не назначают внешних полномочий и не ратифицируют остальные proposals. Различай useful conditional result, scientific support и institutional endorsement; не создавай 84 новых gates или параллельного owner. Выбери actual producer/consumer/public closure и independent falsifier; product UNRUN нельзя повышать по документации. Реализация только после фактической приёмки E02.
-
-### Полнота рабочего среза R25
-
-Если root назначил bounded slice, используй его materialized
-[work packet](../execution/task-decomposition/work-packet.md), а не весь parent
-как неявное задание. Полностью прочитай все назначенные clauses, shared invariants
-и транзитивно необходимые producer/consumer/interface/surface/migration contracts.
-Указания R14–R19 и ссылки выше применяются к этому scope; root обязан включить
-все относящиеся к нему требования. Нельзя отказаться от нужного clause ради
-длины prompt или заменить normative input summary автора.
-
-Parent task и все присутствующие `*_extension` полностью учитываются root/lead
-в общем coverage journal: sibling work, composition joins и нераспределённые
-остатки не исчезают. Leaf не обязан реализовать siblings и не принимает весь
-parent. При прямом назначении parent без декомпозиции действует его полный scope;
-если он непосилен как одно связное назначение, предложи конкретные срезы вместо
-молчаливого усечения. Неизвестное поле или новый consumer требует affected rebind.
-Результат проверки одного среза не даёт parent closure. Реализация только после E02.
+Передай clean immutable commits с полным footprint, migration/rollback,
+capability labels, deciding outputs, upstream identities, remaining verification
+и конкретным downstream join/owner, exact emission/observation nodes для composition. Source recommendations не являются G acceptance.
+Сначала commit/readback и quiescence, затем освобождение mutation/resource lease;
+immutable review не удерживает write lease. Root обновляет parent coverage и
+сводит original-obligation disposition. Непроверенное соединение результатов
+остаётся открытым даже при готовом локальном output.

@@ -14,17 +14,26 @@
 
 **Выход и consumer.** Role-specific source-qualified signer admission or typed-empty/refusal.
 
-**Что можно готовить независимо.** Rebind source, owner, consumer and exact lease after P0-ACCEPT where applicable; any earlier census/preparation is only what the original parent stage permits. This card neither adds nor removes a start barrier.
+**Что можно готовить независимо.** После разрешённого исходным stage contract source/lease rebind выполнить первые действия ниже; до разрешённой стадии — только назначенное read-only discovery. Actual supplier outputs нужны при их потреблении, а не для всей независимой подготовки. Карточка не добавляет start barrier.
 
 **Где результат соединяется с другими.** Read the named output through Fresh scientist/validation/decision_validity protected claim consumer.; composition is limited to this property and the exact original scope.
 
-**Positive.** The accepted inputs produce the bounded result and the fresh consumer accepts the scoped property: Current purpose/scope/time-bound signer evidence authorizes only the intended epoch predicate-policy claim.
+**Positive.** Актуальное внешнее signer evidence с non-producer provenance связывается с exact predicate-policy content и intended purpose/scope/time; существующий consumer допускает только этот epoch predicate-policy claim.
 
-**Distinguishing negative.** Self-issued, expired, wrong-purpose or signature-only evidence cannot authorize the claim.
+**Distinguishing negative.** Self-issued, expired, signature-only или подписанный другой policy артефакт не authorizes этот claim.
 
-**Matched removal.** Remove the decisive binding for this property while retaining declarations/markers; the named consumer must fail or return its typed unknown/refusal: Current purpose/scope/time-bound signer evidence authorizes only the intended epoch predicate-policy claim.
+**Matched removal.** Reconciliation probe (существующий LIF-01 verifier остаётся включён): заменить content digest или valid-time binding в signer evidence на значение другой policy/периода, сохранив verifier-role marker. Проверка должна обнаружить, что артефакт не authorizes исходный predicate-policy claim, и отказать.
 
 **Граница контекста.** Non-substitutable external role; does not substitute for transition signer or history holder.
+
+## Первые действия и передача
+
+1. Зафиксировать content digest predicate-policy и требуемые claim role, purpose/scope, valid time и known time из текущего epoch claim.
+2. Разрешить предоставленное signer evidence через existing LIF-01 verifier и сохранить source/provenance, content match, time match и точный typed outcome.
+
+**Ответственность и handoff.** Внешняя организация поставляет signer act; PolicyOS только разрешает, проверяет и принимает его через имеющийся verifier. Локального default signer/appointment service нет.
+
+Порядок действий внутри назначения не добавляет dependency edges. Примеры проверок дополняют полный назначенный criterion; actual commands/paths закрепляются в [packet](../../../task-decomposition/work-packet.md) после source rebind.
 
 ## Место в цепочке
 

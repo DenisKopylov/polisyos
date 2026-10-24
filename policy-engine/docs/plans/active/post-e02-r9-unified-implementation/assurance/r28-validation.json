@@ -1,0 +1,94 @@
+{
+  "revision": "R28",
+  "status": "PASS",
+  "base_commit": "2a07cd8a16bad0191b302f71c699b3bf9082ebac",
+  "scope": "Documentation routing/readback and bounded in-memory binding probes only; no product verification.",
+  "counts": {
+    "parent_tasks": 121,
+    "work_cards": 262,
+    "groups": 11,
+    "cards_by_group": {
+      "G00": 6,
+      "G01": 20,
+      "G02": 23,
+      "G03": 21,
+      "G04": 8,
+      "G05": 22,
+      "G06": 31,
+      "G07": 34,
+      "G08": 21,
+      "G09": 38,
+      "G10": 38
+    },
+    "cards_by_kind": {
+      "consumer": 94,
+      "coordination": 9,
+      "input": 19,
+      "mechanism": 75,
+      "verification": 65
+    },
+    "primary_source_fragments": 7196,
+    "inherited_fields": 3711,
+    "supplemental_clause_uses": 258,
+    "question_occurrences": 388,
+    "question_ids": 84,
+    "companion_navigation_refs": 64,
+    "original_direct_edges": 368,
+    "consumption_routes": 471,
+    "clarified_first_step_cards": 52,
+    "primary_receiver_changes": 3,
+    "markdown_files": 408,
+    "file_links_checked": 3754
+  },
+  "checks": 13495,
+  "failures": [],
+  "product_verification": "UNRUN",
+  "limitations": [
+    "Structural coverage is not a proof of all transitive semantic requirements or runtime behavior.",
+    "Semantic ownership/actual source paths/leases and selected consumer inputs must be rebound after E02 acceptance.",
+    "Cross-owner companion refs navigate existing task-local slices; they do not add all-peer prerequisites or writers.",
+    "File-link checks exclude remote URLs and arbitrary historical anchors."
+  ],
+  "review_provenance": [
+    {
+      "path": "policy-engine/_build/post-e02-r28-executor-20261024/debt-first.json",
+      "sha256": "6de36f3e83000688452d8b283cc7637766f6a30d4a8abf1e7c97070267fe06f1",
+      "availability": "local ignored review evidence; not an operative dispatch input"
+    },
+    {
+      "path": "policy-engine/_build/post-e02-r28-executor-20261024/debt-second.json",
+      "sha256": "8325183215ee426fbdf69b8d68bb533e002f9cfdcddc83e16d1cb0b2c44adb3d",
+      "availability": "local ignored review evidence; not an operative dispatch input"
+    },
+    {
+      "path": "policy-engine/_build/post-e02-r28-executor-20261024/coordination.json",
+      "sha256": "ab3658b9396c328db143f815baded9b10b9ff02e6ea3511aafcb0b9e18209449",
+      "availability": "local ignored review evidence; not an operative dispatch input"
+    },
+    {
+      "path": "policy-engine/_build/post-e02-r28-executor-20261024/complex.json",
+      "sha256": "adff509dfa586014e4ca503eba77453b314fd88d9705ac742d1d6fcbe9477888",
+      "availability": "local ignored review evidence; not an operative dispatch input"
+    },
+    {
+      "path": "policy-engine/_build/post-e02-r28-executor-20261024/routes.json",
+      "sha256": "ae48fa4b213d21f43726db76b164e494bc4d646205bf731c489c37bf02fb61cb",
+      "availability": "local ignored review evidence; not an operative dispatch input"
+    },
+    {
+      "path": "policy-engine/_build/post-e02-r28-executor-20261024/cold-review.json",
+      "sha256": "6e9a77ba14ef9840a640d156879f09f92c1336b5e2923527c11bb705d9467b6f",
+      "availability": "local ignored review evidence; not an operative dispatch input"
+    },
+    {
+      "path": "policy-engine/_build/post-e02-r28-executor-20261024/preservation-review.json",
+      "sha256": "8381492b989abe283fd35ae2b8abc50142d3963cbee382feadb3b7ccac7b42ce",
+      "availability": "local ignored review evidence; not an operative dispatch input"
+    }
+  ],
+  "full_receipt": {
+    "path": "policy-engine/_build/post-e02-r28-executor-20261024/full-validation.json",
+    "sha256": "b0209a082eab4c846f12b09dbe2567b75493a6a00cd07fccd4bbc6a304bedcce",
+    "files_read": 413
+  }
+}

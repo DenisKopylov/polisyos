@@ -14,17 +14,26 @@
 
 **Выход и consumer.** Bounded lifecycle behavior plus existing-handler tests and originating-lane evidence.
 
-**Что можно готовить независимо.** Rebind source, owner, consumer and exact lease after P0-ACCEPT where applicable; any earlier census/preparation is only what the original parent stage permits. This card neither adds nor removes a start barrier.
+**Что можно готовить независимо.** После разрешённого исходным stage contract source/lease rebind выполнить первые действия ниже; до разрешённой стадии — только назначенное read-only discovery. Actual supplier outputs нужны при их потреблении, а не для всей независимой подготовки. Карточка не добавляет start barrier.
 
 **Где результат соединяется с другими.** Read the named output through Fresh connector/session handler consumer and tests.; composition is limited to this property and the exact original scope.
 
-**Positive.** The accepted inputs produce the bounded result and the fresh consumer accepts the scoped property: Application-owned aiohttp session is released on normal, exceptional and cancellation paths without closing a still-shared caller-owned session.
+**Positive.** В двух calls, названных исходным критерием, application-owned session закрывается на normal, exception и cancellation, а shared caller-owned session остаётся открытой; пункт про отсутствие session per request включается только в пределах формулировки recovered source criterion.
 
-**Distinguishing negative.** Dangling session, cancellation leak or premature close of shared caller session fails the exact ownership property.
+**Distinguishing negative.** Зависшая application-owned session после cancel/error или преждевременное закрытие общей caller-owned session означает, что lifecycle property не соблюдён.
 
-**Matched removal.** Remove the decisive binding for this property while retaining declarations/markers; the named consumer must fail or return its typed unknown/refusal: Application-owned aiohttp session is released on normal, exceptional and cancellation paths without closing a still-shared caller-owned session.
+**Matched removal.** Mechanism-removal probe (неизменённое lifecycle assertion находится вне cleanup path): убрать close для application-owned session на cancellation, оставив cleanup declaration. Наблюдение фактического session state после того же cancellation должно показать открытую session, и независимая lifecycle assertion/test обязана FAIL; тестовый результат — witness поведения, не authority.
 
 **Граница контекста.** This is an actual connector lifecycle property; it does not close fresh-worktree/toolchain setup.
+
+## Первые действия и передача
+
+1. Составить criterion-to-handler matrix для исходных Atlas paragraphs и двух разрешённых calls `discover_data_sources`/`resolve_data_needs`; перенести точную формулировку про shared session/per-request только если она относится к этим calls, без новой общей session-count нормы.
+2. Свести normal return, exception и cancellation в ownership trace: кто создаёт session, кто её закрывает и остаётся ли caller-owned session shared.
+
+**Ответственность и handoff.** Это внутренний Fabric connector lifecycle fix в каноническом owner; external institution не поставляет код. Исходная lane сохраняет review/disposition, а тестовый witness не является authority.
+
+Порядок действий внутри назначения не добавляет dependency edges. Примеры проверок дополняют полный назначенный criterion; actual commands/paths закрепляются в [packet](../../../task-decomposition/work-packet.md) после source rebind.
 
 ## Место в цепочке
 

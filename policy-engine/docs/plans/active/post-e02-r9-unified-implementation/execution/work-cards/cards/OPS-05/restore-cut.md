@@ -26,6 +26,15 @@
 
 **Граница контекста.** This card joins the physical restore cut and current claim frontier; it does not own rights or claim history. Restore scope is derived from selected native representation and retention decision, not every historical URI. P05/P07/P08/P37/P38/P41 remain decisive.
 
+## Первые действия и передача
+
+1. На принятом E02/source rebind зафиксировать выбранный поддержанный backup cut, storage/profile, фактические CAS/control-store readers и точные leases; согласовать intended restore use и исходные RPO/RTO.
+2. Проследить signed S0, последующие withdrawal/reissue и continuity witness вне выбранного rollback closure. Сопоставить LIF-02 material history и LIF-05 rights; устаревший snapshot сам не выбирает current head.
+3. В одном selected fresh-reader сценарии проверить restore/reconcile/enablement и intervening withdrawal. Отсутствие witness или обязательной истории удерживает affected scope в quarantine, независимо доказанный unaffected scope не ждёт.
+4. Передать restore-cut/enablement receipt выбранным readers; retained-uses отдельно решает пригодность представления, byte-release — binding фактически потреблённых bytes. Не создавать второго currentness или rights writer.
+
+Первые действия не добавляют start edges; actual commands и selected input/consumer denominator задаются при source rebind.
+
 ## Место в цепочке
 
 | Отношение | Точный смысл |
@@ -51,14 +60,17 @@ Source-manifest base: `ec3d7d38b4d246b3e1d225a1c0fc9aefae9ced0d`; это не pl
   `task.r17_extension.delivery_slices[1]`; `solution.free_grow.extension_boundary`; `solution.free_grow.resource_behavior`; `solution.composition_contracts[0]`; `solution.composition_contracts[1]`; `solution.deviation_triggers[1]`; `solution.inputs_to_resolve[0]`; `solution.inputs_to_resolve[1]`; `solution.inputs_to_resolve[2]`
 - **execute** — Direct result/preferred path for restore-cut; selectors solution.implementation_steps[1], solution.implementation_steps[3], solution.implementation_steps[4] name the work and native owner seam.
   `solution.implementation_steps[1]`; `solution.implementation_steps[3]`; `solution.implementation_steps[4]`
-- **join** — Distinguishing behavior, consumer surface, or acceptance evidence for restore-cut; selectors task.acceptance_steps[5], task.acceptance_steps[6], task.r17_extension.quality_cases[1], task.r17_extension.quality_cases[2], task.r19_extension.question_slices[2], solution.acceptance_discriminators[1], solution.acceptance_discriminators[2] are checked at its actual reader/sink. Bundled subclauses: U040:{"question_id":"R18-D17-Q05","solution_ref":"solutions/lifecycle-r19/S17.md#r18-d17-q05","mechanism_ids":["S17-M5","S17-M4","S17-M2"],"role":"assurance"}.
-  `task.acceptance_steps[5]`; `task.acceptance_steps[6]`; `task.r17_extension.quality_cases[1]`; `task.r17_extension.quality_cases[2]`; `solution.acceptance_discriminators[1]`; `solution.acceptance_discriminators[2]`
+- **join** — Distinguishing behavior, consumer surface, or acceptance evidence for restore-cut; selectors task.r17_extension.quality_cases[1], task.r17_extension.quality_cases[2], solution.acceptance_discriminators[1], solution.acceptance_discriminators[2] are checked at its actual reader/sink.
+  `task.r17_extension.quality_cases[1]`; `task.r17_extension.quality_cases[2]`; `solution.acceptance_discriminators[1]`; `solution.acceptance_discriminators[2]`
 - **join** — The primary acceptance outcome is whether the selected emergency-patch restore remains quarantined until rights/history and the fresh reader reconcile; schema compatibility is a separate sub-result.
   `task.r19_extension.question_slices[2]` (`R18-D17-Q05`); `task.r19_extension.question_ids[2]` (`R18-D17-Q05`)
 
 ### Обязанности внутри составных fragments
 
 - `task.r19_extension.question_slices[1]` — For a selected restore, quarantine and reconcile the exact DB/CAS cut, required history/rights and fresh reader. (primary accountability остаётся в coverage; это конкретный подрезультат, не второй writer).
+
+- **join** — The S0 withdrawal/reissue proof tests whether the restored scope can leave quarantine: reconcile the continuity witness outside the rollback closure with LIF-02 material history, compute the fresh head, and fence intervening withdrawals at the restored claim/publication reader. Retained-representation eligibility remains a separate output.
+  `task.acceptance_steps[4]`
 
 Inherited owner/lease/stage/activation constraints указаны в parent contract. Root/lead проверяет полное parent coverage; output этой карточки не закрывает siblings. При обнаружении пропуска остановить только affected writes/acceptance, назвать точный clause и reconciled next owner.
 

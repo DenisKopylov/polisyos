@@ -46,17 +46,17 @@ Source-manifest base: `ec3d7d38b4d246b3e1d225a1c0fc9aefae9ced0d`; это не pl
   `task.r19_extension.question_slices[0]` (`R18-D04-Q01`); `task.r19_extension.question_ids[0]` (`R18-D04-Q01`)
 - **execute** — Current route remains primary for actual order/status, competence, addressee, proceeding, and stay scope; only the named case scope can change.
   `task.r19_extension.question_slices[2]` (`R18-D04-Q03`); `task.r19_extension.question_ids[2]` (`R18-D04-Q03`)
-- **execute** — Current route matches: distinguish original act, notice, recipient service, and delegation evidence before assigning legal effect.
+- **execute** — distinguish original act, notice, recipient service, and delegation evidence before assigning legal effect.
   `task.r19_extension.question_slices[3]` (`R18-D04-Q04`); `task.r19_extension.question_ids[3]` (`R18-D04-Q04`)
 - **execute** — Current route remains primary for party/reservation/implementation status and resulting treaty applicability; bind the exact official text/version/source family as a distinct input, and never infer force from source_type.
   `task.r19_extension.question_slices[4]` (`R18-D04-Q05`); `task.r19_extension.question_ids[4]` (`R18-D04-Q05`)
-- **execute** — Current route matches: resolve authenticated correction/repeal/act effect, interval, saving scope, and receipt timeline without applying drafts or arrival order globally.
+- **execute** — resolve authenticated correction/repeal/act effect, interval, saving scope, and receipt timeline without applying drafts or arrival order globally.
   `task.r19_extension.question_slices[5]` (`R18-D04-Q06`); `task.r19_extension.question_ids[5]` (`R18-D04-Q06`)
-- **execute** — Current route matches: verify actual act content, issuer competence, jurisdiction, and effective scope; publication/signature/arrival time is not legal effect.
+- **execute** — verify actual act content, issuer competence, jurisdiction, and effective scope; publication/signature/arrival time is not legal effect.
   `task.r19_extension.question_slices[6]` (`R18-D22-Q01`); `task.r19_extension.question_ids[10]` (`R18-D22-Q01`)
-- **execute** — Current route matches: resolve source-specific competence and overlapping legal scope; partial effective scope preserves only the verified subset.
+- **execute** — resolve source-specific competence and overlapping legal scope; partial effective scope preserves only the verified subset.
   `task.r19_extension.question_slices[9]` (`R18-D18-Q02`); `task.r19_extension.question_ids[7]` (`R18-D18-Q02`)
-- **execute** — Current route matches: verify foreign-law source, act/version, local jurisdictional scope, and effective time; origin publication alone does not prove local commencement.
+- **execute** — verify foreign-law source, act/version, local jurisdictional scope, and effective time; origin publication alone does not prove local commencement.
   `task.r19_extension.question_slices[11]` (`R18-D18-Q04`); `task.r19_extension.question_ids[9]` (`R18-D18-Q04`)
 
 ### Обязанности внутри составных fragments

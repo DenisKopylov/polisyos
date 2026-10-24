@@ -14,17 +14,27 @@
 
 **Выход и consumer.** Owner-bound union/interface disposition and evidence of actual consuming path.
 
-**Что можно готовить независимо.** Rebind source, owner, consumer and exact lease after P0-ACCEPT where applicable; any earlier census/preparation is only what the original parent stage permits. This card neither adds nor removes a start barrier.
+**Что можно готовить независимо.** После разрешённого исходным stage contract source/lease rebind выполнить первые действия ниже; до разрешённой стадии — только назначенное read-only discovery. Actual supplier outputs нужны при их потреблении, а не для всей независимой подготовки. Карточка не добавляет start barrier.
 
 **Где результат соединяется с другими.** Read the named output through Fresh INT-R2/Foundry case consumer.; composition is limited to this property and the exact original scope.
 
-**Positive.** The accepted inputs produce the bounded result and the fresh consumer accepts the scoped property: The admitted GapAcquisitionCase union matches INT-R2 ratified semantics and the real consumer; DEB-07 does not create a parallel case owner.
+**Positive.** Все текущие ratified `GapAcquisitionCase` variants совпадают с INT-R2 semantics и проходят существующий реальный consumer; DEB-07 потребляет интерфейс и не вводит параллельного owner.
 
-**Distinguishing negative.** A label-only union or unratified new variant cannot pass; DEB-13 metric basis remains separate.
+**Distinguishing negative.** Одних labels или нового unratified variant недостаточно: consumer оставляет его unknown/refused; DEB-13 metric basis не используется для заполнения union.
 
-**Matched removal.** Remove the decisive binding for this property while retaining declarations/markers; the named consumer must fail or return its typed unknown/refusal: The admitted GapAcquisitionCase union matches INT-R2 ratified semantics and the real consumer; DEB-07 does not create a parallel case owner.
+**Matched removal.** В reconciliation receipt удалить или исказить source-bound INT-R2 ref для одного variant, сохранив `complete` marker; неизменённый union-vs-ratification test должен упасть, если потерянный variant остаётся accepted.
 
 **Граница контекста.** Case-union semantics are not the DS15 bundle producer and do not create a new case owner.
+
+## Первые действия и передача
+
+1. Составить current case-variant set и выписать для каждого `GapAcquisitionCase` discriminant, original INT-R2 ratification ref и принятое meaning.
+2. Через existing Foundry requirements consumer сохранить outcome каждого variant; отдельно записать unknown/incomparable и отсутствующие ratification refs.
+3. В reconciliation записать границу DEB-13 metric formula/decision basis, чтобы case union не присваивал этот ownership.
+
+**Ответственность и handoff.** INT-R2 ratification owner владеет union; DEB-07 только потребляет принятую форму. DEB-13 отдельно владеет metric formula/decision basis.
+
+Порядок действий внутри назначения не добавляет dependency edges. Примеры проверок дополняют полный назначенный criterion; actual commands/paths закрепляются в [packet](../../../task-decomposition/work-packet.md) после source rebind.
 
 ## Место в цепочке
 

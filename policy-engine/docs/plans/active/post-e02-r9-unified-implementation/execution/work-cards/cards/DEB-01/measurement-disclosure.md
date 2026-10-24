@@ -14,17 +14,27 @@
 
 **Выход и consumer.** Versioned source-qualified measurement receipts, migrated instrument census, disclosed roots/predicates/read errors and unknown/limited outcomes.
 
-**Что можно готовить независимо.** Rebind source, owner, consumer and exact lease after P0-ACCEPT where applicable; any earlier census/preparation is only what the original parent stage permits. This card neither adds nor removes a start barrier.
+**Что можно готовить независимо.** После разрешённого исходным stage contract source/lease rebind выполнить первые действия ниже; до разрешённой стадии — только назначенное read-only discovery. Actual supplier outputs нужны при их потреблении, а не для всей независимой подготовки. Карточка не добавляет start barrier.
 
 **Где результат соединяется с другими.** Read the named output through Fresh debt-ledger/trust-posture validators: tools/quality/validation/check_debt_ledger.py and check_trust_claim_posture.py.; composition is limited to this property and the exact original scope.
 
-**Positive.** The accepted inputs produce the bounded result and the fresh consumer accepts the scoped property: An absence result is eligible only when declared roots, file types, selectors, exclusions, observed reads, read failures and unresolved selectors reconcile over the complete accepted-source denominator.
+**Positive.** В принятом дереве полный census находит founding instrument вне прежних roots; при полностью разрешённых roots/selectors и успешных reads повторный запуск даёт тот же site set/checksum, а отсутствие признаётся только если matching evidence нет во всём измеренном наборе.
 
-**Distinguishing negative.** Dropping a root, hiding unreadable input or keeping only markers cannot produce green absence; measured reads do not establish source authority.
+**Distinguishing negative.** Если root пропущен, файл unreadable или selector не разрешился, measurement возвращает unknown/limited и не выдаёт зелёный absence, даже когда headline и прежние count-маркеры совпадают.
 
-**Matched removal.** Remove the decisive binding for this property while retaining declarations/markers; the named consumer must fail or return its typed unknown/refusal: An absence result is eligible only when declared roots, file types, selectors, exclusions, observed reads, read failures and unresolved selectors reconcile over the complete accepted-source denominator.
+**Matched removal.** Отключить binding observed-read/error/unresolved-selector набора, сохранив declared roots, denominator и report-маркеры; тот же semantic test на пропущенном или unreadable source запускается без изменений и должен упасть, если marker-only путь всё ещё заявляет absence.
 
 **Граница контекста.** One FileReadMeasurement family coherently owns instrument disclosure; runner executable integrity is separate and routed to runner-residual.
+
+## Первые действия и передача
+
+1. В принятом source tree составить полный реестр diagnostics/instruments: путь, file type, root, selector, exclusion и результат; записать denominator, владельцев/текущих callers 303/319 diagnostics и найденный founding instrument вне прежних roots.
+2. Для одного реального инструмента выпустить `FileReadMeasurement` с раздельными declared roots и observed reads/errors/unresolved selectors, привязав прочитанное содержимое; повторить на тех же inputs и сохранить сравнение site set/checksum.
+3. Назвать два изменившихся trust-posture sites и их выведенные из полного набора identities; сохранить буквальный singleton census predicate.
+
+**Ответственность и handoff.** Канонический FileReadMeasurement/reporting owner пишет receipt; свежие debt-ledger и trust-posture validators читают его. Receipt доказывает факт чтения, не авторитет источника; runner integrity остаётся в отдельной карточке.
+
+Порядок действий внутри назначения не добавляет dependency edges. Примеры проверок дополняют полный назначенный criterion; actual commands/paths закрепляются в [packet](../../../task-decomposition/work-packet.md) после source rebind.
 
 ## Место в цепочке
 

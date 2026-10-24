@@ -14,17 +14,27 @@
 
 **Выход и consumer.** Source-qualified inherited/owned/not_established attribution receipt; unresolved stays not_established.
 
-**Что можно готовить независимо.** Rebind source, owner, consumer and exact lease after P0-ACCEPT where applicable; any earlier census/preparation is only what the original parent stage permits. This card neither adds nor removes a start barrier.
+**Что можно готовить независимо.** После разрешённого исходным stage contract source/lease rebind выполнить первые действия ниже; до разрешённой стадии — только назначенное read-only discovery. Actual supplier outputs нужны при их потреблении, а не для всей независимой подготовки. Карточка не добавляет start barrier.
 
 **Где результат соединяется с другими.** Read the named output through Root P0-REBIND and final review consume the attribution receipt for status only; no code consumer is claimed.; composition is limited to this property and the exact original scope.
 
-**Positive.** The accepted inputs produce the bounded result and the fresh consumer accepts the scoped property: A carried education-importer red is inherited only when the exact command reproduces at the slice base and its complete input denominator is disjoint from changed paths.
+**Positive.** Точная команда воспроизводит тот же red на slice base, а полный input denominator не пересекается с changed paths; только эта пара свидетельств позволяет классифицировать red как inherited.
 
-**Distinguishing negative.** A nearer base, remembered failure, or zero intersection against a partial denominator cannot classify the red as inherited.
+**Distinguishing negative.** Nearer cluster base, запомненный output или нулевое пересечение с неполным denominator не подтверждают inherited; при невозможности replay статус остаётся `not_established`.
 
-**Matched removal.** Remove the decisive binding for this property while retaining declarations/markers; the named consumer must fail or return its typed unknown/refusal: A carried education-importer red is inherited only when the exact command reproduces at the slice base and its complete input denominator is disjoint from changed paths.
+**Matched removal.** Удалить из attribution receipt один transitive input или точный slice-base identity, сохранив `inherited=true` и `intersection=0`; неизменённый P41 reconciliation test должен упасть, если маркеры всё ещё принимают red как inherited.
 
 **Граница контекста.** This P41 decision is an independent conjunction, not evidence for internal catalog/discovery appointment.
+
+## Первые действия и передача
+
+1. Сохранить полный slice-base commit, точную команду, stdout/stderr и exit result исходного education-importer failure.
+2. Скриптом собрать полный transitive input denominator с file types и полный changed-path set; приложить пересечение этих множеств.
+3. В attribution receipt поставить `inherited` только при воспроизведении на slice base и нулевом полном пересечении; иначе записать `owned` или `not_established` с причиной.
+
+**Ответственность и handoff.** Это provenance/review attribution, без product writer и без code consumer. Root/final review читает receipt; он не заменяет отдельное GY-DEF22 owner decision.
+
+Порядок действий внутри назначения не добавляет dependency edges. Примеры проверок дополняют полный назначенный criterion; actual commands/paths закрепляются в [packet](../../../task-decomposition/work-packet.md) после source rebind.
 
 ## Место в цепочке
 

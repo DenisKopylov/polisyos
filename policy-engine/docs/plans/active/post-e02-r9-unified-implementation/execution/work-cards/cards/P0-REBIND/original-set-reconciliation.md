@@ -14,17 +14,25 @@
 
 **Выход и consumer.** Append-only per-original-predicate disposition and owner/consumer closure map, with unresolved rows retained and bounded scoped release evidence.
 
-**Что можно готовить независимо.** Rebind source, owner, consumer and exact lease after P0-ACCEPT where applicable; any earlier census/preparation is only what the original parent stage permits. This card neither adds nor removes a start barrier.
+**Что можно готовить независимо.** После разрешённого исходным stage contract source/lease rebind выполнить первые действия ниже; до разрешённой стадии — только назначенное read-only discovery. Actual supplier outputs нужны при их потреблении, а не для всей независимой подготовки. Карточка не добавляет start barrier.
 
 **Где результат соединяется с другими.** Read the named output through FINAL-FREEZE consumes the global completed reconciliation; scoped-ready receipts are read only for their exact closures.; composition is limited to this property and the exact original scope.
 
-**Positive.** The accepted inputs produce the bounded result and the fresh consumer accepts the scoped property: Every original predicate and accepted-E02 delta has one current disposition, native owner, actual consumer/generated/test/API closure, conditional facets, stage and lease; scoped releases never imply global completion.
+**Positive.** Every original predicate and accepted-source delta has a current route, one canonical semantic owner or competent disposition, its actual consumer/companions, stage and lease; scoped releases preserve unresolved rows and do not claim global completion.
 
-**Distinguishing negative.** A stale count, omitted predicate, duplicate semantic writer, unowned consumer or unresolved source conflict blocks the affected closure; scoped release cannot mark global completion.
+**Distinguishing negative.** An omitted or stale predicate, duplicate semantic writer, unresolved source conflict, or unknown affected consumer blocks that affected closure; unrelated, disjoint reconciliation may continue.
 
-**Matched removal.** Remove the decisive binding for this property while retaining declarations/markers; the named consumer must fail or return its typed unknown/refusal: Every original predicate and accepted-E02 delta has one current disposition, native owner, actual consumer/generated/test/API closure, conditional facets, stage and lease; scoped releases never imply global completion.
+**Matched removal.** Remove one source-obligation binding while retaining counts and checklist labels; the existing reconciliation must identify the missing original and withhold only the affected closure.
 
 **Граница контекста.** One coordination card is appropriate because the journal is the sole reconciliation surface; it dispatches no product writes and creates no per-lead ledger.
+
+## Первые действия и передача
+
+1. Fix the reconciliation denominator to the canonical GY, Atlas, debt, and R9 inventories and source versions; retain historical dispositions and explicit source conflicts.
+2. For each current original predicate and accepted-E02 delta, bind the native semantic owner, actual readers, generated/test/API companions, selected conditional suppliers and consumers, stage, and exact normalized leases; distinguish preparation, readiness, composition, execution permission, and original disposition.
+3. Read back and release only complete affected closures through the existing root journal while keeping one global pending map; complete all original routes before FINAL-FREEZE.
+
+Порядок действий внутри назначения не добавляет dependency edges. Примеры проверок дополняют полный назначенный criterion; actual commands/paths закрепляются в [packet](../../../task-decomposition/work-packet.md) после source rebind.
 
 ## Место в цепочке
 

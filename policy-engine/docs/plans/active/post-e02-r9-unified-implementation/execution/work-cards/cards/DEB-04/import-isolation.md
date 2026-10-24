@@ -14,17 +14,27 @@
 
 **Выход и consumer.** Deterministic test result proving production module identity is restored or case is process-isolated.
 
-**Что можно готовить независимо.** Rebind source, owner, consumer and exact lease after P0-ACCEPT where applicable; any earlier census/preparation is only what the original parent stage permits. This card neither adds nor removes a start barrier.
+**Что можно готовить независимо.** После разрешённого исходным stage contract source/lease rebind выполнить первые действия ниже; до разрешённой стадии — только назначенное read-only discovery. Actual supplier outputs нужны при их потреблении, а не для всей независимой подготовки. Карточка не добавляет start barrier.
 
 **Где результат соединяется с другими.** Read the named output through Fresh governed-projection runtime consumer exercised through tests/unit/runtime/http/test_governed_projection_service.py.; composition is limited to this property and the exact original scope.
 
-**Positive.** The accepted inputs produce the bounded result and the fresh consumer accepts the scoped property: A test replacing a production module leaves no process-global fake object in either execution order.
+**Positive.** После fake case production import в обоих порядках возвращает реальный module object; изменение теста изолировано seam-ом либо отдельным процессом.
 
-**Distinguishing negative.** Run fake then real and real then fake; surviving cached aliases retaining the fake fail.
+**Distinguishing negative.** Если cached alias сохраняет fake object после очистки `sys.modules`, второй порядок даёт неверную identity/поведение, и изоляция не считается успешной.
 
-**Matched removal.** Remove the decisive binding for this property while retaining declarations/markers; the named consumer must fail or return its typed unknown/refusal: A test replacing a production module leaves no process-global fake object in either execution order.
+**Matched removal.** Отключить restoration/injection/process isolation, сохранив assertions и markers; неизменённый двухпорядковый test должен упасть, если после fake case остаётся fake module object.
 
 **Граница контекста.** A process-global import-state defect is its own falsifier and does not establish catalog, value-gate or GY-DEF22 outcomes.
+
+## Первые действия и передача
+
+1. Зафиксировать точку fake `sys.modules` mutation в governed-projection test и object identities fake/real module до и после импорта.
+2. Запустить оба порядка — fake→real и real→fake — и сохранить конечную module identity и результат вызова production consumer.
+3. Если alias переживает восстановление mapping, записать конкретный surviving reference и подтвердить выбор injection seam или process isolation.
+
+**Ответственность и handoff.** Test/runtime projection owner меняет только canonical test seam. Subprocess допустим при доказанном surviving alias; общий test harness и управление порядком всех тестов не добавляются.
+
+Порядок действий внутри назначения не добавляет dependency edges. Примеры проверок дополняют полный назначенный criterion; actual commands/paths закрепляются в [packet](../../../task-decomposition/work-packet.md) после source rebind.
 
 ## Место в цепочке
 

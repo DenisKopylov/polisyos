@@ -18,13 +18,24 @@
 
 **Где результат соединяется с другими.** Fresh metric/claim consumer reads formula/version/input adequacy. CNT-05 mandate-choice may select among valid outputs, not repair them.
 
-**Positive.** Different valid bases expose ranking/estimate reversals and subgroup effects.
+**Positive.** Две сопоставимые source-qualified альтернативы на общих данных показывают чувствительность или rank reversal с denominator и subgroup; при явной hypothetical weight допустим conditional comparison без collective endorsement. Составная часть `task.positive` про сохранение prior authorized choice проверяется parent join через existing mandate-choice/history owner: measure-profile передаёт exact альтернативы и читает результат, не пишет selector/history.
 
-**Distinguishing negative.** Changed denominator, period, scale, boundary or instrument hides under same metric label; outcome-driven selection appears neutral.
+**Distinguishing negative.** Одинаковая metric label не склеивает разные denominator, population/equivalence scale, geography, instrument, boundary, period, threshold, currency или edge rule. Outcome-driven выбор остаётся заметным; неизвестный denominator не трактуется как нулевой вред, а несовместимые базы не агрегируются.
 
-**Matched removal.** Remove formula/version/crosswalk but keep IDs: numerical claim/sensitivity fails or limits.
+**Matched removal.** Оставь source definitions, observations и alternate profiles доступными, отключи formula/version/crosswalk consumption и подай результат с прежней label, но несовместимым denominator/scale. Неизменённая независимая семантическая проверка ожидает отказ агрегату; если fresh reader принимает его, assertion должна FAIL. Реально отсутствующее definition/data отдельно ограничивает metric use. Проверка principal/mandate принадлежит parent CNT-05/mandate-choice join: measure-profile writer её не отключает и не владеет этим cross-owner probe.
 
 **Граница контекста.** Owns measurement semantics/results, not normative choice.
+
+## Первые действия и передача
+
+1. После принятого E02/source rebind найди Foundry metric/unit owner, Data Forge concept/data owner и fresh G2/G5 reader; root закрепляет paths/leases. OECD/World Bank — method references, не case-data suppliers.
+2. Зафиксируй выбранный construct, unit/population/geography/time, instrument/frame/denominator, formula/version, currency/accounting, weights и edge/missing rules. Используй custodian facts там, где это данные источника; явно заданные hypothetical weights и source-backed constructions остаются допустимыми assumptions/results.
+3. Вычисли только выбранные case-relevant альтернативы на общих qualified inputs; покажи subgroup denominator, sensitivity/rank change и incomplete status при cutoff.
+4. Передай versioned measure results fresh G2/G5 reader. Нормативный principal/mandate остаётся отдельным selector input и не исправляет metric basis.
+
+**Ответственность и handoff.** Foundry metric/unit owner отвечает за формулу и qualified comparisons; Data Forge concept/data owner и dataset custodian дают фактические определения/frame/missingness/currency, когда они нужны. Гипотетические weights могут быть явными assumptions, не внешним endorsement. Authorized principal отвечает за нормативный выбор. Handoff: G2/G5 claim-support/value reader. Отключение mandate check — отдельная parent CNT-05/mandate-choice probe, не изменение measure-profile writer.
+
+Порядок действий внутри назначения не добавляет dependency edges. Примеры проверок дополняют полный назначенный criterion; actual commands/paths закрепляются в [packet](../../../task-decomposition/work-packet.md) после source rebind.
 
 ## Место в цепочке
 
@@ -69,7 +80,7 @@ Source-manifest base: `ec3d7d38b4d246b3e1d225a1c0fc9aefae9ced0d`; это не pl
   `task.r19_extension.question_slices[2]` (`R18-D02-Q03`); `task.r19_extension.question_ids[2]` (`R18-D02-Q03`)
 - **execute** — Measure-profile owns qualified construct, population/denominator, instrument, time and aggregation-rule calculations; it exposes alternatives without authorizing a normative winner. Slice: Bind aggregation unit, weights, denominator and missingness. Positive discriminator: Source table reproduces aggregate and child margins. Adversary: Use population weights for spatially clustered non-population outcome. Removal: Remove auxiliary support; subgroup transfer vanishes.
   `task.r19_extension.question_slices[3]` (`R18-D02-Q04`); `task.r19_extension.question_ids[3]` (`R18-D02-Q04`)
-- **execute** — Measure-profile owns qualified construct, population/denominator, instrument, time and aggregation-rule calculations; it exposes alternatives without authorizing a normative winner. Slice: Expose subgroup denominator beside aggregate. Positive discriminator: Newly harmed subgroup changes result. Adversary: Unknown denominator is not zero harm. Removal: Remove subgroup basis: scope narrows. Coverage currently routes this slice selector to CNT-05.mandate-choice/execute; this destination follows its actual question_id and mixed semantics.
+- **execute** — Measure-profile owns qualified construct, population/denominator, instrument, time and aggregation-rule calculations; it exposes alternatives without authorizing a normative winner. Slice: Expose subgroup denominator beside aggregate. Positive discriminator: Newly harmed subgroup changes result. Adversary: Unknown denominator is not zero harm. Removal: Remove subgroup basis: scope narrows. Measure-profile exposes the qualified subgroup denominator beside the aggregate; unknown denominator is not zero harm, and missing subgroup basis narrows claim scope without authorizing a normative winner.
   `task.r19_extension.question_slices[5]` (`R18-D05-Q02`); `task.r19_extension.question_ids[5]` (`R18-D05-Q02`)
 - **execute** — Measure-profile owns qualified construct, population/denominator, instrument, time and aggregation-rule calculations; it exposes alternatives without authorizing a normative winner. Slice: Bind instrument/language version. Positive discriminator: Order effect and direction both visible. Adversary: Changed scale cannot reuse label. Removal: Remove lineage: measure downgrades.
   `task.r19_extension.question_slices[6]` (`R18-D05-Q03`); `task.r19_extension.question_ids[6]` (`R18-D05-Q03`)

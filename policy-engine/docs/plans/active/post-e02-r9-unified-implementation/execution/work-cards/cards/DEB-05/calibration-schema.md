@@ -14,17 +14,27 @@
 
 **Выход и consumer.** Versioned calibration report accepted by same validator for default and input; strict serialized artifact.
 
-**Что можно готовить независимо.** Rebind source, owner, consumer and exact lease after P0-ACCEPT where applicable; any earlier census/preparation is only what the original parent stage permits. This card neither adds nor removes a start barrier.
+**Что можно готовить независимо.** После разрешённого исходным stage contract source/lease rebind выполнить первые действия ниже; до разрешённой стадии — только назначенное read-only discovery. Actual supplier outputs нужны при их потреблении, а не для всей независимой подготовки. Карточка не добавляет start barrier.
 
 **Где результат соединяется с другими.** Read the named output through Fresh calibration reader via tests/integration/foundry_calibration/test_method_calibration_bridge.py.; composition is limited to this property and the exact original scope.
 
-**Positive.** The accepted inputs produce the bounded result and the fresh consumer accepts the scoped property: Calibration version default validates under the same constrained grammar as supplied input, and the real producer emits no fixture-only fields in its strict DTO.
+**Positive.** Фактический default version проходит тот же constrained predicate, что и supplied version; producer-created versioned report проходит fresh reader с strict DTO.
 
-**Distinguishing negative.** Invalid version/default or fixture-only extra field is refused at the correct producer/reader boundary.
+**Distinguishing negative.** Версия вне owner-approved policy или extra field отвергаются на producer/reader boundary; некорректный default не принимается только потому, что он default.
 
-**Matched removal.** Remove the decisive binding for this property while retaining declarations/markers; the named consumer must fail or return its typed unknown/refusal: Calibration version default validates under the same constrained grammar as supplied input, and the real producer emits no fixture-only fields in its strict DTO.
+**Matched removal.** Отключить validation для default branch, сохранив schema/version markers и обычную supplied-input проверку; неизменённый test, применяющий тот же predicate к фактическому default и input, должен упасть, если default обходит проверку.
 
 **Граница контекста.** Keep calibration grammar distinct from the class-wide fixture helper call census.
+
+## Первые действия и передача
+
+1. Сохранить owner-approved compatibility policy, точную строку default version и список поддерживаемых версий из calibration schema.
+2. Прогнать фактический default и boundary accepted/rejected supplied values через один и тот же validator; приложить input/output receipt.
+3. Записать report actual producer-а и прочитать его fresh calibration reader-ом; показать strict DTO schema/version и отказ для неподдержанного значения.
+
+**Ответственность и handoff.** Calibration/report schema owner утверждает версию и пишет DTO; fresh calibration reader читает его. Class-wide fixture helper callers проверяются отдельной карточкой DEB-05.fixture-authority-class.
+
+Порядок действий внутри назначения не добавляет dependency edges. Примеры проверок дополняют полный назначенный criterion; actual commands/paths закрепляются в [packet](../../../task-decomposition/work-packet.md) после source rebind.
 
 ## Место в цепочке
 

@@ -14,17 +14,26 @@
 
 **Выход и consumer.** Content-bound controlled transcript receipt and explicit GY admission status.
 
-**Что можно готовить независимо.** Rebind source, owner, consumer and exact lease after P0-ACCEPT where applicable; any earlier census/preparation is only what the original parent stage permits. This card neither adds nor removes a start barrier.
+**Что можно готовить независимо.** После разрешённого исходным stage contract source/lease rebind выполнить первые действия ниже; до разрешённой стадии — только назначенное read-only discovery. Actual supplier outputs нужны при их потреблении, а не для всей независимой подготовки. Карточка не добавляет start barrier.
 
 **Где результат соединяется с другими.** Read the named output through Fresh GY evidence/register consumer.; composition is limited to this property and the exact original scope.
 
-**Positive.** The accepted inputs produce the bounded result and the fresh consumer accepts the scoped property: Transcript evidence binds actual controlled source, release family, rule version and complete row set; fixtures never count as controlled evidence.
+**Positive.** Transcript от signal owner разрешается к фактическому controlled source и release family, несёт нужную версию правила и покрывает весь rebound row set; существующий свежий GY register consumer принимает именно этот transcript.
 
-**Distinguishing negative.** Fixture/test transcript or incomplete rows cannot close the evidence row.
+**Distinguishing negative.** Fixture transcript, неверный release-family ID или пропущенная строка оставляют GY-GAP3 открытым, даже если документ помечен «complete».
 
-**Matched removal.** Remove the decisive binding for this property while retaining declarations/markers; the named consumer must fail or return its typed unknown/refusal: Transcript evidence binds actual controlled source, release family, rule version and complete row set; fixtures never count as controlled evidence.
+**Matched removal.** Reconciliation probe (существующий GY checker включён): удалить из evidence record binding одной строки к controlled source/release family, сохранив `полный transcript` marker. Проверка сверяет весь rebound row set и должна обнаружить пропуск, оставив closure неполным.
 
 **Граница контекста.** Producer output and GY admission remain separate steps under existing owners.
+
+## Первые действия и передача
+
+1. Зафиксировать у signal owner точный controlled source, release-family ID, rule version и полный набор требуемых GY-GAP3 row IDs.
+2. Сопоставить каждый row ID с content-bound transcript entry и сохранить отдельный список отсутствующих строк; fixture transcript пометить как непроизводственный.
+
+**Ответственность и handoff.** Signal owner поставляет controlled transcript, GY owner его принимает. Приёмка не создаёт заменяющего transcript producer и не превращает fixture в authority.
+
+Порядок действий внутри назначения не добавляет dependency edges. Примеры проверок дополняют полный назначенный criterion; actual commands/paths закрепляются в [packet](../../../task-decomposition/work-packet.md) после source rebind.
 
 ## Место в цепочке
 

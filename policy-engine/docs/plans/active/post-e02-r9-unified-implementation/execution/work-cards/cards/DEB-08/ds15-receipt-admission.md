@@ -14,17 +14,26 @@
 
 **Выход и consumer.** GY register entry referencing DS15 receipt and explicit closure/remaining disposition.
 
-**Что можно готовить независимо.** Rebind source, owner, consumer and exact lease after P0-ACCEPT where applicable; any earlier census/preparation is only what the original parent stage permits. This card neither adds nor removes a start barrier.
+**Что можно готовить независимо.** После разрешённого исходным stage contract source/lease rebind выполнить первые действия ниже; до разрешённой стадии — только назначенное read-only discovery. Actual supplier outputs нужны при их потреблении, а не для всей независимой подготовки. Карточка не добавляет start barrier.
 
 **Где результат соединяется с другими.** Read the named output through Fresh GY receipt-admission and register consumer.; composition is limited to this property and the exact original scope.
 
-**Positive.** The accepted inputs produce the bounded result and the fresh consumer accepts the scoped property: An existing DS15 receipt is admitted by GY against the exact original row and yields a GY closure disposition without a duplicate producer.
+**Positive.** Существующий persisted DS15 receipt для конкретной GY-GAP6 строки совпадает по row, run, времени, версии правила и source artifact; GY admission записывает эту ссылку и свежий GY consumer выдаёт явный disposition. Сам receipt DS15 строку не закрывает.
 
-**Distinguishing negative.** Producer receipt alone never auto-closes GY row; shared ID or GYD-15 name alone is not accepted evidence or dependency.
+**Distinguishing negative.** Подлинный DS15 receipt для соседней строки, другого run или другой версии не закрывает выбранную GY строку; GY сохраняет её unresolved/remaining.
 
-**Matched removal.** Remove the decisive binding for this property while retaining declarations/markers; the named consumer must fail or return its typed unknown/refusal: An existing DS15 receipt is admitted by GY against the exact original row and yields a GY closure disposition without a duplicate producer.
+**Matched removal.** Reconciliation probe (существующий GY checker включён): переставить receipt-to-row reference на соседнюю строку, оставив `closed` marker. Сверка проверяет сам receipt и original row ID; прежнее утверждение «closure требует receipt именно этой строки» должно завершиться mismatch у свежего GY consumer.
 
 **Граница контекста.** Admission is distinct from DS15 production and from GYD-15 FA1 authority capabilities.
+
+## Первые действия и передача
+
+1. Составить таблицу join: точный GY-GAP6 row ID ↔ DS15 receipt ID ↔ run/time/rule version/source artifact; незамаппленные строки явно оставить unresolved.
+2. Зафиксировать, какой существующий GY register consumer читает эту связь и какое отдельное closure/remaining disposition он должен записать.
+
+**Ответственность и handoff.** DS15 остаётся producer; GY выполняет admission и disposition. Это внутренняя consumer-связь, а не новая DS15 authority или второй producer.
+
+Порядок действий внутри назначения не добавляет dependency edges. Примеры проверок дополняют полный назначенный criterion; actual commands/paths закрепляются в [packet](../../../task-decomposition/work-packet.md) после source rebind.
 
 ## Место в цепочке
 

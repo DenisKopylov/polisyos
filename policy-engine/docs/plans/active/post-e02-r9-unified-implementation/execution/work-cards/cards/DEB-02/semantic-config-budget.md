@@ -14,17 +14,27 @@
 
 **Выход и consumer.** Complete semantic-configuration inventory/measure with source file and key provenance and gate result.
 
-**Что можно готовить независимо.** Rebind source, owner, consumer and exact lease after P0-ACCEPT where applicable; any earlier census/preparation is only what the original parent stage permits. This card neither adds nor removes a start barrier.
+**Что можно готовить независимо.** После разрешённого исходным stage contract source/lease rebind выполнить первые действия ниже; до разрешённой стадии — только назначенное read-only discovery. Actual supplier outputs нужны при их потреблении, а не для всей независимой подготовки. Карточка не добавляет start barrier.
 
 **Где результат соединяется с другими.** Read the named output through Fresh repository_structure_phase0.py::gate_pyproject_size consumer.; composition is limited to this property and the exact original scope.
 
-**Positive.** The accepted inputs produce the bounded result and the fresh consumer accepts the scoped property: Relocating unchanged packaging settings between declared files does not reduce the semantic configuration measure; a real effective setting changes it.
+**Positive.** При переносе одного и того же effective setting между файлами семантическая measure не уменьшается; добавление реальной настройки отражается в measure с указанием файла и ключа.
 
-**Distinguishing negative.** Moving an unchanged key cannot lower the measure; formatting/line count is not semantic size.
+**Distinguishing negative.** Неизвестный формат packaging config не считается доказанным отсутствием настроек: результат остаётся неполным до решения о parser inventory, а threshold самовольно не меняется.
 
-**Matched removal.** Remove the decisive binding for this property while retaining declarations/markers; the named consumer must fail or return its typed unknown/refusal: Relocating unchanged packaging settings between declared files does not reduce the semantic configuration measure; a real effective setting changes it.
+**Matched removal.** Отключить разбор effective keys одного объявленного config-файла, оставив file/line count и marker прежними; неизменённый relocation test должен упасть, когда перенос той же настройки уменьшает measure.
 
 **Граница контекста.** Keep the packaging-budget predicate separate from OpenAPI export identity and reference resolution.
+
+## Первые действия и передача
+
+1. Составить inventory всех packaging-config файлов, включая Hatch-настройки, с нормализованными effective key/value и provenance `file → key`.
+2. Сохранить relocation witness: перенести неизменённую настройку между объявленными файлами и сравнить measure; затем добавить одно действующее значение и показать изменение measure.
+3. Если найден поддерживаемый packaging config вне текущего parser set, записать его формат и bounded непокрытый участок до подсчёта; сохранить owner-решение о значении существующего threshold.
+
+**Ответственность и handoff.** Владелец существующего `gate_pyproject_size` задаёт смысл и threshold; тот же gate считает semantic settings. Карточка не вводит новый предел.
+
+Порядок действий внутри назначения не добавляет dependency edges. Примеры проверок дополняют полный назначенный criterion; actual commands/paths закрепляются в [packet](../../../task-decomposition/work-packet.md) после source rebind.
 
 ## Место в цепочке
 

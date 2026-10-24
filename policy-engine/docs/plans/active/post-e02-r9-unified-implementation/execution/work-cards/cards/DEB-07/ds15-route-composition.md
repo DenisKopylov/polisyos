@@ -14,17 +14,27 @@
 
 **Выход и consumer.** Real-route bundle receipt plus fresh consumer admission result; fixture-only status remains explicit.
 
-**Что можно готовить независимо.** Rebind source, owner, consumer and exact lease after P0-ACCEPT where applicable; any earlier census/preparation is only what the original parent stage permits. This card neither adds nor removes a start barrier.
+**Что можно готовить независимо.** После разрешённого исходным stage contract source/lease rebind выполнить первые действия ниже; до разрешённой стадии — только назначенное read-only discovery. Actual supplier outputs нужны при их потреблении, а не для всей независимой подготовки. Карточка не добавляет start barrier.
 
 **Где результат соединяется с другими.** Read the named output through Fresh DS15/UI-17 route consumer.; composition is limited to this property and the exact original scope.
 
-**Positive.** The accepted inputs produce the bounded result and the fresh consumer accepts the scoped property: A real selected N13b route emits the existing deterministic admission artifact and its fresh consumer receipt; fixture route evidence remains test-only.
+**Positive.** Реальный выбранный route с допустимым scoped input создаёт существующий deterministic admission artifact, который fresh consumer читает; fixture status остаётся test-only.
 
-**Distinguishing negative.** Fixture-positive route, absent appointment or unselected cost cannot promote production route; GYD-15 FA1 is not implied by shared naming.
+**Distinguishing negative.** Fixture-positive route и отсутствующий требуемый appointment не допускают production admission. Missing/wrong-scope cost блокирует выбранный cost-sensitive route, но не поддержанный gross result; общее имя не доказывает GYD-15 FA1.
 
-**Matched removal.** Remove the decisive binding for this property while retaining declarations/markers; the named consumer must fail or return its typed unknown/refusal: A real selected N13b route emits the existing deterministic admission artifact and its fresh consumer receipt; fixture route evidence remains test-only.
+**Matched removal.** Отключить binding actual selected route/persisted artifact к fresh consumer, сохранив route и receipt markers; неизменённый e2e test должен упасть, если real-route admission заявляется без readback artifact.
 
 **Граница контекста.** Mechanism/receipt handshake only; separate from the DEB-08 GY register admission consumer.
+
+## Первые действия и передача
+
+1. Для реального selected N13b route сохранить route identity, scoped inputs, актуальные appointment outcomes и факт выбора cost-sensitive path.
+2. Пропустить именно этот route через existing DS15 deterministic bundle producer; сохранить persisted artifact identity и producer receipt.
+3. Прочитать receipt fresh DS15/UI-17 consumer-ом и отдельно записать, что fixture-only route test подтверждает только поведение fixture.
+
+**Ответственность и handoff.** Существующие DS15 producer и consumer сохраняют единственный owner chain. Карточка не создаёт producer и не смешивает этот handshake с DEB-08 GY-register admission.
+
+Порядок действий внутри назначения не добавляет dependency edges. Примеры проверок дополняют полный назначенный criterion; actual commands/paths закрепляются в [packet](../../../task-decomposition/work-packet.md) после source rebind.
 
 ## Место в цепочке
 

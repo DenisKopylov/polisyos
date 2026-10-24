@@ -45,11 +45,11 @@ Source-manifest base: `ec3d7d38b4d246b3e1d225a1c0fc9aefae9ced0d`; это не pl
 
 - **execute** — DES-05/CNT-09 selected consumer applies only supported premise; law does not replace causal/measurement grounds.
   `solution.implementation_steps[3]`; `solution.composition_contracts[1]`; `solution.composition_contracts[2]`; `solution.composition_contracts[3]`; `solution.acceptance_discriminators[0]`; `solution.acceptance_discriminators[3]`
-- **execute** — Current route is legal-applicability, but the slice’s controlling condition is consumer-side: verify mandate only when authority is actually a premise of the selected claim, never as a blanket gate.
+- **execute** — The legal-consumer checks mandate only when authority is a premise of the selected claim; legal-applicability retains source/act scope, and no blanket legal gate applies to scientific evidence.
   `task.r19_extension.question_slices[7]` (`R18-D22-Q04`); `task.r19_extension.question_ids[11]` (`R18-D22-Q04`)
-- **execute** — Current route matches: keep legal-source meaning/applicability distinct from citation metadata and apply only the supported exact version/scope to the selected claim.
+- **execute** — keep legal-source meaning/applicability distinct from citation metadata and apply only the supported exact version/scope to the selected claim.
   `task.r19_extension.question_slices[8]` (`R18-D18-Q01`); `task.r19_extension.question_ids[6]` (`R18-D18-Q01`)
-- **execute** — Current route matches: this is a consumer boundary—require legal competence/applicability for legal premises only and do not generalize that rule to scientific evidence.
+- **execute** — this is a consumer boundary—require legal competence/applicability for legal premises only and do not generalize that rule to scientific evidence.
   `task.r19_extension.question_slices[10]` (`R18-D18-Q03`); `task.r19_extension.question_ids[8]` (`R18-D18-Q03`)
 
 ### Обязанности внутри составных fragments

@@ -1,5 +1,5 @@
 {
-  "revision": "R27",
+  "revision": "R28",
   "base_commit": "ec3d7d38b4d246b3e1d225a1c0fc9aefae9ced0d",
   "source_files": [
     {
@@ -285,7 +285,7 @@
         {
           "to": "CAP-01.bounded-coverage",
           "role": "execute",
-          "because": "Current route matches: the positive known-item/source-local recall, withheld-route limit, and matched-removal test all belong to claim-scoped coverage evidence.",
+          "because": "the positive known-item/source-local recall, withheld-route limit, and matched-removal test all belong to claim-scoped coverage evidence.",
           "source_fragments": [
             {
               "uid": "U032",
@@ -302,7 +302,7 @@
         {
           "to": "CAP-01.candidate-resolution",
           "role": "execute",
-          "because": "Current route matches: bind the resolved exact source receipt; discovery is not a right, and stale mirrors/self-license fail admission.",
+          "because": "bind the resolved exact source receipt; discovery is not a right, and stale mirrors/self-license fail admission.",
           "source_fragments": [
             {
               "uid": "U033",
@@ -807,7 +807,7 @@
         {
           "to": "CAP-02.single-response-root",
           "role": "execute",
-          "because": "Current route matches: capture bounded response content and receipt for one response; use a source-native cut only when the source supplies it.",
+          "because": "capture bounded response content and receipt for one response; use a source-native cut only when the source supplies it.",
           "source_fragments": [
             {
               "uid": "U034",
@@ -1393,7 +1393,7 @@
         {
           "to": "CAP-03.root-admission",
           "role": "execute",
-          "because": "Current route matches: this owns exact content-root admission and binds only source-supported protocol/cohort lineage for CNT-08 to consume; CAP-03 supplies the roots and does not decide statistical independence.",
+          "because": "this owns exact content-root admission and binds only source-supported protocol/cohort lineage for CNT-08 to consume; CAP-03 supplies the roots and does not decide statistical independence.",
           "source_fragments": [
             {
               "uid": "U045",
@@ -1410,7 +1410,7 @@
         {
           "to": "CAP-03.fresh-sink-rights",
           "role": "execute",
-          "because": "Current route matches: re-resolve current LIF-05 outcome at derive/cache/export; a permitted derivative does not release restricted raw data.",
+          "because": "re-resolve current LIF-05 outcome at derive/cache/export; a permitted derivative does not release restricted raw data.",
           "source_fragments": [
             {
               "uid": "U046",
@@ -1427,7 +1427,7 @@
         {
           "to": "CAP-03.fresh-sink-rights",
           "role": "execute",
-          "because": "Current route matches: read, analyze, derive, and public export are distinct actions requiring current action/purpose/recipient grants at the sink.",
+          "because": "read, analyze, derive, and public export are distinct actions requiring current action/purpose/recipient grants at the sink.",
           "source_fragments": [
             {
               "uid": "U047",
@@ -1444,7 +1444,7 @@
         {
           "to": "CAP-03.fresh-sink-rights",
           "role": "execute",
-          "because": "Current route matches: bind the separate current read/analyze/derive/export/publish grants and recipient; a public URL/hash is not an IPD grant.",
+          "because": "bind the separate current read/analyze/derive/export/publish grants and recipient; a public URL/hash is not an IPD grant.",
           "source_fragments": [
             {
               "uid": "U048",
@@ -1461,7 +1461,7 @@
         {
           "to": "CAP-03.fresh-sink-rights",
           "role": "execute",
-          "because": "Current route matches: cached/resumed use must resolve current LIF-05 policy version and preserve the original reservation/outcome.",
+          "because": "cached/resumed use must resolve current LIF-05 policy version and preserve the original reservation/outcome.",
           "source_fragments": [
             {
               "uid": "U049",
@@ -1478,7 +1478,7 @@
         {
           "to": "CAP-03.fresh-sink-rights",
           "role": "execute",
-          "because": "Current route matches: grant to read does not authorize analysis, training, reuse, or publication; recheck rights at the later use.",
+          "because": "grant to read does not authorize analysis, training, reuse, or publication; recheck rights at the later use.",
           "source_fragments": [
             {
               "uid": "U050",
@@ -2043,7 +2043,7 @@
         {
           "to": "CAP-04.native-events",
           "role": "execute",
-          "because": "Current route matches: a source-qualified change/correction carries its own coverage and effective/known times; late corrections replay through the existing currentness owner.",
+          "because": "a source-qualified change/correction carries its own coverage and effective/known times; late corrections replay through the existing currentness owner.",
           "source_fragments": [
             {
               "uid": "U059",
@@ -2060,7 +2060,7 @@
         {
           "to": "CAP-04.native-events",
           "role": "execute",
-          "because": "Current route matches: only actually supplied or source/custodian-supported corrections become events; CNT-06 metrics update their own claims and are not recast as source events.",
+          "because": "only actually supplied or source/custodian-supported corrections become events; CNT-06 metrics update their own claims and are not recast as source events.",
           "source_fragments": [
             {
               "uid": "U060",
@@ -2077,7 +2077,7 @@
         {
           "to": "CAP-04.operational-records",
           "role": "execute",
-          "because": "Current route matches: bind actual operational/exposure record, denominator/cut, cohort/site/period, provenance, and time; keep the measurement distinct from law, causal effect, or source event.",
+          "because": "bind actual operational/exposure record, denominator/cut, cohort/site/period, provenance, and time; keep the measurement distinct from law, causal effect, or source event.",
           "source_fragments": [
             {
               "uid": "U061",
@@ -2094,7 +2094,7 @@
         {
           "to": "CAP-04.operational-records",
           "role": "execute",
-          "because": "Current route is operational-records and remains primary for the measured source cut/resource evidence and the prohibition on estimating workforce. The slice also says “Emit source-cut event,” so keep that event subclause explicit and conditional on actual source/custodian support rather than synthesizing it from a metric.",
+          "because": "Operational-records supplies the measured source cut/resource evidence and the prohibition on estimating workforce. Source-cut event production stays conditional on actual source/custodian support; do not synthesize an event from a metric.",
           "source_fragments": [
             {
               "uid": "U062",
@@ -2111,7 +2111,7 @@
         {
           "to": "CAP-04.native-events",
           "role": "execute",
-          "because": "Current route matches: persist actual source event, cut, and correction lineage; an empty inbox or duplicate is not an adjudication or proof of no harm.",
+          "because": "persist actual source event, cut, and correction lineage; an empty inbox or duplicate is not an adjudication or proof of no harm.",
           "source_fragments": [
             {
               "uid": "U063",
@@ -2128,7 +2128,7 @@
         {
           "to": "CAP-04.defect-impact",
           "role": "execute",
-          "because": "Current route matches: a pinned exact repro qualifies only the local defect; a supplied interval cannot widen impact without enrolled supporting records.",
+          "because": "a pinned exact repro qualifies only the local defect; a supplied interval cannot widen impact without enrolled supporting records.",
           "source_fragments": [
             {
               "uid": "U064",
@@ -2145,7 +2145,7 @@
         {
           "to": "CAP-04.adopter-reports",
           "role": "execute",
-          "because": "Current route matches: complaints/adopter-operation evidence remains a provenance- and time-bound candidate until independently reconciled.",
+          "because": "complaints/adopter-operation evidence remains a provenance- and time-bound candidate until independently reconciled.",
           "source_fragments": [
             {
               "uid": "U065",
@@ -2179,7 +2179,7 @@
         {
           "to": "CAP-04.native-events",
           "role": "execute",
-          "because": "Current route matches: the actual supplier shutdown notice is a source-specific lifecycle event, not a universal scheduler signal.",
+          "because": "the actual supplier shutdown notice is a source-specific lifecycle event, not a universal scheduler signal.",
           "source_fragments": [
             {
               "uid": "U067",
@@ -2196,7 +2196,7 @@
         {
           "to": "CAP-04.native-events",
           "role": "execute",
-          "because": "Current route matches: persist source/time/coverage for the material event; its label alone cannot establish a regime change.",
+          "because": "persist source/time/coverage for the material event; its label alone cannot establish a regime change.",
           "source_fragments": [
             {
               "uid": "U068",
@@ -2756,7 +2756,7 @@
         {
           "to": "CAP-05.official-source",
           "role": "execute",
-          "because": "Current route matches: bind exact official span, original language, translation relation, and candidate extraction; authentic text does not make the translation authoritative.",
+          "because": "bind exact official span, original language, translation relation, and candidate extraction; authentic text does not make the translation authoritative.",
           "source_fragments": [
             {
               "uid": "U036",
@@ -2790,7 +2790,7 @@
         {
           "to": "CAP-05.legal-applicability",
           "role": "execute",
-          "because": "Current route matches: distinguish original act, notice, recipient service, and delegation evidence before assigning legal effect.",
+          "because": "distinguish original act, notice, recipient service, and delegation evidence before assigning legal effect.",
           "source_fragments": [
             {
               "uid": "U038",
@@ -2824,7 +2824,7 @@
         {
           "to": "CAP-05.legal-applicability",
           "role": "execute",
-          "because": "Current route matches: resolve authenticated correction/repeal/act effect, interval, saving scope, and receipt timeline without applying drafts or arrival order globally.",
+          "because": "resolve authenticated correction/repeal/act effect, interval, saving scope, and receipt timeline without applying drafts or arrival order globally.",
           "source_fragments": [
             {
               "uid": "U040",
@@ -2841,7 +2841,7 @@
         {
           "to": "CAP-05.legal-applicability",
           "role": "execute",
-          "because": "Current route matches: verify actual act content, issuer competence, jurisdiction, and effective scope; publication/signature/arrival time is not legal effect.",
+          "because": "verify actual act content, issuer competence, jurisdiction, and effective scope; publication/signature/arrival time is not legal effect.",
           "source_fragments": [
             {
               "uid": "U041",
@@ -2858,7 +2858,7 @@
         {
           "to": "CAP-05.legal-consumer",
           "role": "execute",
-          "because": "Current route is legal-applicability, but the slice’s controlling condition is consumer-side: verify mandate only when authority is actually a premise of the selected claim, never as a blanket gate.",
+          "because": "The legal-consumer checks mandate only when authority is a premise of the selected claim; legal-applicability retains source/act scope, and no blanket legal gate applies to scientific evidence.",
           "source_fragments": [
             {
               "uid": "U042",
@@ -2875,7 +2875,7 @@
         {
           "to": "CAP-05.legal-consumer",
           "role": "execute",
-          "because": "Current route matches: keep legal-source meaning/applicability distinct from citation metadata and apply only the supported exact version/scope to the selected claim.",
+          "because": "keep legal-source meaning/applicability distinct from citation metadata and apply only the supported exact version/scope to the selected claim.",
           "source_fragments": [
             {
               "uid": "U043",
@@ -2892,7 +2892,7 @@
         {
           "to": "CAP-05.legal-applicability",
           "role": "execute",
-          "because": "Current route matches: resolve source-specific competence and overlapping legal scope; partial effective scope preserves only the verified subset.",
+          "because": "resolve source-specific competence and overlapping legal scope; partial effective scope preserves only the verified subset.",
           "source_fragments": [
             {
               "uid": "U044",
@@ -2909,7 +2909,7 @@
         {
           "to": "CAP-05.legal-consumer",
           "role": "execute",
-          "because": "Current route matches: this is a consumer boundary—require legal competence/applicability for legal premises only and do not generalize that rule to scientific evidence.",
+          "because": "this is a consumer boundary—require legal competence/applicability for legal premises only and do not generalize that rule to scientific evidence.",
           "source_fragments": [
             {
               "uid": "U045",
@@ -2926,7 +2926,7 @@
         {
           "to": "CAP-05.legal-applicability",
           "role": "execute",
-          "because": "Current route matches: verify foreign-law source, act/version, local jurisdictional scope, and effective time; origin publication alone does not prove local commencement.",
+          "because": "verify foreign-law source, act/version, local jurisdictional scope, and effective time; origin publication alone does not prove local commencement.",
           "source_fragments": [
             {
               "uid": "U046",
@@ -3641,7 +3641,7 @@
         {
           "to": "CAP-06.remote-effect-reconciliation",
           "role": "execute",
-          "because": "Current route matches: bind the selected remote operation’s exact roots/executable/purpose/recipient and reconcile its result; do not infer statistical independence.",
+          "because": "bind the selected remote operation’s exact roots/executable/purpose/recipient and reconcile its result; do not infer statistical independence.",
           "source_fragments": [
             {
               "uid": "U050",
@@ -3675,7 +3675,7 @@
         {
           "to": "CAP-06.rights-and-output-sinks",
           "role": "execute",
-          "because": "Current route matches: resume/cache/restore/export must resolve the current LIF-05 decision and policy version while preserving the original reservation/outcome.",
+          "because": "resume/cache/restore/export must resolve the current LIF-05 decision and policy version while preserving the original reservation/outcome.",
           "source_fragments": [
             {
               "uid": "U052",
@@ -3692,7 +3692,7 @@
         {
           "to": "CAP-06.remote-effect-reconciliation",
           "role": "execute",
-          "because": "Current route matches: the selected remote capture needs a verifiable receipt/output bound to its recipient; completion/encryption is not meaning.",
+          "because": "the selected remote capture needs a verifiable receipt/output bound to its recipient; completion/encryption is not meaning.",
           "source_fragments": [
             {
               "uid": "U053",
@@ -3709,7 +3709,7 @@
         {
           "to": "CAP-06.remote-effect-reconciliation",
           "role": "execute",
-          "because": "Current route matches: for selected private remote execution, reconcile the exact executable/effect receipt/recipient and keep uncertainty explicit.",
+          "because": "for selected private remote execution, reconcile the exact executable/effect receipt/recipient and keep uncertainty explicit.",
           "source_fragments": [
             {
               "uid": "U054",
@@ -3726,7 +3726,7 @@
         {
           "to": "CAP-06.remote-effect-reconciliation",
           "role": "execute",
-          "because": "Current route matches: retain sent/not-sent/indeterminate effect receipt and reconcile the same operation across rollout; no duplicate or lost effect.",
+          "because": "retain sent/not-sent/indeterminate effect receipt and reconcile the same operation across rollout; no duplicate or lost effect.",
           "source_fragments": [
             {
               "uid": "U055",
@@ -3743,7 +3743,7 @@
         {
           "to": "CAP-06.remote-effect-reconciliation",
           "role": "execute",
-          "because": "Current route matches: for selected private remote calls, bind exact executable/input/recipient and a verified or indeterminate receipt to the observed process generation.",
+          "because": "for selected private remote calls, bind exact executable/input/recipient and a verified or indeterminate receipt to the observed process generation.",
           "source_fragments": [
             {
               "uid": "U056",
@@ -24422,7 +24422,7 @@
         {
           "to": "UI-01.currentness-projection",
           "role": "execute",
-          "because": "tasks.json#UI-01.task.r19_extension.question_slices[0] (R18-D12-Q05) value-matches question_ids[0]. Current coverage sends both selectors to this card as binding, but UI-01 preferred-solutions implementation_steps[0..3] cover only authentication/read wiring and do not execute the LIF-02 currentness read; this card owns the fresh selected consumer, so route the missing consumer work as execute. Keep the source condition that base authentication can remain independently acceptable with currentness not_established.",
+          "because": "tasks.json#UI-01.task.r19_extension.question_slices[0] (R18-D12-Q05) value-matches question_ids[0]. UI-01.currentness-projection executes the LIF-02 currentness read at the fresh selected consumer; base authentication may remain independently acceptable when currentness is not_established.",
           "source_fragments": [
             {
               "uid": "U025",
@@ -24439,7 +24439,7 @@
         {
           "to": "UI-01.denied-absent",
           "role": "execute",
-          "because": "tasks.json#UI-01.task.r19_extension.question_slices[1] (R18-D12-Q06) value-matches question_ids[1]. Current coverage routes both selectors here as binding, while S12#R18-D12-Q06 assigns UI-01 as primary writer of the commissioned path census and matched disclosure closure; denied-absent owns that selected emitter/cache gate, so make its work executable. The exact selected path set is commissioned at P0, not a universal transport list.",
+          "because": "tasks.json#UI-01.task.r19_extension.question_slices[1] (R18-D12-Q06) value-matches question_ids[1]. UI-01.denied-absent executes the commissioned path census and matched absent/denied disclosure closure at the selected emitter/cache; P0 binds the selected path set, not a universal transport list.",
           "source_fragments": [
             {
               "uid": "U026",
@@ -25031,7 +25031,7 @@
         {
           "to": "UI-02.public-record",
           "role": "binding",
-          "because": "tasks.json#UI-02.task.r19_extension.question_slices[0] value-matches question_ids[0]. Current coverage routes both by-value selectors to public-record as binding, which is correct: the slice constrains the existing exact-record projection work also executed by preferred-solutions implementation_steps[1..2,5]. Keep one edition across the four actual authorized audience readers; do not substitute UI-05 Clerk or transport parity for audience projection.",
+          "because": "tasks.json#UI-02.task.r19_extension.question_slices[0] value-matches question_ids[0]. Public-record applies this constraint in the existing exact-record projection at preferred-solutions implementation_steps[1..2,5]. Keep one edition across the four actual authorized audience readers; do not substitute UI-05 Clerk or transport parity for audience projection.",
           "source_fragments": [
             {
               "uid": "U042",
@@ -25048,7 +25048,7 @@
         {
           "to": "UI-02.placement-rights",
           "role": "binding",
-          "because": "tasks.json#UI-02.task.r19_extension.question_slices[1] value-matches question_ids[1]. Current coverage destination/role are sound: placement-rights is the selected managed-reader join and its existing implementation step 7 covers placement effects; bind the LIF-02 currentness/correction-lineage requirement there, without treating old issued bytes as current or promising recall.",
+          "because": "tasks.json#UI-02.task.r19_extension.question_slices[1] value-matches question_ids[1]. Placement-rights is the selected managed-reader join; existing implementation step 7 covers placement effects; bind the LIF-02 currentness/correction-lineage requirement there, without treating old issued bytes as current or promising recall.",
           "source_fragments": [
             {
               "uid": "U043",
@@ -25065,7 +25065,7 @@
         {
           "to": "UI-02.placement-rights",
           "role": "binding",
-          "because": "tasks.json#UI-02.task.r19_extension.question_slices[2] value-matches question_ids[2]. Current coverage points to placement-rights, but its reason text imports UI-01's generic-404/path-closure description; replace that rationale with this slice's exact selected public/MACHINE export, rights-before-egress, audience-bound cache, and absent/denied no-value property. The card's conditional LIF-05 reader work is already executed by preferred-solutions implementation_step[7].",
+          "because": "tasks.json#UI-02.task.r19_extension.question_slices[2] value-matches question_ids[2]. Bind selected public/MACHINE export readers to the owner-qualified LIF-05 rights result before egress, including audience-bound caches and export/index metadata. Absent or denied inputs emit no value; removing the rights join from one selected path must expose the canary.",
           "source_fragments": [
             {
               "uid": "U044",
@@ -25082,7 +25082,7 @@
         {
           "to": "UI-02.placement-rights",
           "role": "binding",
-          "because": "tasks.json#UI-02.task.r19_extension.question_slices[3] value-matches question_ids[4] (not question_ids[3]). Current destination is the right managed selected-reader owner, but its coverage rationale wrongly says UI-02 appends the response; this parent consumes and links the exact issue to the managed correction/current-status view, binds only evidenced placements, and makes no unknown-copy recall claim.",
+          "because": "tasks.json#UI-02.task.r19_extension.question_slices[3] value-matches question_ids[4] (not question_ids[3]). The managed selected-reader links the exact issued view to its current correction/status projection for evidenced placements, distinguishing the historical signed original, changed derivative, and current correction without claiming recall of unknown or downloaded copies.",
           "source_fragments": [
             {
               "uid": "U045",
@@ -25099,7 +25099,7 @@
         {
           "to": "UI-02.placement-rights",
           "role": "binding",
-          "because": "tasks.json#UI-02.task.r19_extension.question_slices[4] value-matches question_ids[3] (not question_ids[4]). Current coverage destination/role are correct for owner-qualified per-placement disclosure/retention effects; keep this UI-02 slice as a consumer of authorized correction/history and evidenced copy-control, not a writer or universal-erasure claim.",
+          "because": "tasks.json#UI-02.task.r19_extension.question_slices[4] value-matches question_ids[3] (not question_ids[4]). Consume authorized correction/history and owner-qualified per-placement disclosure/retention outcomes. Claim copy-control only where evidenced; make no universal-erasure claim.",
           "source_fragments": [
             {
               "uid": "U046",
@@ -26168,7 +26168,7 @@
         {
           "to": "UI-04.event-history",
           "role": "binding",
-          "because": "tasks.json#UI-04.task.r19_extension.question_slices[1] value-matches question_ids[1]. Current destination is right but current coverage's reason incorrectly characterizes this slice as a LIF-02 consumer; the exact slice is the primary-writer event contract. Keep it bound to event-history's already-executed producer steps 0..2: append to the exact edition with dissent/time/authority, without auto-resolution.",
+          "because": "tasks.json#UI-04.task.r19_extension.question_slices[1] value-matches question_ids[1]. Bind the exact-edition event append with source-qualified event, dissent, time, authority, and correction lineage; event-history does not automatically resolve the correction or testimony.",
           "source_fragments": [
             {
               "uid": "U050",
@@ -26185,7 +26185,7 @@
         {
           "to": "UI-04.placement-currentness",
           "role": "binding",
-          "because": "tasks.json#UI-04.task.r19_extension.question_slices[2] value-matches question_ids[2]. Current destination captures the LIF-05 rights-aware selected history read; replace the copied generic-404 rationale with the exact history/API/audit projection and attached-metadata closure, preserving only permitted historical issue and suppressing protected existence. Existing placement-currentness implementation_step[6] supplies the reader effect.",
+          "because": "tasks.json#UI-04.task.r19_extension.question_slices[2] value-matches question_ids[2]. Compose the selected history/API/audit projection with owner-qualified LIF-05 rights before display, close attached metadata, preserve only permitted historical issue, and suppress protected existence where required. Existing placement-currentness implementation_step[6] supplies the reader effect.",
           "source_fragments": [
             {
               "uid": "U051",
@@ -32037,7 +32037,7 @@
         {
           "to": "UI-19.claim-currentness",
           "role": "binding",
-          "because": "tasks.json#UI-19.task.r19_extension.question_slices[3] value-matches question_ids[2]. Keep the source's scoped-participant boundary: UI-19 executes only its existing selected currentness consumer; CAP-04 event production and LIF-02 fencing/recomposition remain their native owners. Current coverage destination is correct, but its generic reason should name this crisis-fence predicate and preserve affected=pending versus unrelated=current.",
+          "because": "tasks.json#UI-19.task.r19_extension.question_slices[3] value-matches question_ids[2]. Bind the selected crisis-fence currentness read to the fresh UI-19 consumer while CAP-04 retains event production and LIF-02 retains fencing/recomposition; affected participants remain pending while unrelated participants remain current.",
           "source_fragments": [
             {
               "uid": "U038",
@@ -33848,7 +33848,7 @@
         {
           "to": "@parent",
           "role": "join",
-          "because": "This slice binds source version/effectivity, reviewed applicability, issuer competence and actual act into one qualified legal basis for CNT-01/CNT-08; no one child owns the full join. Slice: Resolve applicable law/version, effectivity, issuer competence and actual-act facts; supply qualified refs to CNT-01/CNT-08 without deciding whether a contest is commissioned. Positive discriminator: An effective applicable provision from a competent issuer changes only the matching legal premise; CNT-01 consumes its qualified ref. Adversary: Draft, wrong-jurisdiction, expired or signature-only instrument stays unestablished. Removal: Keep citation/signature but remove applicability/effectivity/competence resolution; the protected legal premise cannot pass. Coverage currently routes this slice selector to CNT-04.applicability/execute; this destination follows its actual question_id and mixed semantics.",
+          "because": "This slice binds source version/effectivity, reviewed applicability, issuer competence and actual act into one qualified legal basis for CNT-01/CNT-08; no one child owns the full join. Slice: Resolve applicable law/version, effectivity, issuer competence and actual-act facts; supply qualified refs to CNT-01/CNT-08 without deciding whether a contest is commissioned. Positive discriminator: An effective applicable provision from a competent issuer changes only the matching legal premise; CNT-01 consumes its qualified ref. Adversary: Draft, wrong-jurisdiction, expired or signature-only instrument stays unestablished. Removal: Keep citation/signature but remove applicability/effectivity/competence resolution; the protected legal premise cannot pass. The parent join consumes law-version, applicability, and issuer-act outputs for the selected legal basis; no child alone supplies the complete qualified premise.",
           "source_fragments": [
             {
               "uid": "U038",
@@ -33865,7 +33865,7 @@
         {
           "to": "CNT-04.issuer-act",
           "role": "execute",
-          "because": "Issuer-act owns authentic delegation/competence evidence; law-version supplies the governing instrument version and effectivity, while CNT-01 retains child-scope selection. Slice: Resolve legal instrument version/effectivity and issuer/competence evidence for a relied-upon delegation; provide qualified facts to CNT-01, not commission selection or child coverage. Positive discriminator: The source-resolved delegation is authentic and effective at the selected cut; CNT-01 can decide exact successor coverage. Adversary: Same declared bytes but wrong issuer, expired term or inapplicable jurisdiction fails qualification. Removal: Remove source, effectivity or competence verification but keep signature; delegation evidence is not established. Coverage currently routes this slice selector to CNT-04.applicability/execute; this destination follows its actual question_id and mixed semantics.",
+          "because": "Issuer-act owns authentic delegation/competence evidence; law-version supplies the governing instrument version and effectivity, while CNT-01 retains child-scope selection. Slice: Resolve legal instrument version/effectivity and issuer/competence evidence for a relied-upon delegation; provide qualified facts to CNT-01, not commission selection or child coverage. Positive discriminator: The source-resolved delegation is authentic and effective at the selected cut; CNT-01 can decide exact successor coverage. Adversary: Same declared bytes but wrong issuer, expired term or inapplicable jurisdiction fails qualification. Removal: Remove source, effectivity or competence verification but keep signature; delegation evidence is not established. Issuer-act qualifies the relied-upon delegation and competence evidence, while law-version supplies the governing instrument version/effectivity and CNT-01 retains child-scope selection.",
           "source_fragments": [
             {
               "uid": "U039",
@@ -34725,7 +34725,7 @@
         {
           "to": "@parent",
           "role": "join",
-          "because": "This source slice explicitly crosses supported conditional calculation, a separate value schedule, result-support status and collective endorsement; the parent must reconcile measure-profile with mandate-choice. Slice: Bind conditional calculation grounds and value schedule separately from selector/collective mandate; use an existing result-support status for a supported conditional claim. Positive discriminator: Two source-qualified schedules reverse rank under a common verified model/basis; fresh consumer admits both scoped conditional results without a collective act and shows no collective winner. Adversary: Wrong-scope ref/default weight cannot promote; a missing collective mandate must not demote an otherwise grounded conditional result, and no result can become a collective winner without that mandate. Removal: Remove model/input/method/rights/currentness binding but keep schedule/status labels: the fresh result consumer fails. Remove only the collective mandate: the calculation remains admissible but collective choice/endorsement is denied. Coverage currently routes this slice selector to CNT-05.measure-profile/execute; this destination follows its actual question_id and mixed semantics.",
+          "because": "This source slice explicitly crosses supported conditional calculation, a separate value schedule, result-support status and collective endorsement; the parent must reconcile measure-profile with mandate-choice. Slice: Bind conditional calculation grounds and value schedule separately from selector/collective mandate; use an existing result-support status for a supported conditional claim. Positive discriminator: Two source-qualified schedules reverse rank under a common verified model/basis; fresh consumer admits both scoped conditional results without a collective act and shows no collective winner. Adversary: Wrong-scope ref/default weight cannot promote; a missing collective mandate must not demote an otherwise grounded conditional result, and no result can become a collective winner without that mandate. Removal: Remove model/input/method/rights/currentness binding but keep schedule/status labels: the fresh result consumer fails. Remove only the collective mandate: the calculation remains admissible but collective choice/endorsement is denied. The parent join composes measure-profile with principal-qualified mandate-choice at their distinct readers; absent mandate blocks collective winner/endorsement but preserves a supported conditional calculation.",
           "source_fragments": [
             {
               "uid": "U039",
@@ -34742,7 +34742,7 @@
         {
           "to": "CNT-05.measure-profile",
           "role": "execute",
-          "because": "Measure-profile owns qualified construct, population/denominator, instrument, time and aggregation-rule calculations; it exposes alternatives without authorizing a normative winner. Slice: Expose subgroup denominator beside aggregate. Positive discriminator: Newly harmed subgroup changes result. Adversary: Unknown denominator is not zero harm. Removal: Remove subgroup basis: scope narrows. Coverage currently routes this slice selector to CNT-05.mandate-choice/execute; this destination follows its actual question_id and mixed semantics.",
+          "because": "Measure-profile owns qualified construct, population/denominator, instrument, time and aggregation-rule calculations; it exposes alternatives without authorizing a normative winner. Slice: Expose subgroup denominator beside aggregate. Positive discriminator: Newly harmed subgroup changes result. Adversary: Unknown denominator is not zero harm. Removal: Remove subgroup basis: scope narrows. Measure-profile exposes the qualified subgroup denominator beside the aggregate; unknown denominator is not zero harm, and missing subgroup basis narrows claim scope without authorizing a normative winner.",
           "source_fragments": [
             {
               "uid": "U040",
@@ -36375,7 +36375,7 @@
         {
           "to": "@parent",
           "role": "join",
-          "because": "This slice spans distinct evidence/authority or affected-use owners; the parent join preserves the boundary while routing each subclause to its native card and consumer. Slice: Bind map to sources/pathways/epoch/exclusions. Positive discriminator: New group creates epoch and revises linked claim. Adversary: Completeness marker cannot fill evidence gap. Removal: Remove pathway link: broad claim fails. Coverage currently routes this slice selector to CNT-07.mandate-evidence/execute; this destination follows its actual question_id and mixed semantics.",
+          "because": "This slice spans distinct evidence/authority or affected-use owners; the parent join preserves the boundary while routing each subclause to its native card and consumer. Slice: Bind map to sources/pathways/epoch/exclusions. Positive discriminator: New group creates epoch and revises linked claim. Adversary: Completeness marker cannot fill evidence gap. Removal: Remove pathway link: broad claim fails. The parent join binds the map to sources, pathways, epochs, and exclusions, then composes the selected native outputs needed by the claim; a completeness marker cannot fill a missing evidence link.",
           "source_fragments": [
             {
               "uid": "U040",
@@ -36409,7 +36409,7 @@
         {
           "to": "@parent",
           "role": "join",
-          "because": "This slice spans distinct evidence/authority or affected-use owners; the parent join preserves the boundary while routing each subclause to its native card and consumer. Slice: Bind interest/update to role and claim. Positive discriminator: Expert fact remains; framing reviewed separately. Adversary: Disclosure alone is not verification. Removal: Remove role link: independence claim limits. Coverage currently routes this slice selector to CNT-07.mandate-evidence/execute; this destination follows its actual question_id and mixed semantics.",
+          "because": "This slice spans distinct evidence/authority or affected-use owners; the parent join preserves the boundary while routing each subclause to its native card and consumer. Slice: Bind interest/update to role and claim. Positive discriminator: Expert fact remains; framing reviewed separately. Adversary: Disclosure alone is not verification. Removal: Remove role link: independence claim limits. The parent join binds interest/update evidence to its role and claim, keeping expert fact distinct from framing review; disclosure alone does not verify independence.",
           "source_fragments": [
             {
               "uid": "U042",
@@ -36426,7 +36426,7 @@
         {
           "to": "@parent",
           "role": "join",
-          "because": "This slice spans distinct evidence/authority or affected-use owners; the parent join preserves the boundary while routing each subclause to its native card and consumer. Slice: Separate individual and applicable collective acts. Positive discriminator: Quote allowed; restricted aggregate refused. Adversary: Generic tag cannot grant derivatives. Removal: Remove derivative binding: use not admitted. Coverage currently routes this slice selector to CNT-07.mandate-evidence/execute; this destination follows its actual question_id and mixed semantics.",
+          "because": "This slice spans distinct evidence/authority or affected-use owners; the parent join preserves the boundary while routing each subclause to its native card and consumer. Slice: Separate individual and applicable collective acts. Positive discriminator: Quote allowed; restricted aggregate refused. Adversary: Generic tag cannot grant derivatives. Removal: Remove derivative binding: use not admitted. The parent join keeps individual permissions and applicable collective acts distinct; quote only within evidenced permission, and a generic tag cannot authorize restricted aggregate or derivative use.",
           "source_fragments": [
             {
               "uid": "U043",
@@ -36460,7 +36460,7 @@
         {
           "to": "@parent",
           "role": "join",
-          "because": "This slice spans distinct evidence/authority or affected-use owners; the parent join preserves the boundary while routing each subclause to its native card and consumer. Slice: Supply actual correction/act, permission, source provenance and mandate evidence when claimed; testimony/dissent remains distinct from an institutional decision. Positive discriminator: Qualified event facts bind to the affected claim and audience permission. Adversary: Receipt, silence, response count or signer label is treated as an adopted correction. Removal: Remove actual source/permission relation with event labels intact; protected authority claim is not_established. Coverage currently routes this slice selector to CNT-07.testimony/execute; this destination follows its actual question_id and mixed semantics.",
+          "because": "This slice spans distinct evidence/authority or affected-use owners; the parent join preserves the boundary while routing each subclause to its native card and consumer. Slice: Supply actual correction/act, permission, source provenance and mandate evidence when claimed; testimony/dissent remains distinct from an institutional decision. Positive discriminator: Qualified event facts bind to the affected claim and audience permission. Adversary: Receipt, silence, response count or signer label is treated as an adopted correction. Removal: Remove actual source/permission relation with event labels intact; protected authority claim is not_established. The parent join composes source-qualified correction/act and permission evidence with mandate evidence only when claimed; testimony/dissent remains distinct from an institutional decision.",
           "source_fragments": [
             {
               "uid": "U045",
@@ -36511,7 +36511,7 @@
         {
           "to": "@parent",
           "role": "join",
-          "because": "This slice spans distinct evidence/authority or affected-use owners; the parent join preserves the boundary while routing each subclause to its native card and consumer. Slice: Keep source-issued consent, participation, representation and mandate as distinct evidence. Positive discriminator: Only a competent operation-scoped permission is consumed. Adversary: A participant checkbox is treated as community representation and model-training authority. Removal: Replace resolved notice/issuer with a consent string; authority admission fails. Coverage currently routes this slice selector to CNT-07.testimony/execute; this destination follows its actual question_id and mixed semantics.",
+          "because": "This slice spans distinct evidence/authority or affected-use owners; the parent join preserves the boundary while routing each subclause to its native card and consumer. Slice: Keep source-issued consent, participation, representation and mandate as distinct evidence. Positive discriminator: Only a competent operation-scoped permission is consumed. Adversary: A participant checkbox is treated as community representation and model-training authority. Removal: Replace resolved notice/issuer with a consent string; authority admission fails. The parent join preserves source-issued consent, participation, representation, and mandate as distinct evidence; only competent operation-scoped permission is consumed.",
           "source_fragments": [
             {
               "uid": "U048",
@@ -40310,16 +40310,8 @@
         {
           "to": "OPS-05.restore-cut",
           "role": "join",
-          "because": "Distinguishing behavior, consumer surface, or acceptance evidence for restore-cut; selectors task.acceptance_steps[5], task.acceptance_steps[6], task.r17_extension.quality_cases[1], task.r17_extension.quality_cases[2], task.r19_extension.question_slices[2], solution.acceptance_discriminators[1], solution.acceptance_discriminators[2] are checked at its actual reader/sink. Bundled subclauses: U040:{\"question_id\":\"R18-D17-Q05\",\"solution_ref\":\"solutions/lifecycle-r19/S17.md#r18-d17-q05\",\"mechanism_ids\":[\"S17-M5\",\"S17-M4\",\"S17-M2\"],\"role\":\"assurance\"}.",
+          "because": "Distinguishing behavior, consumer surface, or acceptance evidence for restore-cut; selectors task.r17_extension.quality_cases[1], task.r17_extension.quality_cases[2], solution.acceptance_discriminators[1], solution.acceptance_discriminators[2] are checked at its actual reader/sink.",
           "source_fragments": [
-            {
-              "uid": "U013",
-              "selector": "task.acceptance_steps[5]"
-            },
-            {
-              "uid": "U014",
-              "selector": "task.acceptance_steps[6]"
-            },
             {
               "uid": "U031",
               "selector": "task.r17_extension.quality_cases[1]"
@@ -40371,12 +40363,8 @@
         {
           "to": "OPS-05.retained-uses",
           "role": "join",
-          "because": "Distinguishing behavior, consumer surface, or acceptance evidence for retained-uses; selectors task.acceptance_steps[4], solution.acceptance_discriminators[3], solution.acceptance_discriminators[4] are checked at its actual reader/sink.",
+          "because": "Distinguishing behavior, consumer surface, or acceptance evidence for retained-uses; selectors solution.acceptance_discriminators[3], solution.acceptance_discriminators[4] are checked at its actual reader/sink.",
           "source_fragments": [
-            {
-              "uid": "U012",
-              "selector": "task.acceptance_steps[4]"
-            },
             {
               "uid": "U064",
               "selector": "solution.acceptance_discriminators[3]"
@@ -40472,6 +40460,39 @@
               "uid": "U043",
               "selector": "task.r19_extension.question_ids[2]",
               "question_id": "R18-D17-Q05"
+            }
+          ]
+        },
+        {
+          "to": "OPS-05.restore-cut",
+          "role": "join",
+          "because": "The S0 withdrawal/reissue proof tests whether the restored scope can leave quarantine: reconcile the continuity witness outside the rollback closure with LIF-02 material history, compute the fresh head, and fence intervening withdrawals at the restored claim/publication reader. Retained-representation eligibility remains a separate output.",
+          "source_fragments": [
+            {
+              "uid": "U012",
+              "selector": "task.acceptance_steps[4]"
+            }
+          ]
+        },
+        {
+          "to": "OPS-05.retained-uses",
+          "role": "join",
+          "because": "The mixed-archive proof tests per-use retained payload, query-only result/receipt, erased dependency, required-object loss, and lazy verification before protected use. OPS-05.retained-uses classifies the selected representation and its sufficient basis for the fresh reader; restore-cut supplies the quarantined cut and current-read fence, not representation admission.",
+          "source_fragments": [
+            {
+              "uid": "U013",
+              "selector": "task.acceptance_steps[5]"
+            }
+          ]
+        },
+        {
+          "to": "OPS-05.retained-uses",
+          "role": "join",
+          "because": "After raw erasure, the retained-use consumer decides whether the separately permitted result has sufficient dependency/verification basis and current-use rights for the selected historical or derivative use. Raw-dependent recomputation and unpermitted purposes remain unavailable; this result does not establish restore currentness.",
+          "source_fragments": [
+            {
+              "uid": "U014",
+              "selector": "task.acceptance_steps[6]"
             }
           ]
         }

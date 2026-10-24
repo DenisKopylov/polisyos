@@ -14,17 +14,26 @@
 
 **Выход и consumer.** Append-only second-checkpoint record referencing first and current exact print instance, or existing-schema admission.
 
-**Что можно готовить независимо.** Rebind source, owner, consumer and exact lease after P0-ACCEPT where applicable; any earlier census/preparation is only what the original parent stage permits. This card neither adds nor removes a start barrier.
+**Что можно готовить независимо.** После разрешённого исходным stage contract source/lease rebind выполнить первые действия ниже; до разрешённой стадии — только назначенное read-only discovery. Actual supplier outputs нужны при их потреблении, а не для всей независимой подготовки. Карточка не добавляет start barrier.
 
 **Где результат соединяется с другими.** Read the named output through Fresh runtime-dashboard print surface consumer: apps/runtime-dashboard/src/shared/export/printExport.ts.; composition is limited to this property and the exact original scope.
 
-**Positive.** The accepted inputs produce the bounded result and the fresh consumer accepts the scoped property: The second DS18 checkpoint is preserved append-only and binds exact current content, browser and print instance, only adding schema version if original cannot represent it.
+**Positive.** Первая DS18 checkpoint и её annotations остаются неизменными; append-only вторая запись ссылается на первую и точно связывает текущие rendered content, browser и print instance. Версия схемы добавляется лишь если исходная schema не умеет представить обе записи.
 
-**Distinguishing negative.** Old receipt or self-countersign cannot upgrade current content; missing schema reconciliation leaves current row open.
+**Distinguishing negative.** Старый receipt, self-countersign или запись без текущего browser/print binding не закрывает ни inherited, ни direct C13 row.
 
-**Matched removal.** Remove the decisive binding for this property while retaining declarations/markers; the named consumer must fail or return its typed unknown/refusal: The second DS18 checkpoint is preserved append-only and binds exact current content, browser and print instance, only adding schema version if original cannot represent it.
+**Matched removal.** Reconciliation probe (существующая DS18/C13 сверка остаётся включена): изменить ссылку второй checkpoint на другой browser/print instance, сохранив `reconciled` marker. Проверка должна обнаружить mismatch с текущим render и не закрыть обе C13 rows; dispositions остаются раздельными.
 
 **Граница контекста.** This preserves the two C13 rows and existing first capture; independent accessibility report is a separate source.
+
+## Первые действия и передача
+
+1. Свести отдельно существующий first C13 checkpoint, требуемый second checkpoint и текущие content/browser/print instance IDs, сохранив ссылки на обе C13 closure rows.
+2. Сопоставить требуемое представление с текущей DS18 schema и записать, может ли она сохранить обе контрольные точки без потери старых annotations.
+
+**Ответственность и handoff.** Checkpoint schema и print surface принадлежат существующему DS18 owner. Внешний accessibility countersign — отдельная DEB-10 карточка.
+
+Порядок действий внутри назначения не добавляет dependency edges. Примеры проверок дополняют полный назначенный criterion; actual commands/paths закрепляются в [packet](../../../task-decomposition/work-packet.md) после source rebind.
 
 ## Место в цепочке
 

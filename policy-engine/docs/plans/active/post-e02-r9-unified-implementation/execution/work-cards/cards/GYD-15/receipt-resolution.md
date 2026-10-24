@@ -18,13 +18,24 @@
 
 **Где результат соединяется с другими.** At N8, resolve the other FA1 capability receipts from their existing canonical CAS objects through the native resolver and snapshot-to-N8 transport, then return the fresh resolved/refused readback. This is a consumer path only: it does not create an upstream start edge, duplicate CAS custody, or make the resolved receipt itself prove cutoff, toolchain support or data-use rights.
 
-**Positive.** Fresh reader resolves the exact matching owner-selected receipt with verified content and scope.
+**Positive.** Свежий N8 reader получает именно owner-selected persisted receipt и сравнивает прочитанные bytes/content/version, source, scope, lineage, rule version, time и revocation с записью; audit readback указывает тот же объект.
 
-**Distinguishing negative.** Missing, self-authored, stale, replaced, wrong-scope or cross-environment receipt refuses.
+**Distinguishing negative.** Отсутствующая, self-authored, stale, replaced, wrong-scope или cross-environment receipt даёт соответствующий refusal/unavailable, а не позитивный admission по форме ref.
 
-**Matched removal.** Remove content binding or resolver verification while retaining ref shape; the fresh reader refuses.
+**Matched removal.** Оставь canonical source available, но под тем же well-shaped ref предъяви replaced или wrong-scope receipt; отключи content/scope resolver binding. Неизменённая независимая проверка ожидает отказ для bytes, не совпадающих с owner-selected object; если N8 принимает их, эта проверка должна FAIL. Отдельно проверь реально отсутствующий receipt как typed unavailable; пустой input не доказывает resolver property.
 
 **Граница контекста.** G07 ongoing custody. The task lead owns locating/rebinding this internal path; negative-only refusal remains until a real source-bound receipt is produced and consumed. No independent evaluator is added to consistency-only rebuilds unless the property requires one.
+
+## Первые действия и передача
+
+1. Task lead на принятом E02 rebind находит точные Core CAS object/resolver, Foundry/FA1 receipt writer-resolver, snapshot-to-N8 transport и N8 reader; root закрепляет actual paths/leases.
+2. Проследи owner-selected receipt от source/version-bound bytes через persisted typed result до N8 readback. Отсутствующий native producer/bridge — работа существующего owner в его lease, не external blocker и не повод строить второй CAS.
+3. Receipt или typed unavailable/refusal несёт content, owner/source, scope, lineage, rule/schema version, time и revocation. Это разрешает выбранный объект, но не доказывает cutoff, toolchain support или data-use right соседних FA1 capabilities.
+4. Свежий N8/audit reader сам разрешает owner-selected bytes; caller label/ref не заменяет readback.
+
+**Ответственность и handoff.** Core CAS остаётся единственным custodian bytes; native Foundry/FA1 writer-resolver отвечает за typed resolution receipt и его чтение. Task lead выполняет engineering discovery/rebind, root закрепляет exact paths/leases. Handoff: текущий production method-catalog/N8 consumer и audit projection через существующие dependency_authority, CAS и snapshot-to-N8 transport; не добавлять grant issuer или параллельного trust owner.
+
+Порядок действий внутри назначения не добавляет dependency edges. Примеры проверок дополняют полный назначенный criterion; actual commands/paths закрепляются в [packet](../../../task-decomposition/work-packet.md) после source rebind.
 
 ## Место в цепочке
 

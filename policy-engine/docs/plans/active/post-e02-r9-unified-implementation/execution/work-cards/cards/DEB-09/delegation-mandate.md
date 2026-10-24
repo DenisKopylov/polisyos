@@ -14,17 +14,26 @@
 
 **Выход и consumer.** Scope-bound delegation/mandate admission or typed-empty status.
 
-**Что можно готовить независимо.** Rebind source, owner, consumer and exact lease after P0-ACCEPT where applicable; any earlier census/preparation is only what the original parent stage permits. This card neither adds nor removes a start barrier.
+**Что можно готовить независимо.** После разрешённого исходным stage contract source/lease rebind выполнить первые действия ниже; до разрешённой стадии — только назначенное read-only discovery. Actual supplier outputs нужны при их потреблении, а не для всей независимой подготовки. Карточка не добавляет start barrier.
 
 **Где результат соединяется с другими.** Read the named output through Fresh DS15 selected-route admission consumer.; composition is limited to this property and the exact original scope.
 
-**Positive.** The accepted inputs produce the bounded result and the fresh consumer accepts the scoped property: DS15 delegation authority exists only when external signed v2 delegation and current mandate owner bind selected purpose and scope.
+**Positive.** Реальные внешние signed-v2 delegation и current mandate-owner evidence независимо разрешаются и verifier-проверяются; оба связывают один выбранный DS15 purpose/scope, после чего существующий DS15 consumer допускает только эту область.
 
-**Distinguishing negative.** Signature-only competence, stale mandate or wrong scope cannot authorize; GYD-15 FA1 is separate.
+**Distinguishing negative.** Подпись без актуального mandate owner, истёкший мандат или документ для другого purpose/scope оставляет delegation typed-empty/refused.
 
-**Matched removal.** Remove the decisive binding for this property while retaining declarations/markers; the named consumer must fail or return its typed unknown/refusal: DS15 delegation authority exists only when external signed v2 delegation and current mandate owner bind selected purpose and scope.
+**Matched removal.** Reconciliation probe (LIF-01 verifier и существующий DS15 checker остаются включены): подменить в сохранённом mandate evidence purpose либо valid interval, не меняя `delegation admitted` marker. Проверка привязки обоих внешних актов должна обнаружить расхождение с выбранным DS15 purpose/scope и вернуть typed refusal.
 
 **Граница контекста.** This role is conditionally relevant to the selected DS15 route and must not become a universal start barrier.
+
+## Первые действия и передача
+
+1. Завести отдельные evidence rows для signed-v2 delegation и текущего mandate-owner evidence: artifact ID/digest, signer provenance, valid interval, выбранные DS15 purpose и scope.
+2. Сохранить разрешение/отказ существующего LIF-01 verifier для каждого артефакта и итоговый typed status без локального заполнения отсутствующего слота.
+
+**Ответственность и handoff.** Сами delegation и mandate-owner evidence — внешние институциональные акты. LIF-01 intake, verifier, typed-empty статус и связка с consumer — внутренняя инженерная работа; appointment service не добавлять.
+
+Порядок действий внутри назначения не добавляет dependency edges. Примеры проверок дополняют полный назначенный criterion; actual commands/paths закрепляются в [packet](../../../task-decomposition/work-packet.md) после source rebind.
 
 ## Место в цепочке
 

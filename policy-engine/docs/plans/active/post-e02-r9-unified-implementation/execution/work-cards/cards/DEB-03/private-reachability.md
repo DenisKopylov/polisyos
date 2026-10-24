@@ -14,17 +14,27 @@
 
 **Выход и consumer.** Recomputed private-reach inventory with explicit reviewed boundary or bounded unresolved dynamic case.
 
-**Что можно готовить независимо.** Rebind source, owner, consumer and exact lease after P0-ACCEPT where applicable; any earlier census/preparation is only what the original parent stage permits. This card neither adds nor removes a start barrier.
+**Что можно готовить независимо.** После разрешённого исходным stage contract source/lease rebind выполнить первые действия ниже; до разрешённой стадии — только назначенное read-only discovery. Actual supplier outputs нужны при их потреблении, а не для всей независимой подготовки. Карточка не добавляет start barrier.
 
 **Где результат соединяется с другими.** Read the named output through Fresh tools/quality/validation/check_package_import_gates.py and architecture import consumer.; composition is limited to this property and the exact original scope.
 
-**Positive.** The accepted inputs produce the bounded result and the fresh consumer accepts the scoped property: Every production cross-module private import, function-local import and private-attribute edge is routed through an owner-approved supported boundary or retained as an explicit unresolved dynamic limitation.
+**Positive.** Полный текущий census показывает, что каждый cross-module private edge либо направлен через одобренный владельцем boundary, либо явно остаётся unresolved; private reach не объявляется закрытым при dynamic residual.
 
-**Distinguishing negative.** A sibling/function-local private import or private attribute must be found even when import-only markers stay green; unresolved dynamic edges cannot be reported closed.
+**Distinguishing negative.** Добавленные function-local private import и cross-module private attribute обнаруживаются resolver даже если import-only markers зелёные; без owner route результат остаётся открытым.
 
-**Matched removal.** Remove the decisive binding for this property while retaining declarations/markers; the named consumer must fail or return its typed unknown/refusal: Every production cross-module private import, function-local import and private-attribute edge is routed through an owner-approved supported boundary or retained as an explicit unresolved dynamic limitation.
+**Matched removal.** Отключить attribute-edge resolution, оставив import checks и markers; неизменённый тест с `self._origins._admit_completed_execution` должен упасть, если gate пропустил edge или заявил полный зелёный boundary.
 
 **Граница контекста.** This card closes private reachability; it does not close public release-fragment API review.
+
+## Первые действия и передача
+
+1. Сгенерировать полный accepted-source reach census production-файлов: module imports, function-local imports и cross-module private-attribute edges; записать roots, file types, exclusions и unresolved dynamic cases.
+2. Для каждого найденного edge приложить canonical owner disposition и supported entrypoint либо оставить именованный bounded dynamic residual; не превращать список примеров в allowlist.
+3. Запустить resolver на sibling/function-local private import и на `self._origins._admit_completed_execution`; сохранить результаты import-only и attribute-aware проходов.
+
+**Ответственность и handoff.** Canonical module owners определяют entrypoints; существующий quality/architecture tooling вычисляет census и проверяет boundary. Не расширять public API ради checker.
+
+Порядок действий внутри назначения не добавляет dependency edges. Примеры проверок дополняют полный назначенный criterion; actual commands/paths закрепляются в [packet](../../../task-decomposition/work-packet.md) после source rebind.
 
 ## Место в цепочке
 

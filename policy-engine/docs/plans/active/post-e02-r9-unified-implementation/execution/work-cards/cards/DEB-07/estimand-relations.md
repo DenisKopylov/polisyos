@@ -14,17 +14,27 @@
 
 **Выход и consumer.** Versioned target-bound relation record consumed by selection/strength comparison.
 
-**Что можно готовить независимо.** Rebind source, owner, consumer and exact lease after P0-ACCEPT where applicable; any earlier census/preparation is only what the original parent stage permits. This card neither adds nor removes a start barrier.
+**Что можно готовить независимо.** После разрешённого исходным stage contract source/lease rebind выполнить первые действия ниже; до разрешённой стадии — только назначенное read-only discovery. Actual supplier outputs нужны при их потреблении, а не для всей независимой подготовки. Карточка не добавляет start barrier.
 
 **Где результат соединяется с другими.** Read the named output through Fresh Foundry requirements/selection consumer.; composition is limited to this property and the exact original scope.
 
-**Positive.** The accepted inputs produce the bounded result and the fresh consumer accepts the scoped property: Binding strength compares only owner-defined equality/derivation/transport relations over the same explicit target, regime, horizon and version.
+**Positive.** Owner-defined equality/derivation/transport relation сравнивает binding strength только при совпадении явных target, regime, horizon и version.
 
-**Distinguishing negative.** Changing regime or horizon invalidates binding; unsupported target relation returns unknown/incomparable.
+**Distinguishing negative.** Отличающийся horizon/regime либо неподдержанное cross-target отношение возвращает typed `incomparable/unknown`; численное значение само не задаёт ordering.
 
-**Matched removal.** Remove the decisive binding for this property while retaining declarations/markers; the named consumer must fail or return its typed unknown/refusal: Binding strength compares only owner-defined equality/derivation/transport relations over the same explicit target, regime, horizon and version.
+**Matched removal.** Отключить target/regime/horizon binding, сохранив relation label; неизменённый test, ожидающий `incomparable/unknown` для изменённого horizon, должен упасть, если consumer считает пару comparable.
 
 **Граница контекста.** Numerical semantics are independent of CORR destination allocation and acquisition cost ownership.
+
+## Первые действия и передача
+
+1. Зафиксировать owner-ratified relation algebra и для выбранных quantity собрать target, regime, horizon и version referents с source identities.
+2. Прогнать существующую equality/derivation/transport relation для пары с одинаковыми referents и сохранить typed result, который читает selection consumer.
+3. Повторить сценарий, изменив только horizon или regime, и сохранить `incomparable/unknown` outcome.
+
+**Ответственность и handoff.** Foundry estimand/method owner ratifies semantics; существующий requirements/selection consumer применяет relation. Межцелевое ordering не вводится по умолчанию.
+
+Порядок действий внутри назначения не добавляет dependency edges. Примеры проверок дополняют полный назначенный criterion; actual commands/paths закрепляются в [packet](../../../task-decomposition/work-packet.md) после source rebind.
 
 ## Место в цепочке
 

@@ -14,17 +14,27 @@
 
 **Выход и consumer.** Append-only fifth merge/replay reissue receipt and fresh scoped current-decision projection.
 
-**Что можно готовить независимо.** Rebind source, owner, consumer and exact lease after P0-ACCEPT where applicable; any earlier census/preparation is only what the original parent stage permits. This card neither adds nor removes a start barrier.
+**Что можно готовить независимо.** После разрешённого исходным stage contract source/lease rebind выполнить первые действия ниже; до разрешённой стадии — только назначенное read-only discovery. Actual supplier outputs нужны при их потреблении, а не для всей независимой подготовки. Карточка не добавляет start barrier.
 
 **Где результат соединяется с другими.** Read the named output through Fresh scientist/validation/decision_validity and UI-19 projection consumer.; composition is limited to this property and the exact original scope.
 
-**Positive.** The accepted inputs produce the bounded result and the fresh consumer accepts the scoped property: Verified successor head/reissue produces an append-only, replayable scoped projection that a fresh current-decision consumer accepts.
+**Positive.** При материальном изменении owning PolicyOS claim и корректном source cut/expected head обе parent refs и merge premise сохраняются в append-only successor; LIF-02 пишет его, fresh UI-19 читает typed current/replay result, а прежний as-known issue остаётся доступен.
 
-**Distinguishing negative.** Merged unrelated bases, stale origin, candidate ID, numerical success alone or hidden programmer error cannot become generic valid/unavailable; historical head remains intact.
+**Distinguishing negative.** Correction/comment/incident/rerun/candidate ID или numerical success без материального claim change не создаёт successor; stale/unbound head не становится current. Для protected production отсутствие issuer admission даёт refusal, но не блокирует candidate construction; missing origin и programming/configuration error имеют разные статусы.
 
-**Matched removal.** Remove the decisive binding for this property while retaining declarations/markers; the named consumer must fail or return its typed unknown/refusal: Verified successor head/reissue produces an append-only, replayable scoped projection that a fresh current-decision consumer accepts.
+**Matched removal.** Отключить source-cut/expected-head/issuer consumption, сохранив epoch labels и success markers; неизменённый protected-reissue test должен упасть, если current successor принимается без этих bindings, а прежний issue остаётся сохранён.
 
 **Граница контекста.** Keep one end-to-end owner vertical; verifier and denominator already exist, and GY-DEF23 identity belongs to DEB-09.
+
+## Первые действия и передача
+
+1. На существующем verifier подготовить transition receipt с обоими predecessor refs, complete merged-state origin, merge premise, resulting merged state, expected prior head и preservation check; прочитать обратно emitted head.
+2. Для material owning-claim correction пройти existing transition verifier/positive denominator; для protected production reissue приложить actual issuer admission, не используя correction event или candidate ID как замену.
+3. Провести один persisted receipt через canonical LIF-02 writer и fresh UI-19 read; сохранить различение current/stale/partial/replay-limited/refusal и missing input vs malformed origin/configuration.
+
+**Ответственность и handoff.** Переход проверяет существующий verifier/denominator; LIF-02 — единственный canonical head writer, UI-19 — projection consumer. GY-DEF23 остаётся typed-empty контекстом DEB-09 и не становится gate этой карточки.
+
+Порядок действий внутри назначения не добавляет dependency edges. Примеры проверок дополняют полный назначенный criterion; actual commands/paths закрепляются в [packet](../../../task-decomposition/work-packet.md) после source rebind.
 
 ## Место в цепочке
 

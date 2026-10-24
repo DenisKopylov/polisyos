@@ -14,17 +14,27 @@
 
 **Выход и consumer.** Complete census, canonical owner disposition, migrated consumer routes if needed and recomputed zero-bypass result or justified no-consumer outcome.
 
-**Что можно готовить независимо.** Rebind source, owner, consumer and exact lease after P0-ACCEPT where applicable; any earlier census/preparation is only what the original parent stage permits. This card neither adds nor removes a start barrier.
+**Что можно готовить независимо.** После разрешённого исходным stage contract source/lease rebind выполнить первые действия ниже; до разрешённой стадии — только назначенное read-only discovery. Actual supplier outputs нужны при их потреблении, а не для всей независимой подготовки. Карточка не добавляет start barrier.
 
 **Где результат соединяется с другими.** Read the named output through Fresh foundry/methods/selection/advisor.py consumer using canonical requirements boundary.; composition is limited to this property and the exact original scope.
 
-**Positive.** The accepted inputs produce the bounded result and the fresh consumer accepts the scoped property: Complete production consumer census leads to canonical owner decision, typed migration only if live duplicate exists, and zero-bypass proof before retirement.
+**Positive.** Полный census находит один реально достижимый flat-manifest consumer; его маршрут мигрирует через canonical typed requirements owner, после чего действующий zero-bypass proof покрывает все заявленные профили. Если census не находит consumer, только owner-reviewed полный trace может дать измеренный no-live-consumer outcome.
 
-**Distinguishing negative.** A hidden sibling consumer, stale census or surviving bypass blocks retirement; a marker or guessed no-consumer result is not proof.
+**Distinguishing negative.** Статический ноль при неучтённом plugin/profile или живой sibling bypass оставляет retirement недопустимым; hit сам по себе не доказывает полный набор потребителей.
 
-**Matched removal.** Remove the decisive binding for this property while retaining declarations/markers; the named consumer must fail or return its typed unknown/refusal: Complete production consumer census leads to canonical owner decision, typed migration only if live duplicate exists, and zero-bypass proof before retirement.
+**Matched removal.** Сначала включить в одинаковый baseline/mutant input достижимый supported-plugin consumer, читающий flat requirements с расходящимся selection result. Затем в mutant отключить полный reachability/zero-bypass mechanism при прежних markers. Неизменённая независимая behavioral assertion canonical-only use должна обнаружить обход и FAIL; отключённый census сам не считается отказывающим.
 
 **Граница контекста.** Keep sequence cohesive because decision and retirement predicate depend on the same complete census; do not separate into artificial code layers.
+
+## Первые действия и передача
+
+1. Сформировать census manifest: все canonical Foundry entry points, source roots, file types, supported profiles, plugin/reflection/loading mechanisms и точные exclusions.
+2. Построить consumer-edge table до flat-manifest parse/normalize/selection с producer и фактическим selection call для каждого найденного пути; отдельно пометить unresolved dynamic edges.
+3. Сохранить owner disposition: если live consumer найден — какой consumer переводится на canonical typed owner; если не найден — какой complete denominator поддерживает no-live-consumer result.
+
+**Ответственность и handoff.** Canonical representation и миграцию решает существующий Foundry requirements owner. Не удалять flat artifact по одному `rg` нулю и не вводить второго writer.
+
+Порядок действий внутри назначения не добавляет dependency edges. Примеры проверок дополняют полный назначенный criterion; actual commands/paths закрепляются в [packet](../../../task-decomposition/work-packet.md) после source rebind.
 
 ## Место в цепочке
 

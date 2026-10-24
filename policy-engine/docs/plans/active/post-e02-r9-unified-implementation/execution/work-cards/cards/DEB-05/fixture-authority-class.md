@@ -14,17 +14,27 @@
 
 **Выход и consumer.** Class-wide caller inventory and producer-generated persisted artifacts consumed by fresh readers; old counts 31/28 remain historical.
 
-**Что можно готовить независимо.** Rebind source, owner, consumer and exact lease after P0-ACCEPT where applicable; any earlier census/preparation is only what the original parent stage permits. This card neither adds nor removes a start barrier.
+**Что можно готовить независимо.** После разрешённого исходным stage contract source/lease rebind выполнить первые действия ниже; до разрешённой стадии — только назначенное read-only discovery. Actual supplier outputs нужны при их потреблении, а не для всей независимой подготовки. Карточка не добавляет start barrier.
 
 **Где результат соединяется с другими.** Read the named output through Fresh reader tests for all discovered payload families, including test.root/test.child siblings.; composition is limited to this property and the exact original scope.
 
-**Positive.** The accepted inputs produce the bounded result and the fresh consumer accepts the scoped property: Across the complete accepted-source caller and payload-kind census, no _with_runtime_fixture_authority caller injects unsupported authority fields for any family.
+**Positive.** Для полного текущего caller/payload-kind census каждый helper вызывает producer-supported serialization, не добавляет unsupported authority fields, а fresh reader принимает соответствующий persisted artifact.
 
-**Distinguishing negative.** Remove helper-field/serialization guard but keep markers: a non-calibration sibling with unsupported authority must fail.
+**Distinguishing negative.** Если non-calibration sibling содержит неподдерживаемое поле, strict reader отказывает; calibration-only round trip не закрывает остальные families.
 
-**Matched removal.** Remove the decisive binding for this property while retaining declarations/markers; the named consumer must fail or return its typed unknown/refusal: Across the complete accepted-source caller and payload-kind census, no _with_runtime_fixture_authority caller injects unsupported authority fields for any family.
+**Matched removal.** Отключить helper field/serialization protection при сохранённых markers и запустить тот же non-calibration sibling test с extra authority field; неизменённый fresh-reader assertion должен упасть, если extra field сохраняется.
 
 **Граница контекста.** One structural helper boundary closes the class; calibration-only round trip is insufficient.
+
+## Первые действия и передача
+
+1. Составить полный accepted-source caller census для `_with_runtime_fixture_authority` с path, payload kind и derived denominator; включить `test.root`/`test.child`, не фиксируя старые 31/28.
+2. Для каждого discovered family сопоставить helper serialization с реальным producer DTO и strict schema; сохранить список полей и extras.
+3. Persist producer-supported payload каждого family и прочитать fresh readers, включая non-calibration sibling; приложить outcomes.
+
+**Ответственность и handoff.** Producer serializers владеют допустимым payload; shared test helper лишь использует их и не пишет authority. Fresh family readers проверяют схему; CAS сам по себе подтверждает только bytes.
+
+Порядок действий внутри назначения не добавляет dependency edges. Примеры проверок дополняют полный назначенный criterion; actual commands/paths закрепляются в [packet](../../../task-decomposition/work-packet.md) после source rebind.
 
 ## Место в цепочке
 

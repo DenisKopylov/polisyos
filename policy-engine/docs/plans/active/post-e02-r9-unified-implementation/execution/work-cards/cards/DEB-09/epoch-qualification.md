@@ -14,17 +14,26 @@
 
 **Выход и consumer.** Purpose-scoped qualification/admission result with explicit typed refusal.
 
-**Что можно готовить независимо.** Rebind source, owner, consumer and exact lease after P0-ACCEPT where applicable; any earlier census/preparation is only what the original parent stage permits. This card neither adds nor removes a start barrier.
+**Что можно готовить независимо.** После разрешённого исходным stage contract source/lease rebind выполнить первые действия ниже; до разрешённой стадии — только назначенное read-only discovery. Actual supplier outputs нужны при их потреблении, а не для всей независимой подготовки. Карточка не добавляет start barrier.
 
 **Где результат соединяется с другими.** Read the named output through Fresh decision-validity/epoch consumer.; composition is limited to this property and the exact original scope.
 
-**Positive.** The accepted inputs produce the bounded result and the fresh consumer accepts the scoped property: Signed policy and exact native relation are admitted only for intended purpose, scope and complete history.
+**Positive.** Существующий qualification path разрешает подписанную policy и exact native relation, сверяет выбранный purpose/scope и полную требуемую историю; fresh consumer принимает только соответствующую qualification.
 
-**Distinguishing negative.** Wrong-purpose or incomplete relation/history remains refused even with valid signature.
+**Distinguishing negative.** Сходство терминов вместо exact relation, неверный purpose или неполная история дают typed refusal, даже если подпись policy валидна.
 
-**Matched removal.** Remove the decisive binding for this property while retaining declarations/markers; the named consumer must fail or return its typed unknown/refusal: Signed policy and exact native relation are admitted only for intended purpose, scope and complete history.
+**Matched removal.** Reconciliation probe (существующий verifier остаётся включён): заменить exact native-relation reference на похожую, но иную relation, сохранив `qualified` marker и policy signature. Проверка точного relation/history binding должна обнаружить несоответствие и сохранить refusal.
 
 **Граница контекста.** Supplemental clause use of DEB-09 U015 is the purpose-scoped qualification subclause; U015 remains primarily routed once to policy-signer. This card consumes signed policy and exact relation, while applied claims remain owned by their own fresh consumer.
+
+## Первые действия и передача
+
+1. Зафиксировать ID подписанной policy и точную native-relation запись с source/content refs, предназначенными purpose и scope.
+2. Составить coverage списка обязательной истории для этой qualification, включая valid/known time; каждый отсутствующий relation/history item отметить отдельно.
+
+**Ответственность и handoff.** Если policy/relation основаны на внешнем акте, сам акт даёт его учреждение; точную relation/history проверяет уже существующий внутренний qualification owner. Новое назначение не создаётся.
+
+Порядок действий внутри назначения не добавляет dependency edges. Примеры проверок дополняют полный назначенный criterion; actual commands/paths закрепляются в [packet](../../../task-decomposition/work-packet.md) после source rebind.
 
 ## Место в цепочке
 

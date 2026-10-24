@@ -14,17 +14,26 @@
 
 **Выход и consumer.** Coverage-bound verified history receipt or typed incomplete-history refusal.
 
-**Что можно готовить независимо.** Rebind source, owner, consumer and exact lease after P0-ACCEPT where applicable; any earlier census/preparation is only what the original parent stage permits. This card neither adds nor removes a start barrier.
+**Что можно готовить независимо.** После разрешённого исходным stage contract source/lease rebind выполнить первые действия ниже; до разрешённой стадии — только назначенное read-only discovery. Actual supplier outputs нужны при их потреблении, а не для всей независимой подготовки. Карточка не добавляет start barrier.
 
 **Где результат соединяется с другими.** Read the named output through Fresh protected epoch-history/current-decision consumer.; composition is limited to this property and the exact original scope.
 
-**Positive.** The accepted inputs produce the bounded result and the fresh consumer accepts the scoped property: Complete-history authenticity is established only by an independent holder whose admitted evidence covers the required history.
+**Positive.** Независимый history holder предоставляет content-bound evidence для всех требуемых epoch/claim events; существующий verifier подтверждает независимость и coverage, после чего consumer принимает complete-history receipt.
 
-**Distinguishing negative.** Partial or self-held history cannot pass as complete independent history.
+**Distinguishing negative.** История, удерживаемая только самим заявителем, либо evidence с одним пропущенным required event не является complete independent history и получает typed refusal.
 
-**Matched removal.** Remove the decisive binding for this property while retaining declarations/markers; the named consumer must fail or return its typed unknown/refusal: Complete-history authenticity is established only by an independent holder whose admitted evidence covers the required history.
+**Matched removal.** Reconciliation probe (существующий verifier остаётся включён): удалить один required event ID из coverage документа, сохранив `complete history` marker. Сверка полного требуемого диапазона должна найти отсутствующий event и вернуть incomplete-history disposition.
 
 **Граница контекста.** History-holder authority is a distinct slot, even where the same institution participates in another act.
+
+## Первые действия и передача
+
+1. Получить из canonical history source перечень требуемых epoch/claim event IDs и границы периода, которые должны покрыть holder.
+2. Записать holder artifact ID, его identity/provenance и покрытие каждого требуемого event ID; отсутствие элемента оставить явным.
+
+**Ответственность и handoff.** Полную историю и независимого holder предоставляет внешний держатель в соответствующем кейсе; PolicyOS проверяет artifact и coverage, но не становится владельцем истории.
+
+Порядок действий внутри назначения не добавляет dependency edges. Примеры проверок дополняют полный назначенный criterion; actual commands/paths закрепляются в [packet](../../../task-decomposition/work-packet.md) после source rebind.
 
 ## Место в цепочке
 

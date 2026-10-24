@@ -47,7 +47,7 @@ Source-manifest base: `ec3d7d38b4d246b3e1d225a1c0fc9aefae9ced0d`; это не pl
   `solution.composition_contracts[3]`
 - **binding** — 304 requires a matching readable root; the range/gap subclause is separately routed to continuation.
   `solution.implementation_steps[2]`
-- **execute** — Current route matches: capture bounded response content and receipt for one response; use a source-native cut only when the source supplies it.
+- **execute** — capture bounded response content and receipt for one response; use a source-native cut only when the source supplies it.
   `task.r19_extension.question_slices[0]` (`R18-D15-Q02`); `task.r19_extension.question_ids[0]` (`R18-D15-Q02`)
 
 Inherited owner/lease/stage/activation constraints указаны в parent contract. Root/lead проверяет полное parent coverage; output этой карточки не закрывает siblings. При обнаружении пропуска остановить только affected writes/acceptance, назвать точный clause и reconciled next owner.

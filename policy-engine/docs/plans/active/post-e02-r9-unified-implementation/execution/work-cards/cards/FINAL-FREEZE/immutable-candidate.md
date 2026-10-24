@@ -14,17 +14,25 @@
 
 **Выход и consumer.** Immutable freeze candidate manifest with source/input/backend identity, internal readiness, open external facts and exact replay matrix.
 
-**Что можно готовить независимо.** Rebind source, owner, consumer and exact lease after P0-ACCEPT where applicable; any earlier census/preparation is only what the original parent stage permits. This card neither adds nor removes a start barrier.
+**Что можно готовить независимо.** После разрешённого исходным stage contract source/lease rebind выполнить первые действия ниже; до разрешённой стадии — только назначенное read-only discovery. Actual supplier outputs нужны при их потреблении, а не для всей независимой подготовки. Карточка не добавляет start barrier.
 
 **Где результат соединяется с другими.** Root freezes the exact source/input/backend/rule/manifest and readiness/disposition matrix; FINAL-REVIEW reads this immutable candidate. FINAL-REPLAY is later and cannot be a prerequisite for this freeze. Scope selection follows original conditions, never relabels a missing mandatory facet as unselected.
 
-**Positive.** Every selected internal capability has reviewed owner-readiness evidence and a bound candidate identity; unresolved genuine external facts are included as unresolved, and FINAL-REVIEW can inspect the exact candidate without claiming original closure.
+**Positive.** Global P0 reconciliation is complete and every selected internal mechanism has reviewed owner-readiness; the immutable candidate contains the selected matrix and truthful dispositions, with genuine external unknowns visible and no closure claimed.
 
-**Distinguishing negative.** An internal missing producer, unresolved owner, stale source or omitted conditional artifact blocks freeze; external unknown is visible, never closure credit.
+**Distinguishing negative.** A selected missing internal producer, unknown owner, stale source, or omitted mandatory selected row blocks freeze; a genuine external unknown remains explicit and does not become green credit. Lack of final replay or an unclosed original alone does not block this predecessor freeze.
 
-**Matched removal.** Keep green readiness labels but omit a selected internal producer/result or substitute an upstream version in the freeze matrix; readback must block freeze or identify the exact unresolved row. Removing final replay output alone must not block its predecessor freeze.
+**Matched removal.** Remove a selected conditional supplier/output binding while leaving its declaration and readiness label; freeze must show that row unresolved or block. Removing a later FINAL-REPLAY output alone must not block freeze.
 
 **Граница контекста.** One read-only coordination checkpoint is the right unit; no leaf implementation and no newly relaxed global gate.
+
+## Первые действия и передача
+
+1. Read back completed global P0-REBIND and reviewed owner-readiness evidence for every selected internal mechanism, including the exact version and required companions.
+2. Resolve the commissioned case/profile and selected mandatory/replay matrix from canonical original criteria and activation rules; retain genuine unavailable external facts with owner and re-entry trigger, without closure credit.
+3. Record an immutable review candidate in the existing journal with tree, manifest, input/backend/profile, rule/schema and upstream identities, current dispositions, and the selected matrix; hand that exact candidate to FINAL-REVIEW.
+
+Порядок действий внутри назначения не добавляет dependency edges. Примеры проверок дополняют полный назначенный criterion; actual commands/paths закрепляются в [packet](../../../task-decomposition/work-packet.md) после source rebind.
 
 ## Место в цепочке
 

@@ -14,17 +14,27 @@
 
 **Выход и consumer.** Full resolved OAD and client-input digest/receipt, including bounded unresolved/cycle outcome.
 
-**Что можно готовить независимо.** Rebind source, owner, consumer and exact lease after P0-ACCEPT where applicable; any earlier census/preparation is only what the original parent stage permits. This card neither adds nor removes a start barrier.
+**Что можно готовить независимо.** После разрешённого исходным stage contract source/lease rebind выполнить первые действия ниже; до разрешённой стадии — только назначенное read-only discovery. Actual supplier outputs нужны при их потреблении, а не для всей независимой подготовки. Карточка не добавляет start barrier.
 
 **Где результат соединяется с другими.** Read the named output through Fresh runtime OpenAPI export/client generation consumer.; composition is limited to this property and the exact original scope.
 
-**Positive.** The accepted inputs produce the bounded result and the fresh consumer accepts the scoped property: Identical admitted source, lock, exporter/toolchain and declared profile yield the same full OpenAPI Description and generated client inputs across controlled environments.
+**Positive.** При одинаковых admitted source, lock, profile и реально значимых toolchain inputs два окружения дают один digest полного OAD со всеми refs и одинаковые generated-client inputs.
 
-**Distinguishing negative.** Digesting only the entry document, dropping an unresolved/cyclic ref, or allowing unrelated host path/clock to alter output fails the property.
+**Distinguishing negative.** Missing/unresolved reference либо цикл, который выбранный resolver не может корректно представить, оставляет export неполным с явным bounded результатом. Поддержанную рекурсивную schema нельзя отвергать лишь за наличие цикла; digest только entry document не принимается как полный snapshot.
 
-**Matched removal.** Remove the decisive binding for this property while retaining declarations/markers; the named consumer must fail or return its typed unknown/refusal: Identical admitted source, lock, exporter/toolchain and declared profile yield the same full OpenAPI Description and generated client inputs across controlled environments.
+**Matched removal.** Отключить разрешение reference closure, сохранив entry digest и markers; неизменённый тест меняет только schema разрешённого `$ref` при прежнем entry document и должен упасть из-за неверного digest полного OAD.
 
 **Граница контекста.** This surface/export property has separate source, environment and falsifier from the semantic packaging-config budget.
+
+## Первые действия и передача
+
+1. Для одного export записать accepted source/lock, profile, exporter/tool versions и только те environment dimensions, которые меняют OAD bytes.
+2. Собрать полное reference closure OAD, включая generated-client inputs; приложить resolved refs, digest и список missing/cyclic/unresolved refs.
+3. Сравнить экспорт в двух controlled environments, затем отдельно изменить API schema/разрешённый ref и unrelated host path/clock; сохранить, какие изменения должны менять digest.
+
+**Ответственность и handoff.** Существующие OpenAPI exporter/client-generation owners создают export и inputs; свежий generator потребляет их. Внешние refs ограничиваются принятой policy, без неограниченного crawl.
+
+Порядок действий внутри назначения не добавляет dependency edges. Примеры проверок дополняют полный назначенный criterion; actual commands/paths закрепляются в [packet](../../../task-decomposition/work-packet.md) после source rebind.
 
 ## Место в цепочке
 

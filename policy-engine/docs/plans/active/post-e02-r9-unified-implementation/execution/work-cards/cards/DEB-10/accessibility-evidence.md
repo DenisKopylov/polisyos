@@ -14,17 +14,26 @@
 
 **Выход и consumer.** Content-bound pass/partial/limited/contested assessment with sample and time limitations.
 
-**Что можно готовить независимо.** Rebind source, owner, consumer and exact lease after P0-ACCEPT where applicable; any earlier census/preparation is only what the original parent stage permits. This card neither adds nor removes a start barrier.
+**Что можно готовить независимо.** После разрешённого исходным stage contract source/lease rebind выполнить первые действия ниже; до разрешённой стадии — только назначенное read-only discovery. Actual supplier outputs нужны при их потреблении, а не для всей независимой подготовки. Карточка не добавляет start barrier.
 
 **Где результат соединяется с другими.** Read the named output through Fresh accessibility/document consumer for the selected carrier.; composition is limited to this property and the exact original scope.
 
-**Positive.** The accepted inputs produce the bounded result and the fresh consumer accepts the scoped property: Independent report supports only its exact content/carrier/sample/criteria/evaluator/time scope; sample limits remain visible.
+**Positive.** Независимый report связывает текущий DES-06 content/carrier и browser/print/document instance, указывает criteria version, evaluator, time, sample и exclusions; существующий verifier принимает только это заявленное покрытие как pass/partial/limited/contested.
 
-**Distinguishing negative.** Changing content invalidates binding; unsampled critical content cannot hide behind universal overall pass.
+**Distinguishing negative.** Старый HTML receipt для текущего DOCX/print, изменённый content или непроверенная критическая страница не подтверждают universal accessibility; sample limitation остаётся видимой.
 
-**Matched removal.** Remove the decisive binding for this property while retaining declarations/markers; the named consumer must fail or return its typed unknown/refusal: Independent report supports only its exact content/carrier/sample/criteria/evaluator/time scope; sample limits remain visible.
+**Matched removal.** Reconciliation probe (существующий evidence verifier остаётся включён): заменить content digest или carrier/instance reference в report, сохранив `accessibility pass` marker. Проверка должна обнаружить несовпадение выбранного текущего content и вернуть not_established.
 
 **Граница контекста.** External assessment is separate from DS18 second-print checkpoint reconciliation and cannot claim comprehension.
+
+## Первые действия и передача
+
+1. Определить выбранный DES-06 carrier, точный content digest и текущий browser/print/document instance вместе с accessibility criteria version.
+2. Получить у независимого evaluator report schema, выборку и exclusions, затем записать evaluator provenance/time и точную привязку каждого проверенного элемента к выбранному instance.
+
+**Ответственность и handoff.** Фактический report и границы оценки даёт независимый evaluator. Внутренние verifier и projection принимают/показывают только его ограниченное покрытие; это не evidence comprehension и не self-countersign.
+
+Порядок действий внутри назначения не добавляет dependency edges. Примеры проверок дополняют полный назначенный criterion; actual commands/paths закрепляются в [packet](../../../task-decomposition/work-packet.md) после source rebind.
 
 ## Место в цепочке
 

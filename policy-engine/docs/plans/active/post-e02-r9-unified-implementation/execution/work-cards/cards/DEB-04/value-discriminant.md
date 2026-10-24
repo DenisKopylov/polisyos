@@ -14,17 +14,27 @@
 
 **Выход и consumer.** Resolved producer-bound discriminant receipt and typed refusal for malformed/unresolved bytes.
 
-**Что можно готовить независимо.** Rebind source, owner, consumer and exact lease after P0-ACCEPT where applicable; any earlier census/preparation is only what the original parent stage permits. This card neither adds nor removes a start barrier.
+**Что можно готовить независимо.** После разрешённого исходным stage contract source/lease rebind выполнить первые действия ниже; до разрешённой стадии — только назначенное read-only discovery. Actual supplier outputs нужны при их потреблении, а не для всей независимой подготовки. Карточка не добавляет start barrier.
 
 **Где результат соединяется с другими.** Read the named output through Fresh runtime value gate exercised by tests/unit/runtime/quality/test_value_gate.py.; composition is limited to this property and the exact original scope.
 
-**Positive.** The accepted inputs produce the bounded result and the fresh consumer accepts the scoped property: Value gate accepts only exact producer/schema discriminant bytes and rejects unresolved or malformed values.
+**Positive.** Value gate принимает только bytes, которые actual producer выдаёт по bound schema и которые соответствуют точному discriminant; fresh runtime test читает этот результат.
 
-**Distinguishing negative.** Same marker with wrong/missing discriminant bytes cannot pass; unresolved expected bytes remain not_established.
+**Distinguishing negative.** Missing, malformed или не совпадающие с producer bytes отвергаются; если expected bytes не установлены, статус остаётся `not_established`, а не подменяется придуманной константой.
 
-**Matched removal.** Remove the decisive binding for this property while retaining declarations/markers; the named consumer must fail or return its typed unknown/refusal: Value gate accepts only exact producer/schema discriminant bytes and rejects unresolved or malformed values.
+**Matched removal.** Отключить byte/schema discriminator comparison, сохранив marker и остальные artifact fields; неизменённый runtime test с теми же неверными bytes должен упасть, если gate их принимает.
 
 **Граница контекста.** A schema/producer truth mismatch is separate from the catalog fixture and education-red provenance.
+
+## Первые действия и передача
+
+1. Снять точные bytes от actual artifact producer, schema field/path и content identity; приложить producer-owner решение о том, какие bytes являются ожидаемыми.
+2. Прогнать эти bytes через существующий value gate и сохранить typed outcome; отдельно получить результаты для missing, malformed и unresolved expected bytes.
+3. Для каждого варианта менять только discriminator bytes, оставляя остальной artifact и marker неизменными.
+
+**Ответственность и handoff.** Producer/schema owner подтверждает canonical bytes; существующий value-gate consumer сравнивает их. Ни один ожидаемый discriminant не выдумывается.
+
+Порядок действий внутри назначения не добавляет dependency edges. Примеры проверок дополняют полный назначенный criterion; actual commands/paths закрепляются в [packet](../../../task-decomposition/work-packet.md) после source rebind.
 
 ## Место в цепочке
 

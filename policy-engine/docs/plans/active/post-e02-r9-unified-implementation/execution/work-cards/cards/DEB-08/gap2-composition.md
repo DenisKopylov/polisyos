@@ -14,17 +14,26 @@
 
 **Выход и consumer.** Versioned composition rule or typed blocked/unknown ledger result.
 
-**Что можно готовить независимо.** Rebind source, owner, consumer and exact lease after P0-ACCEPT where applicable; any earlier census/preparation is only what the original parent stage permits. This card neither adds nor removes a start barrier.
+**Что можно готовить независимо.** После разрешённого исходным stage contract source/lease rebind выполнить первые действия ниже; до разрешённой стадии — только назначенное read-only discovery. Actual supplier outputs нужны при их потреблении, а не для всей независимой подготовки. Карточка не добавляет start barrier.
 
 **Где результат соединяется с другими.** Read the named output through Fresh confidence-ledger consumer.; composition is limited to this property and the exact original scope.
 
-**Positive.** The accepted inputs produce the bounded result and the fresh consumer accepts the scoped property: No combined confidence is emitted across scopes without an owner-approved composition rule and explicit dependence assumptions; incompatible scope remains unknown/incomparable.
+**Positive.** Для конкретных source scopes product owner утвердил версионированное правило и явные dependence assumptions; confidence ledger применяет это правило к content-bound входам и выдаёт значение только для покрытой им пары scope.
 
-**Distinguishing negative.** Unknown/incomparable cross-scope inputs never yield combined value.
+**Distinguishing negative.** Неутверждённая пара scopes либо неизвестная/несовместимая dependence не даёт combined confidence; ledger возвращает unknown/incomparable, а не синтезирует общий балл.
 
-**Matched removal.** Remove the decisive binding for this property while retaining declarations/markers; the named consumer must fail or return its typed unknown/refusal: No combined confidence is emitted across scopes without an owner-approved composition rule and explicit dependence assumptions; incompatible scope remains unknown/incomparable.
+**Matched removal.** Mechanism-removal probe (неизменённая semantic assertion находится вне отключённого ledger composition step): отключить только существующую проверку совместимости scopes/dependence, сохранив правило и markers; подать несовместимые scopes. Независимая проверка «combined value не выдано без разрешённой композиции» должна увидеть emitted combined value и FAIL; не утверждать, что отключённый step сам откажет.
 
 **Граница контекста.** Decision-limited semantics; not a missing producer and not blanket GYD-31 dependency.
+
+## Первые действия и передача
+
+1. Собрать строки текущих GY-GAP2 source scopes с producer refs и заявленными dependence assumptions; каждую пару отметить comparable или unresolved с основанием.
+2. Подготовить для product owner decision record: какие scope combinations допустимы, при каких dependence assumptions и какую версию правила читает ledger; до решения результат остаётся unknown/incomparable.
+
+**Ответственность и handoff.** Это внутреннее решение владельца продукта о значении confidence, не отсутствующий producer и не внешний институциональный акт. Пока решения нет, корректный результат — unknown.
+
+Порядок действий внутри назначения не добавляет dependency edges. Примеры проверок дополняют полный назначенный criterion; actual commands/paths закрепляются в [packet](../../../task-decomposition/work-packet.md) после source rebind.
 
 ## Место в цепочке
 

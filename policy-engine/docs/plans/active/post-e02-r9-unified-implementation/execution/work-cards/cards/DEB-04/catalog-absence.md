@@ -14,17 +14,27 @@
 
 **Выход и consumer.** Typed missing-catalog refusal from the real loader and a source-qualified test receipt.
 
-**Что можно готовить независимо.** Rebind source, owner, consumer and exact lease after P0-ACCEPT where applicable; any earlier census/preparation is only what the original parent stage permits. This card neither adds nor removes a start barrier.
+**Что можно готовить независимо.** После разрешённого исходным stage contract source/lease rebind выполнить первые действия ниже; до разрешённой стадии — только назначенное read-only discovery. Actual supplier outputs нужны при их потреблении, а не для всей независимой подготовки. Карточка не добавляет start barrier.
 
 **Где результат соединяется с другими.** Read the named output through Fresh production catalog loader/census consumer exercised by tests/repo_quality/tools/test_layer3_gy_n13a_acquisition_census.py.; composition is limited to this property and the exact original scope.
 
-**Positive.** The accepted inputs produce the bounded result and the fresh consumer accepts the scoped property: Removing the canonical catalog from an explicit fixture produces the same typed fail-closed result as the real production loader.
+**Positive.** Когда fixture содержит canonical catalog, реальный loader разрешает именно этот artifact и возвращает соответствующий typed result.
 
-**Distinguishing negative.** Delete the canonical file while preserving markers/layout; loader must refuse rather than infer absence from directory shape.
+**Distinguishing negative.** После удаления canonical catalog тот же loader выдаёт typed missing/refusal; layout репозитория или оставшиеся markers не превращают отсутствие файла в availability или empty catalog.
 
-**Matched removal.** Remove the decisive binding for this property while retaining declarations/markers; the named consumer must fail or return its typed unknown/refusal: Removing the canonical catalog from an explicit fixture produces the same typed fail-closed result as the real production loader.
+**Matched removal.** Отключить resolve/check canonical catalog, оставив directory layout и markers; неизменённый loader test без artifact должен упасть, если отсутствие перестало давать typed refusal.
 
 **Граница контекста.** This validates actual catalog input absence, independent of GY-DEF22’s owner acceptance.
+
+## Первые действия и передача
+
+1. Создать explicit temporary catalog fixture через реальный producer и сохранить canonical artifact identity.
+2. Удалить именно этот canonical artifact из fixture, не меняя repo layout и тестовые markers; вызвать production loader и сохранить typed outcome.
+3. Сопоставить present/missing input результаты на одном loader, включая source-qualified receipt отказа.
+
+**Ответственность и handoff.** Catalog/discovery runtime producer владеет catalog; production loader его потребляет. Отсутствие определяется fixture input на runtime boundary, не формой репозитория.
+
+Порядок действий внутри назначения не добавляет dependency edges. Примеры проверок дополняют полный назначенный criterion; actual commands/paths закрепляются в [packet](../../../task-decomposition/work-packet.md) после source rebind.
 
 ## Место в цепочке
 

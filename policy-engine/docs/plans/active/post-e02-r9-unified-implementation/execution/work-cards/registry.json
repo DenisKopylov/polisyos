@@ -1,5 +1,5 @@
 {
-  "revision": "R27",
+  "revision": "R28",
   "kind": "documentation_work_card_navigation_not_runtime_schema_or_progress_tracker",
   "base_commit": "ec3d7d38b4d246b3e1d225a1c0fc9aefae9ced0d",
   "base_commit_semantics": "Immutable source-manifest base, distinct from the current plan_commit supplied by the dispatch packet.",
@@ -16481,7 +16481,7 @@
       }
     }
   ],
-  "current_review_ref": "../../assurance/r27-card-redteam.md",
+  "current_review_ref": "../../assurance/r28-executor-clarity.md",
   "review_inputs_semantics": "Historical R26 scratch provenance; may be unavailable in another checkout. Operative scope comes from tracked source manifests, current work cards and actual dispatch packet/journal, not scratch receipts.",
   "review_inputs": [
     {

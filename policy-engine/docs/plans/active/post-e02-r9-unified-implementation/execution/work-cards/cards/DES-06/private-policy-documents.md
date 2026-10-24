@@ -18,13 +18,24 @@
 
 **Где результат соединяется с другими.** Join selected legal/metric/LLM evidence to exact rendition bytes. For current-use views, consume admitted LIF-02 currentness/revalidation and LIF-05 rights outcomes after law/source/rights changes; DES-06 projects these outcomes to affected spans/cells and routes re-evaluation through the existing document/lifecycle path. A new qualified edition links to its predecessor; old-as-known access still needs current audience/rights. CNT-09 projects only permitted case output; HTML preview is not export proof.
 
-**Positive.** A substantive options/proposed-measure/explanation set traces material statements and recomputes selected derivations where required; the actual DOCX text/tables preserve semantic roles and a new profile preserves basis without central domain edits.
+**Positive.** Свежий разрешённый private reader открывает содержательный options/proposed-measure/explanation set, трассирует claims и пересчитывает выбранные числа при наличии нужной разрешённой основы. Иначе он принимает только отдельно разрешённый и достаточно проверенный retained result с явными replay limits и отказывает лишь raw-dependent uses; независимый DOCX reader читает точный текст/таблицы/roles.
 
-**Distinguishing negative.** Unsupported claims remain proposals. Changed denominator/rounding, missing qualification, counterfeit rendition, restricted audience or candidate-as-enactment refuses the affected use. After an admitted law/source/rights change, unchanged old bytes cannot keep an unsupported current passage green; unaffected spans need not become stale.
+**Distinguishing negative.** Предложение не выглядит как enactment; LLM summary не теряет material limitation; изменённые denominator/rounding, invented act, counterfeit DOCX и несовпадающие audience/rights не дают trusted view. После admitted law/source/rights change устаревший affected span не остаётся current, а unrelated spans не stale-ятся автоматически.
 
-**Matched removal.** Keep citations/watermark/section labels but remove quantity/status/source binding, or replace real DOCX bytes with HTML-in-JSON; fidelity and real-format checks fail.
+**Matched removal.** Оставь claims, quantities и bytes, отключи source/quantity/status-to-span binding, затем измени material sentence/cell и сохрани старый sidecar. Неизменённая независимая проверка ожидает, что изменённый текст не наследует support; если fresh view доверяет ему, assertion должна FAIL. Аналогично подмена реального carrier на HTML-in-JSON при прежних name/MIME должна провалить неизменённую format assertion. Отдельный missing-basis case проверяет ограничение нужного use, а не removal property.
 
 **Граница контекста.** One document capability, executed as same-writer checkpoints: semantic/source and audience binding; persisted edition and real bytes; fresh semantic/format readback; admitted change → affected-span currentness → re-evaluation/new linked edition; selected retained-result use after lawful raw erasure. Lifecycle/currentness, erasure and rights decisions remain with LIF owners; DES-07 owns edit-back. Do not assign these as concurrent writers of the shared edition schema.
+
+## Первые действия и передача
+
+1. После E02 rebind найди PolicyArtifactBundle/BureaucraticDocument producer и export/read paths; согласуй общий versioned schema с DES-07, который потребляет её для edit-back, не становится вторым writer.
+2. Для выбранного case привяжи каждый material paragraph/cell к exact claim/quantity/provision, role, source version, audience, purpose, edition и proposed/authorized/observed status; DES-05, GYD-05 и DES-09 inputs бери только для фактически использованных claims.
+3. Из native refs собери выбранные options/explanation/impact материалы и сохрани candidate edition с реальными DOCX/PDF bytes; независимые semantic и carrier readers должны читать тот же output.
+4. Подключи выбранные dependencies к LIF-02/LIF-05, сохраняя старую edition и отмечая только затронутые spans. При lawful raw erasure различай разрешённый достаточно проверенный retained result от raw-dependent recomputation без основы.
+
+**Ответственность и handoff.** DES-06 владеет document producer/schema/export по одному согласованному lease; DES-07 владеет import/edit-back и потребляет версионированную схему. LIF-02 решает currentness, LIF-05 — rights; DES-06 только проецирует их по зависимым spans. Handoff: свежий разрешённый private semantic reader и независимый reader реальных DOCX/PDF bytes; CNT-09 получает только разрешённый selected case output. Public prose release вне этого пути.
+
+Порядок действий внутри назначения не добавляет dependency edges. Примеры проверок дополняют полный назначенный criterion; actual commands/paths закрепляются в [packet](../../../task-decomposition/work-packet.md) после source rebind.
 
 ## Место в цепочке
 

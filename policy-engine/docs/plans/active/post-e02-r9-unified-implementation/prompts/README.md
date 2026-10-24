@@ -8,4 +8,10 @@ The prompt is an implementation aid, not a replacement for canonical AGENTS/CONT
 
 R19 companion входит в orchestrator/lead/writer/supplier/reviewer/verification prompts: [84 решения](../solutions/lifecycle-r19/README.md), [диспетчеризация](../execution/10-full-lifecycle-parallelism.md). В grant указываются только относящиеся к назначенной работе exact slices и стадии; перечень 84 не является единым блокирующим gate.
 
-R26: начальная единица назначения — [рабочая карточка](../execution/work-cards/README.md) с `{work_card_id}`, `{plan_commit}` и exact clauses из coverage. [Группа](../execution/work-cards/overview.md) показывает назначение, parent page — siblings и общий join. Root/lead сохраняет весь parent scope; leaf не читает все группы. Проверяйте conditional/execution relations отдельно от direct preparation edges.
+Начальная единица назначения — [рабочая карточка](../execution/work-cards/README.md) с `{work_card_id}`, `{plan_commit}` и exact clauses из coverage. [Группа](../execution/work-cards/overview.md) показывает назначение, parent page — siblings и общий join. Root/lead сохраняет весь parent scope; leaf не читает все группы. Проверяйте conditional/execution relations отдельно от direct preparation edges.
+
+R28: [порядок для исполнителя](../execution/work-cards/executor-guide.md) и
+консолидированный writer prompt применяют все назначенные source clauses без
+чтения истории редакций как дополнительного задания. Root заполняет первые
+действия, native owner/consumer, actual refs и сценарии проверок в packet.
+Текст шаблона и исторический source snapshot не являются actual dispatch grant.

@@ -43,15 +43,15 @@ Source-manifest base: `ec3d7d38b4d246b3e1d225a1c0fc9aefae9ced0d`; это не pl
   `task.r16_extension.requirement`; `task.r16_extension.positive`; `task.r16_extension.adversarial`; `task.r16_extension.removal`; `task.r16_extension.delivery_slices[0]`; `task.r16_extension.quality_cases[0]`; `task.r16_extension.quality_cases[1]`; `task.r16_extension.quality_cases[2]`; `task.r16_extension.product_verification`; `task.r17_extension.requirement`; `task.r17_extension.positive`; `task.r17_extension.adversarial`; `task.r17_extension.removal`; `solution.preferred_solution`; `solution.implementation_steps[1]`; `solution.free_grow.extension_boundary`; `solution.composition_contracts[1]`; `solution.deviation_triggers[1]`
 - **binding** — Q12 late corrections preserve source/effective/known time roles; local observation order is not external order.
   `task.r17_extension.quality_cases[3]`
-- **execute** — Current route matches: a source-qualified change/correction carries its own coverage and effective/known times; late corrections replay through the existing currentness owner.
+- **execute** — a source-qualified change/correction carries its own coverage and effective/known times; late corrections replay through the existing currentness owner.
   `task.r19_extension.question_slices[0]` (`R18-D15-Q02`); `task.r19_extension.question_ids[3]` (`R18-D15-Q02`)
-- **execute** — Current route matches: only actually supplied or source/custodian-supported corrections become events; CNT-06 metrics update their own claims and are not recast as source events.
+- **execute** — only actually supplied or source/custodian-supported corrections become events; CNT-06 metrics update their own claims and are not recast as source events.
   `task.r19_extension.question_slices[1]` (`R18-D03-Q03`); `task.r19_extension.question_ids[0]` (`R18-D03-Q03`)
-- **execute** — Current route matches: persist actual source event, cut, and correction lineage; an empty inbox or duplicate is not an adjudication or proof of no harm.
+- **execute** — persist actual source event, cut, and correction lineage; an empty inbox or duplicate is not an adjudication or proof of no harm.
   `task.r19_extension.question_slices[4]` (`R18-D22-Q05`); `task.r19_extension.question_ids[9]` (`R18-D22-Q05`)
-- **execute** — Current route matches: the actual supplier shutdown notice is a source-specific lifecycle event, not a universal scheduler signal.
+- **execute** — the actual supplier shutdown notice is a source-specific lifecycle event, not a universal scheduler signal.
   `task.r19_extension.question_slices[8]` (`R18-D17-Q04`); `task.r19_extension.question_ids[5]` (`R18-D17-Q04`)
-- **execute** — Current route matches: persist source/time/coverage for the material event; its label alone cannot establish a regime change.
+- **execute** — persist source/time/coverage for the material event; its label alone cannot establish a regime change.
   `task.r19_extension.question_slices[9]` (`R18-D20-Q05`); `task.r19_extension.question_ids[6]` (`R18-D20-Q05`)
 
 ### Обязанности внутри составных fragments

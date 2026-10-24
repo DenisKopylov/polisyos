@@ -5,6 +5,13 @@
 Не заполнять неизвестные inputs выдуманными defaults. Неразрешённая обязательная
 граница препятствует affected dispatch/acceptance по существующим stage rules.
 
+[Порядок R28 для исполнителя](../work-cards/executor-guide.md) объясняет заполнение.
+Root выдаёт заполненный packet с действующим operative смыслом. Ссылки на прежние
+редакции обеспечивают трассировку, но не заставляют leaf собирать действующее
+задание по истории. Unknown source/path можно назначить как read-only discovery;
+его неизвестность не разрешает запись и не превращает внутреннюю работу во
+внешний input hold.
+
 ## 1. Identity и результат
 
 - `parent_task_ids`, `slice_id`, роль (`implementation`, `verification`, `input`,
@@ -31,6 +38,14 @@ fresh consumer → permitted surface. Для verification роли — та же
 из ядра и перечисленных normative inputs; не из названия задачи или истории чата.
 История отвергнутых вариантов и широкая библиография доступны по точным ссылкам
 для углубления. Они не должны скрывать действующее решение.
+
+Указать предметные первые действия и результат каждого: установленный owner,
+найденный producer/consumer path, различающий baseline, выбранный input/output
+или первый проверяемый checkpoint. Не заменять действия общим «изучи/rebind».
+Отдельно назвать, что исполнитель выбирает сам внутри контракта, что потребляет
+от supplier, и какое изменение требует решения root/компетентного владельца.
+Если одна карточка затрагивает несколько native owners, root назначает существующие
+coordinating leases/consumer changes явно; название карточки не создаёт нового owner.
 
 ## 3. Coverage и границы
 
@@ -70,6 +85,20 @@ mandatory companions, ресурсы и stop/recovery rule. При неизве�
 - Immutable candidate, complete footprint/outputs, review scope, remaining
   obligations и update parent coverage. Публикация slice не равна parent closure.
 
+Для каждой решающей проверки заполнить: source criterion, сценарий/input,
+действие, observable/oracle, expected verdict, actual test path/command и стадию
+запуска. Input negative и mechanism removal — разные строки: при испорченном
+входе исправный consumer ограничивает/отказывает и тест проходит; при отключённом
+механизме неизменённый semantic test должен провалиться. Documentary corruption
+портит отдельную копию evidence/route при действующем reconciliation. Не требовать,
+чтобы отключённый guard сам продолжал защищать свойство. Сценарии — witnesses
+полного criterion, не разрешение сузить набор profiles/consumers до примера.
+
+Применимость и стадия quality case отмечаются явно: owner-readiness, selected
+composition, финальный replay либо исходный disposition. Включение case в frozen
+denominator не означает, что финальный replay уже выполнен до freeze. Роли/стадии
+берутся из существующих contracts, не превращаются в новые product enums.
+
 ## 6. Проверка перед выдачей
 
 Root отвечает на два вопроса: «сможет ли исполнитель удерживать всё нужное для
@@ -77,6 +106,11 @@ Root отвечает на два вопроса: «сможет ли испол
 ответ требует скрытого знания из старого чата либо чтения всех siblings, packet
 переделывается. Если свойство объективно неделимо, сохраняется больший связный
 контекст; сокращение путём утраты требований запрещено.
+
+Независимый читатель должен назвать первые действия, output, чужой supplier,
+negative/removal и remaining join по выданному packet. Если человек и машинный
+route называют разных accountable receivers, исправляются оба представления
+перед affected dispatch; исполнитель не выбирает удобную версию сам.
 
 Допустимый перенос: следующий same-writer checkpoint или назначенный successor
 получает exact contract/result refs и оставшуюся работу. Не существует требования

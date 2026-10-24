@@ -14,17 +14,27 @@
 
 **Выход и consumer.** Versioned gross EVSI or cost-bound net/ENBS artifact with provenance/refusal, consumed by fresh route/UI projection.
 
-**Что можно готовить независимо.** Atlas/DS15 scope owner together with P0/root appoint the actual metric owner and native producer. If the internal producer is absent, inspect reuse/extend options and propose or assign the smallest native mechanism; do not classify this as unavailable external data by default. External measure/authority premises remain separately qualified.
+**Что можно готовить независимо.** После разрешённого исходным stage contract source/lease rebind выполнить первые действия ниже; до разрешённой стадии — только назначенное read-only discovery. Actual supplier outputs нужны при их потреблении, а не для всей независимой подготовки. Карточка не добавляет start barrier.
 
 **Где результат соединяется с другими.** Read the named output through Fresh DS15/UI-17 selected-route consumer; CAP-03 receipt is consumed only when the selected metric requires cost.; composition is limited to this property and the exact original scope.
 
-**Positive.** The accepted inputs produce the bounded result and the fresh consumer accepts the scoped property: A versioned source-bound numeric-VOI result reaches a fresh DS15/UI-17 consumer under explicit refusal when its supported basis is absent; gross EVSI is independent of cost.
+**Positive.** Для owner-commissioned finite case с заданным набором actions exact finite-sum EVSI recomputation совпадает с независимым oracle и меняется при смене owner-bound utility/likelihood. Без CAP-03 cost тот же gross EVSI остаётся доступен с явной cost limitation; net/ENBS route не проходит без соответствующей стоимости.
 
-**Distinguishing negative.** Fixture cost, unsupported oracle, hidden scope narrowing, or missing required cost cannot rank a production route; gross EVSI must not be blocked by cost.
+**Distinguishing negative.** Неизвестная utility, observation law, population или horizon, entropy вместо decision-specific EVSI либо caller-supplied ranking сохраняет typed refusal. Отсутствие cost блокирует только net/ENBS/cost-sensitive use, не поддержанный gross EVSI.
 
-**Matched removal.** Remove the decisive binding for this property while retaining declarations/markers; the named consumer must fail or return its typed unknown/refusal: A versioned source-bound numeric-VOI result reaches a fresh DS15/UI-17 consumer under explicit refusal when its supported basis is absent; gross EVSI is independent of cost.
+**Matched removal.** Reconciliation probe (существующий DS15 recomputing consumer остаётся включён): заменить owner-bound likelihood в source input, сохранив предыдущий metric artifact и `EVSI`/`ranked` markers. Consumer должен обнаружить несовпадение binding и пересчитать значение либо вернуть typed refusal; сохранение старого результата нарушает неизменённое утверждение о recomputation.
 
 **Граница контекста.** One sequence retains formula-to-artifact-to-consumer; do not split arithmetic from use or merge cost ownership into VOI.
+
+## Первые действия и передача
+
+1. Заново перечислить реальные `metric_residual_granularity_not_supported` rows и составить per-row matrix: target decision, supported basis и отсутствующие utility/likelihood/population/horizon inputs.
+2. Подготовить owner decision record с выбранным estimand (EVPI/EVPPI/EVSI/ENBS), action set, utility/loss units, state prior, observation law, population и horizon; не начинать с произвольного числа.
+3. Согласовать маленький exact finite oracle на owner-admitted inputs и отдельную CAP-03 cost link только для net/ENBS или cost-sensitive route.
+
+**Ответственность и handoff.** Назначение native metric/decision owner — внутренняя product decision. CAP-03 остаётся единственным cost writer; отсутствие внутренних producer/bridge — инженерная работа, а не внешний blocker. Число из литературы не создаёт PolicyOS authority.
+
+Порядок действий внутри назначения не добавляет dependency edges. Примеры проверок дополняют полный назначенный criterion; actual commands/paths закрепляются в [packet](../../../task-decomposition/work-packet.md) после source rebind.
 
 ## Место в цепочке
 

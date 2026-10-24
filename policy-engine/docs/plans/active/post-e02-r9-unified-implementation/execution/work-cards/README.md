@@ -1,4 +1,4 @@
-# R27: рабочие карточки по способностям системы
+# R28: рабочие карточки по способностям системы
 
 Это основной навигатор будущих назначений после R25. Реализация начинается
 только после фактической приёмки E02. Карточки уточняют работу, но не выдают
@@ -6,6 +6,8 @@ resource/authority/write grants и не объявляют capability приня
 
 [Короткий обзор и количества](overview.md) · [Машинная карта](registry.json) ·
 [Маршруты исходных требований](coverage.json) ·
+[Первые действия, проверки и передача результата](executor-guide.md) ·
+[Уточнения для исполнителя R28](../../assurance/r28-executor-clarity.md) ·
 [Редтим и исправления R27](../../assurance/r27-card-redteam.md); [историческая проверка R26](../../assurance/r26-grouping-review.md).
 
 ## Три уровня без трёх параллельных планов
@@ -36,6 +38,12 @@ Root выбирает нужную карточку, сверяет её source 
 [work packet R25](../task-decomposition/work-packet.md). Читать всю группу или
 всех siblings не требуется. Обязательны operative card, её точные source clauses,
 транзитивно необходимые contracts и применимые repository instructions.
+
+Используйте [действующий порядок](executor-guide.md) и консолидированный
+[writer prompt](../../prompts/writer.md). Root включает в packet текущий смысл
+применимых clauses и source pointers; leaf не восстанавливает задание по цепочке
+R14–R27. Первые действия в карточке — ориентир одного исполнителя, не новые
+зависимости. Concrete positive/negative/removal не заменяют полный criterion.
 
 UID в coverage — указатель на точный source fragment в pinned task/preferred
 manifest. Это не новый finding и не утверждение «один UID = одно требование».

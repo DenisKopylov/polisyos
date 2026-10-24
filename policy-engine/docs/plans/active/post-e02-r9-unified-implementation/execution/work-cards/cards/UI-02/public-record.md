@@ -54,7 +54,7 @@ Source-manifest base: `ec3d7d38b4d246b3e1d225a1c0fc9aefae9ced0d`; это не pl
   `solution.acceptance_discriminators[0]`; `solution.acceptance_discriminators[3]`; `solution.acceptance_discriminators[4]`; `solution.acceptance_discriminators[5]`; `solution.acceptance_discriminators[6]`; `solution.acceptance_discriminators[7]`
 - **binding** — Records a real owner input or its conditional use; it appoints no missing producer. Source selectors: solution.inputs_to_resolve[0], solution.inputs_to_resolve[1].
   `solution.inputs_to_resolve[0]`; `solution.inputs_to_resolve[1]`
-- **binding** — tasks.json#UI-02.task.r19_extension.question_slices[0] value-matches question_ids[0]. Current coverage routes both by-value selectors to public-record as binding, which is correct: the slice constrains the existing exact-record projection work also executed by preferred-solutions implementation_steps[1..2,5]. Keep one edition across the four actual authorized audience readers; do not substitute UI-05 Clerk or transport parity for audience projection.
+- **binding** — tasks.json#UI-02.task.r19_extension.question_slices[0] value-matches question_ids[0]. Public-record applies this constraint in the existing exact-record projection at preferred-solutions implementation_steps[1..2,5]. Keep one edition across the four actual authorized audience readers; do not substitute UI-05 Clerk or transport parity for audience projection.
   `task.r19_extension.question_slices[0]` (`R18-D12-Q04`); `task.r19_extension.question_ids[0]` (`R18-D12-Q04`)
 
 ### Обязанности внутри составных fragments

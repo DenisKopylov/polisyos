@@ -42,7 +42,7 @@ Source-manifest base: `ec3d7d38b4d246b3e1d225a1c0fc9aefae9ced0d`; это не pl
 
 - **execute** — Bind exact source/profile and existing catalog/connector, keep candidate separate from source-use, preserve typed extension/resource limits and legacy re-resolution; U052 consumes query output in the positive path.
   `task.migration`; `solution.preferred_solution`; `solution.implementation_steps[1]`; `solution.implementation_steps[3]`; `solution.free_grow.data_or_config_growth`; `solution.free_grow.extension_boundary`; `solution.free_grow.resource_behavior`; `solution.composition_contracts[1]`; `solution.composition_contracts[2]`; `solution.acceptance_discriminators[0]`; `solution.deviation_triggers[1]`; `solution.inputs_to_resolve[2]`
-- **execute** — Current route matches: bind the resolved exact source receipt; discovery is not a right, and stale mirrors/self-license fail admission.
+- **execute** — bind the resolved exact source receipt; discovery is not a right, and stale mirrors/self-license fail admission.
   `task.r19_extension.question_slices[1]` (`R18-D09-Q01`); `task.r19_extension.question_ids[1]` (`R18-D09-Q01`)
 
 Inherited owner/lease/stage/activation constraints указаны в parent contract. Root/lead проверяет полное parent coverage; output этой карточки не закрывает siblings. При обнаружении пропуска остановить только affected writes/acceptance, назвать точный clause и reconciled next owner.

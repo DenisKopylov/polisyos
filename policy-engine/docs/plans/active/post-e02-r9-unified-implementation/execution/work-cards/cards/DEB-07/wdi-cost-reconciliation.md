@@ -14,17 +14,28 @@
 
 **Выход и consumer.** DEB-07 source-row cost basis/allocation disposition referencing CAP-03 receipt.
 
-**Что можно готовить независимо.** Rebind source, owner, consumer and exact lease after P0-ACCEPT where applicable; any earlier census/preparation is only what the original parent stage permits. This card neither adds nor removes a start barrier.
+**Что можно готовить независимо.** После разрешённого исходным stage contract source/lease rebind выполнить первые действия ниже; до разрешённой стадии — только назначенное read-only discovery. Actual supplier outputs нужны при их потреблении, а не для всей независимой подготовки. Карточка не добавляет start barrier.
 
 **Где результат соединяется с другими.** Read the named output through Fresh selected WDI route consumer.; composition is limited to this property and the exact original scope.
 
-**Positive.** The accepted inputs produce the bounded result and the fresh consumer accepts the scoped property: When a cost-sensitive WDI route is selected, DEB-07 consumes the same persisted purpose/time/variable-bound cost artifact emitted by CAP-03; it never writes cost itself.
+**Positive.** Выбранный cost-sensitive WDI route потребляет тот же persisted CAP-03 artifact, привязанный к source/variables/purpose/time, а row basis/allocation сверены и прочитаны fresh consumer-ом.
 
-**Distinguishing negative.** Missing real cost refuses costed production route; fixture hours/days, cap or test-only hypothetical cannot substitute.
+**Distinguishing negative.** Без admitted real cost costed production route отказывает; fixture hours/days, cap или test-only hypothetical не становятся production basis.
 
-**Matched removal.** Remove the decisive binding for this property while retaining declarations/markers; the named consumer must fail or return its typed unknown/refusal: When a cost-sensitive WDI route is selected, DEB-07 consumes the same persisted purpose/time/variable-bound cost artifact emitted by CAP-03; it never writes cost itself.
+**Matched removal.** Отключить resolve/binding CAP-03 receipt, оставив route/cost markers; неизменённый selected-route test с отсутствующим или иным source/time artifact должен упасть, если fixture/stale cost всё ещё принят.
 
 **Граница контекста.** Conditional consumption link only; does not add a blanket start edge or permit DEB-07 to own costs.
+
+## Первые действия и передача
+
+1. Для фактически выбранного WDI route зафиксировать source, variable set, purpose/time и тот же admitted CAP-03 `AcquisitionCostBasisRecord` receipt.
+2. Сверить original source-row basis/allocation с persisted receipt и route; сохранить disposition с указанием, что запись создана CAP-03.
+3. В existing route consumer подать вариант без real cost и fixture-only hours/days/cap; сохранить отказ costed production route.
+4. До cost disposition проверить actual connector/comparable-ingest evidence: записать dated `expert_hours/calendar_days/collection_mode` basis, предпочесть измеримые аналоги или обосновать owner estimate; paid/licensed source требует real quote/rights evidence, а не default price.
+
+**Ответственность и handoff.** CAP-03/runtime acquisition planner — единственный cost writer. DEB-07 только читает и сверяет; selected WDI consumer принимает результат условно для выбранного маршрута.
+
+Порядок действий внутри назначения не добавляет dependency edges. Примеры проверок дополняют полный назначенный criterion; actual commands/paths закрепляются в [packet](../../../task-decomposition/work-packet.md) после source rebind.
 
 ## Место в цепочке
 

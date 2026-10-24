@@ -13,7 +13,7 @@ Canonical title: Restricted/private source and remote-compute outcome binding. R
 
 ## Реальный join
 
-For selected profile reconcile input/roster, provider effect receipt, every effectful call and shared rights at actual numerical/deployment consumer. Encryption, attestation and remote completion prove neither inference nor rights/no-retention. Original source pins, stage/dispatch gates, conditional execution, completion planes and leases remain authoritative. dependency_routes maps consumption only. Identity/navigation/dispatch/mirrored fields in units.json.other_field_dispositions remain authoritative by parent reference.
+Join only outputs required by the selected provider/input/use profile: solver-call intent precedes dispatch; remote-effect-reconciliation follows the observed outcome; rights-and-output-sinks controls actual placements. private-input roster/alignment qualification is required for private/federated evidence, not every provider call. CNT-06 qualifies inference separately; OPS-09 consumes the selected cell proof. Unknown remote effects remain indeterminate; unselected profiles create no all-of wait.
 
 **Outputs:** [CAP-06.private-input](../cards/CAP-06/private-input.md), [CAP-06.remote-effect-reconciliation](../cards/CAP-06/remote-effect-reconciliation.md), [CAP-06.solver-call-boundary](../cards/CAP-06/solver-call-boundary.md), [CAP-06.rights-and-output-sinks](../cards/CAP-06/rights-and-output-sinks.md).
 

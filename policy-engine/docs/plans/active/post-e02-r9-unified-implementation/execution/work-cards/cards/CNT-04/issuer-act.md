@@ -30,14 +30,14 @@
 
 | Отношение | Точный смысл |
 |---|---|
-| Supplier [P0-ACCEPT.accepted-boundary](../../cards/P0-ACCEPT/accepted-boundary.md) | `direct:actual_E02_G_acceptance`: Inherited accepted E02 readiness and scoped source rebind apply to each listed card; no extra start gate is added, and canonical parent stage/dispatch remains authoritative.<br>Выбор output: Select the exact output named in need and its original conditions, not all supplier cards. Actual source-qualified artifacts are pinned at dispatch/composition.<br>Условия: original direct relation; source stage rules govern |
-| Supplier [CNT-01](../../parents/CNT-01.md) | `direct:owner_readiness`: Selected case scope/jurisdiction/time/lever; successor authority only when selected.<br>Выбор output: Select the exact output named in need and its original conditions, not all supplier cards. Actual source-qualified artifacts are pinned at dispatch/composition.<br>Условия: original direct relation; source stage rules govern |
+| Supplier [P0-ACCEPT.accepted-boundary](../../cards/P0-ACCEPT/accepted-boundary.md) | `direct:actual_E02_G_acceptance`: Inherited accepted E02 readiness and scoped source rebind apply to each listed card; no extra start gate is added, and canonical parent stage/dispatch remains authoritative.<br>Source: `task.depends_on[0]`.<br>Условия: original direct relation; source stage rules govern |
+| Supplier [CNT-01](../../parents/CNT-01.md) | `direct:owner_readiness`: Selected case scope/jurisdiction/time/lever; successor authority only when selected.<br>Source: `task.depends_on[1]`.<br>Условия: original direct relation; source stage rules govern |
 
-Отсутствие внутреннего after не отменяет parent prerequisites. Conditional acceptance, execution rights и выбранные profiles разрешаются отдельно, как указано в parent contract. Номера групп и карточек не задают порядок.
+Отсутствие внутреннего after не отменяет parent prerequisites. Conditional acceptance, execution rights и выбранные profiles применяются на своей стадии. Composition links не задают порядок независимой подготовки.
 
 ## Назначенный нормативный контекст
 
-Основа: `ec3d7d38b4d246b3e1d225a1c0fc9aefae9ced0d`. Полные selectors и accountable routes — [coverage.json](../../coverage.json), parent `CNT-04`. Эти ссылки не требуют чтения всех siblings. Читайте целиком каждый назначенный fragment и необходимые связанные contracts; mixed clause нельзя усечь до удобной части.
+Source-manifest base: `ec3d7d38b4d246b3e1d225a1c0fc9aefae9ced0d`; это не plan_commit назначения. Точные immutable blobs/hash — [coverage.json](../../coverage.json), parent `CNT-04`. `task` выбирает строку tasks.json по id, `solution` — preferred-solutions.json по task_id; затем dot/index selector. Для R19 identity определяется значением question_id, не позицией в другом массиве. Полностью прочитайте назначенные fragments и нужные contracts; mixed clause нельзя усечь.
 
 - **binding** — This clause requires actual institutional act/issuer evidence stay distinct from model intervention and enabling legal text.
   `solution.composition_contracts[1]`
@@ -45,6 +45,14 @@
   `solution.acceptance_discriminators[1]`
 - **execute** — Recipient, notice, delegation and original-act evidence comes from competent institution and is bound by the existing authority-evidence owner.
   `solution.inputs_to_resolve[2]`
+- **execute** — Issuer-act owns authentic delegation/competence evidence; law-version supplies the governing instrument version and effectivity, while CNT-01 retains child-scope selection. Slice: Resolve legal instrument version/effectivity and issuer/competence evidence for a relied-upon delegation; provide qualified facts to CNT-01, not commission selection or child coverage. Positive discriminator: The source-resolved delegation is authentic and effective at the selected cut; CNT-01 can decide exact successor coverage. Adversary: Same declared bytes but wrong issuer, expired term or inapplicable jurisdiction fails qualification. Removal: Remove source, effectivity or competence verification but keep signature; delegation evidence is not established. Coverage currently routes this slice selector to CNT-04.applicability/execute; this destination follows its actual question_id and mixed semantics.
+  `task.r19_extension.question_slices[1]` (`R18-D01-Q04`); `task.r19_extension.question_ids[1]` (`R18-D01-Q04`)
+
+### Обязанности внутри составных fragments
+
+- `task.r19_extension.question_slices[0]` — Verify competent issuer/delegation and actual act only where relied upon. (primary accountability остаётся в coverage; это конкретный подрезультат, не второй writer).
+- `task.r19_extension.question_slices[2]` — Resolve competence only when the conflict turns on an issuer or actual act. (primary accountability остаётся в coverage; это конкретный подрезультат, не второй writer).
+- `task.r19_extension.question_slices[4]` — Authenticate the relied-upon order, stay or act; no assumed appeal rule. (primary accountability остаётся в coverage; это конкретный подрезультат, не второй writer).
 
 Inherited owner/lease/stage/activation constraints указаны в parent contract. Root/lead проверяет полное parent coverage; output этой карточки не закрывает siblings. При обнаружении пропуска остановить только affected writes/acceptance, назвать точный clause и reconciled next owner.
 

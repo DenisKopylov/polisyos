@@ -30,34 +30,34 @@
 
 | Отношение | Точный смысл |
 |---|---|
-| Supplier [P0-ACCEPT.accepted-boundary](../../cards/P0-ACCEPT/accepted-boundary.md) | `direct:actual_E02_G_acceptance`: Inherited accepted E02 readiness and scoped source rebind apply to each listed card; no extra start gate is added, and canonical parent stage/dispatch remains authoritative.<br>Выбор output: Select the exact output named in need and its original conditions, not all supplier cards. Actual source-qualified artifacts are pinned at dispatch/composition.<br>Условия: original direct relation; source stage rules govern |
-| Supplier [CNT-01](../../parents/CNT-01.md) | `direct:owner_readiness`: Case scope, selected audience/remit, actual answerer roles and relevant claims.<br>Выбор output: Select the exact output named in need and its original conditions, not all supplier cards. Actual source-qualified artifacts are pinned at dispatch/composition.<br>Условия: original direct relation; source stage rules govern |
-| Supplier [CNT-02.source-profile](../../cards/CNT-02/source-profile.md) | `direct:interface_agreement; acceptance:composition`: Selected source identity/version route where relevant; metadata is not consent, mandate or capacity.<br>Выбор output: Select the exact output named in need and its original conditions, not all supplier cards. Actual source-qualified artifacts are pinned at dispatch/composition.<br>Условия: original direct relation; source stage rules govern; selected parent composed claim; not a new preparation dependency |
+| Supplier [P0-ACCEPT.accepted-boundary](../../cards/P0-ACCEPT/accepted-boundary.md) | `direct:actual_E02_G_acceptance`: Inherited accepted E02 readiness and scoped source rebind apply to each listed card; no extra start gate is added, and canonical parent stage/dispatch remains authoritative.<br>Source: `task.depends_on[0]`.<br>Условия: original direct relation; source stage rules govern |
+| Supplier [CNT-01](../../parents/CNT-01.md) | `direct:owner_readiness`: Case scope, selected audience/remit, actual answerer roles and relevant claims.<br>Source: `task.depends_on[1]`.<br>Условия: original direct relation; source stage rules govern |
+| Supplier [CNT-02.source-profile](../../cards/CNT-02/source-profile.md) | `direct:interface_agreement; acceptance:composition`: Selected source identity/version route where relevant; metadata is not consent, mandate or capacity.<br>Source: `task.depends_on[2]`; `task.acceptance_dependencies[1]`.<br>Условия: original direct relation; source stage rules govern; selected parent composed claim; not a new preparation dependency |
 
-Отсутствие внутреннего after не отменяет parent prerequisites. Conditional acceptance, execution rights и выбранные profiles разрешаются отдельно, как указано в parent contract. Номера групп и карточек не задают порядок.
+Отсутствие внутреннего after не отменяет parent prerequisites. Conditional acceptance, execution rights и выбранные profiles применяются на своей стадии. Composition links не задают порядок независимой подготовки.
 
 ## Назначенный нормативный контекст
 
-Основа: `ec3d7d38b4d246b3e1d225a1c0fc9aefae9ced0d`. Полные selectors и accountable routes — [coverage.json](../../coverage.json), parent `CNT-07`. Эти ссылки не требуют чтения всех siblings. Читайте целиком каждый назначенный fragment и необходимые связанные contracts; mixed clause нельзя усечь до удобной части.
+Source-manifest base: `ec3d7d38b4d246b3e1d225a1c0fc9aefae9ced0d`; это не plan_commit назначения. Точные immutable blobs/hash — [coverage.json](../../coverage.json), parent `CNT-07`. `task` выбирает строку tasks.json по id, `solution` — preferred-solutions.json по task_id; затем dot/index selector. Для R19 identity определяется значением question_id, не позицией в другом массиве. Полностью прочитайте назначенные fragments и нужные contracts; mixed clause нельзя усечь.
 
 - **join** — R15 requirement combines incumbent capacity with preference/mandate grounds; feasibility is accountable receiver and consumes separately qualified mandate-evidence.
   `task.r15_extension.requirement`
 - **join** — R15 combines incumbent capacity with an authorized non-compensable constraint; feasibility consumes the separate mandate-evidence output and actual operator facts.
   `task.r15_extension.positive`; `task.r15_extension.adversarial`
 - **execute** — These clauses distinguish measured/planned/committed/executed capacity, operator resources and testimony from actual capacity; GYD-30 stays the mechanism owner.
-  `task.r19_extension.question_slices[9]`
-- **execute** — These clauses distinguish measured/planned/committed/executed capacity, operator resources and testimony from actual capacity; GYD-30 stays the mechanism owner.
-  `task.r19_extension.question_slices[11]`
-- **execute** — These clauses distinguish measured/planned/committed/executed capacity, operator resources and testimony from actual capacity; GYD-30 stays the mechanism owner.
-  `task.r19_extension.question_slices[14]`
-- **execute** — These clauses distinguish measured/planned/committed/executed capacity, operator resources and testimony from actual capacity; GYD-30 stays the mechanism owner.
-  `task.r19_extension.question_ids[9]`
-- **join** — This slice explicitly distinguishes testimony from measured capacity and names GYD-30 as existing capacity owner; feasibility consumes a separate permitted account if selected.
-  `task.r19_extension.question_ids[14]`
-- **execute** — These clauses distinguish measured/planned/committed/executed capacity, operator resources and testimony from actual capacity; GYD-30 stays the mechanism owner.
   `solution.composition_contracts[1]`
 - **execute** — These clauses distinguish measured/planned/committed/executed capacity, operator resources and testimony from actual capacity; GYD-30 stays the mechanism owner.
   `solution.acceptance_discriminators[2]`
+- **execute** — Capacity-feasibility binds sourced operational slots, time horizon and commitment state through the existing GYD-30 owner; mandate or testimony is not capacity. Slice: Source capacity/window/deadline for feasibility; distinguish planned/committed/executed. Positive discriminator: Sourced slot changes feasibility, not gross EVSI. Adversary: Promise/headcount/CI is not a slot; absent capacity blocks feasibility/constrained rank only. Removal: Drop capacity link; feasibility/constrained rank changes, gross EVSI does not.
+  `task.r19_extension.question_slices[9]` (`R18-D09-Q04`); `task.r19_extension.question_ids[9]` (`R18-D09-Q04`)
+- **execute** — Capacity-feasibility binds sourced operational slots, time horizon and commitment state through the existing GYD-30 owner; mandate or testimony is not capacity. Slice: Separate mandate evidence from current inputs/execution; bind period, scope, source. Positive discriminator: Authority transfers with stable capacity; lost coverage limits feasibility only. Adversary: New signature means capacity, or turnover means capacity loss. Removal: Remove resource relation but retain actor labels: feasibility consumer refuses.
+  `task.r19_extension.question_slices[11]` (`R18-D22-Q04`); `task.r19_extension.question_ids[13]` (`R18-D22-Q04`)
+- **execute** — Capacity-feasibility binds sourced operational slots, time horizon and commitment state through the existing GYD-30 owner; mandate or testimony is not capacity. Slice: Use existing GYD-30 owner; bind actual supply separately from testimony/mandate. Positive discriminator: A sourced commitment reduces remaining supply. Adversary: Testimony is mislabeled measured capacity. Removal: Remove supply basis; fresh joint result is limited.
+  `task.r19_extension.question_slices[14]` (`R18-D20-Q02`); `task.r19_extension.question_ids[12]` (`R18-D20-Q02`)
+
+### Обязанности внутри составных fragments
+
+- `task.r19_extension.question_slices[7]` — Limit feasibility conclusions affected by operator/technical-authority interest. (primary accountability остаётся в coverage; это конкретный подрезультат, не второй writer).
 
 Inherited owner/lease/stage/activation constraints указаны в parent contract. Root/lead проверяет полное parent coverage; output этой карточки не закрывает siblings. При обнаружении пропуска остановить только affected writes/acceptance, назвать точный clause и reconciled next owner.
 

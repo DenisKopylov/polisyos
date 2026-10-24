@@ -30,16 +30,20 @@
 
 | Отношение | Точный смысл |
 |---|---|
-| Supplier [P0-ACCEPT.accepted-boundary](../../cards/P0-ACCEPT/accepted-boundary.md) | `direct:actual_E02_G_acceptance`: Accepted artifact scope and F2 criteria consumed separately by scan, CAS lifecycle and authority reader.<br>Выбор output: Select the exact output named in need and its original conditions, not all supplier cards. Actual source-qualified artifacts are pinned at dispatch/composition.<br>Условия: original direct relation; source stage rules govern |
+| Supplier [P0-ACCEPT.accepted-boundary](../../cards/P0-ACCEPT/accepted-boundary.md) | `direct:actual_E02_G_acceptance`: Accepted artifact scope and F2 criteria consumed separately by scan, CAS lifecycle and authority reader.<br>Source: `task.depends_on[0]`.<br>Условия: original direct relation; source stage rules govern |
 
-Отсутствие внутреннего after не отменяет parent prerequisites. Conditional acceptance, execution rights и выбранные profiles разрешаются отдельно, как указано в parent contract. Номера групп и карточек не задают порядок.
+Отсутствие внутреннего after не отменяет parent prerequisites. Conditional acceptance, execution rights и выбранные profiles применяются на своей стадии. Composition links не задают порядок независимой подготовки.
 
 ## Назначенный нормативный контекст
 
-Основа: `ec3d7d38b4d246b3e1d225a1c0fc9aefae9ced0d`. Полные selectors и accountable routes — [coverage.json](../../coverage.json), parent `GYD-28`. Эти ссылки не требуют чтения всех siblings. Читайте целиком каждый назначенный fragment и необходимые связанные contracts; mixed clause нельзя усечь до удобной части.
+Source-manifest base: `ec3d7d38b4d246b3e1d225a1c0fc9aefae9ced0d`; это не plan_commit назначения. Точные immutable blobs/hash — [coverage.json](../../coverage.json), parent `GYD-28`. `task` выбирает строку tasks.json по id, `solution` — preferred-solutions.json по task_id; затем dot/index selector. Для R19 identity определяется значением question_id, не позицией в другом массиве. Полностью прочитайте назначенные fragments и нужные contracts; mixed clause нельзя усечь.
 
 - **binding** — New storage boundary requires typed adapter/conformance.
   `solution.free_grow.extension_boundary`
+
+### Обязанности внутри составных fragments
+
+- `task.r19_extension.question_slices[0]` — Resolve the exact canonical CAS bytes/root and recompute byte integrity, dedup/ref, tamper, retention, and dereference at the actual reader; digest alone is not the claimed transform. (primary accountability остаётся в coverage; это конкретный подрезультат, не второй writer).
 
 Inherited owner/lease/stage/activation constraints указаны в parent contract. Root/lead проверяет полное parent coverage; output этой карточки не закрывает siblings. При обнаружении пропуска остановить только affected writes/acceptance, назвать точный clause и reconciled next owner.
 

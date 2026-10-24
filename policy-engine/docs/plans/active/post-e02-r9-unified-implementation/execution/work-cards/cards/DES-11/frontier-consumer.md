@@ -30,21 +30,26 @@
 
 | Отношение | Точный смысл |
 |---|---|
-| Supplier [P0-ACCEPT.accepted-boundary](../../cards/P0-ACCEPT/accepted-boundary.md) | `direct:actual_E02_G_acceptance`: Every card consumes the accepted E02 source/commit and task-scoped source rebind for its own owner readback. The universal acceptance/stage/conditional gate remains the original parent contract; this map adds no second leaf gate or sequencing.<br>Выбор output: Select the exact output named in need and its original conditions, not all supplier cards. Actual source-qualified artifacts are pinned at dispatch/composition.<br>Условия: original direct relation; source stage rules govern |
-| Supplier [DES-03](../../parents/DES-03.md) | `direct:interface_agreement`: Consumes accepted candidate/search basis for selected trajectory and the resulting frontier composition; DES-03 remains search writer.<br>Выбор output: Select the exact output named in need and its original conditions, not all supplier cards. Actual source-qualified artifacts are pinned at dispatch/composition.<br>Условия: original direct relation; source stage rules govern |
+| Supplier [P0-ACCEPT.accepted-boundary](../../cards/P0-ACCEPT/accepted-boundary.md) | `direct:actual_E02_G_acceptance`: Every card consumes the accepted E02 source/commit and task-scoped source rebind for its own owner readback. The universal acceptance/stage/conditional gate remains the original parent contract; this map adds no second leaf gate or sequencing.<br>Source: `task.depends_on[0]`.<br>Условия: original direct relation; source stage rules govern |
+| Supplier [DES-03](../../parents/DES-03.md) | `direct:interface_agreement`: Consumes accepted candidate/search basis for selected trajectory and the resulting frontier composition; DES-03 remains search writer.<br>Source: `task.depends_on[1]`.<br>Условия: original direct relation; source stage rules govern |
 | Composition output (не start gate) [DES-11.history-context](../../cards/DES-11/history-context.md) | Only for the selected same-scope composition described by this card: The actual fresh Scientist frontier/dossier is the final consumer; authorized API/Atlas/doc projections consume only their existing permitted rendition. Independent output production/preparation remains allowed; the original parent join reconciles all required outcomes without making this list an all-of. |
 | Composition output (не start gate) [DES-11.trajectory-run](../../cards/DES-11/trajectory-run.md) | Only for the selected same-scope composition described by this card: The actual fresh Scientist frontier/dossier is the final consumer; authorized API/Atlas/doc projections consume only their existing permitted rendition. Independent output production/preparation remains allowed; the original parent join reconciles all required outcomes without making this list an all-of. |
 
-Отсутствие внутреннего after не отменяет parent prerequisites. Conditional acceptance, execution rights и выбранные profiles разрешаются отдельно, как указано в parent contract. Номера групп и карточек не задают порядок.
+Отсутствие внутреннего after не отменяет parent prerequisites. Conditional acceptance, execution rights и выбранные profiles применяются на своей стадии. Composition links не задают порядок независимой подготовки.
 
 ## Назначенный нормативный контекст
 
-Основа: `ec3d7d38b4d246b3e1d225a1c0fc9aefae9ced0d`. Полные selectors и accountable routes — [coverage.json](../../coverage.json), parent `DES-11`. Эти ссылки не требуют чтения всех siblings. Читайте целиком каждый назначенный fragment и необходимые связанные contracts; mixed clause нельзя усечь до удобной части.
+Source-manifest base: `ec3d7d38b4d246b3e1d225a1c0fc9aefae9ced0d`; это не plan_commit назначения. Точные immutable blobs/hash — [coverage.json](../../coverage.json), parent `DES-11`. `task` выбирает строку tasks.json по id, `solution` — preferred-solutions.json по task_id; затем dot/index selector. Для R19 identity определяется значением question_id, не позицией в другом массиве. Полностью прочитайте назначенные fragments и нужные contracts; mixed clause нельзя усечь.
 
 - **join** — The removal criterion is whether the fresh path/feasibility reader consumes actual history/transition/cutoff/incumbent evidence, not labels.
   `task.removal`
 - **join** — The existing surface resolves actual result/assumptions/cutoff/uncertainty and candidate/act boundary at this consumer.
   `task.surface`
+
+### Обязанности внутри составных fragments
+
+- `task.r19_extension.question_slices[0]` — Consume persisted path and expose assumptions, limits and alternatives. (primary accountability остаётся в coverage; это конкретный подрезультат, не второй writer).
+- `task.r19_extension.question_slices[3]` — Expose actual history-bound paths in fresh reader. (primary accountability остаётся в coverage; это конкретный подрезультат, не второй writer).
 
 Inherited owner/lease/stage/activation constraints указаны в parent contract. Root/lead проверяет полное parent coverage; output этой карточки не закрывает siblings. При обнаружении пропуска остановить только affected writes/acceptance, назвать точный clause и reconciled next owner.
 

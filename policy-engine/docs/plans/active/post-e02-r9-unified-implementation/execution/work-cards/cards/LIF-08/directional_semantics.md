@@ -30,22 +30,20 @@
 
 | Отношение | Точный смысл |
 |---|---|
-| Supplier [P0-ACCEPT.accepted-boundary](../../cards/P0-ACCEPT/accepted-boundary.md) | `direct:actual_E02_G_acceptance`: Root stage.<br>Выбор output: Select the exact output named in need and its original conditions, not all supplier cards. Actual source-qualified artifacts are pinned at dispatch/composition.<br>Условия: original direct relation; source stage rules govern |
-| Supplier [CAP-03](../../parents/CAP-03.md) | `direct:owner_readiness`: Consume selected reader/API and retirement.<br>Выбор output: Select the exact output named in need and its original conditions, not all supplier cards. Actual source-qualified artifacts are pinned at dispatch/composition.<br>Условия: original direct relation; source stage rules govern |
+| Supplier [P0-ACCEPT.accepted-boundary](../../cards/P0-ACCEPT/accepted-boundary.md) | `direct:actual_E02_G_acceptance`: Root stage.<br>Source: `task.depends_on[0]`.<br>Условия: original direct relation; source stage rules govern |
+| Supplier [CAP-03](../../parents/CAP-03.md) | `direct:owner_readiness`: Consume selected reader/API and retirement.<br>Source: `task.depends_on[2]`.<br>Условия: original direct relation; source stage rules govern |
 | Composition output (не start gate) [LIF-08.capture_binding](../../cards/LIF-08/capture_binding.md) | Only when a selected reader applies the mapping to an actual CAP-02 source/profile receipt and cut; a missing receipt cannot yield supported second-source output. |
 
-Отсутствие внутреннего after не отменяет parent prerequisites. Conditional acceptance, execution rights и выбранные profiles разрешаются отдельно, как указано в parent contract. Номера групп и карточек не задают порядок.
+Отсутствие внутреннего after не отменяет parent prerequisites. Conditional acceptance, execution rights и выбранные profiles применяются на своей стадии. Composition links не задают порядок независимой подготовки.
 
 ## Назначенный нормативный контекст
 
-Основа: `ec3d7d38b4d246b3e1d225a1c0fc9aefae9ced0d`. Полные selectors и accountable routes — [coverage.json](../../coverage.json), parent `LIF-08`. Эти ссылки не требуют чтения всех siblings. Читайте целиком каждый назначенный fragment и необходимые связанные contracts; mixed clause нельзя усечь до удобной части.
+Source-manifest base: `ec3d7d38b4d246b3e1d225a1c0fc9aefae9ced0d`; это не plan_commit назначения. Точные immutable blobs/hash — [coverage.json](../../coverage.json), parent `LIF-08`. `task` выбирает строку tasks.json по id, `solution` — preferred-solutions.json по task_id; затем dot/index selector. Для R19 identity определяется значением question_id, не позицией в другом массиве. Полностью прочитайте назначенные fragments и нужные contracts; mixed clause нельзя усечь.
 
 - **execute** — Requiredness and generation.
   `task.removal[0]`; `task.removal[1]`
 - **execute** — Source status/API.
   `task.surface`
-- **execute** — R18-D18-Q01/Q02/Q04 and IDs: meaning, direction, requiredness, generation.
-  `task.r19_extension.question_slices[0]`; `task.r19_extension.question_slices[1]`; `task.r19_extension.question_slices[2]`; `task.r19_extension.question_ids[0]`; `task.r19_extension.question_ids[1]`; `task.r19_extension.question_ids[2]`
 - **execute** — SourceContract mapping, generic discovery, optional/required.
   `solution.implementation_steps[2]`; `solution.implementation_steps[3]`; `solution.implementation_steps[4]`
 - **binding** — Versioned facet profiles.
@@ -56,6 +54,12 @@
   `solution.acceptance_discriminators[3]`
 - **binding** — Reader matrix.
   `solution.inputs_to_resolve[2]`
+- **execute** — task.r19_extension.question_slices[0] crosswalks by actual value to question_ids[0]. Separates same-meaning SourceContract growth from new-meaning adapter work, the directional compatibility owner.
+  `task.r19_extension.question_slices[0]` (`R18-D18-Q01`); `task.r19_extension.question_ids[0]` (`R18-D18-Q01`)
+- **execute** — task.r19_extension.question_slices[1] crosswalks by actual value to question_ids[1]. Evaluates directional compatibility, completeness and generated reader behavior rather than schema shape alone.
+  `task.r19_extension.question_slices[1]` (`R18-D18-Q02`); `task.r19_extension.question_ids[1]` (`R18-D18-Q02`)
+- **execute** — task.r19_extension.question_slices[2] crosswalks by actual value to question_ids[2]. Binds source receipt/cut, reader generation, requiredness and directional map into the local interpretation.
+  `task.r19_extension.question_slices[2]` (`R18-D18-Q04`); `task.r19_extension.question_ids[2]` (`R18-D18-Q04`)
 
 Inherited owner/lease/stage/activation constraints указаны в parent contract. Root/lead проверяет полное parent coverage; output этой карточки не закрывает siblings. При обнаружении пропуска остановить только affected writes/acceptance, назвать точный clause и reconciled next owner.
 

@@ -1,0 +1,152 @@
+{
+  "revision": "R27",
+  "status": "PASS",
+  "base_commit": "fb9e078b85262b69f76e24255cd25a518102a0d4",
+  "scope": "Documentation routing/readback and bounded in-memory binding probes only; no product verification.",
+  "counts": {
+    "parent_tasks": 121,
+    "work_cards": 262,
+    "groups": 11,
+    "cards_by_group": {
+      "G00": 6,
+      "G01": 20,
+      "G02": 23,
+      "G03": 21,
+      "G04": 8,
+      "G05": 22,
+      "G06": 31,
+      "G07": 34,
+      "G08": 21,
+      "G09": 38,
+      "G10": 38
+    },
+    "cards_by_kind": {
+      "consumer": 94,
+      "coordination": 9,
+      "input": 19,
+      "mechanism": 75,
+      "verification": 65
+    },
+    "primary_source_fragments": 7196,
+    "inherited_fields": 3711,
+    "supplemental_clause_uses": 258,
+    "question_occurrences": 388,
+    "question_ids": 84,
+    "companion_navigation_refs": 64,
+    "original_direct_edges": 368,
+    "consumption_routes": 471,
+    "markdown_files": 399,
+    "file_links_checked": 3625
+  },
+  "checks": 4146,
+  "failures": [],
+  "product_verification": "UNRUN",
+  "limitations": [
+    "Structural coverage is not a proof of all transitive semantic requirements or runtime behavior.",
+    "Semantic ownership/actual source paths/leases and selected consumer inputs must be rebound after E02 acceptance.",
+    "Cross-owner companion refs navigate existing task-local slices; they do not add all-peer prerequisites or writers.",
+    "File-link checks exclude remote URLs and arbitrary historical anchors."
+  ],
+  "review_provenance": [
+    {
+      "path": "policy-engine/_build/post-e02-r27-redteam-20261024/atlas-questions.json",
+      "sha256": "714a056964b43ef5d2f387cf16c6e5971bd87dec1eed4837f75e15b522ea38eb",
+      "availability": "local ignored review evidence; not an operative dispatch input"
+    },
+    {
+      "path": "policy-engine/_build/post-e02-r27-redteam-20261024/capture-questions.json",
+      "sha256": "32db0dd4b7a3594a7f31e0ec6bfe570f6057b3e733bdeede0d4b1d2b26630957",
+      "availability": "local ignored review evidence; not an operative dispatch input"
+    },
+    {
+      "path": "policy-engine/_build/post-e02-r27-redteam-20261024/content-questions.json",
+      "sha256": "45b80ee6bbe02e7f6fafd0486917cedc5dcf8fe7678d11d3c9278d4d7188575e",
+      "availability": "local ignored review evidence; not an operative dispatch input"
+    },
+    {
+      "path": "policy-engine/_build/post-e02-r27-redteam-20261024/debt-questions.json",
+      "sha256": "51d5d1e1e8fcdb0057d0c457b5c64b4aa0af44a110ffbcf985a6a90a8e710beb",
+      "availability": "local ignored review evidence; not an operative dispatch input"
+    },
+    {
+      "path": "policy-engine/_build/post-e02-r27-redteam-20261024/design-questions.json",
+      "sha256": "e719572c6cd4b1d0fd16da0ca59bf94c5fe51e3b360d6f6fd063dc8e0b90bbef",
+      "availability": "local ignored review evidence; not an operative dispatch input"
+    },
+    {
+      "path": "policy-engine/_build/post-e02-r27-redteam-20261024/gy-first-questions.json",
+      "sha256": "1d03ee0953aa373e8782fce7a9381844a9d9dd4bbadbad709e959b39ec65445f",
+      "availability": "local ignored review evidence; not an operative dispatch input"
+    },
+    {
+      "path": "policy-engine/_build/post-e02-r27-redteam-20261024/gy-second-questions.json",
+      "sha256": "076159ce9add1fde118e47a5a96b2d6c6d783de41e2219d5e20a569bb559d3e5",
+      "availability": "local ignored review evidence; not an operative dispatch input"
+    },
+    {
+      "path": "policy-engine/_build/post-e02-r27-redteam-20261024/lifecycle-questions.json",
+      "sha256": "82371b69d50703a1f20875c4fc7e8410fb88014f6da07e27524220c192a80b6a",
+      "availability": "local ignored review evidence; not an operative dispatch input"
+    },
+    {
+      "path": "policy-engine/_build/post-e02-r27-redteam-20261024/ops-questions.json",
+      "sha256": "e12b846179a83d1b8931b888a7a5125ac6c1e6dd2b2f61eab935534641cb6e28",
+      "availability": "local ignored review evidence; not an operative dispatch input"
+    },
+    {
+      "path": "policy-engine/_build/post-e02-r27-redteam-20261024/capture.md",
+      "sha256": "c79037d019509b8fb9260f7005cf4ae40488708d64369e95cb577523f6ec2afc",
+      "availability": "local ignored review evidence; not an operative dispatch input"
+    },
+    {
+      "path": "policy-engine/_build/post-e02-r27-redteam-20261024/lifecycle.md",
+      "sha256": "b75049b4f057831f8ad9c13c85d978f4fdfbb376d9777a18afcb7b9c68b37563",
+      "availability": "local ignored review evidence; not an operative dispatch input"
+    },
+    {
+      "path": "policy-engine/_build/post-e02-r27-redteam-20261024/gy-first.md",
+      "sha256": "3fa2005a3142cbb6e7de96e7a1ab0ab52b8c53b98e43a5a5df4dfdef80711988",
+      "availability": "local ignored review evidence; not an operative dispatch input"
+    },
+    {
+      "path": "policy-engine/_build/post-e02-r27-redteam-20261024/gy-second.md",
+      "sha256": "53d7e4068b9e21e785a2746843962dec6a59f87356c8c8b0b51a06b36ae8eea1",
+      "availability": "local ignored review evidence; not an operative dispatch input"
+    },
+    {
+      "path": "policy-engine/_build/post-e02-r27-redteam-20261024/atlas.md",
+      "sha256": "8e06bfc975661f4c799263da28ef2cc4a61f7f9587608754721cff442150de98",
+      "availability": "local ignored review evidence; not an operative dispatch input"
+    },
+    {
+      "path": "policy-engine/_build/post-e02-r27-redteam-20261024/content.md",
+      "sha256": "cf10fdc3685b1cf1a374615085def11a9902194624b99e0a22c5ce8df7d0b1a1",
+      "availability": "local ignored review evidence; not an operative dispatch input"
+    },
+    {
+      "path": "policy-engine/_build/post-e02-r27-redteam-20261024/design.md",
+      "sha256": "61b45cc05b30da77bf4d1d389790d7d608e44ef8133ddbec2ed956e67a58e66e",
+      "availability": "local ignored review evidence; not an operative dispatch input"
+    },
+    {
+      "path": "policy-engine/_build/post-e02-r27-redteam-20261024/ops.md",
+      "sha256": "0e92faef427821f6a0d06435433e1f67d8887ebdd61f858343304bc48b80da32",
+      "availability": "local ignored review evidence; not an operative dispatch input"
+    },
+    {
+      "path": "policy-engine/_build/post-e02-r27-redteam-20261024/debt.md",
+      "sha256": "abd8db0e56e86cb6aae1f7b781786d83df4b84d95bf5184d029ac39108e9850d",
+      "availability": "local ignored review evidence; not an operative dispatch input"
+    },
+    {
+      "path": "policy-engine/_build/post-e02-r27-redteam-20261024/dispatch.md",
+      "sha256": "a859460f56579334e56a9943a4fcf314dec78d9ee604e8a402d06ac6d3c1b726",
+      "availability": "local ignored review evidence; not an operative dispatch input"
+    }
+  ],
+  "full_receipt": {
+    "path": "policy-engine/_build/post-e02-r27-redteam-20261024/full-validation.json",
+    "sha256": "2f826f463571f740c11f04c22f4eabfd18ff9b901437f2851272f55b7764691c",
+    "files_read": 403
+  }
+}

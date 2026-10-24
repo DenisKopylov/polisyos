@@ -12,7 +12,7 @@ Canonical title: Official/legal source relation and temporal applicability. R26 
 
 ## Реальный join
 
-Sequence official text/version/language, competent institution-supplied applicability/act/time, then selected legal consumer. Unresolved law stays limited/contested; legal evidence is not causal/measurement evidence. Original source pins, stage/dispatch gates, conditional execution, completion planes and leases remain authoritative. dependency_routes maps consumption only. Identity/navigation/dispatch/mirrored fields in units.json.other_field_dispositions remain authoritative by parent reference.
+Sequence official text/version/language, competent institution-supplied applicability/act/time, then selected legal consumer. Unresolved law stays limited/contested; legal evidence is not causal/measurement evidence. Original source pins, stage/dispatch gates, conditional execution, completion planes and leases remain authoritative. dependency_routes maps consumption only. Identity/navigation and inherited constraints resolve from coverage.json parents[parent=CAP-05].inherited_fields and registry.json parents[id=CAP-05].inherited_dispatch_contract to the pinned task/solution rows; ignored author scratch is not a normative input.
 
 **Outputs:** [CAP-05.official-source](../cards/CAP-05/official-source.md), [CAP-05.legal-applicability](../cards/CAP-05/legal-applicability.md), [CAP-05.legal-consumer](../cards/CAP-05/legal-consumer.md).
 
@@ -25,7 +25,7 @@ Sequence official text/version/language, competent institution-supplied applicab
 - **join** — Deliverable and positive/adversarial/removal/surface criteria exercise all checkpoint outputs at the fresh selected legal consumer.
   `task.deliverable`; `task.positive`; `task.adversarial`; `task.removal`; `task.surface`
 - **binding** — Rollback, acceptance/companions, path/audience/generated navigation, lifecycle/writer/input classification remain inherited parent rules.
-  `task.rollback`; `task.acceptance_steps[0]`; `task.acceptance_steps[1]`; `task.acceptance_steps[2]`; `task.acceptance_steps[3]`; `task.acceptance_steps[4]`; `task.mandatory_companions[0]`; `task.mandatory_companions[1]`; `task.mandatory_companions[2]`; `task.mandatory_companions[3]`; `task.mandatory_companions[4]`; `task.rollback_precedence`; `task.r17_extension.product_verification`; `task.r19_extension.status`; `task.r19_extension.product_verification`; `task.r19_extension.composition_contract_ref`; `task.r19_extension.question_ids[0]`; `task.r19_extension.writer_rule`; `task.r19_extension.acceptance_ref`; `solution.preferred_solution`; `solution.migration_and_rollback`; `solution.input_resolution_rule`
+  `task.rollback`; `task.acceptance_steps[0]`; `task.acceptance_steps[1]`; `task.acceptance_steps[2]`; `task.acceptance_steps[3]`; `task.acceptance_steps[4]`; `task.mandatory_companions[0]`; `task.mandatory_companions[1]`; `task.mandatory_companions[2]`; `task.mandatory_companions[3]`; `task.mandatory_companions[4]`; `task.rollback_precedence`; `task.r17_extension.product_verification`; `task.r19_extension.status`; `task.r19_extension.product_verification`; `task.r19_extension.composition_contract_ref`; `task.r19_extension.writer_rule`; `task.r19_extension.acceptance_ref`; `solution.preferred_solution`; `solution.migration_and_rollback`; `solution.input_resolution_rule`
 
 ## Owners и stages
 

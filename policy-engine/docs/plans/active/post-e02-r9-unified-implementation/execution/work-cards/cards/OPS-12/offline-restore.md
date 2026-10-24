@@ -30,25 +30,33 @@
 
 | Отношение | Точный смысл |
 |---|---|
-| Supplier [P0-ACCEPT.accepted-boundary](../../cards/P0-ACCEPT/accepted-boundary.md) | `direct:actual_E02_G_acceptance`: Accepted-source rebind and conditional profile choice remain parent stage conditions; local profile can proceed without cloud-profile completion.<br>Выбор output: Select the exact output named in need and its original conditions, not all supplier cards. Actual source-qualified artifacts are pinned at dispatch/composition.<br>Условия: original direct relation; source stage rules govern |
-| Supplier [OPS-05](../../parents/OPS-05.md) | `direct:owner_readiness`: Consume exact selected local restore-to-reader and history reconciliation; offline slice is not a standalone recovery system.<br>Выбор output: Select the exact output named in need and its original conditions, not all supplier cards. Actual source-qualified artifacts are pinned at dispatch/composition.<br>Условия: original direct relation; source stage rules govern |
-| Supplier [OPS-06](../../parents/OPS-06.md) | `direct:owner_readiness`: Consume current source-use rights at local protected read; no-egress or signature does not grant use.<br>Выбор output: Select the exact output named in need and its original conditions, not all supplier cards. Actual source-qualified artifacts are pinned at dispatch/composition.<br>Условия: original direct relation; source stage rules govern |
-| Supplier [OPS-11](../../parents/OPS-11.md) | `direct:owner_readiness`: Consume independently authorized technical trust generation/succession only for selected offline operation.<br>Выбор output: Select the exact output named in need and its original conditions, not all supplier cards. Actual source-qualified artifacts are pinned at dispatch/composition.<br>Условия: original direct relation; source stage rules govern |
+| Supplier [P0-ACCEPT.accepted-boundary](../../cards/P0-ACCEPT/accepted-boundary.md) | `direct:actual_E02_G_acceptance`: Accepted-source rebind and conditional profile choice remain parent stage conditions; local profile can proceed without cloud-profile completion.<br>Source: `task.depends_on[0]`.<br>Условия: original direct relation; source stage rules govern |
+| Supplier [OPS-05](../../parents/OPS-05.md) | `direct:owner_readiness`: Consume exact selected local restore-to-reader and history reconciliation; offline slice is not a standalone recovery system.<br>Source: `task.depends_on[1]`.<br>Условия: original direct relation; source stage rules govern |
+| Supplier [OPS-06](../../parents/OPS-06.md) | `direct:owner_readiness`: Consume current source-use rights at local protected read; no-egress or signature does not grant use.<br>Source: `task.depends_on[2]`.<br>Условия: original direct relation; source stage rules govern |
+| Supplier [OPS-11](../../parents/OPS-11.md) | `direct:owner_readiness`: Consume independently authorized technical trust generation/succession only for selected offline operation.<br>Source: `task.depends_on[3]`.<br>Условия: original direct relation; source stage rules govern |
 | Composition output (не start gate) [OPS-12.bundle-currentness](../../cards/OPS-12/bundle-currentness.md) | Only for the selected same-scope composition described by this card: Joins OPS-05 physical restore and history, OPS-11 trust, OPS-06 grant and local bundle-currentness. No cloud/API status is a substitute; no-egress is a separate boundary proof. Independent output production/preparation remains allowed; the original parent join reconciles all required outcomes without making this list an all-of. |
 | Composition output (не start gate) [OPS-12.no-egress](../../cards/OPS-12/no-egress.md) | Only if the selected offline protected-read/restore profile makes the no-egress claim; use actual independent observation, never a universal prerequisite for unrelated local use. |
 
-Отсутствие внутреннего after не отменяет parent prerequisites. Conditional acceptance, execution rights и выбранные profiles разрешаются отдельно, как указано в parent contract. Номера групп и карточек не задают порядок.
+Отсутствие внутреннего after не отменяет parent prerequisites. Conditional acceptance, execution rights и выбранные profiles применяются на своей стадии. Composition links не задают порядок независимой подготовки.
 
 ## Назначенный нормативный контекст
 
-Основа: `ec3d7d38b4d246b3e1d225a1c0fc9aefae9ced0d`. Полные selectors и accountable routes — [coverage.json](../../coverage.json), parent `OPS-12`. Эти ссылки не требуют чтения всех siblings. Читайте целиком каждый назначенный fragment и необходимые связанные contracts; mixed clause нельзя усечь до удобной части.
+Source-manifest base: `ec3d7d38b4d246b3e1d225a1c0fc9aefae9ced0d`; это не plan_commit назначения. Точные immutable blobs/hash — [coverage.json](../../coverage.json), parent `OPS-12`. `task` выбирает строку tasks.json по id, `solution` — preferred-solutions.json по task_id; затем dot/index selector. Для R19 identity определяется значением question_id, не позицией в другом массиве. Полностью прочитайте назначенные fragments и нужные contracts; mixed clause нельзя усечь.
 
 - **binding** — Binding scope, authority, migration, time, input, or lifecycle constraint for offline-restore; selectors task.r17_extension.delivery_slices[1] remain load-bearing.
   `task.r17_extension.delivery_slices[1]`
 - **execute** — Direct result/preferred path for offline-restore; selectors solution.implementation_steps[2] name the work and native owner seam.
   `solution.implementation_steps[2]`
 - **join** — Distinguishing behavior, consumer surface, or acceptance evidence for offline-restore; selectors task.r17_extension.quality_cases[1], task.r19_extension.question_slices[1] are checked at its actual reader/sink. Bundled subclauses: U032:{"question_id":"R18-D16-Q02","solution_ref":"solutions/lifecycle-r19/S16.md#r18-d16-q02","mechanism_ids":["S16-M2"],"role":"input collection"}.
-  `task.r17_extension.quality_cases[1]`; `task.r19_extension.question_slices[1]`
+  `task.r17_extension.quality_cases[1]`
+- **join** — The slice proves only the selected restore-generation binding; runtime fencing/lease validity still requires the exact native job-epoch/store witness and otherwise resume refuses.
+  `task.r19_extension.question_slices[1]` (`R18-D16-Q02`); `task.r19_extension.question_ids[0]` (`R18-D16-Q02`)
+
+### Обязанности внутри составных fragments
+
+- `task.r19_extension.question_slices[2]` — Join only if the operation is a restore; reconcile local DB/CAS and rights history. (primary accountability остаётся в coverage; это конкретный подрезультат, не второй writer).
+- `task.r19_extension.question_slices[3]` — Join only if restoring local state; quarantine until DB/CAS, rights and trust reconcile. (primary accountability остаётся в coverage; это конкретный подрезультат, не второй writer).
+- `task.r19_extension.question_slices[4]` — Join only for a restored cell whose local bundle/DB/CAS and rights history must be quarantined and reconciled. (primary accountability остаётся в coverage; это конкретный подрезультат, не второй writer).
 
 Inherited owner/lease/stage/activation constraints указаны в parent contract. Root/lead проверяет полное parent coverage; output этой карточки не закрывает siblings. При обнаружении пропуска остановить только affected writes/acceptance, назвать точный clause и reconciled next owner.
 

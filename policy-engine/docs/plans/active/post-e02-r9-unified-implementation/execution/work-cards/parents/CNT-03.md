@@ -27,7 +27,7 @@ Join capture-reuse's durable receipt/artifact through existing CAP-03 acquisitio
 - **binding** — R19 planned/UNRUN and composition-reference fields preserve status and parent contract, not a source/output; exact question slices route separately.
   `task.r19_extension.status`; `task.r19_extension.product_verification`; `task.r19_extension.composition_contract_ref`
 - **binding** — R19 question IDs, writer rule and assurance reference remain source navigation and native-owner/lease constraints.
-  `task.r19_extension.question_ids[0]`; `task.r19_extension.question_ids[1]`; `task.r19_extension.writer_rule`; `task.r19_extension.acceptance_ref`
+  `task.r19_extension.writer_rule`; `task.r19_extension.acceptance_ref`
 
 ## Owners и stages
 

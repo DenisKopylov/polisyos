@@ -30,26 +30,28 @@
 
 | Отношение | Точный смысл |
 |---|---|
-| Supplier [P0-ACCEPT.accepted-boundary](../../cards/P0-ACCEPT/accepted-boundary.md) | `direct:actual_E02_G_acceptance`: Every card consumes the accepted E02 source/commit and task-scoped source rebind for its own owner readback. The universal acceptance/stage/conditional gate remains the original parent contract; this map adds no second leaf gate or sequencing.<br>Выбор output: Select the exact output named in need and its original conditions, not all supplier cards. Actual source-qualified artifacts are pinned at dispatch/composition.<br>Условия: original direct relation; source stage rules govern |
-| Supplier [CNT-06](../../parents/CNT-06.md) | `direct:interface_agreement`: Provides claim/decision target for study design and claim binding for actual returns; only if numeric EVSI is selected, provide current claim/target evidence needed to qualify pre-study predictive inputs. CNT-06 retains claim/evidence ownership.<br>Выбор output: Select the exact output named in need and its original conditions, not all supplier cards. Actual source-qualified artifacts are pinned at dispatch/composition.<br>Условия: original direct relation; source stage rules govern |
-| Supplier [DEB-13.ds15-numeric-voi](../../cards/DEB-13/ds15-numeric-voi.md) | `interface_reference:reference_only_no_new_gate`: Only when numeric scientific EVSI is selected, consume DEB-13’s existing commissioned decision-value/estimand and predictive-model basis; DEB-13 retains the metric producer. Its absence does not block qualitative/bounded design or justified acquisition.<br>Выбор output: Select the exact output named in need and its original conditions, not all supplier cards. Actual source-qualified artifacts are pinned at dispatch/composition.<br>Условия: Use only as the named output/interface relationship; no new dispatch prerequisite. Canonical parent governs selected acceptance. |
+| Supplier [P0-ACCEPT.accepted-boundary](../../cards/P0-ACCEPT/accepted-boundary.md) | `direct:actual_E02_G_acceptance`: Every card consumes the accepted E02 source/commit and task-scoped source rebind for its own owner readback. The universal acceptance/stage/conditional gate remains the original parent contract; this map adds no second leaf gate or sequencing.<br>Source: `task.depends_on[0]`.<br>Условия: original direct relation; source stage rules govern |
+| Supplier [CNT-06](../../parents/CNT-06.md) | `direct:interface_agreement`: Provides claim/decision target for study design and claim binding for actual returns; only if numeric EVSI is selected, provide current claim/target evidence needed to qualify pre-study predictive inputs. CNT-06 retains claim/evidence ownership.<br>Source: `task.depends_on[2]`.<br>Условия: original direct relation; source stage rules govern |
+| Supplier [DEB-13.ds15-numeric-voi](../../cards/DEB-13/ds15-numeric-voi.md) | `interface_reference:reference_only_no_new_gate`: Only when numeric scientific EVSI is selected, consume DEB-13’s existing commissioned decision-value/estimand and predictive-model basis; DEB-13 retains the metric producer. Its absence does not block qualitative/bounded design or justified acquisition.<br>Source parent `DEB-13`: `task.deliverable`.<br>Условия: Use only as the named output/interface relationship; no new dispatch prerequisite. Canonical parent governs selected acceptance.<br>No new preparation or task-completion gate. The selected existing contract still requires its real output at the actual use described in need; absence blocks that use/claim only. An interface document is not a substituted producer receipt. |
 | Composition output (не start gate) [DES-12.study-design](../../cards/DES-12/study-design.md) | Only for selected prospective numeric EVSI/feasibility; use a qualified predictive outcome model and declared prior/payoff/decision basis. |
 | Composition output (не start gate) [DES-12.study-return](../../cards/DES-12/study-return.md) | Only when updating or validating with an actual returned result; not required for prospective EVSI. |
 
-Отсутствие внутреннего after не отменяет parent prerequisites. Conditional acceptance, execution rights и выбранные profiles разрешаются отдельно, как указано в parent contract. Номера групп и карточек не задают порядок.
+Отсутствие внутреннего after не отменяет parent prerequisites. Conditional acceptance, execution rights и выбранные profiles применяются на своей стадии. Composition links не задают порядок независимой подготовки.
 
 ## Назначенный нормативный контекст
 
-Основа: `ec3d7d38b4d246b3e1d225a1c0fc9aefae9ced0d`. Полные selectors и accountable routes — [coverage.json](../../coverage.json), parent `DES-12`. Эти ссылки не требуют чтения всех siblings. Читайте целиком каждый назначенный fragment и необходимые связанные contracts; mixed clause нельзя усечь до удобной части.
+Source-manifest base: `ec3d7d38b4d246b3e1d225a1c0fc9aefae9ced0d`; это не plan_commit назначения. Точные immutable blobs/hash — [coverage.json](../../coverage.json), parent `DES-12`. `task` выбирает строку tasks.json по id, `solution` — preferred-solutions.json по task_id; затем dot/index selector. Для R19 identity определяется значением question_id, не позицией в другом массиве. Полностью прочитайте назначенные fragments и нужные contracts; mixed clause нельзя усечь.
 
-- **execute** — Bind actual return to next choice; gross EVSI, cost-based net value and capacity feasibility need distinct premises and no scheduler. The actual supplier/consumer remains native; the input clause does not appoint an owner or grant.
-  `task.r19_extension.question_slices[8]`
-- **execute** — Only selected numeric EVSI is computed; invented priors/payoff fail, while bounded acquisition remains useful without it. The actual supplier/consumer remains native; the input clause does not appoint an owner or grant.
-  `task.r19_extension.question_slices[13]`
-- **binding** — Each source question ID is routed to the card assigned to its matching indexed question_slices clause in this parent; ID coverage preserves lineage and is not semantic proof.
-  `task.r19_extension.question_ids[8]`; `task.r19_extension.question_ids[13]`
 - **join** — Removal clause explicitly says EVSI is optional; ensure actual discrimination/result bridge remains the useful route with or without numerical economics.
   `solution.acceptance_discriminators[2]`
+- **binding** — Only optional supported economics belongs here; DES-04 owns next-choice and prospective EVSI is pre-study.
+  `task.r19_extension.question_slices[8]` (`R18-D09-Q04`); `task.r19_extension.question_ids[8]` (`R18-D09-Q04`)
+- **execute** — Run numeric EVSI only with justified predictive inputs; preserve bounded acquisition without it.
+  `task.r19_extension.question_slices[13]` (`R18-D19-Q02`); `task.r19_extension.question_ids[13]` (`R18-D19-Q02`)
+
+### Обязанности внутри составных fragments
+
+- `task.r19_extension.question_slices[12]` — Join numeric EVSI only when selected/supported. (primary accountability остаётся в coverage; это конкретный подрезультат, не второй writer).
 
 Inherited owner/lease/stage/activation constraints указаны в parent contract. Root/lead проверяет полное parent coverage; output этой карточки не закрывает siblings. При обнаружении пропуска остановить только affected writes/acceptance, назвать точный clause и reconciled next owner.
 

@@ -30,26 +30,20 @@
 
 | Отношение | Точный смысл |
 |---|---|
-| Supplier [P0-ACCEPT.accepted-boundary](../../cards/P0-ACCEPT/accepted-boundary.md) | `direct:actual_E02_G_acceptance`: Every card consumes the accepted E02 source/commit and task-scoped source rebind for its own owner readback. The universal acceptance/stage/conditional gate remains the original parent contract; this map adds no second leaf gate or sequencing.<br>Выбор output: Select the exact output named in need and its original conditions, not all supplier cards. Actual source-qualified artifacts are pinned at dispatch/composition.<br>Условия: original direct relation; source stage rules govern |
-| Supplier [DES-02.hypothesis-set](../../cards/DES-02/hypothesis-set.md) | `direct:interface_agreement`: Consumes bound candidate structure as the trial branch input; DES-02 remains the candidate writer.<br>Выбор output: Select the exact output named in need and its original conditions, not all supplier cards. Actual source-qualified artifacts are pinned at dispatch/composition.<br>Условия: original direct relation; source stage rules govern |
+| Supplier [P0-ACCEPT.accepted-boundary](../../cards/P0-ACCEPT/accepted-boundary.md) | `direct:actual_E02_G_acceptance`: Every card consumes the accepted E02 source/commit and task-scoped source rebind for its own owner readback. The universal acceptance/stage/conditional gate remains the original parent contract; this map adds no second leaf gate or sequencing.<br>Source: `task.depends_on[0]`.<br>Условия: original direct relation; source stage rules govern |
+| Supplier [DES-02.hypothesis-set](../../cards/DES-02/hypothesis-set.md) | `direct:interface_agreement`: Consumes bound candidate structure as the trial branch input; DES-02 remains the candidate writer.<br>Source: `task.depends_on[1]`.<br>Условия: original direct relation; source stage rules govern |
 | Composition output (не start gate) [DES-03.frontier-composition](../../cards/DES-03/frontier-composition.md) | Consume only for the exact composition described here: The frontier consumer joins these trial outputs with actual GYD-30 joint results, GYD-31 value sets and selected model/scenario evidence. This card does not decide a social scalar or admissible winner. This link is not an unconditional all-of or preparation gate. |
 
-Отсутствие внутреннего after не отменяет parent prerequisites. Conditional acceptance, execution rights и выбранные profiles разрешаются отдельно, как указано в parent contract. Номера групп и карточек не задают порядок.
+Отсутствие внутреннего after не отменяет parent prerequisites. Conditional acceptance, execution rights и выбранные profiles применяются на своей стадии. Composition links не задают порядок независимой подготовки.
 
 ## Назначенный нормативный контекст
 
-Основа: `ec3d7d38b4d246b3e1d225a1c0fc9aefae9ced0d`. Полные selectors и accountable routes — [coverage.json](../../coverage.json), parent `DES-03`. Эти ссылки не требуют чтения всех siblings. Читайте целиком каждый назначенный fragment и необходимые связанные contracts; mixed clause нельзя усечь до удобной части.
+Source-manifest base: `ec3d7d38b4d246b3e1d225a1c0fc9aefae9ced0d`; это не plan_commit назначения. Точные immutable blobs/hash — [coverage.json](../../coverage.json), parent `DES-03`. `task` выбирает строку tasks.json по id, `solution` — preferred-solutions.json по task_id; затем dot/index selector. Для R19 identity определяется значением question_id, не позицией в другом массиве. Полностью прочитайте назначенные fragments и нужные contracts; mixed clause нельзя усечь.
 
 - **execute** — The deliverable’s actual method-bound trial producer is owned here; frontier interpretation is a separate consumer.
   `task.deliverable`
 - **execute** — R16 structural/parameter, influence and changed-basis clauses bind actual trial identity and required reruns.
   `task.r16_extension.requirement`; `task.r16_extension.positive`; `task.r16_extension.adversarial`
-- **join** — Mechanism structure must enter actual trial execution; novelty is not itself a winning score. The clause’s named source owner remains the supplier; this route consumes its actual output.
-  `task.r19_extension.question_slices[2]`
-- **join** — Actual outcome/cost is bound to trial invocation; it stays separate from policy choice and missing-model claims. The clause’s named source owner remains the supplier; this route consumes its actual output.
-  `task.r19_extension.question_slices[3]`
-- **binding** — Each source question ID is routed to the card assigned to its matching indexed question_slices clause in this parent; ID coverage preserves lineage and is not semantic proof.
-  `task.r19_extension.question_ids[2]`; `task.r19_extension.question_ids[3]`
 - **execute** — The preferred native method creates structural/parameter trials; the actual frontier composition is the named sibling consumer.
   `solution.preferred_solution`
 - **execute** — Implementation step 0 binds the actual trial identity/selected method; named suppliers retain their own artifact owners.
@@ -62,6 +56,10 @@
   `solution.composition_contracts[2]`
 - **join** — The stochastic retry/late-completion discriminator is trial identity and accepted-result binding; old/duplicate completions remain dependent attempts, not new evidence.
   `solution.acceptance_discriminators[3]`
+- **execute** — Bind actual structural-proposal trials; structure is not a policy weight.
+  `task.r19_extension.question_slices[2]` (`R18-D08-Q02`); `task.r19_extension.question_ids[2]` (`R18-D08-Q02`)
+- **execute** — Bind actual outcomes/costs separately from policy choice.
+  `task.r19_extension.question_slices[3]` (`R18-D08-Q03`); `task.r19_extension.question_ids[3]` (`R18-D08-Q03`)
 
 Inherited owner/lease/stage/activation constraints указаны в parent contract. Root/lead проверяет полное parent coverage; output этой карточки не закрывает siblings. При обнаружении пропуска остановить только affected writes/acceptance, назвать точный clause и reconciled next owner.
 

@@ -33,16 +33,14 @@
 | Composition output (не start gate) [GYD-33.scholar-l2](../../cards/GYD-33/scholar-l2.md) | Only for the selected same-scope composition described by this card: Fresh consumer: fresh N4/N8/N1/N2 readers. Bridge owns no upstream source writer, GY-K adjudication or GY-G composition. Independent output production/preparation remains allowed; the original parent join reconciles all required outcomes without making this list an all-of. |
 | Composition output (не start gate) [GYD-33.lex-l3](../../cards/GYD-33/lex-l3.md) | Only for the selected same-scope composition described by this card: Fresh consumer: fresh N4/N8/N1/N2 readers. Bridge owns no upstream source writer, GY-K adjudication or GY-G composition. Independent output production/preparation remains allowed; the original parent join reconciles all required outcomes without making this list an all-of. |
 
-Отсутствие внутреннего after не отменяет parent prerequisites. Conditional acceptance, execution rights и выбранные profiles разрешаются отдельно, как указано в parent contract. Номера групп и карточек не задают порядок.
+Отсутствие внутреннего after не отменяет parent prerequisites. Conditional acceptance, execution rights и выбранные profiles применяются на своей стадии. Composition links не задают порядок независимой подготовки.
 
 ## Назначенный нормативный контекст
 
-Основа: `ec3d7d38b4d246b3e1d225a1c0fc9aefae9ced0d`. Полные selectors и accountable routes — [coverage.json](../../coverage.json), parent `GYD-33`. Эти ссылки не требуют чтения всех siblings. Читайте целиком каждый назначенный fragment и необходимые связанные contracts; mixed clause нельзя усечь до удобной части.
+Source-manifest base: `ec3d7d38b4d246b3e1d225a1c0fc9aefae9ced0d`; это не plan_commit назначения. Точные immutable blobs/hash — [coverage.json](../../coverage.json), parent `GYD-33`. `task` выбирает строку tasks.json по id, `solution` — preferred-solutions.json по task_id; затем dot/index selector. Для R19 identity определяется значением question_id, не позицией в другом массиве. Полностью прочитайте назначенные fragments и нужные contracts; mixed clause нельзя усечь.
 
 - **execute** — Parent criteria and fresh N-reader surface close only when the single actual bridge resolves source-specific L2/L3 outputs; GY-K appointment stays separate.
   `task.deliverable`; `task.positive`; `task.adversarial`; `task.removal`; `task.surface`; `task.rollback`; `task.migration`
-- **join** — Bundled question slices require Scholar/Lex source-owner/time evidence, fresh amendment-as-of readback, contested/threshold propagation and an unaffected grounded result.
-  `task.r19_extension.question_slices[0]`; `task.r19_extension.question_slices[1]`; `task.r19_extension.question_ids[0]`; `task.r19_extension.question_ids[1]`
 - **execute** — Keep writers separate, bind typed artifacts with source/rule/time, read N4/N8/N1/N2, propagate statuses and exercise fake/missing/wrong-date/removed-bridge probes.
   `solution.implementation_steps[1]`; `solution.implementation_steps[2]`; `solution.implementation_steps[3]`
 - **binding** — New protocol uses one typed bridge; incomplete required subgraph/as-of threshold widens or refuses.
@@ -51,8 +49,15 @@
   `solution.composition_contracts[1]`; `solution.composition_contracts[2]`; `solution.acceptance_discriminators[0]`; `solution.acceptance_discriminators[1]`
 - **binding** — Missing owner/time semantics stays limited; partial graph cannot infer support.
   `solution.deviation_triggers[0]`
-- **secondary_bridge_consumer — subclause:** One typed bridge consumes both outputs and fresh N4/N8/N1/N2 readbacks.; source `solution.preferred_solution`. Primary fragment route stays unchanged; this identifies the owned sub-result.
-- **secondary_bridge_rebind — subclause:** Bridge binds and reads back the separately versioned L2/L3 facts under source/rule/time identity.; source `solution.implementation_steps[0]`. Primary fragment route stays unchanged; this identifies the owned sub-result.
+- **join** — The single bridge must bind source-specific Scholar L2 and Lex L3 evidence to a fresh N4/N8/N1/N2 as-of consumer; graph-row presence cannot substitute for either source denominator or effective time.
+  `task.r19_extension.question_slices[0]` (`R18-D18-Q01`); `task.r19_extension.question_ids[0]` (`R18-D18-Q01`)
+- **join** — The shared reader propagates only the disputed evidence/threshold limitation to fresh downstream consumers while leaving independently grounded output usable; arrival order cannot override effective time.
+  `task.r19_extension.question_slices[1]` (`R18-D18-Q02`); `task.r19_extension.question_ids[1]` (`R18-D18-Q02`)
+
+### Обязанности внутри составных fragments
+
+- `solution.preferred_solution` — One typed bridge consumes both outputs and fresh N4/N8/N1/N2 readbacks. (primary accountability остаётся в coverage; это конкретный подрезультат, не второй writer).
+- `solution.implementation_steps[0]` — Bridge binds and reads back the separately versioned L2/L3 facts under source/rule/time identity. (primary accountability остаётся в coverage; это конкретный подрезультат, не второй writer).
 
 Inherited owner/lease/stage/activation constraints указаны в parent contract. Root/lead проверяет полное parent coverage; output этой карточки не закрывает siblings. При обнаружении пропуска остановить только affected writes/acceptance, назвать точный clause и reconciled next owner.
 

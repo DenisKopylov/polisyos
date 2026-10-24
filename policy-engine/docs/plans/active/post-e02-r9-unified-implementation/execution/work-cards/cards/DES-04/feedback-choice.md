@@ -30,15 +30,15 @@
 
 | Отношение | Точный смысл |
 |---|---|
-| Supplier [P0-ACCEPT.accepted-boundary](../../cards/P0-ACCEPT/accepted-boundary.md) | `direct:actual_E02_G_acceptance`: Every card consumes the accepted E02 source/commit and task-scoped source rebind for its own owner readback. The universal acceptance/stage/conditional gate remains the original parent contract; this map adds no second leaf gate or sequencing.<br>Выбор output: Select the exact output named in need and its original conditions, not all supplier cards. Actual source-qualified artifacts are pinned at dispatch/composition.<br>Условия: original direct relation; source stage rules govern |
-| Supplier [DES-02.hypothesis-set](../../cards/DES-02/hypothesis-set.md) | `direct:interface_agreement`: Feedback consumes actual candidate lineage; acquisition-return consumes selected evidence gaps only where this output produced them.<br>Выбор output: Select the exact output named in need and its original conditions, not all supplier cards. Actual source-qualified artifacts are pinned at dispatch/composition.<br>Условия: original direct relation; source stage rules govern |
-| Supplier [DES-03](../../parents/DES-03.md) | `direct:interface_agreement`: Feedback consumes actual numerical outcomes; acquisition-return consumes a selected missing-evidence need, not all DES-03 work.<br>Выбор output: Select the exact output named in need and its original conditions, not all supplier cards. Actual source-qualified artifacts are pinned at dispatch/composition.<br>Условия: original direct relation; source stage rules govern |
+| Supplier [P0-ACCEPT.accepted-boundary](../../cards/P0-ACCEPT/accepted-boundary.md) | `direct:actual_E02_G_acceptance`: Every card consumes the accepted E02 source/commit and task-scoped source rebind for its own owner readback. The universal acceptance/stage/conditional gate remains the original parent contract; this map adds no second leaf gate or sequencing.<br>Source: `task.depends_on[0]`.<br>Условия: original direct relation; source stage rules govern |
+| Supplier [DES-02.hypothesis-set](../../cards/DES-02/hypothesis-set.md) | `direct:interface_agreement`: Feedback consumes actual candidate lineage; acquisition-return consumes selected evidence gaps only where this output produced them.<br>Source: `task.depends_on[1]`.<br>Условия: original direct relation; source stage rules govern |
+| Supplier [DES-03](../../parents/DES-03.md) | `direct:interface_agreement`: Feedback consumes actual numerical outcomes; acquisition-return consumes a selected missing-evidence need, not all DES-03 work.<br>Source: `task.depends_on[2]`.<br>Условия: original direct relation; source stage rules govern |
 
-Отсутствие внутреннего after не отменяет parent prerequisites. Conditional acceptance, execution rights и выбранные profiles разрешаются отдельно, как указано в parent contract. Номера групп и карточек не задают порядок.
+Отсутствие внутреннего after не отменяет parent prerequisites. Conditional acceptance, execution rights и выбранные profiles применяются на своей стадии. Composition links не задают порядок независимой подготовки.
 
 ## Назначенный нормативный контекст
 
-Основа: `ec3d7d38b4d246b3e1d225a1c0fc9aefae9ced0d`. Полные selectors и accountable routes — [coverage.json](../../coverage.json), parent `DES-04`. Эти ссылки не требуют чтения всех siblings. Читайте целиком каждый назначенный fragment и необходимые связанные contracts; mixed clause нельзя усечь до удобной части.
+Source-manifest base: `ec3d7d38b4d246b3e1d225a1c0fc9aefae9ced0d`; это не plan_commit назначения. Точные immutable blobs/hash — [coverage.json](../../coverage.json), parent `DES-04`. `task` выбирает строку tasks.json по id, `solution` — preferred-solutions.json по task_id; затем dot/index selector. Для R19 identity определяется значением question_id, не позицией в другом массиве. Полностью прочитайте назначенные fragments и нужные contracts; mixed clause нельзя усечь.
 
 - **execute** — The native N6 feedback bridge is the core producer; the separately named N7 acquisition-return output joins only when selected.
   `task.deliverable`
@@ -54,16 +54,6 @@
   `task.r17_extension.requirement`; `task.r17_extension.positive`; `task.r17_extension.adversarial`
 - **join** — R17 delivery/quality references support the selected revision/acquisition loop; exact predicates and suppliers remain native.
   `task.r17_extension.delivery_slices[0]`; `task.r17_extension.delivery_slices[1]`; `task.r17_extension.delivery_slices[2]`; `task.r17_extension.quality_cases[0]`; `task.r17_extension.quality_cases[1]`; `task.r17_extension.quality_cases[2]`; `task.r17_extension.quality_cases[3]`
-- **join** — Outside-case anomaly stays candidate-only but may change a later candidate/acquisition choice; lineage and commission status remain distinct. The existing source/method/memory owner supplies its actual output; DES-04 only bridges the selected choice.
-  `task.r19_extension.question_slices[0]`
-- **join** — Actual feedback×order pair setting must reach the affected branch; main effects do not stand in for their interaction. The existing source/method/memory owner supplies its actual output; DES-04 only bridges the selected choice.
-  `task.r19_extension.question_slices[3]`
-- **join** — A scoped version/precondition warning may change a later choice, but only a transport witness may extend beyond local hint. The existing source/method/memory owner supplies its actual output; DES-04 only bridges the selected choice.
-  `task.r19_extension.question_slices[6]`
-- **join** — Standing feedback/study/change duty must preserve revocation and useful work under a bounded resource/fairness rule. The existing source/method/memory owner supplies its actual output; DES-04 only bridges the selected choice.
-  `task.r19_extension.question_slices[7]`
-- **binding** — Each source question ID is routed to the card assigned to its matching indexed question_slices clause in this parent; ID coverage preserves lineage and is not semantic proof.
-  `task.r19_extension.question_ids[0]`; `task.r19_extension.question_ids[3]`; `task.r19_extension.question_ids[6]`; `task.r19_extension.question_ids[7]`
 - **execute** — The preferred native N6/N7 bridge is anchored on the feedback-choice output; selected acquisition returns remain a distinct sibling result.
   `solution.preferred_solution`
 - **execute** — Implementation step 0 routes to feedback-choice: actual property-bound feedback/branch work stays with N6; selected CAP/GYD-24 return stays with N7; the integration witness joins both outputs.
@@ -76,6 +66,18 @@
   `solution.acceptance_discriminators[0]`
 - **join** — Repeated paraphrases, proxy grounding and declared-vs-actual coverage are feedback-choice semantics and need the actual N6 frontier.
   `solution.acceptance_discriminators[1]`
+- **execute** — Permitted anomaly may change later acquisition/candidate choice, never commission or scope.
+  `task.r19_extension.question_slices[0]` (`R18-D01-Q01`); `task.r19_extension.question_ids[0]` (`R18-D01-Q01`)
+- **execute** — Record actual feedback/order and affected branch for predeclared interaction.
+  `task.r19_extension.question_slices[3]` (`R18-D08-Q05`); `task.r19_extension.question_ids[3]` (`R18-D08-Q05`)
+- **execute** — Warning changes later choice only with matching version/precondition; transport is separate.
+  `task.r19_extension.question_slices[6]` (`R18-D10-Q02`); `task.r19_extension.question_ids[6]` (`R18-D10-Q02`)
+- **execute** — Run bounded standing duty without erasing revoke or starving closed case.
+  `task.r19_extension.question_slices[7]` (`R18-D16-Q01`); `task.r19_extension.question_ids[7]` (`R18-D16-Q01`)
+
+### Обязанности внутри составных fragments
+
+- `task.r19_extension.question_slices[5]` — Consume actual return at next choice; do not duplicate N7 bridge. (primary accountability остаётся в coverage; это конкретный подрезультат, не второй writer).
 
 Inherited owner/lease/stage/activation constraints указаны в parent contract. Root/lead проверяет полное parent coverage; output этой карточки не закрывает siblings. При обнаружении пропуска остановить только affected writes/acceptance, назвать точный clause и reconciled next owner.
 

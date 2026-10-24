@@ -30,18 +30,20 @@
 
 | Отношение | Точный смысл |
 |---|---|
-| Supplier [P0-ACCEPT.accepted-boundary](../../cards/P0-ACCEPT/accepted-boundary.md) | `direct:actual_E02_G_acceptance`: Accepted E02 source/caller and source denominator are consumed for rebind; preparation may precede and original P0 remains stage gate.<br>Выбор output: Select the exact output named in need and its original conditions, not all supplier cards. Actual source-qualified artifacts are pinned at dispatch/composition.<br>Условия: original direct relation; source stage rules govern |
+| Supplier [P0-ACCEPT.accepted-boundary](../../cards/P0-ACCEPT/accepted-boundary.md) | `direct:actual_E02_G_acceptance`: Accepted E02 source/caller and source denominator are consumed for rebind; preparation may precede and original P0 remains stage gate.<br>Source: `task.depends_on[0]`.<br>Условия: original direct relation; source stage rules govern |
 | Composition output (не start gate) [CAP-01.query-disclosure](../../cards/CAP-01/query-disclosure.md) | Only when this candidate actually requires sending a query to a provider; local candidate construction does not wait. |
 | Composition output (не start gate) [CAP-01.bounded-coverage](../../cards/CAP-01/bounded-coverage.md) | Only when the selected output makes a bounded absence/no-hit or search-coverage claim; candidate listing alone does not require that outcome. |
 
-Отсутствие внутреннего after не отменяет parent prerequisites. Conditional acceptance, execution rights и выбранные profiles разрешаются отдельно, как указано в parent contract. Номера групп и карточек не задают порядок.
+Отсутствие внутреннего after не отменяет parent prerequisites. Conditional acceptance, execution rights и выбранные profiles применяются на своей стадии. Composition links не задают порядок независимой подготовки.
 
 ## Назначенный нормативный контекст
 
-Основа: `ec3d7d38b4d246b3e1d225a1c0fc9aefae9ced0d`. Полные selectors и accountable routes — [coverage.json](../../coverage.json), parent `CAP-01`. Эти ссылки не требуют чтения всех siblings. Читайте целиком каждый назначенный fragment и необходимые связанные contracts; mixed clause нельзя усечь до удобной части.
+Source-manifest base: `ec3d7d38b4d246b3e1d225a1c0fc9aefae9ced0d`; это не plan_commit назначения. Точные immutable blobs/hash — [coverage.json](../../coverage.json), parent `CAP-01`. `task` выбирает строку tasks.json по id, `solution` — preferred-solutions.json по task_id; затем dot/index selector. Для R19 identity определяется значением question_id, не позицией в другом массиве. Полностью прочитайте назначенные fragments и нужные contracts; mixed clause нельзя усечь.
 
 - **execute** — Bind exact source/profile and existing catalog/connector, keep candidate separate from source-use, preserve typed extension/resource limits and legacy re-resolution; U052 consumes query output in the positive path.
-  `task.migration`; `task.r19_extension.question_slices[1]`; `solution.preferred_solution`; `solution.implementation_steps[1]`; `solution.implementation_steps[3]`; `solution.free_grow.data_or_config_growth`; `solution.free_grow.extension_boundary`; `solution.free_grow.resource_behavior`; `solution.composition_contracts[1]`; `solution.composition_contracts[2]`; `solution.acceptance_discriminators[0]`; `solution.deviation_triggers[1]`; `solution.inputs_to_resolve[2]`
+  `task.migration`; `solution.preferred_solution`; `solution.implementation_steps[1]`; `solution.implementation_steps[3]`; `solution.free_grow.data_or_config_growth`; `solution.free_grow.extension_boundary`; `solution.free_grow.resource_behavior`; `solution.composition_contracts[1]`; `solution.composition_contracts[2]`; `solution.acceptance_discriminators[0]`; `solution.deviation_triggers[1]`; `solution.inputs_to_resolve[2]`
+- **execute** — Current route matches: bind the resolved exact source receipt; discovery is not a right, and stale mirrors/self-license fail admission.
+  `task.r19_extension.question_slices[1]` (`R18-D09-Q01`); `task.r19_extension.question_ids[1]` (`R18-D09-Q01`)
 
 Inherited owner/lease/stage/activation constraints указаны в parent contract. Root/lead проверяет полное parent coverage; output этой карточки не закрывает siblings. При обнаружении пропуска остановить только affected writes/acceptance, назвать точный clause и reconciled next owner.
 

@@ -27,8 +27,6 @@ Join facet-map's common 26-family grammar/routes/limits with commissioned-case's
   `task.mandatory_companions[0]`; `task.mandatory_companions[1]`; `task.mandatory_companions[2]`; `task.mandatory_companions[3]`; `task.mandatory_companions[4]`
 - **binding** — R19 status/verification and architecture-reference fields preserve source status and composition contract; they do not appoint another implementer or create proof.
   `task.r19_extension.status`; `task.r19_extension.product_verification`; `task.r19_extension.composition_contract_ref`
-- **binding** — Question IDs are navigation to the canonical R19 slices; their semantic slices route to commissioned-case and their canonical source remains authoritative.
-  `task.r19_extension.question_ids[0]`; `task.r19_extension.question_ids[1]`; `task.r19_extension.question_ids[2]`; `task.r19_extension.question_ids[3]`; `task.r19_extension.question_ids[4]`
 - **binding** — The writer rule and shared assurance reference bind every case card to native owners and cross-owner producer/consumer leases.
   `task.r19_extension.writer_rule`; `task.r19_extension.acceptance_ref`
 

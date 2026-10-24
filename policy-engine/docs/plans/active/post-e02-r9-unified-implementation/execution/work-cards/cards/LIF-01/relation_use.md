@@ -30,17 +30,17 @@
 
 | Отношение | Точный смысл |
 |---|---|
-| Supplier [P0-ACCEPT.accepted-boundary](../../cards/P0-ACCEPT/accepted-boundary.md) | `direct:actual_E02_G_acceptance`: Root preserves accepted E02 stage/rebind.<br>Выбор output: Select the exact output named in need and its original conditions, not all supplier cards. Actual source-qualified artifacts are pinned at dispatch/composition.<br>Условия: original direct relation; source stage rules govern |
-| Supplier [CAP-02](../../parents/CAP-02.md) | `acceptance:composition`: Actual selected output is consumed by the local composition reader; acceptance is composition-only, not a preparation prerequisite.<br>Выбор output: Select the exact output named in need and its original conditions, not all supplier cards. Actual source-qualified artifacts are pinned at dispatch/composition.<br>Условия: selected parent composed claim; not a new preparation dependency |
-| Supplier [LIF-09](../../parents/LIF-09.md) | `acceptance:composition`: Actual selected output is consumed by the local composition reader; acceptance is composition-only, not a preparation prerequisite.<br>Выбор output: Select the exact output named in need and its original conditions, not all supplier cards. Actual source-qualified artifacts are pinned at dispatch/composition.<br>Условия: selected parent composed claim; not a new preparation dependency |
+| Supplier [P0-ACCEPT.accepted-boundary](../../cards/P0-ACCEPT/accepted-boundary.md) | `direct:actual_E02_G_acceptance`: Root preserves accepted E02 stage/rebind.<br>Source: `task.depends_on[0]`.<br>Условия: original direct relation; source stage rules govern |
+| Supplier [CAP-02](../../parents/CAP-02.md) | `acceptance:composition`: Actual selected output is consumed by the local composition reader; acceptance is composition-only, not a preparation prerequisite.<br>Source: `task.acceptance_dependencies[0]`.<br>Условия: selected parent composed claim; not a new preparation dependency |
+| Supplier [LIF-09](../../parents/LIF-09.md) | `acceptance:composition`: Actual selected output is consumed by the local composition reader; acceptance is composition-only, not a preparation prerequisite.<br>Source: `task.acceptance_dependencies[1]`.<br>Условия: selected parent composed claim; not a new preparation dependency |
 | Composition output (не start gate) [LIF-01.cache_current_use](../../cards/LIF-01/cache_current_use.md) | Only when this selected use takes the cache-eligible reuse path; an uncached or fresh-evaluation use does not require cache identity. |
 | Composition output (не start gate) [LIF-01.trial_realization](../../cards/LIF-01/trial_realization.md) | Only for a selected stochastic/replay/fresh-replicate claim; ordinary scoped relation/use does not require trial realization. |
 
-Отсутствие внутреннего after не отменяет parent prerequisites. Conditional acceptance, execution rights и выбранные profiles разрешаются отдельно, как указано в parent contract. Номера групп и карточек не задают порядок.
+Отсутствие внутреннего after не отменяет parent prerequisites. Conditional acceptance, execution rights и выбранные profiles применяются на своей стадии. Composition links не задают порядок независимой подготовки.
 
 ## Назначенный нормативный контекст
 
-Основа: `ec3d7d38b4d246b3e1d225a1c0fc9aefae9ced0d`. Полные selectors и accountable routes — [coverage.json](../../coverage.json), parent `LIF-01`. Эти ссылки не требуют чтения всех siblings. Читайте целиком каждый назначенный fragment и необходимые связанные contracts; mixed clause нельзя усечь до удобной части.
+Source-manifest base: `ec3d7d38b4d246b3e1d225a1c0fc9aefae9ced0d`; это не plan_commit назначения. Точные immutable blobs/hash — [coverage.json](../../coverage.json), parent `LIF-01`. `task` выбирает строку tasks.json по id, `solution` — preferred-solutions.json по task_id; затем dot/index selector. Для R19 identity определяется значением question_id, не позицией в другом массиве. Полностью прочитайте назначенные fragments и нужные contracts; mixed clause нельзя усечь.
 
 - **execute** — Relation/use delivery and scoped positive.
   `task.deliverable`; `task.positive[0]`
@@ -50,22 +50,6 @@
   `task.acceptance_steps[5]`
 - **execute** — CAP receipt and R17 relation/use positive/adversarial/removal.
   `task.acceptance_evidence_requirements[0]`; `task.r17_extension.requirement`; `task.r17_extension.positive`; `task.r17_extension.adversarial`; `task.r17_extension.removal`
-- **binding** — R18-D04-Q01 identity/source/scope/time/purpose; episodes/successors.
-  `task.r19_extension.question_slices[0]`; `task.r19_extension.question_ids[0]`
-- **execute** — R18-D04-Q02 applicability exact claim/action/population/audience.
-  `task.r19_extension.question_slices[1]`; `task.r19_extension.question_ids[1]`
-- **execute** — R18-D04-Q03 content-bound interpretation and verifier removal.
-  `task.r19_extension.question_slices[2]`; `task.r19_extension.question_ids[2]`
-- **execute** — R18-D04-Q04 qualified procedural order/facts.
-  `task.r19_extension.question_slices[3]`; `task.r19_extension.question_ids[3]`
-- **execute** — R18-D04-Q06 exact required procedural evidence.
-  `task.r19_extension.question_slices[4]`; `task.r19_extension.question_ids[4]`
-- **execute** — R18-D09-Q01 exact legal basis/dependency.
-  `task.r19_extension.question_slices[5]`; `task.r19_extension.question_ids[5]`
-- **binding** — R18-D15-Q01 LIF01 relation; LIF05 sink rights.
-  `task.r19_extension.question_slices[6]`; `task.r19_extension.question_ids[6]`
-- **execute** — R18-D18-Q04 foreign content to local use.
-  `task.r19_extension.question_slices[8]`; `task.r19_extension.question_ids[8]`
 - **execute** — Resolve representation, emit verifier, bind use, no auto-upgrade.
   `solution.implementation_steps[0]`; `solution.implementation_steps[1]`; `solution.implementation_steps[2]`; `solution.implementation_steps[3]`
 - **binding** — Profile/owner/resource/migration and CAP/domain/Claim contracts.
@@ -76,6 +60,22 @@
   `solution.acceptance_discriminators[4]`
 - **binding** — Deviation, authority extension and actual CAP/domain/claim inputs.
   `solution.deviation_triggers[0]`; `solution.deviation_triggers[1]`; `solution.deviation_triggers[2]`; `solution.inputs_to_resolve[0]`; `solution.inputs_to_resolve[1]`; `solution.inputs_to_resolve[2]`
+- **binding** — task.r19_extension.question_slices[0] crosswalks by actual value to question_ids[6]. Defines relation identity, role, source, scope, time, purpose and distinct episodes; relation_use owns this binding.
+  `task.r19_extension.question_slices[0]` (`R18-D15-Q01`); `task.r19_extension.question_ids[6]` (`R18-D15-Q01`)
+- **execute** — task.r19_extension.question_slices[1] crosswalks by actual value to question_ids[0]. Limits applicability to one claim, action, population, purpose and audience; this is the relation-to-use contract.
+  `task.r19_extension.question_slices[1]` (`R18-D04-Q01`); `task.r19_extension.question_ids[0]` (`R18-D04-Q01`)
+- **execute** — task.r19_extension.question_slices[2] crosswalks by actual value to question_ids[1]. Requires resolved, content-bound interpretation for the exact local use; the use consumer belongs here.
+  `task.r19_extension.question_slices[2]` (`R18-D04-Q02`); `task.r19_extension.question_ids[1]` (`R18-D04-Q02`)
+- **execute** — task.r19_extension.question_slices[3] crosswalks by actual value to question_ids[2]. Binds the qualified proceeding/order and resolved facts to this claim-use, not to a global case status.
+  `task.r19_extension.question_slices[3]` (`R18-D04-Q03`); `task.r19_extension.question_ids[2]` (`R18-D04-Q03`)
+- **execute** — task.r19_extension.question_slices[4] crosswalks by actual value to question_ids[3]. Checks each procedural item against the exact claim requirement and resolved evidence, rather than trusting a checklist.
+  `task.r19_extension.question_slices[4]` (`R18-D04-Q04`); `task.r19_extension.question_ids[3]` (`R18-D04-Q04`)
+- **execute** — task.r19_extension.question_slices[5] crosswalks by actual value to question_ids[4]. Freezes the legal basis to the claim dependency; currentness reaction to later change remains LIF-02 work.
+  `task.r19_extension.question_slices[5]` (`R18-D04-Q06`); `task.r19_extension.question_ids[4]` (`R18-D04-Q06`)
+- **binding** — task.r19_extension.question_slices[6] crosswalks by actual value to question_ids[5]. Supplies the relation and scoped action-right context; LIF-05 remains the action-specific rights decision owner.
+  `task.r19_extension.question_slices[6]` (`R18-D09-Q01`); `task.r19_extension.question_ids[5]` (`R18-D09-Q01`)
+- **execute** — task.r19_extension.question_slices[8] crosswalks by actual value to question_ids[8]. Binds resolved foreign content to one local use/audience; directional compatibility is a separate LIF-08 consumer.
+  `task.r19_extension.question_slices[8]` (`R18-D18-Q04`); `task.r19_extension.question_ids[8]` (`R18-D18-Q04`)
 
 Inherited owner/lease/stage/activation constraints указаны в parent contract. Root/lead проверяет полное parent coverage; output этой карточки не закрывает siblings. При обнаружении пропуска остановить только affected writes/acceptance, назвать точный clause и reconciled next owner.
 

@@ -11,6 +11,8 @@
   `composition review`) и именованный accountable owner родителя.
 - Plan commit, actual E02 acceptance, accepted code/tree, selected profile,
   input/contract/rule refs. Stable slice ID не заменяет version binding.
+- `manifest_source_base`, точные task/preferred manifest blob/SHA256 и selectors
+  из coverage.source_files — отдельно от current `plan_commit`.
 - `slice_id` — только identity назначения: он не создаёт canonical task/DAG edge,
   product status или право closure. Для multi-parent packet каждый parent route
   reconciled отдельно; остаток одного родителя не блокирует unrelated работу.
@@ -47,6 +49,10 @@ fresh consumer → permitted surface. Для verification роли — та же
 Для каждого supplier назвать output, owning task, требуемую **стадию** и actual
 ref либо agreed interface для preparation. Отдельно completion composition join;
 не использовать одну общую dependency list для этих разных отношений.
+
+Указать `root_journal_ref`: точный путь/ref действующего журнала назначений и
+его наблюдаемую revision; приложить относящиеся к этому packet lease/dispatch entries.
+Шаблон журнала или ссылка на прежний чат не заменяет actual assignment.
 
 Назвать exact read/write paths, semantic-owner и generated-family leases,
 mandatory companions, ресурсы и stop/recovery rule. При неизвестном write set

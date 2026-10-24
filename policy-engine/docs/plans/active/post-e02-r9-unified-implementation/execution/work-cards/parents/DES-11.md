@@ -52,6 +52,10 @@ Reconcile actual observable-history/incumbent context through the selected evalu
   `solution.acceptance_discriminators[0]`
 - **binding** — Deviation triggers, external input resolution and migration remain parent-level boundaries across the three checkpoints.
   `solution.deviation_triggers[0]`; `solution.deviation_triggers[1]`; `solution.deviation_triggers[2]`; `solution.inputs_to_resolve[0]`; `solution.input_resolution_rule`
+- **join** — Joint schedule feasibility is GYD-30's witness; DES-11 supplies history/capacity inputs and does not duplicate it.
+  `task.r19_extension.question_slices[5]` (`R18-D20-Q02`); `task.r19_extension.question_ids[5]` (`R18-D20-Q02`)
+- **join** — Source/method is unresolved; retain bounded candidate and appoint no evidence/legal owner.
+  `task.r19_extension.question_slices[6]` (`R18-D20-Q03`); `task.r19_extension.question_ids[6]` (`R18-D20-Q03`)
 
 ## Owners и stages
 

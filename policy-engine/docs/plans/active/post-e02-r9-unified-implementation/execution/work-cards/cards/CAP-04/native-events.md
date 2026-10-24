@@ -30,20 +30,34 @@
 
 | Отношение | Точный смысл |
 |---|---|
-| Supplier [P0-ACCEPT.accepted-boundary](../../cards/P0-ACCEPT/accepted-boundary.md) | `direct:actual_E02_G_acceptance`: Accepted selected owner/path consumed when resolved; original stage gate remains.<br>Выбор output: Select the exact output named in need and its original conditions, not all supplier cards. Actual source-qualified artifacts are pinned at dispatch/composition.<br>Условия: original direct relation; source stage rules govern |
-| Supplier [CAP-03](../../parents/CAP-03.md) | `direct:owner_readiness`: Consume exact root/relation only for source event or observed content binding.<br>Выбор output: Select the exact output named in need and its original conditions, not all supplier cards. Actual source-qualified artifacts are pinned at dispatch/composition.<br>Условия: original direct relation; source stage rules govern |
+| Supplier [P0-ACCEPT.accepted-boundary](../../cards/P0-ACCEPT/accepted-boundary.md) | `direct:actual_E02_G_acceptance`: Accepted selected owner/path consumed when resolved; original stage gate remains.<br>Source: `task.depends_on[0]`.<br>Условия: original direct relation; source stage rules govern |
+| Supplier [CAP-03](../../parents/CAP-03.md) | `direct:owner_readiness`: Consume exact root/relation only for source event or observed content binding.<br>Source: `task.depends_on[1]`.<br>Условия: original direct relation; source stage rules govern |
 
-Отсутствие внутреннего after не отменяет parent prerequisites. Conditional acceptance, execution rights и выбранные profiles разрешаются отдельно, как указано в parent contract. Номера групп и карточек не задают порядок.
+Отсутствие внутреннего after не отменяет parent prerequisites. Conditional acceptance, execution rights и выбранные profiles применяются на своей стадии. Composition links не задают порядок независимой подготовки.
 
 ## Назначенный нормативный контекст
 
-Основа: `ec3d7d38b4d246b3e1d225a1c0fc9aefae9ced0d`. Полные selectors и accountable routes — [coverage.json](../../coverage.json), parent `CAP-04`. Эти ссылки не требуют чтения всех siblings. Читайте целиком каждый назначенный fragment и необходимые связанные contracts; mixed clause нельзя усечь до удобной части.
+Source-manifest base: `ec3d7d38b4d246b3e1d225a1c0fc9aefae9ced0d`; это не plan_commit назначения. Точные immutable blobs/hash — [coverage.json](../../coverage.json), parent `CAP-04`. `task` выбирает строку tasks.json по id, `solution` — preferred-solutions.json по task_id; затем dot/index selector. Для R19 identity определяется значением question_id, не позицией в другом массиве. Полностью прочитайте назначенные fragments и нужные contracts; mixed clause нельзя усечь.
 
 - **execute** — Qualified source/custodian events bind source position, correction lineage, scope/coverage and verifier; new event kinds need typed owner, not CAP adjudication.
-  `task.r16_extension.requirement`; `task.r16_extension.positive`; `task.r16_extension.adversarial`; `task.r16_extension.removal`; `task.r16_extension.delivery_slices[0]`; `task.r16_extension.quality_cases[0]`; `task.r16_extension.quality_cases[1]`; `task.r16_extension.quality_cases[2]`; `task.r16_extension.product_verification`; `task.r17_extension.requirement`; `task.r17_extension.positive`; `task.r17_extension.adversarial`; `task.r17_extension.removal`; `task.r19_extension.question_slices[0]`; `task.r19_extension.question_slices[1]`; `task.r19_extension.question_slices[4]`; `task.r19_extension.question_slices[8]`; `task.r19_extension.question_slices[9]`; `task.r19_extension.question_ids[3]`; `task.r19_extension.question_ids[5]`; `task.r19_extension.question_ids[8]`; `solution.preferred_solution`; `solution.implementation_steps[1]`; `solution.free_grow.extension_boundary`; `solution.composition_contracts[1]`; `solution.deviation_triggers[1]`
+  `task.r16_extension.requirement`; `task.r16_extension.positive`; `task.r16_extension.adversarial`; `task.r16_extension.removal`; `task.r16_extension.delivery_slices[0]`; `task.r16_extension.quality_cases[0]`; `task.r16_extension.quality_cases[1]`; `task.r16_extension.quality_cases[2]`; `task.r16_extension.product_verification`; `task.r17_extension.requirement`; `task.r17_extension.positive`; `task.r17_extension.adversarial`; `task.r17_extension.removal`; `solution.preferred_solution`; `solution.implementation_steps[1]`; `solution.free_grow.extension_boundary`; `solution.composition_contracts[1]`; `solution.deviation_triggers[1]`
 - **binding** — Q12 late corrections preserve source/effective/known time roles; local observation order is not external order.
   `task.r17_extension.quality_cases[3]`
-- **binding — subclause:** Do not infer enrollment from positive references or verified events from URL changes.; source `task.migration`. Primary fragment route stays unchanged; this identifies the owned sub-result.
+- **execute** — Current route matches: a source-qualified change/correction carries its own coverage and effective/known times; late corrections replay through the existing currentness owner.
+  `task.r19_extension.question_slices[0]` (`R18-D15-Q02`); `task.r19_extension.question_ids[3]` (`R18-D15-Q02`)
+- **execute** — Current route matches: only actually supplied or source/custodian-supported corrections become events; CNT-06 metrics update their own claims and are not recast as source events.
+  `task.r19_extension.question_slices[1]` (`R18-D03-Q03`); `task.r19_extension.question_ids[0]` (`R18-D03-Q03`)
+- **execute** — Current route matches: persist actual source event, cut, and correction lineage; an empty inbox or duplicate is not an adjudication or proof of no harm.
+  `task.r19_extension.question_slices[4]` (`R18-D22-Q05`); `task.r19_extension.question_ids[9]` (`R18-D22-Q05`)
+- **execute** — Current route matches: the actual supplier shutdown notice is a source-specific lifecycle event, not a universal scheduler signal.
+  `task.r19_extension.question_slices[8]` (`R18-D17-Q04`); `task.r19_extension.question_ids[5]` (`R18-D17-Q04`)
+- **execute** — Current route matches: persist source/time/coverage for the material event; its label alone cannot establish a regime change.
+  `task.r19_extension.question_slices[9]` (`R18-D20-Q05`); `task.r19_extension.question_ids[6]` (`R18-D20-Q05`)
+
+### Обязанности внутри составных fragments
+
+- `task.migration` — Do not infer enrollment from positive references or verified events from URL changes. (primary accountability остаётся в coverage; это конкретный подрезультат, не второй writer).
+- `task.r19_extension.question_slices[3]` — Emit/bind a source-cut event only when an authenticated source/custodian event supports the material operational/resource change; never manufacture an event from a projected budget, missing feed, owner label, or measurement alone. (primary accountability остаётся в coverage; это конкретный подрезультат, не второй writer).
 
 Inherited owner/lease/stage/activation constraints указаны в parent contract. Root/lead проверяет полное parent coverage; output этой карточки не закрывает siblings. При обнаружении пропуска остановить только affected writes/acceptance, назвать точный clause и reconciled next owner.
 

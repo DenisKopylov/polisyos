@@ -10,13 +10,13 @@ Canonical title: Author useful policy-document packages with exact semantic bind
 
 ## Реальный join
 
-Join selected DES-05 branch artifacts, GYD-05 scoped membership/ruling only when a document claim uses them, and DES-09 call records only for selected LLM-assisted content to the edition bindings; then reconcile exact emitted bytes at fresh semantic and independent format readers. A document never supplies legal authority or implies public release. Where raw data was lawfully erased, only a separately permitted and sufficiently verified retained result may support its qualified historical/derivative use with replay limits.
+Join selected DES-05 law branches, GYD-05 membership/ruling and DES-09 observed call outputs only when used; reconcile exact emitted bytes with fresh semantic/format readers. Enroll actual span/cell dependencies and consume LIF-02/LIF-05 change/current-use outcomes: preserve historical edition, mark affected current passages stale/limited, re-evaluate, then issue a new linked edition when justified. Retained results after lawful raw erasure need independently permitted/verifiable use and explicit replay limits. Document prose never supplies legal authority or public release.
 
 **Outputs:** [DES-06.private-policy-documents](../cards/DES-06/private-policy-documents.md).
 
 **Fresh consumer / ответственный контур:** Fresh authorized private document semantic reader, independent reader of the actual selected DOCX/PDF bytes, and CNT-09 only for its permitted selected case projection.
 
-**Review размера:** Retain one producer-to-edition-to-reader capability. Use four internal checkpoints: source/semantic binding; persisted edition and exact bytes; fresh semantic plus real-format readback/removal; conditional retained-result use after lawful erasure. Legal branches, membership/ruling and model calls are conditional inputs, not additional writers; DES-07 owns edit-back, public prose remains out of scope.
+**Review размера:** Five bounded checkpoints under the existing document/projection writer: private evidence binding; document edition/projection; audience-safe read; substantive edit/reconciliation; change/currentness and versioned successor. Historical editions remain immutable. Supplier outputs are conditional on selected use; no second lifecycle or publication authority.
 
 Ниже сохранённые parent-wide clauses, а не разрешение спрятать реализацию. Они должны быть доказаны outputs названных карточек, собственным coordination decision или настоящим external input. Shared constraint сам не является выполненной работой.
 

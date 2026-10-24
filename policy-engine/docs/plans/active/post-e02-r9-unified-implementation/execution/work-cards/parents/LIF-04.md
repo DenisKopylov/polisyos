@@ -29,7 +29,7 @@ Join outputs effect_recovery (persisted provider effect/recovery state), durable
 - **binding** — R17 refs/status/owner.
   `task.r17_extension.delivery_slices[0]`; `task.r17_extension.delivery_slices[1]`; `task.r17_extension.delivery_slices[2]`; `task.r17_extension.quality_cases[0]`; `task.r17_extension.quality_cases[1]`; `task.r17_extension.quality_cases[2]`; `task.r17_extension.quality_cases[3]`; `task.r17_extension.product_verification`; `task.r19_extension.status`; `task.r19_extension.product_verification`; `task.r19_extension.composition_contract_ref`
 - **binding** — IDs/owner/ref.
-  `task.r19_extension.question_ids[0]`; `task.r19_extension.question_ids[1]`; `task.r19_extension.question_ids[2]`; `task.r19_extension.question_ids[3]`; `task.r19_extension.writer_rule`; `task.r19_extension.acceptance_ref`
+  `task.r19_extension.writer_rule`; `task.r19_extension.acceptance_ref`
 - **binding** — Input rule.
   `solution.input_resolution_rule`
 

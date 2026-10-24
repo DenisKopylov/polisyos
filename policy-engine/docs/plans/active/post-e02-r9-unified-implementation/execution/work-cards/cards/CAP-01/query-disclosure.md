@@ -6,7 +6,7 @@
 
 **Проверяемый результат.** Only the exact permitted query projection reaches the admitted provider and allowed logging/retention sinks.
 
-**Предпочтительное решение.** For a selected web/LLM route, construct the minimum outbound query locally, bind purpose, sensitivity, exact provider/recipient and allowed retention/logging to the native source-use verifier, and admit that exact projection before egress. Keep discovery separate from admission; unknown sensitivity or authority blocks egress and logs carry only the permitted opaque/tenant-scoped decision binding. Anchors: fabric/connectors/contracts/source_contract.py:SourceContract; runtime/quality/acquisition_planner.py:run_acquisition_closed_loop.
+**Предпочтительное решение.** For a selected web/LLM route, minimize and bind the exact query, purpose, sensitivity, provider/recipient and allowed logging/retention before egress through the existing source-use verifier. A verified alternative lawful basis is allowed; demonstrably owned/public non-sensitive queries need no invented custodian signature. Unknown applicable permission or sensitivity blocks the affected egress. Returned-body placement is admitted separately. Reuse SourceContract and run_acquisition_closed_loop, not a new query authority.
 
 **Граница владельца.** CAP-01 route at transport boundary; native source/custodian verifier and LIF-05 permission owner. Parent native lease family: `write:acquisition-action`, `write:source-catalog`. Exact post-E02 paths/overlap are unresolved; do not infer sibling disjointness or create a child lease. Root binds the actual path/lease before writes; cards sharing a native family serialize there.
 
@@ -30,19 +30,24 @@
 
 | Отношение | Точный смысл |
 |---|---|
-| Supplier [P0-ACCEPT.accepted-boundary](../../cards/P0-ACCEPT/accepted-boundary.md) | `direct:actual_E02_G_acceptance`: Accepted E02 source/caller and source denominator are consumed for rebind; preparation may precede and original P0 remains stage gate.<br>Выбор output: Select the exact output named in need and its original conditions, not all supplier cards. Actual source-qualified artifacts are pinned at dispatch/composition.<br>Условия: original direct relation; source stage rules govern |
+| Supplier [P0-ACCEPT.accepted-boundary](../../cards/P0-ACCEPT/accepted-boundary.md) | `direct:actual_E02_G_acceptance`: Accepted E02 source/caller and source denominator are consumed for rebind; preparation may precede and original P0 remains stage gate.<br>Source: `task.depends_on[0]`.<br>Условия: original direct relation; source stage rules govern |
 | Composition output (не start gate) [CAP-01.candidate-resolution](../../cards/CAP-01/candidate-resolution.md) | When an outgoing query derives from this selected candidate; exact target/purpose/context must be bound before sending. |
 
-Отсутствие внутреннего after не отменяет parent prerequisites. Conditional acceptance, execution rights и выбранные profiles разрешаются отдельно, как указано в parent contract. Номера групп и карточек не задают порядок.
+Отсутствие внутреннего after не отменяет parent prerequisites. Conditional acceptance, execution rights и выбранные profiles применяются на своей стадии. Composition links не задают порядок независимой подготовки.
 
 ## Назначенный нормативный контекст
 
-Основа: `ec3d7d38b4d246b3e1d225a1c0fc9aefae9ced0d`. Полные selectors и accountable routes — [coverage.json](../../coverage.json), parent `CAP-01`. Эти ссылки не требуют чтения всех siblings. Читайте целиком каждый назначенный fragment и необходимые связанные contracts; mixed clause нельзя усечь до удобной части.
+Source-manifest base: `ec3d7d38b4d246b3e1d225a1c0fc9aefae9ced0d`; это не plan_commit назначения. Точные immutable blobs/hash — [coverage.json](../../coverage.json), parent `CAP-01`. `task` выбирает строку tasks.json по id, `solution` — preferred-solutions.json по task_id; затем dot/index selector. Для R19 identity определяется значением question_id, не позицией в другом массиве. Полностью прочитайте назначенные fragments и нужные contracts; mixed clause нельзя усечь.
 
 - **execute** — Bind exact outbound projection/purpose/sensitivity/recipient/logging basis before egress; source use and returned-body placement remain distinct.
   `task.surface_delivery.audiences`; `solution.implementation_steps[2]`; `solution.composition_contracts[0]`; `solution.acceptance_discriminators[3]`; `solution.inputs_to_resolve[1]`
 - **join** — Forged receipt/foreign purpose and bundled withheld approval, injection, log-leak/digest probes join source candidate binding with the actual egress gate.
   `task.surface_delivery.negative`; `solution.acceptance_discriminators[2]`
+
+### Обязанности внутри составных fragments
+
+- `solution.preferred_solution` — Pre-egress query projection is enforced by this boundary before provider/log disclosure; verified lawful alternative bases are preserved and demonstrably owned/public non-sensitive queries need no invented custodian signature. Source discovery remains candidate-resolution. (primary accountability остаётся в coverage; это конкретный подрезультат, не второй writer).
+- `task.r19_extension.question_slices[2]` — Before provider egress, authorize the exact projection/query against the selected source/provider-use contract or another verified lawful basis applicable to that exact query and provider; do not require a new custodian signature for demonstrably owned/public nonsensitive material. Unknown sensitivity or authority blocks egress or leaves the profile unclaimed. (primary accountability остаётся в coverage; это конкретный подрезультат, не второй writer).
 
 Inherited owner/lease/stage/activation constraints указаны в parent contract. Root/lead проверяет полное parent coverage; output этой карточки не закрывает siblings. При обнаружении пропуска остановить только affected writes/acceptance, назвать точный clause и reconciled next owner.
 

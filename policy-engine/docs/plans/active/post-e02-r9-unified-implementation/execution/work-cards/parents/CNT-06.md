@@ -11,7 +11,7 @@ Canonical title: Ground empirical, causal, transport and calibration claims (W3)
 
 ## Реальный join
 
-Compose causal-support ClaimRecord into the actual fresh Scientist workflow and selected G2-G6 decision reader. Consume prediction-calibration only for a declared prediction claim/method that needs it; calibration is neither transport nor universal causal gate. Keep any status/authority choice outside both inferential outputs.
+Fresh Scientist/G2–G6 readers consume qualified causal-support and prediction-calibration only where their claim profile requires them. For selected structural learning, causal-support feeds GYD-12.structural-write with proposition/regime/identification/rivals/lineage/uncertainty; O3 alone appends WMR and a fresh later-cycle reader checks it. No causal-card direct WMR write and no universal structural-append/calibration gate.
 
 **Outputs:** [CNT-06.causal-support](../cards/CNT-06/causal-support.md), [CNT-06.prediction-calibration](../cards/CNT-06/prediction-calibration.md).
 
@@ -34,7 +34,7 @@ Compose causal-support ClaimRecord into the actual fresh Scientist workflow and 
 - **binding** — R17 UNRUN and R19 planned/UNRUN/composition refs are parent status/navigation fields.
   `task.r17_extension.product_verification`; `task.r19_extension.status`; `task.r19_extension.product_verification`; `task.r19_extension.composition_contract_ref`
 - **binding** — R19 question IDs, native-owner writer rule and assurance reference preserve canonical source navigation and leases; the 15 semantic slices are routed to causal-support.
-  `task.r19_extension.question_ids[0]`; `task.r19_extension.question_ids[1]`; `task.r19_extension.question_ids[2]`; `task.r19_extension.question_ids[3]`; `task.r19_extension.question_ids[4]`; `task.r19_extension.question_ids[5]`; `task.r19_extension.question_ids[6]`; `task.r19_extension.question_ids[7]`; `task.r19_extension.question_ids[8]`; `task.r19_extension.question_ids[9]`; `task.r19_extension.question_ids[10]`; `task.r19_extension.question_ids[11]`; `task.r19_extension.question_ids[12]`; `task.r19_extension.question_ids[13]`; `task.r19_extension.question_ids[14]`; `task.r19_extension.writer_rule`; `task.r19_extension.acceptance_ref`
+  `task.r19_extension.writer_rule`; `task.r19_extension.acceptance_ref`
 - **binding** — Transport and calibration are separate validation relations; parent join preserves distinct outputs and never makes one a substitute or blanket prerequisite.
   `solution.composition_contracts[1]`
 - **binding** — Input-resolution rule separates internal method/claim bridge work from actual study, reviewer and validation-label suppliers.

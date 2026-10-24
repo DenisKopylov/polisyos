@@ -11,7 +11,7 @@ Canonical title: Register measures, alternatives and authorized value choices (W
 
 ## Реальный join
 
-Join measure-profile's versioned formula/input adequacy and alternative metric results with mandate-choice's real principal/remit/objectives in the existing fresh G2/G5 claim/decision consumer. Valid metrics do not make normative choice; mandate cannot repair invalid measurement. No mandate leaves alternatives and limitation, not a default.
+Fresh G2/G5 claim/value reader joins exact measure-profile and principal-qualified mandate-choice when a collective choice is requested. Supported conditional results retain their existing result-support status without collective mandate; winner/endorsement remains denied. Hard floors stay independently authorized and non-compensable. The mandate-choice card binds/delivers the existing public selected-basis/limitation reader under its native projection owner with same-generation scope/audience/rights. CNT-09 exercises that exact selected route; internal reader PASS does not discharge the public surface.
 
 **Outputs:** [CNT-05.measure-profile](../cards/CNT-05/measure-profile.md), [CNT-05.mandate-choice](../cards/CNT-05/mandate-choice.md).
 
@@ -33,8 +33,6 @@ Join measure-profile's versioned formula/input adequacy and alternative metric r
   `task.r15_extension.detail`; `task.r15_extension.quality_ref`
 - **binding** — R19 planned/UNRUN and architecture reference retain source status and composition contract.
   `task.r19_extension.status`; `task.r19_extension.product_verification`; `task.r19_extension.composition_contract_ref`
-- **binding** — R19 question IDs are source navigation; semantic metric and selector slices have already been routed by the property they assert.
-  `task.r19_extension.question_ids[0]`; `task.r19_extension.question_ids[1]`; `task.r19_extension.question_ids[2]`; `task.r19_extension.question_ids[3]`; `task.r19_extension.question_ids[4]`; `task.r19_extension.question_ids[5]`; `task.r19_extension.question_ids[6]`; `task.r19_extension.question_ids[7]`
 - **binding** — Writer rule and assurance ref preserve native lease ownership and source review obligation for both child outputs.
   `task.r19_extension.writer_rule`; `task.r19_extension.acceptance_ref`
 - **join** — Preferred solution explicitly keeps construct/metric/mandate as linked but distinct artifacts; parent join composes the two named outputs.
@@ -45,6 +43,8 @@ Join measure-profile's versioned formula/input adequacy and alternative metric r
   `solution.acceptance_discriminators[2]`
 - **binding** — Input-resolution rule separates data-owner definitions from genuine principal authority and internal selector work.
   `solution.input_resolution_rule`
+- **join** — This source slice explicitly crosses supported conditional calculation, a separate value schedule, result-support status and collective endorsement; the parent must reconcile measure-profile with mandate-choice. Slice: Bind conditional calculation grounds and value schedule separately from selector/collective mandate; use an existing result-support status for a supported conditional claim. Positive discriminator: Two source-qualified schedules reverse rank under a common verified model/basis; fresh consumer admits both scoped conditional results without a collective act and shows no collective winner. Adversary: Wrong-scope ref/default weight cannot promote; a missing collective mandate must not demote an otherwise grounded conditional result, and no result can become a collective winner without that mandate. Removal: Remove model/input/method/rights/currentness binding but keep schedule/status labels: the fresh result consumer fails. Remove only the collective mandate: the calculation remains admissible but collective choice/endorsement is denied. Coverage currently routes this slice selector to CNT-05.measure-profile/execute; this destination follows its actual question_id and mixed semantics.
+  `task.r19_extension.question_slices[4]` (`R18-D05-Q01`); `task.r19_extension.question_ids[4]` (`R18-D05-Q01`)
 
 ## Owners и stages
 

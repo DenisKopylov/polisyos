@@ -39,6 +39,8 @@ Join the n4-data-only persisted N4 receipt and the protected-admission persisted
   `solution.acceptance_discriminators[2]`; `solution.deviation_triggers[0]`
 - **join** — This pinned fragment combines PR1a, PR1b, the shared N9 contract or the separate O0 criterion; the parent join names the distinct card outputs and fresh readers without making one a prerequisite for another.
   `solution.inputs_to_resolve[2]`; `solution.input_resolution_rule`
+- **join** — This slice is input collection for rule-version and take-up/reclassification/routing evidence owned by native S6 producers, while the available GYD-01 card is the protected N9 consumer; the parent owns joining source-bound producer output to the admission result.
+  `task.r19_extension.question_slices[0]` (`R18-D20-Q04`); `task.r19_extension.question_ids[0]` (`R18-D20-Q04`)
 
 ## Owners и stages
 

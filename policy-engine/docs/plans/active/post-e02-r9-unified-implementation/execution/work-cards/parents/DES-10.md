@@ -42,16 +42,20 @@ DES-10 retains the frozen case/source denominator, matched arms, equal ceilings/
   `task.r16_extension.product_verification`
 - **binding** — R19 planned/UNRUN state and composition contract reference remain inherited parent-level comparison constraints.
   `task.r19_extension.status`; `task.r19_extension.product_verification`; `task.r19_extension.composition_contract_ref`
-- **join** — Governance cost/coverage are parent-wide comparison dimensions; report separately across all five campaigns and do not allow a cheaper bypass. The named GY/CNT/DES supplier remains owner; the campaign records only its exact endpoint.
-  `task.r19_extension.question_slices[19]`
-- **binding** — Each source question ID is routed to the card assigned to its matching indexed question_slices clause in this parent; ID coverage preserves lineage and is not semantic proof.
-  `task.r19_extension.question_ids[19]`
 - **binding** — Writer/acceptance rule and R19 quality reference are parent-level controls across the five campaigns and one composition join.
   `task.r19_extension.writer_rule`; `task.r19_extension.acceptance_ref`
 - **binding** — Preferred comparison, case/arm/holdout/equal-ceiling setup, cost/exclusion/disagreement reporting, migration and owner contracts form the shared parent protocol; none is a new leaf engine or a hidden implementation output.
   `solution.preferred_solution`; `solution.implementation_steps[0]`; `solution.implementation_steps[1]`; `solution.implementation_steps[2]`; `solution.implementation_steps[3]`; `solution.implementation_steps[4]`; `solution.implementation_steps[5]`; `solution.free_grow.data_or_config_growth`; `solution.free_grow.extension_boundary`; `solution.free_grow.resource_behavior`; `solution.migration_and_rollback[0]`; `solution.migration_and_rollback[1]`; `solution.composition_contracts[0]`; `solution.composition_contracts[1]`
 - **join** — Cross-campaign acceptance, matched removal, deviation and external audience/provider/label inputs are joined at FINAL-REPLAY/FINAL-USE with all five actual reports; no unavailable input becomes authentic PASS.
   `solution.acceptance_discriminators[0]`; `solution.acceptance_discriminators[1]`; `solution.acceptance_discriminators[2]`; `solution.deviation_triggers[0]`; `solution.deviation_triggers[1]`; `solution.deviation_triggers[2]`; `solution.inputs_to_resolve[0]`; `solution.input_resolution_rule`
+- **join** — Failed/unpublished-arm denominator spans campaigns; native return owner remains sole producer.
+  `task.r19_extension.question_slices[9]` (`R18-D09-Q03`); `task.r19_extension.question_ids[8]` (`R18-D09-Q03`)
+- **join** — Join failed/omitted/null/exclusion/holdout facts once in frozen denominator.
+  `task.r19_extension.question_slices[10]` (`R18-D09-Q05`); `task.r19_extension.question_ids[9]` (`R18-D09-Q05`)
+- **join** — Apply stable-profile envelope/per-dimension oracle across five campaign outputs once.
+  `task.r19_extension.question_slices[12]` (`R18-D11-Q01`); `task.r19_extension.question_ids[11]` (`R18-D11-Q01`)
+- **join** — Join productivity, governance cost and coverage while all five outputs stay distinct.
+  `task.r19_extension.question_slices[19]` (`R18-D19-Q04`); `task.r19_extension.question_ids[18]` (`R18-D19-Q04`)
 
 ## Owners и stages
 

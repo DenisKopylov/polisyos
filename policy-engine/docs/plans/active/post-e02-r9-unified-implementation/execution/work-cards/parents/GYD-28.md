@@ -29,7 +29,7 @@ Root joins complete output inventory/scan, CAS integrity/dereference, and author
 - **binding** — R19 planned status, composition reference and exact question context stay attached.
   `task.r19_extension.status`; `task.r19_extension.product_verification`; `task.r19_extension.composition_contract_ref`
 - **join** — R19 consumer asks resolve content/root/recompute while separating source truth/authority; preferred solution explicitly divides scan, CAS bytes/ref lifecycle and authority consumer.
-  `task.r19_extension.question_slices[0]`; `task.r19_extension.question_ids[0]`; `task.r19_extension.writer_rule`; `task.r19_extension.acceptance_ref`; `solution.preferred_solution`
+  `task.r19_extension.writer_rule`; `task.r19_extension.acceptance_ref`; `solution.preferred_solution`
 - **join** — The bundled step names scan wiring, CAS owner and purpose/scope/provenance/version/time authority as three distinct responsibilities.
   `solution.implementation_steps[1]`
 - **join** — Bundled probe clauses are nested secret; tamper; missing manifest; valid digest with wrong/stale authority; GC/deref; and marker-preserving removal. Scan, CAS and authority cards own only their probes.
@@ -42,6 +42,8 @@ Root joins complete output inventory/scan, CAS integrity/dereference, and author
   `solution.acceptance_discriminators[1]`
 - **binding** — Undiscovered consumer/authority leaves exact incompleteness; issuer/purpose, corpus, retention and source-input classification remain parent inputs.
   `solution.deviation_triggers[0]`; `solution.inputs_to_resolve[0]`; `solution.input_resolution_rule`
+- **join** — This is a genuine composed consumer result: resolve content-bound inputs and recompute the declared property, then keep input truth and authority separate. No single child owns that whole claim, so the parent joins the content/integrity and authority proofs.
+  `task.r19_extension.question_slices[0]` (`R18-D14-Q01`); `task.r19_extension.question_ids[0]` (`R18-D14-Q01`)
 
 ## Owners и stages
 

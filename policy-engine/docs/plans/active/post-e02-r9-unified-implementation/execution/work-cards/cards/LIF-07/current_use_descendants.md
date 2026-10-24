@@ -30,26 +30,20 @@
 
 | Отношение | Точный смысл |
 |---|---|
-| Supplier [P0-ACCEPT.accepted-boundary](../../cards/P0-ACCEPT/accepted-boundary.md) | `direct:actual_E02_G_acceptance`: Root stage.<br>Выбор output: Select the exact output named in need and its original conditions, not all supplier cards. Actual source-qualified artifacts are pinned at dispatch/composition.<br>Условия: original direct relation; source stage rules govern |
-| Supplier [LIF-01](../../parents/LIF-01.md) | `direct:owner_readiness`: Consume use semantics.<br>Выбор output: Select the exact output named in need and its original conditions, not all supplier cards. Actual source-qualified artifacts are pinned at dispatch/composition.<br>Условия: original direct relation; source stage rules govern |
-| Supplier [LIF-02](../../parents/LIF-02.md) | `direct:owner_readiness`: Consume current/as-of source cut.<br>Выбор output: Select the exact output named in need and its original conditions, not all supplier cards. Actual source-qualified artifacts are pinned at dispatch/composition.<br>Условия: original direct relation; source stage rules govern |
-| Supplier [LIF-05](../../parents/LIF-05.md) | `direct:owner_readiness`: Consume rights/placement; graph grants nothing.<br>Выбор output: Select the exact output named in need and its original conditions, not all supplier cards. Actual source-qualified artifacts are pinned at dispatch/composition.<br>Условия: original direct relation; source stage rules govern |
+| Supplier [P0-ACCEPT.accepted-boundary](../../cards/P0-ACCEPT/accepted-boundary.md) | `direct:actual_E02_G_acceptance`: Root stage.<br>Source: `task.depends_on[0]`.<br>Условия: original direct relation; source stage rules govern |
+| Supplier [LIF-01](../../parents/LIF-01.md) | `direct:owner_readiness`: Consume use semantics.<br>Source: `task.depends_on[1]`.<br>Условия: original direct relation; source stage rules govern |
+| Supplier [LIF-02](../../parents/LIF-02.md) | `direct:owner_readiness`: Consume current/as-of source cut.<br>Source: `task.depends_on[2]`.<br>Условия: original direct relation; source stage rules govern |
+| Supplier [LIF-05](../../parents/LIF-05.md) | `direct:owner_readiness`: Consume rights/placement; graph grants nothing.<br>Source: `task.depends_on[3]`.<br>Условия: original direct relation; source stage rules govern |
 | Composition output (не start gate) [LIF-07.computational_influence](../../cards/LIF-07/computational_influence.md) | For the selected derived/cache descendant only: role-qualified influence supplies the path, while LIF-01 use, LIF-02 currentness and LIF-05 rights decide the actual use. |
 
-Отсутствие внутреннего after не отменяет parent prerequisites. Conditional acceptance, execution rights и выбранные profiles разрешаются отдельно, как указано в parent contract. Номера групп и карточек не задают порядок.
+Отсутствие внутреннего after не отменяет parent prerequisites. Conditional acceptance, execution rights и выбранные profiles применяются на своей стадии. Composition links не задают порядок независимой подготовки.
 
 ## Назначенный нормативный контекст
 
-Основа: `ec3d7d38b4d246b3e1d225a1c0fc9aefae9ced0d`. Полные selectors и accountable routes — [coverage.json](../../coverage.json), parent `LIF-07`. Эти ссылки не требуют чтения всех siblings. Читайте целиком каждый назначенный fragment и необходимые связанные contracts; mixed clause нельзя усечь до удобной части.
+Source-manifest base: `ec3d7d38b4d246b3e1d225a1c0fc9aefae9ced0d`; это не plan_commit назначения. Точные immutable blobs/hash — [coverage.json](../../coverage.json), parent `LIF-07`. `task` выбирает строку tasks.json по id, `solution` — preferred-solutions.json по task_id; затем dot/index selector. Для R19 identity определяется значением question_id, не позицией в другом массиве. Полностью прочитайте назначенные fragments и нужные contracts; mixed clause нельзя усечь.
 
 - **execute** — Remove live rights check.
   `task.removal[1]`
-- **execute** — R18 exact current-use.
-  `task.r19_extension.question_slices[7]`
-- **execute** — R18 withdrawal/hold reaches descendants; LIF05 rights.
-  `task.r19_extension.question_slices[10]`; `task.r19_extension.question_slices[11]`
-- **binding** — IDs mirror U074/U077/U078 current-use slices.
-  `task.r19_extension.question_ids[7]`; `task.r19_extension.question_ids[10]`; `task.r19_extension.question_ids[11]`
 - **execute** — Cache not permission.
   `solution.composition_contracts[1]`
 - **execute** — Historical/current cut, LIF01 semantics, LIF05 retention.
@@ -58,6 +52,12 @@
   `solution.acceptance_discriminators[4]`; `solution.acceptance_discriminators[5]`
 - **binding** — Consume rights and claim composition.
   `solution.inputs_to_resolve[2]`; `solution.inputs_to_resolve[3]`
+- **execute** — task.r19_extension.question_slices[7] crosswalks by actual value to question_ids[6]. Reuses exact parents, selection and rights at the live current-use reader and preserves prior history.
+  `task.r19_extension.question_slices[7]` (`R18-D10-Q02`); `task.r19_extension.question_ids[6]` (`R18-D10-Q02`)
+- **execute** — task.r19_extension.question_slices[10] crosswalks by actual value to question_ids[9]. Propagates scoped rights/release effects through source-influenced descendants to the current-use decision.
+  `task.r19_extension.question_slices[10]` (`R18-D14-Q03`); `task.r19_extension.question_ids[9]` (`R18-D14-Q03`)
+- **execute** — task.r19_extension.question_slices[11] crosswalks by actual value to question_ids[10]. Traces known model/memory/embedding/summary descendants under scoped rights event to the current-use consumer.
+  `task.r19_extension.question_slices[11]` (`R18-D14-Q04`); `task.r19_extension.question_ids[10]` (`R18-D14-Q04`)
 
 Inherited owner/lease/stage/activation constraints указаны в parent contract. Root/lead проверяет полное parent coverage; output этой карточки не закрывает siblings. При обнаружении пропуска остановить только affected writes/acceptance, назвать точный clause и reconciled next owner.
 

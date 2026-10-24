@@ -1,6 +1,6 @@
-# R26: сколько работ и как они сгруппированы
+# R27: сколько работ и как они сгруппированы
 
-Рабочих карточек — **261**, логических групп — **11**. Они раскрывают полный исходный набор из **121 родительской задачи**; родители не прибавляются к этому числу. Карточки разных ролей — реализация, consumer/input, verification и coordination — не равнозначны по трудоёмкости и не являются счётчиком готовых capabilities.
+Рабочих карточек — **262**, логических групп — **11**. Они раскрывают полный исходный набор из **121 родительской задачи**; родители не прибавляются к этому числу. Карточки разных ролей — реализация, consumer/input, verification и coordination — не равнозначны по трудоёмкости и не являются счётчиком готовых capabilities.
 
 | Группа | Дробных карточек | Для чего нужна |
 |---|---:|---|
@@ -13,9 +13,11 @@
 | [G06 — Допустимость, полномочия и квалифицированные решения](groups/G06.md) | **31** | Candidate/evidence/mandate → owner-qualified admission → limitation/refusal/decision → разрешённая claim/surface. |
 | [G07 — Долгая custody: актуальность, права и переиздание](groups/G07.md) | **34** | Enrolled dependency/duty → admitted change/expiry/observation → bounded revalidation/reuse/reissue → честный current/history reader. |
 | [G08 — Документы, интерфейсы и понятные человеку результаты](groups/G08.md) | **21** | Admitted native output → exact semantic projection/document → authorized audience → edit/history/feedback readback. |
-| [G09 — Развёртывание, исполнители, хранилища и ресурсы](groups/G09.md) | **37** | Commissioned profile → native worker/store/permit → bounded actual execution → verified recovery/egress/result. |
+| [G09 — Развёртывание, исполнители, хранилища и ресурсы](groups/G09.md) | **38** | Commissioned profile → native worker/store/permit → bounded actual execution → verified recovery/egress/result. |
 | [G10 — Независимые проверки и качество свидетельств](groups/G10.md) | **38** | Полный source-derived scope → independent oracle/negative/removal → exact deciding output → composed acceptance. |
-| **Всего** | **261** | Полный текущий набор, без двойного учёта cross-group ссылок |
+| **Всего** | **262** | Полный текущий набор, без двойного учёта cross-group ссылок |
+
+R27 добавила одну узкую карточку: восстановление объекта из проверенной независимой копии у существующего CAS/archive owner. Остальные изменения уточняют маршруты, условия и границы прежних карточек.
 
 ## Как устроена работа
 
@@ -23,7 +25,7 @@
 
 Для исполнителя entry point — назначенная карточка, не весь каталог. Root/lead держит полную карту original obligations и source pins; leaf читает свой operative context и необходимое замыкание contracts. Сложный неделимый invariant выполняется последовательными checkpoints одним writer, а не несколькими конкурирующими реализациями.
 
-Шесть P0/FINAL карточек — aggregate coordination, а не небольшие code tasks. Распределение всех карточек по ролям: `consumer` — 94, `coordination` — 9, `input` — 19, `mechanism` — 74, `verification` — 65. Это классификация поручений, не дополнительные подразделения системы.
+Шесть P0/FINAL карточек — aggregate coordination, а не небольшие code tasks. Распределение всех карточек по ролям: `consumer` — 94, `coordination` — 9, `input` — 19, `mechanism` — 75, `verification` — 65. Это классификация поручений, не дополнительные подразделения системы.
 
 ## Что защищает от потерь и путаницы
 
@@ -37,4 +39,4 @@
 
 После фактической приёмки E02 — exact accepted-source rebind, реальные code/generated leases, выбранные supplier artifacts, backend/rights/resource inputs и dispatch grant. Текущие числа описывают эту редакцию плана, не ограничивают free-grow и не обещают столько же одновременных исполнителей. Реализация и продуктовые тесты здесь не запускались.
 
-[Проверка и ограничения](../../assurance/r26-grouping-review.md) · [Все карточки и маршруты](registry.json) · [Исходные source-fragment bindings](coverage.json).
+[Редтим и ограничения R27](../../assurance/r27-card-redteam.md) · [Все карточки и маршруты](registry.json) · [Исходные source-fragment bindings](coverage.json).

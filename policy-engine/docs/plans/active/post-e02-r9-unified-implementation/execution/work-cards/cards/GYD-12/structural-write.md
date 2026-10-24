@@ -30,21 +30,17 @@
 
 | Отношение | Точный смысл |
 |---|---|
-| Supplier [P0-ACCEPT.accepted-boundary](../../cards/P0-ACCEPT/accepted-boundary.md) | `direct:actual_E02_G_acceptance`: Accepted E02 source and task-scoped source rebind are the source/version basis consumed by this card; original P0-ACCEPT and parent dispatch semantics remain authoritative.<br>Выбор output: Select the exact output named in need and its original conditions, not all supplier cards. Actual source-qualified artifacts are pinned at dispatch/composition.<br>Условия: original direct relation; source stage rules govern |
-| Supplier [UI-08.world-growth-view](../../cards/UI-08/world-growth-view.md) | `acceptance:composition`: At composition, fresh UI-08 world-growth view consumes the exact effect/structural generation with original status, origin, time and version. This is the existing acceptance_dependencies[0] completion readback, not a preparation prerequisite.<br>Выбор output: Select the exact output named in need and its original conditions, not all supplier cards. Actual source-qualified artifacts are pinned at dispatch/composition.<br>Условия: selected parent composed claim; not a new preparation dependency |
+| Supplier [P0-ACCEPT.accepted-boundary](../../cards/P0-ACCEPT/accepted-boundary.md) | `direct:actual_E02_G_acceptance`: Accepted E02 source and task-scoped source rebind are the source/version basis consumed by this card; original P0-ACCEPT and parent dispatch semantics remain authoritative.<br>Source: `task.depends_on[0]`.<br>Условия: original direct relation; source stage rules govern |
+| Supplier [UI-08.world-growth-view](../../cards/UI-08/world-growth-view.md) | `acceptance:composition`: At composition, fresh UI-08 world-growth view consumes the exact effect/structural generation with original status, origin, time and version. This is the existing acceptance_dependencies[0] completion readback, not a preparation prerequisite.<br>Source: `task.acceptance_dependencies[0]`.<br>Условия: selected parent composed claim; not a new preparation dependency |
 
-Отсутствие внутреннего after не отменяет parent prerequisites. Conditional acceptance, execution rights и выбранные profiles разрешаются отдельно, как указано в parent contract. Номера групп и карточек не задают порядок.
+Отсутствие внутреннего after не отменяет parent prerequisites. Conditional acceptance, execution rights и выбранные profiles применяются на своей стадии. Composition links не задают порядок независимой подготовки.
 
 ## Назначенный нормативный контекст
 
-Основа: `ec3d7d38b4d246b3e1d225a1c0fc9aefae9ced0d`. Полные selectors и accountable routes — [coverage.json](../../coverage.json), parent `GYD-12`. Эти ссылки не требуют чтения всех siblings. Читайте целиком каждый назначенный fragment и необходимые связанные contracts; mixed clause нельзя усечь до удобной части.
+Source-manifest base: `ec3d7d38b4d246b3e1d225a1c0fc9aefae9ced0d`; это не plan_commit назначения. Точные immutable blobs/hash — [coverage.json](../../coverage.json), parent `GYD-12`. `task` выбирает строку tasks.json по id, `solution` — preferred-solutions.json по task_id; затем dot/index selector. Для R19 identity определяется значением question_id, не позицией в другом массиве. Полностью прочитайте назначенные fragments и нужные contracts; mixed clause нельзя усечь.
 
 - **execute** — The structural-write card owns this source-specific result or constraint and consumes other owners only through the named interface; no sibling rewrites that native owner.
   `task.r19_extension.status`
-- **execute** — The structural-write card owns this source-specific result or constraint and consumes other owners only through the named interface; no sibling rewrites that native owner.
-  `task.r19_extension.question_slices[0]`; `task.r19_extension.question_slices[1]`
-- **execute** — The structural-write card owns this source-specific result or constraint and consumes other owners only through the named interface; no sibling rewrites that native owner.
-  `task.r19_extension.question_ids[0]`; `task.r19_extension.question_ids[1]`
 - **execute** — The structural-write card owns this source-specific result or constraint and consumes other owners only through the named interface; no sibling rewrites that native owner.
   `solution.implementation_steps[4]`
 - **execute** — The structural-write card owns this source-specific result or constraint and consumes other owners only through the named interface; no sibling rewrites that native owner.
@@ -53,6 +49,14 @@
   `solution.acceptance_discriminators[4]`
 - **execute** — The structural-write card owns this source-specific result or constraint and consumes other owners only through the named interface; no sibling rewrites that native owner.
   `solution.inputs_to_resolve[2]`
+- **execute** — Both canonical slice occurrences are identical by parent/question_id value. This is a structural write: require the content-bound CNT-06/native-method assessment and applicable current structural rule, then append through the one WMR/Fabric writer with predecessor and rivals retained. WP-01/02 do not supply this structural authority.
+  `task.r19_extension.question_slices[0]` (`R18-D06-Q02`); `task.r19_extension.question_ids[0]` (`R18-D06-Q02`)
+- **execute** — This slice governs structural edge exclusion: require both structural evidence and identification at the declared resolution; a near-zero effect estimate alone cannot remove the edge.
+  `task.r19_extension.question_slices[1]` (`R18-D06-Q03`); `task.r19_extension.question_ids[1]` (`R18-D06-Q03`)
+
+### Обязанности внутри составных fragments
+
+- `task.r19_extension.question_slices[2]` — Separately returned structural study assessment follows S06/CNT-06 and the applicable actual structural rule; report content grants no structural authority, and structural removal tests the warrant/rule predicates. (primary accountability остаётся в coverage; это конкретный подрезультат, не второй writer).
 
 Inherited owner/lease/stage/activation constraints указаны в parent contract. Root/lead проверяет полное parent coverage; output этой карточки не закрывает siblings. При обнаружении пропуска остановить только affected writes/acceptance, назвать точный clause и reconciled next owner.
 

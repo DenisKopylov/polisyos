@@ -10,7 +10,7 @@ Canonical title: Make cross-run experience change search without laundering evid
 
 ## Реальный join
 
-Join the persisted eligible lesson and selected/rejected influence record at a fresh subsequent Scientist search consumer; prove the resulting candidate/search choice and fresh-process retrieval, then use DES-10 matched-task transfer comparison for transfer quality. GYD-25 reads retrieval adequacy only. LIF-07 owns revocation/invalidation; memory does not update O1/O3.
+DES-08 persists and retrieves source-qualified search lessons through the existing memory owner. For the selected formulator path it supplies exact retrieval/sink intent to DES-01, the single formulator wiring owner; DES-02 owns hypothesis binding. Fresh next-cycle consumers discriminate useful transfer from unsupported analogy; DES-03/LIF-07/GYD-25 retain numeric, lineage and adequacy roles. Missing native DES-01 plumbing is assigned there, not implemented twice or treated as an external input.
 
 **Outputs:** [DES-08.memory-transfer](../cards/DES-08/memory-transfer.md).
 

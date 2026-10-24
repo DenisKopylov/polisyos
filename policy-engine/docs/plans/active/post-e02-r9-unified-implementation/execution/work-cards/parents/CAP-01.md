@@ -12,7 +12,7 @@ Canonical title: Exact-source reconciliation and candidate discovery. R26 фор
 
 ## Реальный join
 
-Join exact candidate/profile, conditional query decision, and measured coverage/no-hit at fresh readers. Candidate is not admitted use; query permission is not body rights; no-hit is limited to measured route/language/cut. Original source pins, stage/dispatch gates, conditional execution, completion planes and leases remain authoritative. dependency_routes maps consumption only. Identity/navigation/dispatch/mirrored fields in units.json.other_field_dispositions remain authoritative by parent reference.
+Join exact candidate/profile, conditional query decision, and measured coverage/no-hit at fresh readers. Candidate is not admitted use; query permission is not body rights; no-hit is limited to measured route/language/cut. Original source pins, stage/dispatch gates, conditional execution, completion planes and leases remain authoritative. dependency_routes maps consumption only. Identity/navigation and inherited constraints resolve from coverage.json parents[parent=CAP-01].inherited_fields and registry.json parents[id=CAP-01].inherited_dispatch_contract to the pinned task/solution rows; ignored author scratch is not a normative input.
 
 **Outputs:** [CAP-01.candidate-resolution](../cards/CAP-01/candidate-resolution.md), [CAP-01.query-disclosure](../cards/CAP-01/query-disclosure.md), [CAP-01.bounded-coverage](../cards/CAP-01/bounded-coverage.md).
 

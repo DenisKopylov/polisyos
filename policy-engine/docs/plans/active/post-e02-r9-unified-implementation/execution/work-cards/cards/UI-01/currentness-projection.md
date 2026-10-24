@@ -30,20 +30,20 @@
 
 | Отношение | Точный смысл |
 |---|---|
-| Supplier [P0-ACCEPT.accepted-boundary](../../cards/P0-ACCEPT/accepted-boundary.md) | `direct:actual_E02_G_acceptance`: Accepted E02 source identity/commit and source-bound acceptance record used when rebinding this card; original parent dispatch/stage remains authoritative.<br>Выбор output: Select the exact output named in need and its original conditions, not all supplier cards. Actual source-qualified artifacts are pinned at dispatch/composition.<br>Условия: original direct relation; source stage rules govern |
-| Supplier [LIF-02](../../parents/LIF-02.md) | `conditional_acceptance_requirements:composition`: Conditional Q05: actual enrolled-dependency evaluation and scoped reaction with event/as-of time/reason; unrelated claims remain current.<br>Выбор output: Select the exact output named in need and its original conditions, not all supplier cards. Actual source-qualified artifacts are pinned at dispatch/composition.<br>Условия: The R19 R18-D12-Q05 currentness extension is selected for UI-01, and UI-01 claims a fresh current status after a material enrolled correction |
+| Supplier [P0-ACCEPT.accepted-boundary](../../cards/P0-ACCEPT/accepted-boundary.md) | `direct:actual_E02_G_acceptance`: Accepted E02 source identity/commit and source-bound acceptance record used when rebinding this card; original parent dispatch/stage remains authoritative.<br>Source: `task.depends_on[0]`.<br>Условия: original direct relation; source stage rules govern |
+| Supplier [LIF-02](../../parents/LIF-02.md) | `conditional_acceptance_requirements:composition`: Conditional Q05: actual enrolled-dependency evaluation and scoped reaction with event/as-of time/reason; unrelated claims remain current.<br>Source: `task.conditional_acceptance_requirements[0]`.<br>Условия: The R19 R18-D12-Q05 currentness extension is selected for UI-01, and UI-01 claims a fresh current status after a material enrolled correction |
 | Composition output (не start gate) [UI-01.auth-projection](../../cards/UI-01/auth-projection.md) | Consume only for the exact composition described here: Собрать с auth-projection только если R18-D12-Q05 выбран; base acceptance возможен с currentness not_established. This link is not an unconditional all-of or preparation gate. |
 
-Отсутствие внутреннего after не отменяет parent prerequisites. Conditional acceptance, execution rights и выбранные profiles разрешаются отдельно, как указано в parent contract. Номера групп и карточек не задают порядок.
+Отсутствие внутреннего after не отменяет parent prerequisites. Conditional acceptance, execution rights и выбранные profiles применяются на своей стадии. Composition links не задают порядок независимой подготовки.
 
 ## Назначенный нормативный контекст
 
-Основа: `ec3d7d38b4d246b3e1d225a1c0fc9aefae9ced0d`. Полные selectors и accountable routes — [coverage.json](../../coverage.json), parent `UI-01`. Эти ссылки не требуют чтения всех siblings. Читайте целиком каждый назначенный fragment и необходимые связанные contracts; mixed clause нельзя усечь до удобной части.
+Source-manifest base: `ec3d7d38b4d246b3e1d225a1c0fc9aefae9ced0d`; это не plan_commit назначения. Точные immutable blobs/hash — [coverage.json](../../coverage.json), parent `UI-01`. `task` выбирает строку tasks.json по id, `solution` — preferred-solutions.json по task_id; затем dot/index selector. Для R19 identity определяется значением question_id, не позицией в другом массиве. Полностью прочитайте назначенные fragments и нужные contracts; mixed clause нельзя усечь.
 
-- **binding** — Q05 consumes actual LIF-02 scoped reaction/as-of; historical signature cannot render current. Source selectors: task.r19_extension.question_ids[0], task.r19_extension.question_slices[0].
-  `task.r19_extension.question_slices[0]`; `task.r19_extension.question_ids[0]`
 - **binding** — Binds the card's actual input/status/authority/time predicate and consumer behavior. Source selectors: solution.composition_contracts[3].
   `solution.composition_contracts[3]`
+- **execute** — tasks.json#UI-01.task.r19_extension.question_slices[0] (R18-D12-Q05) value-matches question_ids[0]. Current coverage sends both selectors to this card as binding, but UI-01 preferred-solutions implementation_steps[0..3] cover only authentication/read wiring and do not execute the LIF-02 currentness read; this card owns the fresh selected consumer, so route the missing consumer work as execute. Keep the source condition that base authentication can remain independently acceptable with currentness not_established.
+  `task.r19_extension.question_slices[0]` (`R18-D12-Q05`); `task.r19_extension.question_ids[0]` (`R18-D12-Q05`)
 
 Inherited owner/lease/stage/activation constraints указаны в parent contract. Root/lead проверяет полное parent coverage; output этой карточки не закрывает siblings. При обнаружении пропуска остановить только affected writes/acceptance, назвать точный clause и reconciled next owner.
 

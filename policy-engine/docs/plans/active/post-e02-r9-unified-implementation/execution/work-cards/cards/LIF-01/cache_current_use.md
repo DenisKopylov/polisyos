@@ -30,29 +30,29 @@
 
 | Отношение | Точный смысл |
 |---|---|
-| Supplier [P0-ACCEPT.accepted-boundary](../../cards/P0-ACCEPT/accepted-boundary.md) | `direct:actual_E02_G_acceptance`: Root preserves accepted E02 stage/rebind.<br>Выбор output: Select the exact output named in need and its original conditions, not all supplier cards. Actual source-qualified artifacts are pinned at dispatch/composition.<br>Условия: original direct relation; source stage rules govern |
-| Supplier [LIF-09](../../parents/LIF-09.md) | `acceptance:composition`: Actual selected output is consumed by the local composition reader; acceptance is composition-only, not a preparation prerequisite.<br>Выбор output: Select the exact output named in need and its original conditions, not all supplier cards. Actual source-qualified artifacts are pinned at dispatch/composition.<br>Условия: selected parent composed claim; not a new preparation dependency |
-| Supplier [LIF-07](../../parents/LIF-07.md) | `conditional_acceptance_requirements:composition`: Actual role-qualified computational/semantic dependency closure and invalidation/generation evidence from LIF-07, or an already accepted equivalent native owner explicitly rebound at P0; include relevant negative/membership dependencies<br>Выбор output: Select the exact output named in need and its original conditions, not all supplier cards. Actual source-qualified artifacts are pinned at dispatch/composition.<br>Условия: A cache-eligible assessment reuse guarantee is selected; not selected for a method requiring fresh evaluation or a deliberately uncached route |
+| Supplier [P0-ACCEPT.accepted-boundary](../../cards/P0-ACCEPT/accepted-boundary.md) | `direct:actual_E02_G_acceptance`: Root preserves accepted E02 stage/rebind.<br>Source: `task.depends_on[0]`.<br>Условия: original direct relation; source stage rules govern |
+| Supplier [LIF-09](../../parents/LIF-09.md) | `acceptance:composition`: Actual selected output is consumed by the local composition reader; acceptance is composition-only, not a preparation prerequisite.<br>Source: `task.acceptance_dependencies[1]`.<br>Условия: selected parent composed claim; not a new preparation dependency |
+| Supplier [LIF-07](../../parents/LIF-07.md) | `conditional_acceptance_requirements:composition`: Actual role-qualified computational/semantic dependency closure and invalidation/generation evidence from LIF-07, or an already accepted equivalent native owner explicitly rebound at P0; include relevant negative/membership dependencies<br>Source: `task.conditional_acceptance_requirements[0]`.<br>Условия: A cache-eligible assessment reuse guarantee is selected; not selected for a method requiring fresh evaluation or a deliberately uncached route |
 | Composition output (не start gate) [LIF-01.relation_use](../../cards/LIF-01/relation_use.md) | For an actual cache-reuse admission, bind the already persisted LIF-01 scoped use; fresh evaluation has no cache join. |
 
-Отсутствие внутреннего after не отменяет parent prerequisites. Conditional acceptance, execution rights и выбранные profiles разрешаются отдельно, как указано в parent contract. Номера групп и карточек не задают порядок.
+Отсутствие внутреннего after не отменяет parent prerequisites. Conditional acceptance, execution rights и выбранные profiles применяются на своей стадии. Composition links не задают порядок независимой подготовки.
 
 ## Назначенный нормативный контекст
 
-Основа: `ec3d7d38b4d246b3e1d225a1c0fc9aefae9ced0d`. Полные selectors и accountable routes — [coverage.json](../../coverage.json), parent `LIF-01`. Эти ссылки не требуют чтения всех siblings. Читайте целиком каждый назначенный fragment и необходимые связанные contracts; mixed clause нельзя усечь до удобной части.
+Source-manifest base: `ec3d7d38b4d246b3e1d225a1c0fc9aefae9ced0d`; это не plan_commit назначения. Точные immutable blobs/hash — [coverage.json](../../coverage.json), parent `LIF-01`. `task` выбирает строку tasks.json по id, `solution` — preferred-solutions.json по task_id; затем dot/index selector. Для R19 identity определяется значением question_id, не позицией в другом массиве. Полностью прочитайте назначенные fragments и нужные contracts; mixed clause нельзя усечь.
 
 - **execute** — Changed purpose/audience reuse is current-use qualification.
   `task.positive[1]`
 - **execute** — Selected cache-eligible verifier-call/generation probe.
   `task.acceptance_steps[4]`
-- **execute** — R18-D18-Q03 predicate/rule/time/use qualification.
-  `task.r19_extension.question_slices[7]`; `task.r19_extension.question_ids[7]`
 - **execute** — Version cache predicate/invalidation with native owners.
   `solution.implementation_steps[4]`
 - **binding** — LIF07 owns dependencies; bind selected producer-reader.
   `solution.composition_contracts[3]`
 - **execute** — Cache call count/new generations.
   `solution.acceptance_discriminators[3]`
+- **execute** — task.r19_extension.question_slices[7] crosswalks by actual value to question_ids[7]. Binds result identity to predicate, rule, time and use and conditionally consumes qualification evidence; this is cache/current-use freshness.
+  `task.r19_extension.question_slices[7]` (`R18-D18-Q03`); `task.r19_extension.question_ids[7]` (`R18-D18-Q03`)
 
 Inherited owner/lease/stage/activation constraints указаны в parent contract. Root/lead проверяет полное parent coverage; output этой карточки не закрывает siblings. При обнаружении пропуска остановить только affected writes/acceptance, назвать точный clause и reconciled next owner.
 

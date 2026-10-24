@@ -10,7 +10,7 @@ Canonical title: A0 source/profile commissioning and trust dossier. R26 форм
 
 ## Реальный join
 
-One release dossier receipt composes the fresh OPS-03 effective-profile observation, CAP-03 source/use decision and independently authorized initial trust provision; root reconciles the exact receipt and its source-bound reader before any protected input.
+Existing RuntimeExecutionPolicyResolver produces a read-only effective-profile/build observation; OPS-01 binds the selected commissioning decision to that observation and persists its receipt. OPS-03 subsequently consumes this receipt to derive readiness/admission. OPS-01 does not wait for OPS-03 readiness and creates no second profile resolver.
 
 **Outputs:** [OPS-01.commissioning](../cards/OPS-01/commissioning.md).
 

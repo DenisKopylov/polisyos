@@ -30,28 +30,33 @@
 
 | Отношение | Точный смысл |
 |---|---|
-| Supplier [P0-ACCEPT.accepted-boundary](../../cards/P0-ACCEPT/accepted-boundary.md) | `direct:actual_E02_G_acceptance`: Inherited accepted E02 readiness and scoped source rebind apply to each listed card; no extra start gate is added, and canonical parent stage/dispatch remains authoritative.<br>Выбор output: Select the exact output named in need and its original conditions, not all supplier cards. Actual source-qualified artifacts are pinned at dispatch/composition.<br>Условия: original direct relation; source stage rules govern |
-| Supplier [CNT-01](../../parents/CNT-01.md) | `direct:owner_readiness`: Case scope, selected audience/remit, actual answerer roles and relevant claims.<br>Выбор output: Select the exact output named in need and its original conditions, not all supplier cards. Actual source-qualified artifacts are pinned at dispatch/composition.<br>Условия: original direct relation; source stage rules govern |
-| Supplier [CNT-02.source-profile](../../cards/CNT-02/source-profile.md) | `direct:interface_agreement; acceptance:composition`: Selected source identity/version route where relevant; metadata is not consent, mandate or capacity.<br>Выбор output: Select the exact output named in need and its original conditions, not all supplier cards. Actual source-qualified artifacts are pinned at dispatch/composition.<br>Условия: original direct relation; source stage rules govern; selected parent composed claim; not a new preparation dependency |
+| Supplier [P0-ACCEPT.accepted-boundary](../../cards/P0-ACCEPT/accepted-boundary.md) | `direct:actual_E02_G_acceptance`: Inherited accepted E02 readiness and scoped source rebind apply to each listed card; no extra start gate is added, and canonical parent stage/dispatch remains authoritative.<br>Source: `task.depends_on[0]`.<br>Условия: original direct relation; source stage rules govern |
+| Supplier [CNT-01](../../parents/CNT-01.md) | `direct:owner_readiness`: Case scope, selected audience/remit, actual answerer roles and relevant claims.<br>Source: `task.depends_on[1]`.<br>Условия: original direct relation; source stage rules govern |
+| Supplier [CNT-02.source-profile](../../cards/CNT-02/source-profile.md) | `direct:interface_agreement; acceptance:composition`: Selected source identity/version route where relevant; metadata is not consent, mandate or capacity.<br>Source: `task.depends_on[2]`; `task.acceptance_dependencies[1]`.<br>Условия: original direct relation; source stage rules govern; selected parent composed claim; not a new preparation dependency |
 
-Отсутствие внутреннего after не отменяет parent prerequisites. Conditional acceptance, execution rights и выбранные profiles разрешаются отдельно, как указано в parent contract. Номера групп и карточек не задают порядок.
+Отсутствие внутреннего after не отменяет parent prerequisites. Conditional acceptance, execution rights и выбранные profiles применяются на своей стадии. Composition links не задают порядок независимой подготовки.
 
 ## Назначенный нормативный контекст
 
-Основа: `ec3d7d38b4d246b3e1d225a1c0fc9aefae9ced0d`. Полные selectors и accountable routes — [coverage.json](../../coverage.json), parent `CNT-07`. Эти ссылки не требуют чтения всех siblings. Читайте целиком каждый назначенный fragment и необходимые связанные contracts; mixed clause нельзя усечь до удобной части.
+Source-manifest base: `ec3d7d38b4d246b3e1d225a1c0fc9aefae9ced0d`; это не plan_commit назначения. Точные immutable blobs/hash — [coverage.json](../../coverage.json), parent `CNT-07`. `task` выбирает строку tasks.json по id, `solution` — preferred-solutions.json по task_id; затем dot/index selector. Для R19 identity определяется значением question_id, не позицией в другом массиве. Полностью прочитайте назначенные fragments и нужные contracts; mixed clause нельзя усечь.
 
 - **execute** — These clauses bind remit, participant selection, representation, principal/collective authority, interest and response obligations; counts or testimony do not themselves appoint authority.
-  `task.r19_extension.question_slices[2]`; `task.r19_extension.question_slices[3]`; `task.r19_extension.question_slices[4]`; `task.r19_extension.question_slices[5]`
-- **execute** — These clauses bind remit, participant selection, representation, principal/collective authority, interest and response obligations; counts or testimony do not themselves appoint authority.
-  `task.r19_extension.question_slices[7]`; `task.r19_extension.question_slices[8]`
-- **execute** — These clauses bind remit, participant selection, representation, principal/collective authority, interest and response obligations; counts or testimony do not themselves appoint authority.
-  `task.r19_extension.question_ids[2]`; `task.r19_extension.question_ids[3]`; `task.r19_extension.question_ids[4]`; `task.r19_extension.question_ids[5]`; `task.r19_extension.question_ids[6]`; `task.r19_extension.question_ids[7]`; `task.r19_extension.question_ids[8]`
-- **execute** — These clauses bind remit, participant selection, representation, principal/collective authority, interest and response obligations; counts or testimony do not themselves appoint authority.
-  `task.r19_extension.question_ids[10]`
-- **execute** — These clauses bind remit, participant selection, representation, principal/collective authority, interest and response obligations; counts or testimony do not themselves appoint authority.
-  `task.r19_extension.question_ids[13]`
-- **execute** — These clauses bind remit, participant selection, representation, principal/collective authority, interest and response obligations; counts or testimony do not themselves appoint authority.
   `solution.inputs_to_resolve[1]`
+- **execute** — Mandate-evidence owns remit, selection/representation process and actual principal/collective act; participant counts and preferences remain distinct. Slice: Collect remit, selection, permission, missing voices, dissent and real mandate separately. Positive discriminator: Participation informs claim; appointing act alone identifies decision authority. Adversary: Self-selected comment count is treated as representation/quorum. Removal: Drop actual mandate/use link, keep count: authority claim fails.
+  `task.r19_extension.question_slices[2]` (`R18-D04-Q04`); `task.r19_extension.question_ids[2]` (`R18-D04-Q04`)
+- **execute** — Mandate-evidence owns remit, selection/representation process and actual principal/collective act; participant counts and preferences remain distinct. Slice: Collect actual principal/collective mandate when voluntary alignment is a chosen policy objective. Positive discriminator: Authorized alignment is recorded as value choice, not mandatory law. Adversary: Consultation count supplies mandate. Removal: Drop principal mandate/integration record: no mandatory classification.
+  `task.r19_extension.question_slices[3]` (`R18-D04-Q05`); `task.r19_extension.question_ids[3]` (`R18-D04-Q05`)
+- **execute** — Mandate-evidence owns remit, selection/representation process and actual principal/collective act; participant counts and preferences remain distinct. Slice: Separate mandate from preference/testimony. Positive discriminator: Preference and mandate stay distinct; an unknown collective act leaves a fully grounded conditional comparison admissible while collective authority is visibly absent. Adversary: Response count is not mandate. Removal: Remove issuer/mandate evidence: do not attribute authorization or permit a choice; retain a separately grounded calculation under explicit assumptions.
+  `task.r19_extension.question_slices[4]` (`R18-D05-Q01`); `task.r19_extension.question_ids[4]` (`R18-D05-Q01`)
+
+### Обязанности внутри составных fragments
+
+- `task.r19_extension.question_slices[7]` — Bind principal/remit and any role-specific authority affected by the interest. (primary accountability остаётся в coverage; это конкретный подрезультат, не второй writer).
+- `task.r19_extension.question_slices[8]` — Resolve competent collective/community authority for governed or derivative uses. (primary accountability остаётся в coverage; это конкретный подрезультат, не второй writer).
+- `task.r19_extension.question_slices[10]` — Use actual issuer/mandate evidence only when claiming an adopted correction or act. (primary accountability остаётся в coverage; это конкретный подрезультат, не второй writer).
+- `task.r19_extension.question_slices[11]` — Keep authority/remit transfer distinct from supplied operational resources and continuity. (primary accountability остаётся в coverage; это конкретный подрезультат, не второй writer).
+- `task.r19_extension.question_slices[13]` — Resolve competent community/collective authority; a checkbox cannot represent a group. (primary accountability остаётся в coverage; это конкретный подрезультат, не второй writer).
+- `task.r19_extension.question_slices[14]` — Mandate constraints remain separate from operational supply. (primary accountability остаётся в coverage; это конкретный подрезультат, не второй writer).
 
 Inherited owner/lease/stage/activation constraints указаны в parent contract. Root/lead проверяет полное parent coverage; output этой карточки не закрывает siblings. При обнаружении пропуска остановить только affected writes/acceptance, назвать точный clause и reconciled next owner.
 

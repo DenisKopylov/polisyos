@@ -13,7 +13,7 @@ Canonical title: Safe capture, complete immutable snapshot and exact reuse. R26 
 
 ## Реальный join
 
-Compose per-hop transport with selected root; continuation with LIF-03 only when activated; second-source receipt with LIF-08. Fresh reader resolves bytes and LIF-05 admits each placement. No cross-protocol/backend parity inference. Original source pins, stage/dispatch gates, conditional execution, completion planes and leases remain authoritative. dependency_routes maps consumption only. Identity/navigation/dispatch/mirrored fields in units.json.other_field_dispositions remain authoritative by parent reference.
+Compose per-hop transport with selected root; continuation with LIF-03 only when activated; second-source receipt with LIF-08. Fresh reader resolves bytes and LIF-05 admits each placement. No cross-protocol/backend parity inference. Original source pins, stage/dispatch gates, conditional execution, completion planes and leases remain authoritative. dependency_routes maps consumption only. Identity/navigation and inherited constraints resolve from coverage.json parents[parent=CAP-02].inherited_fields and registry.json parents[id=CAP-02].inherited_dispatch_contract to the pinned task/solution rows; ignored author scratch is not a normative input.
 
 **Outputs:** [CAP-02.transport-boundary](../cards/CAP-02/transport-boundary.md), [CAP-02.single-response-root](../cards/CAP-02/single-response-root.md), [CAP-02.continuation-and-frontier](../cards/CAP-02/continuation-and-frontier.md), [CAP-02.second-source-adapter](../cards/CAP-02/second-source-adapter.md).
 

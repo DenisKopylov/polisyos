@@ -30,22 +30,22 @@
 
 | Отношение | Точный смысл |
 |---|---|
-| Supplier [P0-ACCEPT.accepted-boundary](../../cards/P0-ACCEPT/accepted-boundary.md) | `direct:actual_E02_G_acceptance`: Accepted E02 source identity/commit and source-bound acceptance record used when rebinding this card; original parent dispatch/stage remains authoritative.<br>Выбор output: Select the exact output named in need and its original conditions, not all supplier cards. Actual source-qualified artifacts are pinned at dispatch/composition.<br>Условия: original direct relation; source stage rules govern |
+| Supplier [P0-ACCEPT.accepted-boundary](../../cards/P0-ACCEPT/accepted-boundary.md) | `direct:actual_E02_G_acceptance`: Accepted E02 source identity/commit and source-bound acceptance record used when rebinding this card; original parent dispatch/stage remains authoritative.<br>Source: `task.depends_on[0]`.<br>Условия: original direct relation; source stage rules govern |
 | Composition output (не start gate) [UI-02.private-egress](../../cards/UI-02/private-egress.md) | Consume only for the exact composition described here: Issue только после applicable PR1a и exact-view/rights gates; PR1b + actual signer mandate требуются только для pilot/signature claim. This link is not an unconditional all-of or preparation gate. |
 | Composition output (не start gate) [UI-02.placement-rights](../../cards/UI-02/placement-rights.md) | Consume only for the exact composition described here: Issue только после applicable PR1a и exact-view/rights gates; PR1b + actual signer mandate требуются только для pilot/signature claim. This link is not an unconditional all-of or preparation gate. |
+| Composition output (не start gate) [UI-04.event-history](../../cards/UI-04/event-history.md) | Only for the selected managed-correction/current-status path: consume the exact persisted event/history output; it is not a prerequisite for unrelated PR1a/refusal preparation. |
+| Composition output (не start gate) [UI-04.feed-projection](../../cards/UI-04/feed-projection.md) | Selected correction/current-status surface reads the same-generation event/feed with audience/currentness constraints; no global UI-04 completion gate. |
 
-Отсутствие внутреннего after не отменяет parent prerequisites. Conditional acceptance, execution rights и выбранные profiles разрешаются отдельно, как указано в parent contract. Номера групп и карточек не задают порядок.
+Отсутствие внутреннего after не отменяет parent prerequisites. Conditional acceptance, execution rights и выбранные profiles применяются на своей стадии. Composition links не задают порядок независимой подготовки.
 
 ## Назначенный нормативный контекст
 
-Основа: `ec3d7d38b4d246b3e1d225a1c0fc9aefae9ced0d`. Полные selectors и accountable routes — [coverage.json](../../coverage.json), parent `UI-02`. Эти ссылки не требуют чтения всех siblings. Читайте целиком каждый назначенный fragment и необходимые связанные contracts; mixed clause нельзя усечь до удобной части.
+Source-manifest base: `ec3d7d38b4d246b3e1d225a1c0fc9aefae9ced0d`; это не plan_commit назначения. Точные immutable blobs/hash — [coverage.json](../../coverage.json), parent `UI-02`. `task` выбирает строку tasks.json по id, `solution` — preferred-solutions.json по task_id; затем dot/index selector. Для R19 identity определяется значением question_id, не позицией в другом массиве. Полностью прочитайте назначенные fragments и нужные contracts; mixed clause нельзя усечь.
 
 - **binding** — Enumerated surfaces are readers of one canonical card result, not separate transport owners. Source selectors: task.surface[0], task.surface[1], task.surface[2], task.surface[3], task.surface[4], task.surface[5].
   `task.surface[0]`; `task.surface[1]`; `task.surface[2]`; `task.surface[3]`; `task.surface[4]`; `task.surface[5]`
 - **binding** — This source field contributes to public-record's single observable result; its native producer/consumer boundary remains with the existing owner. Source selectors: solution.deviation_triggers[0], solution.deviation_triggers[1], solution.free_grow.data_or_config_growth, solution.free_grow.extension_boundary, solution.free_grow.resource_behavior, task.r14_extension.detail, task.r14_extension.product_verification, task.r14_extension.quality_ref, task.r14_extension.requirement.
   `task.r14_extension.requirement`; `task.r14_extension.detail`; `task.r14_extension.quality_ref`; `task.r14_extension.product_verification`; `solution.free_grow.data_or_config_growth`; `solution.free_grow.extension_boundary`; `solution.free_grow.resource_behavior`; `solution.deviation_triggers[0]`; `solution.deviation_triggers[1]`
-- **binding** — Q04 binds one exact DS12 record/edition across actual audience projections and preserves rendition meaning. Source selectors: task.r19_extension.question_ids[0], task.r19_extension.question_slices[0].
-  `task.r19_extension.question_slices[0]`; `task.r19_extension.question_ids[0]`
 - **execute** — Advances the same native owner result; exact path/lease resolves at P0. Source selectors: solution.implementation_steps[0], solution.implementation_steps[1], solution.implementation_steps[2], solution.implementation_steps[4], solution.implementation_steps[5], solution.implementation_steps[6].
   `solution.implementation_steps[0]`; `solution.implementation_steps[1]`; `solution.implementation_steps[2]`; `solution.implementation_steps[4]`; `solution.implementation_steps[5]`; `solution.implementation_steps[6]`
 - **binding** — Binds the card's actual input/status/authority/time predicate and consumer behavior. Source selectors: solution.composition_contracts[0], solution.composition_contracts[1], solution.composition_contracts[3], solution.composition_contracts[4].
@@ -54,6 +54,15 @@
   `solution.acceptance_discriminators[0]`; `solution.acceptance_discriminators[3]`; `solution.acceptance_discriminators[4]`; `solution.acceptance_discriminators[5]`; `solution.acceptance_discriminators[6]`; `solution.acceptance_discriminators[7]`
 - **binding** — Records a real owner input or its conditional use; it appoints no missing producer. Source selectors: solution.inputs_to_resolve[0], solution.inputs_to_resolve[1].
   `solution.inputs_to_resolve[0]`; `solution.inputs_to_resolve[1]`
+- **binding** — tasks.json#UI-02.task.r19_extension.question_slices[0] value-matches question_ids[0]. Current coverage routes both by-value selectors to public-record as binding, which is correct: the slice constrains the existing exact-record projection work also executed by preferred-solutions implementation_steps[1..2,5]. Keep one edition across the four actual authorized audience readers; do not substitute UI-05 Clerk or transport parity for audience projection.
+  `task.r19_extension.question_slices[0]` (`R18-D12-Q04`); `task.r19_extension.question_ids[0]` (`R18-D12-Q04`)
+
+### Обязанности внутри составных fragments
+
+- `task.r19_extension.question_slices[1]` — Keep the exact prior issue and its audience-specific rendition as the historical edition while displaying a separate current-status link. (primary accountability остаётся в coverage; это конкретный подрезультат, не второй writer).
+- `task.r19_extension.question_slices[2]` — Apply the selected PUBLIC/MACHINE audience projection to the same issued record on each enumerated export/prior-projection reader. (primary accountability остаётся в coverage; это конкретный подрезультат, не второй writer).
+- `task.r19_extension.question_slices[3]` — Preserve the exact issued bytes/edition and audience view as historical while linking a distinct derivative or correction status. (primary accountability остаётся в coverage; это конкретный подрезультат, не второй writer).
+- `task.r19_extension.question_slices[4]` — The old public view retains its exact permitted edition, links the authorized correction, and states only known copy-control limits. (primary accountability остаётся в coverage; это конкретный подрезультат, не второй writer).
 
 Inherited owner/lease/stage/activation constraints указаны в parent contract. Root/lead проверяет полное parent coverage; output этой карточки не закрывает siblings. При обнаружении пропуска остановить только affected writes/acceptance, назвать точный clause и reconciled next owner.
 

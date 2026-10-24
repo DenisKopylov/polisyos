@@ -30,16 +30,16 @@
 
 | Отношение | Точный смысл |
 |---|---|
-| Supplier [P0-ACCEPT.accepted-boundary](../../cards/P0-ACCEPT/accepted-boundary.md) | `direct:actual_E02_G_acceptance`: Every card consumes the accepted E02 source/commit and task-scoped source rebind for its own owner readback. The universal acceptance/stage/conditional gate remains the original parent contract; this map adds no second leaf gate or sequencing.<br>Выбор output: Select the exact output named in need and its original conditions, not all supplier cards. Actual source-qualified artifacts are pinned at dispatch/composition.<br>Условия: original direct relation; source stage rules govern |
-| Supplier [DES-03](../../parents/DES-03.md) | `direct:interface_agreement`: Consumes accepted candidate/search basis for selected trajectory and the resulting frontier composition; DES-03 remains search writer.<br>Выбор output: Select the exact output named in need and its original conditions, not all supplier cards. Actual source-qualified artifacts are pinned at dispatch/composition.<br>Условия: original direct relation; source stage rules govern |
-| Supplier [GYD-30](../../parents/GYD-30.md) | `direct:interface_agreement`: Consumes actual joint simulation/result interface; GYD-30 retains sole joint witness and shared API ownership.<br>Выбор output: Select the exact output named in need and its original conditions, not all supplier cards. Actual source-qualified artifacts are pinned at dispatch/composition.<br>Условия: original direct relation; source stage rules govern |
+| Supplier [P0-ACCEPT.accepted-boundary](../../cards/P0-ACCEPT/accepted-boundary.md) | `direct:actual_E02_G_acceptance`: Every card consumes the accepted E02 source/commit and task-scoped source rebind for its own owner readback. The universal acceptance/stage/conditional gate remains the original parent contract; this map adds no second leaf gate or sequencing.<br>Source: `task.depends_on[0]`.<br>Условия: original direct relation; source stage rules govern |
+| Supplier [DES-03](../../parents/DES-03.md) | `direct:interface_agreement`: Consumes accepted candidate/search basis for selected trajectory and the resulting frontier composition; DES-03 remains search writer.<br>Source: `task.depends_on[1]`.<br>Условия: original direct relation; source stage rules govern |
+| Supplier [GYD-30](../../parents/GYD-30.md) | `direct:interface_agreement`: Consumes actual joint simulation/result interface; GYD-30 retains sole joint witness and shared API ownership.<br>Source: `task.depends_on[2]`.<br>Условия: original direct relation; source stage rules govern |
 | Composition output (не start gate) [DES-11.history-context](../../cards/DES-11/history-context.md) | Only for the selected same-scope composition described by this card: Persisted result is consumed by the existing fresh Scientist frontier/dossier reader; any search-space or shared joint-result change is requested from DES-03/GYD-30 respectively. Independent output production/preparation remains allowed; the original parent join reconciles all required outcomes without making this list an all-of. |
 
-Отсутствие внутреннего after не отменяет parent prerequisites. Conditional acceptance, execution rights и выбранные profiles разрешаются отдельно, как указано в parent contract. Номера групп и карточек не задают порядок.
+Отсутствие внутреннего after не отменяет parent prerequisites. Conditional acceptance, execution rights и выбранные profiles применяются на своей стадии. Composition links не задают порядок независимой подготовки.
 
 ## Назначенный нормативный контекст
 
-Основа: `ec3d7d38b4d246b3e1d225a1c0fc9aefae9ced0d`. Полные selectors и accountable routes — [coverage.json](../../coverage.json), parent `DES-11`. Эти ссылки не требуют чтения всех siblings. Читайте целиком каждый назначенный fragment и необходимые связанные contracts; mixed clause нельзя усечь до удобной части.
+Source-manifest base: `ec3d7d38b4d246b3e1d225a1c0fc9aefae9ced0d`; это не plan_commit назначения. Точные immutable blobs/hash — [coverage.json](../../coverage.json), parent `DES-11`. `task` выбирает строку tasks.json по id, `solution` — preferred-solutions.json по task_id; затем dot/index selector. Для R19 identity определяется значением question_id, не позицией в другом массиве. Полностью прочитайте назначенные fragments и нужные contracts; mixed clause нельзя усечь.
 
 - **execute** — The deliverable is the actual conditional temporal evaluation producer; history-context and frontier-consumer are its explicit input and reader checkpoints.
   `task.deliverable`
@@ -55,18 +55,6 @@
   `task.r17_extension.requirement`; `task.r17_extension.positive`; `task.r17_extension.adversarial`; `task.r17_extension.removal`
 - **binding** — R17 delivery/quality references map to actual selected temporal method and incumbent execution; GYD-30 retains joint witness.
   `task.r17_extension.delivery_slices[0]`; `task.r17_extension.delivery_slices[1]`; `task.r17_extension.quality_cases[0]`; `task.r17_extension.quality_cases[1]`; `task.r17_extension.quality_cases[2]`; `task.r17_extension.quality_cases[3]`
-- **join** — Use actual action order and separate act/receipt/operation; late correction reruns affected suffix without rewriting as-known state. Actual event/claim/method supplier remains named in the card; no new DAG edge is inferred.
-  `task.r19_extension.question_slices[0]`
-- **join** — Keep search stopping distinct from conditional action paths; A→B/B→A depend on observed history, not seed/order noise. Actual event/claim/method supplier remains named in the card; no new DAG edge is inferred.
-  `task.r19_extension.question_slices[3]`
-- **join** — Source/method-qualified path displacement is conditional; DES-11 is not causal/legal source owner. Actual event/claim/method supplier remains named in the card; no new DAG edge is inferred.
-  `task.r19_extension.question_slices[6]`
-- **join** — Bounded joint schedule/profile/horizon uses actual counterfactual support; a response label alone is insufficient. Actual event/claim/method supplier remains named in the card; no new DAG edge is inferred.
-  `task.r19_extension.question_slices[7]`
-- **join** — Keep horizon vectors distinct from optional assumption-bound scalar comparisons; no default discount becomes a case fact. Actual event/claim/method supplier remains named in the card; no new DAG edge is inferred.
-  `task.r19_extension.question_slices[8]`
-- **binding** — Each source question ID is routed to the card assigned to its matching indexed question_slices clause in this parent; ID coverage preserves lineage and is not semantic proof.
-  `task.r19_extension.question_ids[0]`; `task.r19_extension.question_ids[3]`; `task.r19_extension.question_ids[6]`; `task.r19_extension.question_ids[7]`; `task.r19_extension.question_ids[8]`
 - **execute** — Preferred native path is the selected temporal evaluator, with exact history and consumer siblings named.
   `solution.preferred_solution`
 - **execute** — Numbered DES-11 method steps belong to actual trajectory evaluator while inheriting all authority/time/activation boundaries.
@@ -75,6 +63,21 @@
   `solution.acceptance_discriminators[1]`
 - **join** — Removal of history/transition/cutoff/incumbent consumption must fail the independent path oracle.
   `solution.acceptance_discriminators[2]`
+- **execute** — Evaluate actual action-order paths over observed history; preserve act/receipt/operation.
+  `task.r19_extension.question_slices[0]` (`R18-D15-Q02`); `task.r19_extension.question_ids[4]` (`R18-D15-Q02`)
+- **execute** — Evaluate policy paths on observed histories, separately from search stopping.
+  `task.r19_extension.question_slices[3]` (`R18-D08-Q04`); `task.r19_extension.question_ids[2]` (`R18-D08-Q04`)
+- **execute** — Run bounded profile/horizon only on actual transitions and counterfactual support.
+  `task.r19_extension.question_slices[7]` (`R18-D20-Q04`); `task.r19_extension.question_ids[7]` (`R18-D20-Q04`)
+- **execute** — Report vectors and conditional scalar scenarios under grounded assumptions; no default discount.
+  `task.r19_extension.question_slices[8]` (`R18-D20-Q06`); `task.r19_extension.question_ids[8]` (`R18-D20-Q06`)
+
+### Обязанности внутри составных fragments
+
+- `task.r19_extension.question_slices[1]` — Consume bound incumbent/uncertainty with population/time scope. (primary accountability остаётся в coverage; это конкретный подрезультат, не второй writer).
+- `task.r19_extension.question_slices[2]` — Consume timed revision/cutoff in observed-history evaluation. (primary accountability остаётся в coverage; это конкретный подрезультат, не второй writer).
+- `task.r19_extension.question_slices[4]` — Consume actual exposure/regime history for trajectory. (primary accountability остаётся в coverage; это конкретный подрезультат, не второй writer).
+- `task.r19_extension.question_slices[6]` — Only after source/method rebind, consume bounded candidate trajectory; not unresolved evidence/legal owner. (primary accountability остаётся в coverage; это конкретный подрезультат, не второй writer).
 
 Inherited owner/lease/stage/activation constraints указаны в parent contract. Root/lead проверяет полное parent coverage; output этой карточки не закрывает siblings. При обнаружении пропуска остановить только affected writes/acceptance, назвать точный clause и reconciled next owner.
 

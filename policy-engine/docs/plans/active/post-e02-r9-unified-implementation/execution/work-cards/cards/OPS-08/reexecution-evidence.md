@@ -30,16 +30,16 @@
 
 | Отношение | Точный смысл |
 |---|---|
-| Supplier [P0-ACCEPT.accepted-boundary](../../cards/P0-ACCEPT/accepted-boundary.md) | `direct:actual_E02_G_acceptance`: All writers/consumers use the accepted source and task-scoped rebind; preserve parent dispatch, not a new all-task edge.<br>Выбор output: Select the exact output named in need and its original conditions, not all supplier cards. Actual source-qualified artifacts are pinned at dispatch/composition.<br>Условия: original direct relation; source stage rules govern |
-| Supplier [LIF-06](../../parents/LIF-06.md) | `direct:owner_readiness`: Use the single native aggregate admission/eligibility owner and actual usage receipt; no second shared ledger.<br>Выбор output: Select the exact output named in need and its original conditions, not all supplier cards. Actual source-qualified artifacts are pinned at dispatch/composition.<br>Условия: original direct relation; source stage rules govern |
+| Supplier [P0-ACCEPT.accepted-boundary](../../cards/P0-ACCEPT/accepted-boundary.md) | `direct:actual_E02_G_acceptance`: All writers/consumers use the accepted source and task-scoped rebind; preserve parent dispatch, not a new all-task edge.<br>Source: `task.depends_on[0]`.<br>Условия: original direct relation; source stage rules govern |
+| Supplier [LIF-06](../../parents/LIF-06.md) | `direct:owner_readiness`: Use the single native aggregate admission/eligibility owner and actual usage receipt; no second shared ledger.<br>Source: `task.depends_on[2]`.<br>Условия: original direct relation; source stage rules govern |
 | Composition output (не start gate) [OPS-08.research-meter](../../cards/OPS-08/research-meter.md) | Only for the selected same-scope composition described by this card: Consumes `research-meter` and `class-envelope`; does not authorize selection or assert policy quality. Any benefit claim belongs to the actual G05 consumer and must survive equivalent selected guarantee. Independent output production/preparation remains allowed; the original parent join reconciles all required outcomes without making this list an all-of. |
 | Composition output (не start gate) [OPS-08.class-envelope](../../cards/OPS-08/class-envelope.md) | Only for the selected same-scope composition described by this card: Consumes `research-meter` and `class-envelope`; does not authorize selection or assert policy quality. Any benefit claim belongs to the actual G05 consumer and must survive equivalent selected guarantee. Independent output production/preparation remains allowed; the original parent join reconciles all required outcomes without making this list an all-of. |
 
-Отсутствие внутреннего after не отменяет parent prerequisites. Conditional acceptance, execution rights и выбранные profiles разрешаются отдельно, как указано в parent contract. Номера групп и карточек не задают порядок.
+Отсутствие внутреннего after не отменяет parent prerequisites. Conditional acceptance, execution rights и выбранные profiles применяются на своей стадии. Composition links не задают порядок независимой подготовки.
 
 ## Назначенный нормативный контекст
 
-Основа: `ec3d7d38b4d246b3e1d225a1c0fc9aefae9ced0d`. Полные selectors и accountable routes — [coverage.json](../../coverage.json), parent `OPS-08`. Эти ссылки не требуют чтения всех siblings. Читайте целиком каждый назначенный fragment и необходимые связанные contracts; mixed clause нельзя усечь до удобной части.
+Source-manifest base: `ec3d7d38b4d246b3e1d225a1c0fc9aefae9ced0d`; это не plan_commit назначения. Точные immutable blobs/hash — [coverage.json](../../coverage.json), parent `OPS-08`. `task` выбирает строку tasks.json по id, `solution` — preferred-solutions.json по task_id; затем dot/index selector. Для R19 identity определяется значением question_id, не позицией в другом массиве. Полностью прочитайте назначенные fragments и нужные contracts; mixed clause нельзя усечь.
 
 - **binding** — Binding scope, authority, migration, time, input, or lifecycle constraint for reexecution-evidence; selectors task.r16_extension.delivery_slices[0], task.r16_extension.delivery_slices[1], task.r16_extension.product_verification remain load-bearing.
   `task.r16_extension.delivery_slices[0]`; `task.r16_extension.delivery_slices[1]`; `task.r16_extension.product_verification`
@@ -47,6 +47,10 @@
   `task.r16_extension.requirement`
 - **join** — Distinguishing behavior, consumer surface, or acceptance evidence for reexecution-evidence; selectors task.r16_extension.positive, task.r16_extension.adversarial, task.r16_extension.removal, task.r16_extension.quality_cases[0], task.r16_extension.quality_cases[1], task.r16_extension.quality_cases[2], task.r16_extension.quality_cases[3], task.r16_extension.quality_cases[4] are checked at its actual reader/sink.
   `task.r16_extension.positive`; `task.r16_extension.adversarial`; `task.r16_extension.removal`; `task.r16_extension.quality_cases[0]`; `task.r16_extension.quality_cases[1]`; `task.r16_extension.quality_cases[2]`; `task.r16_extension.quality_cases[3]`; `task.r16_extension.quality_cases[4]`
+
+### Обязанности внутри составных fragments
+
+- `task.r19_extension.question_slices[2]` — Only for a separate matched efficiency claim with equivalent usefulness/guarantee and complete denominator. (primary accountability остаётся в coverage; это конкретный подрезультат, не второй writer).
 
 Inherited owner/lease/stage/activation constraints указаны в parent contract. Root/lead проверяет полное parent coverage; output этой карточки не закрывает siblings. При обнаружении пропуска остановить только affected writes/acceptance, назвать точный clause и reconciled next owner.
 

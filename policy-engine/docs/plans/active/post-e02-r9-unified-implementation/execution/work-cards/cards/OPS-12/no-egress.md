@@ -10,7 +10,7 @@
 
 **Граница владельца.** Any product-side configuration stays with existing deployment/network owner under its own exact path lease; this OPS-12 card is a verification result under parent `write:exact-path/{canonical_repo_path}` only if that owned path is changed. Exact overlap is re-resolved after E02, not assumed.
 
-**Входы.** Selected offline host/network interface inventory; Institution security owner’s deny-by-default configuration and network observer; Actual update, DNS, telemetry, crash and maintenance traffic during selected profile
+**Входы.** Selected host/profile boundary; independently observed live interfaces, namespaces and routes, including DNS/update/telemetry/crash and maintenance paths; reconcile actual observer/firewall coverage against this set. A supplied inventory alone is not evidence of completeness.
 
 **Выход и consumer.** Observed no-egress verification result with boundary, test window and unresolved routes, consumed by offline commissioning/operator surface.
 
@@ -18,9 +18,9 @@
 
 **Где результат соединяется с другими.** Network boundary evidence composes with but is not replaced by bundle signature, application egress flag, source grant or remote provider selection.
 
-**Positive.** No unapproved route emits bytes during measured selected operations and all declared interfaces/maintenance paths are covered.
+**Positive.** Independent live inventory and coverage reconciliation establish the selected boundary; controlled attempts across applicable interfaces/namespaces/routes and maintenance paths cannot escape. The receipt states observer scope and limitations; an unestablished inventory cannot support a universal no-egress claim.
 
-**Distinguishing negative.** Any covert egress, untested interface or hidden update/crash route means no-egress is not established and affected offline claim is limited.
+**Distinguishing negative.** An omitted live namespace/tunnel, unobserved DNS/update/crash route, or incomplete observer/firewall coverage leaves the affected no-egress claim not_established/limited, even when all declared interfaces look quiet; unrelated local candidate work remains available.
 
 **Matched removal.** Remove physical deny/traffic observation but retain app setting and profile markers; network discriminator detects the route.
 
@@ -30,16 +30,20 @@
 
 | Отношение | Точный смысл |
 |---|---|
-| Supplier [P0-ACCEPT.accepted-boundary](../../cards/P0-ACCEPT/accepted-boundary.md) | `direct:actual_E02_G_acceptance`: Accepted-source rebind and conditional profile choice remain parent stage conditions; local profile can proceed without cloud-profile completion.<br>Выбор output: Select the exact output named in need and its original conditions, not all supplier cards. Actual source-qualified artifacts are pinned at dispatch/composition.<br>Условия: original direct relation; source stage rules govern |
+| Supplier [P0-ACCEPT.accepted-boundary](../../cards/P0-ACCEPT/accepted-boundary.md) | `direct:actual_E02_G_acceptance`: Accepted-source rebind and conditional profile choice remain parent stage conditions; local profile can proceed without cloud-profile completion.<br>Source: `task.depends_on[0]`.<br>Условия: original direct relation; source stage rules govern |
 
-Отсутствие внутреннего after не отменяет parent prerequisites. Conditional acceptance, execution rights и выбранные profiles разрешаются отдельно, как указано в parent contract. Номера групп и карточек не задают порядок.
+Отсутствие внутреннего after не отменяет parent prerequisites. Conditional acceptance, execution rights и выбранные profiles применяются на своей стадии. Composition links не задают порядок независимой подготовки.
 
 ## Назначенный нормативный контекст
 
-Основа: `ec3d7d38b4d246b3e1d225a1c0fc9aefae9ced0d`. Полные selectors и accountable routes — [coverage.json](../../coverage.json), parent `OPS-12`. Эти ссылки не требуют чтения всех siblings. Читайте целиком каждый назначенный fragment и необходимые связанные contracts; mixed clause нельзя усечь до удобной части.
+Source-manifest base: `ec3d7d38b4d246b3e1d225a1c0fc9aefae9ced0d`; это не plan_commit назначения. Точные immutable blobs/hash — [coverage.json](../../coverage.json), parent `OPS-12`. `task` выбирает строку tasks.json по id, `solution` — preferred-solutions.json по task_id; затем dot/index selector. Для R19 identity определяется значением question_id, не позицией в другом массиве. Полностью прочитайте назначенные fragments и нужные contracts; mixed clause нельзя усечь.
 
 - **binding** — Binding scope, authority, migration, time, input, or lifecycle constraint for no-egress; selectors solution.composition_contracts[1], solution.inputs_to_resolve[2] remain load-bearing.
   `solution.composition_contracts[1]`; `solution.inputs_to_resolve[2]`
+
+### Обязанности внутри составных fragments
+
+- `task.r19_extension.question_slices[0]` — Prove the selected host/network boundary with independent traffic observation; an application flag or bundle digest is insufficient. (primary accountability остаётся в coverage; это конкретный подрезультат, не второй writer).
 
 Inherited owner/lease/stage/activation constraints указаны в parent contract. Root/lead проверяет полное parent coverage; output этой карточки не закрывает siblings. При обнаружении пропуска остановить только affected writes/acceptance, назвать точный clause и reconciled next owner.
 

@@ -30,14 +30,14 @@
 
 | Отношение | Точный смысл |
 |---|---|
-| Supplier [P0-ACCEPT.accepted-boundary](../../cards/P0-ACCEPT/accepted-boundary.md) | `direct:actual_E02_G_acceptance`: Every card consumes the accepted E02 source/commit and task-scoped source rebind for its own owner readback. The universal acceptance/stage/conditional gate remains the original parent contract; this map adds no second leaf gate or sequencing.<br>Выбор output: Select the exact output named in need and its original conditions, not all supplier cards. Actual source-qualified artifacts are pinned at dispatch/composition.<br>Условия: original direct relation; source stage rules govern |
-| Supplier [DES-06.private-policy-documents](../../cards/DES-06/private-policy-documents.md) | `direct:interface_agreement`: Consumes DES-06’s actual edition/shared schema for import and fresh rendition; DES-06 remains the sole shared schema/render writer.<br>Выбор output: Select the exact output named in need and its original conditions, not all supplier cards. Actual source-qualified artifacts are pinned at dispatch/composition.<br>Условия: original direct relation; source stage rules govern |
+| Supplier [P0-ACCEPT.accepted-boundary](../../cards/P0-ACCEPT/accepted-boundary.md) | `direct:actual_E02_G_acceptance`: Every card consumes the accepted E02 source/commit and task-scoped source rebind for its own owner readback. The universal acceptance/stage/conditional gate remains the original parent contract; this map adds no second leaf gate or sequencing.<br>Source: `task.depends_on[0]`.<br>Условия: original direct relation; source stage rules govern |
+| Supplier [DES-06.private-policy-documents](../../cards/DES-06/private-policy-documents.md) | `direct:interface_agreement`: Consumes DES-06’s actual edition/shared schema for import and fresh rendition; DES-06 remains the sole shared schema/render writer.<br>Source: `task.depends_on[1]`.<br>Условия: original direct relation; source stage rules govern |
 
-Отсутствие внутреннего after не отменяет parent prerequisites. Conditional acceptance, execution rights и выбранные profiles разрешаются отдельно, как указано в parent contract. Номера групп и карточек не задают порядок.
+Отсутствие внутреннего after не отменяет parent prerequisites. Conditional acceptance, execution rights и выбранные profiles применяются на своей стадии. Composition links не задают порядок независимой подготовки.
 
 ## Назначенный нормативный контекст
 
-Основа: `ec3d7d38b4d246b3e1d225a1c0fc9aefae9ced0d`. Полные selectors и accountable routes — [coverage.json](../../coverage.json), parent `DES-07`. Эти ссылки не требуют чтения всех siblings. Читайте целиком каждый назначенный fragment и необходимые связанные contracts; mixed clause нельзя усечь до удобной части.
+Source-manifest base: `ec3d7d38b4d246b3e1d225a1c0fc9aefae9ced0d`; это не plan_commit назначения. Точные immutable blobs/hash — [coverage.json](../../coverage.json), parent `DES-07`. `task` выбирает строку tasks.json по id, `solution` — preferred-solutions.json по task_id; затем dot/index selector. Для R19 identity определяется значением question_id, не позицией в другом массиве. Полностью прочитайте назначенные fragments и нужные contracts; mixed clause нельзя усечь.
 
 - **join** — Carrier security/content integrity clauses (base, macro/relationship, target and changed clause) are checked before any semantic dispatch.
   `task.adversarial`
@@ -45,18 +45,16 @@
   `task.genuine_external_inputs[0]`
 - **join** — R17 revision/edition clause 2 belongs to the carrier-identity checkpoint; actual owner status and historical edition remain source-bound.
   `task.r17_extension.adversarial`
-- **binding** — Exact offline carrier bytes/base/rights and reimported edits establish the source edition; stripped IDs stay candidate-only. The actual native owner recomputes its own result.
-  `task.r19_extension.question_slices[2]`
-- **binding** — Imported carrier is a distinct derivative with parent/rights/mapped spans; derivative-only text cannot admit a source event or global stale trigger. The actual native owner recomputes its own result.
-  `task.r19_extension.question_slices[3]`
-- **binding** — Each source question ID is routed to the card assigned to its matching indexed question_slices clause in this parent; ID coverage preserves lineage and is not semantic proof.
-  `task.r19_extension.question_ids[2]`; `task.r19_extension.question_ids[3]`
 - **execute** — Offline editable DOCX, stripped IDs, moved tables and annotations are carrier/parser identity inputs; unsupported features remain unbound.
   `solution.implementation_steps[1]`
 - **join** — These carrier/security, target, citation and uncertainty mutations are rejected before old status can be inherited.
   `solution.acceptance_discriminators[1]`
 - **binding** — Actual carrier or UI revision and human resolution of ambiguous mapping are inputs; no external permission is presumed from the input kind.
   `solution.inputs_to_resolve[0]`
+- **execute** — Bind carrier bytes/parent/base/reimport; changed meaning remains candidate until owner recomputation.
+  `task.r19_extension.question_slices[2]` (`R18-D12-Q04`); `task.r19_extension.question_ids[2]` (`R18-D12-Q04`)
+- **execute** — Identify derivative parent/rights/spans; dispatch edits without rewriting parent history.
+  `task.r19_extension.question_slices[3]` (`R18-D22-Q03`); `task.r19_extension.question_ids[3]` (`R18-D22-Q03`)
 
 Inherited owner/lease/stage/activation constraints указаны в parent contract. Root/lead проверяет полное parent coverage; output этой карточки не закрывает siblings. При обнаружении пропуска остановить только affected writes/acceptance, назвать точный clause и reconciled next owner.
 

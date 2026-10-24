@@ -30,18 +30,23 @@
 
 | Отношение | Точный смысл |
 |---|---|
-| Supplier [P0-ACCEPT.accepted-boundary](../../cards/P0-ACCEPT/accepted-boundary.md) | `direct:actual_E02_G_acceptance`: Accepted source criteria consumed by distinct L2, L3 and selected S2-emission measurements; the bridge consumes the source-card outputs.<br>Выбор output: Select the exact output named in need and its original conditions, not all supplier cards. Actual source-qualified artifacts are pinned at dispatch/composition.<br>Условия: original direct relation; source stage rules govern |
+| Supplier [P0-ACCEPT.accepted-boundary](../../cards/P0-ACCEPT/accepted-boundary.md) | `direct:actual_E02_G_acceptance`: Accepted source criteria consumed by distinct L2, L3 and selected S2-emission measurements; the bridge consumes the source-card outputs.<br>Source: `task.depends_on[0]`.<br>Условия: original direct relation; source stage rules govern |
 
-Отсутствие внутреннего after не отменяет parent prerequisites. Conditional acceptance, execution rights и выбранные profiles разрешаются отдельно, как указано в parent contract. Номера групп и карточек не задают порядок.
+Отсутствие внутреннего after не отменяет parent prerequisites. Conditional acceptance, execution rights и выбранные profiles применяются на своей стадии. Composition links не задают порядок независимой подготовки.
 
 ## Назначенный нормативный контекст
 
-Основа: `ec3d7d38b4d246b3e1d225a1c0fc9aefae9ced0d`. Полные selectors и accountable routes — [coverage.json](../../coverage.json), parent `GYD-33`. Эти ссылки не требуют чтения всех siblings. Читайте целиком каждый назначенный fragment и необходимые связанные contracts; mixed clause нельзя усечь до удобной части.
+Source-manifest base: `ec3d7d38b4d246b3e1d225a1c0fc9aefae9ced0d`; это не plan_commit назначения. Точные immutable blobs/hash — [coverage.json](../../coverage.json), parent `GYD-33`. `task` выбирает строку tasks.json по id, `solution` — preferred-solutions.json по task_id; затем dot/index selector. Для R19 identity определяется значением question_id, не позицией в другом массиве. Полностью прочитайте назначенные fragments и нужные contracts; mixed clause нельзя усечь.
 
 - **binding** — L3 amendments grow in its separate versioned registry; L2 edges remain Scholar-owned and are joined, not co-written.
   `solution.free_grow.data_or_config_growth`
-- **secondary_L3_owner — subclause:** Lex owns L3 threshold/amendment with effective_from/as-of semantics.; source `solution.preferred_solution`. Primary fragment route stays unchanged; this identifies the owned sub-result.
-- **secondary_L3_rebind — subclause:** Rebind L3 threshold/amendment artifacts, versions, denominator and semantics at Lex source owner.; source `solution.implementation_steps[0]`. Primary fragment route stays unchanged; this identifies the owned sub-result.
+
+### Обязанности внутри составных fragments
+
+- `solution.preferred_solution` — Lex owns L3 threshold/amendment with effective_from/as-of semantics. (primary accountability остаётся в coverage; это конкретный подрезультат, не второй writer).
+- `solution.implementation_steps[0]` — Rebind L3 threshold/amendment artifacts, versions, denominator and semantics at Lex source owner. (primary accountability остаётся в coverage; это конкретный подрезультат, не второй writer).
+- `task.r19_extension.question_slices[0]` — Lex owns threshold/amendment source/version and effective_from/as-of semantics; receipt time and latest arrival remain distinct. (primary accountability остаётся в coverage; это конкретный подрезультат, не второй writer).
+- `task.r19_extension.question_slices[1]` — Lex supplies the threshold/amendment with exact effective_from/as-of so the bridge can reject latest-arrival precedence. (primary accountability остаётся в coverage; это конкретный подрезультат, не второй writer).
 
 Inherited owner/lease/stage/activation constraints указаны в parent contract. Root/lead проверяет полное parent coverage; output этой карточки не закрывает siblings. При обнаружении пропуска остановить только affected writes/acceptance, назвать точный clause и reconciled next owner.
 

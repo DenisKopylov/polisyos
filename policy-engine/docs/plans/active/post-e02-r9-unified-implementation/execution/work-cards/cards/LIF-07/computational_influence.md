@@ -30,14 +30,14 @@
 
 | Отношение | Точный смысл |
 |---|---|
-| Supplier [P0-ACCEPT.accepted-boundary](../../cards/P0-ACCEPT/accepted-boundary.md) | `direct:actual_E02_G_acceptance`: Root stage.<br>Выбор output: Select the exact output named in need and its original conditions, not all supplier cards. Actual source-qualified artifacts are pinned at dispatch/composition.<br>Условия: original direct relation; source stage rules govern |
-| Supplier [LIF-01](../../parents/LIF-01.md) | `direct:owner_readiness`: Consume use semantics.<br>Выбор output: Select the exact output named in need and its original conditions, not all supplier cards. Actual source-qualified artifacts are pinned at dispatch/composition.<br>Условия: original direct relation; source stage rules govern |
+| Supplier [P0-ACCEPT.accepted-boundary](../../cards/P0-ACCEPT/accepted-boundary.md) | `direct:actual_E02_G_acceptance`: Root stage.<br>Source: `task.depends_on[0]`.<br>Условия: original direct relation; source stage rules govern |
+| Supplier [LIF-01](../../parents/LIF-01.md) | `direct:owner_readiness`: Consume use semantics.<br>Source: `task.depends_on[1]`.<br>Условия: original direct relation; source stage rules govern |
 
-Отсутствие внутреннего after не отменяет parent prerequisites. Conditional acceptance, execution rights и выбранные profiles разрешаются отдельно, как указано в parent contract. Номера групп и карточек не задают порядок.
+Отсутствие внутреннего after не отменяет parent prerequisites. Conditional acceptance, execution rights и выбранные profiles применяются на своей стадии. Composition links не задают порядок независимой подготовки.
 
 ## Назначенный нормативный контекст
 
-Основа: `ec3d7d38b4d246b3e1d225a1c0fc9aefae9ced0d`. Полные selectors и accountable routes — [coverage.json](../../coverage.json), parent `LIF-07`. Эти ссылки не требуют чтения всех siblings. Читайте целиком каждый назначенный fragment и необходимые связанные contracts; mixed clause нельзя усечь до удобной части.
+Source-manifest base: `ec3d7d38b4d246b3e1d225a1c0fc9aefae9ced0d`; это не plan_commit назначения. Точные immutable blobs/hash — [coverage.json](../../coverage.json), parent `LIF-07`. `task` выбирает строку tasks.json по id, `solution` — preferred-solutions.json по task_id; затем dot/index selector. Для R19 identity определяется значением question_id, не позицией в другом массиве. Полностью прочитайте назначенные fragments и нужные contracts; mixed clause нельзя усечь.
 
 - **execute** — Remove actual lineage edge.
   `task.removal[0]`
@@ -47,12 +47,6 @@
   `task.r15_extension.requirement`; `task.r15_extension.positive`; `task.r15_extension.adversarial`; `task.r15_extension.removal`
 - **execute** — R16 positive/negative/membership/selection/executable reads.
   `task.r16_extension.requirement`; `task.r16_extension.positive`; `task.r16_extension.adversarial`; `task.r16_extension.removal`
-- **execute** — R18 mapping/linkage/calendar/boundary/lifecycle and basis sources.
-  `task.r19_extension.question_slices[0]`; `task.r19_extension.question_slices[1]`; `task.r19_extension.question_slices[2]`; `task.r19_extension.question_slices[3]`; `task.r19_extension.question_slices[4]`; `task.r19_extension.question_slices[5]`; `task.r19_extension.question_slices[6]`
-- **execute** — Per-call context and model/execution influence.
-  `task.r19_extension.question_slices[8]`; `task.r19_extension.question_slices[9]`
-- **execute** — Executable and question IDs mapped to computational slices; U087/U090/U091 are current-use IDs.
-  `task.r19_extension.question_slices[12]`; `task.r19_extension.question_ids[0]`; `task.r19_extension.question_ids[1]`; `task.r19_extension.question_ids[2]`; `task.r19_extension.question_ids[3]`; `task.r19_extension.question_ids[4]`; `task.r19_extension.question_ids[5]`; `task.r19_extension.question_ids[6]`; `task.r19_extension.question_ids[8]`; `task.r19_extension.question_ids[9]`; `task.r19_extension.question_ids[12]`
 - **execute** — Native graph, roles, closure, invalidation and alternatives.
   `solution.preferred_solution`; `solution.implementation_steps[0]`; `solution.implementation_steps[1]`; `solution.implementation_steps[2]`; `solution.implementation_steps[3]`; `solution.implementation_steps[4]`
 - **binding** — Generic profiles, closure and bounds.
@@ -67,6 +61,26 @@
   `solution.deviation_triggers[0]`; `solution.deviation_triggers[1]`
 - **binding** — CAS/model/training/method inputs, not supplier appointments.
   `solution.inputs_to_resolve[0]`; `solution.inputs_to_resolve[1]`
+- **execute** — task.r19_extension.question_slices[0] crosswalks by actual value to question_ids[0]. Mapping/version/weights are computational parents whose correction must reissue affected claims.
+  `task.r19_extension.question_slices[0]` (`R18-D02-Q01`); `task.r19_extension.question_ids[0]` (`R18-D02-Q01`)
+- **execute** — task.r19_extension.question_slices[1] crosswalks by actual value to question_ids[1]. Tracks linkage-version influence and denominator/result uncertainty, not target identity by count.
+  `task.r19_extension.question_slices[1]` (`R18-D02-Q02`); `task.r19_extension.question_ids[1]` (`R18-D02-Q02`)
+- **execute** — task.r19_extension.question_slices[2] crosswalks by actual value to question_ids[2]. Calendar adapter/correction is temporal computational influence; old-period provenance must not use latest rules.
+  `task.r19_extension.question_slices[2]` (`R18-D02-Q03`); `task.r19_extension.question_ids[2]` (`R18-D02-Q03`)
+- **execute** — task.r19_extension.question_slices[3] crosswalks by actual value to question_ids[3]. Boundary vintage, auxiliary data and estimator are basis lineage; aggregate labels cannot hide changed subgroup inputs.
+  `task.r19_extension.question_slices[3]` (`R18-D02-Q04`); `task.r19_extension.question_ids[3]` (`R18-D02-Q04`)
+- **execute** — task.r19_extension.question_slices[4] crosswalks by actual value to question_ids[11]. Lifecycle artifact/incarnation membership is an influence parent; preserve historical mapping for affected claims.
+  `task.r19_extension.question_slices[4]` (`R18-D15-Q01`); `task.r19_extension.question_ids[11]` (`R18-D15-Q01`)
+- **execute** — task.r19_extension.question_slices[5] crosswalks by actual value to question_ids[4]. Owns executable source/selection/model/method influence and unresolved reads, not only source currentness.
+  `task.r19_extension.question_slices[5]` (`R18-D07-Q02`); `task.r19_extension.question_ids[4]` (`R18-D07-Q02`)
+- **execute** — task.r19_extension.question_slices[6] crosswalks by actual value to question_ids[5]. Binds source/model/selection/memory basis for computational reuse; rights/current-use admission remains separate.
+  `task.r19_extension.question_slices[6]` (`R18-D08-Q05`); `task.r19_extension.question_ids[5]` (`R18-D08-Q05`)
+- **execute** — task.r19_extension.question_slices[8] crosswalks by actual value to question_ids[7]. Per-call context/tools are computational identity even under shared profile; qualification is not a cache key.
+  `task.r19_extension.question_slices[8]` (`R18-D11-Q01`); `task.r19_extension.question_ids[7]` (`R18-D11-Q01`)
+- **execute** — task.r19_extension.question_slices[9] crosswalks by actual value to question_ids[8]. Resolves execution/model descendants and dynamic lineage gaps; this is computational influence before rights-use admission.
+  `task.r19_extension.question_slices[9]` (`R18-D14-Q02`); `task.r19_extension.question_ids[8]` (`R18-D14-Q02`)
+- **execute** — task.r19_extension.question_slices[12] crosswalks by actual value to question_ids[12]. Tracks changed executable/model influence separately from the current-use right to consume its result.
+  `task.r19_extension.question_slices[12]` (`R18-D17-Q01`); `task.r19_extension.question_ids[12]` (`R18-D17-Q01`)
 
 Inherited owner/lease/stage/activation constraints указаны в parent contract. Root/lead проверяет полное parent coverage; output этой карточки не закрывает siblings. При обнаружении пропуска остановить только affected writes/acceptance, назвать точный clause и reconciled next owner.
 

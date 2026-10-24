@@ -30,16 +30,16 @@
 
 | Отношение | Точный смысл |
 |---|---|
-| Supplier [P0-ACCEPT.accepted-boundary](../../cards/P0-ACCEPT/accepted-boundary.md) | `direct:actual_E02_G_acceptance`: All writers/consumers use the accepted source and task-scoped rebind; preserve parent dispatch, not a new all-task edge.<br>Выбор output: Select the exact output named in need and its original conditions, not all supplier cards. Actual source-qualified artifacts are pinned at dispatch/composition.<br>Условия: original direct relation; source stage rules govern |
-| Supplier [OPS-04.external-runner](../../cards/OPS-04/external-runner.md) | `direct:owner_readiness`: Consume the actual runtime process/worker classes, not agent/reviewer concurrency or a guessed process census.<br>Выбор output: Select the exact output named in need and its original conditions, not all supplier cards. Actual source-qualified artifacts are pinned at dispatch/composition.<br>Условия: original direct relation; source stage rules govern |
-| Supplier [LIF-06](../../parents/LIF-06.md) | `direct:owner_readiness`: Use the single native aggregate admission/eligibility owner and actual usage receipt; no second shared ledger.<br>Выбор output: Select the exact output named in need and its original conditions, not all supplier cards. Actual source-qualified artifacts are pinned at dispatch/composition.<br>Условия: original direct relation; source stage rules govern |
+| Supplier [P0-ACCEPT.accepted-boundary](../../cards/P0-ACCEPT/accepted-boundary.md) | `direct:actual_E02_G_acceptance`: All writers/consumers use the accepted source and task-scoped rebind; preserve parent dispatch, not a new all-task edge.<br>Source: `task.depends_on[0]`.<br>Условия: original direct relation; source stage rules govern |
+| Supplier [OPS-04.external-runner](../../cards/OPS-04/external-runner.md) | `direct:owner_readiness`: Consume the actual runtime process/worker classes, not agent/reviewer concurrency or a guessed process census.<br>Source: `task.depends_on[1]`.<br>Условия: original direct relation; source stage rules govern |
+| Supplier [LIF-06](../../parents/LIF-06.md) | `direct:owner_readiness`: Use the single native aggregate admission/eligibility owner and actual usage receipt; no second shared ledger.<br>Source: `task.depends_on[2]`.<br>Условия: original direct relation; source stage rules govern |
 | Composition output (не start gate) [OPS-08.class-envelope](../../cards/OPS-08/class-envelope.md) | For a production/duty hard-admission claim on a selected measured workload/process class; no G05 efficiency or custody-duty outcome is needed to build the base enforcement mechanism. |
 
-Отсутствие внутреннего after не отменяет parent prerequisites. Conditional acceptance, execution rights и выбранные profiles разрешаются отдельно, как указано в parent contract. Номера групп и карточек не задают порядок.
+Отсутствие внутреннего after не отменяет parent prerequisites. Conditional acceptance, execution rights и выбранные profiles применяются на своей стадии. Composition links не задают порядок независимой подготовки.
 
 ## Назначенный нормативный контекст
 
-Основа: `ec3d7d38b4d246b3e1d225a1c0fc9aefae9ced0d`. Полные selectors и accountable routes — [coverage.json](../../coverage.json), parent `OPS-08`. Эти ссылки не требуют чтения всех siblings. Читайте целиком каждый назначенный fragment и необходимые связанные contracts; mixed clause нельзя усечь до удобной части.
+Source-manifest base: `ec3d7d38b4d246b3e1d225a1c0fc9aefae9ced0d`; это не plan_commit назначения. Точные immutable blobs/hash — [coverage.json](../../coverage.json), parent `OPS-08`. `task` выбирает строку tasks.json по id, `solution` — preferred-solutions.json по task_id; затем dot/index selector. Для R19 identity определяется значением question_id, не позицией в другом массиве. Полностью прочитайте назначенные fragments и нужные contracts; mixed clause нельзя усечь.
 
 - **binding** — Binding scope, authority, migration, time, input, or lifecycle constraint for aggregate-cap; selectors task.rollback, task.migration, solution.free_grow.extension_boundary, solution.migration_and_rollback, solution.composition_contracts[4], solution.deviation_triggers[1] remain load-bearing.
   `task.rollback`; `task.migration`; `solution.free_grow.extension_boundary`; `solution.migration_and_rollback`; `solution.composition_contracts[4]`; `solution.deviation_triggers[1]`
@@ -47,6 +47,15 @@
   `task.deliverable`; `solution.implementation_steps[2]`; `solution.implementation_steps[3]`; `solution.implementation_steps[5]`
 - **join** — Distinguishing behavior, consumer surface, or acceptance evidence for aggregate-cap; selectors task.adversarial, task.removal, task.acceptance_steps[5], solution.acceptance_discriminators[0], solution.acceptance_discriminators[1], solution.acceptance_discriminators[4] are checked at its actual reader/sink.
   `task.adversarial`; `task.removal`; `task.acceptance_steps[5]`; `solution.acceptance_discriminators[0]`; `solution.acceptance_discriminators[1]`; `solution.acceptance_discriminators[4]`
+
+### Обязанности внутри составных fragments
+
+- `task.r19_extension.question_slices[0]` — Enforce one physical aggregate host bound and retain charges for still-live shared allocations. (primary accountability остаётся в coverage; это конкретный подрезультат, не второй writer).
+- `task.r19_extension.question_slices[1]` — Supply the single enforceable physical cap and live allocation lifetime. (primary accountability остаётся в coverage; это конкретный подрезультат, не второй writer).
+- `task.r19_extension.question_slices[2]` — Enforce the shared host capacity across processes and concurrent portfolio work. (primary accountability остаётся в coverage; это конкретный подрезультат, не второй writer).
+- `task.r19_extension.question_slices[3]` — Enforce the physical shared cap; this is not a duty scheduler or fairness owner. (primary accountability остаётся в coverage; это конкретный подрезультат, не второй writer).
+- `task.r19_extension.question_slices[4]` — Enforce the measured physical limit and disable auto-selection when a hard cap/verifier is absent. (primary accountability остаётся в coverage; это конкретный подрезультат, не второй writer).
+- `task.r19_extension.question_slices[6]` — Account for actual host support reserve in the physical cap, without turning this into a universal environmental metric. (primary accountability остаётся в coverage; это конкретный подрезультат, не второй writer).
 
 Inherited owner/lease/stage/activation constraints указаны в parent contract. Root/lead проверяет полное parent coverage; output этой карточки не закрывает siblings. При обнаружении пропуска остановить только affected writes/acceptance, назвать точный clause и reconciled next owner.
 

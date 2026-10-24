@@ -34,7 +34,7 @@ Join physical_admission (measured admit/defer/refuse), allocation_lifetime (live
 - **join** — R16 invocation denominator/reserve/removal/ref/status.
   `task.r16_extension.requirement`; `task.r16_extension.positive`; `task.r16_extension.adversarial`; `task.r16_extension.removal`; `task.r16_extension.delivery_slices[0]`; `task.r16_extension.quality_cases[0]`; `task.r16_extension.quality_cases[1]`; `task.r16_extension.quality_cases[2]`; `task.r16_extension.quality_cases[3]`; `task.r16_extension.product_verification`
 - **binding** — Refs and R18-D08-Q03 input collection.
-  `task.r17_extension.delivery_slices[0]`; `task.r17_extension.delivery_slices[1]`; `task.r17_extension.delivery_slices[2]`; `task.r17_extension.quality_cases[0]`; `task.r17_extension.quality_cases[1]`; `task.r17_extension.quality_cases[2]`; `task.r17_extension.product_verification`; `task.r19_extension.status`; `task.r19_extension.product_verification`; `task.r19_extension.composition_contract_ref`; `task.r19_extension.question_slices[0]`
+  `task.r17_extension.delivery_slices[0]`; `task.r17_extension.delivery_slices[1]`; `task.r17_extension.delivery_slices[2]`; `task.r17_extension.quality_cases[0]`; `task.r17_extension.quality_cases[1]`; `task.r17_extension.quality_cases[2]`; `task.r17_extension.product_verification`; `task.r19_extension.status`; `task.r19_extension.product_verification`; `task.r19_extension.composition_contract_ref`
 - **binding** — Writer/ref/preferred solution/W0 inventory.
   `task.r19_extension.writer_rule`; `task.r19_extension.acceptance_ref`; `solution.preferred_solution`; `solution.implementation_steps[0]`
 - **join** — Saturation and duty progress.
@@ -45,8 +45,8 @@ Join physical_admission (measured admit/defer/refuse), allocation_lifetime (live
   `solution.acceptance_discriminators[2]`; `solution.acceptance_discriminators[3]`
 - **binding** — Parent input rule.
   `solution.input_resolution_rule`
-- **binding** — R18-D08-Q03 question ID mirrors U051 scoped input-collection clause; it does not appoint supplier.
-  `task.r19_extension.question_ids[0]`
+- **binding** — task.r19_extension.question_slices[0] crosswalks by actual value to question_ids[0]. This is explicitly scoped input collection, not a new supplier appointment; retain it as parent binding. physical_admission consumes measured profile/reserve input under its existing owner.
+  `task.r19_extension.question_slices[0]` (`R18-D08-Q03`); `task.r19_extension.question_ids[0]` (`R18-D08-Q03`)
 
 ## Owners и stages
 

@@ -1,4 +1,4 @@
-# R26: рабочие карточки по способностям системы
+# R27: рабочие карточки по способностям системы
 
 Это основной навигатор будущих назначений после R25. Реализация начинается
 только после фактической приёмки E02. Карточки уточняют работу, но не выдают
@@ -6,7 +6,7 @@ resource/authority/write grants и не объявляют capability приня
 
 [Короткий обзор и количества](overview.md) · [Машинная карта](registry.json) ·
 [Маршруты исходных требований](coverage.json) ·
-[Проверка декомпозиции](../../assurance/r26-grouping-review.md).
+[Редтим и исправления R27](../../assurance/r27-card-redteam.md); [историческая проверка R26](../../assurance/r26-grouping-review.md).
 
 ## Три уровня без трёх параллельных планов
 
@@ -19,6 +19,11 @@ resource/authority/write grants и не объявляют capability приня
 3. **Группа** объясняет место работы в способности системы. Она не владеет кодом,
    не является новым модулем/сервисом, не назначает authority и не задаёт очередь
    «закончить всю группу, затем начать следующую».
+
+`review_inputs` и `full_receipt`, указывающие в ignored `_build`, — provenance
+проведённых reviews; на другом checkout они могут быть недоступны и не являются
+оперативным источником assignment. Dispatch использует tracked task/solution blobs
+из coverage.source_files, текущие карточки и actual packet/journal pins.
 
 Machine registry — карта документации и маршрутизации, не второй task tracker.
 Фактические назначения, exact leases, source pins и прогресс ведутся в существующем
@@ -36,8 +41,18 @@ UID в coverage — указатель на точный source fragment в pinn
 manifest. Это не новый finding и не утверждение «один UID = одно требование».
 Если fragment содержит несколько самостоятельных обязанностей, accountable
 receiver обязан собрать названные supplier outputs и проверить весь fragment.
-Нельзя выбрать только его удобную часть. `clause_uses` явно назначает подрезультаты составного fragment другим карточкам; это не второй primary route и не двойной счёт требования. Индексы массивов применимы только
+Нельзя выбрать только его удобную часть. Для shared question найдите тот же actual `question_id` в других parent routes
+и прочитайте их собственные clauses/receiver; это не требует копии всех peer rows
+в каждой карточке и не делает всех peers входами.
+
+`companion_refs` ведут к существующим task-local scopes других owners; это navigation, не новые write assignments или all-peer prerequisites. Для карточки обязательны только её selected contract/use и actual supplier outputs.
+
+`clause_uses` явно назначает подрезультаты составного fragment другим карточкам; это не второй primary route и не двойной счёт требования. Индексы массивов применимы только
 к указанной версии; изменение источника вызывает affected rebind.
+
+R19 `question_ids` и `question_slices` соединяются **по значению question_id**. Порядок массивов может различаться. В coverage оба source selectors показывают фактический ID и одного accountable receiver; смешанный вопрос сохраняет конкретные secondary clauses. Техническая перестановка массива не меняет исполнителя.
+
+В materialized packet раздельно укажите plan_commit текущих карточек, source-manifest blobs/base, accepted E02 candidate, exact root journal path/ref и реальные leases/inputs. [Work packet](../task-decomposition/work-packet.md) — шаблон, не назначение. JSON preferred-solutions row является источником `solution.*`; Markdown dossier — пояснение и связанные обязательные contracts.
 
 Identity, source/debt references, исходные owners/leases и stage/activation rules
 сохраняются отдельно как inherited parent contract. Они не потеряны из-за того,
@@ -73,7 +88,7 @@ Parent join называет **конкретные outputs карточек и 
 
 - `dependency_routes` показывает, какая карточка потребляет output уже имеющегося
   parent supplier. Stage разрешается из [stage requirements](../stage-requirements.json):
-  supplier invariant → per-edge override → parent dependency stage — для direct relations. Acceptance/conditional/execution relations сохраняют отдельный source selector, условие и стадию; interface_reference не является новым gate.
+  supplier invariant → per-edge override → parent dependency stage — для direct relations. Acceptance/conditional/execution relations сохраняют отдельный source selector, условие и стадию; interface_reference не добавляет preparation/task-completion gate. Поле `composition_semantics` сохраняет обязанность получить реальный выбранный output при его фактическом use; документ об интерфейсе не заменяет этот output.
 - `after_cards` — только необходимая внутренняя preparation зависимость, не
   порядок по номеру и не право обойти parent prerequisite.
 - `joins_cards` — потенциальные именованные composition links с `join_conditions`.

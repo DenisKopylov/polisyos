@@ -14,7 +14,7 @@ Canonical title: Purpose-aware owner admission and immutable library reuse. R26 
 
 ## Реальный join
 
-Join exact root/provenance, fresh rights, native method intent, actual verified read, and selected cost reference through DEB-07/13. Permission, method independence, byte integrity and cost remain separate. Original source pins, stage/dispatch gates, conditional execution, completion planes and leases remain authoritative. dependency_routes maps consumption only. Identity/navigation/dispatch/mirrored fields in units.json.other_field_dispositions remain authoritative by parent reference.
+Join exact root/provenance, fresh rights, native method intent, actual verified read, and selected cost reference through DEB-07/13. Permission, method independence, byte integrity and cost remain separate. Original source pins, stage/dispatch gates, conditional execution, completion planes and leases remain authoritative. dependency_routes maps consumption only. Identity/navigation and inherited constraints resolve from coverage.json parents[parent=CAP-03].inherited_fields and registry.json parents[id=CAP-03].inherited_dispatch_contract to the pinned task/solution rows; ignored author scratch is not a normative input.
 
 **Outputs:** [CAP-03.root-admission](../cards/CAP-03/root-admission.md), [CAP-03.fresh-sink-rights](../cards/CAP-03/fresh-sink-rights.md), [CAP-03.method-realization-reuse](../cards/CAP-03/method-realization-reuse.md), [CAP-03.verified-read-release](../cards/CAP-03/verified-read-release.md), [CAP-03.cost-basis](../cards/CAP-03/cost-basis.md).
 

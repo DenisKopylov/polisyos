@@ -35,6 +35,10 @@ Join four separately persisted capability outputs—independent runtime-subtree 
   `solution.deviation_triggers[0]`; `solution.deviation_triggers[1]`
 - **join** — This pinned fragment states shared FA1 scope or aggregate acceptance across four distinct receipts; parent_join names each native result and the fresh N8 consumer.
   `solution.inputs_to_resolve[1]`; `solution.input_resolution_rule`
+- **join** — Mixed original FA1/N8 discriminator must be reconciled across all four actual outputs; the subtree-specific probe is retained at subtree-cutoff. This does not make one sibling the implementation owner of all predicates.
+  `task.adversarial`
+- **join** — Mixed original FA1/N8 discriminator must be reconciled across all four actual outputs; the subtree-specific probe is retained at subtree-cutoff. This does not make one sibling the implementation owner of all predicates.
+  `task.removal`
 
 ## Owners и stages
 

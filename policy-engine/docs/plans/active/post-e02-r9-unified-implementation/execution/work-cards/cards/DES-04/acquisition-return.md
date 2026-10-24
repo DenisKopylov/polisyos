@@ -30,32 +30,30 @@
 
 | Отношение | Точный смысл |
 |---|---|
-| Supplier [P0-ACCEPT.accepted-boundary](../../cards/P0-ACCEPT/accepted-boundary.md) | `direct:actual_E02_G_acceptance`: Every card consumes the accepted E02 source/commit and task-scoped source rebind for its own owner readback. The universal acceptance/stage/conditional gate remains the original parent contract; this map adds no second leaf gate or sequencing.<br>Выбор output: Select the exact output named in need and its original conditions, not all supplier cards. Actual source-qualified artifacts are pinned at dispatch/composition.<br>Условия: original direct relation; source stage rules govern |
-| Supplier [DES-02.hypothesis-set](../../cards/DES-02/hypothesis-set.md) | `direct:interface_agreement`: Feedback consumes actual candidate lineage; acquisition-return consumes selected evidence gaps only where this output produced them.<br>Выбор output: Select the exact output named in need and its original conditions, not all supplier cards. Actual source-qualified artifacts are pinned at dispatch/composition.<br>Условия: original direct relation; source stage rules govern |
-| Supplier [DES-03](../../parents/DES-03.md) | `direct:interface_agreement`: Feedback consumes actual numerical outcomes; acquisition-return consumes a selected missing-evidence need, not all DES-03 work.<br>Выбор output: Select the exact output named in need and its original conditions, not all supplier cards. Actual source-qualified artifacts are pinned at dispatch/composition.<br>Условия: original direct relation; source stage rules govern |
-| Supplier [GYD-24](../../parents/GYD-24.md) | `direct:interface_agreement`: Consumes actual acquisition producer/result through the existing interface; GYD-24 retains source/acquisition ownership.<br>Выбор output: Select the exact output named in need and its original conditions, not all supplier cards. Actual source-qualified artifacts are pinned at dispatch/composition.<br>Условия: original direct relation; source stage rules govern |
+| Supplier [P0-ACCEPT.accepted-boundary](../../cards/P0-ACCEPT/accepted-boundary.md) | `direct:actual_E02_G_acceptance`: Every card consumes the accepted E02 source/commit and task-scoped source rebind for its own owner readback. The universal acceptance/stage/conditional gate remains the original parent contract; this map adds no second leaf gate or sequencing.<br>Source: `task.depends_on[0]`.<br>Условия: original direct relation; source stage rules govern |
+| Supplier [DES-02.hypothesis-set](../../cards/DES-02/hypothesis-set.md) | `direct:interface_agreement`: Feedback consumes actual candidate lineage; acquisition-return consumes selected evidence gaps only where this output produced them.<br>Source: `task.depends_on[1]`.<br>Условия: original direct relation; source stage rules govern |
+| Supplier [DES-03](../../parents/DES-03.md) | `direct:interface_agreement`: Feedback consumes actual numerical outcomes; acquisition-return consumes a selected missing-evidence need, not all DES-03 work.<br>Source: `task.depends_on[2]`.<br>Условия: original direct relation; source stage rules govern |
+| Supplier [GYD-24](../../parents/GYD-24.md) | `direct:interface_agreement`: Consumes actual acquisition producer/result through the existing interface; GYD-24 retains source/acquisition ownership.<br>Source: `task.depends_on[3]`.<br>Условия: original direct relation; source stage rules govern |
 | Composition output (не start gate) [DES-04.feedback-choice](../../cards/DES-04/feedback-choice.md) | Only for the selected same-scope composition described by this card: Join actual return and gap-to-action at the existing N6/N7 next-choice reader. DES-04 changes the acquisition choice; CAP/GYD-24 retain production and DEB-13’s output is consumed only when present. Independent output production/preparation remains allowed; the original parent join reconciles all required outcomes without making this list an all-of. |
 
-Отсутствие внутреннего after не отменяет parent prerequisites. Conditional acceptance, execution rights и выбранные profiles разрешаются отдельно, как указано в parent contract. Номера групп и карточек не задают порядок.
+Отсутствие внутреннего after не отменяет parent prerequisites. Conditional acceptance, execution rights и выбранные profiles применяются на своей стадии. Composition links не задают порядок независимой подготовки.
 
 ## Назначенный нормативный контекст
 
-Основа: `ec3d7d38b4d246b3e1d225a1c0fc9aefae9ced0d`. Полные selectors и accountable routes — [coverage.json](../../coverage.json), parent `DES-04`. Эти ссылки не требуют чтения всех siblings. Читайте целиком каждый назначенный fragment и необходимые связанные contracts; mixed clause нельзя усечь до удобной части.
+Source-manifest base: `ec3d7d38b4d246b3e1d225a1c0fc9aefae9ced0d`; это не plan_commit назначения. Точные immutable blobs/hash — [coverage.json](../../coverage.json), parent `DES-04`. `task` выбирает строку tasks.json по id, `solution` — preferred-solutions.json по task_id; затем dot/index selector. Для R19 identity определяется значением question_id, не позицией в другом массиве. Полностью прочитайте назначенные fragments и нужные contracts; mixed clause нельзя усечь.
 
-- **join** — A declared reversible-compute profile binds eligible/selected/cost/unrun sets; it does not authorize an external study dispatch. The existing source/method/memory owner supplies its actual output; DES-04 only bridges the selected choice.
-  `task.r19_extension.question_slices[1]`
-- **join** — Terminal coverage binds the untried route, full denominator, profile/budget and next useful action; a cap is not exhaustive search. The existing source/method/memory owner supplies its actual output; DES-04 only bridges the selected choice.
-  `task.r19_extension.question_slices[2]`
-- **join** — Failed, missing and unpublished returns stay in the gap-to-action denominator; the acquisition-return reader yields a bounded claim. The existing source/method/memory owner supplies its actual output; DES-04 only bridges the selected choice.
-  `task.r19_extension.question_slices[4]`
-- **join** — Joint return changes the next acquisition choice; gross EVSI, net value, costs and capacity feasibility remain separate. The existing source/method/memory owner supplies its actual output; DES-04 only bridges the selected choice.
-  `task.r19_extension.question_slices[5]`
-- **join** — Zero-result retry and remaining branch coverage are visible; failed branches cannot count as completed acquisition. The existing source/method/memory owner supplies its actual output; DES-04 only bridges the selected choice.
-  `task.r19_extension.question_slices[8]`
-- **binding** — Each source question ID is routed to the card assigned to its matching indexed question_slices clause in this parent; ID coverage preserves lineage and is not semantic proof.
-  `task.r19_extension.question_ids[1]`; `task.r19_extension.question_ids[2]`; `task.r19_extension.question_ids[4]`; `task.r19_extension.question_ids[5]`; `task.r19_extension.question_ids[8]`
 - **execute** — Implementation step 3 routes to acquisition-return: actual property-bound feedback/branch work stays with N6; selected CAP/GYD-24 return stays with N7; the integration witness joins both outputs.
   `solution.implementation_steps[3]`
+- **execute** — Return reversible per-run profile and eligible/selected/cost/unrun sets; not study permission.
+  `task.r19_extension.question_slices[1]` (`R18-D08-Q03`); `task.r19_extension.question_ids[1]` (`R18-D08-Q03`)
+- **execute** — Bind terminal to untried routes, denominator, profile/budget and next action.
+  `task.r19_extension.question_slices[2]` (`R18-D08-Q04`); `task.r19_extension.question_ids[2]` (`R18-D08-Q04`)
+- **execute** — Retain failed/unpublished arms in gap-to-action denominator; bound next action.
+  `task.r19_extension.question_slices[4]` (`R18-D09-Q03`); `task.r19_extension.question_ids[4]` (`R18-D09-Q03`)
+- **execute** — Sole N7 next-choice bridge; do not invent cost/capacity or promote gross EVSI to net rank.
+  `task.r19_extension.question_slices[5]` (`R18-D09-Q04`); `task.r19_extension.question_ids[5]` (`R18-D09-Q04`)
+- **execute** — Show failed retries and remaining branches; cap is not completion.
+  `task.r19_extension.question_slices[8]` (`R18-D19-Q04`); `task.r19_extension.question_ids[8]` (`R18-D19-Q04`)
 
 Inherited owner/lease/stage/activation constraints указаны в parent contract. Root/lead проверяет полное parent coverage; output этой карточки не закрывает siblings. При обнаружении пропуска остановить только affected writes/acceptance, назвать точный clause и reconciled next owner.
 

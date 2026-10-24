@@ -61,6 +61,8 @@ Reconcile the candidate design independently. Only selected protected conduct jo
   `solution.acceptance_discriminators[0]`
 - **binding** — Deviation, conditional external inputs and input-resolution rules span the parent; actual permission/source/result remain with their native owners and missing internal adapters remain engineering.
   `solution.deviation_triggers[0]`; `solution.deviation_triggers[1]`; `solution.deviation_triggers[2]`; `solution.inputs_to_resolve[0]`; `solution.input_resolution_rule`
+- **join** — Join authorization/return/optional economics only when selected; no all-of gate blocks design/acquisition.
+  `task.r19_extension.question_slices[12]` (`R18-D16-Q01`); `task.r19_extension.question_ids[12]` (`R18-D16-Q01`)
 
 ## Owners и stages
 

@@ -10,11 +10,11 @@
 
 **Граница владельца.** UI-12 owns verification execution/report only; DB/app owners provide environment/harness, no product writer invented.  Parent native canonical leases: write:exact-path/{canonical_repo_path}; write:runtime-api-generated-family if changed; resource:browser/{profile} if executed. Bind exact paths and overlap at P0; unresolved paths are not presumed disjoint before E02 rebind.
 
-**Входы.** Accepted DS20 source/harness; real PostgreSQL DSN/driver/version/isolation; two stores/apps and isolated schemas.
+**Входы.** Commissioned local or cloud real PostgreSQL DSN/driver and independent store/app instances, exact source/profile and four original B5 predicates. DS20-server-authz-enforcement.md B5 and its closure §B5 require real PostgreSQL, not cloud hosting; inherited cloud labels describe the earlier execution allocation, not an additional criterion. SQLite/mock/single-store proof is insufficient. A separate cloud-specific claim still needs that cloud profile.
 
 **Выход и consumer.** Per-case and combined outcome receipt with PASS/FAIL/ERROR/SKIP/UNRUN, exact source/commands/output; DS9 reservation separate.
 
-**Что можно готовить независимо.** Qualify environment; otherwise environment_blocked. Then execute replay, mutation/409, pre-OPA corrupted-head and fresh-app unheaded-CAS independently.
+**Что можно готовить независимо.** Resolve the original B5 criterion and native harness without launching it before E02 acceptance. After rebind allocate the selected real PostgreSQL resource; lack of a cloud VM alone does not block a qualifying commissioned local PostgreSQL run. Preserve all four properties and independent instances.
 
 **Где результат соединяется с другими.** Only receipt joins all four; no averaging or relabeling failure as environment.
 
@@ -30,13 +30,13 @@
 
 | Отношение | Точный смысл |
 |---|---|
-| Supplier [P0-ACCEPT.accepted-boundary](../../cards/P0-ACCEPT/accepted-boundary.md) | `direct:actual_E02_G_acceptance`: Accepted E02 source identity/commit and source-bound acceptance record used when rebinding this card; original parent dispatch/stage remains authoritative.<br>Выбор output: Select the exact output named in need and its original conditions, not all supplier cards. Actual source-qualified artifacts are pinned at dispatch/composition.<br>Условия: original direct relation; source stage rules govern |
+| Supplier [P0-ACCEPT.accepted-boundary](../../cards/P0-ACCEPT/accepted-boundary.md) | `direct:actual_E02_G_acceptance`: Accepted E02 source identity/commit and source-bound acceptance record used when rebinding this card; original parent dispatch/stage remains authoritative.<br>Source: `task.depends_on[0]`.<br>Условия: original direct relation; source stage rules govern |
 
-Отсутствие внутреннего after не отменяет parent prerequisites. Conditional acceptance, execution rights и выбранные profiles разрешаются отдельно, как указано в parent contract. Номера групп и карточек не задают порядок.
+Отсутствие внутреннего after не отменяет parent prerequisites. Conditional acceptance, execution rights и выбранные profiles применяются на своей стадии. Composition links не задают порядок независимой подготовки.
 
 ## Назначенный нормативный контекст
 
-Основа: `ec3d7d38b4d246b3e1d225a1c0fc9aefae9ced0d`. Полные selectors и accountable routes — [coverage.json](../../coverage.json), parent `UI-12`. Эти ссылки не требуют чтения всех siblings. Читайте целиком каждый назначенный fragment и необходимые связанные contracts; mixed clause нельзя усечь до удобной части.
+Source-manifest base: `ec3d7d38b4d246b3e1d225a1c0fc9aefae9ced0d`; это не plan_commit назначения. Точные immutable blobs/hash — [coverage.json](../../coverage.json), parent `UI-12`. `task` выбирает строку tasks.json по id, `solution` — preferred-solutions.json по task_id; затем dot/index selector. Для R19 identity определяется значением question_id, не позицией в другом массиве. Полностью прочитайте назначенные fragments и нужные contracts; mixed clause нельзя усечь.
 
 - **execute** — This source field contributes to postgres-b5-receipt's single observable result; its native producer/consumer boundary remains with the existing owner. Source selectors: solution.preferred_solution, task.deliverable.
   `task.deliverable`; `solution.preferred_solution`

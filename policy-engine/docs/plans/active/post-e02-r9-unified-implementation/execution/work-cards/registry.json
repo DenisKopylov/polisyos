@@ -1,7 +1,8 @@
 {
-  "revision": "R26",
+  "revision": "R27",
   "kind": "documentation_work_card_navigation_not_runtime_schema_or_progress_tracker",
   "base_commit": "ec3d7d38b4d246b3e1d225a1c0fc9aefae9ced0d",
+  "base_commit_semantics": "Immutable source-manifest base, distinct from the current plan_commit supplied by the dispatch packet.",
   "implementation_gate": "actual_E02_G_acceptance_and_scoped_source_rebind",
   "product_verification": "UNRUN",
   "groups": [
@@ -349,8 +350,12 @@
       "title": "Resolve legal competence, scope, and time",
       "path": "cards/CAP-05/legal-applicability.md",
       "after_cards": [],
-      "joins_cards": [],
-      "join_conditions": {}
+      "joins_cards": [
+        "CAP-05.official-source"
+      ],
+      "join_conditions": {
+        "CAP-05.official-source": "For the selected law/applicability use, consume the exact verified official-source relation and artifact/version/language/citation binding. Relation authenticity alone cannot establish competence or applicability; preparation against the interface remains independent."
+      }
     },
     {
       "id": "CAP-05.legal-consumer",
@@ -360,8 +365,14 @@
       "title": "Apply relation to the selected legal consumer",
       "path": "cards/CAP-05/legal-consumer.md",
       "after_cards": [],
-      "joins_cards": [],
-      "join_conditions": {}
+      "joins_cards": [
+        "CAP-05.legal-applicability",
+        "CAP-05.official-source"
+      ],
+      "join_conditions": {
+        "CAP-05.legal-applicability": "For a selected legal-effect/applicability claim, consume this exact scope/time/competence result, including limited/contested premises. A source-text/citation-only use retains its narrower grounds and does not require an inapplicable legal-effect decision.",
+        "CAP-05.official-source": "Consume the selected verified source relation, exact artifact/version/citation and original/translation occurrence supporting this legal use; legal-effect claims additionally consume legal-applicability. No unverified relation is promoted by a consumer."
+      }
     },
     {
       "id": "CAP-06.private-input",
@@ -418,9 +429,9 @@
         "CAP-06.rights-and-output-sinks"
       ],
       "join_conditions": {
-        "CAP-06.private-input": "Consume only for the exact composition described here: Consume private-input qualification, provider effect receipt and shared rights at each call; numerical success proves neither inference nor remote completion. This link is not an unconditional all-of or preparation gate.",
-        "CAP-06.remote-effect-reconciliation": "Consume only for the exact composition described here: Consume private-input qualification, provider effect receipt and shared rights at each call; numerical success proves neither inference nor remote completion. This link is not an unconditional all-of or preparation gate.",
-        "CAP-06.rights-and-output-sinks": "Consume only for the exact composition described here: Consume private-input qualification, provider effect receipt and shared rights at each call; numerical success proves neither inference nor remote completion. This link is not an unconditional all-of or preparation gate."
+        "CAP-06.private-input": "Required only if this evaluation selects a federated/private profile needing its roster, dropout or inference qualification. Public/local-input evaluations retain their actual effect and rights boundaries without a private-input receipt.",
+        "CAP-06.remote-effect-reconciliation": "Only for the selected remote operation: persist intent before dispatch, then reconcile observed response/effect after the call. An unknown effect stays indeterminate and cannot justify blind replay. A completed response receipt is not a prerequisite for the first call; private roster qualification applies only when this operation actually uses the private/federated profile.",
+        "CAP-06.rights-and-output-sinks": "At each actual protected input or result sink, consume its current rights and allowed projection. A public/non-federated solver does not require a private participant roster; no selected operation may bypass its applicable rights contract."
       }
     },
     {
@@ -1625,11 +1636,15 @@
       "after_cards": [],
       "joins_cards": [
         "UI-02.private-egress",
-        "UI-02.placement-rights"
+        "UI-02.placement-rights",
+        "UI-04.event-history",
+        "UI-04.feed-projection"
       ],
       "join_conditions": {
         "UI-02.private-egress": "Consume only for the exact composition described here: Issue только после applicable PR1a и exact-view/rights gates; PR1b + actual signer mandate требуются только для pilot/signature claim. This link is not an unconditional all-of or preparation gate.",
-        "UI-02.placement-rights": "Consume only for the exact composition described here: Issue только после applicable PR1a и exact-view/rights gates; PR1b + actual signer mandate требуются только для pilot/signature claim. This link is not an unconditional all-of or preparation gate."
+        "UI-02.placement-rights": "Consume only for the exact composition described here: Issue только после applicable PR1a и exact-view/rights gates; PR1b + actual signer mandate требуются только для pilot/signature claim. This link is not an unconditional all-of or preparation gate.",
+        "UI-04.event-history": "Only for the selected managed-correction/current-status path: consume the exact persisted event/history output; it is not a prerequisite for unrelated PR1a/refusal preparation.",
+        "UI-04.feed-projection": "Selected correction/current-status surface reads the same-generation event/feed with audience/currentness constraints; no global UI-04 completion gate."
       }
     },
     {
@@ -1656,10 +1671,16 @@
       "path": "cards/UI-02/placement-rights.md",
       "after_cards": [],
       "joins_cards": [
-        "UI-02.public-record"
+        "UI-02.public-record",
+        "UI-19.claim-currentness",
+        "UI-04.event-history",
+        "UI-04.feed-projection"
       ],
       "join_conditions": {
-        "UI-02.public-record": "Consume only for the exact composition described here: Conditional только для реально затронутых placements; совместить с UI-04 history и LIF-02 currentness. A fresh selected reader consumes LIF-02 currentness, including the selected-duty consequence when a standing-duty guarantee applies; OPS-11 accepted-duty evidence joins only inside LIF-02 at composition, with no UI→OPS-11 gate. For a selected restored protected read, compose LIF-02 material replay/currentness with LIF-05 per-placement rights/retention and the existing OPS-05 restore-cut receipt; OPS-05 owns restore enablement, so this is one reader decision rather than a second admission bit. This link is not an unconditional all-of or preparation gate."
+        "UI-02.public-record": "Consume only for the exact composition described here: Conditional только для реально затронутых placements; совместить с UI-04 history и LIF-02 currentness. A fresh selected reader consumes LIF-02 currentness, including the selected-duty consequence when a standing-duty guarantee applies; OPS-11 accepted-duty evidence joins only inside LIF-02 at composition, with no UI→OPS-11 gate. For a selected restored protected read, compose LIF-02 material replay/currentness with LIF-05 per-placement rights/retention and the existing OPS-05 restore-cut receipt; OPS-05 owns restore enablement, so this is one reader decision rather than a second admission bit. This link is not an unconditional all-of or preparation gate.",
+        "UI-19.claim-currentness": "Only for the selected managed derivative/current-status projection, consume exact fresh LIF-02 status plus derivative mapping: a caveat-dropped derivative is changed/unbound while signed parent bytes stay historical. No PR1a/refusal preparation gate and no status writer in UI-02.",
+        "UI-04.event-history": "Only for the selected managed correction, consume the exact attributed persisted event. UI-04 remains event writer; this is not mandatory for an unrelated public-record/refusal route.",
+        "UI-04.feed-projection": "Selected correction/current-status reader consumes the actual event/feed output with current audience/rights; event history alone does not prove derivative fidelity, which comes from the selected UI-19 mapping."
       }
     },
     {
@@ -2068,8 +2089,12 @@
       "title": "Связать causal claim с target, estimand и identification",
       "path": "cards/CNT-06/causal-support.md",
       "after_cards": [],
-      "joins_cards": [],
-      "join_conditions": {}
+      "joins_cards": [
+        "GYD-12.structural-write"
+      ],
+      "join_conditions": {
+        "GYD-12.structural-write": "Only for selected structural learning: bind the persisted native method-assessment/ClaimRecord refs, exact proposition, regime, identification, rivals, lineage and uncertainty. GYD-12/O3 is sole WMR writer; its pre-append admission refuses missing/removed structural evidence or rival binding. Fresh later-cycle readback verifies only an admitted generation. Ordinary effect/prediction results need no structural append."
+      }
     },
     {
       "id": "CNT-06.prediction-calibration",
@@ -2226,12 +2251,14 @@
       "joins_cards": [
         "OPS-05.schema-directions",
         "OPS-05.retained-uses",
-        "OPS-05.byte-release"
+        "OPS-05.byte-release",
+        "OPS-05.independent-copy-repair"
       ],
       "join_conditions": {
         "OPS-05.schema-directions": "Consume only for the exact composition described here: Fresh-read fence joins schema directions, exact database/CAS cut, LIF-02 replay, LIF-05 rights and a fresh authorized reader. A truthful unaffected scope can proceed independently; this retains the parent conditional acceptance requirement for current/protected publication reads. This link is not an unconditional all-of or preparation gate.",
         "OPS-05.retained-uses": "Consume only for the exact composition described here: Fresh-read fence joins schema directions, exact database/CAS cut, LIF-02 replay, LIF-05 rights and a fresh authorized reader. A truthful unaffected scope can proceed independently; this retains the parent conditional acceptance requirement for current/protected publication reads. This link is not an unconditional all-of or preparation gate.",
-        "OPS-05.byte-release": "Consume only for the exact composition described here: Fresh-read fence joins schema directions, exact database/CAS cut, LIF-02 replay, LIF-05 rights and a fresh authorized reader. A truthful unaffected scope can proceed independently; this retains the parent conditional acceptance requirement for current/protected publication reads. This link is not an unconditional all-of or preparation gate."
+        "OPS-05.byte-release": "Consume only for the exact composition described here: Fresh-read fence joins schema directions, exact database/CAS cut, LIF-02 replay, LIF-05 rights and a fresh authorized reader. A truthful unaffected scope can proceed independently; this retains the parent conditional acceptance requirement for current/protected publication reads. This link is not an unconditional all-of or preparation gate.",
+        "OPS-05.independent-copy-repair": "Only when the selected restore actually needs corrupt/missing-object repair; consume its verified repaired version and lineage. Healthy/unrelated restore cuts need no repair receipt."
       }
     },
     {
@@ -2261,11 +2288,13 @@
       "after_cards": [],
       "joins_cards": [
         "OPS-05.restore-cut",
-        "OPS-05.retained-uses"
+        "OPS-05.retained-uses",
+        "OPS-05.independent-copy-repair"
       ],
       "join_conditions": {
         "OPS-05.restore-cut": "Only when the selected protected read consumes an object/version admitted through this restore cut. Ordinary non-restored reads still require current LIF-05 rights and actual CAS reader/sink binding, without a restore receipt.",
-        "OPS-05.retained-uses": "When protected use of a retained/restored representation requires the selected rights/retention decision. Current-use authorization for ordinary non-restored reads still comes from the canonical LIF-05 owner, without making restore-specific reconciliation mandatory."
+        "OPS-05.retained-uses": "When protected use of a retained/restored representation requires the selected rights/retention decision. Current-use authorization for ordinary non-restored reads still comes from the canonical LIF-05 owner, without making restore-specific reconciliation mandatory.",
+        "OPS-05.independent-copy-repair": "Only when this reader consumes a repaired version, bind the exact repair receipt/version through the actual read. Ordinary healthy reads need no repair receipt."
       }
     },
     {
@@ -3396,6 +3425,21 @@
         "DES-12.study-design": "Only for selected prospective numeric EVSI/feasibility; use a qualified predictive outcome model and declared prior/payoff/decision basis.",
         "DES-12.study-return": "Only when updating or validating with an actual returned result; not required for prospective EVSI."
       }
+    },
+    {
+      "id": "OPS-05.independent-copy-repair",
+      "parent": "OPS-05",
+      "group": "G09",
+      "kind": "mechanism",
+      "title": "Восстановить объект из проверенной независимой копии",
+      "path": "cards/OPS-05/independent-copy-repair.md",
+      "after_cards": [],
+      "joins_cards": [
+        "OPS-05.byte-release"
+      ],
+      "join_conditions": {
+        "OPS-05.byte-release": "When repaired bytes are actually released, preserve the verified-version binding through the existing reader/sink; no release on a repair marker alone."
+      }
     }
   ],
   "joins_semantics": "Potential named composition links. Each condition and original selected scope determines required actual inputs; the list is never an implicit all-of or a preparation DAG.",
@@ -3408,7 +3452,7 @@
         "CAP-01.query-disclosure",
         "CAP-01.bounded-coverage"
       ],
-      "parent_join": "Join exact candidate/profile, conditional query decision, and measured coverage/no-hit at fresh readers. Candidate is not admitted use; query permission is not body rights; no-hit is limited to measured route/language/cut. Original source pins, stage/dispatch gates, conditional execution, completion planes and leases remain authoritative. dependency_routes maps consumption only. Identity/navigation/dispatch/mirrored fields in units.json.other_field_dispositions remain authoritative by parent reference.",
+      "parent_join": "Join exact candidate/profile, conditional query decision, and measured coverage/no-hit at fresh readers. Candidate is not admitted use; query permission is not body rights; no-hit is limited to measured route/language/cut. Original source pins, stage/dispatch gates, conditional execution, completion planes and leases remain authoritative. dependency_routes maps consumption only. Identity/navigation and inherited constraints resolve from coverage.json parents[parent=CAP-01].inherited_fields and registry.json parents[id=CAP-01].inherited_dispatch_contract to the pinned task/solution rows; ignored author scratch is not a normative input.",
       "parent_join_cards": [
         "CAP-01.candidate-resolution",
         "CAP-01.query-disclosure",
@@ -3459,7 +3503,7 @@
         "CAP-02.continuation-and-frontier",
         "CAP-02.second-source-adapter"
       ],
-      "parent_join": "Compose per-hop transport with selected root; continuation with LIF-03 only when activated; second-source receipt with LIF-08. Fresh reader resolves bytes and LIF-05 admits each placement. No cross-protocol/backend parity inference. Original source pins, stage/dispatch gates, conditional execution, completion planes and leases remain authoritative. dependency_routes maps consumption only. Identity/navigation/dispatch/mirrored fields in units.json.other_field_dispositions remain authoritative by parent reference.",
+      "parent_join": "Compose per-hop transport with selected root; continuation with LIF-03 only when activated; second-source receipt with LIF-08. Fresh reader resolves bytes and LIF-05 admits each placement. No cross-protocol/backend parity inference. Original source pins, stage/dispatch gates, conditional execution, completion planes and leases remain authoritative. dependency_routes maps consumption only. Identity/navigation and inherited constraints resolve from coverage.json parents[parent=CAP-02].inherited_fields and registry.json parents[id=CAP-02].inherited_dispatch_contract to the pinned task/solution rows; ignored author scratch is not a normative input.",
       "parent_join_cards": [
         "CAP-02.transport-boundary",
         "CAP-02.single-response-root",
@@ -3515,8 +3559,10 @@
               "when": "selected parent composed claim; not a new preparation dependency"
             }
           ],
-          "need": "Consume exact selected source/profile; query permission is not body placement or cursor completeness.",
-          "producer_cards": [],
+          "need": "Exact persisted source/profile/selector receipt from candidate-resolution; query-disclosure authorization additionally applies only when the selected route actually emits a query. A selected CNT-02 profile/version is bound upstream through CAP-01; it is not a blanket extra CAP-02 dependency.",
+          "producer_cards": [
+            "CAP-01.candidate-resolution"
+          ],
           "producer_selection": "Select the exact output named in need and its original conditions, not all supplier cards. Actual source-qualified artifacts are pinned at dispatch/composition."
         },
         {
@@ -3596,7 +3642,7 @@
         "CAP-03.verified-read-release",
         "CAP-03.cost-basis"
       ],
-      "parent_join": "Join exact root/provenance, fresh rights, native method intent, actual verified read, and selected cost reference through DEB-07/13. Permission, method independence, byte integrity and cost remain separate. Original source pins, stage/dispatch gates, conditional execution, completion planes and leases remain authoritative. dependency_routes maps consumption only. Identity/navigation/dispatch/mirrored fields in units.json.other_field_dispositions remain authoritative by parent reference.",
+      "parent_join": "Join exact root/provenance, fresh rights, native method intent, actual verified read, and selected cost reference through DEB-07/13. Permission, method independence, byte integrity and cost remain separate. Original source pins, stage/dispatch gates, conditional execution, completion planes and leases remain authoritative. dependency_routes maps consumption only. Identity/navigation and inherited constraints resolve from coverage.json parents[parent=CAP-03].inherited_fields and registry.json parents[id=CAP-03].inherited_dispatch_contract to the pinned task/solution rows; ignored author scratch is not a normative input.",
       "parent_join_cards": [
         "CAP-03.root-admission",
         "CAP-03.fresh-sink-rights",
@@ -3714,7 +3760,7 @@
         "CAP-04.defect-impact",
         "CAP-04.adopter-reports"
       ],
-      "parent_join": "Only qualified source events or bounded CAP-02 cuts reach LIF-02. Operational/exposure, pinned defect/compromise and adopter complaint/harm remain separate typed inputs, not events, legal acts, causal results or adjudications. Do not hide unresolved readers. Original source pins, stage/dispatch gates, conditional execution, completion planes and leases remain authoritative. dependency_routes maps consumption only. Identity/navigation/dispatch/mirrored fields in units.json.other_field_dispositions remain authoritative by parent reference.",
+      "parent_join": "Only qualified source events or bounded CAP-02 cuts reach LIF-02. Operational/exposure, pinned defect/compromise and adopter complaint/harm remain separate typed inputs, not events, legal acts, causal results or adjudications. Do not hide unresolved readers. Original source pins, stage/dispatch gates, conditional execution, completion planes and leases remain authoritative. dependency_routes maps consumption only. Identity/navigation and inherited constraints resolve from coverage.json parents[parent=CAP-04].inherited_fields and registry.json parents[id=CAP-04].inherited_dispatch_contract to the pinned task/solution rows; ignored author scratch is not a normative input.",
       "parent_join_cards": [
         "CAP-04.native-events",
         "CAP-04.bounded-observation",
@@ -3840,7 +3886,7 @@
         "CAP-05.legal-applicability",
         "CAP-05.legal-consumer"
       ],
-      "parent_join": "Sequence official text/version/language, competent institution-supplied applicability/act/time, then selected legal consumer. Unresolved law stays limited/contested; legal evidence is not causal/measurement evidence. Original source pins, stage/dispatch gates, conditional execution, completion planes and leases remain authoritative. dependency_routes maps consumption only. Identity/navigation/dispatch/mirrored fields in units.json.other_field_dispositions remain authoritative by parent reference.",
+      "parent_join": "Sequence official text/version/language, competent institution-supplied applicability/act/time, then selected legal consumer. Unresolved law stays limited/contested; legal evidence is not causal/measurement evidence. Original source pins, stage/dispatch gates, conditional execution, completion planes and leases remain authoritative. dependency_routes maps consumption only. Identity/navigation and inherited constraints resolve from coverage.json parents[parent=CAP-05].inherited_fields and registry.json parents[id=CAP-05].inherited_dispatch_contract to the pinned task/solution rows; ignored author scratch is not a normative input.",
       "parent_join_cards": [
         "CAP-05.official-source",
         "CAP-05.legal-applicability",
@@ -3985,7 +4031,7 @@
         "CAP-06.rights-and-output-sinks",
         "CAP-06.solver-call-boundary"
       ],
-      "parent_join": "For selected profile reconcile input/roster, provider effect receipt, every effectful call and shared rights at actual numerical/deployment consumer. Encryption, attestation and remote completion prove neither inference nor rights/no-retention. Original source pins, stage/dispatch gates, conditional execution, completion planes and leases remain authoritative. dependency_routes maps consumption only. Identity/navigation/dispatch/mirrored fields in units.json.other_field_dispositions remain authoritative by parent reference.",
+      "parent_join": "Join only outputs required by the selected provider/input/use profile: solver-call intent precedes dispatch; remote-effect-reconciliation follows the observed outcome; rights-and-output-sinks controls actual placements. private-input roster/alignment qualification is required for private/federated evidence, not every provider call. CNT-06 qualifies inference separately; OPS-09 consumes the selected cell proof. Unknown remote effects remain indeterminate; unselected profiles create no all-of wait.",
       "parent_join_cards": [
         "CAP-06.private-input",
         "CAP-06.remote-effect-reconciliation",
@@ -6675,9 +6721,11 @@
           "source_relations": [
             {
               "relation": "interface_reference",
-              "source_selector": "parent operative context; exact clause in coverage routes",
+              "source_selector": "task.deliverable",
               "required_stage": "reference_only_no_new_gate",
-              "when": "Use only as the named output/interface relationship; no new dispatch prerequisite. Canonical parent governs selected acceptance."
+              "when": "Use only as the named output/interface relationship; no new dispatch prerequisite. Canonical parent governs selected acceptance.",
+              "source_parent": "DES-10",
+              "reference_purpose": "Existing supplier output navigation, not an added consumer prerequisite."
             }
           ],
           "need": "Read selected DES-10 productive-quality/diversity/cost/false-abstention outputs as descriptive context for the board; no useful-design-rate promotion objective or gate.",
@@ -6685,7 +6733,12 @@
             "DES-10.productivity",
             "DES-10.numerical-methods"
           ],
-          "producer_selection": "Select the exact output named in need and its original conditions, not all supplier cards. Actual source-qualified artifacts are pinned at dispatch/composition."
+          "producer_selection": "Select the exact output named in need and its original conditions, not all supplier cards. Actual source-qualified artifacts are pinned at dispatch/composition.",
+          "supplier_output_source": {
+            "parent": "DES-10",
+            "selector": "task.deliverable"
+          },
+          "composition_semantics": "No new preparation or task-completion gate. The selected existing contract still requires its real output at the actual use described in need; absence blocks that use/claim only. An interface document is not a substituted producer receipt."
         }
       ],
       "inherited_dispatch_contract": {
@@ -7060,16 +7113,23 @@
           "source_relations": [
             {
               "relation": "interface_reference",
-              "source_selector": "parent operative context; exact clause in coverage routes",
+              "source_selector": "task.deliverable",
               "required_stage": "reference_only_no_new_gate",
-              "when": "Use only as the named output/interface relationship; no new dispatch prerequisite. Canonical parent governs selected acceptance."
+              "when": "Use only as the named output/interface relationship; no new dispatch prerequisite. Canonical parent governs selected acceptance.",
+              "source_parent": "DES-03",
+              "reference_purpose": "Existing supplier output navigation, not an added consumer prerequisite."
             }
           ],
           "need": "C1 consumes native intent/trial/attempt and accepted-realization/result identity for the selected stochastic method; DES-03 remains the native writer and no second ledger is created.",
           "producer_cards": [
             "DES-03.trial-binding"
           ],
-          "producer_selection": "Select the exact output named in need and its original conditions, not all supplier cards. Actual source-qualified artifacts are pinned at dispatch/composition."
+          "producer_selection": "Select the exact output named in need and its original conditions, not all supplier cards. Actual source-qualified artifacts are pinned at dispatch/composition.",
+          "supplier_output_source": {
+            "parent": "DES-03",
+            "selector": "task.deliverable"
+          },
+          "composition_semantics": "No new preparation or task-completion gate. The selected existing contract still requires its real output at the actual use described in need; absence blocks that use/claim only. An interface document is not a substituted producer receipt."
         },
         {
           "supplier": "LIF-04",
@@ -7080,16 +7140,23 @@
           "source_relations": [
             {
               "relation": "interface_reference",
-              "source_selector": "parent operative context; exact clause in coverage routes",
+              "source_selector": "task.deliverable",
               "required_stage": "reference_only_no_new_gate",
-              "when": "Use only as the named output/interface relationship; no new dispatch prerequisite. Canonical parent governs selected acceptance."
+              "when": "Use only as the named output/interface relationship; no new dispatch prerequisite. Canonical parent governs selected acceptance.",
+              "source_parent": "LIF-04",
+              "reference_purpose": "Existing supplier output navigation, not an added consumer prerequisite."
             }
           ],
           "need": "For same-intent recovery, C1 consumes LIF-04 trial/reuse recovery output; this is selected-use consumption only and adds no global wait or result ledger.",
           "producer_cards": [
             "LIF-04.trial_recovery_consumer"
           ],
-          "producer_selection": "Select the exact output named in need and its original conditions, not all supplier cards. Actual source-qualified artifacts are pinned at dispatch/composition."
+          "producer_selection": "Select the exact output named in need and its original conditions, not all supplier cards. Actual source-qualified artifacts are pinned at dispatch/composition.",
+          "supplier_output_source": {
+            "parent": "LIF-04",
+            "selector": "task.deliverable"
+          },
+          "composition_semantics": "No new preparation or task-completion gate. The selected existing contract still requires its real output at the actual use described in need; absence blocks that use/claim only. An interface document is not a substituted producer receipt."
         },
         {
           "supplier": "DES-11",
@@ -7100,16 +7167,23 @@
           "source_relations": [
             {
               "relation": "interface_reference",
-              "source_selector": "parent operative context; exact clause in coverage routes",
+              "source_selector": "task.deliverable",
               "required_stage": "reference_only_no_new_gate",
-              "when": "Use only as the named output/interface relationship; no new dispatch prerequisite. Canonical parent governs selected acceptance."
+              "when": "Use only as the named output/interface relationship; no new dispatch prerequisite. Canonical parent governs selected acceptance.",
+              "source_parent": "DES-11",
+              "reference_purpose": "Existing supplier output navigation, not an added consumer prerequisite."
             }
           ],
           "need": "Only when the actual selected temporal/trajectory profile requires it, C2 consumes DES-11 trajectory/adapter output; DES-11 remains its owner and the parent’s conditional profile governs use.",
           "producer_cards": [
             "DES-11.trajectory-run"
           ],
-          "producer_selection": "Select the exact output named in need and its original conditions, not all supplier cards. Actual source-qualified artifacts are pinned at dispatch/composition."
+          "producer_selection": "Select the exact output named in need and its original conditions, not all supplier cards. Actual source-qualified artifacts are pinned at dispatch/composition.",
+          "supplier_output_source": {
+            "parent": "DES-11",
+            "selector": "task.deliverable"
+          },
+          "composition_semantics": "No new preparation or task-completion gate. The selected existing contract still requires its real output at the actual use described in need; absence blocks that use/claim only. An interface document is not a substituted producer receipt."
         },
         {
           "supplier": "LIF-07",
@@ -7120,9 +7194,11 @@
           "source_relations": [
             {
               "relation": "interface_reference",
-              "source_selector": "parent operative context; exact clause in coverage routes",
+              "source_selector": "task.deliverable",
               "required_stage": "reference_only_no_new_gate",
-              "when": "Use only as the named output/interface relationship; no new dispatch prerequisite. Canonical parent governs selected acceptance."
+              "when": "Use only as the named output/interface relationship; no new dispatch prerequisite. Canonical parent governs selected acceptance.",
+              "source_parent": "LIF-07",
+              "reference_purpose": "Existing supplier output navigation, not an added consumer prerequisite."
             }
           ],
           "need": "C3 consumes the native influence/read-set and per-use eligibility outputs at the actual Foundry reader; LIF-07 remains the sole influence/reuse owner.",
@@ -7130,7 +7206,12 @@
             "LIF-07.computational_influence",
             "LIF-07.current_use_descendants"
           ],
-          "producer_selection": "Select the exact output named in need and its original conditions, not all supplier cards. Actual source-qualified artifacts are pinned at dispatch/composition."
+          "producer_selection": "Select the exact output named in need and its original conditions, not all supplier cards. Actual source-qualified artifacts are pinned at dispatch/composition.",
+          "supplier_output_source": {
+            "parent": "LIF-07",
+            "selector": "task.deliverable"
+          },
+          "composition_semantics": "No new preparation or task-completion gate. The selected existing contract still requires its real output at the actual use described in need; absence blocks that use/claim only. An interface document is not a substituted producer receipt."
         },
         {
           "supplier": "LIF-02",
@@ -7141,9 +7222,11 @@
           "source_relations": [
             {
               "relation": "interface_reference",
-              "source_selector": "parent operative context; exact clause in coverage routes",
+              "source_selector": "task.deliverable",
               "required_stage": "reference_only_no_new_gate",
-              "when": "Use only as the named output/interface relationship; no new dispatch prerequisite. Canonical parent governs selected acceptance."
+              "when": "Use only as the named output/interface relationship; no new dispatch prerequisite. Canonical parent governs selected acceptance.",
+              "source_parent": "LIF-02",
+              "reference_purpose": "Existing supplier output navigation, not an added consumer prerequisite."
             }
           ],
           "need": "C3 consumes LIF-02 currentness/epoch/fence output only at the actual Foundry cache reader; LIF-02 retains current-head ownership.",
@@ -7152,7 +7235,12 @@
             "LIF-02.bounded_observation_order",
             "LIF-02.conditional_duty_join"
           ],
-          "producer_selection": "Selected native-event or bounded-observation currentness output; duty consequence only where the claim is enrolled in the applicable duty. Listed branches are alternatives/conditional, never an all-of."
+          "producer_selection": "Selected native-event or bounded-observation currentness output; duty consequence only where the claim is enrolled in the applicable duty. Listed branches are alternatives/conditional, never an all-of.",
+          "supplier_output_source": {
+            "parent": "LIF-02",
+            "selector": "task.deliverable"
+          },
+          "composition_semantics": "No new preparation or task-completion gate. The selected existing contract still requires its real output at the actual use described in need; absence blocks that use/claim only. An interface document is not a substituted producer receipt."
         }
       ],
       "inherited_dispatch_contract": {
@@ -7208,16 +7296,23 @@
           "source_relations": [
             {
               "relation": "interface_reference",
-              "source_selector": "parent operative context; exact clause in coverage routes",
+              "source_selector": "task.deliverable",
               "required_stage": "reference_only_no_new_gate",
-              "when": "Use only as the named output/interface relationship; no new dispatch prerequisite. Canonical parent governs selected acceptance."
+              "when": "Use only as the named output/interface relationship; no new dispatch prerequisite. Canonical parent governs selected acceptance.",
+              "source_parent": "GYD-32",
+              "reference_purpose": "Existing supplier output navigation, not an added consumer prerequisite."
             }
           ],
           "need": "The ValueOuterSet consumer reads GYD-32 S0 real source/trust/WMR context when selected; GYD-32 owns the substrate, GYD-31 owns set semantics, and this reference adds no DAG edge or blanket gate.",
           "producer_cards": [
             "GYD-32.s0-substrate"
           ],
-          "producer_selection": "Select the exact output named in need and its original conditions, not all supplier cards. Actual source-qualified artifacts are pinned at dispatch/composition."
+          "producer_selection": "Select the exact output named in need and its original conditions, not all supplier cards. Actual source-qualified artifacts are pinned at dispatch/composition.",
+          "supplier_output_source": {
+            "parent": "GYD-32",
+            "selector": "task.deliverable"
+          },
+          "composition_semantics": "No new preparation or task-completion gate. The selected existing contract still requires its real output at the actual use described in need; absence blocks that use/claim only. An interface document is not a substituted producer receipt."
         }
       ],
       "inherited_dispatch_contract": {
@@ -8625,11 +8720,11 @@
       "cards": [
         "UI-19.claim-currentness"
       ],
-      "parent_join": "Fresh selected claim consumer reads accepted transition, CAP-04 event, LIF-02/DEB-06 lineage, DEB-14 scoped ruling and configured reader; denominator/epoch reconcile before current.",
+      "parent_join": "The existing validity/lineage cascade produces the DS18 transition; fresh API, MACHINE, audit and selected browser readers consume the same bound generation, scope, audience and current/historical limitation. Bind and deliver the native browser projection at E02 rebind; no second status writer. Removing lineage/currentness must alter all affected readers, not only the API.",
       "parent_join_cards": [
         "UI-19.claim-currentness"
       ],
-      "parent_join_consumer": "Fresh governed API/MACHINE/audit read for selected claim/decision; exact publishers/readers bound at P0.",
+      "parent_join_consumer": "Fresh governed API, MACHINE, selected browser and audit readers on the exact same lineage/currentness generation and audience.",
       "overload_review": "One cascade with checkpoints for denominator, events/lineage, reader and mixed cases; no new engine or transport split.",
       "dependency_routes": [
         {
@@ -8954,7 +9049,7 @@
         "CNT-04.applicability",
         "CNT-04.issuer-act"
       ],
-      "parent_join": "Compose law-version (exact source/event times), applicability (reviewed provision→lever/notice/effect) and issuer-act (issuer/delegation/recipient/scope) outputs in the existing fresh legal applicability/authority reader, then send changed qualified facts to LIF-07 affected-use cascade and permitted status/audit. The actual reader is rebound after E02. R14/DES-05 and selected R19 consumers are conditional; this does not issue authority or select a case.",
+      "parent_join": "law-version supplies the exact source/event history; applicability produces the scoped interpretation/limitation; issuer-act supplies only the competent act required by the selected authority claim. Fresh legal, LIF-07 and allowed audit/status readers preserve that distinction. applicability also binds/delivers the existing gated public projection with exact generation, audience and rights; CNT-09 verifies the selected surface. No issuer act is fabricated, and internal status alone cannot close the public surface.",
       "parent_join_cards": [
         "CNT-04.law-version",
         "CNT-04.applicability",
@@ -9067,7 +9162,7 @@
         "CNT-05.measure-profile",
         "CNT-05.mandate-choice"
       ],
-      "parent_join": "Join measure-profile's versioned formula/input adequacy and alternative metric results with mandate-choice's real principal/remit/objectives in the existing fresh G2/G5 claim/decision consumer. Valid metrics do not make normative choice; mandate cannot repair invalid measurement. No mandate leaves alternatives and limitation, not a default.",
+      "parent_join": "Fresh G2/G5 claim/value reader joins exact measure-profile and principal-qualified mandate-choice when a collective choice is requested. Supported conditional results retain their existing result-support status without collective mandate; winner/endorsement remains denied. Hard floors stay independently authorized and non-compensable. The mandate-choice card binds/delivers the existing public selected-basis/limitation reader under its native projection owner with same-generation scope/audience/rights. CNT-09 exercises that exact selected route; internal reader PASS does not discharge the public surface.",
       "parent_join_cards": [
         "CNT-05.measure-profile",
         "CNT-05.mandate-choice"
@@ -9150,14 +9245,21 @@
           "source_relations": [
             {
               "relation": "interface_reference",
-              "source_selector": "parent operative context; exact clause in coverage routes",
+              "source_selector": "task.deliverable",
               "required_stage": "reference_only_no_new_gate",
-              "when": "Use only as the named output/interface relationship; no new dispatch prerequisite. Canonical parent governs selected acceptance."
+              "when": "Use only as the named output/interface relationship; no new dispatch prerequisite. Canonical parent governs selected acceptance.",
+              "source_parent": "CNT-07",
+              "reference_purpose": "Existing supplier output navigation, not an added consumer prerequisite."
             }
           ],
           "need": "Only when the selected choice relies on collective/participation mandate evidence; consumption map, not a new task DAG edge.",
           "producer_cards": [],
-          "producer_selection": "Select the exact output named in need and its original conditions, not all supplier cards. Actual source-qualified artifacts are pinned at dispatch/composition."
+          "producer_selection": "Select the exact output named in need and its original conditions, not all supplier cards. Actual source-qualified artifacts are pinned at dispatch/composition.",
+          "supplier_output_source": {
+            "parent": "CNT-07",
+            "selector": "task.deliverable"
+          },
+          "composition_semantics": "No new preparation or task-completion gate. The selected existing contract still requires its real output at the actual use described in need; absence blocks that use/claim only. An interface document is not a substituted producer receipt."
         },
         {
           "supplier": "CNT-03",
@@ -9196,7 +9298,7 @@
         "CNT-06.causal-support",
         "CNT-06.prediction-calibration"
       ],
-      "parent_join": "Compose causal-support ClaimRecord into the actual fresh Scientist workflow and selected G2-G6 decision reader. Consume prediction-calibration only for a declared prediction claim/method that needs it; calibration is neither transport nor universal causal gate. Keep any status/authority choice outside both inferential outputs.",
+      "parent_join": "Fresh Scientist/G2–G6 readers consume qualified causal-support and prediction-calibration only where their claim profile requires them. For selected structural learning, causal-support feeds GYD-12.structural-write with proposition/regime/identification/rivals/lineage/uncertainty; O3 alone appends WMR and a fresh later-cycle reader checks it. No causal-card direct WMR write and no universal structural-append/calibration gate.",
       "parent_join_cards": [
         "CNT-06.causal-support",
         "CNT-06.prediction-calibration"
@@ -9599,14 +9701,21 @@
           "source_relations": [
             {
               "relation": "interface_reference",
-              "source_selector": "parent operative context; exact clause in coverage routes",
+              "source_selector": "task.deliverable",
               "required_stage": "reference_only_no_new_gate",
-              "when": "Use only as the named output/interface relationship; no new dispatch prerequisite. Canonical parent governs selected acceptance."
+              "when": "Use only as the named output/interface relationship; no new dispatch prerequisite. Canonical parent governs selected acceptance.",
+              "source_parent": "LIF-02",
+              "reference_purpose": "Existing supplier output navigation, not an added consumer prerequisite."
             }
           ],
           "need": "Consume the native currentness decision/head at composition after LIF-07 supplies influence/descendant closure. This is an agreed-interface consumption map only; it adds no canonical task edge or start gate and CNT-08 remains a reader.",
           "producer_cards": [],
-          "producer_selection": "Select the exact output named in need and its original conditions, not all supplier cards. Actual source-qualified artifacts are pinned at dispatch/composition."
+          "producer_selection": "Select the exact output named in need and its original conditions, not all supplier cards. Actual source-qualified artifacts are pinned at dispatch/composition.",
+          "supplier_output_source": {
+            "parent": "LIF-02",
+            "selector": "task.deliverable"
+          },
+          "composition_semantics": "No new preparation or task-completion gate. The selected existing contract still requires its real output at the actual use described in need; absence blocks that use/claim only. An interface document is not a substituted producer receipt."
         }
       ],
       "inherited_dispatch_contract": {
@@ -9785,7 +9894,7 @@
       "cards": [
         "OPS-01.commissioning"
       ],
-      "parent_join": "One release dossier receipt composes the fresh OPS-03 effective-profile observation, CAP-03 source/use decision and independently authorized initial trust provision; root reconciles the exact receipt and its source-bound reader before any protected input.",
+      "parent_join": "Existing RuntimeExecutionPolicyResolver produces a read-only effective-profile/build observation; OPS-01 binds the selected commissioning decision to that observation and persists its receipt. OPS-03 subsequently consumes this receipt to derive readiness/admission. OPS-01 does not wait for OPS-03 readiness and creates no second profile resolver.",
       "parent_join_cards": [
         "OPS-01.commissioning"
       ],
@@ -10192,14 +10301,21 @@
           "source_relations": [
             {
               "relation": "interface_reference",
-              "source_selector": "parent operative context; exact clause in coverage routes",
+              "source_selector": "task.deliverable",
               "required_stage": "reference_only_no_new_gate",
-              "when": "Use only as the named output/interface relationship; no new dispatch prerequisite. Canonical parent governs selected acceptance."
+              "when": "Use only as the named output/interface relationship; no new dispatch prerequisite. Canonical parent governs selected acceptance.",
+              "source_parent": "OPS-05",
+              "reference_purpose": "Existing supplier output navigation, not an added consumer prerequisite."
             }
           ],
           "need": "Consume direction-specific compatibility only for selected independently rolling API/worker/schema/rule profiles; do not impose a new universal rolling gate.",
           "producer_cards": [],
-          "producer_selection": "Select the exact output named in need and its original conditions, not all supplier cards. Actual source-qualified artifacts are pinned at dispatch/composition."
+          "producer_selection": "Select the exact output named in need and its original conditions, not all supplier cards. Actual source-qualified artifacts are pinned at dispatch/composition.",
+          "supplier_output_source": {
+            "parent": "OPS-05",
+            "selector": "task.deliverable"
+          },
+          "composition_semantics": "No new preparation or task-completion gate. The selected existing contract still requires its real output at the actual use described in need; absence blocks that use/claim only. An interface document is not a substituted producer receipt."
         }
       ],
       "inherited_dispatch_contract": {
@@ -10218,17 +10334,19 @@
         "OPS-05.schema-directions",
         "OPS-05.restore-cut",
         "OPS-05.retained-uses",
-        "OPS-05.byte-release"
+        "OPS-05.byte-release",
+        "OPS-05.independent-copy-repair"
       ],
-      "parent_join": "Join schema-direction receipts, selected quarantine restore-cut, per-use retained-representation result and actual-byte reader/sink proof. On a selected current/protected restore, the existing claim/publication owner and fresh restored-scope reader require LIF-02 material history plus LIF-05 rights and a continuity witness outside the actual rollback closure; otherwise retain scoped historical/limited status.",
+      "parent_join": "Join schema directions, selected restore cut, per-use retained representation and actual-byte reader/sink proof. When a selected object needs repair, independent-copy-repair supplies its verified repaired version/source lineage or explicit unavailable; absence does not gate healthy reads. Current/protected restore still requires LIF-02 material history, LIF-05 rights and continuity witness outside the actual rollback closure. Repair never substitutes for those owner decisions.",
       "parent_join_cards": [
         "OPS-05.schema-directions",
         "OPS-05.restore-cut",
         "OPS-05.retained-uses",
-        "OPS-05.byte-release"
+        "OPS-05.byte-release",
+        "OPS-05.independent-copy-repair"
       ],
       "parent_join_consumer": "Existing ControlPlaneStore migration/read path, replay-or-restore owner, canonical CAS reader and sink; fresh authorized claim/publication reader for a restored selected scope.",
-      "overload_review": "Four independently falsifiable properties replace the overloaded restore row. The 9 acceptance units are not separate writers: U012/U013/U014/U015 route to their semantic property; cross-card task deliverable/rollback and mandatory companions stay at parent composition. Existing DB, CAS, rights and claim owners remain intact; exact lease overlaps are re-resolved after E02.",
+      "overload_review": "Five independently falsifiable properties: schema directions, restore cut, retained uses, exact-byte release, independent-copy repair. Repair is one bounded native-owner producer/fresh-reader result; it does not create a parallel CAS/archive. Actual shared writer leases serialize; read-only source qualification may proceed independently.",
       "dependency_routes": [
         {
           "supplier": "P0-ACCEPT",
@@ -10236,7 +10354,8 @@
             "OPS-05.schema-directions",
             "OPS-05.restore-cut",
             "OPS-05.retained-uses",
-            "OPS-05.byte-release"
+            "OPS-05.byte-release",
+            "OPS-05.independent-copy-repair"
           ],
           "required_stage": "direct:actual_E02_G_acceptance",
           "source_relations": [
@@ -10257,7 +10376,8 @@
           "supplier": "OPS-03",
           "consumer_cards": [
             "OPS-05.restore-cut",
-            "OPS-05.byte-release"
+            "OPS-05.byte-release",
+            "OPS-05.independent-copy-repair"
           ],
           "required_stage": "direct:owner_readiness",
           "source_relations": [
@@ -10300,7 +10420,8 @@
           "consumer_cards": [
             "OPS-05.restore-cut",
             "OPS-05.retained-uses",
-            "OPS-05.byte-release"
+            "OPS-05.byte-release",
+            "OPS-05.independent-copy-repair"
           ],
           "required_stage": "direct:owner_readiness; conditional_acceptance_requirements:composition",
           "source_relations": [
@@ -10364,7 +10485,8 @@
         {
           "supplier": "LIF-05",
           "consumer_cards": [
-            "OPS-05.restore-cut"
+            "OPS-05.restore-cut",
+            "OPS-05.independent-copy-repair"
           ],
           "required_stage": "direct:owner_readiness; conditional_acceptance_requirements:composition",
           "source_relations": [
@@ -10395,6 +10517,29 @@
           "need": "Conditional current/protected restore acceptance joins the same rights/history output; no unrelated claim domain or global wait.",
           "producer_cards": [],
           "producer_selection": "Select the exact output named in need and its original conditions, not all supplier cards. Actual source-qualified artifacts are pinned at dispatch/composition."
+        },
+        {
+          "supplier": "LIF-07",
+          "consumer_cards": [
+            "OPS-05.retained-uses"
+          ],
+          "required_stage": "interface_reference:reference_only_no_new_gate",
+          "source_relations": [
+            {
+              "relation": "interface_reference",
+              "source_selector": "solution.composition_contracts[2]",
+              "required_stage": "reference_only_no_new_gate",
+              "when": "Only the selected native output/interface is consumed; no new preparation prerequisite or authority grant."
+            }
+          ],
+          "need": "For a selected retained representation/use, consume the actual dependency/derivative relation and sufficient verification basis; no requirement to finish unrelated LIF-07 work.",
+          "producer_cards": [],
+          "producer_selection": "Select the exact native output and source-qualified version needed by this use; absence blocks only its affected composition, not independent preparation.",
+          "supplier_output_source": {
+            "parent": "LIF-07",
+            "selector": "task.deliverable"
+          },
+          "composition_semantics": "No new preparation or task-completion gate. The selected existing contract still requires its real output at the actual use described in need; absence blocks that use/claim only. An interface document is not a substituted producer receipt."
         }
       ],
       "inherited_dispatch_contract": {
@@ -10698,14 +10843,21 @@
           "source_relations": [
             {
               "relation": "interface_reference",
-              "source_selector": "parent operative context; exact clause in coverage routes",
+              "source_selector": "task.deliverable",
               "required_stage": "reference_only_no_new_gate",
-              "when": "Use only as the named output/interface relationship; no new dispatch prerequisite. Canonical parent governs selected acceptance."
+              "when": "Use only as the named output/interface relationship; no new dispatch prerequisite. Canonical parent governs selected acceptance.",
+              "source_parent": "LIF-04",
+              "reference_purpose": "Existing supplier output navigation, not an added consumer prerequisite."
             }
           ],
           "need": "Cross-card contract only: LIF-04 remains the durable service/due-intent owner; OPS-08 supplies measured input and is joined at completion, not a new start/scheduler edge.",
           "producer_cards": [],
-          "producer_selection": "Select the exact output named in need and its original conditions, not all supplier cards. Actual source-qualified artifacts are pinned at dispatch/composition."
+          "producer_selection": "Select the exact output named in need and its original conditions, not all supplier cards. Actual source-qualified artifacts are pinned at dispatch/composition.",
+          "supplier_output_source": {
+            "parent": "LIF-04",
+            "selector": "task.deliverable"
+          },
+          "composition_semantics": "No new preparation or task-completion gate. The selected existing contract still requires its real output at the actual use described in need; absence blocks that use/claim only. An interface document is not a substituted producer receipt."
         },
         {
           "supplier": "LIF-02",
@@ -10716,14 +10868,21 @@
           "source_relations": [
             {
               "relation": "interface_reference",
-              "source_selector": "parent operative context; exact clause in coverage routes",
+              "source_selector": "task.deliverable",
               "required_stage": "reference_only_no_new_gate",
-              "when": "Use only as the named output/interface relationship; no new dispatch prerequisite. Canonical parent governs selected acceptance."
+              "when": "Use only as the named output/interface relationship; no new dispatch prerequisite. Canonical parent governs selected acceptance.",
+              "source_parent": "LIF-02",
+              "reference_purpose": "Existing supplier output navigation, not an added consumer prerequisite."
             }
           ],
           "need": "Cross-card final consumer: selected missed duty changes only its enrolled claim/coverage through LIF-02; no OPS-08 claim writer.",
           "producer_cards": [],
-          "producer_selection": "Select the exact output named in need and its original conditions, not all supplier cards. Actual source-qualified artifacts are pinned at dispatch/composition."
+          "producer_selection": "Select the exact output named in need and its original conditions, not all supplier cards. Actual source-qualified artifacts are pinned at dispatch/composition.",
+          "supplier_output_source": {
+            "parent": "LIF-02",
+            "selector": "task.deliverable"
+          },
+          "composition_semantics": "No new preparation or task-completion gate. The selected existing contract still requires its real output at the actual use described in need; absence blocks that use/claim only. An interface document is not a substituted producer receipt."
         }
       ],
       "inherited_dispatch_contract": {
@@ -10883,6 +11042,29 @@
           "need": "CAP-06 owns private/federated input/result intake, roster and output-right handshake; OPS-09 only executes the selected site path.",
           "producer_cards": [],
           "producer_selection": "Select the exact output named in need and its original conditions, not all supplier cards. Actual source-qualified artifacts are pinned at dispatch/composition."
+        },
+        {
+          "supplier": "LIF-05",
+          "consumer_cards": [
+            "OPS-09.output-release"
+          ],
+          "required_stage": "interface_reference:reference_only_no_new_gate",
+          "source_relations": [
+            {
+              "relation": "interface_reference",
+              "source_selector": "solution.implementation_steps[2]",
+              "required_stage": "reference_only_no_new_gate",
+              "when": "Only the selected native output/interface is consumed; no new preparation prerequisite or authority grant."
+            }
+          ],
+          "need": "At the selected result export/transfer sink consume current allowed-copy, retention and rights decision; remote execution success grants no output permission.",
+          "producer_cards": [],
+          "producer_selection": "Select the exact native output and source-qualified version needed by this use; absence blocks only its affected composition, not independent preparation.",
+          "supplier_output_source": {
+            "parent": "LIF-05",
+            "selector": "task.deliverable"
+          },
+          "composition_semantics": "No new preparation or task-completion gate. The selected existing contract still requires its real output at the actual use described in need; absence blocks that use/claim only. An interface document is not a substituted producer receipt."
         }
       ],
       "inherited_dispatch_contract": {
@@ -11226,6 +11408,75 @@
           "need": "Acceptance dependency where selected reader/migration compatibility affects archive transfer; use actual producer output at composition.",
           "producer_cards": [],
           "producer_selection": "Select the exact output named in need and its original conditions, not all supplier cards. Actual source-qualified artifacts are pinned at dispatch/composition."
+        },
+        {
+          "supplier": "LIF-06",
+          "consumer_cards": [
+            "OPS-11.currentness-duty"
+          ],
+          "required_stage": "interface_reference:reference_only_no_new_gate",
+          "source_relations": [
+            {
+              "relation": "interface_reference",
+              "source_selector": "solution.implementation_steps[2]",
+              "required_stage": "reference_only_no_new_gate",
+              "when": "Only the selected native output/interface is consumed; no new preparation prerequisite or authority grant."
+            }
+          ],
+          "need": "Only for a promised covered duty, consume actual capacity eligibility/reservation. Missing capacity yields the scoped cutoff/limited outcome, not an implicit global wait.",
+          "producer_cards": [],
+          "producer_selection": "Select the exact native output and source-qualified version needed by this use; absence blocks only its affected composition, not independent preparation.",
+          "supplier_output_source": {
+            "parent": "LIF-06",
+            "selector": "task.deliverable"
+          },
+          "composition_semantics": "No new preparation or task-completion gate. The selected existing contract still requires its real output at the actual use described in need; absence blocks that use/claim only. An interface document is not a substituted producer receipt."
+        },
+        {
+          "supplier": "OPS-08",
+          "consumer_cards": [
+            "OPS-11.currentness-duty"
+          ],
+          "required_stage": "interface_reference:reference_only_no_new_gate",
+          "source_relations": [
+            {
+              "relation": "interface_reference",
+              "source_selector": "solution.implementation_steps[2]",
+              "required_stage": "reference_only_no_new_gate",
+              "when": "Only the selected native output/interface is consumed; no new preparation prerequisite or authority grant."
+            }
+          ],
+          "need": "Bind promised reaction to measured headroom/age and selected service coverage; a declared SLA or duty is not capacity evidence.",
+          "producer_cards": [],
+          "producer_selection": "Select the exact native output and source-qualified version needed by this use; absence blocks only its affected composition, not independent preparation.",
+          "supplier_output_source": {
+            "parent": "OPS-08",
+            "selector": "task.deliverable"
+          },
+          "composition_semantics": "No new preparation or task-completion gate. The selected existing contract still requires its real output at the actual use described in need; absence blocks that use/claim only. An interface document is not a substituted producer receipt."
+        },
+        {
+          "supplier": "LIF-05",
+          "consumer_cards": [
+            "OPS-11.archive-transfer"
+          ],
+          "required_stage": "interface_reference:reference_only_no_new_gate",
+          "source_relations": [
+            {
+              "relation": "interface_reference",
+              "source_selector": "task.r17_extension.requirement",
+              "required_stage": "reference_only_no_new_gate",
+              "when": "Only the selected native output/interface is consumed; no new preparation prerequisite or authority grant."
+            }
+          ],
+          "need": "Only for selected archive retrieval/transfer/use, consume allowed-copy/current-use evidence; OPS-05 remains byte retrieval/verification owner.",
+          "producer_cards": [],
+          "producer_selection": "Select the exact native output and source-qualified version needed by this use; absence blocks only its affected composition, not independent preparation.",
+          "supplier_output_source": {
+            "parent": "LIF-05",
+            "selector": "task.deliverable"
+          },
+          "composition_semantics": "No new preparation or task-completion gate. The selected existing contract still requires its real output at the actual use described in need; absence blocks that use/claim only. An interface document is not a substituted producer receipt."
         }
       ],
       "inherited_dispatch_contract": {
@@ -11331,6 +11582,29 @@
           "need": "Consume independently authorized technical trust generation/succession only for selected offline operation.",
           "producer_cards": [],
           "producer_selection": "Select the exact output named in need and its original conditions, not all supplier cards. Actual source-qualified artifacts are pinned at dispatch/composition."
+        },
+        {
+          "supplier": "OPS-01",
+          "consumer_cards": [
+            "OPS-12.bundle-currentness"
+          ],
+          "required_stage": "interface_reference:reference_only_no_new_gate",
+          "source_relations": [
+            {
+              "relation": "interface_reference",
+              "source_selector": "solution.implementation_steps[0]",
+              "required_stage": "reference_only_no_new_gate",
+              "when": "Only the selected native output/interface is consumed; no new preparation prerequisite or authority grant."
+            }
+          ],
+          "need": "Selected offline tier consumes its commissioning receipt. Unselected offline tiers do not gate local/cloud work.",
+          "producer_cards": [],
+          "producer_selection": "Select the exact native output and source-qualified version needed by this use; absence blocks only its affected composition, not independent preparation.",
+          "supplier_output_source": {
+            "parent": "OPS-01",
+            "selector": "task.deliverable"
+          },
+          "composition_semantics": "No new preparation or task-completion gate. The selected existing contract still requires its real output at the actual use described in need; absence blocks that use/claim only. An interface document is not a substituted producer receipt."
         }
       ],
       "inherited_dispatch_contract": {
@@ -11896,14 +12170,21 @@
           "source_relations": [
             {
               "relation": "interface_reference",
-              "source_selector": "parent operative context; exact clause in coverage routes",
+              "source_selector": "task.deliverable",
               "required_stage": "reference_only_no_new_gate",
-              "when": "Use only as the named output/interface relationship; no new dispatch prerequisite. Canonical parent governs selected acceptance."
+              "when": "Use only as the named output/interface relationship; no new dispatch prerequisite. Canonical parent governs selected acceptance.",
+              "source_parent": "GYD-31",
+              "reference_purpose": "Existing supplier output navigation, not an added consumer prerequisite."
             }
           ],
           "need": "Conditional consumption only if the actual measured GAP2 consumer demonstrates it needs the existing ValueOuterSet output; never a blanket prerequisite or a source depends_on edge.",
           "producer_cards": [],
-          "producer_selection": "Select the exact output named in need and its original conditions, not all supplier cards. Actual source-qualified artifacts are pinned at dispatch/composition."
+          "producer_selection": "Select the exact output named in need and its original conditions, not all supplier cards. Actual source-qualified artifacts are pinned at dispatch/composition.",
+          "supplier_output_source": {
+            "parent": "GYD-31",
+            "selector": "task.deliverable"
+          },
+          "composition_semantics": "No new preparation or task-completion gate. The selected existing contract still requires its real output at the actual use described in need; absence blocks that use/claim only. An interface document is not a substituted producer receipt."
         }
       ],
       "inherited_dispatch_contract": {
@@ -12136,12 +12417,12 @@
       "cards": [
         "FINAL-FREEZE.immutable-candidate"
       ],
-      "parent_join": "immutable-candidate emits Immutable freeze candidate manifest with source/input/backend identity, internal readiness, open external facts and exact replay matrix.. Root reconciles these exact outputs at the original parent disposition and sends the composed result to FINAL-REVIEW consumes the exact immutable candidate identity.. This join does not create implementation, a second owner, or an extra start gate.",
+      "parent_join": "Freeze reviewed internal owner-readiness and complete P0 original-obligation reconciliation on exact source/input/backend/rule identities. Preserve genuine external unavailable inputs and their re-entry triggers without closure credit. FINAL-REVIEW consumes this candidate; FINAL-REPLAY remains downstream. No hidden implementation or second owner is assigned to this coordination card.",
       "parent_join_cards": [
         "FINAL-FREEZE.immutable-candidate"
       ],
       "parent_join_consumer": "FINAL-REVIEW consumes the exact immutable candidate identity.",
-      "overload_review": "One read-only immutable candidate checkpoint after global reconciliation and internal readiness; external unknowns remain visible.",
+      "overload_review": "One root coordination owner reconciles the complete 115 source supplier routes and their original stages: 114 scoped owner-readiness routes plus full P0 reconciliation. This is aggregate coordination, not a small code task or 115 finding closures; implementation and source acceptance remain with their native owners.",
       "dependency_routes": [
         {
           "supplier": "CAP-01",
@@ -12157,7 +12438,7 @@
               "when": "original direct relation; source stage rules govern"
             }
           ],
-          "need": "Consume this supplier’s actual accepted output as required by the canonical FINAL-FREEZE source dependency; this is a consumption map only and does not alter source stage/dispatch semantics.",
+          "need": "Consume this supplier's source-qualified result at the exact source_relations stage, including selected-facet readiness and truthful original-obligation disposition. Owner-readiness does not require original/composed closure; genuine unavailable external facts remain explicit, while missing selected internal work blocks freeze.",
           "producer_cards": [],
           "producer_selection": "Select the exact output named in need and its original conditions, not all supplier cards. Actual source-qualified artifacts are pinned at dispatch/composition."
         },
@@ -12175,7 +12456,7 @@
               "when": "original direct relation; source stage rules govern"
             }
           ],
-          "need": "Consume this supplier’s actual accepted output as required by the canonical FINAL-FREEZE source dependency; this is a consumption map only and does not alter source stage/dispatch semantics.",
+          "need": "Consume this supplier's source-qualified result at the exact source_relations stage, including selected-facet readiness and truthful original-obligation disposition. Owner-readiness does not require original/composed closure; genuine unavailable external facts remain explicit, while missing selected internal work blocks freeze.",
           "producer_cards": [],
           "producer_selection": "Select the exact output named in need and its original conditions, not all supplier cards. Actual source-qualified artifacts are pinned at dispatch/composition."
         },
@@ -12193,7 +12474,7 @@
               "when": "original direct relation; source stage rules govern"
             }
           ],
-          "need": "Consume this supplier’s actual accepted output as required by the canonical FINAL-FREEZE source dependency; this is a consumption map only and does not alter source stage/dispatch semantics.",
+          "need": "Consume this supplier's source-qualified result at the exact source_relations stage, including selected-facet readiness and truthful original-obligation disposition. Owner-readiness does not require original/composed closure; genuine unavailable external facts remain explicit, while missing selected internal work blocks freeze.",
           "producer_cards": [],
           "producer_selection": "Select the exact output named in need and its original conditions, not all supplier cards. Actual source-qualified artifacts are pinned at dispatch/composition."
         },
@@ -12211,7 +12492,7 @@
               "when": "original direct relation; source stage rules govern"
             }
           ],
-          "need": "Consume this supplier’s actual accepted output as required by the canonical FINAL-FREEZE source dependency; this is a consumption map only and does not alter source stage/dispatch semantics.",
+          "need": "Consume this supplier's source-qualified result at the exact source_relations stage, including selected-facet readiness and truthful original-obligation disposition. Owner-readiness does not require original/composed closure; genuine unavailable external facts remain explicit, while missing selected internal work blocks freeze.",
           "producer_cards": [],
           "producer_selection": "Select the exact output named in need and its original conditions, not all supplier cards. Actual source-qualified artifacts are pinned at dispatch/composition."
         },
@@ -12229,7 +12510,7 @@
               "when": "original direct relation; source stage rules govern"
             }
           ],
-          "need": "Consume this supplier’s actual accepted output as required by the canonical FINAL-FREEZE source dependency; this is a consumption map only and does not alter source stage/dispatch semantics.",
+          "need": "Consume this supplier's source-qualified result at the exact source_relations stage, including selected-facet readiness and truthful original-obligation disposition. Owner-readiness does not require original/composed closure; genuine unavailable external facts remain explicit, while missing selected internal work blocks freeze.",
           "producer_cards": [],
           "producer_selection": "Select the exact output named in need and its original conditions, not all supplier cards. Actual source-qualified artifacts are pinned at dispatch/composition."
         },
@@ -12247,7 +12528,7 @@
               "when": "original direct relation; source stage rules govern"
             }
           ],
-          "need": "Consume this supplier’s actual accepted output as required by the canonical FINAL-FREEZE source dependency; this is a consumption map only and does not alter source stage/dispatch semantics.",
+          "need": "Consume this supplier's source-qualified result at the exact source_relations stage, including selected-facet readiness and truthful original-obligation disposition. Owner-readiness does not require original/composed closure; genuine unavailable external facts remain explicit, while missing selected internal work blocks freeze.",
           "producer_cards": [],
           "producer_selection": "Select the exact output named in need and its original conditions, not all supplier cards. Actual source-qualified artifacts are pinned at dispatch/composition."
         },
@@ -12265,7 +12546,7 @@
               "when": "original direct relation; source stage rules govern"
             }
           ],
-          "need": "Consume this supplier’s actual accepted output as required by the canonical FINAL-FREEZE source dependency; this is a consumption map only and does not alter source stage/dispatch semantics.",
+          "need": "Consume this supplier's source-qualified result at the exact source_relations stage, including selected-facet readiness and truthful original-obligation disposition. Owner-readiness does not require original/composed closure; genuine unavailable external facts remain explicit, while missing selected internal work blocks freeze.",
           "producer_cards": [],
           "producer_selection": "Select the exact output named in need and its original conditions, not all supplier cards. Actual source-qualified artifacts are pinned at dispatch/composition."
         },
@@ -12283,7 +12564,7 @@
               "when": "original direct relation; source stage rules govern"
             }
           ],
-          "need": "Consume this supplier’s actual accepted output as required by the canonical FINAL-FREEZE source dependency; this is a consumption map only and does not alter source stage/dispatch semantics.",
+          "need": "Consume this supplier's source-qualified result at the exact source_relations stage, including selected-facet readiness and truthful original-obligation disposition. Owner-readiness does not require original/composed closure; genuine unavailable external facts remain explicit, while missing selected internal work blocks freeze.",
           "producer_cards": [],
           "producer_selection": "Select the exact output named in need and its original conditions, not all supplier cards. Actual source-qualified artifacts are pinned at dispatch/composition."
         },
@@ -12301,7 +12582,7 @@
               "when": "original direct relation; source stage rules govern"
             }
           ],
-          "need": "Consume this supplier’s actual accepted output as required by the canonical FINAL-FREEZE source dependency; this is a consumption map only and does not alter source stage/dispatch semantics.",
+          "need": "Consume this supplier's source-qualified result at the exact source_relations stage, including selected-facet readiness and truthful original-obligation disposition. Owner-readiness does not require original/composed closure; genuine unavailable external facts remain explicit, while missing selected internal work blocks freeze.",
           "producer_cards": [
             "LIF-03.conditional_frontier_commit"
           ],
@@ -12321,7 +12602,7 @@
               "when": "original direct relation; source stage rules govern"
             }
           ],
-          "need": "Consume this supplier’s actual accepted output as required by the canonical FINAL-FREEZE source dependency; this is a consumption map only and does not alter source stage/dispatch semantics.",
+          "need": "Consume this supplier's source-qualified result at the exact source_relations stage, including selected-facet readiness and truthful original-obligation disposition. Owner-readiness does not require original/composed closure; genuine unavailable external facts remain explicit, while missing selected internal work blocks freeze.",
           "producer_cards": [],
           "producer_selection": "Select the exact output named in need and its original conditions, not all supplier cards. Actual source-qualified artifacts are pinned at dispatch/composition."
         },
@@ -12339,7 +12620,7 @@
               "when": "original direct relation; source stage rules govern"
             }
           ],
-          "need": "Consume this supplier’s actual accepted output as required by the canonical FINAL-FREEZE source dependency; this is a consumption map only and does not alter source stage/dispatch semantics.",
+          "need": "Consume this supplier's source-qualified result at the exact source_relations stage, including selected-facet readiness and truthful original-obligation disposition. Owner-readiness does not require original/composed closure; genuine unavailable external facts remain explicit, while missing selected internal work blocks freeze.",
           "producer_cards": [],
           "producer_selection": "Select the exact output named in need and its original conditions, not all supplier cards. Actual source-qualified artifacts are pinned at dispatch/composition."
         },
@@ -12357,7 +12638,7 @@
               "when": "original direct relation; source stage rules govern"
             }
           ],
-          "need": "Consume this supplier’s actual accepted output as required by the canonical FINAL-FREEZE source dependency; this is a consumption map only and does not alter source stage/dispatch semantics.",
+          "need": "Consume this supplier's source-qualified result at the exact source_relations stage, including selected-facet readiness and truthful original-obligation disposition. Owner-readiness does not require original/composed closure; genuine unavailable external facts remain explicit, while missing selected internal work blocks freeze.",
           "producer_cards": [],
           "producer_selection": "Select the exact output named in need and its original conditions, not all supplier cards. Actual source-qualified artifacts are pinned at dispatch/composition."
         },
@@ -12375,7 +12656,7 @@
               "when": "original direct relation; source stage rules govern"
             }
           ],
-          "need": "Consume this supplier’s actual accepted output as required by the canonical FINAL-FREEZE source dependency; this is a consumption map only and does not alter source stage/dispatch semantics.",
+          "need": "Consume this supplier's source-qualified result at the exact source_relations stage, including selected-facet readiness and truthful original-obligation disposition. Owner-readiness does not require original/composed closure; genuine unavailable external facts remain explicit, while missing selected internal work blocks freeze.",
           "producer_cards": [],
           "producer_selection": "Select the exact output named in need and its original conditions, not all supplier cards. Actual source-qualified artifacts are pinned at dispatch/composition."
         },
@@ -12393,7 +12674,7 @@
               "when": "original direct relation; source stage rules govern"
             }
           ],
-          "need": "Consume this supplier’s actual accepted output as required by the canonical FINAL-FREEZE source dependency; this is a consumption map only and does not alter source stage/dispatch semantics.",
+          "need": "Consume this supplier's source-qualified result at the exact source_relations stage, including selected-facet readiness and truthful original-obligation disposition. Owner-readiness does not require original/composed closure; genuine unavailable external facts remain explicit, while missing selected internal work blocks freeze.",
           "producer_cards": [],
           "producer_selection": "Select the exact output named in need and its original conditions, not all supplier cards. Actual source-qualified artifacts are pinned at dispatch/composition."
         },
@@ -12411,7 +12692,7 @@
               "when": "original direct relation; source stage rules govern"
             }
           ],
-          "need": "Consume this supplier’s actual accepted output as required by the canonical FINAL-FREEZE source dependency; this is a consumption map only and does not alter source stage/dispatch semantics.",
+          "need": "Consume this supplier's source-qualified result at the exact source_relations stage, including selected-facet readiness and truthful original-obligation disposition. Owner-readiness does not require original/composed closure; genuine unavailable external facts remain explicit, while missing selected internal work blocks freeze.",
           "producer_cards": [],
           "producer_selection": "Select the exact output named in need and its original conditions, not all supplier cards. Actual source-qualified artifacts are pinned at dispatch/composition."
         },
@@ -12429,7 +12710,7 @@
               "when": "original direct relation; source stage rules govern"
             }
           ],
-          "need": "Consume this supplier’s actual accepted output as required by the canonical FINAL-FREEZE source dependency; this is a consumption map only and does not alter source stage/dispatch semantics.",
+          "need": "Consume this supplier's source-qualified result at the exact source_relations stage, including selected-facet readiness and truthful original-obligation disposition. Owner-readiness does not require original/composed closure; genuine unavailable external facts remain explicit, while missing selected internal work blocks freeze.",
           "producer_cards": [
             "GYD-02.catalog-reissue"
           ],
@@ -12449,7 +12730,7 @@
               "when": "original direct relation; source stage rules govern"
             }
           ],
-          "need": "Consume this supplier’s actual accepted output as required by the canonical FINAL-FREEZE source dependency; this is a consumption map only and does not alter source stage/dispatch semantics.",
+          "need": "Consume this supplier's source-qualified result at the exact source_relations stage, including selected-facet readiness and truthful original-obligation disposition. Owner-readiness does not require original/composed closure; genuine unavailable external facts remain explicit, while missing selected internal work blocks freeze.",
           "producer_cards": [
             "GYD-03.constraint-route"
           ],
@@ -12469,7 +12750,7 @@
               "when": "original direct relation; source stage rules govern"
             }
           ],
-          "need": "Consume this supplier’s actual accepted output as required by the canonical FINAL-FREEZE source dependency; this is a consumption map only and does not alter source stage/dispatch semantics.",
+          "need": "Consume this supplier's source-qualified result at the exact source_relations stage, including selected-facet readiness and truthful original-obligation disposition. Owner-readiness does not require original/composed closure; genuine unavailable external facts remain explicit, while missing selected internal work blocks freeze.",
           "producer_cards": [
             "GYD-04.k-accuracy"
           ],
@@ -12489,7 +12770,7 @@
               "when": "original direct relation; source stage rules govern"
             }
           ],
-          "need": "Consume this supplier’s actual accepted output as required by the canonical FINAL-FREEZE source dependency; this is a consumption map only and does not alter source stage/dispatch semantics.",
+          "need": "Consume this supplier's source-qualified result at the exact source_relations stage, including selected-facet readiness and truthful original-obligation disposition. Owner-readiness does not require original/composed closure; genuine unavailable external facts remain explicit, while missing selected internal work blocks freeze.",
           "producer_cards": [
             "GYD-05.legal-membership"
           ],
@@ -12509,7 +12790,7 @@
               "when": "original direct relation; source stage rules govern"
             }
           ],
-          "need": "Consume this supplier’s actual accepted output as required by the canonical FINAL-FREEZE source dependency; this is a consumption map only and does not alter source stage/dispatch semantics.",
+          "need": "Consume this supplier's source-qualified result at the exact source_relations stage, including selected-facet readiness and truthful original-obligation disposition. Owner-readiness does not require original/composed closure; genuine unavailable external facts remain explicit, while missing selected internal work blocks freeze.",
           "producer_cards": [
             "GYD-06.authentic-positive"
           ],
@@ -12529,7 +12810,7 @@
               "when": "original direct relation; source stage rules govern"
             }
           ],
-          "need": "Consume this supplier’s actual accepted output as required by the canonical FINAL-FREEZE source dependency; this is a consumption map only and does not alter source stage/dispatch semantics.",
+          "need": "Consume this supplier's source-qualified result at the exact source_relations stage, including selected-facet readiness and truthful original-obligation disposition. Owner-readiness does not require original/composed closure; genuine unavailable external facts remain explicit, while missing selected internal work blocks freeze.",
           "producer_cards": [
             "GYD-07.gx-current-family"
           ],
@@ -12549,7 +12830,7 @@
               "when": "original direct relation; source stage rules govern"
             }
           ],
-          "need": "Consume this supplier’s actual accepted output as required by the canonical FINAL-FREEZE source dependency; this is a consumption map only and does not alter source stage/dispatch semantics.",
+          "need": "Consume this supplier's source-qualified result at the exact source_relations stage, including selected-facet readiness and truthful original-obligation disposition. Owner-readiness does not require original/composed closure; genuine unavailable external facts remain explicit, while missing selected internal work blocks freeze.",
           "producer_cards": [
             "GYD-08.as2-blind-report"
           ],
@@ -12569,7 +12850,7 @@
               "when": "original direct relation; source stage rules govern"
             }
           ],
-          "need": "Consume this supplier’s actual accepted output as required by the canonical FINAL-FREEZE source dependency; this is a consumption map only and does not alter source stage/dispatch semantics.",
+          "need": "Consume this supplier's source-qualified result at the exact source_relations stage, including selected-facet readiness and truthful original-obligation disposition. Owner-readiness does not require original/composed closure; genuine unavailable external facts remain explicit, while missing selected internal work blocks freeze.",
           "producer_cards": [
             "GYD-09.o1-confirmatory-update"
           ],
@@ -12589,7 +12870,7 @@
               "when": "original direct relation; source stage rules govern"
             }
           ],
-          "need": "Consume this supplier’s actual accepted output as required by the canonical FINAL-FREEZE source dependency; this is a consumption map only and does not alter source stage/dispatch semantics.",
+          "need": "Consume this supplier's source-qualified result at the exact source_relations stage, including selected-facet readiness and truthful original-obligation disposition. Owner-readiness does not require original/composed closure; genuine unavailable external facts remain explicit, while missing selected internal work blocks freeze.",
           "producer_cards": [
             "GYD-10.o2-fdr-candidate"
           ],
@@ -12609,7 +12890,7 @@
               "when": "original direct relation; source stage rules govern"
             }
           ],
-          "need": "Consume this supplier’s actual accepted output as required by the canonical FINAL-FREEZE source dependency; this is a consumption map only and does not alter source stage/dispatch semantics.",
+          "need": "Consume this supplier's source-qualified result at the exact source_relations stage, including selected-facet readiness and truthful original-obligation disposition. Owner-readiness does not require original/composed closure; genuine unavailable external facts remain explicit, while missing selected internal work blocks freeze.",
           "producer_cards": [
             "GYD-11.as3-o3-mutations"
           ],
@@ -12629,7 +12910,7 @@
               "when": "original direct relation; source stage rules govern"
             }
           ],
-          "need": "Consume this supplier’s actual accepted output as required by the canonical FINAL-FREEZE source dependency; this is a consumption map only and does not alter source stage/dispatch semantics.",
+          "need": "Consume this supplier's source-qualified result at the exact source_relations stage, including selected-facet readiness and truthful original-obligation disposition. Owner-readiness does not require original/composed closure; genuine unavailable external facts remain explicit, while missing selected internal work blocks freeze.",
           "producer_cards": [],
           "producer_selection": "Select the exact output named in need and its original conditions, not all supplier cards. Actual source-qualified artifacts are pinned at dispatch/composition."
         },
@@ -12647,7 +12928,7 @@
               "when": "original direct relation; source stage rules govern"
             }
           ],
-          "need": "Consume this supplier’s actual accepted output as required by the canonical FINAL-FREEZE source dependency; this is a consumption map only and does not alter source stage/dispatch semantics.",
+          "need": "Consume this supplier's source-qualified result at the exact source_relations stage, including selected-facet readiness and truthful original-obligation disposition. Owner-readiness does not require original/composed closure; genuine unavailable external facts remain explicit, while missing selected internal work blocks freeze.",
           "producer_cards": [
             "GYD-13.cb2-production-trial"
           ],
@@ -12667,7 +12948,7 @@
               "when": "original direct relation; source stage rules govern"
             }
           ],
-          "need": "Consume this supplier’s actual accepted output as required by the canonical FINAL-FREEZE source dependency; this is a consumption map only and does not alter source stage/dispatch semantics.",
+          "need": "Consume this supplier's source-qualified result at the exact source_relations stage, including selected-facet readiness and truthful original-obligation disposition. Owner-readiness does not require original/composed closure; genuine unavailable external facts remain explicit, while missing selected internal work blocks freeze.",
           "producer_cards": [
             "GYD-14.lex-rendition-receipt"
           ],
@@ -12687,7 +12968,7 @@
               "when": "original direct relation; source stage rules govern"
             }
           ],
-          "need": "Consume this supplier’s actual accepted output as required by the canonical FINAL-FREEZE source dependency; this is a consumption map only and does not alter source stage/dispatch semantics.",
+          "need": "Consume this supplier's source-qualified result at the exact source_relations stage, including selected-facet readiness and truthful original-obligation disposition. Owner-readiness does not require original/composed closure; genuine unavailable external facts remain explicit, while missing selected internal work blocks freeze.",
           "producer_cards": [],
           "producer_selection": "Select the exact output named in need and its original conditions, not all supplier cards. Actual source-qualified artifacts are pinned at dispatch/composition."
         },
@@ -12705,7 +12986,7 @@
               "when": "original direct relation; source stage rules govern"
             }
           ],
-          "need": "Consume this supplier’s actual accepted output as required by the canonical FINAL-FREEZE source dependency; this is a consumption map only and does not alter source stage/dispatch semantics.",
+          "need": "Consume this supplier's source-qualified result at the exact source_relations stage, including selected-facet readiness and truthful original-obligation disposition. Owner-readiness does not require original/composed closure; genuine unavailable external facts remain explicit, while missing selected internal work blocks freeze.",
           "producer_cards": [],
           "producer_selection": "Select the exact output named in need and its original conditions, not all supplier cards. Actual source-qualified artifacts are pinned at dispatch/composition."
         },
@@ -12723,7 +13004,7 @@
               "when": "original direct relation; source stage rules govern"
             }
           ],
-          "need": "Consume this supplier’s actual accepted output as required by the canonical FINAL-FREEZE source dependency; this is a consumption map only and does not alter source stage/dispatch semantics.",
+          "need": "Consume this supplier's source-qualified result at the exact source_relations stage, including selected-facet readiness and truthful original-obligation disposition. Owner-readiness does not require original/composed closure; genuine unavailable external facts remain explicit, while missing selected internal work blocks freeze.",
           "producer_cards": [],
           "producer_selection": "Select the exact output named in need and its original conditions, not all supplier cards. Actual source-qualified artifacts are pinned at dispatch/composition."
         },
@@ -12741,7 +13022,7 @@
               "when": "original direct relation; source stage rules govern"
             }
           ],
-          "need": "Consume this supplier’s actual accepted output as required by the canonical FINAL-FREEZE source dependency; this is a consumption map only and does not alter source stage/dispatch semantics.",
+          "need": "Consume this supplier's source-qualified result at the exact source_relations stage, including selected-facet readiness and truthful original-obligation disposition. Owner-readiness does not require original/composed closure; genuine unavailable external facts remain explicit, while missing selected internal work blocks freeze.",
           "producer_cards": [
             "GYD-18.domain-distribution"
           ],
@@ -12761,7 +13042,7 @@
               "when": "original direct relation; source stage rules govern"
             }
           ],
-          "need": "Consume this supplier’s actual accepted output as required by the canonical FINAL-FREEZE source dependency; this is a consumption map only and does not alter source stage/dispatch semantics.",
+          "need": "Consume this supplier's source-qualified result at the exact source_relations stage, including selected-facet readiness and truthful original-obligation disposition. Owner-readiness does not require original/composed closure; genuine unavailable external facts remain explicit, while missing selected internal work blocks freeze.",
           "producer_cards": [],
           "producer_selection": "Select the exact output named in need and its original conditions, not all supplier cards. Actual source-qualified artifacts are pinned at dispatch/composition."
         },
@@ -12779,7 +13060,7 @@
               "when": "original direct relation; source stage rules govern"
             }
           ],
-          "need": "Consume this supplier’s actual accepted output as required by the canonical FINAL-FREEZE source dependency; this is a consumption map only and does not alter source stage/dispatch semantics.",
+          "need": "Consume this supplier's source-qualified result at the exact source_relations stage, including selected-facet readiness and truthful original-obligation disposition. Owner-readiness does not require original/composed closure; genuine unavailable external facts remain explicit, while missing selected internal work blocks freeze.",
           "producer_cards": [],
           "producer_selection": "Select the exact output named in need and its original conditions, not all supplier cards. Actual source-qualified artifacts are pinned at dispatch/composition."
         },
@@ -12797,7 +13078,7 @@
               "when": "original direct relation; source stage rules govern"
             }
           ],
-          "need": "Consume this supplier’s actual accepted output as required by the canonical FINAL-FREEZE source dependency; this is a consumption map only and does not alter source stage/dispatch semantics.",
+          "need": "Consume this supplier's source-qualified result at the exact source_relations stage, including selected-facet readiness and truthful original-obligation disposition. Owner-readiness does not require original/composed closure; genuine unavailable external facts remain explicit, while missing selected internal work blocks freeze.",
           "producer_cards": [],
           "producer_selection": "Select the exact output named in need and its original conditions, not all supplier cards. Actual source-qualified artifacts are pinned at dispatch/composition."
         },
@@ -12815,7 +13096,7 @@
               "when": "original direct relation; source stage rules govern"
             }
           ],
-          "need": "Consume this supplier’s actual accepted output as required by the canonical FINAL-FREEZE source dependency; this is a consumption map only and does not alter source stage/dispatch semantics.",
+          "need": "Consume this supplier's source-qualified result at the exact source_relations stage, including selected-facet readiness and truthful original-obligation disposition. Owner-readiness does not require original/composed closure; genuine unavailable external facts remain explicit, while missing selected internal work blocks freeze.",
           "producer_cards": [],
           "producer_selection": "Select the exact output named in need and its original conditions, not all supplier cards. Actual source-qualified artifacts are pinned at dispatch/composition."
         },
@@ -12833,7 +13114,7 @@
               "when": "original direct relation; source stage rules govern"
             }
           ],
-          "need": "Consume this supplier’s actual accepted output as required by the canonical FINAL-FREEZE source dependency; this is a consumption map only and does not alter source stage/dispatch semantics.",
+          "need": "Consume this supplier's source-qualified result at the exact source_relations stage, including selected-facet readiness and truthful original-obligation disposition. Owner-readiness does not require original/composed closure; genuine unavailable external facts remain explicit, while missing selected internal work blocks freeze.",
           "producer_cards": [
             "GYD-23.slice0-terminal-voi"
           ],
@@ -12853,7 +13134,7 @@
               "when": "original direct relation; source stage rules govern"
             }
           ],
-          "need": "Consume this supplier’s actual accepted output as required by the canonical FINAL-FREEZE source dependency; this is a consumption map only and does not alter source stage/dispatch semantics.",
+          "need": "Consume this supplier's source-qualified result at the exact source_relations stage, including selected-facet readiness and truthful original-obligation disposition. Owner-readiness does not require original/composed closure; genuine unavailable external facts remain explicit, while missing selected internal work blocks freeze.",
           "producer_cards": [],
           "producer_selection": "Select the exact output named in need and its original conditions, not all supplier cards. Actual source-qualified artifacts are pinned at dispatch/composition."
         },
@@ -12871,7 +13152,7 @@
               "when": "original direct relation; source stage rules govern"
             }
           ],
-          "need": "Consume this supplier’s actual accepted output as required by the canonical FINAL-FREEZE source dependency; this is a consumption map only and does not alter source stage/dispatch semantics.",
+          "need": "Consume this supplier's source-qualified result at the exact source_relations stage, including selected-facet readiness and truthful original-obligation disposition. Owner-readiness does not require original/composed closure; genuine unavailable external facts remain explicit, while missing selected internal work blocks freeze.",
           "producer_cards": [
             "GYD-25.semantic-adequacy"
           ],
@@ -12891,7 +13172,7 @@
               "when": "original direct relation; source stage rules govern"
             }
           ],
-          "need": "Consume this supplier’s actual accepted output as required by the canonical FINAL-FREEZE source dependency; this is a consumption map only and does not alter source stage/dispatch semantics.",
+          "need": "Consume this supplier's source-qualified result at the exact source_relations stage, including selected-facet readiness and truthful original-obligation disposition. Owner-readiness does not require original/composed closure; genuine unavailable external facts remain explicit, while missing selected internal work blocks freeze.",
           "producer_cards": [
             "GYD-26.judge-binding"
           ],
@@ -12911,7 +13192,7 @@
               "when": "original direct relation; source stage rules govern"
             }
           ],
-          "need": "Consume this supplier’s actual accepted output as required by the canonical FINAL-FREEZE source dependency; this is a consumption map only and does not alter source stage/dispatch semantics.",
+          "need": "Consume this supplier's source-qualified result at the exact source_relations stage, including selected-facet readiness and truthful original-obligation disposition. Owner-readiness does not require original/composed closure; genuine unavailable external facts remain explicit, while missing selected internal work blocks freeze.",
           "producer_cards": [],
           "producer_selection": "Select the exact output named in need and its original conditions, not all supplier cards. Actual source-qualified artifacts are pinned at dispatch/composition."
         },
@@ -12929,7 +13210,7 @@
               "when": "original direct relation; source stage rules govern"
             }
           ],
-          "need": "Consume this supplier’s actual accepted output as required by the canonical FINAL-FREEZE source dependency; this is a consumption map only and does not alter source stage/dispatch semantics.",
+          "need": "Consume this supplier's source-qualified result at the exact source_relations stage, including selected-facet readiness and truthful original-obligation disposition. Owner-readiness does not require original/composed closure; genuine unavailable external facts remain explicit, while missing selected internal work blocks freeze.",
           "producer_cards": [],
           "producer_selection": "Select the exact output named in need and its original conditions, not all supplier cards. Actual source-qualified artifacts are pinned at dispatch/composition."
         },
@@ -12947,7 +13228,7 @@
               "when": "original direct relation; source stage rules govern"
             }
           ],
-          "need": "Consume this supplier’s actual accepted output as required by the canonical FINAL-FREEZE source dependency; this is a consumption map only and does not alter source stage/dispatch semantics.",
+          "need": "Consume this supplier's source-qualified result at the exact source_relations stage, including selected-facet readiness and truthful original-obligation disposition. Owner-readiness does not require original/composed closure; genuine unavailable external facts remain explicit, while missing selected internal work blocks freeze.",
           "producer_cards": [],
           "producer_selection": "Select the exact output named in need and its original conditions, not all supplier cards. Actual source-qualified artifacts are pinned at dispatch/composition."
         },
@@ -12965,7 +13246,7 @@
               "when": "original direct relation; source stage rules govern"
             }
           ],
-          "need": "Consume this supplier’s actual accepted output as required by the canonical FINAL-FREEZE source dependency; this is a consumption map only and does not alter source stage/dispatch semantics.",
+          "need": "Consume this supplier's source-qualified result at the exact source_relations stage, including selected-facet readiness and truthful original-obligation disposition. Owner-readiness does not require original/composed closure; genuine unavailable external facts remain explicit, while missing selected internal work blocks freeze.",
           "producer_cards": [],
           "producer_selection": "Select the exact output named in need and its original conditions, not all supplier cards. Actual source-qualified artifacts are pinned at dispatch/composition."
         },
@@ -12983,7 +13264,7 @@
               "when": "original direct relation; source stage rules govern"
             }
           ],
-          "need": "Consume this supplier’s actual accepted output as required by the canonical FINAL-FREEZE source dependency; this is a consumption map only and does not alter source stage/dispatch semantics.",
+          "need": "Consume this supplier's source-qualified result at the exact source_relations stage, including selected-facet readiness and truthful original-obligation disposition. Owner-readiness does not require original/composed closure; genuine unavailable external facts remain explicit, while missing selected internal work blocks freeze.",
           "producer_cards": [],
           "producer_selection": "Select the exact output named in need and its original conditions, not all supplier cards. Actual source-qualified artifacts are pinned at dispatch/composition."
         },
@@ -13001,7 +13282,7 @@
               "when": "original direct relation; source stage rules govern"
             }
           ],
-          "need": "Consume this supplier’s actual accepted output as required by the canonical FINAL-FREEZE source dependency; this is a consumption map only and does not alter source stage/dispatch semantics.",
+          "need": "Consume this supplier's source-qualified result at the exact source_relations stage, including selected-facet readiness and truthful original-obligation disposition. Owner-readiness does not require original/composed closure; genuine unavailable external facts remain explicit, while missing selected internal work blocks freeze.",
           "producer_cards": [],
           "producer_selection": "Select the exact output named in need and its original conditions, not all supplier cards. Actual source-qualified artifacts are pinned at dispatch/composition."
         },
@@ -13019,7 +13300,7 @@
               "when": "original direct relation; source stage rules govern"
             }
           ],
-          "need": "Consume this supplier’s actual accepted output as required by the canonical FINAL-FREEZE source dependency; this is a consumption map only and does not alter source stage/dispatch semantics.",
+          "need": "Consume this supplier's source-qualified result at the exact source_relations stage, including selected-facet readiness and truthful original-obligation disposition. Owner-readiness does not require original/composed closure; genuine unavailable external facts remain explicit, while missing selected internal work blocks freeze.",
           "producer_cards": [],
           "producer_selection": "Select the exact output named in need and its original conditions, not all supplier cards. Actual source-qualified artifacts are pinned at dispatch/composition."
         },
@@ -13037,7 +13318,7 @@
               "when": "original direct relation; source stage rules govern"
             }
           ],
-          "need": "Consume this supplier’s actual accepted output as required by the canonical FINAL-FREEZE source dependency; this is a consumption map only and does not alter source stage/dispatch semantics.",
+          "need": "Consume this supplier's source-qualified result at the exact source_relations stage, including selected-facet readiness and truthful original-obligation disposition. Owner-readiness does not require original/composed closure; genuine unavailable external facts remain explicit, while missing selected internal work blocks freeze.",
           "producer_cards": [],
           "producer_selection": "Select the exact output named in need and its original conditions, not all supplier cards. Actual source-qualified artifacts are pinned at dispatch/composition."
         },
@@ -13055,7 +13336,7 @@
               "when": "original direct relation; source stage rules govern"
             }
           ],
-          "need": "Consume this supplier’s actual accepted output as required by the canonical FINAL-FREEZE source dependency; this is a consumption map only and does not alter source stage/dispatch semantics.",
+          "need": "Consume this supplier's source-qualified result at the exact source_relations stage, including selected-facet readiness and truthful original-obligation disposition. Owner-readiness does not require original/composed closure; genuine unavailable external facts remain explicit, while missing selected internal work blocks freeze.",
           "producer_cards": [],
           "producer_selection": "Select the exact output named in need and its original conditions, not all supplier cards. Actual source-qualified artifacts are pinned at dispatch/composition."
         },
@@ -13073,7 +13354,7 @@
               "when": "original direct relation; source stage rules govern"
             }
           ],
-          "need": "Consume this supplier’s actual accepted output as required by the canonical FINAL-FREEZE source dependency; this is a consumption map only and does not alter source stage/dispatch semantics.",
+          "need": "Consume this supplier's source-qualified result at the exact source_relations stage, including selected-facet readiness and truthful original-obligation disposition. Owner-readiness does not require original/composed closure; genuine unavailable external facts remain explicit, while missing selected internal work blocks freeze.",
           "producer_cards": [
             "UI-03.canonical-case-index"
           ],
@@ -13093,7 +13374,7 @@
               "when": "original direct relation; source stage rules govern"
             }
           ],
-          "need": "Consume this supplier’s actual accepted output as required by the canonical FINAL-FREEZE source dependency; this is a consumption map only and does not alter source stage/dispatch semantics.",
+          "need": "Consume this supplier's source-qualified result at the exact source_relations stage, including selected-facet readiness and truthful original-obligation disposition. Owner-readiness does not require original/composed closure; genuine unavailable external facts remain explicit, while missing selected internal work blocks freeze.",
           "producer_cards": [],
           "producer_selection": "Select the exact output named in need and its original conditions, not all supplier cards. Actual source-qualified artifacts are pinned at dispatch/composition."
         },
@@ -13111,7 +13392,7 @@
               "when": "original direct relation; source stage rules govern"
             }
           ],
-          "need": "Consume this supplier’s actual accepted output as required by the canonical FINAL-FREEZE source dependency; this is a consumption map only and does not alter source stage/dispatch semantics.",
+          "need": "Consume this supplier's source-qualified result at the exact source_relations stage, including selected-facet readiness and truthful original-obligation disposition. Owner-readiness does not require original/composed closure; genuine unavailable external facts remain explicit, while missing selected internal work blocks freeze.",
           "producer_cards": [
             "UI-05.clerk-candidate-view"
           ],
@@ -13131,7 +13412,7 @@
               "when": "original direct relation; source stage rules govern"
             }
           ],
-          "need": "Consume this supplier’s actual accepted output as required by the canonical FINAL-FREEZE source dependency; this is a consumption map only and does not alter source stage/dispatch semantics.",
+          "need": "Consume this supplier's source-qualified result at the exact source_relations stage, including selected-facet readiness and truthful original-obligation disposition. Owner-readiness does not require original/composed closure; genuine unavailable external facts remain explicit, while missing selected internal work blocks freeze.",
           "producer_cards": [
             "UI-06.value-grammar"
           ],
@@ -13151,7 +13432,7 @@
               "when": "original direct relation; source stage rules govern"
             }
           ],
-          "need": "Consume this supplier’s actual accepted output as required by the canonical FINAL-FREEZE source dependency; this is a consumption map only and does not alter source stage/dispatch semantics.",
+          "need": "Consume this supplier's source-qualified result at the exact source_relations stage, including selected-facet readiness and truthful original-obligation disposition. Owner-readiness does not require original/composed closure; genuine unavailable external facts remain explicit, while missing selected internal work blocks freeze.",
           "producer_cards": [
             "UI-07.derived-provenance"
           ],
@@ -13171,7 +13452,7 @@
               "when": "original direct relation; source stage rules govern"
             }
           ],
-          "need": "Consume this supplier’s actual accepted output as required by the canonical FINAL-FREEZE source dependency; this is a consumption map only and does not alter source stage/dispatch semantics.",
+          "need": "Consume this supplier's source-qualified result at the exact source_relations stage, including selected-facet readiness and truthful original-obligation disposition. Owner-readiness does not require original/composed closure; genuine unavailable external facts remain explicit, while missing selected internal work blocks freeze.",
           "producer_cards": [
             "UI-08.world-growth-view"
           ],
@@ -13191,7 +13472,7 @@
               "when": "original direct relation; source stage rules govern"
             }
           ],
-          "need": "Consume this supplier’s actual accepted output as required by the canonical FINAL-FREEZE source dependency; this is a consumption map only and does not alter source stage/dispatch semantics.",
+          "need": "Consume this supplier's source-qualified result at the exact source_relations stage, including selected-facet readiness and truthful original-obligation disposition. Owner-readiness does not require original/composed closure; genuine unavailable external facts remain explicit, while missing selected internal work blocks freeze.",
           "producer_cards": [
             "UI-09.ds19-estate-routing"
           ],
@@ -13211,7 +13492,7 @@
               "when": "original direct relation; source stage rules govern"
             }
           ],
-          "need": "Consume this supplier’s actual accepted output as required by the canonical FINAL-FREEZE source dependency; this is a consumption map only and does not alter source stage/dispatch semantics.",
+          "need": "Consume this supplier's source-qualified result at the exact source_relations stage, including selected-facet readiness and truthful original-obligation disposition. Owner-readiness does not require original/composed closure; genuine unavailable external facts remain explicit, while missing selected internal work blocks freeze.",
           "producer_cards": [
             "UI-10.authz-default-deny"
           ],
@@ -13231,7 +13512,7 @@
               "when": "original direct relation; source stage rules govern"
             }
           ],
-          "need": "Consume this supplier’s actual accepted output as required by the canonical FINAL-FREEZE source dependency; this is a consumption map only and does not alter source stage/dispatch semantics.",
+          "need": "Consume this supplier's source-qualified result at the exact source_relations stage, including selected-facet readiness and truthful original-obligation disposition. Owner-readiness does not require original/composed closure; genuine unavailable external facts remain explicit, while missing selected internal work blocks freeze.",
           "producer_cards": [
             "UI-11.fabric-revision-cas"
           ],
@@ -13251,7 +13532,7 @@
               "when": "original direct relation; source stage rules govern"
             }
           ],
-          "need": "Consume this supplier’s actual accepted output as required by the canonical FINAL-FREEZE source dependency; this is a consumption map only and does not alter source stage/dispatch semantics.",
+          "need": "Consume this supplier's source-qualified result at the exact source_relations stage, including selected-facet readiness and truthful original-obligation disposition. Owner-readiness does not require original/composed closure; genuine unavailable external facts remain explicit, while missing selected internal work blocks freeze.",
           "producer_cards": [
             "UI-12.postgres-b5-receipt"
           ],
@@ -13271,7 +13552,7 @@
               "when": "original direct relation; source stage rules govern"
             }
           ],
-          "need": "Consume this supplier’s actual accepted output as required by the canonical FINAL-FREEZE source dependency; this is a consumption map only and does not alter source stage/dispatch semantics.",
+          "need": "Consume this supplier's source-qualified result at the exact source_relations stage, including selected-facet readiness and truthful original-obligation disposition. Owner-readiness does not require original/composed closure; genuine unavailable external facts remain explicit, while missing selected internal work blocks freeze.",
           "producer_cards": [
             "UI-13.ds9-scorecard-route"
           ],
@@ -13291,7 +13572,7 @@
               "when": "original direct relation; source stage rules govern"
             }
           ],
-          "need": "Consume this supplier’s actual accepted output as required by the canonical FINAL-FREEZE source dependency; this is a consumption map only and does not alter source stage/dispatch semantics.",
+          "need": "Consume this supplier's source-qualified result at the exact source_relations stage, including selected-facet readiness and truthful original-obligation disposition. Owner-readiness does not require original/composed closure; genuine unavailable external facts remain explicit, while missing selected internal work blocks freeze.",
           "producer_cards": [
             "UI-14.helm-policy-parity"
           ],
@@ -13311,7 +13592,7 @@
               "when": "original direct relation; source stage rules govern"
             }
           ],
-          "need": "Consume this supplier’s actual accepted output as required by the canonical FINAL-FREEZE source dependency; this is a consumption map only and does not alter source stage/dispatch semantics.",
+          "need": "Consume this supplier's source-qualified result at the exact source_relations stage, including selected-facet readiness and truthful original-obligation disposition. Owner-readiness does not require original/composed closure; genuine unavailable external facts remain explicit, while missing selected internal work blocks freeze.",
           "producer_cards": [],
           "producer_selection": "Select the exact output named in need and its original conditions, not all supplier cards. Actual source-qualified artifacts are pinned at dispatch/composition."
         },
@@ -13329,7 +13610,7 @@
               "when": "original direct relation; source stage rules govern"
             }
           ],
-          "need": "Consume this supplier’s actual accepted output as required by the canonical FINAL-FREEZE source dependency; this is a consumption map only and does not alter source stage/dispatch semantics.",
+          "need": "Consume this supplier's source-qualified result at the exact source_relations stage, including selected-facet readiness and truthful original-obligation disposition. Owner-readiness does not require original/composed closure; genuine unavailable external facts remain explicit, while missing selected internal work blocks freeze.",
           "producer_cards": [
             "UI-16.grounded-performance-claim"
           ],
@@ -13349,7 +13630,7 @@
               "when": "original direct relation; source stage rules govern"
             }
           ],
-          "need": "Consume this supplier’s actual accepted output as required by the canonical FINAL-FREEZE source dependency; this is a consumption map only and does not alter source stage/dispatch semantics.",
+          "need": "Consume this supplier's source-qualified result at the exact source_relations stage, including selected-facet readiness and truthful original-obligation disposition. Owner-readiness does not require original/composed closure; genuine unavailable external facts remain explicit, while missing selected internal work blocks freeze.",
           "producer_cards": [],
           "producer_selection": "Select the exact output named in need and its original conditions, not all supplier cards. Actual source-qualified artifacts are pinned at dispatch/composition."
         },
@@ -13367,7 +13648,7 @@
               "when": "original direct relation; source stage rules govern"
             }
           ],
-          "need": "Consume this supplier’s actual accepted output as required by the canonical FINAL-FREEZE source dependency; this is a consumption map only and does not alter source stage/dispatch semantics.",
+          "need": "Consume this supplier's source-qualified result at the exact source_relations stage, including selected-facet readiness and truthful original-obligation disposition. Owner-readiness does not require original/composed closure; genuine unavailable external facts remain explicit, while missing selected internal work blocks freeze.",
           "producer_cards": [
             "UI-18.risk-spend-positive"
           ],
@@ -13387,7 +13668,7 @@
               "when": "original direct relation; source stage rules govern"
             }
           ],
-          "need": "Consume this supplier’s actual accepted output as required by the canonical FINAL-FREEZE source dependency; this is a consumption map only and does not alter source stage/dispatch semantics.",
+          "need": "Consume this supplier's source-qualified result at the exact source_relations stage, including selected-facet readiness and truthful original-obligation disposition. Owner-readiness does not require original/composed closure; genuine unavailable external facts remain explicit, while missing selected internal work blocks freeze.",
           "producer_cards": [
             "UI-19.claim-currentness"
           ],
@@ -13407,7 +13688,7 @@
               "when": "original direct relation; source stage rules govern"
             }
           ],
-          "need": "Consume this supplier’s actual accepted output as required by the canonical FINAL-FREEZE source dependency; this is a consumption map only and does not alter source stage/dispatch semantics.",
+          "need": "Consume this supplier's source-qualified result at the exact source_relations stage, including selected-facet readiness and truthful original-obligation disposition. Owner-readiness does not require original/composed closure; genuine unavailable external facts remain explicit, while missing selected internal work blocks freeze.",
           "producer_cards": [],
           "producer_selection": "Select the exact output named in need and its original conditions, not all supplier cards. Actual source-qualified artifacts are pinned at dispatch/composition."
         },
@@ -13425,7 +13706,7 @@
               "when": "original direct relation; source stage rules govern"
             }
           ],
-          "need": "Consume this supplier’s actual accepted output as required by the canonical FINAL-FREEZE source dependency; this is a consumption map only and does not alter source stage/dispatch semantics.",
+          "need": "Consume this supplier's source-qualified result at the exact source_relations stage, including selected-facet readiness and truthful original-obligation disposition. Owner-readiness does not require original/composed closure; genuine unavailable external facts remain explicit, while missing selected internal work blocks freeze.",
           "producer_cards": [
             "CNT-02.source-profile"
           ],
@@ -13445,7 +13726,7 @@
               "when": "original direct relation; source stage rules govern"
             }
           ],
-          "need": "Consume this supplier’s actual accepted output as required by the canonical FINAL-FREEZE source dependency; this is a consumption map only and does not alter source stage/dispatch semantics.",
+          "need": "Consume this supplier's source-qualified result at the exact source_relations stage, including selected-facet readiness and truthful original-obligation disposition. Owner-readiness does not require original/composed closure; genuine unavailable external facts remain explicit, while missing selected internal work blocks freeze.",
           "producer_cards": [
             "CNT-03.capture-reuse"
           ],
@@ -13465,7 +13746,7 @@
               "when": "original direct relation; source stage rules govern"
             }
           ],
-          "need": "Consume this supplier’s actual accepted output as required by the canonical FINAL-FREEZE source dependency; this is a consumption map only and does not alter source stage/dispatch semantics.",
+          "need": "Consume this supplier's source-qualified result at the exact source_relations stage, including selected-facet readiness and truthful original-obligation disposition. Owner-readiness does not require original/composed closure; genuine unavailable external facts remain explicit, while missing selected internal work blocks freeze.",
           "producer_cards": [],
           "producer_selection": "Select the exact output named in need and its original conditions, not all supplier cards. Actual source-qualified artifacts are pinned at dispatch/composition."
         },
@@ -13483,7 +13764,7 @@
               "when": "original direct relation; source stage rules govern"
             }
           ],
-          "need": "Consume this supplier’s actual accepted output as required by the canonical FINAL-FREEZE source dependency; this is a consumption map only and does not alter source stage/dispatch semantics.",
+          "need": "Consume this supplier's source-qualified result at the exact source_relations stage, including selected-facet readiness and truthful original-obligation disposition. Owner-readiness does not require original/composed closure; genuine unavailable external facts remain explicit, while missing selected internal work blocks freeze.",
           "producer_cards": [],
           "producer_selection": "Select the exact output named in need and its original conditions, not all supplier cards. Actual source-qualified artifacts are pinned at dispatch/composition."
         },
@@ -13501,7 +13782,7 @@
               "when": "original direct relation; source stage rules govern"
             }
           ],
-          "need": "Consume this supplier’s actual accepted output as required by the canonical FINAL-FREEZE source dependency; this is a consumption map only and does not alter source stage/dispatch semantics.",
+          "need": "Consume this supplier's source-qualified result at the exact source_relations stage, including selected-facet readiness and truthful original-obligation disposition. Owner-readiness does not require original/composed closure; genuine unavailable external facts remain explicit, while missing selected internal work blocks freeze.",
           "producer_cards": [],
           "producer_selection": "Select the exact output named in need and its original conditions, not all supplier cards. Actual source-qualified artifacts are pinned at dispatch/composition."
         },
@@ -13519,7 +13800,7 @@
               "when": "original direct relation; source stage rules govern"
             }
           ],
-          "need": "Consume this supplier’s actual accepted output as required by the canonical FINAL-FREEZE source dependency; this is a consumption map only and does not alter source stage/dispatch semantics.",
+          "need": "Consume this supplier's source-qualified result at the exact source_relations stage, including selected-facet readiness and truthful original-obligation disposition. Owner-readiness does not require original/composed closure; genuine unavailable external facts remain explicit, while missing selected internal work blocks freeze.",
           "producer_cards": [],
           "producer_selection": "Select the exact output named in need and its original conditions, not all supplier cards. Actual source-qualified artifacts are pinned at dispatch/composition."
         },
@@ -13537,7 +13818,7 @@
               "when": "original direct relation; source stage rules govern"
             }
           ],
-          "need": "Consume this supplier’s actual accepted output as required by the canonical FINAL-FREEZE source dependency; this is a consumption map only and does not alter source stage/dispatch semantics.",
+          "need": "Consume this supplier's source-qualified result at the exact source_relations stage, including selected-facet readiness and truthful original-obligation disposition. Owner-readiness does not require original/composed closure; genuine unavailable external facts remain explicit, while missing selected internal work blocks freeze.",
           "producer_cards": [],
           "producer_selection": "Select the exact output named in need and its original conditions, not all supplier cards. Actual source-qualified artifacts are pinned at dispatch/composition."
         },
@@ -13555,7 +13836,7 @@
               "when": "original direct relation; source stage rules govern"
             }
           ],
-          "need": "Consume this supplier’s actual accepted output as required by the canonical FINAL-FREEZE source dependency; this is a consumption map only and does not alter source stage/dispatch semantics.",
+          "need": "Consume this supplier's source-qualified result at the exact source_relations stage, including selected-facet readiness and truthful original-obligation disposition. Owner-readiness does not require original/composed closure; genuine unavailable external facts remain explicit, while missing selected internal work blocks freeze.",
           "producer_cards": [
             "CNT-09.packet-proof"
           ],
@@ -13575,7 +13856,7 @@
               "when": "original direct relation; source stage rules govern"
             }
           ],
-          "need": "Consume this supplier’s actual accepted output as required by the canonical FINAL-FREEZE source dependency; this is a consumption map only and does not alter source stage/dispatch semantics.",
+          "need": "Consume this supplier's source-qualified result at the exact source_relations stage, including selected-facet readiness and truthful original-obligation disposition. Owner-readiness does not require original/composed closure; genuine unavailable external facts remain explicit, while missing selected internal work blocks freeze.",
           "producer_cards": [
             "OPS-01.commissioning"
           ],
@@ -13595,7 +13876,7 @@
               "when": "original direct relation; source stage rules govern"
             }
           ],
-          "need": "Consume this supplier’s actual accepted output as required by the canonical FINAL-FREEZE source dependency; this is a consumption map only and does not alter source stage/dispatch semantics.",
+          "need": "Consume this supplier's source-qualified result at the exact source_relations stage, including selected-facet readiness and truthful original-obligation disposition. Owner-readiness does not require original/composed closure; genuine unavailable external facts remain explicit, while missing selected internal work blocks freeze.",
           "producer_cards": [
             "OPS-02.local-candidate"
           ],
@@ -13615,7 +13896,7 @@
               "when": "original direct relation; source stage rules govern"
             }
           ],
-          "need": "Consume this supplier’s actual accepted output as required by the canonical FINAL-FREEZE source dependency; this is a consumption map only and does not alter source stage/dispatch semantics.",
+          "need": "Consume this supplier's source-qualified result at the exact source_relations stage, including selected-facet readiness and truthful original-obligation disposition. Owner-readiness does not require original/composed closure; genuine unavailable external facts remain explicit, while missing selected internal work blocks freeze.",
           "producer_cards": [
             "OPS-03.profile-readiness"
           ],
@@ -13635,7 +13916,7 @@
               "when": "original direct relation; source stage rules govern"
             }
           ],
-          "need": "Consume this supplier’s actual accepted output as required by the canonical FINAL-FREEZE source dependency; this is a consumption map only and does not alter source stage/dispatch semantics.",
+          "need": "Consume this supplier's source-qualified result at the exact source_relations stage, including selected-facet readiness and truthful original-obligation disposition. Owner-readiness does not require original/composed closure; genuine unavailable external facts remain explicit, while missing selected internal work blocks freeze.",
           "producer_cards": [
             "OPS-04.external-runner"
           ],
@@ -13655,7 +13936,7 @@
               "when": "original direct relation; source stage rules govern"
             }
           ],
-          "need": "Consume this supplier’s actual accepted output as required by the canonical FINAL-FREEZE source dependency; this is a consumption map only and does not alter source stage/dispatch semantics.",
+          "need": "Consume this supplier's source-qualified result at the exact source_relations stage, including selected-facet readiness and truthful original-obligation disposition. Owner-readiness does not require original/composed closure; genuine unavailable external facts remain explicit, while missing selected internal work blocks freeze.",
           "producer_cards": [],
           "producer_selection": "Select the exact output named in need and its original conditions, not all supplier cards. Actual source-qualified artifacts are pinned at dispatch/composition."
         },
@@ -13673,7 +13954,7 @@
               "when": "original direct relation; source stage rules govern"
             }
           ],
-          "need": "Consume this supplier’s actual accepted output as required by the canonical FINAL-FREEZE source dependency; this is a consumption map only and does not alter source stage/dispatch semantics.",
+          "need": "Consume this supplier's source-qualified result at the exact source_relations stage, including selected-facet readiness and truthful original-obligation disposition. Owner-readiness does not require original/composed closure; genuine unavailable external facts remain explicit, while missing selected internal work blocks freeze.",
           "producer_cards": [],
           "producer_selection": "Select the exact output named in need and its original conditions, not all supplier cards. Actual source-qualified artifacts are pinned at dispatch/composition."
         },
@@ -13691,7 +13972,7 @@
               "when": "original direct relation; source stage rules govern"
             }
           ],
-          "need": "Consume this supplier’s actual accepted output as required by the canonical FINAL-FREEZE source dependency; this is a consumption map only and does not alter source stage/dispatch semantics.",
+          "need": "Consume this supplier's source-qualified result at the exact source_relations stage, including selected-facet readiness and truthful original-obligation disposition. Owner-readiness does not require original/composed closure; genuine unavailable external facts remain explicit, while missing selected internal work blocks freeze.",
           "producer_cards": [],
           "producer_selection": "Select the exact output named in need and its original conditions, not all supplier cards. Actual source-qualified artifacts are pinned at dispatch/composition."
         },
@@ -13709,7 +13990,7 @@
               "when": "original direct relation; source stage rules govern"
             }
           ],
-          "need": "Consume this supplier’s actual accepted output as required by the canonical FINAL-FREEZE source dependency; this is a consumption map only and does not alter source stage/dispatch semantics.",
+          "need": "Consume this supplier's source-qualified result at the exact source_relations stage, including selected-facet readiness and truthful original-obligation disposition. Owner-readiness does not require original/composed closure; genuine unavailable external facts remain explicit, while missing selected internal work blocks freeze.",
           "producer_cards": [],
           "producer_selection": "Select the exact output named in need and its original conditions, not all supplier cards. Actual source-qualified artifacts are pinned at dispatch/composition."
         },
@@ -13727,7 +14008,7 @@
               "when": "original direct relation; source stage rules govern"
             }
           ],
-          "need": "Consume this supplier’s actual accepted output as required by the canonical FINAL-FREEZE source dependency; this is a consumption map only and does not alter source stage/dispatch semantics.",
+          "need": "Consume this supplier's source-qualified result at the exact source_relations stage, including selected-facet readiness and truthful original-obligation disposition. Owner-readiness does not require original/composed closure; genuine unavailable external facts remain explicit, while missing selected internal work blocks freeze.",
           "producer_cards": [],
           "producer_selection": "Select the exact output named in need and its original conditions, not all supplier cards. Actual source-qualified artifacts are pinned at dispatch/composition."
         },
@@ -13745,7 +14026,7 @@
               "when": "original direct relation; source stage rules govern"
             }
           ],
-          "need": "Consume this supplier’s actual accepted output as required by the canonical FINAL-FREEZE source dependency; this is a consumption map only and does not alter source stage/dispatch semantics.",
+          "need": "Consume this supplier's source-qualified result at the exact source_relations stage, including selected-facet readiness and truthful original-obligation disposition. Owner-readiness does not require original/composed closure; genuine unavailable external facts remain explicit, while missing selected internal work blocks freeze.",
           "producer_cards": [],
           "producer_selection": "Select the exact output named in need and its original conditions, not all supplier cards. Actual source-qualified artifacts are pinned at dispatch/composition."
         },
@@ -13763,7 +14044,7 @@
               "when": "original direct relation; source stage rules govern"
             }
           ],
-          "need": "Consume this supplier’s actual accepted output as required by the canonical FINAL-FREEZE source dependency; this is a consumption map only and does not alter source stage/dispatch semantics.",
+          "need": "Consume this supplier's source-qualified result at the exact source_relations stage, including selected-facet readiness and truthful original-obligation disposition. Owner-readiness does not require original/composed closure; genuine unavailable external facts remain explicit, while missing selected internal work blocks freeze.",
           "producer_cards": [],
           "producer_selection": "Select the exact output named in need and its original conditions, not all supplier cards. Actual source-qualified artifacts are pinned at dispatch/composition."
         },
@@ -13781,7 +14062,7 @@
               "when": "original direct relation; source stage rules govern"
             }
           ],
-          "need": "Consume this supplier’s actual accepted output as required by the canonical FINAL-FREEZE source dependency; this is a consumption map only and does not alter source stage/dispatch semantics.",
+          "need": "Consume this supplier's source-qualified result at the exact source_relations stage, including selected-facet readiness and truthful original-obligation disposition. Owner-readiness does not require original/composed closure; genuine unavailable external facts remain explicit, while missing selected internal work blocks freeze.",
           "producer_cards": [],
           "producer_selection": "Select the exact output named in need and its original conditions, not all supplier cards. Actual source-qualified artifacts are pinned at dispatch/composition."
         },
@@ -13799,7 +14080,7 @@
               "when": "original direct relation; source stage rules govern"
             }
           ],
-          "need": "Consume this supplier’s actual accepted output as required by the canonical FINAL-FREEZE source dependency; this is a consumption map only and does not alter source stage/dispatch semantics.",
+          "need": "Consume this supplier's source-qualified result at the exact source_relations stage, including selected-facet readiness and truthful original-obligation disposition. Owner-readiness does not require original/composed closure; genuine unavailable external facts remain explicit, while missing selected internal work blocks freeze.",
           "producer_cards": [],
           "producer_selection": "Select the exact output named in need and its original conditions, not all supplier cards. Actual source-qualified artifacts are pinned at dispatch/composition."
         },
@@ -13817,7 +14098,7 @@
               "when": "original direct relation; source stage rules govern"
             }
           ],
-          "need": "Consume this supplier’s actual accepted output as required by the canonical FINAL-FREEZE source dependency; this is a consumption map only and does not alter source stage/dispatch semantics.",
+          "need": "Consume this supplier's source-qualified result at the exact source_relations stage, including selected-facet readiness and truthful original-obligation disposition. Owner-readiness does not require original/composed closure; genuine unavailable external facts remain explicit, while missing selected internal work blocks freeze.",
           "producer_cards": [],
           "producer_selection": "Select the exact output named in need and its original conditions, not all supplier cards. Actual source-qualified artifacts are pinned at dispatch/composition."
         },
@@ -13835,7 +14116,7 @@
               "when": "original direct relation; source stage rules govern"
             }
           ],
-          "need": "Consume this supplier’s actual accepted output as required by the canonical FINAL-FREEZE source dependency; this is a consumption map only and does not alter source stage/dispatch semantics.",
+          "need": "Consume this supplier's source-qualified result at the exact source_relations stage, including selected-facet readiness and truthful original-obligation disposition. Owner-readiness does not require original/composed closure; genuine unavailable external facts remain explicit, while missing selected internal work blocks freeze.",
           "producer_cards": [],
           "producer_selection": "Select the exact output named in need and its original conditions, not all supplier cards. Actual source-qualified artifacts are pinned at dispatch/composition."
         },
@@ -13853,7 +14134,7 @@
               "when": "original direct relation; source stage rules govern"
             }
           ],
-          "need": "Consume this supplier’s actual accepted output as required by the canonical FINAL-FREEZE source dependency; this is a consumption map only and does not alter source stage/dispatch semantics.",
+          "need": "Consume this supplier's source-qualified result at the exact source_relations stage, including selected-facet readiness and truthful original-obligation disposition. Owner-readiness does not require original/composed closure; genuine unavailable external facts remain explicit, while missing selected internal work blocks freeze.",
           "producer_cards": [],
           "producer_selection": "Select the exact output named in need and its original conditions, not all supplier cards. Actual source-qualified artifacts are pinned at dispatch/composition."
         },
@@ -13871,7 +14152,7 @@
               "when": "original direct relation; source stage rules govern"
             }
           ],
-          "need": "Consume this supplier’s actual accepted output as required by the canonical FINAL-FREEZE source dependency; this is a consumption map only and does not alter source stage/dispatch semantics.",
+          "need": "Consume this supplier's source-qualified result at the exact source_relations stage, including selected-facet readiness and truthful original-obligation disposition. Owner-readiness does not require original/composed closure; genuine unavailable external facts remain explicit, while missing selected internal work blocks freeze.",
           "producer_cards": [],
           "producer_selection": "Select the exact output named in need and its original conditions, not all supplier cards. Actual source-qualified artifacts are pinned at dispatch/composition."
         },
@@ -13889,7 +14170,7 @@
               "when": "original direct relation; source stage rules govern"
             }
           ],
-          "need": "Consume this supplier’s actual accepted output as required by the canonical FINAL-FREEZE source dependency; this is a consumption map only and does not alter source stage/dispatch semantics.",
+          "need": "Consume this supplier's source-qualified result at the exact source_relations stage, including selected-facet readiness and truthful original-obligation disposition. Owner-readiness does not require original/composed closure; genuine unavailable external facts remain explicit, while missing selected internal work blocks freeze.",
           "producer_cards": [
             "DEB-06.epoch-reissue-current-decision"
           ],
@@ -13909,7 +14190,7 @@
               "when": "original direct relation; source stage rules govern"
             }
           ],
-          "need": "Consume this supplier’s actual accepted output as required by the canonical FINAL-FREEZE source dependency; this is a consumption map only and does not alter source stage/dispatch semantics.",
+          "need": "Consume this supplier's source-qualified result at the exact source_relations stage, including selected-facet readiness and truthful original-obligation disposition. Owner-readiness does not require original/composed closure; genuine unavailable external facts remain explicit, while missing selected internal work blocks freeze.",
           "producer_cards": [],
           "producer_selection": "Select the exact output named in need and its original conditions, not all supplier cards. Actual source-qualified artifacts are pinned at dispatch/composition."
         },
@@ -13927,7 +14208,7 @@
               "when": "original direct relation; source stage rules govern"
             }
           ],
-          "need": "Consume this supplier’s actual accepted output as required by the canonical FINAL-FREEZE source dependency; this is a consumption map only and does not alter source stage/dispatch semantics.",
+          "need": "Consume this supplier's source-qualified result at the exact source_relations stage, including selected-facet readiness and truthful original-obligation disposition. Owner-readiness does not require original/composed closure; genuine unavailable external facts remain explicit, while missing selected internal work blocks freeze.",
           "producer_cards": [],
           "producer_selection": "Select the exact output named in need and its original conditions, not all supplier cards. Actual source-qualified artifacts are pinned at dispatch/composition."
         },
@@ -13945,7 +14226,7 @@
               "when": "original direct relation; source stage rules govern"
             }
           ],
-          "need": "Consume this supplier’s actual accepted output as required by the canonical FINAL-FREEZE source dependency; this is a consumption map only and does not alter source stage/dispatch semantics.",
+          "need": "Consume this supplier's source-qualified result at the exact source_relations stage, including selected-facet readiness and truthful original-obligation disposition. Owner-readiness does not require original/composed closure; genuine unavailable external facts remain explicit, while missing selected internal work blocks freeze.",
           "producer_cards": [],
           "producer_selection": "Select the exact output named in need and its original conditions, not all supplier cards. Actual source-qualified artifacts are pinned at dispatch/composition."
         },
@@ -13963,7 +14244,7 @@
               "when": "original direct relation; source stage rules govern"
             }
           ],
-          "need": "Consume this supplier’s actual accepted output as required by the canonical FINAL-FREEZE source dependency; this is a consumption map only and does not alter source stage/dispatch semantics.",
+          "need": "Consume this supplier's source-qualified result at the exact source_relations stage, including selected-facet readiness and truthful original-obligation disposition. Owner-readiness does not require original/composed closure; genuine unavailable external facts remain explicit, while missing selected internal work blocks freeze.",
           "producer_cards": [],
           "producer_selection": "Select the exact output named in need and its original conditions, not all supplier cards. Actual source-qualified artifacts are pinned at dispatch/composition."
         },
@@ -13981,7 +14262,7 @@
               "when": "original direct relation; source stage rules govern"
             }
           ],
-          "need": "Consume this supplier’s actual accepted output as required by the canonical FINAL-FREEZE source dependency; this is a consumption map only and does not alter source stage/dispatch semantics.",
+          "need": "Consume this supplier's source-qualified result at the exact source_relations stage, including selected-facet readiness and truthful original-obligation disposition. Owner-readiness does not require original/composed closure; genuine unavailable external facts remain explicit, while missing selected internal work blocks freeze.",
           "producer_cards": [],
           "producer_selection": "Select the exact output named in need and its original conditions, not all supplier cards. Actual source-qualified artifacts are pinned at dispatch/composition."
         },
@@ -13999,7 +14280,7 @@
               "when": "original direct relation; source stage rules govern"
             }
           ],
-          "need": "Consume this supplier’s actual accepted output as required by the canonical FINAL-FREEZE source dependency; this is a consumption map only and does not alter source stage/dispatch semantics.",
+          "need": "Consume this supplier's source-qualified result at the exact source_relations stage, including selected-facet readiness and truthful original-obligation disposition. Owner-readiness does not require original/composed closure; genuine unavailable external facts remain explicit, while missing selected internal work blocks freeze.",
           "producer_cards": [
             "DEB-12.owner-first-strangle"
           ],
@@ -14019,7 +14300,7 @@
               "when": "original direct relation; source stage rules govern"
             }
           ],
-          "need": "Consume this supplier’s actual accepted output as required by the canonical FINAL-FREEZE source dependency; this is a consumption map only and does not alter source stage/dispatch semantics.",
+          "need": "Consume this supplier's source-qualified result at the exact source_relations stage, including selected-facet readiness and truthful original-obligation disposition. Owner-readiness does not require original/composed closure; genuine unavailable external facts remain explicit, while missing selected internal work blocks freeze.",
           "producer_cards": [
             "DEB-13.ds15-numeric-voi"
           ],
@@ -14039,7 +14320,7 @@
               "when": "original direct relation; source stage rules govern"
             }
           ],
-          "need": "Consume this supplier’s actual accepted output as required by the canonical FINAL-FREEZE source dependency; this is a consumption map only and does not alter source stage/dispatch semantics.",
+          "need": "Consume this supplier's source-qualified result at the exact source_relations stage, including selected-facet readiness and truthful original-obligation disposition. Owner-readiness does not require original/composed closure; genuine unavailable external facts remain explicit, while missing selected internal work blocks freeze.",
           "producer_cards": [
             "DEB-14.scope-ruling-currentness"
           ],
@@ -14059,7 +14340,7 @@
               "when": "original direct relation; source stage rules govern"
             }
           ],
-          "need": "Consume this supplier’s actual accepted output as required by the canonical FINAL-FREEZE source dependency; this is a consumption map only and does not alter source stage/dispatch semantics.",
+          "need": "Consume this supplier's source-qualified result at the exact source_relations stage, including selected-facet readiness and truthful original-obligation disposition. Owner-readiness does not require original/composed closure; genuine unavailable external facts remain explicit, while missing selected internal work blocks freeze.",
           "producer_cards": [
             "UI-20.promotion-union-issuer"
           ],
@@ -14079,7 +14360,7 @@
               "when": "original direct relation; source stage rules govern"
             }
           ],
-          "need": "Consume this supplier’s actual accepted output as required by the canonical FINAL-FREEZE source dependency; this is a consumption map only and does not alter source stage/dispatch semantics.",
+          "need": "Before FINAL-FREEZE require complete program reconciliation over original source/obligation rows and actual accepted E02 identity. This is the P0 completeness prerequisite, distinct from other suppliers’ scoped owner-readiness and from downstream finding closure.",
           "producer_cards": [
             "P0-REBIND.original-set-reconciliation"
           ],
@@ -14099,7 +14380,7 @@
               "when": "original direct relation; source stage rules govern"
             }
           ],
-          "need": "Consume this supplier’s actual accepted output as required by the canonical FINAL-FREEZE source dependency; this is a consumption map only and does not alter source stage/dispatch semantics.",
+          "need": "Consume this supplier's source-qualified result at the exact source_relations stage, including selected-facet readiness and truthful original-obligation disposition. Owner-readiness does not require original/composed closure; genuine unavailable external facts remain explicit, while missing selected internal work blocks freeze.",
           "producer_cards": [
             "DES-01.intent-frame-handoff"
           ],
@@ -14119,7 +14400,7 @@
               "when": "original direct relation; source stage rules govern"
             }
           ],
-          "need": "Consume this supplier’s actual accepted output as required by the canonical FINAL-FREEZE source dependency; this is a consumption map only and does not alter source stage/dispatch semantics.",
+          "need": "Consume this supplier's source-qualified result at the exact source_relations stage, including selected-facet readiness and truthful original-obligation disposition. Owner-readiness does not require original/composed closure; genuine unavailable external facts remain explicit, while missing selected internal work blocks freeze.",
           "producer_cards": [
             "DES-02.hypothesis-set"
           ],
@@ -14139,7 +14420,7 @@
               "when": "original direct relation; source stage rules govern"
             }
           ],
-          "need": "Consume this supplier’s actual accepted output as required by the canonical FINAL-FREEZE source dependency; this is a consumption map only and does not alter source stage/dispatch semantics.",
+          "need": "Consume this supplier's source-qualified result at the exact source_relations stage, including selected-facet readiness and truthful original-obligation disposition. Owner-readiness does not require original/composed closure; genuine unavailable external facts remain explicit, while missing selected internal work blocks freeze.",
           "producer_cards": [],
           "producer_selection": "Select the exact output named in need and its original conditions, not all supplier cards. Actual source-qualified artifacts are pinned at dispatch/composition."
         },
@@ -14157,7 +14438,7 @@
               "when": "original direct relation; source stage rules govern"
             }
           ],
-          "need": "Consume this supplier’s actual accepted output as required by the canonical FINAL-FREEZE source dependency; this is a consumption map only and does not alter source stage/dispatch semantics.",
+          "need": "Consume this supplier's source-qualified result at the exact source_relations stage, including selected-facet readiness and truthful original-obligation disposition. Owner-readiness does not require original/composed closure; genuine unavailable external facts remain explicit, while missing selected internal work blocks freeze.",
           "producer_cards": [],
           "producer_selection": "Select the exact output named in need and its original conditions, not all supplier cards. Actual source-qualified artifacts are pinned at dispatch/composition."
         },
@@ -14175,7 +14456,7 @@
               "when": "original direct relation; source stage rules govern"
             }
           ],
-          "need": "Consume this supplier’s actual accepted output as required by the canonical FINAL-FREEZE source dependency; this is a consumption map only and does not alter source stage/dispatch semantics.",
+          "need": "Consume this supplier's source-qualified result at the exact source_relations stage, including selected-facet readiness and truthful original-obligation disposition. Owner-readiness does not require original/composed closure; genuine unavailable external facts remain explicit, while missing selected internal work blocks freeze.",
           "producer_cards": [
             "DES-05.legal-branches"
           ],
@@ -14195,7 +14476,7 @@
               "when": "original direct relation; source stage rules govern"
             }
           ],
-          "need": "Consume this supplier’s actual accepted output as required by the canonical FINAL-FREEZE source dependency; this is a consumption map only and does not alter source stage/dispatch semantics.",
+          "need": "Consume this supplier's source-qualified result at the exact source_relations stage, including selected-facet readiness and truthful original-obligation disposition. Owner-readiness does not require original/composed closure; genuine unavailable external facts remain explicit, while missing selected internal work blocks freeze.",
           "producer_cards": [
             "DES-06.private-policy-documents"
           ],
@@ -14215,7 +14496,7 @@
               "when": "original direct relation; source stage rules govern"
             }
           ],
-          "need": "Consume this supplier’s actual accepted output as required by the canonical FINAL-FREEZE source dependency; this is a consumption map only and does not alter source stage/dispatch semantics.",
+          "need": "Consume this supplier's source-qualified result at the exact source_relations stage, including selected-facet readiness and truthful original-obligation disposition. Owner-readiness does not require original/composed closure; genuine unavailable external facts remain explicit, while missing selected internal work blocks freeze.",
           "producer_cards": [],
           "producer_selection": "Select the exact output named in need and its original conditions, not all supplier cards. Actual source-qualified artifacts are pinned at dispatch/composition."
         },
@@ -14233,7 +14514,7 @@
               "when": "original direct relation; source stage rules govern"
             }
           ],
-          "need": "Consume this supplier’s actual accepted output as required by the canonical FINAL-FREEZE source dependency; this is a consumption map only and does not alter source stage/dispatch semantics.",
+          "need": "Consume this supplier's source-qualified result at the exact source_relations stage, including selected-facet readiness and truthful original-obligation disposition. Owner-readiness does not require original/composed closure; genuine unavailable external facts remain explicit, while missing selected internal work blocks freeze.",
           "producer_cards": [
             "DES-08.memory-transfer"
           ],
@@ -14253,7 +14534,7 @@
               "when": "original direct relation; source stage rules govern"
             }
           ],
-          "need": "Consume this supplier’s actual accepted output as required by the canonical FINAL-FREEZE source dependency; this is a consumption map only and does not alter source stage/dispatch semantics.",
+          "need": "Consume this supplier's source-qualified result at the exact source_relations stage, including selected-facet readiness and truthful original-obligation disposition. Owner-readiness does not require original/composed closure; genuine unavailable external facts remain explicit, while missing selected internal work blocks freeze.",
           "producer_cards": [],
           "producer_selection": "Select the exact output named in need and its original conditions, not all supplier cards. Actual source-qualified artifacts are pinned at dispatch/composition."
         },
@@ -14271,7 +14552,7 @@
               "when": "original direct relation; source stage rules govern"
             }
           ],
-          "need": "Consume this supplier’s actual accepted output as required by the canonical FINAL-FREEZE source dependency; this is a consumption map only and does not alter source stage/dispatch semantics.",
+          "need": "Consume this supplier's source-qualified result at the exact source_relations stage, including selected-facet readiness and truthful original-obligation disposition. Owner-readiness does not require original/composed closure; genuine unavailable external facts remain explicit, while missing selected internal work blocks freeze.",
           "producer_cards": [],
           "producer_selection": "Select the exact output named in need and its original conditions, not all supplier cards. Actual source-qualified artifacts are pinned at dispatch/composition."
         },
@@ -14289,7 +14570,7 @@
               "when": "original direct relation; source stage rules govern"
             }
           ],
-          "need": "Consume this supplier’s actual accepted output as required by the canonical FINAL-FREEZE source dependency; this is a consumption map only and does not alter source stage/dispatch semantics.",
+          "need": "Consume this supplier's source-qualified result at the exact source_relations stage, including selected-facet readiness and truthful original-obligation disposition. Owner-readiness does not require original/composed closure; genuine unavailable external facts remain explicit, while missing selected internal work blocks freeze.",
           "producer_cards": [],
           "producer_selection": "Select the exact output named in need and its original conditions, not all supplier cards. Actual source-qualified artifacts are pinned at dispatch/composition."
         },
@@ -14307,7 +14588,7 @@
               "when": "original direct relation; source stage rules govern"
             }
           ],
-          "need": "Consume this supplier’s actual accepted output as required by the canonical FINAL-FREEZE source dependency; this is a consumption map only and does not alter source stage/dispatch semantics.",
+          "need": "Consume this supplier's source-qualified result at the exact source_relations stage, including selected-facet readiness and truthful original-obligation disposition. Owner-readiness does not require original/composed closure; genuine unavailable external facts remain explicit, while missing selected internal work blocks freeze.",
           "producer_cards": [],
           "producer_selection": "Select the exact output named in need and its original conditions, not all supplier cards. Actual source-qualified artifacts are pinned at dispatch/composition."
         }
@@ -15334,14 +15615,21 @@
           "source_relations": [
             {
               "relation": "interface_reference",
-              "source_selector": "parent operative context; exact clause in coverage routes",
+              "source_selector": "task.deliverable",
               "required_stage": "reference_only_no_new_gate",
-              "when": "Use only as the named output/interface relationship; no new dispatch prerequisite. Canonical parent governs selected acceptance."
+              "when": "Use only as the named output/interface relationship; no new dispatch prerequisite. Canonical parent governs selected acceptance.",
+              "source_parent": "DES-09",
+              "reference_purpose": "Existing supplier output navigation, not an added consumer prerequisite."
             }
           ],
           "need": "Only when a legal branch uses an LLM call, consume the exact DES-09 admitted context, observed invocation and persisted output record as candidate provenance; native retrieval/interpretation and competent legal authority remain distinct, with no blanket call prerequisite.",
           "producer_cards": [],
-          "producer_selection": "Select the exact output named in need and its original conditions, not all supplier cards. Actual source-qualified artifacts are pinned at dispatch/composition."
+          "producer_selection": "Select the exact output named in need and its original conditions, not all supplier cards. Actual source-qualified artifacts are pinned at dispatch/composition.",
+          "supplier_output_source": {
+            "parent": "DES-09",
+            "selector": "task.deliverable"
+          },
+          "composition_semantics": "No new preparation or task-completion gate. The selected existing contract still requires its real output at the actual use described in need; absence blocks that use/claim only. An interface document is not a substituted producer receipt."
         }
       ],
       "inherited_dispatch_contract": {
@@ -15361,12 +15649,12 @@
       "cards": [
         "DES-06.private-policy-documents"
       ],
-      "parent_join": "Join selected DES-05 branch artifacts, GYD-05 scoped membership/ruling only when a document claim uses them, and DES-09 call records only for selected LLM-assisted content to the edition bindings; then reconcile exact emitted bytes at fresh semantic and independent format readers. A document never supplies legal authority or implies public release. Where raw data was lawfully erased, only a separately permitted and sufficiently verified retained result may support its qualified historical/derivative use with replay limits.",
+      "parent_join": "Join selected DES-05 law branches, GYD-05 membership/ruling and DES-09 observed call outputs only when used; reconcile exact emitted bytes with fresh semantic/format readers. Enroll actual span/cell dependencies and consume LIF-02/LIF-05 change/current-use outcomes: preserve historical edition, mark affected current passages stale/limited, re-evaluate, then issue a new linked edition when justified. Retained results after lawful raw erasure need independently permitted/verifiable use and explicit replay limits. Document prose never supplies legal authority or public release.",
       "parent_join_cards": [
         "DES-06.private-policy-documents"
       ],
       "parent_join_consumer": "Fresh authorized private document semantic reader, independent reader of the actual selected DOCX/PDF bytes, and CNT-09 only for its permitted selected case projection.",
-      "overload_review": "Retain one producer-to-edition-to-reader capability. Use four internal checkpoints: source/semantic binding; persisted edition and exact bytes; fresh semantic plus real-format readback/removal; conditional retained-result use after lawful erasure. Legal branches, membership/ruling and model calls are conditional inputs, not additional writers; DES-07 owns edit-back, public prose remains out of scope.",
+      "overload_review": "Five bounded checkpoints under the existing document/projection writer: private evidence binding; document edition/projection; audience-safe read; substantive edit/reconciliation; change/currentness and versioned successor. Historical editions remain immutable. Supplier outputs are conditional on selected use; no second lifecycle or publication authority.",
       "dependency_routes": [
         {
           "supplier": "P0-ACCEPT",
@@ -15397,16 +15685,23 @@
           "source_relations": [
             {
               "relation": "interface_reference",
-              "source_selector": "parent operative context; exact clause in coverage routes",
+              "source_selector": "task.deliverable",
               "required_stage": "reference_only_no_new_gate",
-              "when": "Use only as the named output/interface relationship; no new dispatch prerequisite. Canonical parent governs selected acceptance."
+              "when": "Use only as the named output/interface relationship; no new dispatch prerequisite. Canonical parent governs selected acceptance.",
+              "source_parent": "DES-05",
+              "reference_purpose": "Existing supplier output navigation, not an added consumer prerequisite."
             }
           ],
           "need": "Consume selected DES-05 legal-branch artifacts only for document claims that use those readings; preserve their premises, counterevidence and legal-time scope, and do not reinterpret law or wait when no such branch is selected.",
           "producer_cards": [
             "DES-05.legal-branches"
           ],
-          "producer_selection": "Select the exact output named in need and its original conditions, not all supplier cards. Actual source-qualified artifacts are pinned at dispatch/composition."
+          "producer_selection": "Select the exact output named in need and its original conditions, not all supplier cards. Actual source-qualified artifacts are pinned at dispatch/composition.",
+          "supplier_output_source": {
+            "parent": "DES-05",
+            "selector": "task.deliverable"
+          },
+          "composition_semantics": "No new preparation or task-completion gate. The selected existing contract still requires its real output at the actual use described in need; absence blocks that use/claim only. An interface document is not a substituted producer receipt."
         },
         {
           "supplier": "GYD-05",
@@ -15417,16 +15712,23 @@
           "source_relations": [
             {
               "relation": "interface_reference",
-              "source_selector": "parent operative context; exact clause in coverage routes",
+              "source_selector": "task.deliverable",
               "required_stage": "reference_only_no_new_gate",
-              "when": "Use only as the named output/interface relationship; no new dispatch prerequisite. Canonical parent governs selected acceptance."
+              "when": "Use only as the named output/interface relationship; no new dispatch prerequisite. Canonical parent governs selected acceptance.",
+              "source_parent": "GYD-05",
+              "reference_purpose": "Existing supplier output navigation, not an added consumer prerequisite."
             }
           ],
           "need": "Only when a material document claim uses legal membership, consume GYD-05 source-bound membership comparison and scoped ruling as typed evidence; it is not a legal-interpretation producer and cannot establish authority without the admitted ruling.",
           "producer_cards": [
             "GYD-05.legal-membership"
           ],
-          "producer_selection": "Select the exact output named in need and its original conditions, not all supplier cards. Actual source-qualified artifacts are pinned at dispatch/composition."
+          "producer_selection": "Select the exact output named in need and its original conditions, not all supplier cards. Actual source-qualified artifacts are pinned at dispatch/composition.",
+          "supplier_output_source": {
+            "parent": "GYD-05",
+            "selector": "task.deliverable"
+          },
+          "composition_semantics": "No new preparation or task-completion gate. The selected existing contract still requires its real output at the actual use described in need; absence blocks that use/claim only. An interface document is not a substituted producer receipt."
         },
         {
           "supplier": "DES-09",
@@ -15437,14 +15739,67 @@
           "source_relations": [
             {
               "relation": "interface_reference",
-              "source_selector": "parent operative context; exact clause in coverage routes",
+              "source_selector": "task.deliverable",
               "required_stage": "reference_only_no_new_gate",
-              "when": "Use only as the named output/interface relationship; no new dispatch prerequisite. Canonical parent governs selected acceptance."
+              "when": "Use only as the named output/interface relationship; no new dispatch prerequisite. Canonical parent governs selected acceptance.",
+              "source_parent": "DES-09",
+              "reference_purpose": "Existing supplier output navigation, not an added consumer prerequisite."
             }
           ],
           "need": "Only for selected LLM-assisted material, consume DES-09 context-admission, observed-call and persisted output records; these establish candidate provenance, never legal/effect authority, and impose no blanket gate on native document paths.",
           "producer_cards": [],
-          "producer_selection": "Select the exact output named in need and its original conditions, not all supplier cards. Actual source-qualified artifacts are pinned at dispatch/composition."
+          "producer_selection": "Select the exact output named in need and its original conditions, not all supplier cards. Actual source-qualified artifacts are pinned at dispatch/composition.",
+          "supplier_output_source": {
+            "parent": "DES-09",
+            "selector": "task.deliverable"
+          },
+          "composition_semantics": "No new preparation or task-completion gate. The selected existing contract still requires its real output at the actual use described in need; absence blocks that use/claim only. An interface document is not a substituted producer receipt."
+        },
+        {
+          "supplier": "LIF-02",
+          "consumer_cards": [
+            "DES-06.private-policy-documents"
+          ],
+          "required_stage": "interface_reference:reference_only_no_new_gate",
+          "source_relations": [
+            {
+              "relation": "interface_reference",
+              "source_selector": "solution.implementation_steps[4]",
+              "required_stage": "reference_only_no_new_gate",
+              "when": "Only the selected native output/interface is consumed; no new preparation prerequisite or authority grant."
+            }
+          ],
+          "need": "For current-use document views consume admitted source/law-change and revalidation outcomes; keep historical edition identity distinct. DES-06 enrolls its span dependencies and projects affected states, while LIF-02 owns currentness.",
+          "producer_cards": [],
+          "producer_selection": "Select the exact native output and source-qualified version needed by this use; absence blocks only its affected composition, not independent preparation.",
+          "supplier_output_source": {
+            "parent": "LIF-02",
+            "selector": "task.deliverable"
+          },
+          "composition_semantics": "No new preparation or task-completion gate. The selected existing contract still requires its real output at the actual use described in need; absence blocks that use/claim only. An interface document is not a substituted producer receipt."
+        },
+        {
+          "supplier": "LIF-05",
+          "consumer_cards": [
+            "DES-06.private-policy-documents"
+          ],
+          "required_stage": "interface_reference:reference_only_no_new_gate",
+          "source_relations": [
+            {
+              "relation": "interface_reference",
+              "source_selector": "solution.composition_contracts[2]",
+              "required_stage": "reference_only_no_new_gate",
+              "when": "Only the selected native output/interface is consumed; no new preparation prerequisite or authority grant."
+            }
+          ],
+          "need": "Consume applicable current audience/purpose/retention and changed-rights decisions at document read/reissue/emission; DES-06 does not mint grants or infer permission from retained bytes.",
+          "producer_cards": [],
+          "producer_selection": "Select the exact native output and source-qualified version needed by this use; absence blocks only its affected composition, not independent preparation.",
+          "supplier_output_source": {
+            "parent": "LIF-05",
+            "selector": "task.deliverable"
+          },
+          "composition_semantics": "No new preparation or task-completion gate. The selected existing contract still requires its real output at the actual use described in need; absence blocks that use/claim only. An interface document is not a substituted producer receipt."
         }
       ],
       "inherited_dispatch_contract": {
@@ -15536,7 +15891,7 @@
       "cards": [
         "DES-08.memory-transfer"
       ],
-      "parent_join": "Join the persisted eligible lesson and selected/rejected influence record at a fresh subsequent Scientist search consumer; prove the resulting candidate/search choice and fresh-process retrieval, then use DES-10 matched-task transfer comparison for transfer quality. GYD-25 reads retrieval adequacy only. LIF-07 owns revocation/invalidation; memory does not update O1/O3.",
+      "parent_join": "DES-08 persists and retrieves source-qualified search lessons through the existing memory owner. For the selected formulator path it supplies exact retrieval/sink intent to DES-01, the single formulator wiring owner; DES-02 owns hypothesis binding. Fresh next-cycle consumers discriminate useful transfer from unsupported analogy; DES-03/LIF-07/GYD-25 retain numeric, lineage and adequacy roles. Missing native DES-01 plumbing is assigned there, not implemented twice or treated as an external input.",
       "parent_join_cards": [
         "DES-08.memory-transfer"
       ],
@@ -15608,14 +15963,67 @@
           "source_relations": [
             {
               "relation": "interface_reference",
-              "source_selector": "parent operative context; exact clause in coverage routes",
+              "source_selector": "task.deliverable",
               "required_stage": "reference_only_no_new_gate",
-              "when": "Use only as the named output/interface relationship; no new dispatch prerequisite. Canonical parent governs selected acceptance."
+              "when": "Use only as the named output/interface relationship; no new dispatch prerequisite. Canonical parent governs selected acceptance.",
+              "source_parent": "DES-09",
+              "reference_purpose": "Existing supplier output navigation, not an added consumer prerequisite."
             }
           ],
           "need": "When a selected search call receives memory in provider context, consume DES-09’s exact admitted context, observed call and persisted result for exposure/influence lineage; candidate-only, deterministic or no-provider learning remains available without a blanket call gate.",
           "producer_cards": [],
-          "producer_selection": "Select the exact output named in need and its original conditions, not all supplier cards. Actual source-qualified artifacts are pinned at dispatch/composition."
+          "producer_selection": "Select the exact output named in need and its original conditions, not all supplier cards. Actual source-qualified artifacts are pinned at dispatch/composition.",
+          "supplier_output_source": {
+            "parent": "DES-09",
+            "selector": "task.deliverable"
+          },
+          "composition_semantics": "No new preparation or task-completion gate. The selected existing contract still requires its real output at the actual use described in need; absence blocks that use/claim only. An interface document is not a substituted producer receipt."
+        },
+        {
+          "supplier": "DES-01",
+          "consumer_cards": [
+            "DES-08.memory-transfer"
+          ],
+          "required_stage": "interface_reference:reference_only_no_new_gate",
+          "source_relations": [
+            {
+              "relation": "interface_reference",
+              "source_selector": "solution.r14_canonical_writer",
+              "required_stage": "reference_only_no_new_gate",
+              "when": "Only the selected native output/interface is consumed; no new preparation prerequisite or authority grant."
+            }
+          ],
+          "need": "When the selected proposer lacks durable formulator output, send its observed gap and required interface to DES-01 and consume the implemented exact sink output. DES-08 retains lesson persistence, not formulator writes.",
+          "producer_cards": [],
+          "producer_selection": "Select the exact native output and source-qualified version needed by this use; absence blocks only its affected composition, not independent preparation.",
+          "supplier_output_source": {
+            "parent": "DES-01",
+            "selector": "task.deliverable"
+          },
+          "composition_semantics": "No new preparation or task-completion gate. The selected existing contract still requires its real output at the actual use described in need; absence blocks that use/claim only. An interface document is not a substituted producer receipt."
+        },
+        {
+          "supplier": "DES-02",
+          "consumer_cards": [
+            "DES-08.memory-transfer"
+          ],
+          "required_stage": "interface_reference:reference_only_no_new_gate",
+          "source_relations": [
+            {
+              "relation": "interface_reference",
+              "source_selector": "solution.r14_canonical_writer",
+              "required_stage": "reference_only_no_new_gate",
+              "when": "Only the selected native output/interface is consumed; no new preparation prerequisite or authority grant."
+            }
+          ],
+          "need": "Consume the selected candidate hypothesis binding from DES-02 where the learned hypothesis enters proposal generation; DES-08 may not duplicate that binding owner.",
+          "producer_cards": [],
+          "producer_selection": "Select the exact native output and source-qualified version needed by this use; absence blocks only its affected composition, not independent preparation.",
+          "supplier_output_source": {
+            "parent": "DES-02",
+            "selector": "task.deliverable"
+          },
+          "composition_semantics": "No new preparation or task-completion gate. The selected existing contract still requires its real output at the actual use described in need; absence blocks that use/claim only. An interface document is not a substituted producer receipt."
         }
       ],
       "inherited_dispatch_contract": {
@@ -16043,16 +16451,23 @@
           "source_relations": [
             {
               "relation": "interface_reference",
-              "source_selector": "parent operative context; exact clause in coverage routes",
+              "source_selector": "task.deliverable",
               "required_stage": "reference_only_no_new_gate",
-              "when": "Use only as the named output/interface relationship; no new dispatch prerequisite. Canonical parent governs selected acceptance."
+              "when": "Use only as the named output/interface relationship; no new dispatch prerequisite. Canonical parent governs selected acceptance.",
+              "source_parent": "DEB-13",
+              "reference_purpose": "Existing supplier output navigation, not an added consumer prerequisite."
             }
           ],
           "need": "Only when numeric scientific EVSI is selected, consume DEB-13’s existing commissioned decision-value/estimand and predictive-model basis; DEB-13 retains the metric producer. Its absence does not block qualitative/bounded design or justified acquisition.",
           "producer_cards": [
             "DEB-13.ds15-numeric-voi"
           ],
-          "producer_selection": "Select the exact output named in need and its original conditions, not all supplier cards. Actual source-qualified artifacts are pinned at dispatch/composition."
+          "producer_selection": "Select the exact output named in need and its original conditions, not all supplier cards. Actual source-qualified artifacts are pinned at dispatch/composition.",
+          "supplier_output_source": {
+            "parent": "DEB-13",
+            "selector": "task.deliverable"
+          },
+          "composition_semantics": "No new preparation or task-completion gate. The selected existing contract still requires its real output at the actual use described in need; absence blocks that use/claim only. An interface document is not a substituted producer receipt."
         }
       ],
       "inherited_dispatch_contract": {
@@ -16066,6 +16481,8 @@
       }
     }
   ],
+  "current_review_ref": "../../assurance/r27-card-redteam.md",
+  "review_inputs_semantics": "Historical R26 scratch provenance; may be unavailable in another checkout. Operative scope comes from tracked source manifests, current work cards and actual dispatch packet/journal, not scratch receipts.",
   "review_inputs": [
     {
       "path": "policy-engine/_build/post-e02-r26-groups-20261024/capture.json",

@@ -10,13 +10,13 @@ Canonical title: Freeze internal source readiness and truthful current obligatio
 
 ## Реальный join
 
-immutable-candidate emits Immutable freeze candidate manifest with source/input/backend identity, internal readiness, open external facts and exact replay matrix.. Root reconciles these exact outputs at the original parent disposition and sends the composed result to FINAL-REVIEW consumes the exact immutable candidate identity.. This join does not create implementation, a second owner, or an extra start gate.
+Freeze reviewed internal owner-readiness and complete P0 original-obligation reconciliation on exact source/input/backend/rule identities. Preserve genuine external unavailable inputs and their re-entry triggers without closure credit. FINAL-REVIEW consumes this candidate; FINAL-REPLAY remains downstream. No hidden implementation or second owner is assigned to this coordination card.
 
 **Outputs:** [FINAL-FREEZE.immutable-candidate](../cards/FINAL-FREEZE/immutable-candidate.md).
 
 **Fresh consumer / ответственный контур:** FINAL-REVIEW consumes the exact immutable candidate identity.
 
-**Review размера:** One read-only immutable candidate checkpoint after global reconciliation and internal readiness; external unknowns remain visible.
+**Review размера:** One root coordination owner reconciles the complete 115 source supplier routes and their original stages: 114 scoped owner-readiness routes plus full P0 reconciliation. This is aggregate coordination, not a small code task or 115 finding closures; implementation and source acceptance remain with their native owners.
 
 Ниже сохранённые parent-wide clauses, а не разрешение спрятать реализацию. Они должны быть доказаны outputs названных карточек, собственным coordination decision или настоящим external input. Shared constraint сам не является выполненной работой.
 

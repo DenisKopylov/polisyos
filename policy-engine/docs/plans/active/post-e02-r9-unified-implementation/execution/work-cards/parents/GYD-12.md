@@ -26,8 +26,6 @@ Join effect-write’s O1+AS3+current-context event/WMR and structural-write’s 
 - **join** — This pinned fragment binds both scientific propositions, their shared writer, or full-parent acceptance; parent_join reconciles effect-write and structural-write at the one fresh WMR/Fabric consumer.
   `task.r19_extension.product_verification`; `task.r19_extension.composition_contract_ref`
 - **join** — This pinned fragment binds both scientific propositions, their shared writer, or full-parent acceptance; parent_join reconciles effect-write and structural-write at the one fresh WMR/Fabric consumer.
-  `task.r19_extension.question_slices[2]`
-- **join** — This pinned fragment binds both scientific propositions, their shared writer, or full-parent acceptance; parent_join reconciles effect-write and structural-write at the one fresh WMR/Fabric consumer.
   `task.r19_extension.writer_rule`; `task.r19_extension.acceptance_ref`; `solution.preferred_solution`
 - **join** — This pinned fragment binds both scientific propositions, their shared writer, or full-parent acceptance; parent_join reconciles effect-write and structural-write at the one fresh WMR/Fabric consumer.
   `solution.free_grow.data_or_config_growth`; `solution.free_grow.extension_boundary`; `solution.free_grow.resource_behavior`; `solution.migration_and_rollback`

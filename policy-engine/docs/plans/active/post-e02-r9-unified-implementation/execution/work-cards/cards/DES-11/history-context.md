@@ -30,31 +30,34 @@
 
 | Отношение | Точный смысл |
 |---|---|
-| Supplier [P0-ACCEPT.accepted-boundary](../../cards/P0-ACCEPT/accepted-boundary.md) | `direct:actual_E02_G_acceptance`: Every card consumes the accepted E02 source/commit and task-scoped source rebind for its own owner readback. The universal acceptance/stage/conditional gate remains the original parent contract; this map adds no second leaf gate or sequencing.<br>Выбор output: Select the exact output named in need and its original conditions, not all supplier cards. Actual source-qualified artifacts are pinned at dispatch/composition.<br>Условия: original direct relation; source stage rules govern |
-| Supplier [CNT-06](../../parents/CNT-06.md) | `direct:interface_agreement`: Consumes actual claim/case/history basis; CNT-06 remains source/claim owner.<br>Выбор output: Select the exact output named in need and its original conditions, not all supplier cards. Actual source-qualified artifacts are pinned at dispatch/composition.<br>Условия: original direct relation; source stage rules govern |
-| Supplier [CNT-07](../../parents/CNT-07.md) | `direct:interface_agreement`: Consumes native method/claim-relevant evidence interface only where selected; CNT-07 keeps source ownership.<br>Выбор output: Select the exact output named in need and its original conditions, not all supplier cards. Actual source-qualified artifacts are pinned at dispatch/composition.<br>Условия: original direct relation; source stage rules govern |
-| Supplier [LIF-02](../../parents/LIF-02.md) | `direct:interface_agreement`: Consumes actual event/currentness/receipt clock facts; LIF-02 retains lifecycle ownership.<br>Выбор output: Select the exact output named in need and its original conditions, not all supplier cards. Actual source-qualified artifacts are pinned at dispatch/composition.<br>Условия: original direct relation; source stage rules govern |
+| Supplier [P0-ACCEPT.accepted-boundary](../../cards/P0-ACCEPT/accepted-boundary.md) | `direct:actual_E02_G_acceptance`: Every card consumes the accepted E02 source/commit and task-scoped source rebind for its own owner readback. The universal acceptance/stage/conditional gate remains the original parent contract; this map adds no second leaf gate or sequencing.<br>Source: `task.depends_on[0]`.<br>Условия: original direct relation; source stage rules govern |
+| Supplier [CNT-06](../../parents/CNT-06.md) | `direct:interface_agreement`: Consumes actual claim/case/history basis; CNT-06 remains source/claim owner.<br>Source: `task.depends_on[3]`.<br>Условия: original direct relation; source stage rules govern |
+| Supplier [CNT-07](../../parents/CNT-07.md) | `direct:interface_agreement`: Consumes native method/claim-relevant evidence interface only where selected; CNT-07 keeps source ownership.<br>Source: `task.depends_on[4]`.<br>Условия: original direct relation; source stage rules govern |
+| Supplier [LIF-02](../../parents/LIF-02.md) | `direct:interface_agreement`: Consumes actual event/currentness/receipt clock facts; LIF-02 retains lifecycle ownership.<br>Source: `task.depends_on[5]`.<br>Условия: original direct relation; source stage rules govern |
 
-Отсутствие внутреннего after не отменяет parent prerequisites. Conditional acceptance, execution rights и выбранные profiles разрешаются отдельно, как указано в parent contract. Номера групп и карточек не задают порядок.
+Отсутствие внутреннего after не отменяет parent prerequisites. Conditional acceptance, execution rights и выбранные profiles применяются на своей стадии. Composition links не задают порядок независимой подготовки.
 
 ## Назначенный нормативный контекст
 
-Основа: `ec3d7d38b4d246b3e1d225a1c0fc9aefae9ced0d`. Полные selectors и accountable routes — [coverage.json](../../coverage.json), parent `DES-11`. Эти ссылки не требуют чтения всех siblings. Читайте целиком каждый назначенный fragment и необходимые связанные contracts; mixed clause нельзя усечь до удобной части.
+Source-manifest base: `ec3d7d38b4d246b3e1d225a1c0fc9aefae9ced0d`; это не plan_commit назначения. Точные immutable blobs/hash — [coverage.json](../../coverage.json), parent `DES-11`. `task` выбирает строку tasks.json по id, `solution` — preferred-solutions.json по task_id; затем dot/index selector. Для R19 identity определяется значением question_id, не позицией в другом массиве. Полностью прочитайте назначенные fragments и нужные contracts; mixed clause нельзя усечь.
 
 - **binding** — Actual capacity/incumbent/transition/observation grounds are conditional input facts; external institutions retain mandate, authorization and execution.
   `task.genuine_external_inputs[0]`
 - **binding** — Late correction preserves old lawful as-known context and updates only affected suffix; retention denial is projected honestly.
   `task.r16_extension.positive`
-- **join** — Bind verified mixed incumbent scope and declared uncertainty; replacement layers cannot disable the existing incumbent globally. Actual event/claim/method supplier remains named in the card; no new DAG edge is inferred.
-  `task.r19_extension.question_slices[1]`
-- **join** — Timed discovery changes path only at its supported revision/cutoff; missing narrow-frame signal is not proof of no harm. Actual event/claim/method supplier remains named in the card; no new DAG edge is inferred.
-  `task.r19_extension.question_slices[2]`
-- **join** — Bind actual receipt, target and observation regime; reporting or rollout changes limit subgroup comparison. Actual event/claim/method supplier remains named in the card; no new DAG edge is inferred.
-  `task.r19_extension.question_slices[4]`
-- **join** — Use external physical-capacity denominator and incumbent commitments; a one-GPU run permit is not public capacity. Actual event/claim/method supplier remains named in the card; no new DAG edge is inferred.
-  `task.r19_extension.question_slices[5]`
-- **binding** — Each source question ID is routed to the card assigned to its matching indexed question_slices clause in this parent; ID coverage preserves lineage and is not semantic proof.
-  `task.r19_extension.question_ids[1]`; `task.r19_extension.question_ids[2]`; `task.r19_extension.question_ids[4]`; `task.r19_extension.question_ids[5]`
+- **binding** — Bind mixed incumbent scope/uncertainty; candidate cannot replace incumbent globally.
+  `task.r19_extension.question_slices[1]` (`R18-D04-Q01`); `task.r19_extension.question_ids[0]` (`R18-D04-Q01`)
+- **binding** — Bind timed discovery/revision; narrow no-signal does not establish no harm.
+  `task.r19_extension.question_slices[2]` (`R18-D05-Q02`); `task.r19_extension.question_ids[1]` (`R18-D05-Q02`)
+- **binding** — Bind actual receipt/target/observation regime, not version alone.
+  `task.r19_extension.question_slices[4]` (`R18-D10-Q01`); `task.r19_extension.question_ids[3]` (`R18-D10-Q01`)
+
+### Обязанности внутри составных fragments
+
+- `task.r19_extension.question_slices[0]` — Supply event/receipt/decision cutoff and incumbent scope to evaluator. (primary accountability остаётся в coverage; это конкретный подрезультат, не второй writer).
+- `task.r19_extension.question_slices[5]` — Supply actual incumbent/physical-capacity denominator/cutoffs; assumptions stay explicit. (primary accountability остаётся в coverage; это конкретный подрезультат, не второй writer).
+- `task.r19_extension.question_slices[7]` — Supply observed history, cutoffs and incumbent/capacity basis. (primary accountability остаётся в coverage; это конкретный подрезультат, не второй writer).
+- `task.r19_extension.question_slices[8]` — Bind horizon vectors/scenarios to as-known history and assumptions. (primary accountability остаётся в coverage; это конкретный подрезультат, не второй writer).
 
 Inherited owner/lease/stage/activation constraints указаны в parent contract. Root/lead проверяет полное parent coverage; output этой карточки не закрывает siblings. При обнаружении пропуска остановить только affected writes/acceptance, назвать точный clause и reconciled next owner.
 

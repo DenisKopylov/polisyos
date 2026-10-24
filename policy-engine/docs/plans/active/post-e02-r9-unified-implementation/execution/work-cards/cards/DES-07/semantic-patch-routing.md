@@ -30,14 +30,14 @@
 
 | Отношение | Точный смысл |
 |---|---|
-| Supplier [P0-ACCEPT.accepted-boundary](../../cards/P0-ACCEPT/accepted-boundary.md) | `direct:actual_E02_G_acceptance`: Every card consumes the accepted E02 source/commit and task-scoped source rebind for its own owner readback. The universal acceptance/stage/conditional gate remains the original parent contract; this map adds no second leaf gate or sequencing.<br>Выбор output: Select the exact output named in need and its original conditions, not all supplier cards. Actual source-qualified artifacts are pinned at dispatch/composition.<br>Условия: original direct relation; source stage rules govern |
+| Supplier [P0-ACCEPT.accepted-boundary](../../cards/P0-ACCEPT/accepted-boundary.md) | `direct:actual_E02_G_acceptance`: Every card consumes the accepted E02 source/commit and task-scoped source rebind for its own owner readback. The universal acceptance/stage/conditional gate remains the original parent contract; this map adds no second leaf gate or sequencing.<br>Source: `task.depends_on[0]`.<br>Условия: original direct relation; source stage rules govern |
 | Composition output (не start gate) [DES-07.carrier-identity](../../cards/DES-07/carrier-identity.md) | Only for the selected same-scope composition described by this card: At actual import, join the resolved carrier map and route candidate patches to existing native owners; compose known-independent changes only with actual dependency closure. The fresh-owner-readback card joins actual recomputed owner outputs. Independent output production/preparation remains allowed; the original parent join reconciles all required outcomes without making this list an all-of. |
 
-Отсутствие внутреннего after не отменяет parent prerequisites. Conditional acceptance, execution rights и выбранные profiles разрешаются отдельно, как указано в parent contract. Номера групп и карточек не задают порядок.
+Отсутствие внутреннего after не отменяет parent prerequisites. Conditional acceptance, execution rights и выбранные profiles применяются на своей стадии. Composition links не задают порядок независимой подготовки.
 
 ## Назначенный нормативный контекст
 
-Основа: `ec3d7d38b4d246b3e1d225a1c0fc9aefae9ced0d`. Полные selectors и accountable routes — [coverage.json](../../coverage.json), parent `DES-07`. Эти ссылки не требуют чтения всех siblings. Читайте целиком каждый назначенный fragment и необходимые связанные contracts; mixed clause нельзя усечь до удобной части.
+Source-manifest base: `ec3d7d38b4d246b3e1d225a1c0fc9aefae9ced0d`; это не plan_commit назначения. Точные immutable blobs/hash — [coverage.json](../../coverage.json), parent `DES-07`. `task` выбирает строку tasks.json по id, `solution` — preferred-solutions.json по task_id; затем dot/index selector. Для R19 identity определяется значением question_id, не позицией в другом массиве. Полностью прочитайте назначенные fragments и нужные contracts; mixed clause нельзя усечь.
 
 - **execute** — The deliverable bundles carrier bytes/parentage and semantic changes; carrier-identity supplies exact permitted bytes, while this card owns candidate patch dispatch and leaves owner recomputation native.
   `task.deliverable`
@@ -45,10 +45,6 @@
   `task.removal`
 - **join** — R17 revision/edition clause 0 belongs to the semantic-patch-routing checkpoint; actual owner status and historical edition remain source-bound.
   `task.r17_extension.requirement`
-- **execute** — Material imported edits route only to native design/method/legal owners; parent verification is not inherited from hash or text. The actual native owner recomputes its own result.
-  `task.r19_extension.question_slices[0]`
-- **binding** — Each source question ID is routed to the card assigned to its matching indexed question_slices clause in this parent; ID coverage preserves lineage and is not semantic proof.
-  `task.r19_extension.question_ids[0]`
 - **execute** — Preferred solution is the native edit-to-owner bridge; carrier identity and fresh readback are its explicit adjacent checkpoints.
   `solution.preferred_solution`
 - **execute** — Native design/method/legal/value owner routing is the semantic dispatch property; DES-07 writes candidate patches only.
@@ -57,6 +53,13 @@
   `solution.composition_contracts[1]`
 - **join** — Removal of actual dispatch/conflict detection is checked through the fresh recomputation/concurrency consumer.
   `solution.acceptance_discriminators[2]`
+- **execute** — Dispatch material imported edits to native owners and recompute affected scope.
+  `task.r19_extension.question_slices[0]` (`R18-D01-Q04`); `task.r19_extension.question_ids[0]` (`R18-D01-Q04`)
+
+### Обязанности внутри составных fragments
+
+- `task.r19_extension.question_slices[2]` — Dispatch reimported material edits to native owners; carrier identity alone is not semantic verification. (primary accountability остаётся в coverage; это конкретный подрезультат, не второй writer).
+- `task.r19_extension.question_slices[3]` — Dispatch changed/unmapped material spans to native owner. (primary accountability остаётся в coverage; это конкретный подрезультат, не второй writer).
 
 Inherited owner/lease/stage/activation constraints указаны в parent contract. Root/lead проверяет полное parent coverage; output этой карточки не закрывает siblings. При обнаружении пропуска остановить только affected writes/acceptance, назвать точный clause и reconciled next owner.
 

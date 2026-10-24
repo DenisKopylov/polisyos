@@ -30,20 +30,23 @@
 
 | Отношение | Точный смысл |
 |---|---|
-| Supplier [P0-ACCEPT.accepted-boundary](../../cards/P0-ACCEPT/accepted-boundary.md) | `direct:actual_E02_G_acceptance`: Accepted selected owner/path consumed when resolved; original stage gate remains.<br>Выбор output: Select the exact output named in need and its original conditions, not all supplier cards. Actual source-qualified artifacts are pinned at dispatch/composition.<br>Условия: original direct relation; source stage rules govern |
-| Supplier [CAP-03](../../parents/CAP-03.md) | `direct:owner_readiness`: Consume exact root/relation only for source event or observed content binding.<br>Выбор output: Select the exact output named in need and its original conditions, not all supplier cards. Actual source-qualified artifacts are pinned at dispatch/composition.<br>Условия: original direct relation; source stage rules govern |
+| Supplier [P0-ACCEPT.accepted-boundary](../../cards/P0-ACCEPT/accepted-boundary.md) | `direct:actual_E02_G_acceptance`: Accepted selected owner/path consumed when resolved; original stage gate remains.<br>Source: `task.depends_on[0]`.<br>Условия: original direct relation; source stage rules govern |
+| Supplier [CAP-03](../../parents/CAP-03.md) | `direct:owner_readiness`: Consume exact root/relation only for source event or observed content binding.<br>Source: `task.depends_on[1]`.<br>Условия: original direct relation; source stage rules govern |
 
-Отсутствие внутреннего after не отменяет parent prerequisites. Conditional acceptance, execution rights и выбранные profiles разрешаются отдельно, как указано в parent contract. Номера групп и карточек не задают порядок.
+Отсутствие внутреннего after не отменяет parent prerequisites. Conditional acceptance, execution rights и выбранные profiles применяются на своей стадии. Composition links не задают порядок независимой подготовки.
 
 ## Назначенный нормативный контекст
 
-Основа: `ec3d7d38b4d246b3e1d225a1c0fc9aefae9ced0d`. Полные selectors и accountable routes — [coverage.json](../../coverage.json), parent `CAP-04`. Эти ссылки не требуют чтения всех siblings. Читайте целиком каждый назначенный fragment и необходимые связанные contracts; mixed clause нельзя усечь до удобной части.
+Source-manifest base: `ec3d7d38b4d246b3e1d225a1c0fc9aefae9ced0d`; это не plan_commit назначения. Точные immutable blobs/hash — [coverage.json](../../coverage.json), parent `CAP-04`. `task` выбирает строку tasks.json по id, `solution` — preferred-solutions.json по task_id; затем dot/index selector. Для R19 identity определяется значением question_id, не позицией в другом массиве. Полностью прочитайте назначенные fragments и нужные contracts; mixed clause нельзя усечь.
 
 - **execute** — Silent-source Q07, support drift, exact cut/coverage, overlapping poll head and delayed old poll are bounded observation evidence, never feed continuity.
-  `task.acceptance_steps[4]`; `task.acceptance_steps[5]`; `task.r17_extension.quality_cases[0]`; `task.r19_extension.question_ids[0]`; `solution.implementation_steps[4]`; `solution.implementation_steps[5]`; `solution.composition_contracts[3]`; `solution.acceptance_discriminators[4]`; `solution.acceptance_discriminators[5]`; `solution.deviation_triggers[0]`
+  `task.acceptance_steps[4]`; `task.acceptance_steps[5]`; `task.r17_extension.quality_cases[0]`; `solution.implementation_steps[4]`; `solution.implementation_steps[5]`; `solution.composition_contracts[3]`; `solution.acceptance_discriminators[4]`; `solution.acceptance_discriminators[5]`; `solution.deviation_triggers[0]`
 - **binding** — D3 is the bounded observation/reissue lane; local journal does not infer source continuity.
   `task.r17_extension.delivery_slices[0]`
-- **binding — subclause:** For the snapshot-comparison route, CAP-02 supplies comparable permitted observations and CAP-04 persists exact observed old/new representations, selector/profile/coverage and acquisition times without inventing source-effective time or inter-poll completeness.; source `solution.preferred_solution`. Primary fragment route stays unchanged; this identifies the owned sub-result.
+
+### Обязанности внутри составных fragments
+
+- `solution.preferred_solution` — For the snapshot-comparison route, CAP-02 supplies comparable permitted observations and CAP-04 persists exact observed old/new representations, selector/profile/coverage and acquisition times without inventing source-effective time or inter-poll completeness. (primary accountability остаётся в coverage; это конкретный подрезультат, не второй writer).
 
 Inherited owner/lease/stage/activation constraints указаны в parent contract. Root/lead проверяет полное parent coverage; output этой карточки не закрывает siblings. При обнаружении пропуска остановить только affected writes/acceptance, назвать точный clause и reconciled next owner.
 

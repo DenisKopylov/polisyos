@@ -30,20 +30,23 @@
 
 | Отношение | Точный смысл |
 |---|---|
-| Supplier [P0-ACCEPT.accepted-boundary](../../cards/P0-ACCEPT/accepted-boundary.md) | `direct:actual_E02_G_acceptance`: Accepted source/path owner is consumed where selected; no blanket barrier.<br>Выбор output: Select the exact output named in need and its original conditions, not all supplier cards. Actual source-qualified artifacts are pinned at dispatch/composition.<br>Условия: original direct relation; source stage rules govern |
-| Supplier [CAP-01](../../parents/CAP-01.md) | `direct:owner_readiness; acceptance:composition`: Consume exact selected source/profile; query permission is not body placement or cursor completeness.<br>Выбор output: Select the exact output named in need and its original conditions, not all supplier cards. Actual source-qualified artifacts are pinned at dispatch/composition.<br>Условия: original direct relation; source stage rules govern; selected parent composed claim; not a new preparation dependency |
+| Supplier [P0-ACCEPT.accepted-boundary](../../cards/P0-ACCEPT/accepted-boundary.md) | `direct:actual_E02_G_acceptance`: Accepted source/path owner is consumed where selected; no blanket barrier.<br>Source: `task.depends_on[0]`.<br>Условия: original direct relation; source stage rules govern |
+| Supplier [CAP-01.candidate-resolution](../../cards/CAP-01/candidate-resolution.md) | `direct:owner_readiness; acceptance:composition`: Exact persisted source/profile/selector receipt from candidate-resolution; query-disclosure authorization additionally applies only when the selected route actually emits a query. A selected CNT-02 profile/version is bound upstream through CAP-01; it is not a blanket extra CAP-02 dependency.<br>Source: `task.depends_on[1]`; `task.acceptance_dependencies[0]`.<br>Условия: original direct relation; source stage rules govern; selected parent composed claim; not a new preparation dependency |
 
-Отсутствие внутреннего after не отменяет parent prerequisites. Conditional acceptance, execution rights и выбранные profiles разрешаются отдельно, как указано в parent contract. Номера групп и карточек не задают порядок.
+Отсутствие внутреннего after не отменяет parent prerequisites. Conditional acceptance, execution rights и выбранные profiles применяются на своей стадии. Composition links не задают порядок независимой подготовки.
 
 ## Назначенный нормативный контекст
 
-Основа: `ec3d7d38b4d246b3e1d225a1c0fc9aefae9ced0d`. Полные selectors и accountable routes — [coverage.json](../../coverage.json), parent `CAP-02`. Эти ссылки не требуют чтения всех siblings. Читайте целиком каждый назначенный fragment и необходимые связанные contracts; mixed clause нельзя усечь до удобной части.
+Source-manifest base: `ec3d7d38b4d246b3e1d225a1c0fc9aefae9ced0d`; это не plan_commit назначения. Точные immutable blobs/hash — [coverage.json](../../coverage.json), parent `CAP-02`. `task` выбирает строку tasks.json по id, `solution` — preferred-solutions.json по task_id; затем dot/index selector. Для R19 identity определяется значением question_id, не позицией в другом массиве. Полностью прочитайте назначенные fragments и нужные contracts; mixed clause нельзя усечь.
 
 - **execute** — Enforce every hop at actual egress and bind request/attempt, resolved target, redirect, credential and authenticated proxy decision.
   `task.acceptance_steps[5]`; `solution.implementation_steps[0]`; `solution.implementation_steps[5]`; `solution.acceptance_discriminators[2]`; `solution.acceptance_discriminators[6]`
 - **execute** — Verify the selected controlled-proxy decision is authenticated and request/attempt-bound to the resolved target, policy identity, redirects and credential audience at actual egress; proxy configuration or a proxy peer alone is not proof.
   `solution.composition_contracts[5]`
-- **binding — subclause:** Resolve accepted source/endpoint, permitted proxy egress, credential audience and the actual DNS/socket enforcement point at E02.; source `solution.inputs_to_resolve[0]`. Primary fragment route stays unchanged; this identifies the owned sub-result.
+
+### Обязанности внутри составных fragments
+
+- `solution.inputs_to_resolve[0]` — Resolve accepted source/endpoint, permitted proxy egress, credential audience and the actual DNS/socket enforcement point at E02. (primary accountability остаётся в coverage; это конкретный подрезультат, не второй writer).
 
 Inherited owner/lease/stage/activation constraints указаны в parent contract. Root/lead проверяет полное parent coverage; output этой карточки не закрывает siblings. При обнаружении пропуска остановить только affected writes/acceptance, назвать точный clause и reconciled next owner.
 

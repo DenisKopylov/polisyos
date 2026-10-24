@@ -12,7 +12,7 @@ Canonical title: Resolve law, effectivity, competence and actual acts (W4). R26 
 
 ## Реальный join
 
-Compose law-version (exact source/event times), applicability (reviewed provision→lever/notice/effect) and issuer-act (issuer/delegation/recipient/scope) outputs in the existing fresh legal applicability/authority reader, then send changed qualified facts to LIF-07 affected-use cascade and permitted status/audit. The actual reader is rebound after E02. R14/DES-05 and selected R19 consumers are conditional; this does not issue authority or select a case.
+law-version supplies the exact source/event history; applicability produces the scoped interpretation/limitation; issuer-act supplies only the competent act required by the selected authority claim. Fresh legal, LIF-07 and allowed audit/status readers preserve that distinction. applicability also binds/delivers the existing gated public projection with exact generation, audience and rights; CNT-09 verifies the selected surface. No issuer act is fabricated, and internal status alone cannot close the public surface.
 
 **Outputs:** [CNT-04.law-version](../cards/CNT-04/law-version.md), [CNT-04.applicability](../cards/CNT-04/applicability.md), [CNT-04.issuer-act](../cards/CNT-04/issuer-act.md).
 
@@ -33,7 +33,7 @@ Compose law-version (exact source/event times), applicability (reviewed provisio
 - **binding** — D4/Q10-Q12 and R19 status/composition references remain source-parent navigation; they do not authorize a separate owner or verifier.
   `task.r17_extension.delivery_slices[0]`; `task.r17_extension.quality_cases[0]`; `task.r17_extension.quality_cases[1]`; `task.r17_extension.quality_cases[2]`; `task.r17_extension.product_verification`; `task.r19_extension.status`; `task.r19_extension.product_verification`; `task.r19_extension.composition_contract_ref`
 - **binding** — R19 question IDs, writer rule and assurance reference remain canonical navigation/lease constraints for the three legal outputs.
-  `task.r19_extension.question_ids[0]`; `task.r19_extension.question_ids[1]`; `task.r19_extension.question_ids[2]`; `task.r19_extension.question_ids[3]`; `task.r19_extension.question_ids[4]`; `task.r19_extension.question_ids[5]`; `task.r19_extension.question_ids[6]`; `task.r19_extension.question_ids[7]`; `task.r19_extension.writer_rule`; `task.r19_extension.acceptance_ref`
+  `task.r19_extension.writer_rule`; `task.r19_extension.acceptance_ref`
 - **join** — Preferred solution describes the three-part parent composition (source version, reviewer applicability and issuer act); parent_join names each output and fresh reader.
   `solution.preferred_solution`
 - **join** — Changed source/rule/act must reach the existing claim/currentness cascade and permitted surfaces; parent routes the three typed outputs to LIF-07 without owning another cascade.
@@ -42,6 +42,8 @@ Compose law-version (exact source/event times), applicability (reviewed provisio
   `solution.migration_and_rollback`
 - **binding** — Input-resolution rule distinguishes internal adapter work, existing source records and real publisher/reviewer/institution facts across children.
   `solution.input_resolution_rule`
+- **join** — This slice binds source version/effectivity, reviewed applicability, issuer competence and actual act into one qualified legal basis for CNT-01/CNT-08; no one child owns the full join. Slice: Resolve applicable law/version, effectivity, issuer competence and actual-act facts; supply qualified refs to CNT-01/CNT-08 without deciding whether a contest is commissioned. Positive discriminator: An effective applicable provision from a competent issuer changes only the matching legal premise; CNT-01 consumes its qualified ref. Adversary: Draft, wrong-jurisdiction, expired or signature-only instrument stays unestablished. Removal: Keep citation/signature but remove applicability/effectivity/competence resolution; the protected legal premise cannot pass. Coverage currently routes this slice selector to CNT-04.applicability/execute; this destination follows its actual question_id and mixed semantics.
+  `task.r19_extension.question_slices[0]` (`R18-D01-Q02`); `task.r19_extension.question_ids[0]` (`R18-D01-Q02`)
 
 ## Owners и stages
 

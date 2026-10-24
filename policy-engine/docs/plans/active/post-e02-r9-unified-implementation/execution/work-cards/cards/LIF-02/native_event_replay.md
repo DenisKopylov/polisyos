@@ -30,17 +30,17 @@
 
 | Отношение | Точный смысл |
 |---|---|
-| Supplier [P0-ACCEPT.accepted-boundary](../../cards/P0-ACCEPT/accepted-boundary.md) | `direct:actual_E02_G_acceptance`: Root preserves stage.<br>Выбор output: Select the exact output named in need and its original conditions, not all supplier cards. Actual source-qualified artifacts are pinned at dispatch/composition.<br>Условия: original direct relation; source stage rules govern |
-| Supplier [LIF-01](../../parents/LIF-01.md) | `direct:owner_readiness`: Consume exact claim/use for enrollment; LIF01 remains owner.<br>Выбор output: Select the exact output named in need and its original conditions, not all supplier cards. Actual source-qualified artifacts are pinned at dispatch/composition.<br>Условия: original direct relation; source stage rules govern |
-| Supplier [CAP-04](../../parents/CAP-04.md) | `acceptance:composition`: Actual selected output is consumed by the local composition reader; acceptance is composition-only, not a preparation prerequisite.<br>Выбор output: Select the exact output named in need and its original conditions, not all supplier cards. Actual source-qualified artifacts are pinned at dispatch/composition.<br>Условия: selected parent composed claim; not a new preparation dependency |
-| Supplier [LIF-09](../../parents/LIF-09.md) | `acceptance:composition`: Actual selected output is consumed by the local composition reader; acceptance is composition-only, not a preparation prerequisite.<br>Выбор output: Select the exact output named in need and its original conditions, not all supplier cards. Actual source-qualified artifacts are pinned at dispatch/composition.<br>Условия: selected parent composed claim; not a new preparation dependency |
+| Supplier [P0-ACCEPT.accepted-boundary](../../cards/P0-ACCEPT/accepted-boundary.md) | `direct:actual_E02_G_acceptance`: Root preserves stage.<br>Source: `task.depends_on[0]`.<br>Условия: original direct relation; source stage rules govern |
+| Supplier [LIF-01](../../parents/LIF-01.md) | `direct:owner_readiness`: Consume exact claim/use for enrollment; LIF01 remains owner.<br>Source: `task.depends_on[1]`.<br>Условия: original direct relation; source stage rules govern |
+| Supplier [CAP-04](../../parents/CAP-04.md) | `acceptance:composition`: Actual selected output is consumed by the local composition reader; acceptance is composition-only, not a preparation prerequisite.<br>Source: `task.acceptance_dependencies[0]`.<br>Условия: selected parent composed claim; not a new preparation dependency |
+| Supplier [LIF-09](../../parents/LIF-09.md) | `acceptance:composition`: Actual selected output is consumed by the local composition reader; acceptance is composition-only, not a preparation prerequisite.<br>Source: `task.acceptance_dependencies[1]`.<br>Условия: selected parent composed claim; not a new preparation dependency |
 | Composition output (не start gate) [LIF-02.bounded_observation_order](../../cards/LIF-02/bounded_observation_order.md) | Only as the selected no-feed CAP-04 observation/as-of alternative bound to the CAP-02 root/profile/coverage and local ordered head; it is not a simultaneous input or proof of native event continuity. |
 
-Отсутствие внутреннего after не отменяет parent prerequisites. Conditional acceptance, execution rights и выбранные profiles разрешаются отдельно, как указано в parent contract. Номера групп и карточек не задают порядок.
+Отсутствие внутреннего after не отменяет parent prerequisites. Conditional acceptance, execution rights и выбранные profiles применяются на своей стадии. Composition links не задают порядок независимой подготовки.
 
 ## Назначенный нормативный контекст
 
-Основа: `ec3d7d38b4d246b3e1d225a1c0fc9aefae9ced0d`. Полные selectors и accountable routes — [coverage.json](../../coverage.json), parent `LIF-02`. Эти ссылки не требуют чтения всех siblings. Читайте целиком каждый назначенный fragment и необходимые связанные contracts; mixed clause нельзя усечь до удобной части.
+Source-manifest base: `ec3d7d38b4d246b3e1d225a1c0fc9aefae9ced0d`; это не plan_commit назначения. Точные immutable blobs/hash — [coverage.json](../../coverage.json), parent `LIF-02`. `task` выбирает строку tasks.json по id, `solution` — preferred-solutions.json по task_id; затем dot/index selector. Для R19 identity определяется значением question_id, не позицией в другом массиве. Полностью прочитайте назначенные fragments и нужные contracts; mixed clause нельзя усечь.
 
 - **execute** — Native replay/fence, surface, rollback and migration.
   `task.deliverable`; `task.positive[0]`; `task.positive[1]`; `task.adversarial[0]`; `task.removal[0]`; `task.removal[1]`; `task.surface`; `task.rollback`; `task.migration`
@@ -50,16 +50,6 @@
   `task.r16_extension.requirement`; `task.r16_extension.positive`; `task.r16_extension.adversarial`; `task.r16_extension.removal`
 - **execute** — R17 sole currentness owner/tests.
   `task.r17_extension.requirement`; `task.r17_extension.positive`; `task.r17_extension.adversarial`; `task.r17_extension.removal`
-- **execute** — R18-D03-Q03 native replay/cut.
-  `task.r19_extension.question_slices[0]`
-- **execute** — R18 exact enrolled source/time changes; derivative/answerer change not global.
-  `task.r19_extension.question_slices[2]`; `task.r19_extension.question_slices[3]`; `task.r19_extension.question_slices[4]`; `task.r19_extension.question_slices[5]`; `task.r19_extension.question_slices[6]`; `task.r19_extension.question_slices[7]`; `task.r19_extension.question_slices[8]`; `task.r19_extension.question_slices[9]`; `task.r19_extension.question_slices[10]`; `task.r19_extension.question_slices[11]`; `task.r19_extension.question_slices[12]`; `task.r19_extension.question_slices[13]`; `task.r19_extension.question_slices[14]`; `task.r19_extension.question_slices[15]`; `task.r19_extension.question_slices[16]`
-- **binding** — ID mirrors U064.
-  `task.r19_extension.question_ids[0]`
-- **binding** — IDs mirror U066-U076 native changes.
-  `task.r19_extension.question_ids[2]`; `task.r19_extension.question_ids[3]`; `task.r19_extension.question_ids[4]`; `task.r19_extension.question_ids[5]`; `task.r19_extension.question_ids[6]`; `task.r19_extension.question_ids[7]`; `task.r19_extension.question_ids[8]`; `task.r19_extension.question_ids[9]`; `task.r19_extension.question_ids[10]`; `task.r19_extension.question_ids[11]`; `task.r19_extension.question_ids[12]`
-- **binding** — IDs mirror U079-U080 support events.
-  `task.r19_extension.question_ids[15]`; `task.r19_extension.question_ids[16]`
 - **execute** — Native C/W/replay/effect/fence.
   `solution.preferred_solution`; `solution.implementation_steps[0]`; `solution.implementation_steps[1]`; `solution.implementation_steps[2]`; `solution.implementation_steps[3]`
 - **binding** — Generic source/replay/migration/owner semantics.
@@ -68,6 +58,37 @@
   `solution.acceptance_discriminators[0]`; `solution.acceptance_discriminators[1]`; `solution.acceptance_discriminators[2]`
 - **binding** — Cutoff/re-evaluation and source/right/publisher inputs; no supplier appointment.
   `solution.deviation_triggers[0]`; `solution.deviation_triggers[1]`; `solution.deviation_triggers[2]`; `solution.inputs_to_resolve[0]`; `solution.inputs_to_resolve[1]`; `solution.inputs_to_resolve[2]`
+- **execute** — task.r19_extension.question_slices[0] crosswalks by actual value to question_ids[8]. Owns enrollment, source cursor/replay, currentness and as-of cutoff; LIF-03 separately consumes the same continuity identity at frontier commit.
+  `task.r19_extension.question_slices[0]` (`R18-D15-Q02`); `task.r19_extension.question_ids[8]` (`R18-D15-Q02`)
+- **execute** — task.r19_extension.question_slices[2] crosswalks by actual value to question_ids[1]. Enrolled native event replay must invalidate only exact dependent uses and enforce the replay floor.
+  `task.r19_extension.question_slices[2]` (`R18-D04-Q03`); `task.r19_extension.question_ids[1]` (`R18-D04-Q03`)
+- **execute** — task.r19_extension.question_slices[3] crosswalks by actual value to question_ids[2]. Source-cut replay and claim-head fencing implement immediate, scoped event invalidation.
+  `task.r19_extension.question_slices[3]` (`R18-D04-Q06`); `task.r19_extension.question_ids[2]` (`R18-D04-Q06`)
+- **execute** — task.r19_extension.question_slices[4] crosswalks by actual value to question_ids[3]. Changed source/right must limit current use before rerun while retaining the old-as-known record.
+  `task.r19_extension.question_slices[4]` (`R18-D07-Q02`); `task.r19_extension.question_ids[3]` (`R18-D07-Q02`)
+- **execute** — task.r19_extension.question_slices[5] crosswalks by actual value to question_ids[4]. Consumes enrolled cuts and upstream currentness without taking over source qualification.
+  `task.r19_extension.question_slices[5]` (`R18-D10-Q01`); `task.r19_extension.question_ids[4]` (`R18-D10-Q01`)
+- **execute** — task.r19_extension.question_slices[6] crosswalks by actual value to question_ids[5]. A source/time-cut quality regression needs scoped currentness reaction; a silent feed is not no-change, while context-only variation does not requalify a call.
+  `task.r19_extension.question_slices[6]` (`R18-D11-Q01`); `task.r19_extension.question_ids[5]` (`R18-D11-Q01`)
+- **execute** — task.r19_extension.question_slices[7] crosswalks by actual value to question_ids[6]. A material enrolled source/content change immediately fences affected current uses even when recomputation waits.
+  `task.r19_extension.question_slices[7]` (`R18-D12-Q05`); `task.r19_extension.question_ids[6]` (`R18-D12-Q05`)
+- **execute** — task.r19_extension.question_slices[8] crosswalks by actual value to question_ids[13]. An enrolled event/correction must limit its dependent claim before heavy reevaluation.
+  `task.r19_extension.question_slices[8]` (`R18-D22-Q01`); `task.r19_extension.question_ids[13]` (`R18-D22-Q01`)
+- **execute** — task.r19_extension.question_slices[10] crosswalks by actual value to question_ids[15]. Reacts only where the premise is enrolled; an answerer-only change may alter attribution without global staleness.
+  `task.r19_extension.question_slices[10]` (`R18-D22-Q04`); `task.r19_extension.question_ids[15]` (`R18-D22-Q04`)
+- **execute** — task.r19_extension.question_slices[11] crosswalks by actual value to question_ids[16]. Fences the exact enrolled predicate before causal rerun, preserving unrelated claims.
+  `task.r19_extension.question_slices[11]` (`R18-D22-Q05`); `task.r19_extension.question_ids[16]` (`R18-D22-Q05`)
+- **execute** — task.r19_extension.question_slices[12] crosswalks by actual value to question_ids[7]. Applies an accepted event to enrolled claims at bounded replay and changes currentness only.
+  `task.r19_extension.question_slices[12]` (`R18-D14-Q02`); `task.r19_extension.question_ids[7]` (`R18-D14-Q02`)
+- **execute** — task.r19_extension.question_slices[15] crosswalks by actual value to question_ids[11]. Replays accepted support events against enrolled dependencies and fresh currentness reads.
+  `task.r19_extension.question_slices[15]` (`R18-D17-Q04`); `task.r19_extension.question_ids[11]` (`R18-D17-Q04`)
+- **execute** — task.r19_extension.question_slices[16] crosswalks by actual value to question_ids[12]. Carries the native fence through affected recomposition to the API/MACHINE current-state reader.
+  `task.r19_extension.question_slices[16]` (`R18-D20-Q05`); `task.r19_extension.question_ids[12]` (`R18-D20-Q05`)
+
+### Обязанности внутри составных fragments
+
+- `task.r19_extension.question_slices[1]` — R25 LIF-02 route: genuine CAP-04 source events are replayed here; keep this event-only subclause separate from the no-webhook/observation path, with no watcher or synthetic event. (primary accountability остаётся в coverage; это конкретный подрезультат, не второй writer).
+- `task.r19_extension.question_slices[9]` — R25 LIF-02 route: genuine CAP-04 source events are replayed here; keep this event-only subclause separate from the no-webhook/observation path, with no watcher or synthetic event. (primary accountability остаётся в coverage; это конкретный подрезультат, не второй writer).
 
 Inherited owner/lease/stage/activation constraints указаны в parent contract. Root/lead проверяет полное parent coverage; output этой карточки не закрывает siblings. При обнаружении пропуска остановить только affected writes/acceptance, назвать точный clause и reconciled next owner.
 

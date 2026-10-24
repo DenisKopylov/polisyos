@@ -30,18 +30,18 @@
 
 | Отношение | Точный смысл |
 |---|---|
-| Supplier [P0-ACCEPT.accepted-boundary](../../cards/P0-ACCEPT/accepted-boundary.md) | `direct:actual_E02_G_acceptance`: Every card consumes the accepted E02 source/commit and task-scoped source rebind for its own owner readback. The universal acceptance/stage/conditional gate remains the original parent contract; this map adds no second leaf gate or sequencing.<br>Выбор output: Select the exact output named in need and its original conditions, not all supplier cards. Actual source-qualified artifacts are pinned at dispatch/composition.<br>Условия: original direct relation; source stage rules govern |
-| Supplier [DES-04](../../parents/DES-04.md) | `direct:interface_agreement`: Consumes the selected acquisition/return-choice interface; DES-04 remains N6/N7 bridge writer.<br>Выбор output: Select the exact output named in need and its original conditions, not all supplier cards. Actual source-qualified artifacts are pinned at dispatch/composition.<br>Условия: original direct relation; source stage rules govern |
-| Supplier [CNT-06](../../parents/CNT-06.md) | `direct:interface_agreement`: Provides claim/decision target for study design and claim binding for actual returns; only if numeric EVSI is selected, provide current claim/target evidence needed to qualify pre-study predictive inputs. CNT-06 retains claim/evidence ownership.<br>Выбор output: Select the exact output named in need and its original conditions, not all supplier cards. Actual source-qualified artifacts are pinned at dispatch/composition.<br>Условия: original direct relation; source stage rules govern |
-| Supplier [CAP-01](../../parents/CAP-01.md) | `direct:interface_agreement`: Consumes actual acquisition/source receipt and result only when selected; CAP-01 retains its native producer and rights contract.<br>Выбор output: Select the exact output named in need and its original conditions, not all supplier cards. Actual source-qualified artifacts are pinned at dispatch/composition.<br>Условия: original direct relation; source stage rules govern |
+| Supplier [P0-ACCEPT.accepted-boundary](../../cards/P0-ACCEPT/accepted-boundary.md) | `direct:actual_E02_G_acceptance`: Every card consumes the accepted E02 source/commit and task-scoped source rebind for its own owner readback. The universal acceptance/stage/conditional gate remains the original parent contract; this map adds no second leaf gate or sequencing.<br>Source: `task.depends_on[0]`.<br>Условия: original direct relation; source stage rules govern |
+| Supplier [DES-04](../../parents/DES-04.md) | `direct:interface_agreement`: Consumes the selected acquisition/return-choice interface; DES-04 remains N6/N7 bridge writer.<br>Source: `task.depends_on[1]`.<br>Условия: original direct relation; source stage rules govern |
+| Supplier [CNT-06](../../parents/CNT-06.md) | `direct:interface_agreement`: Provides claim/decision target for study design and claim binding for actual returns; only if numeric EVSI is selected, provide current claim/target evidence needed to qualify pre-study predictive inputs. CNT-06 retains claim/evidence ownership.<br>Source: `task.depends_on[2]`.<br>Условия: original direct relation; source stage rules govern |
+| Supplier [CAP-01](../../parents/CAP-01.md) | `direct:interface_agreement`: Consumes actual acquisition/source receipt and result only when selected; CAP-01 retains its native producer and rights contract.<br>Source: `task.depends_on[3]`.<br>Условия: original direct relation; source stage rules govern |
 | Composition output (не start gate) [DES-12.study-design](../../cards/DES-12/study-design.md) | Bind actual return to its protocol/target; may be an admitted external/secondary-study protocol rather than a study run by PolicyOS. |
 | Composition output (не start gate) [DES-12.study-authorization](../../cards/DES-12/study-authorization.md) | For selected protected conduct under this programme. Returned-evidence use independently requires its applicable current-use rights; no retroactive requirement for an irrelevant new-study permit. |
 
-Отсутствие внутреннего after не отменяет parent prerequisites. Conditional acceptance, execution rights и выбранные profiles разрешаются отдельно, как указано в parent contract. Номера групп и карточек не задают порядок.
+Отсутствие внутреннего after не отменяет parent prerequisites. Conditional acceptance, execution rights и выбранные profiles применяются на своей стадии. Composition links не задают порядок независимой подготовки.
 
 ## Назначенный нормативный контекст
 
-Основа: `ec3d7d38b4d246b3e1d225a1c0fc9aefae9ced0d`. Полные selectors и accountable routes — [coverage.json](../../coverage.json), parent `DES-12`. Эти ссылки не требуют чтения всех siblings. Читайте целиком каждый назначенный fragment и необходимые связанные contracts; mixed clause нельзя усечь до удобной части.
+Source-manifest base: `ec3d7d38b4d246b3e1d225a1c0fc9aefae9ced0d`; это не plan_commit назначения. Точные immutable blobs/hash — [coverage.json](../../coverage.json), parent `DES-12`. `task` выбирает строку tasks.json по id, `solution` — preferred-solutions.json по task_id; затем dot/index selector. Для R19 identity определяется значением question_id, не позицией в другом массиве. Полностью прочитайте назначенные fragments и нужные contracts; mixed clause нельзя усечь.
 
 - **join** — Bundled falsifier names subclauses: repeated/uninformative query, single-graph fallback, off-target receipt, adaptive looks, target mismatch, missing null, wrong protocol/site/recipient/population/intervention, newly required facet and default-filled basis. study-return must consume study-authorization’s owner-recomputed result and actual CAP/source/claim outputs; returned-evidence current-use rights remain separate.
   `task.adversarial`
@@ -51,20 +51,20 @@
   `task.r17_extension.positive`; `task.r17_extension.adversarial`; `task.r17_extension.removal`
 - **binding** — R17 delivery/quality references support actual target/exposure and result binding at the return/claim consumer.
   `task.r17_extension.delivery_slices[0]`; `task.r17_extension.quality_cases[0]`; `task.r17_extension.quality_cases[1]`; `task.r17_extension.quality_cases[2]`
-- **binding** — Missing-result risk and per-outcome denominator drive acquisition/design without imputing null. The actual supplier/consumer remains native; the input clause does not appoint an owner or grant.
-  `task.r19_extension.question_slices[3]`
-- **binding** — Bind planned looks, actual access/deviations and return; an unlogged look or post-outcome target change limits method support. The actual supplier/consumer remains native; the input clause does not appoint an owner or grant.
-  `task.r19_extension.question_slices[6]`
-- **binding** — Keep measured zero, absent and unreturned distinct by outcome; no completion marker coerces null to zero. The actual supplier/consumer remains native; the input clause does not appoint an owner or grant.
-  `task.r19_extension.question_slices[7]`
-- **binding** — Link shared cohort reports to one ancestry so registry/preprint/article/correction do not inflate independence. The actual supplier/consumer remains native; the input clause does not appoint an owner or grant.
-  `task.r19_extension.question_slices[9]`
-- **binding** — Preserve authorization/result binding and EVSI-versus-compute-VOI distinction across the existing cycle. The actual supplier/consumer remains native; the input clause does not appoint an owner or grant.
-  `task.r19_extension.question_slices[12]`
-- **binding** — Each source question ID is routed to the card assigned to its matching indexed question_slices clause in this parent; ID coverage preserves lineage and is not semantic proof.
-  `task.r19_extension.question_ids[3]`; `task.r19_extension.question_ids[6]`; `task.r19_extension.question_ids[7]`; `task.r19_extension.question_ids[9]`; `task.r19_extension.question_ids[12]`
 - **join** — Qualified structural-result route goes to sole GYD-12 writer only under its actual structural-write rule; O1 effect-posterior activation remains separate and is never inferred from the study receipt.
   `solution.acceptance_discriminators[3]`
+- **execute** — Bind actual protocol, looks/access, deviations and return.
+  `task.r19_extension.question_slices[6]` (`R18-D09-Q02`); `task.r19_extension.question_ids[6]` (`R18-D09-Q02`)
+- **execute** — Persist per-outcome denominator and zero/absent/unreturned states distinctly.
+  `task.r19_extension.question_slices[7]` (`R18-D09-Q03`); `task.r19_extension.question_ids[7]` (`R18-D09-Q03`)
+- **execute** — Bind actual report/protocol/outcome/cohort ancestry; duplicates are not independent studies.
+  `task.r19_extension.question_slices[9]` (`R18-D09-Q05`); `task.r19_extension.question_ids[9]` (`R18-D09-Q05`)
+
+### Обязанности внутри составных fragments
+
+- `task.r19_extension.question_slices[3]` — Consume actual return/absence denominator only when received; design work can precede it. (primary accountability остаётся в coverage; это конкретный подрезультат, не второй writer).
+- `task.r19_extension.question_slices[8]` — Use actual return only for post-result update/validation; prospective EVSI is pre-study. (primary accountability остаётся в coverage; это конкретный подрезультат, не второй writer).
+- `task.r19_extension.question_slices[12]` — Join owner-produced return only after selected conduct. (primary accountability остаётся в coverage; это конкретный подрезультат, не второй writer).
 
 Inherited owner/lease/stage/activation constraints указаны в parent contract. Root/lead проверяет полное parent coverage; output этой карточки не закрывает siblings. При обнаружении пропуска остановить только affected writes/acceptance, назвать точный clause и reconciled next owner.
 

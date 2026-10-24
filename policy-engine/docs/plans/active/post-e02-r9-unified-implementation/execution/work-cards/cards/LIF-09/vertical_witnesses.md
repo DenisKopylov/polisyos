@@ -30,24 +30,24 @@
 
 | Отношение | Точный смысл |
 |---|---|
-| Supplier [P0-ACCEPT.accepted-boundary](../../cards/P0-ACCEPT/accepted-boundary.md) | `direct:actual_E02_G_acceptance`: Root preserves canonical accepted-source stage.<br>Выбор output: Select the exact output named in need and its original conditions, not all supplier cards. Actual source-qualified artifacts are pinned at dispatch/composition.<br>Условия: original direct relation; source stage rules govern |
-| Supplier [LIF-01](../../parents/LIF-01.md) | `direct:owner_readiness`: Freeze use scope, exercise relation, bind result.<br>Выбор output: Select the exact output named in need and its original conditions, not all supplier cards. Actual source-qualified artifacts are pinned at dispatch/composition.<br>Условия: original direct relation; source stage rules govern |
-| Supplier [LIF-02](../../parents/LIF-02.md) | `direct:owner_readiness`: Exercise currentness/duty reader, bind receipt.<br>Выбор output: Select the exact output named in need and its original conditions, not all supplier cards. Actual source-qualified artifacts are pinned at dispatch/composition.<br>Условия: original direct relation; source stage rules govern |
-| Supplier [LIF-03.conditional_frontier_commit](../../cards/LIF-03/conditional_frontier_commit.md) | `direct:owner_readiness`: Exercise cursor receipt and bind.<br>Выбор output: Select the exact output named in need and its original conditions, not all supplier cards. Actual source-qualified artifacts are pinned at dispatch/composition.<br>Условия: original direct relation; source stage rules govern |
-| Supplier [LIF-04](../../parents/LIF-04.md) | `direct:owner_readiness`: Exercise selected effect/duty.<br>Выбор output: Select the exact output named in need and its original conditions, not all supplier cards. Actual source-qualified artifacts are pinned at dispatch/composition.<br>Условия: original direct relation; source stage rules govern |
-| Supplier [LIF-05](../../parents/LIF-05.md) | `direct:owner_readiness`: Exercise rights/sink/placement.<br>Выбор output: Select the exact output named in need and its original conditions, not all supplier cards. Actual source-qualified artifacts are pinned at dispatch/composition.<br>Условия: original direct relation; source stage rules govern |
-| Supplier [LIF-06](../../parents/LIF-06.md) | `direct:owner_readiness`: Freeze and exercise measured profile.<br>Выбор output: Select the exact output named in need and its original conditions, not all supplier cards. Actual source-qualified artifacts are pinned at dispatch/composition.<br>Условия: original direct relation; source stage rules govern |
-| Supplier [LIF-07](../../parents/LIF-07.md) | `direct:owner_readiness`: Exercise selected lineage/current-use.<br>Выбор output: Select the exact output named in need and its original conditions, not all supplier cards. Actual source-qualified artifacts are pinned at dispatch/composition.<br>Условия: original direct relation; source stage rules govern |
-| Supplier [LIF-08](../../parents/LIF-08.md) | `direct:owner_readiness`: Freeze source/reader matrix and exercise second source.<br>Выбор output: Select the exact output named in need and its original conditions, not all supplier cards. Actual source-qualified artifacts are pinned at dispatch/composition.<br>Условия: original direct relation; source stage rules govern |
-| Supplier [CAP-05](../../parents/CAP-05.md) | `direct:owner_readiness`: Actual CAP05 only where selected vertical activates.<br>Выбор output: Select the exact output named in need and its original conditions, not all supplier cards. Actual source-qualified artifacts are pinned at dispatch/composition.<br>Условия: original direct relation; source stage rules govern |
-| Supplier [CAP-06](../../parents/CAP-06.md) | `direct:owner_readiness`: Actual CAP06 only where selected; LIF05 remains rights owner.<br>Выбор output: Select the exact output named in need and its original conditions, not all supplier cards. Actual source-qualified artifacts are pinned at dispatch/composition.<br>Условия: original direct relation; source stage rules govern |
+| Supplier [P0-ACCEPT.accepted-boundary](../../cards/P0-ACCEPT/accepted-boundary.md) | `direct:actual_E02_G_acceptance`: Root preserves canonical accepted-source stage.<br>Source: `task.depends_on[0]`.<br>Условия: original direct relation; source stage rules govern |
+| Supplier [LIF-01](../../parents/LIF-01.md) | `direct:owner_readiness`: Freeze use scope, exercise relation, bind result.<br>Source: `task.depends_on[1]`.<br>Условия: original direct relation; source stage rules govern |
+| Supplier [LIF-02](../../parents/LIF-02.md) | `direct:owner_readiness`: Exercise currentness/duty reader, bind receipt.<br>Source: `task.depends_on[2]`.<br>Условия: original direct relation; source stage rules govern |
+| Supplier [LIF-03.conditional_frontier_commit](../../cards/LIF-03/conditional_frontier_commit.md) | `direct:owner_readiness`: Exercise cursor receipt and bind.<br>Source: `task.depends_on[3]`.<br>Условия: original direct relation; source stage rules govern |
+| Supplier [LIF-04](../../parents/LIF-04.md) | `direct:owner_readiness`: Exercise selected effect/duty.<br>Source: `task.depends_on[4]`.<br>Условия: original direct relation; source stage rules govern |
+| Supplier [LIF-05](../../parents/LIF-05.md) | `direct:owner_readiness`: Exercise rights/sink/placement.<br>Source: `task.depends_on[5]`.<br>Условия: original direct relation; source stage rules govern |
+| Supplier [LIF-06](../../parents/LIF-06.md) | `direct:owner_readiness`: Freeze and exercise measured profile.<br>Source: `task.depends_on[6]`.<br>Условия: original direct relation; source stage rules govern |
+| Supplier [LIF-07](../../parents/LIF-07.md) | `direct:owner_readiness`: Exercise selected lineage/current-use.<br>Source: `task.depends_on[7]`.<br>Условия: original direct relation; source stage rules govern |
+| Supplier [LIF-08](../../parents/LIF-08.md) | `direct:owner_readiness`: Freeze source/reader matrix and exercise second source.<br>Source: `task.depends_on[8]`.<br>Условия: original direct relation; source stage rules govern |
+| Supplier [CAP-05](../../parents/CAP-05.md) | `direct:owner_readiness`: Actual CAP05 only where selected vertical activates.<br>Source: `task.depends_on[9]`.<br>Условия: original direct relation; source stage rules govern |
+| Supplier [CAP-06](../../parents/CAP-06.md) | `direct:owner_readiness`: Actual CAP06 only where selected; LIF05 remains rights owner.<br>Source: `task.depends_on[10]`.<br>Условия: original direct relation; source stage rules govern |
 | Composition output (не start gate) [LIF-09.freeze_and_readiness](../../cards/LIF-09/freeze_and_readiness.md) | Only for rows in the frozen accepted-source and active/conditional denominator; structural UID coverage is not a semantic witness. |
 
-Отсутствие внутреннего after не отменяет parent prerequisites. Conditional acceptance, execution rights и выбранные profiles разрешаются отдельно, как указано в parent contract. Номера групп и карточек не задают порядок.
+Отсутствие внутреннего after не отменяет parent prerequisites. Conditional acceptance, execution rights и выбранные profiles применяются на своей стадии. Composition links не задают порядок независимой подготовки.
 
 ## Назначенный нормативный контекст
 
-Основа: `ec3d7d38b4d246b3e1d225a1c0fc9aefae9ced0d`. Полные selectors и accountable routes — [coverage.json](../../coverage.json), parent `LIF-09`. Эти ссылки не требуют чтения всех siblings. Читайте целиком каждый назначенный fragment и необходимые связанные contracts; mixed clause нельзя усечь до удобной части.
+Source-manifest base: `ec3d7d38b4d246b3e1d225a1c0fc9aefae9ced0d`; это не plan_commit назначения. Точные immutable blobs/hash — [coverage.json](../../coverage.json), parent `LIF-09`. `task` выбирает строку tasks.json по id, `solution` — preferred-solutions.json по task_id; затем dot/index selector. Для R19 identity определяется значением question_id, не позицией в другом массиве. Полностью прочитайте назначенные fragments и нужные contracts; mixed clause нельзя усечь.
 
 - **execute** — Full producer/persisted chain.
   `task.positive[0]`
@@ -59,12 +59,16 @@
   `task.acceptance_steps[3]`
 - **execute** — R17 positive/adversarial/removal.
   `task.r17_extension.positive`; `task.r17_extension.adversarial`; `task.r17_extension.removal`
-- **execute** — R18-D22-Q01/Q04/Q05 CAP04 event/cut, resource feasibility, report/no-report IDs.
-  `task.r19_extension.question_slices[0]`; `task.r19_extension.question_slices[1]`; `task.r19_extension.question_slices[2]`; `task.r19_extension.question_ids[0]`; `task.r19_extension.question_ids[1]`; `task.r19_extension.question_ids[2]`
 - **execute** — Selected controls and removal.
   `solution.implementation_steps[3]`
 - **execute** — Actual LIF01-08 artifacts/events and readers.
   `solution.inputs_to_resolve[2]`
+- **execute** — task.r19_extension.question_slices[0] crosswalks by actual value to question_ids[0]. Produces an exact-path CAP-04 Q01 witness tied to source/custodian, event/cut, predicate and fresh-reader closure.
+  `task.r19_extension.question_slices[0]` (`R18-D22-Q01`); `task.r19_extension.question_ids[0]` (`R18-D22-Q01`)
+- **execute** — task.r19_extension.question_slices[1] crosswalks by actual value to question_ids[1]. Produces the distinct Q04 feasibility witness for the selected resource/operation path; Q01/Q05 receipts are not substitutes.
+  `task.r19_extension.question_slices[1]` (`R18-D22-Q04`); `task.r19_extension.question_ids[1]` (`R18-D22-Q04`)
+- **execute** — task.r19_extension.question_slices[2] crosswalks by actual value to question_ids[2]. Produces the Q05 report/no-report witness for the exact source/event/cut without claiming causality.
+  `task.r19_extension.question_slices[2]` (`R18-D22-Q05`); `task.r19_extension.question_ids[2]` (`R18-D22-Q05`)
 
 Inherited owner/lease/stage/activation constraints указаны в parent contract. Root/lead проверяет полное parent coverage; output этой карточки не закрывает siblings. При обнаружении пропуска остановить только affected writes/acceptance, назвать точный clause и reconciled next owner.
 

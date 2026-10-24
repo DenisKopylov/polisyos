@@ -36,7 +36,7 @@ Compose basis-branches’ immutable manifest/difference/ancestry with a verified
 - **binding** — R17 delivery/quality refs and R19 status/contract refs preserve source status/navigation; semantic comparison requirements route separately.
   `task.r17_extension.delivery_slices[0]`; `task.r17_extension.quality_cases[0]`; `task.r17_extension.quality_cases[1]`; `task.r17_extension.product_verification`; `task.r19_extension.status`; `task.r19_extension.product_verification`; `task.r19_extension.composition_contract_ref`
 - **binding** — R19 question IDs, writer rule and assurance reference remain canonical source navigation/lease boundaries, not extra executable cards.
-  `task.r19_extension.question_ids[0]`; `task.r19_extension.question_ids[1]`; `task.r19_extension.question_ids[2]`; `task.r19_extension.question_ids[3]`; `task.r19_extension.question_ids[4]`; `task.r19_extension.question_ids[5]`; `task.r19_extension.question_ids[6]`; `task.r19_extension.question_ids[7]`; `task.r19_extension.question_ids[8]`; `task.r19_extension.question_ids[9]`; `task.r19_extension.question_ids[10]`; `task.r19_extension.question_ids[11]`; `task.r19_extension.question_ids[12]`; `task.r19_extension.question_ids[13]`; `task.r19_extension.question_ids[14]`; `task.r19_extension.question_ids[15]`; `task.r19_extension.question_ids[16]`; `task.r19_extension.question_ids[17]`; `task.r19_extension.writer_rule`; `task.r19_extension.acceptance_ref`
+  `task.r19_extension.writer_rule`; `task.r19_extension.acceptance_ref`
 
 ## Owners и stages
 

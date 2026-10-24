@@ -16,7 +16,7 @@
 
 **Что можно готовить независимо.** Prepare one projection contract independently; positive composition needs both source outputs.
 
-**Где результат соединяется с другими.** Both O1/O3 join; one output can be inspected but no partial green. R15/R16/R17 qualify the same view.
+**Где результат соединяется с другими.** Join qualified O1/O3 outputs at the selected AtlasRunDeck/reviewer browser and MACHINE/CLI/audit readouts. At E02 bind the actual browser read and source-qualified oracle; component presence alone is not a receipt, and O2 remains candidate-only.
 
 **Positive.** All cause classes and unresolved/compound states honest; current WP-01/02 produces no posterior mutation.
 
@@ -30,15 +30,15 @@
 
 | Отношение | Точный смысл |
 |---|---|
-| Supplier [P0-ACCEPT.accepted-boundary](../../cards/P0-ACCEPT/accepted-boundary.md) | `direct:actual_E02_G_acceptance`: Accepted E02 source identity/commit and source-bound acceptance record used when rebinding this card; original parent dispatch/stage remains authoritative.<br>Выбор output: Select the exact output named in need and its original conditions, not all supplier cards. Actual source-qualified artifacts are pinned at dispatch/composition.<br>Условия: original direct relation; source stage rules govern |
-| Supplier [GYD-09.o1-confirmatory-update](../../cards/GYD-09/o1-confirmatory-update.md) | `direct:interface_agreement; acceptance:composition`: Persisted O1 confirmatory effect/update with cause/profile/branch provenance.<br>Выбор output: Select the exact output named in need and its original conditions, not all supplier cards. Actual source-qualified artifacts are pinned at dispatch/composition.<br>Условия: original direct relation; source stage rules govern; selected parent composed claim; not a new preparation dependency |
-| Supplier [GYD-12](../../parents/GYD-12.md) | `direct:interface_agreement; acceptance:composition`: Persisted O3 versioned world-growth branch/head.<br>Выбор output: Select the exact output named in need and its original conditions, not all supplier cards. Actual source-qualified artifacts are pinned at dispatch/composition.<br>Условия: original direct relation; source stage rules govern; selected parent composed claim; not a new preparation dependency |
+| Supplier [P0-ACCEPT.accepted-boundary](../../cards/P0-ACCEPT/accepted-boundary.md) | `direct:actual_E02_G_acceptance`: Accepted E02 source identity/commit and source-bound acceptance record used when rebinding this card; original parent dispatch/stage remains authoritative.<br>Source: `task.depends_on[0]`.<br>Условия: original direct relation; source stage rules govern |
+| Supplier [GYD-09.o1-confirmatory-update](../../cards/GYD-09/o1-confirmatory-update.md) | `direct:interface_agreement; acceptance:composition`: Persisted O1 confirmatory effect/update with cause/profile/branch provenance.<br>Source: `task.depends_on[1]`; `task.acceptance_dependencies[0]`.<br>Условия: original direct relation; source stage rules govern; selected parent composed claim; not a new preparation dependency |
+| Supplier [GYD-12](../../parents/GYD-12.md) | `direct:interface_agreement; acceptance:composition`: Persisted O3 versioned world-growth branch/head.<br>Source: `task.depends_on[2]`; `task.acceptance_dependencies[1]`.<br>Условия: original direct relation; source stage rules govern; selected parent composed claim; not a new preparation dependency |
 
-Отсутствие внутреннего after не отменяет parent prerequisites. Conditional acceptance, execution rights и выбранные profiles разрешаются отдельно, как указано в parent contract. Номера групп и карточек не задают порядок.
+Отсутствие внутреннего after не отменяет parent prerequisites. Conditional acceptance, execution rights и выбранные profiles применяются на своей стадии. Composition links не задают порядок независимой подготовки.
 
 ## Назначенный нормативный контекст
 
-Основа: `ec3d7d38b4d246b3e1d225a1c0fc9aefae9ced0d`. Полные selectors и accountable routes — [coverage.json](../../coverage.json), parent `UI-08`. Эти ссылки не требуют чтения всех siblings. Читайте целиком каждый назначенный fragment и необходимые связанные contracts; mixed clause нельзя усечь до удобной части.
+Source-manifest base: `ec3d7d38b4d246b3e1d225a1c0fc9aefae9ced0d`; это не plan_commit назначения. Точные immutable blobs/hash — [coverage.json](../../coverage.json), parent `UI-08`. `task` выбирает строку tasks.json по id, `solution` — preferred-solutions.json по task_id; затем dot/index selector. Для R19 identity определяется значением question_id, не позицией в другом массиве. Полностью прочитайте назначенные fragments и нужные contracts; mixed clause нельзя усечь.
 
 - **execute** — This source field contributes to world-growth-view's single observable result; its native producer/consumer boundary remains with the existing owner. Source selectors: solution.preferred_solution, task.deliverable.
   `task.deliverable`; `solution.preferred_solution`

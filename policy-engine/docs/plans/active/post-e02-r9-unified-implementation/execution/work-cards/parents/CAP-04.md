@@ -15,7 +15,7 @@ Canonical title: Source-specific change event producer and acquisition consumer.
 
 ## Реальный join
 
-Only qualified source events or bounded CAP-02 cuts reach LIF-02. Operational/exposure, pinned defect/compromise and adopter complaint/harm remain separate typed inputs, not events, legal acts, causal results or adjudications. Do not hide unresolved readers. Original source pins, stage/dispatch gates, conditional execution, completion planes and leases remain authoritative. dependency_routes maps consumption only. Identity/navigation/dispatch/mirrored fields in units.json.other_field_dispositions remain authoritative by parent reference.
+Only qualified source events or bounded CAP-02 cuts reach LIF-02. Operational/exposure, pinned defect/compromise and adopter complaint/harm remain separate typed inputs, not events, legal acts, causal results or adjudications. Do not hide unresolved readers. Original source pins, stage/dispatch gates, conditional execution, completion planes and leases remain authoritative. dependency_routes maps consumption only. Identity/navigation and inherited constraints resolve from coverage.json parents[parent=CAP-04].inherited_fields and registry.json parents[id=CAP-04].inherited_dispatch_contract to the pinned task/solution rows; ignored author scratch is not a normative input.
 
 **Outputs:** [CAP-04.native-events](../cards/CAP-04/native-events.md), [CAP-04.bounded-observation](../cards/CAP-04/bounded-observation.md), [CAP-04.operational-records](../cards/CAP-04/operational-records.md), [CAP-04.defect-impact](../cards/CAP-04/defect-impact.md), [CAP-04.adopter-reports](../cards/CAP-04/adopter-reports.md), [CAP-04.currentness-join](../cards/CAP-04/currentness-join.md).
 

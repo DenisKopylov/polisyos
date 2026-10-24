@@ -14,7 +14,7 @@
 
 **Выход и consumer.** Persisted protected-mode result bound to the full S6/S8/safety/S7 conjunction; keep the O0 near-miss as a separate audit event or explicit unavailable state.
 
-**Что можно готовить независимо.** Resolve only the already-approved ADR amendments and actual S6 capacity/strategic-response producer profiles at their native owners.; Route grounded take-up/reclassification/gaming evidence through the existing S6 path; planned capacity remains distinct from delivered capacity.; Serialize N9 writes with n4-data-only on the actual shared lease.
+**Что можно готовить независимо.** Resolve S6 capacity/response suppliers to actual native producer paths, outputs and canonical leases after E02; G02/G03 are navigation groups, not owners. An absent internal producer becomes assigned native extension work or explicit producer_missing, not a request for external authority. S7 institutional authority remains independently supplied where the protected action requires it.
 
 **Где результат соединяется с другими.** The protected result joins n4-data-only only for full GY-PR1 parent reconciliation; PR1a never satisfies this gate. S7 remains institutional evidence. O0 near-miss is an independent original criterion, not a fixture or unsafe production trial.
 
@@ -30,20 +30,18 @@
 
 | Отношение | Точный смысл |
 |---|---|
-| Supplier [P0-ACCEPT.accepted-boundary](../../cards/P0-ACCEPT/accepted-boundary.md) | `direct:actual_E02_G_acceptance`: Accepted E02 source and task-scoped source rebind are the source/version basis consumed by this card; original P0-ACCEPT and parent dispatch semantics remain authoritative.<br>Выбор output: Select the exact output named in need and its original conditions, not all supplier cards. Actual source-qualified artifacts are pinned at dispatch/composition.<br>Условия: original direct relation; source stage rules govern |
+| Supplier [P0-ACCEPT.accepted-boundary](../../cards/P0-ACCEPT/accepted-boundary.md) | `direct:actual_E02_G_acceptance`: Accepted E02 source and task-scoped source rebind are the source/version basis consumed by this card; original P0-ACCEPT and parent dispatch semantics remain authoritative.<br>Source: `task.depends_on[0]`.<br>Условия: original direct relation; source stage rules govern |
 
-Отсутствие внутреннего after не отменяет parent prerequisites. Conditional acceptance, execution rights и выбранные profiles разрешаются отдельно, как указано в parent contract. Номера групп и карточек не задают порядок.
+Отсутствие внутреннего after не отменяет parent prerequisites. Conditional acceptance, execution rights и выбранные profiles применяются на своей стадии. Composition links не задают порядок независимой подготовки.
 
 ## Назначенный нормативный контекст
 
-Основа: `ec3d7d38b4d246b3e1d225a1c0fc9aefae9ced0d`. Полные selectors и accountable routes — [coverage.json](../../coverage.json), parent `GYD-01`. Эти ссылки не требуют чтения всех siblings. Читайте целиком каждый назначенный fragment и необходимые связанные contracts; mixed clause нельзя усечь до удобной части.
+Source-manifest base: `ec3d7d38b4d246b3e1d225a1c0fc9aefae9ced0d`; это не plan_commit назначения. Точные immutable blobs/hash — [coverage.json](../../coverage.json), parent `GYD-01`. `task` выбирает строку tasks.json по id, `solution` — preferred-solutions.json по task_id; затем dot/index selector. Для R19 identity определяется значением question_id, не позицией в другом массиве. Полностью прочитайте назначенные fragments и нужные contracts; mixed clause нельзя усечь.
 
 - **execute** — The protected-admission card owns this source-specific result or constraint and consumes other owners only through the named interface; no sibling rewrites that native owner.
   `task.milestone_predicates.PR1b`
 - **execute** — The protected-admission card owns this source-specific result or constraint and consumes other owners only through the named interface; no sibling rewrites that native owner.
   `task.r15_extension.requirement`; `task.r15_extension.positive`; `task.r15_extension.adversarial`; `task.r15_extension.removal`; `task.r15_extension.detail`; `task.r15_extension.quality_ref`; `task.r15_extension.technical_profiles[0]`; `task.r15_extension.technical_profiles[1]`; `task.r15_extension.product_verification`
-- **execute** — The protected-admission card owns this source-specific result or constraint and consumes other owners only through the named interface; no sibling rewrites that native owner.
-  `task.r19_extension.question_slices[0]`; `task.r19_extension.question_ids[0]`
 - **execute** — The protected-admission card owns this source-specific result or constraint and consumes other owners only through the named interface; no sibling rewrites that native owner.
   `solution.implementation_steps[0]`
 - **execute** — The protected-admission card owns this source-specific result or constraint and consumes other owners only through the named interface; no sibling rewrites that native owner.
@@ -54,6 +52,10 @@
   `solution.acceptance_discriminators[1]`
 - **execute** — The protected-admission card owns this source-specific result or constraint and consumes other owners only through the named interface; no sibling rewrites that native owner.
   `solution.inputs_to_resolve[0]`; `solution.inputs_to_resolve[1]`
+
+### Обязанности внутри составных fragments
+
+- `task.r19_extension.question_slices[0]` — Consume source-bound S6 take-up/reclassification/strategic-response evidence in the same-candidate protected N9 conjunction; keep planned capacity distinct from delivered capacity. (primary accountability остаётся в coverage; это конкретный подрезультат, не второй writer).
 
 Inherited owner/lease/stage/activation constraints указаны в parent contract. Root/lead проверяет полное parent coverage; output этой карточки не закрывает siblings. При обнаружении пропуска остановить только affected writes/acceptance, назвать точный clause и reconciled next owner.
 

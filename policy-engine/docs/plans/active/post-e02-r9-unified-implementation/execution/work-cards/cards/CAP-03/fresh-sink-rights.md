@@ -30,24 +30,34 @@
 
 | Отношение | Точный смысл |
 |---|---|
-| Supplier [P0-ACCEPT.accepted-boundary](../../cards/P0-ACCEPT/accepted-boundary.md) | `direct:actual_E02_G_acceptance`: Accepted source/path rebind where used; original stage gate stays inherited.<br>Выбор output: Select the exact output named in need and its original conditions, not all supplier cards. Actual source-qualified artifacts are pinned at dispatch/composition.<br>Условия: original direct relation; source stage rules govern |
-| Supplier [CAP-02](../../parents/CAP-02.md) | `direct:owner_readiness`: Consume exact root/read; cost-basis consumes planner artifact.<br>Выбор output: Select the exact output named in need and its original conditions, not all supplier cards. Actual source-qualified artifacts are pinned at dispatch/composition.<br>Условия: original direct relation; source stage rules govern |
-| Supplier [LIF-01](../../parents/LIF-01.md) | `direct:owner_readiness`: Consume source/use relation at admission and selected use.<br>Выбор output: Select the exact output named in need and its original conditions, not all supplier cards. Actual source-qualified artifacts are pinned at dispatch/composition.<br>Условия: original direct relation; source stage rules govern |
-| Supplier [LIF-05](../../parents/LIF-05.md) | `direct:owner_readiness`: Consume shared rights/reservation at relevant effect; no local counter.<br>Выбор output: Select the exact output named in need and its original conditions, not all supplier cards. Actual source-qualified artifacts are pinned at dispatch/composition.<br>Условия: original direct relation; source stage rules govern |
+| Supplier [P0-ACCEPT.accepted-boundary](../../cards/P0-ACCEPT/accepted-boundary.md) | `direct:actual_E02_G_acceptance`: Accepted source/path rebind where used; original stage gate stays inherited.<br>Source: `task.depends_on[0]`.<br>Условия: original direct relation; source stage rules govern |
+| Supplier [CAP-02](../../parents/CAP-02.md) | `direct:owner_readiness`: Consume exact root/read; cost-basis consumes planner artifact.<br>Source: `task.depends_on[1]`.<br>Условия: original direct relation; source stage rules govern |
+| Supplier [LIF-01](../../parents/LIF-01.md) | `direct:owner_readiness`: Consume source/use relation at admission and selected use.<br>Source: `task.depends_on[2]`.<br>Условия: original direct relation; source stage rules govern |
+| Supplier [LIF-05](../../parents/LIF-05.md) | `direct:owner_readiness`: Consume shared rights/reservation at relevant effect; no local counter.<br>Source: `task.depends_on[3]`.<br>Условия: original direct relation; source stage rules govern |
 | Composition output (не start gate) [CAP-03.root-admission](../../cards/CAP-03/root-admission.md) | Consume only for the exact composition described here: Join before fetch/resume/cache/derive/export/restore; share LIF-05's AP07 reservation/outcome. This link is not an unconditional all-of or preparation gate. |
 
-Отсутствие внутреннего after не отменяет parent prerequisites. Conditional acceptance, execution rights и выбранные profiles разрешаются отдельно, как указано в parent contract. Номера групп и карточек не задают порядок.
+Отсутствие внутреннего after не отменяет parent prerequisites. Conditional acceptance, execution rights и выбранные profiles применяются на своей стадии. Composition links не задают порядок независимой подготовки.
 
 ## Назначенный нормативный контекст
 
-Основа: `ec3d7d38b4d246b3e1d225a1c0fc9aefae9ced0d`. Полные selectors и accountable routes — [coverage.json](../../coverage.json), parent `CAP-03`. Эти ссылки не требуют чтения всех siblings. Читайте целиком каждый назначенный fragment и необходимые связанные contracts; mixed clause нельзя усечь до удобной части.
+Source-manifest base: `ec3d7d38b4d246b3e1d225a1c0fc9aefae9ced0d`; это не plan_commit назначения. Точные immutable blobs/hash — [coverage.json](../../coverage.json), parent `CAP-03`. `task` выбирает строку tasks.json по id, `solution` — preferred-solutions.json по task_id; затем dot/index selector. Для R19 identity определяется значением question_id, не позицией в другом массиве. Полностью прочитайте назначенные fragments и нужные contracts; mixed clause нельзя усечь.
 
 - **execute** — Recheck distinct use/action/recipient/generation and actual sinks through shared LIF-05; D05/D09/D14 cover permission conflicts, conduct, cumulative disclosure and consent/revocation.
-  `task.r17_extension.requirement`; `task.r17_extension.positive`; `task.r17_extension.adversarial`; `task.r17_extension.removal`; `task.r19_extension.question_slices[1]`; `task.r19_extension.question_slices[2]`; `task.r19_extension.question_slices[3]`; `task.r19_extension.question_slices[4]`; `task.r19_extension.question_slices[5]`; `task.r19_extension.question_ids[1]`; `task.r19_extension.question_ids[2]`; `task.r19_extension.question_ids[4]`; `task.r19_extension.question_ids[5]`; `solution.implementation_steps[2]`; `solution.implementation_steps[3]`; `solution.free_grow.extension_boundary`; `solution.composition_contracts[1]`; `solution.composition_contracts[2]`; `solution.acceptance_discriminators[1]`; `solution.acceptance_discriminators[3]`; `solution.deviation_triggers[0]`; `solution.deviation_triggers[1]`; `solution.inputs_to_resolve[1]`; `solution.inputs_to_resolve[2]`
+  `task.r17_extension.requirement`; `task.r17_extension.positive`; `task.r17_extension.adversarial`; `task.r17_extension.removal`; `solution.implementation_steps[2]`; `solution.implementation_steps[3]`; `solution.free_grow.extension_boundary`; `solution.composition_contracts[1]`; `solution.composition_contracts[2]`; `solution.acceptance_discriminators[1]`; `solution.acceptance_discriminators[3]`; `solution.deviation_triggers[0]`; `solution.deviation_triggers[1]`; `solution.inputs_to_resolve[1]`; `solution.inputs_to_resolve[2]`
 - **join** — Foreign purpose/tenant/stale-generation probe consumes root admission and current shared rights.
   `task.surface_delivery.negative`
 - **binding** — R17 D6 constrains exact source-use, recipient and output-release decisions at actual sinks; reuse existing authz/LIF-05 rather than creating a new IAM or provider owner.
   `task.r17_extension.delivery_slices[0]`
+- **execute** — Current route matches: re-resolve current LIF-05 outcome at derive/cache/export; a permitted derivative does not release restricted raw data.
+  `task.r19_extension.question_slices[1]` (`R18-D05-Q05`); `task.r19_extension.question_ids[1]` (`R18-D05-Q05`)
+- **execute** — Current route matches: read, analyze, derive, and public export are distinct actions requiring current action/purpose/recipient grants at the sink.
+  `task.r19_extension.question_slices[2]` (`R18-D09-Q01`); `task.r19_extension.question_ids[2]` (`R18-D09-Q01`)
+- **execute** — Current route matches: bind the separate current read/analyze/derive/export/publish grants and recipient; a public URL/hash is not an IPD grant.
+  `task.r19_extension.question_slices[3]` (`R18-D09-Q05`); `task.r19_extension.question_ids[3]` (`R18-D09-Q05`)
+- **execute** — Current route matches: cached/resumed use must resolve current LIF-05 policy version and preserve the original reservation/outcome.
+  `task.r19_extension.question_slices[4]` (`R18-D14-Q03`); `task.r19_extension.question_ids[4]` (`R18-D14-Q03`)
+- **execute** — Current route matches: grant to read does not authorize analysis, training, reuse, or publication; recheck rights at the later use.
+  `task.r19_extension.question_slices[5]` (`R18-D14-Q04`); `task.r19_extension.question_ids[5]` (`R18-D14-Q04`)
 
 Inherited owner/lease/stage/activation constraints указаны в parent contract. Root/lead проверяет полное parent coverage; output этой карточки не закрывает siblings. При обнаружении пропуска остановить только affected writes/acceptance, назвать точный clause и reconciled next owner.
 

@@ -6,13 +6,13 @@
 
 **Проверяемый результат.** Production-data use is admitted only for the exact resolved source, rights/trust evidence, purpose, audience and tenant/time scope verified by the native owner.
 
-**Предпочтительное решение.** Reuse existing authority interfaces and production builder/N8 consumer; resolve purpose/role/root/content and tenant/time/revocation without creating blanket signer policy.
+**Предпочтительное решение.** Compose actual production-data/trust inputs through the existing FA1 owner and persist its typed result through canonical CAS. Bind current use and selected prerequisites; absence emits a scoped refusal/limitation, not a fabricated grant. Wire any missing native result producer/reader after E02 within existing owner leases.
 
 **Граница владельца.** The assigned GYD-15 lead traces/rebinds the existing accountable source-trust evidence interface and current N8 admission reader, resolving native paths/leases before dispatch and freezing them at accepted-source rebind; actual E02 acceptance remains required for implementation. Existing production-data trust and source-right owners retain their authority: GYD-15 is an N8 admission consumer/composition, not a source-grant writer or trust-root issuer. Missing institutional grants/signer/role/root facts stay typed-empty; do not infer rights from byte integrity, cutoff, toolchain admission or adjacency.
 
 **Входы.** Exact resolved production data from its canonical source/custody path.; Existing scope/content-bound source-use grant or decision and trust/root evidence from the accountable owners; consume OPS-06 read-scope/effect-release evidence when that contract covers this operation, and do not write or refresh a source grant here.; Applicable technical trust-root/generation verification from its existing owner, including OPS-11.trust-root evidence only where that contract applies.; Purpose, audience, role, tenant, validity and revocation scope as actually evidenced by competent sources.; Other FA1 receipts for the N8 join.
 
-**Выход и consumer.** FA1-scoped N8 admission composition/refusal bound to the exact consumed data and existing source-use/trust evidence; it is not a source grant, grant ledger or trust-root act.
+**Выход и consumer.** Persisted native FA1 composition admission/refusal receipt binding exact data, grant/trust refs, purpose, audience/role/tenant, relevant times, rule versions and required FA1 inputs; fresh N8 reads it. This records the existing owner decision and never issues source permission or institutional authority.
 
 **Что можно готовить независимо.** The assigned GYD-15 lead traces/rebinds the existing source-trust evidence interface and current N8 admission consumer; freeze exact path/lease at accepted-source rebind, preserving the E02 dispatch gate. Do not create a source-grant producer.; Resolve institutional purpose/role/root/tenant/time facts as separate evidence; consume the accountable source-right decision and do not create a source-grant writer or signer act.; Route the FA1-scoped composition through the current N8 admission consumer.
 
@@ -30,16 +30,21 @@
 
 | Отношение | Точный смысл |
 |---|---|
-| Supplier [P0-ACCEPT.accepted-boundary](../../cards/P0-ACCEPT/accepted-boundary.md) | `direct:actual_E02_G_acceptance`: Accepted E02 source and task-scoped source rebind are the source/version basis consumed by this card; original P0-ACCEPT and parent dispatch semantics remain authoritative.<br>Выбор output: Select the exact output named in need and its original conditions, not all supplier cards. Actual source-qualified artifacts are pinned at dispatch/composition.<br>Условия: original direct relation; source stage rules govern |
+| Supplier [P0-ACCEPT.accepted-boundary](../../cards/P0-ACCEPT/accepted-boundary.md) | `direct:actual_E02_G_acceptance`: Accepted E02 source and task-scoped source rebind are the source/version basis consumed by this card; original P0-ACCEPT and parent dispatch semantics remain authoritative.<br>Source: `task.depends_on[0]`.<br>Условия: original direct relation; source stage rules govern |
 
-Отсутствие внутреннего after не отменяет parent prerequisites. Conditional acceptance, execution rights и выбранные profiles разрешаются отдельно, как указано в parent contract. Номера групп и карточек не задают порядок.
+Отсутствие внутреннего after не отменяет parent prerequisites. Conditional acceptance, execution rights и выбранные profiles применяются на своей стадии. Composition links не задают порядок независимой подготовки.
 
 ## Назначенный нормативный контекст
 
-Основа: `ec3d7d38b4d246b3e1d225a1c0fc9aefae9ced0d`. Полные selectors и accountable routes — [coverage.json](../../coverage.json), parent `GYD-15`. Эти ссылки не требуют чтения всех siblings. Читайте целиком каждый назначенный fragment и необходимые связанные contracts; mixed clause нельзя усечь до удобной части.
+Source-manifest base: `ec3d7d38b4d246b3e1d225a1c0fc9aefae9ced0d`; это не plan_commit назначения. Точные immutable blobs/hash — [coverage.json](../../coverage.json), parent `GYD-15`. `task` выбирает строку tasks.json по id, `solution` — preferred-solutions.json по task_id; затем dot/index selector. Для R19 identity определяется значением question_id, не позицией в другом массиве. Полностью прочитайте назначенные fragments и нужные contracts; mixed clause нельзя усечь.
 
 - **execute** — The data-trust card owns this source-specific result or constraint and consumes other owners only through the named interface; no sibling rewrites that native owner.
   `solution.implementation_steps[3]`
+
+### Обязанности внутри составных fragments
+
+- `task.adversarial` — Data-purpose/trust inputs and persisted FA1 composition result must contribute its real producer/fresh-consumer discriminator to this aggregate criterion; keep unrelated siblings unchanged for its matched removal. (primary accountability остаётся в coverage; это конкретный подрезультат, не второй writer).
+- `task.removal` — Data-purpose/trust inputs and persisted FA1 composition result must contribute its real producer/fresh-consumer discriminator to this aggregate criterion; keep unrelated siblings unchanged for its matched removal. (primary accountability остаётся в coverage; это конкретный подрезультат, не второй writer).
 
 Inherited owner/lease/stage/activation constraints указаны в parent contract. Root/lead проверяет полное parent coverage; output этой карточки не закрывает siblings. При обнаружении пропуска остановить только affected writes/acceptance, назвать точный clause и reconciled next owner.
 

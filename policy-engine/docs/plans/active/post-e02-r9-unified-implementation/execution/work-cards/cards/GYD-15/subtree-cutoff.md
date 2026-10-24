@@ -30,16 +30,14 @@
 
 | Отношение | Точный смысл |
 |---|---|
-| Supplier [P0-ACCEPT.accepted-boundary](../../cards/P0-ACCEPT/accepted-boundary.md) | `direct:actual_E02_G_acceptance`: Accepted E02 source and task-scoped source rebind are the source/version basis consumed by this card; original P0-ACCEPT and parent dispatch semantics remain authoritative.<br>Выбор output: Select the exact output named in need and its original conditions, not all supplier cards. Actual source-qualified artifacts are pinned at dispatch/composition.<br>Условия: original direct relation; source stage rules govern |
+| Supplier [P0-ACCEPT.accepted-boundary](../../cards/P0-ACCEPT/accepted-boundary.md) | `direct:actual_E02_G_acceptance`: Accepted E02 source and task-scoped source rebind are the source/version basis consumed by this card; original P0-ACCEPT and parent dispatch semantics remain authoritative.<br>Source: `task.depends_on[0]`.<br>Условия: original direct relation; source stage rules govern |
 
-Отсутствие внутреннего after не отменяет parent prerequisites. Conditional acceptance, execution rights и выбранные profiles разрешаются отдельно, как указано в parent contract. Номера групп и карточек не задают порядок.
+Отсутствие внутреннего after не отменяет parent prerequisites. Conditional acceptance, execution rights и выбранные profiles применяются на своей стадии. Composition links не задают порядок независимой подготовки.
 
 ## Назначенный нормативный контекст
 
-Основа: `ec3d7d38b4d246b3e1d225a1c0fc9aefae9ced0d`. Полные selectors и accountable routes — [coverage.json](../../coverage.json), parent `GYD-15`. Эти ссылки не требуют чтения всех siblings. Читайте целиком каждый назначенный fragment и необходимые связанные contracts; mixed clause нельзя усечь до удобной части.
+Source-manifest base: `ec3d7d38b4d246b3e1d225a1c0fc9aefae9ced0d`; это не plan_commit назначения. Точные immutable blobs/hash — [coverage.json](../../coverage.json), parent `GYD-15`. `task` выбирает строку tasks.json по id, `solution` — preferred-solutions.json по task_id; затем dot/index selector. Для R19 identity определяется значением question_id, не позицией в другом массиве. Полностью прочитайте назначенные fragments и нужные contracts; mixed clause нельзя усечь.
 
-- **execute** — The subtree-cutoff card owns this source-specific result or constraint and consumes other owners only through the named interface; no sibling rewrites that native owner.
-  `task.adversarial`; `task.removal`
 - **execute** — The subtree-cutoff card owns this source-specific result or constraint and consumes other owners only through the named interface; no sibling rewrites that native owner.
   `solution.implementation_steps[0]`
 - **execute** — The subtree-cutoff card owns this source-specific result or constraint and consumes other owners only through the named interface; no sibling rewrites that native owner.
@@ -48,6 +46,11 @@
   `solution.acceptance_discriminators[2]`
 - **execute** — The subtree-cutoff card owns this source-specific result or constraint and consumes other owners only through the named interface; no sibling rewrites that native owner.
   `solution.inputs_to_resolve[0]`
+
+### Обязанности внутри составных fragments
+
+- `task.adversarial` — Actual subtree boundary/removal and scope witness must contribute its real producer/fresh-consumer discriminator to this aggregate criterion; keep unrelated siblings unchanged for its matched removal. (primary accountability остаётся в coverage; это конкретный подрезультат, не второй writer).
+- `task.removal` — Actual subtree boundary/removal and scope witness must contribute its real producer/fresh-consumer discriminator to this aggregate criterion; keep unrelated siblings unchanged for its matched removal. (primary accountability остаётся в coverage; это конкретный подрезультат, не второй writer).
 
 Inherited owner/lease/stage/activation constraints указаны в parent contract. Root/lead проверяет полное parent coverage; output этой карточки не закрывает siblings. При обнаружении пропуска остановить только affected writes/acceptance, назвать точный clause и reconciled next owner.
 

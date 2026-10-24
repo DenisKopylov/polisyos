@@ -30,17 +30,17 @@
 
 | Отношение | Точный смысл |
 |---|---|
-| Supplier [P0-ACCEPT.accepted-boundary](../../cards/P0-ACCEPT/accepted-boundary.md) | `direct:actual_E02_G_acceptance`: Every card consumes the accepted E02 source/commit and task-scoped source rebind for its own owner readback. The universal acceptance/stage/conditional gate remains the original parent contract; this map adds no second leaf gate or sequencing.<br>Выбор output: Select the exact output named in need and its original conditions, not all supplier cards. Actual source-qualified artifacts are pinned at dispatch/composition.<br>Условия: original direct relation; source stage rules govern |
-| Supplier [GYD-30](../../parents/GYD-30.md) | `direct:interface_agreement`: Consumes the real owner-produced joint CompositionCertificate; no DES-03 certificate copy or writer.<br>Выбор output: Select the exact output named in need and its original conditions, not all supplier cards. Actual source-qualified artifacts are pinned at dispatch/composition.<br>Условия: original direct relation; source stage rules govern |
-| Supplier [GYD-31](../../parents/GYD-31.md) | `direct:interface_agreement`: Consumes real ValueOuterSet; no invented weights or new value owner.<br>Выбор output: Select the exact output named in need and its original conditions, not all supplier cards. Actual source-qualified artifacts are pinned at dispatch/composition.<br>Условия: original direct relation; source stage rules govern |
-| Supplier [LIF-07](../../parents/LIF-07.md) | `direct:interface_agreement; conditional_acceptance_requirements:composition`: Consumes actual influence/revision lineage for basis/cache/currentness interpretation; LIF-07 retains invalidation ownership.<br>Выбор output: Select the exact output named in need and its original conditions, not all supplier cards. Actual source-qualified artifacts are pinned at dispatch/composition.<br>Условия: original direct relation; source stage rules govern; The selected composition claims changed-basis selective execution or cross-run artifact reuse |
+| Supplier [P0-ACCEPT.accepted-boundary](../../cards/P0-ACCEPT/accepted-boundary.md) | `direct:actual_E02_G_acceptance`: Every card consumes the accepted E02 source/commit and task-scoped source rebind for its own owner readback. The universal acceptance/stage/conditional gate remains the original parent contract; this map adds no second leaf gate or sequencing.<br>Source: `task.depends_on[0]`.<br>Условия: original direct relation; source stage rules govern |
+| Supplier [GYD-30](../../parents/GYD-30.md) | `direct:interface_agreement`: Consumes the real owner-produced joint CompositionCertificate; no DES-03 certificate copy or writer.<br>Source: `task.depends_on[2]`.<br>Условия: original direct relation; source stage rules govern |
+| Supplier [GYD-31](../../parents/GYD-31.md) | `direct:interface_agreement`: Consumes real ValueOuterSet; no invented weights or new value owner.<br>Source: `task.depends_on[3]`.<br>Условия: original direct relation; source stage rules govern |
+| Supplier [LIF-07](../../parents/LIF-07.md) | `direct:interface_agreement; conditional_acceptance_requirements:composition`: Consumes actual influence/revision lineage for basis/cache/currentness interpretation; LIF-07 retains invalidation ownership.<br>Source: `task.depends_on[4]`; `task.conditional_acceptance_requirements[0]`.<br>Условия: original direct relation; source stage rules govern; The selected composition claims changed-basis selective execution or cross-run artifact reuse |
 | Composition output (не start gate) [DES-03.trial-binding](../../cards/DES-03/trial-binding.md) | Consume only for the exact composition described here: Join trial-binding’s actual execution with GYD-30 joint outcomes and GYD-31 values in the existing frontier/dossier. The actual consumer is the fresh Scientist frontier; no separate ranking service. This link is not an unconditional all-of or preparation gate. |
 
-Отсутствие внутреннего after не отменяет parent prerequisites. Conditional acceptance, execution rights и выбранные profiles разрешаются отдельно, как указано в parent contract. Номера групп и карточек не задают порядок.
+Отсутствие внутреннего after не отменяет parent prerequisites. Conditional acceptance, execution rights и выбранные profiles применяются на своей стадии. Composition links не задают порядок независимой подготовки.
 
 ## Назначенный нормативный контекст
 
-Основа: `ec3d7d38b4d246b3e1d225a1c0fc9aefae9ced0d`. Полные selectors и accountable routes — [coverage.json](../../coverage.json), parent `DES-03`. Эти ссылки не требуют чтения всех siblings. Читайте целиком каждый назначенный fragment и необходимые связанные contracts; mixed clause нельзя усечь до удобной части.
+Source-manifest base: `ec3d7d38b4d246b3e1d225a1c0fc9aefae9ced0d`; это не plan_commit назначения. Точные immutable blobs/hash — [coverage.json](../../coverage.json), parent `DES-03`. `task` выбирает строку tasks.json по id, `solution` — preferred-solutions.json по task_id; затем dot/index selector. Для R19 identity определяется значением question_id, не позицией в другом массиве. Полностью прочитайте назначенные fragments и нужные contracts; mixed clause нельзя усечь.
 
 - **join** — These positive/adversarial/removal/surface clauses are the distinguishing frontier result; bundled trial and joint-simulation subclauses are reconciled against trial-binding and GYD-30/31 outputs.
   `task.positive`; `task.adversarial`; `task.removal`; `task.surface`
@@ -54,20 +54,6 @@
   `task.r16_extension.delivery_slices[0]`; `task.r16_extension.delivery_slices[1]`; `task.r16_extension.delivery_slices[2]`; `task.r16_extension.quality_cases[0]`; `task.r16_extension.quality_cases[1]`; `task.r16_extension.quality_cases[2]`; `task.r16_extension.quality_cases[3]`; `task.r16_extension.quality_cases[4]`; `task.r16_extension.quality_cases[5]`
 - **join** — R17 incumbent-mixture/transition clauses test successor comparison at the frontier using actual trajectory/joint execution; no duplicate optimizer.
   `task.r17_extension.requirement`; `task.r17_extension.positive`; `task.r17_extension.adversarial`; `task.r17_extension.removal`; `task.r17_extension.delivery_slices[0]`; `task.r17_extension.quality_cases[0]`; `task.r17_extension.quality_cases[1]`
-- **join** — Conditional normative outputs retain unknown collective mandate; frontier reports both admissible conditional schedules without claiming a collective winner. The clause’s named source owner remains the supplier; this route consumes its actual output.
-  `task.r19_extension.question_slices[0]`
-- **join** — Adaptive-family selection is tested on the real set consumer; pointwise intervals alone cannot prune it. The clause’s named source owner remains the supplier; this route consumes its actual output.
-  `task.r19_extension.question_slices[1]`
-- **join** — Rival model/scenario alternatives remain partially ordered; no surrogate-only false dominance. The clause’s named source owner remains the supplier; this route consumes its actual output.
-  `task.r19_extension.question_slices[4]`
-- **join** — Dominant compute equivalence needs actual cost/verifier join and cannot replace social value choice. The clause’s named source owner remains the supplier; this route consumes its actual output.
-  `task.r19_extension.question_slices[5]`
-- **join** — Optional SCI evidence/weight changes only its supported axis; without owner-backed basis it stays incomparable. The clause’s named source owner remains the supplier; this route consumes its actual output.
-  `task.r19_extension.question_slices[6]`
-- **join** — Exact edition/denominator aggregation is a frontier input; mismatched period/member cannot support a joint result. The clause’s named source owner remains the supplier; this route consumes its actual output.
-  `task.r19_extension.question_slices[7]`
-- **binding** — Each source question ID is routed to the card assigned to its matching indexed question_slices clause in this parent; ID coverage preserves lineage and is not semantic proof.
-  `task.r19_extension.question_ids[0]`; `task.r19_extension.question_ids[1]`; `task.r19_extension.question_ids[4]`; `task.r19_extension.question_ids[5]`; `task.r19_extension.question_ids[6]`; `task.r19_extension.question_ids[7]`
 - **execute** — Implementation step 2 binds the actual joint/model/value consumer; named suppliers retain their own artifact owners.
   `solution.implementation_steps[2]`
 - **execute** — Implementation step 3 binds the actual joint/model/value consumer; named suppliers retain their own artifact owners.
@@ -80,6 +66,23 @@
   `solution.acceptance_discriminators[0]`; `solution.acceptance_discriminators[1]`; `solution.acceptance_discriminators[2]`
 - **binding** — Selected simulation/method and value basis is consumed at the frontier; external weights/law are needed only for claims that require them.
   `solution.inputs_to_resolve[0]`
+- **join** — Consume signed conditional results; keep collective selection separate absent mandate.
+  `task.r19_extension.question_slices[0]` (`R18-D05-Q01`); `task.r19_extension.question_ids[0]` (`R18-D05-Q01`)
+- **join** — Consume family-correct adaptive-search output; pointwise intervals do not replace family rule.
+  `task.r19_extension.question_slices[1]` (`R18-D07-Q01`); `task.r19_extension.question_ids[1]` (`R18-D07-Q01`)
+- **join** — Keep non-dominated alternatives; prune only with joint dominance evidence.
+  `task.r19_extension.question_slices[4]` (`R18-D18-Q02`); `task.r19_extension.question_ids[4]` (`R18-D18-Q02`)
+- **join** — Cost may prefer only equivalent current-policy outcomes, never different social outcomes.
+  `task.r19_extension.question_slices[5]` (`R18-D19-Q02`); `task.r19_extension.question_ids[5]` (`R18-D19-Q02`)
+- **join** — Optional authorized SCI axis changes rank only; E, spend and factor evidence stay distinct.
+  `task.r19_extension.question_slices[6]` (`R18-D19-Q05`); `task.r19_extension.question_ids[6]` (`R18-D19-Q05`)
+- **join** — Join exact editions, member denominator and aggregate/interaction basis.
+  `task.r19_extension.question_slices[7]` (`R18-D20-Q01`); `task.r19_extension.question_ids[7]` (`R18-D20-Q01`)
+
+### Обязанности внутри составных fragments
+
+- `task.r19_extension.question_slices[2]` — Consume bound trial results in fresh frontier; structure is not policy weight. (primary accountability остаётся в coverage; это конкретный подрезультат, не второй writer).
+- `task.r19_extension.question_slices[3]` — Consume actual outcomes/costs in frontier while policy choice stays separate. (primary accountability остаётся в coverage; это конкретный подрезультат, не второй writer).
 
 Inherited owner/lease/stage/activation constraints указаны в parent contract. Root/lead проверяет полное parent coverage; output этой карточки не закрывает siblings. При обнаружении пропуска остановить только affected writes/acceptance, назвать точный clause и reconciled next owner.
 

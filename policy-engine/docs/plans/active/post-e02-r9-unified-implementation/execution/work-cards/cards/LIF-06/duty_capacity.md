@@ -30,16 +30,16 @@
 
 | Отношение | Точный смысл |
 |---|---|
-| Supplier [P0-ACCEPT.accepted-boundary](../../cards/P0-ACCEPT/accepted-boundary.md) | `direct:actual_E02_G_acceptance`: Root stage.<br>Выбор output: Select the exact output named in need and its original conditions, not all supplier cards. Actual source-qualified artifacts are pinned at dispatch/composition.<br>Условия: original direct relation; source stage rules govern |
-| Supplier [LIF-04](../../parents/LIF-04.md) | `direct:owner_readiness`: Consume committed duty/operation and live allocation; LIF04 remains owner.<br>Выбор output: Select the exact output named in need and its original conditions, not all supplier cards. Actual source-qualified artifacts are pinned at dispatch/composition.<br>Условия: original direct relation; source stage rules govern |
+| Supplier [P0-ACCEPT.accepted-boundary](../../cards/P0-ACCEPT/accepted-boundary.md) | `direct:actual_E02_G_acceptance`: Root stage.<br>Source: `task.depends_on[0]`.<br>Условия: original direct relation; source stage rules govern |
+| Supplier [LIF-04](../../parents/LIF-04.md) | `direct:owner_readiness`: Consume committed duty/operation and live allocation; LIF04 remains owner.<br>Source: `task.depends_on[1]`.<br>Условия: original direct relation; source stage rules govern |
 | Composition output (не start gate) [LIF-06.physical_admission](../../cards/LIF-06/physical_admission.md) | Only when the selected LIF-04 service duty asserts a resource-bound eligibility/measurement guarantee; ordinary duty policy does not require this admission result. |
 | Composition output (не start gate) [LIF-06.allocation_lifetime](../../cards/LIF-06/allocation_lifetime.md) | Only for that selected resource-bound duty, using actual live allocation through release; queue status, TTL or transfer cannot substitute. |
 
-Отсутствие внутреннего after не отменяет parent prerequisites. Conditional acceptance, execution rights и выбранные profiles разрешаются отдельно, как указано в parent contract. Номера групп и карточек не задают порядок.
+Отсутствие внутреннего after не отменяет parent prerequisites. Conditional acceptance, execution rights и выбранные profiles применяются на своей стадии. Composition links не задают порядок независимой подготовки.
 
 ## Назначенный нормативный контекст
 
-Основа: `ec3d7d38b4d246b3e1d225a1c0fc9aefae9ced0d`. Полные selectors и accountable routes — [coverage.json](../../coverage.json), parent `LIF-06`. Эти ссылки не требуют чтения всех siblings. Читайте целиком каждый назначенный fragment и необходимые связанные contracts; mixed clause нельзя усечь до удобной части.
+Source-manifest base: `ec3d7d38b4d246b3e1d225a1c0fc9aefae9ced0d`; это не plan_commit назначения. Точные immutable blobs/hash — [coverage.json](../../coverage.json), parent `LIF-06`. `task` выбирает строку tasks.json по id, `solution` — preferred-solutions.json по task_id; затем dot/index selector. Для R19 identity определяется значением question_id, не позицией в другом массиве. Полностью прочитайте назначенные fragments и нужные contracts; mixed clause нельзя усечь.
 
 - **execute** — Bounded overload preserves duty/currentness.
   `task.positive[1]`
@@ -49,8 +49,6 @@
   `task.acceptance_steps[6]`; `task.acceptance_steps[7]`; `task.acceptance_steps[8]`
 - **execute** — R17 duty capacity and removal.
   `task.r17_extension.requirement`; `task.r17_extension.positive`; `task.r17_extension.adversarial`; `task.r17_extension.removal`
-- **execute** — R18-D16-Q01 selected duty capacity + paired ID.
-  `task.r19_extension.question_slices[1]`; `task.r19_extension.question_ids[1]`
 - **execute** — Queue policy at LIF04 selector.
   `solution.composition_contracts[6]`
 - **execute** — Review unresolved/durable duty.
@@ -59,6 +57,8 @@
   `solution.acceptance_discriminators[4]`
 - **execute** — Age/fake review/policy transition.
   `solution.acceptance_discriminators[9]`; `solution.acceptance_discriminators[10]`; `solution.acceptance_discriminators[11]`
+- **execute** — task.r19_extension.question_slices[1] crosswalks by actual value to question_ids[1]. Pre-admits the selected claim duty against measured OPS-08 capacity/commitments while retaining nested denominator and scoped revalidation.
+  `task.r19_extension.question_slices[1]` (`R18-D16-Q01`); `task.r19_extension.question_ids[1]` (`R18-D16-Q01`)
 
 Inherited owner/lease/stage/activation constraints указаны в parent contract. Root/lead проверяет полное parent coverage; output этой карточки не закрывает siblings. При обнаружении пропуска остановить только affected writes/acceptance, назвать точный clause и reconciled next owner.
 

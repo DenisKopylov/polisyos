@@ -30,35 +30,35 @@
 
 | Отношение | Точный смысл |
 |---|---|
-| Supplier [P0-ACCEPT.accepted-boundary](../../cards/P0-ACCEPT/accepted-boundary.md) | `direct:actual_E02_G_acceptance`: Every card consumes the accepted E02 source/commit and task-scoped source rebind for its own owner readback. The universal acceptance/stage/conditional gate remains the original parent contract; this map adds no second leaf gate or sequencing.<br>Выбор output: Select the exact output named in need and its original conditions, not all supplier cards. Actual source-qualified artifacts are pinned at dispatch/composition.<br>Условия: original direct relation; source stage rules govern |
-| Supplier [FINAL-REVIEW.independent-review](../../cards/FINAL-REVIEW/independent-review.md) | `acceptance:composition`: Each selected campaign consumes FINAL-REVIEW’s actual final immutable reviewed identity when its campaign result is composed in the original single FINAL-REPLAY wave. This is the canonical acceptance dependency at composition; frozen cases, local oracles, protocol work and owner readiness may proceed independently, with no new ready/start blocker.<br>Выбор output: Select the exact output named in need and its original conditions, not all supplier cards. Actual source-qualified artifacts are pinned at dispatch/composition.<br>Условия: selected parent composed claim; not a new preparation dependency |
+| Supplier [P0-ACCEPT.accepted-boundary](../../cards/P0-ACCEPT/accepted-boundary.md) | `direct:actual_E02_G_acceptance`: Every card consumes the accepted E02 source/commit and task-scoped source rebind for its own owner readback. The universal acceptance/stage/conditional gate remains the original parent contract; this map adds no second leaf gate or sequencing.<br>Source: `task.depends_on[0]`.<br>Условия: original direct relation; source stage rules govern |
+| Supplier [FINAL-REVIEW.independent-review](../../cards/FINAL-REVIEW/independent-review.md) | `acceptance:composition`: Each selected campaign consumes FINAL-REVIEW’s actual final immutable reviewed identity when its campaign result is composed in the original single FINAL-REPLAY wave. This is the canonical acceptance dependency at composition; frozen cases, local oracles, protocol work and owner readiness may proceed independently, with no new ready/start blocker.<br>Source: `task.acceptance_dependencies[0]`.<br>Условия: selected parent composed claim; not a new preparation dependency |
 
-Отсутствие внутреннего after не отменяет parent prerequisites. Conditional acceptance, execution rights и выбранные profiles разрешаются отдельно, как указано в parent contract. Номера групп и карточек не задают порядок.
+Отсутствие внутреннего after не отменяет parent prerequisites. Conditional acceptance, execution rights и выбранные profiles применяются на своей стадии. Composition links не задают порядок независимой подготовки.
 
 ## Назначенный нормативный контекст
 
-Основа: `ec3d7d38b4d246b3e1d225a1c0fc9aefae9ced0d`. Полные selectors и accountable routes — [coverage.json](../../coverage.json), parent `DES-10`. Эти ссылки не требуют чтения всех siblings. Читайте целиком каждый назначенный fragment и необходимые связанные contracts; mixed clause нельзя усечь до удобной части.
+Source-manifest base: `ec3d7d38b4d246b3e1d225a1c0fc9aefae9ced0d`; это не plan_commit назначения. Точные immutable blobs/hash — [coverage.json](../../coverage.json), parent `DES-10`. `task` выбирает строку tasks.json по id, `solution` — preferred-solutions.json по task_id; затем dot/index selector. Для R19 identity определяется значением question_id, не позицией в другом массиве. Полностью прочитайте назначенные fragments и нужные contracts; mixed clause нельзя усечь.
 
-- **join** — Pre-registered variant/audience effect is an audience-reader endpoint; assignment evidence is required. The named GY/CNT/DES supplier remains owner; the campaign records only its exact endpoint.
-  `task.r19_extension.question_slices[0]`
-- **join** — Evaluator-interest/mitigation and reader independence are retained as reader-study quality, not internal-expert agreement. The named GY/CNT/DES supplier remains owner; the campaign records only its exact endpoint.
-  `task.r19_extension.question_slices[1]`
-- **join** — Bind task, authority, target audience and predeclared rubric; conditional fit is not a universal winner. The named GY/CNT/DES supplier remains owner; the campaign records only its exact endpoint.
-  `task.r19_extension.question_slices[2]`
-- **join** — Reader comprehension is audience-, task- and exact-edition/support-bound; no certification or training claim. The named GY/CNT/DES supplier remains owner; the campaign records only its exact endpoint.
-  `task.r19_extension.question_slices[13]`
-- **join** — Separate revision and first-decision estimands; actual advice exposure/order/carryover is required for either advice effect. The named GY/CNT/DES supplier remains owner; the campaign records only its exact endpoint.
-  `task.r19_extension.question_slices[14]`
-- **join** — Target-reader outcomes on exact rendition bytes measure comprehension separately from accessibility and DES-06/07 fidelity. The named GY/CNT/DES supplier remains owner; the campaign records only its exact endpoint.
-  `task.r19_extension.question_slices[15]`
-- **join** — Fresh current projection plus exact event tests whether readers distinguish correction, reaction and external decision. The named GY/CNT/DES supplier remains owner; the campaign records only its exact endpoint.
-  `task.r19_extension.question_slices[16]`
-- **join** — Selected absent/denied consumer closure is a separate access/projection sub-result; keep complete surface denominator and do not count it as comprehension. The named GY/CNT/DES supplier remains owner; the campaign records only its exact endpoint.
-  `task.r19_extension.question_slices[17]`
-- **join** — Matched predicate/dominance/budget result is kept in the numerical/decision-method campaign, with cost unable to change authority scope. The named GY/CNT/DES supplier remains owner; the campaign records only its exact endpoint.
-  `task.r19_extension.question_slices[18]`
-- **binding** — Each source question ID is routed to the card assigned to its matching indexed question_slices clause in this parent; ID coverage preserves lineage and is not semantic proof.
-  `task.r19_extension.question_ids[0]`; `task.r19_extension.question_ids[1]`; `task.r19_extension.question_ids[2]`; `task.r19_extension.question_ids[13]`; `task.r19_extension.question_ids[14]`; `task.r19_extension.question_ids[15]`; `task.r19_extension.question_ids[16]`; `task.r19_extension.question_ids[17]`; `task.r19_extension.question_ids[18]`
+- **execute** — Own audience-qualified variant comparison; no universal audience claim.
+  `task.r19_extension.question_slices[0]` (`R18-D05-Q03`); `task.r19_extension.question_ids[0]` (`R18-D05-Q03`)
+- **binding** — Evaluator interest/mitigation constrain reader independence; retain qualified results.
+  `task.r19_extension.question_slices[1]` (`R18-D05-Q04`); `task.r19_extension.question_ids[1]` (`R18-D05-Q04`)
+- **execute** — Measure finding/meaning for exact audience/task/edition without competence/training claims.
+  `task.r19_extension.question_slices[13]` (`R18-D12-Q01`); `task.r19_extension.question_ids[12]` (`R18-D12-Q01`)
+- **execute** — Run separate revision and first-decision estimands; bind assignment/order/exposure/carryover.
+  `task.r19_extension.question_slices[14]` (`R18-D12-Q02`); `task.r19_extension.question_ids[13]` (`R18-D12-Q02`)
+- **execute** — Measure comprehension from exact rendition bytes, separate from accessibility/fidelity.
+  `task.r19_extension.question_slices[15]` (`R18-D12-Q04`); `task.r19_extension.question_ids[14]` (`R18-D12-Q04`)
+- **execute** — Test event plus fresh projection; distinguish receipt/reaction/external decision/old edition.
+  `task.r19_extension.question_slices[16]` (`R18-D12-Q05`); `task.r19_extension.question_ids[15]` (`R18-D12-Q05`)
+- **execute** — Run card's separately reported access/projection endpoint; never count it as comprehension.
+  `task.r19_extension.question_slices[17]` (`R18-D12-Q06`); `task.r19_extension.question_ids[16]` (`R18-D12-Q06`)
+
+### Обязанности внутри составных fragments
+
+- `task.r19_extension.question_slices[2]` — Use selected audience/task/rubric for reader endpoint without universalizing conditional fit. (primary accountability остаётся в coverage; это конкретный подрезультат, не второй writer).
+- `task.r19_extension.question_slices[12]` — Apply relevant reader dimensions with exact audience/edition basis. (primary accountability остаётся в coverage; это конкретный подрезультат, не второй writer).
+- `task.r19_extension.question_slices[19]` — Report reader result separately. (primary accountability остаётся в coverage; это конкретный подрезультат, не второй writer).
 
 Inherited owner/lease/stage/activation constraints указаны в parent contract. Root/lead проверяет полное parent coverage; output этой карточки не закрывает siblings. При обнаружении пропуска остановить только affected writes/acceptance, назвать точный clause и reconciled next owner.
 

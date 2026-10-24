@@ -30,14 +30,14 @@
 
 | Отношение | Точный смысл |
 |---|---|
-| Supplier [P0-ACCEPT.accepted-boundary](../../cards/P0-ACCEPT/accepted-boundary.md) | `direct:actual_E02_G_acceptance`: Every card consumes the accepted E02 source/commit and task-scoped source rebind for its own owner readback. The universal acceptance/stage/conditional gate remains the original parent contract; this map adds no second leaf gate or sequencing.<br>Выбор output: Select the exact output named in need and its original conditions, not all supplier cards. Actual source-qualified artifacts are pinned at dispatch/composition.<br>Условия: original direct relation; source stage rules govern |
-| Supplier [CNT-06](../../parents/CNT-06.md) | `direct:interface_agreement`: Provides claim/decision target for study design and claim binding for actual returns; only if numeric EVSI is selected, provide current claim/target evidence needed to qualify pre-study predictive inputs. CNT-06 retains claim/evidence ownership.<br>Выбор output: Select the exact output named in need and its original conditions, not all supplier cards. Actual source-qualified artifacts are pinned at dispatch/composition.<br>Условия: original direct relation; source stage rules govern |
+| Supplier [P0-ACCEPT.accepted-boundary](../../cards/P0-ACCEPT/accepted-boundary.md) | `direct:actual_E02_G_acceptance`: Every card consumes the accepted E02 source/commit and task-scoped source rebind for its own owner readback. The universal acceptance/stage/conditional gate remains the original parent contract; this map adds no second leaf gate or sequencing.<br>Source: `task.depends_on[0]`.<br>Условия: original direct relation; source stage rules govern |
+| Supplier [CNT-06](../../parents/CNT-06.md) | `direct:interface_agreement`: Provides claim/decision target for study design and claim binding for actual returns; only if numeric EVSI is selected, provide current claim/target evidence needed to qualify pre-study predictive inputs. CNT-06 retains claim/evidence ownership.<br>Source: `task.depends_on[2]`.<br>Условия: original direct relation; source stage rules govern |
 
-Отсутствие внутреннего after не отменяет parent prerequisites. Conditional acceptance, execution rights и выбранные profiles разрешаются отдельно, как указано в parent contract. Номера групп и карточек не задают порядок.
+Отсутствие внутреннего after не отменяет parent prerequisites. Conditional acceptance, execution rights и выбранные profiles применяются на своей стадии. Composition links не задают порядок независимой подготовки.
 
 ## Назначенный нормативный контекст
 
-Основа: `ec3d7d38b4d246b3e1d225a1c0fc9aefae9ced0d`. Полные selectors и accountable routes — [coverage.json](../../coverage.json), parent `DES-12`. Эти ссылки не требуют чтения всех siblings. Читайте целиком каждый назначенный fragment и необходимые связанные contracts; mixed clause нельзя усечь до удобной части.
+Source-manifest base: `ec3d7d38b4d246b3e1d225a1c0fc9aefae9ced0d`; это не plan_commit назначения. Точные immutable blobs/hash — [coverage.json](../../coverage.json), parent `DES-12`. `task` выбирает строку tasks.json по id, `solution` — preferred-solutions.json по task_id; затем dot/index selector. Для R19 identity определяется значением question_id, не позицией в другом массиве. Полностью прочитайте назначенные fragments и нужные contracts; mixed clause нельзя усечь.
 
 - **execute** — Deliverable is internal candidate design plus a returned-result binding; design is owned here and actual authorization/return are separate cards.
   `task.deliverable`
@@ -45,22 +45,27 @@
   `task.r16_extension.requirement`; `task.r16_extension.positive`; `task.r16_extension.adversarial`; `task.r16_extension.removal`; `task.r16_extension.delivery_slices[0]`; `task.r16_extension.delivery_slices[1]`; `task.r16_extension.quality_cases[0]`; `task.r16_extension.quality_cases[1]`; `task.r16_extension.quality_cases[2]`; `task.r16_extension.quality_cases[3]`
 - **execute** — R17 exposure/method-qualified estimand informs the study design and selected target.
   `task.r17_extension.requirement`
-- **execute** — Qualitative grounds support local design/refusal, not numeric simulation or unsupported transport. The actual supplier/consumer remains native; the input clause does not appoint an owner or grant.
-  `task.r19_extension.question_slices[0]`
-- **execute** — Design across actual rival structures; retaining a declared complete set cannot substitute for consuming its rival models. The actual supplier/consumer remains native; the input clause does not appoint an owner or grant.
-  `task.r19_extension.question_slices[1]`
-- **execute** — Robustness is scoped to an explicit version/bound and cannot infer absence from negligible effect. The actual supplier/consumer remains native; the input clause does not appoint an owner or grant.
-  `task.r19_extension.question_slices[2]`
-- **execute** — Design a target-aligned discriminator for harm versus reporting shift; do not repeat the missing channel or fabricate result. The actual supplier/consumer remains native; the input clause does not appoint an owner or grant.
-  `task.r19_extension.question_slices[10]`
-- **execute** — Design a feasible transport-rival discriminator; actual returned evidence changes only supported scope. The actual supplier/consumer remains native; the input clause does not appoint an owner or grant.
-  `task.r19_extension.question_slices[11]`
-- **binding** — Each source question ID is routed to the card assigned to its matching indexed question_slices clause in this parent; ID coverage preserves lineage and is not semantic proof.
-  `task.r19_extension.question_ids[0]`; `task.r19_extension.question_ids[1]`; `task.r19_extension.question_ids[2]`; `task.r19_extension.question_ids[10]`; `task.r19_extension.question_ids[11]`
 - **execute** — Preferred solution is native CausalExperimentDesigner/ExperimentPlan design; authorization, return and optional economics are explicit separate outputs.
   `solution.preferred_solution`
 - **execute** — Numbered DES-12 design steps belong to the actual candidate study design and inherit its authority/time/activation constraints.
   `solution.implementation_steps[1]`
+- **execute** — Bound study applicability to evidenced population and timeframe.
+  `task.r19_extension.question_slices[0]` (`R18-D06-Q01`); `task.r19_extension.question_ids[0]` (`R18-D06-Q01`)
+- **execute** — Design discriminator across rival structures; old data fit alone selects no do-effect.
+  `task.r19_extension.question_slices[1]` (`R18-D06-Q02`); `task.r19_extension.question_ids[1]` (`R18-D06-Q02`)
+- **execute** — Claim scoped robustness only while retained rivals agree under bound/version.
+  `task.r19_extension.question_slices[2]` (`R18-D06-Q03`); `task.r19_extension.question_ids[2]` (`R18-D06-Q03`)
+- **execute** — Use missing-result risk for design/acquisition; do not impute null as zero.
+  `task.r19_extension.question_slices[3]` (`R18-D06-Q05`); `task.r19_extension.question_ids[3]` (`R18-D06-Q05`)
+- **execute** — Design target-aligned discriminator for harm versus reporting shift.
+  `task.r19_extension.question_slices[10]` (`R18-D10-Q01`); `task.r19_extension.question_ids[10]` (`R18-D10-Q01`)
+- **execute** — Design feasible discriminator for transport rival; permission/result stay separate.
+  `task.r19_extension.question_slices[11]` (`R18-D10-Q02`); `task.r19_extension.question_ids[11]` (`R18-D10-Q02`)
+
+### Обязанности внутри составных fragments
+
+- `task.r19_extension.question_slices[4]` — Candidate design proceeds independently; authorization binds only selected protected dispatch. (primary accountability остаётся в coverage; это конкретный подрезультат, не второй writer).
+- `task.r19_extension.question_slices[12]` — Candidate design stays independent of downstream branches. (primary accountability остаётся в coverage; это конкретный подрезультат, не второй writer).
 
 Inherited owner/lease/stage/activation constraints указаны в parent contract. Root/lead проверяет полное parent coverage; output этой карточки не закрывает siblings. При обнаружении пропуска остановить только affected writes/acceptance, назвать точный clause и reconciled next owner.
 

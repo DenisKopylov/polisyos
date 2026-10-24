@@ -30,15 +30,15 @@
 
 | Отношение | Точный смысл |
 |---|---|
-| Supplier [P0-ACCEPT.accepted-boundary](../../cards/P0-ACCEPT/accepted-boundary.md) | `direct:actual_E02_G_acceptance`: Every card consumes the accepted E02 source/commit and task-scoped source rebind for its own owner readback. The universal acceptance/stage/conditional gate remains the original parent contract; this map adds no second leaf gate or sequencing.<br>Выбор output: Select the exact output named in need and its original conditions, not all supplier cards. Actual source-qualified artifacts are pinned at dispatch/composition.<br>Условия: original direct relation; source stage rules govern |
-| Supplier [OPS-07](../../parents/OPS-07.md) | `direct:interface_agreement`: Consumes actual provider/egress/resource permit result at the existing gateway; OPS-07 remains permit owner.<br>Выбор output: Select the exact output named in need and its original conditions, not all supplier cards. Actual source-qualified artifacts are pinned at dispatch/composition.<br>Условия: original direct relation; source stage rules govern |
+| Supplier [P0-ACCEPT.accepted-boundary](../../cards/P0-ACCEPT/accepted-boundary.md) | `direct:actual_E02_G_acceptance`: Every card consumes the accepted E02 source/commit and task-scoped source rebind for its own owner readback. The universal acceptance/stage/conditional gate remains the original parent contract; this map adds no second leaf gate or sequencing.<br>Source: `task.depends_on[0]`.<br>Условия: original direct relation; source stage rules govern |
+| Supplier [OPS-07](../../parents/OPS-07.md) | `direct:interface_agreement`: Consumes actual provider/egress/resource permit result at the existing gateway; OPS-07 remains permit owner.<br>Source: `task.depends_on[2]`.<br>Условия: original direct relation; source stage rules govern |
 | Composition output (не start gate) [DES-09.context-admission](../../cards/DES-09/context-admission.md) | Only for the selected same-scope composition described by this card: At an actual permitted call, consume the admitted exact context and persist the observed call identity/output for the call-record reader; actual release remains evaluated by the existing authorized gateway owner, not by ledger presence. Independent output production/preparation remains allowed; the original parent join reconciles all required outcomes without making this list an all-of. |
 
-Отсутствие внутреннего after не отменяет parent prerequisites. Conditional acceptance, execution rights и выбранные profiles разрешаются отдельно, как указано в parent contract. Номера групп и карточек не задают порядок.
+Отсутствие внутреннего after не отменяет parent prerequisites. Conditional acceptance, execution rights и выбранные profiles применяются на своей стадии. Composition links не задают порядок независимой подготовки.
 
 ## Назначенный нормативный контекст
 
-Основа: `ec3d7d38b4d246b3e1d225a1c0fc9aefae9ced0d`. Полные selectors и accountable routes — [coverage.json](../../coverage.json), parent `DES-09`. Эти ссылки не требуют чтения всех siblings. Читайте целиком каждый назначенный fragment и необходимые связанные contracts; mixed clause нельзя усечь до удобной части.
+Source-manifest base: `ec3d7d38b4d246b3e1d225a1c0fc9aefae9ced0d`; это не plan_commit назначения. Точные immutable blobs/hash — [coverage.json](../../coverage.json), parent `DES-09`. `task` выбирает строку tasks.json по id, `solution` — preferred-solutions.json по task_id; затем dot/index selector. Для R19 identity определяется значением question_id, не позицией в другом массиве. Полностью прочитайте назначенные fragments и нужные contracts; mixed clause нельзя усечь.
 
 - **join** — The bundled adversarial clause includes context injection/private-query projection, provider/cache drift, lost legal exception and no-call; observed-call must consume context-admission and actual gateway/OPS decisions for each subclause.
   `task.adversarial`
@@ -46,12 +46,6 @@
   `task.genuine_external_inputs[0]`
 - **join** — R17 real release/recipient/delegation and sent/indeterminate retry semantics are exercised at the existing gateway, never inferred from handoff or ledger markers.
   `task.r17_extension.requirement`; `task.r17_extension.positive`; `task.r17_extension.adversarial`; `task.r17_extension.removal`; `task.r17_extension.delivery_slices[0]`; `task.r17_extension.quality_cases[0]`; `task.r17_extension.quality_cases[1]`; `task.r17_extension.product_verification`
-- **join** — Capture returned provider/model/recipient identity and distinguish a live call from cache/replay. The real gateway/ledger is the supplier; this route is not a new permission owner.
-  `task.r19_extension.question_slices[3]`
-- **join** — Capture configured and provider-returned identities; alias/version absence makes mapping unknown rather than a model-use PASS. The real gateway/ledger is the supplier; this route is not a new permission owner.
-  `task.r19_extension.question_slices[4]`
-- **binding** — Each source question ID is routed to the card assigned to its matching indexed question_slices clause in this parent; ID coverage preserves lineage and is not semantic proof.
-  `task.r19_extension.question_ids[3]`; `task.r19_extension.question_ids[4]`
 - **execute** — Preferred solution reuses actual gateway/provider/resource owners; context and persistence are explicit sibling checkpoints.
   `solution.preferred_solution`
 - **execute** — Implementation clause 0 belongs to observed-call: it binds actual gateway dispatch, selected context, persisted use, retry or truthful replay respectively; OPS/CAP/LIF keep their permits.
@@ -60,6 +54,17 @@
   `solution.implementation_steps[3]`
 - **execute** — Implementation clause 4 belongs to observed-call: it binds actual gateway dispatch, selected context, persisted use, retry or truthful replay respectively; OPS/CAP/LIF keep their permits.
   `solution.implementation_steps[4]`
+- **execute** — Bind actual invocation identity/request/output; context admission and persisted use are separate checkpoints.
+  `task.r19_extension.question_slices[0]` (`R18-D11-Q01`); `task.r19_extension.question_ids[0]` (`R18-D11-Q01`)
+- **execute** — Observe actual provider/model/recipient and distinguish call/cache/replay.
+  `task.r19_extension.question_slices[3]` (`R18-D17-Q03`); `task.r19_extension.question_ids[3]` (`R18-D17-Q03`)
+- **execute** — Capture requested and returned identity; alias cannot hide drift.
+  `task.r19_extension.question_slices[4]` (`R18-D17-Q04`); `task.r19_extension.question_ids[4]` (`R18-D17-Q04`)
+
+### Обязанности внутри составных fragments
+
+- `task.r19_extension.question_slices[1]` — Record actual advice presentation as call/cache/replay or no-call. (primary accountability остаётся в coverage; это конкретный подрезультат, не второй writer).
+- `task.r19_extension.question_slices[2]` — Bind durable record to observed actual call, not configured profile. (primary accountability остаётся в coverage; это конкретный подрезультат, не второй writer).
 
 Inherited owner/lease/stage/activation constraints указаны в parent contract. Root/lead проверяет полное parent coverage; output этой карточки не закрывает siblings. При обнаружении пропуска остановить только affected writes/acceptance, назвать точный clause и reconciled next owner.
 

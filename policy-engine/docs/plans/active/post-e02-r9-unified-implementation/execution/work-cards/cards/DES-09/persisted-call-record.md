@@ -30,30 +30,34 @@
 
 | Отношение | Точный смысл |
 |---|---|
-| Supplier [P0-ACCEPT.accepted-boundary](../../cards/P0-ACCEPT/accepted-boundary.md) | `direct:actual_E02_G_acceptance`: Every card consumes the accepted E02 source/commit and task-scoped source rebind for its own owner readback. The universal acceptance/stage/conditional gate remains the original parent contract; this map adds no second leaf gate or sequencing.<br>Выбор output: Select the exact output named in need and its original conditions, not all supplier cards. Actual source-qualified artifacts are pinned at dispatch/composition.<br>Условия: original direct relation; source stage rules govern |
+| Supplier [P0-ACCEPT.accepted-boundary](../../cards/P0-ACCEPT/accepted-boundary.md) | `direct:actual_E02_G_acceptance`: Every card consumes the accepted E02 source/commit and task-scoped source rebind for its own owner readback. The universal acceptance/stage/conditional gate remains the original parent contract; this map adds no second leaf gate or sequencing.<br>Source: `task.depends_on[0]`.<br>Условия: original direct relation; source stage rules govern |
 | Composition output (не start gate) [DES-09.context-admission](../../cards/DES-09/context-admission.md) | Only for the selected same-scope composition described by this card: Fresh call-ledger and selected domain consumers join observation, context, candidate/output and usage. An authorized audit view exposes safe refs without leaking protected prompt content. Independent output production/preparation remains allowed; the original parent join reconciles all required outcomes without making this list an all-of. |
 | Composition output (не start gate) [DES-09.observed-call](../../cards/DES-09/observed-call.md) | Only for the selected same-scope composition described by this card: Fresh call-ledger and selected domain consumers join observation, context, candidate/output and usage. An authorized audit view exposes safe refs without leaking protected prompt content. Independent output production/preparation remains allowed; the original parent join reconciles all required outcomes without making this list an all-of. |
 
-Отсутствие внутреннего after не отменяет parent prerequisites. Conditional acceptance, execution rights и выбранные profiles разрешаются отдельно, как указано в parent contract. Номера групп и карточек не задают порядок.
+Отсутствие внутреннего after не отменяет parent prerequisites. Conditional acceptance, execution rights и выбранные profiles применяются на своей стадии. Composition links не задают порядок независимой подготовки.
 
 ## Назначенный нормативный контекст
 
-Основа: `ec3d7d38b4d246b3e1d225a1c0fc9aefae9ced0d`. Полные selectors и accountable routes — [coverage.json](../../coverage.json), parent `DES-09`. Эти ссылки не требуют чтения всех siblings. Читайте целиком каждый назначенный fragment и необходимые связанные contracts; mixed clause нельзя усечь до удобной части.
+Source-manifest base: `ec3d7d38b4d246b3e1d225a1c0fc9aefae9ced0d`; это не plan_commit назначения. Точные immutable blobs/hash — [coverage.json](../../coverage.json), parent `DES-09`. `task` выбирает строку tasks.json по id, `solution` — preferred-solutions.json по task_id; затем dot/index selector. Для R19 identity определяется значением question_id, не позицией в другом массиве. Полностью прочитайте назначенные fragments и нужные contracts; mixed clause нельзя усечь.
 
 - **join** — Actual invocation/context removal and cancelled-phantom-result are detected at the persisted fresh consumer, with context and observed-call suppliers named.
   `task.removal`
 - **join** — Authorized operational/audit view is the persisted-use reader; secret content stays within existing rights.
   `task.surface`
-- **join** — Bind actual advice shown in the randomized case to observed invocation, selected context and edition; label no-call/withheld distinctly. The real gateway/ledger is the supplier; this route is not a new permission owner.
-  `task.r19_extension.question_slices[1]`
-- **join** — Persist the actual call/context/output identity and denominator; rare-row summaries cannot substitute for a missing row. The real gateway/ledger is the supplier; this route is not a new permission owner.
-  `task.r19_extension.question_slices[2]`
-- **binding** — Each source question ID is routed to the card assigned to its matching indexed question_slices clause in this parent; ID coverage preserves lineage and is not semantic proof.
-  `task.r19_extension.question_ids[1]`; `task.r19_extension.question_ids[2]`
 - **execute** — Implementation clause 2 belongs to persisted-call-record: it binds actual gateway dispatch, selected context, persisted use, retry or truthful replay respectively; OPS/CAP/LIF keep their permits.
   `solution.implementation_steps[2]`
 - **join** — Acceptance discriminators require actual call/context/output/usage persistence and a fresh consumer; bundled lost-qualifier/no-call cases reconcile context-admission and observed-call suppliers.
   `solution.acceptance_discriminators[0]`; `solution.acceptance_discriminators[1]`; `solution.acceptance_discriminators[2]`
+- **execute** — Persist actual presented advice/context and distinguish no-call/withheld from unobserved.
+  `task.r19_extension.question_slices[1]` (`R18-D12-Q02`); `task.r19_extension.question_ids[1]` (`R18-D12-Q02`)
+- **execute** — Fresh reader resolves actual calls, context, version and output identity.
+  `task.r19_extension.question_slices[2]` (`R18-D14-Q03`); `task.r19_extension.question_ids[2]` (`R18-D14-Q03`)
+
+### Обязанности внутри составных fragments
+
+- `task.r19_extension.question_slices[0]` — Persist output/use/usage refs for fresh resolution. (primary accountability остаётся в coverage; это конкретный подрезультат, не второй writer).
+- `task.r19_extension.question_slices[3]` — Persist observed call/cache/replay identity for fresh consumer. (primary accountability остаётся в coverage; это конкретный подрезультат, не второй writer).
+- `task.r19_extension.question_slices[4]` — Persist returned provider/model/recipient identity for reader. (primary accountability остаётся в coverage; это конкретный подрезультат, не второй writer).
 
 Inherited owner/lease/stage/activation constraints указаны в parent contract. Root/lead проверяет полное parent coverage; output этой карточки не закрывает siblings. При обнаружении пропуска остановить только affected writes/acceptance, назвать точный clause и reconciled next owner.
 

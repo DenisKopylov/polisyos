@@ -132,7 +132,7 @@
     },
     {
       "task_id": "CAP-02",
-      "preferred_solution": "Extend the selected Fabric HTTP connector to capture one bounded response as an immutable body-plus-request/response witness when the selected profile permits raw retention; otherwise use CAP-03’s lawful query/result-receipt boundary under the exact source profile, then make later readers resolve that exact root through ArtifactRef/manifest and current admission. Treat an ETag as an opaque representation validator, not the body's hash. A 304 is usable only when the matching stored body is readable and its target, representation profile, Vary dimensions, source identity, and permission still resolve; otherwise return unavailable. Ship the bounded single-response route first. Pagination, delta, ranges, or competing cursor writers activate only with source-native completeness/cut evidence and LIF-03's conditional receipt-before-frontier commit; CAP does not add a second cursor writer.",
+      "preferred_solution": "Extend the selected Fabric HTTP connector to capture one bounded response as an immutable body-plus-request/response witness when the selected profile permits raw retention; otherwise use CAP-03’s lawful query/result-receipt boundary under the exact source profile, then make later readers resolve that exact root through ArtifactRef/manifest and current admission. Treat an ETag as an opaque representation validator, not the body's hash. A 304 is usable only when the matching stored body is readable and its target, representation profile, Vary dimensions, source identity, and permission still resolve; otherwise return unavailable. Retain the bounded WDI single-response route as the original A1 witness, not a system-wide transport or scheduling restriction. Prepare disjoint selected file/query/stream/paged adapters in parallel against their exact interfaces; each activates only after its own required conformance, rights and resource checks. Pagination, delta, ranges, or competing cursor writers activate only with source-native completeness/cut evidence and LIF-03's conditional receipt-before-frontier commit; CAP does not add a second cursor writer.",
       "reuse_anchors": [
         {
           "path": "policy-engine/src/polisyos/fabric/connectors/sources/http_base.py",
@@ -196,14 +196,16 @@
         "The CAP receipt is the supplier input to LIF-03; LIF-03 alone commits the selected cursor/frontier and rejects stale attempts, reset/ABA, or missing prior head.",
         "A complete snapshot means source-defined cut plus all required continuation pages and exact child bodies. A page count, ETag, hash, or high offset by itself is not completeness evidence.",
         "Transport safety and source-use/materialization permission both precede capture side effects. LIF-05 fences each actual write/disclosure; LIF-01/03 admission and later CAP-03 reuse consume the lawful representation. An HTTP-valid response is not permission to store it.",
-        "LIF-05/native source-use producer supplies a current, qualified source/profile/purpose/audience/actual-sink decision before the selected CAP-02 body/temp/log/cache placement. CAP-01 outbound-query permission and CAP-03 later reuse admission do not authorize capture storage. If authorized query egress returns a body whose placement is unknown/denied, do not stage/store/log/cache or expose its digest/ref. Discard at the authorized ephemeral processing boundary and emit only a permitted opaque non-admission receipt; if ephemeral response processing itself lacks permission, refuse the fetch. Do not label this a complete admitted capture. See the task conditional supplier: this is a selected-effect join, not a whole-task start dependency."
+        "LIF-05/native source-use producer supplies a current, qualified source/profile/purpose/audience/actual-sink decision before the selected CAP-02 body/temp/log/cache placement. CAP-01 outbound-query permission and CAP-03 later reuse admission do not authorize capture storage. If authorized query egress returns a body whose placement is unknown/denied, do not stage/store/log/cache or expose its digest/ref. Discard at the authorized ephemeral processing boundary and emit only a permitted opaque non-admission receipt; if ephemeral response processing itself lacks permission, refuse the fetch. Do not label this a complete admitted capture. See the task conditional supplier: this is a selected-effect join, not a whole-task start dependency.",
+        "HTTP ETag/304 rules apply only to that representation protocol. Existing qualified file, database-query or bounded stream producers retain their native receipt/cut semantics; they are not wrapped in a fictitious HTTP response. WDI first-route evidence neither closes nor blocks a disjoint selected protocol extension."
       ],
       "acceptance_discriminators": [
         "An allowed bounded fetch writes an immutable root and consumer receipt; a second exact use resolves the same bytes without network access and verifies hash/profile.",
         "304 without a readable matching root, Vary mismatch, partial transfer, malformed range, validator change, missing required coverage or conflicting duplicate page, oversize body, or stale cursor writer remains partial/unavailable.",
         "Redirect-to-private-IP, DNS rebinding between check and connect, parser-confused URL, credential-forwarding hop, and disallowed proxy path are blocked at the actual socket/egress boundary.",
         "Removal of body binding or LIF-03 expected-head fencing while status markers remain makes the matched negative fail.",
-        "Query-only canaries remain absent from managed staging/temp/CAS/log/cache sinks at capture time, not merely after cleanup; permitted receipt/result remains usable. Removing pre-materialization permission while leaving later reuse checks must fail."
+        "Query-only canaries remain absent from managed staging/temp/CAS/log/cache sinks at capture time, not merely after cleanup; permitted receipt/result remains usable. Removing pre-materialization permission while leaving later reuse checks must fail.",
+        "With WDI still honestly single-response, a separately qualified source protocol completes its own capture→receipt→fresh consumer without HTTP-specific assumptions. An unsupported continuation cannot borrow the WDI receipt; removing that protocol’s actual completeness/fence changes its result."
       ],
       "deviation_triggers": [
         "If the provider offers no stable cut for pagination, bound the result to the observed window and leave snapshot completeness not established; do not enable resumable cursor progress.",
@@ -305,18 +307,20 @@
         "extension_boundary": "A new storage backend or semantic copy-control class requires an explicit backend adapter and LIF-05 conformance/parity evidence; a config flag or local authz label cannot claim remote deletion or custody.",
         "resource_behavior": "Content-addressing amortizes identical body storage, while manifest/admission traces grow by source generation and use. Bound cache entries and retained bytes using the selected retention contract; evicting a cache entry cannot erase a rights history or turn missing bytes into empty evidence."
       },
-      "migration_and_rollback": "Do not infer rights from historical artifacts or preseed receipts. Reopen exact roots with current owner evidence and completeness; unavailable roots remain unavailable. On revoke or failed revalidation, disable new reads, cache hits, resume and export under LIF-05, preserve permitted audit history, and separately account for actual copies; already disclosed bytes cannot be recalled by a status change.",
+      "migration_and_rollback": "Do not infer rights from historical artifacts or preseed receipts. Reopen exact roots with current owner evidence and completeness; unavailable roots remain unavailable. On revoke or failed revalidation, disable new reads, cache hits, resume and export under LIF-05, preserve permitted audit history, and separately account for actual copies; already disclosed bytes cannot be recalled by a status change. Append-only is a history-order rule, not permission to retain forbidden bodies, identifiers or digests. Apply LIF-05’s actual retention decision and retain only permitted historical facts, exposing lost replay/verification capability.",
       "composition_contracts": [
         "CAP-02 supplies immutable roots; LIF-01 supplies current claim/use-specific relation admission; LIF-05 supplies rights generations, managed-copy boundaries, restore handling, and any shared disclosure accounting.",
         "A second purpose gets a fresh admission trace even when it resolves the same bytes. Rights to read, process, derive, and publish remain separately scoped where source terms distinguish them.",
         "For query-only profiles, allowed derived outputs can remain consumable only if the selected rights/sink policy proves raw bytes did not persist in each inventoried CAS, log/trace, browser, backup, or provider temporary sink.",
-        "Selected cost-dependent route consumes the actual acquisition_planner native cost artifact, also supplying DEB-13 net-value composition. DEB-07 records the source-row disposition without a second writer. For the source-selected free WDI route, the canonical runtime/quality/acquisition_planner.py cost-schedule owner may admit dated expert_hours/calendar_days/collection_mode effort under the principal’s 2026-09-17 option A: first inspect actual connector/comparable-ingest evidence, prefer measured comparable effort, otherwise explicitly label and justify the owner estimate. Neither fixture hours/days nor a cap is the basis. A paid/licensed selected source invalidates that premise and needs its real quote/rights evidence; no default institutional price request for free-data engineering."
+        "Selected cost-dependent route consumes the actual acquisition_planner native cost artifact, also supplying DEB-13 net-value composition. DEB-07 records the source-row disposition without a second writer. For the source-selected free WDI route, the canonical runtime/quality/acquisition_planner.py cost-schedule owner may admit dated expert_hours/calendar_days/collection_mode effort under the principal’s 2026-09-17 option A: first inspect actual connector/comparable-ingest evidence, prefer measured comparable effort, otherwise explicitly label and justify the owner estimate. Neither fixture hours/days nor a cap is the basis. A paid/licensed selected source invalidates that premise and needs its real quote/rights evidence; no default institutional price request for free-data engineering.",
+        "Fresh-use qualification is a current predicate, not compulsory repetition of every expensive verifier or full payload scan. Reuse an immutable content-bound assessment only for its exact semantic input/rule/verifier/profile closure and allowed lifetime; resolve current purpose/audience, rights, claim/source generations and publication fence on every affected use. Cache keys include relevant negative/membership dependencies; TTL or equal bytes alone is insufficient. Unknown dependency coverage or an unavailable required freshness fence triggers scoped requalification, limitation or refusal. Preserve per-use binding/decision through the native owner, without duplicating assessment payloads."
       ],
       "acceptance_discriminators": [
         "An admitted root promotes once and is resolved by exact content for a fresh allowed use with a new purpose decision.",
         "Revoke/expiry/purpose, audience, tenant, profile, schema, source generation, or verifier change between admission and resume/cache/export blocks the fresh effect even while an old passport/marker remains.",
         "Remove content resolution/verifier provenance but preserve `admitted` and hash labels; promotion and the actual consumer read must fail.",
-        "For query-only mode, controlled raw-byte canaries are absent from all selected sinks while the permitted derived result and receipt remain usable."
+        "For query-only mode, controlled raw-byte canaries are absent from all selected sinks while the permitted derived result and receipt remain usable.",
+        "Same-root repeated authorized reuse need not rerun the immutable assessment, but a rights/purpose/generation change still changes fresh admission. Deletion restrictions apply to identifying lineage and receipts as well as payloads; restore cannot resurrect their prior access."
       ],
       "deviation_triggers": [
         "If external grant or backend copy control cannot be verified, retain capture only in the permitted quarantine scope and mark reuse unadmitted; do not claim filesystem behavior transfers to remote storage.",
@@ -445,7 +449,7 @@
     },
     {
       "task_id": "CAP-04",
-      "preferred_solution": "Add only source-specific change/retraction/rights event producers next to their accountable source owner, then hand the exact event into LIF-02's existing enrollment, replay, generation, and publication-currentness fence. Bind event identity, exact old/new source root or relation, source generation, verifier/issuer evidence, source journal, recorded time, effective time, and affected audience. CAP emits events; it does not create another universal cascade or scheduler. Until a source has a complete event/change contract, its currentness remains limited to an explicit as-of cut or unclaimed. The academic work-ID retraction parser remains a narrow adapter, not proof of general update coverage.",
+      "preferred_solution": "Add only source-specific change/retraction/rights event producers next to their accountable source owner, then hand the exact event into LIF-02's existing enrollment, replay, generation, and publication-currentness fence. Bind event identity, exact old/new source root or relation, source generation, verifier/issuer evidence, source journal, recorded time, effective time, and affected audience. CAP emits events; it does not create another universal cascade or scheduler. Until a source has a complete event/change contract, its currentness remains limited to an explicit as-of cut or unclaimed. The academic work-ID retraction parser remains a narrow adapter, not proof of general update coverage. Support both a source-native feed and an explicitly observed snapshot-comparison route. For the latter, CAP-02 supplies comparable permitted observations; CAP-04 persists the exact observed old/new representations, selector/profile/coverage and acquisition times, without inventing source-effective time or completeness between polls. Local journal positions order our observations only. A detected disappearance, access failure or changed representation is not by itself repeal/retraction or a whole-source deletion. Qualified observations can invalidate dependent use through LIF-02; unchanged reads justify only the measured scope/cut and cannot erase missed transients.",
       "reuse_anchors": [
         {
           "path": "policy-engine/src/polisyos/scientist/evidence/claims/head_index.py",
@@ -473,10 +477,11 @@
         }
       ],
       "implementation_steps": [
-        "Choose one selected source and enumerate its actual change journal, correction/repeal/retraction protocol, event completeness/retention window, and stable source identities.",
+        "Choose a selected source and bind either its supported change journal or its bounded observation/reconciliation route; state coverage, replay/reset behavior, stable identities and what changes the route cannot observe.",
         "Implement a typed source adapter that persists event receipts and binds them to CAP-02 roots/relation versions; treat provider events as supplied evidence and verify their source/issuer through the accountable owner.",
         "Enroll the dependency denominator and replay the source interval through LIF-02; make publication/currentness participate in its source/right cut fence or expose the accepted bounded cutoff.",
-        "Make a fresh claim/decision consumer show historical publication separately from current validity; no scheduler may be required for an authority read to refuse a stale green projection."
+        "Make a fresh claim/decision consumer show historical publication separately from current validity; no scheduler may be required for an authority read to refuse a stale green projection.",
+        "For a source without a feed, compare complete selected observations through its existing capture/decoder owner. Emit an observed-change/coverage-loss fact with the exact local observation basis; preserve source-effective semantics as unknown until their owner verifies them. Failed/partial polls cannot certify unchanged state or manufacture removals."
       ],
       "alternatives": [
         {
@@ -493,7 +498,7 @@
         }
       ],
       "free_grow": {
-        "data_or_config_growth": "A new source event feed adds a versioned adapter/profile and event source registry entry; sources sharing a proven event semantic class use the same LIF-02 lifecycle consumer.",
+        "data_or_config_growth": "New sources instantiate a supported feed or observation/reconciliation profile in the existing source registry; a new event/observation semantic class needs its own adapter, without central routing edits.",
         "extension_boundary": "New event kinds or source-specific semantics require a typed producer and conformance contract; no hand-maintained capability list in central routing and no event-type string promoted by presence.",
         "resource_behavior": "Replay/fanout work is bounded by enrolled dependencies and retained source cursor; lag, replay-floor expiry, event storm, or missing interval yields pending/limited status and durable work receipts, not a currentness claim."
       },
@@ -507,10 +512,11 @@
         "A material change on an enrolled source produces persisted event → scoped invalidation → fresh consumer currentness status; an unrelated source remains current.",
         "Event-before-enrollment, backdated event, replay/duplicate, missing journal segment, stale index, replay-floor expiration, rights race, and scheduler-off read cannot leave an unjustified green current projection.",
         "Remove source generation/dependency binding while leaving an event and current marker; the fresh consumer must refuse green.",
-        "Surface shows event source, verifier/cut basis, source/effective time, limitations, and historic publication separately."
+        "Surface shows event source, verifier/cut basis, source/effective time, limitations, and historic publication separately.",
+        "A no-webhook source changes its observed representation: the authorized poll persists an observed delta and a fresh affected claim changes without invented source-effective time. A→B→A between polls remains unobserved; partial/failed polls and selector drift cannot certify no change or semantic repeal. Removing actual comparison while retaining poll heartbeat fails the observed-change positive."
       ],
       "deviation_triggers": [
-        "If the source exposes no complete journal or durable lookup/cut, report `not_established` currentness beyond the observed as-of read; do not simulate an event feed from web scraping.",
+        "Without a complete source journal or supported cut, do not claim complete intervening event history/currentness. Continue bounded authorized observation, explicit as-of/coverage limits and affected-use reaction; never relabel scraped observations as a source-authoritative feed.",
         "If an event cannot be tied to a verifier-qualified source/relation, retain it as a candidate and do not advance authority-grade current status."
       ],
       "source_ids": [
@@ -522,7 +528,7 @@
       "scope": "capture",
       "original_task_ref": "../tasks.json#CAP-04",
       "inputs_to_resolve": [
-        "Source institution/custodian's signed or otherwise verifiable event feed, correction/retraction protocol, complete source denominator, replay/reset behavior, retention window, and event timing.",
+        "Existing source feed/correction protocol where available, or actual selected observations and a permitted polling/reconciliation recipe. A missing feed is external only for claims requiring that feed’s continuity, not for implementing observed-change detection.",
         "Claim-type-specific owner rule mapping a changed source relation to affected dependencies; no generic equivalence from bytes to legal effect.",
         "LIF-02's accepted source generation, replay, and publication-fence interface."
       ],
@@ -1238,7 +1244,7 @@
     },
     {
       "task_id": "LIF-01",
-      "preferred_solution": "Extend existing Claim support, domain verification and Claim Ledger consumption. Resolve the exact permitted representation and selected profile before admission: retained bytes where lawful, or the permitted query/result receipt verified against its actual custodian-side execution and content/operation binding. A digest alone cannot replace unavailable content, and query-only limits on replay remain explicit. Keep assertion, assessment and use distinguishable: assertion binds exact occurrences/propositions; assessment records the predicate/method/rule and limitations; use binds the assessment to claim, estimand, purpose, audience, frozen basis and dependencies. Check polarity, population, unit, scope, effective-time role, translation occurrence, selection trace and any claimed independence at the existing consumer. Reassess changed purpose/audience. Same-code replay establishes consistency only; independent correctness evidence is required only where the selected claim or method asserts it, not as a universal verifier tax. Search no-hit is not absence and anonymous occurrences gain no invented identity.",
+      "preferred_solution": "Extend existing Claim support, domain verification and Claim Ledger consumption. Resolve the exact permitted representation and selected profile before admission: retained bytes where lawful, or the permitted query/result receipt verified against its actual custodian-side execution and content/operation binding. A digest alone cannot replace unavailable content, and query-only limits on replay remain explicit. Keep assertion, assessment and use distinguishable: assertion binds exact occurrences/propositions; assessment records the predicate/method/rule and limitations; use binds the assessment to claim, estimand, purpose, audience, frozen basis and dependencies. Check polarity, population, unit, scope, effective-time role, translation occurrence, selection trace and any claimed independence at the existing consumer. Reassess changed purpose/audience. Same-code replay establishes consistency only; independent correctness evidence is required only where the selected claim or method asserts it, not as a universal verifier tax. Search no-hit is not absence and anonymous occurrences gain no invented identity. Fresh-use qualification is a current predicate, not compulsory repetition of every expensive verifier or full payload scan. Reuse an immutable content-bound assessment only for its exact semantic input/rule/verifier/profile closure and allowed lifetime; resolve current purpose/audience, rights, claim/source generations and publication fence on every affected use. Cache keys include relevant negative/membership dependencies; TTL or equal bytes alone is insufficient. Unknown dependency coverage or an unavailable required freshness fence triggers scoped requalification, limitation or refusal. Preserve per-use binding/decision through the native owner, without duplicating assessment payloads.",
       "reuse_anchors": [
         {
           "path": "policy-engine/src/polisyos/scientist/validation/claim_support.py",
@@ -1275,7 +1281,8 @@
         "Resolve the selected retained ArtifactRef/profile or lawful query/result receipt and verify its native content/operation binding. Missing required evidence refuses authority; absence of prohibited raw retention is not itself a failure of a receipt-based contract. Preserve replay limitations.",
         "Have the domain verifier emit immutable predicate, exact inputs, rule/method version, verifier provenance, time roles, result and limitation. Keep integrity, applicability, entailment, causal validity and authority separate.",
         "Bind assessment to one ClaimRecord/use and frozen denominator; persist lifecycle change through the existing claim owner and expose it through the selected API/audit surface.",
-        "Rebind legacy records by exact content and intended use; unresolved records remain candidate/unknown."
+        "Rebind legacy records by exact content and intended use; unresolved records remain candidate/unknown.",
+        "Separate immutable assessment reuse from current use validation; version the exact predicate cache and dependency invalidation under existing claim/lineage owners. Do not require a new human decision or full scientific/legal re-verification when the qualified basis is unchanged and its use remains covered."
       ],
       "alternatives": [
         {
@@ -1300,12 +1307,14 @@
       "composition_contracts": [
         "CAP supplies exact receipt/profile/bytes; domain owner supplies relation assessment; Claim Ledger owns use, head and projection.",
         "Classify gate predicates: content/rule checks may be recomputed; legal act/applicability is institutionally supplied; unknown scope remains candidate.",
-        "Expose the selected use and audience without a universal metadata envelope."
+        "Expose the selected use and audience without a universal metadata envelope.",
+        "LIF-01 owns assessment/use semantics, CAP-03 its library consumer, and existing native lineage/cache owners (including LIF-07 where selected) own dependency storage/invalidation. Bind the actual producer→reuse reader before enabling a cache claim; reuse does not authorize a second cache/lineage subsystem or impose caching on a method whose semantics require a fresh evaluation."
       ],
       "acceptance_discriminators": [
         "Positive: verified receipt supports one persisted use visible to a fresh consumer; changed purpose/audience is reassessed.",
         "Negative: wrong polarity/unit/population/scope, unbound translation, no-hit as absence, repeated cohort as independent, anonymous occurrence with invented identity.",
-        "Removal: remove content resolution but keep refs/labels; reject. Remove purpose binding but keep assessment; changed-use reuse refuses or reassesses."
+        "Removal: remove content resolution but keep refs/labels; reject. Remove purpose binding but keep assessment; changed-use reuse refuses or reassesses.",
+        "For a selected cache-eligible assessment, repeated covered use reuses the same qualified assessment with observable verifier-call accounting, yet a changed rule/rights generation or newly matching dependency alters fresh use even when payload bytes are identical. Removing current dependency/fence validation must fail; disabling the cache must preserve the scoped decision. A method requiring fresh evaluation or lacking a complete dependency closure cannot borrow this reuse guarantee."
       ],
       "deviation_triggers": [
         "If existing consumer can bind exact content/use, extend it without a new record type.",
@@ -2017,12 +2026,14 @@
       "composition_contracts": [
         "ControlPlaneStore owns local intent/attempt/result/outbox; do not create a second scheduler.",
         "Provider receipt/window/quota is institutionally supplied evidence.",
-        "OPS supplies service identity and continuity; actor grants are rechecked before sensitive resume."
+        "OPS supplies service identity and continuity; actor grants are rechecked before sensitive resume.",
+        "One canonical semantic owner does not require one physical process or a global mutex. Keep atomicity/fencing on the actual invariant key (job/attempt, source partition, claim head or budget principal). Distinct verified scopes can use separate workers/transactions; scopes sharing a cap, rights/disclosure budget or head still coordinate through its existing owner. Partitioning is an implementation option only after proving non-overlap and preservation of shared invariants, never by tenant/job labels alone."
       ],
       "acceptance_discriminators": [
         "Positive: known provider effect becomes one reconciled local effect/final result; retry within real provider window preserves identity.",
         "Negative: accepted effect/lost reply after key expiry, cancel before/after acceptance, old worker after lease, 429, store outage, compacted history and wrong issuer receipt.",
-        "Removal: remove outcome reconciliation but keep key; blind repeat fails. Remove cancel/final fence but keep marker; accepted effect cannot report stopped."
+        "Removal: remove outcome reconciliation but keep key; blind repeat fails. Remove cancel/final fence but keep marker; accepted effect cannot report stopped.",
+        "Independent operation scopes make progress without a global job lock, while two attempts for the same protected effect still fence at its canonical key. Partition labels cannot split a shared provider/disclosure budget; delayed old attempts fail the expected-generation write."
       ],
       "deviation_triggers": [
         "Queryable durable provider operation ID: reconcile it; no reliable receipt/query: retain unknown.",
@@ -2362,7 +2373,7 @@
         "At W0, identify the canonical resource-enforcement owner and its existing descriptor/registry seam. If the seam is absent, root allocates the smallest typed extension to LIF-06 and OPS-08 consumes its agreed interface; do not assume a registry or add a central capability list. Through the owner contract, interpret versioned dimension descriptors generically (dimension identity, unit, accounting source, enforcement binding and scope), so a correctly implemented resource profile is discovered and executed without a central per-capability branch. Dimension identifiers and schema/status vocabularies are data/types, not capability allowlists. An unmetered or unenforced dimension cannot support hard admission.",
         "Represent each admitted operation by a versioned resource vector for resident/native/IPC memory, disk and spill, checkpoint and overlapping generations, CPU, I/O, network/provider allowance, queue slots, and control metadata. Bind the vector to the actual owner, operation class, process/cgroup or provider principal, expiry, and durable attempt identity.",
         "Reserve capacity before work at one canonical owner boundary. Size the terminal reserve from the measured worst supported fan-in and recovery overlap. Maintain a non-overcommitted custody/control allowance; use weighted or dominant-share fairness only among otherwise eligible bulk work and only under an explicitly selected policy.",
-        "For nested work, atomically transfer or release the parent's reservation before the child waits, or reserve the combined peak. Lease expiry only makes a process suspect; retain its charge until the owner confirms termination or reconciles it. Stream bounded windows and spill only through the existing storage/right owner with a finite quota and cleanup lifecycle.",
+        "For nested work, preserve charges for every still-live parent allocation, shared buffer, child and overlapping generation. Transfer changes accounting ownership, never physical consumption; count shared allocation once and IPC/copies separately. Reserve a feasible combined peak, execute within an already reserved envelope, or checkpoint/park and verify the relevant capacity actually freed before admitting the child. An idle parent may release a CPU slot while retaining its RAM/disk charges. If neither fits, durably defer/refuse without synchronously waiting while holding the resource the child needs.",
         "On saturation, persist the existing job/progress disposition with a bounded reason and due time; avoid unbounded retries. Exercise simultaneous terminal transitions, nested 60/100-plus-50/100-style deadlock shape, live worker after lease expiry, old/new root overlap, OOM/ENOSPC, shared-account 429, and terminal-lane behavior through the actual consumer. Thresholds remain unset until measured.",
         "Use only resource dimensions materially consumed by the selected profile. Protect control/custody capacity through actual process-group/bulk limits and scratch quota that leave measured headroom; distinguish graceful shedding from OOM containment. A reservation ledger alone cannot protect memory."
       ],
@@ -2390,7 +2401,8 @@
         "An estimate or declared vector is not the enforced predicate; bind it to measured host/process state, actual storage quota, and actual provider account scope.",
         "Terminal transitions, recovery and currentness duties retain physically protected capacity under bulk saturation within the tested reserve; if the shared host cannot protect them, report the bounded limitation and deny new bulk work.",
         "Provider timeout/retry on a shared billable principal consumes or holds the same reconciled allowance; a rotated credential or second source does not imply a separate quota.",
-        "Spill records carry purpose, source artifact, retention/right scope and owning storage reference; ENOSPC yields an explicit partial/unavailable/refused outcome rather than an empty result."
+        "Spill records carry purpose, source artifact, retention/right scope and owning storage reference; ENOSPC yields an explicit partial/unavailable/refused outcome rather than an empty result.",
+        "Measurement and production admission are separate stages under this same owner. OPS-08 may qualify a new class inside an already enforced, explicitly permitted finite measurement envelope; unmeasured expected cost is never an admission guarantee and no protected claim duty is accepted from that run."
       ],
       "acceptance_discriminators": [
         "Positive: the selected accepted workload completes within measured caps while all supported simultaneous terminal transitions and recovery retain their measured reserve.",
@@ -2399,7 +2411,8 @@
         "Removal: remove terminal reserve but leave estimate constants; remove child transfer/release but retain the semaphore; remove physical cgroup/storage/provider enforcement but retain declared byte fields. Each real property removal must fail the behavioral gate.",
         "Surface: the existing job/progress consumer exposes defer, quota, partial, unavailable or refused with the bounded reason and retry time. No separate scheduler dashboard is introduced.",
         "Saturate native bulk allocation and spill while terminal writes/recovery run in the actual protected process groups; persisted outcomes and control reserve survive within the declared profile, or that hard-bound claim remains unavailable.",
-        "A new profile using already supported resource semantics requires no central branch. A genuinely new physical resource dimension needs a native enforcement adapter/conformance before it can claim a hard cap; generic discovery alone is not enforcement."
+        "A new profile using already supported resource semantics requires no central branch. A genuinely new physical resource dimension needs a native enforcement adapter/conformance before it can claim a hard cap; generic discovery alone is not enforcement.",
+        "A parked parent retaining 60/100 RAM cannot admit a 50/100 child merely by yielding its CPU slot or moving a ledger entry. Actual release of sufficient memory permits progress; shared parent/child buffers count once, copies twice. Remove lifetime accounting but keep permit markers: the nested resource control must fail."
       ],
       "deviation_triggers": [
         "If work spans processes not covered by one accepted resource owner, extend the one selected native owner to that process scope and qualify it with OPS-08; until demonstrated, refuse only work relying on the unproved aggregate cap, not unrelated preparation.",
@@ -4837,7 +4850,8 @@
       ],
       "acceptance_discriminators": [
         "Real populated source panels query through L1/L5 to GlobalState/WMR with required fields.",
-        "Conforming new source registers without CENTRAL code; synthetic does not count."
+        "Conforming new source registers without CENTRAL code; synthetic does not count.",
+        "A single material counterexample outside the draft D2.3 examples can enter the native extension/research route without fabricated repetition or authority. Same-meaning resources remain data/config growth; changed protected semantics requires its actual owner rule and review, not a ratified label borrowed from an adjacent document."
       ],
       "deviation_triggers": [
         "No permitted source leaves positive unresolved. New semantic class may need typed adapter. Missing trust/schema widens/refuses."
@@ -4916,7 +4930,7 @@
           },
           {
             "role": "primary writer",
-            "delta": "Apply D2.3 to a real facet; separate resource growth from semantic delta.",
+            "delta": "Apply the exact ratified Vision/native-owner rule to a real facet; use draft D2.3 examples as non-exhaustive design guidance, separating conforming resource growth from semantic delta without requiring repeated demand.",
             "positive": "Fresh consumer discovers a new supported profile without central edit.",
             "adversarial": "Same schema hides changed unit while semantic ID stays fixed.",
             "removal": "Keep `conforming` marker, remove real conformance: protected use is denied.",
@@ -8878,7 +8892,7 @@
     },
     {
       "task_id": "CNT-03",
-      "preferred_solution": "Reuse the acquisition planner/executor, epoch admission, Fabric CAS and lineage, and existing security/retention owners. For a file source, persist the exact received representation and its issuer/version, content digest, request and response details, peer/redirect chain, scope, relevant time roles, transformations and lineage. For a custodian-query source, keep raw rows at the custodian and persist a permitted query/result receipt with the query, protocol, version, scope and verifier. Bind the actual permission instrument to principal, purpose, audience, processor, transformations, retention and revocation. Recheck permission and freshness for each use; cache presence, public URL, ETag, or citation is not permission or currentness. Preserve the existing WDI single-response rule: excess pages are explicit incomplete/refusal, not silent truncation.",
+      "preferred_solution": "Reuse the acquisition planner/executor, epoch admission, Fabric CAS and lineage, and existing security/retention owners. For a file source, persist the exact received representation and its issuer/version, content digest, request and response details, peer/redirect chain, scope, relevant time roles, transformations and lineage. For a custodian-query source, keep raw rows at the custodian and persist a permitted query/result receipt with the query, protocol, version, scope and verifier. Bind the actual permission instrument to principal, purpose, audience, processor, transformations, retention and revocation. Recheck permission and freshness for each use; cache presence, public URL, ETag, or citation is not permission or currentness. Preserve the existing WDI single-response rule only for that route: excess pages are explicit incomplete/refusal. A separately qualified CAP-02/LIF-03 protocol may capture its bounded page/range/query/stream scope without inheriting WDI-specific restrictions.",
       "reuse_anchors": [
         {
           "path": "policy-engine/src/polisyos/runtime/quality/acquisition_executor.py",
@@ -8917,7 +8931,7 @@
         },
         {
           "option": "Fetch pages until exhaustion or scrape mirrors by default.",
-          "why_not_default": "Unbounded or unapproved capture expands resource and rights risk; keep the agreed single-response route and return an explicit partial state."
+          "why_not_default": "Unbounded or unapproved capture expands resource and rights risk. Preserve each selected protocol’s completion/cut and budget; WDI remains single-response until its own reviewed extension, while other qualified protocols need no WDI waiver."
         }
       ],
       "free_grow": {
@@ -8925,7 +8939,7 @@
         "extension_boundary": "New transport, credential or query-only mode needs a typed adapter plus durable receipt and sink/use conformance before protected calls.",
         "resource_behavior": "Use current executor quotas and response limits; if response/paging/time limits are reached, persist the terminal incomplete state and resume only through an approved route."
       },
-      "migration_and_rollback": "Retain prior receipts and artifacts by generation. On denial, revocation or changed purpose, withdraw affected use and cascade to dependents without deleting provenance history.",
+      "migration_and_rollback": "Retain prior permitted receipts and artifacts by generation. On denial, revocation or changed purpose, withdraw affected use and cascade to dependents. LIF-05’s lawful retention/deletion decision governs payloads, identifiers, hashes and provenance too: keep only permitted minimal history, record replay/verification unavailability honestly, and do not use append-only history as a retention exemption.",
       "composition_contracts": [
         "Capture emits a durable receipt/artifact; epoch admission binds that result to fresh use, purpose and audience.",
         "Rights are external evidence; storage and retrieval may not broaden the grant."
@@ -8933,7 +8947,8 @@
       "acceptance_discriminators": [
         "Same artifact can be reused only for an admitted matching use and audience after fresh admission.",
         "Revoked or purpose-mismatched grant, unapproved redirect, missing prior body behind 304, foreign tenant, incomplete pages or forged citation fails closed.",
-        "Removing receipt or content-bound permission resolution prevents fresh protected use even when cache/catalog labels remain."
+        "Removing receipt or content-bound permission resolution prevents fresh protected use even when cache/catalog labels remain.",
+        "Exercise a qualified non-WDI protocol without the WDI page==pages==1 guard; the unchanged WDI route still refuses continuation. After an applicable deletion decision, a fresh consumer cannot recover forbidden payload or identifying provenance through history/cache/export/restore; any permitted minimal record and lost replay guarantee stay explicit."
       ],
       "deviation_triggers": [
         "No lawful basis, processor permission or retention limit is established: keep raw content out of the system and return a bounded refusal.",
@@ -11450,7 +11465,7 @@
     },
     {
       "task_id": "OPS-08",
-      "preferred_solution": "Consume the single LIF-06 native admission contract and implement the selected host enforcement adapters; do not create a second admission authority in ControlPlaneStore. One worker is an initial rehearsal-profile setting, not a global invariant. Commission measured class concurrency and enforce the aggregate cap, and a separately measured reserve for API, OS/control and restore; unmeasured classes receive no protected admission. On Linux, cgroup v2 can bound process groups, with memory.high/PSI used for pre-exhaustion load shedding and memory.max as a final failure boundary; directory/project quotas or an equivalent owner mechanism bound scratch. The admission transaction accounts for every API/worker process on the host and holds reservations until the process/attempt is actually reconciled. Raise concurrency only one class/cap at a time after a representative, pinned workload matrix meets the service-owner's resource, queue-age, latency and outcome ceilings with reserve intact. Use bounded low-cardinality metric dimensions for operational class/profile/status and expose overflow explicitly. OpenTelemetry cardinality overflow can preserve an aggregate total while dropping the whole per-measurement attribute combination, making filtered/grouped views undercount; do not use metrics, sampled traces, or their apparent absence as exact per-job, per-tenant, admission, or audit evidence. Persist exact permitted decision/attempt receipts in the existing control/audit owner and bind their access separately. Kubernetes may supply placement and aggregate quotas where already justified, but adds no PolicyOS semantics.",
+      "preferred_solution": "Consume the single LIF-06 native admission contract and implement the selected host enforcement adapters; do not create a second admission authority in ControlPlaneStore. One worker is an initial rehearsal-profile setting, not a global invariant. Commission measured class concurrency and enforce the aggregate cap, and a separately measured reserve for API, OS/control and restore; unmeasured classes receive no protected admission. On Linux, cgroup v2 can bound process groups, with memory.high/PSI used for pre-exhaustion load shedding and memory.max as a final failure boundary; directory/project quotas or an equivalent owner mechanism bound scratch. The admission transaction accounts for every API/worker process on the host and holds reservations until the process/attempt is actually reconciled. Change class/concurrency policy through a scoped qualification matrix with reserve intact. Single-factor tuning is useful for diagnosis, not a permanent scheduling rule: independent isolated measurements may run concurrently, and interacting class/cap changes require matched joint-load evidence before promotion. Use bounded low-cardinality metric dimensions for operational class/profile/status and expose overflow explicitly. OpenTelemetry cardinality overflow can preserve an aggregate total while dropping the whole per-measurement attribute combination, making filtered/grouped views undercount; do not use metrics, sampled traces, or their apparent absence as exact per-job, per-tenant, admission, or audit evidence. Persist exact permitted decision/attempt receipts in the existing control/audit owner and bind their access separately. Kubernetes may supply placement and aggregate quotas where already justified, but adds no PolicyOS semantics.",
       "reuse_anchors": [
         {
           "path": "policy-engine/src/polisyos/runtime/http/services/control_worker.py",
@@ -11472,6 +11487,7 @@
         }
       ],
       "implementation_steps": [
+        "Qualify a new class in a distinct finite measurement run authorized by the platform/service owner within an already verified isolation/enforcement envelope, with a hard bulk ceiling, existing control reserve, bounded scratch/time and no new protected custody commitment. Start small and increase only within that envelope; if the host cannot enforce it, use a suitable isolated host or record the qualification as unavailable. A candidate label alone authorizes neither unsafe workload nor unknown spend.",
         "Define measured classes for network, interactive, CPU, high-RSS/native threads, model/GPU, index and restore; class limits include bytes, CPU, RSS, I/O, scratch, queue age, retries and drain.",
         "Atomically reserve aggregate host and class capacity in the existing shared control store before starting work; release only after confirmed process/attempt termination or reconciliation.",
         "Apply Linux cgroup or the selected platform's native hard controls and measure PSI/peak resource use; defer or reject before owner-set ceilings are reached.",
@@ -11491,17 +11507,19 @@
       "free_grow": {
         "data_or_config_growth": "Supported class dimensions and ceilings can grow as versioned measured policy data.",
         "extension_boundary": "A new enforcement dimension or OS needs a native enforcement adapter; declarations without an enforcing owner remain not_established.",
-        "resource_behavior": "Unmeasured class, missing shared reservation owner, exhausted reserve, stale process census or unsupported hard limit refuses/defer; no silent overcommit."
+        "resource_behavior": "Unmeasured classes receive no protected workload or prospective custody-duty admission. Bounded qualification uses the separately permitted existing enforcement envelope; absent envelope, exhausted reserve, stale process census or unsupported hard limit defers/refuses. No silent overcommit."
       },
       "migration_and_rollback": "Version class policies and in-flight reservations; keep agent/reviewer limits distinct from runtime jobs. On pressure or guardrail violation, reduce the affected pool, drain safely and retain jobs; never relax admission to meet throughput.",
       "composition_contracts": [
         "Class membership and resource limits are institutionally selected inputs; observed usage and permit consumption are recomputed; permit release requires reconciled process termination.",
-        "Per-tenant quota, shared host admission and provider spend ceiling compose independently."
+        "Per-tenant quota, shared host admission and provider spend ceiling compose independently.",
+        "Resource classification/measurement policy belongs to the actual platform/service owner; no new institutional act is needed for each in-envelope sample unless that owner contract requires it. Production class admission consumes completed measurements and the actual supported concurrency/terminal denominator."
       ],
       "acceptance_discriminators": [
         "Under the commissioned workload/process and supported simultaneous-terminal denominator, multiple workers cannot multiply the cap; shared scratch/memory pressure triggers bounded defer/refusal and the measured physical control reserve remains available. memory.max/OOM is a final failure boundary, not a guarantee of graceful handling for arbitrary workloads or host failure.",
         "Removing shared admission while leaving per-process limit markers makes the multi-process acceptance fail.",
-        "High-cardinality telemetry visibly reports overflow; totals remain useful for operations, while exact per-job/tenant outcomes remain available only from authorized receipts and no aggregate or sampled signal can make an admission/audit decision."
+        "High-cardinality telemetry visibly reports overflow; totals remain useful for operations, while exact per-job/tenant outcomes remain available only from authorized receipts and no aggregate or sampled signal can make an admission/audit decision.",
+        "An unknown class can produce measurements inside an existing enforceable isolated envelope while its production/duty eligibility stays unavailable. No envelope means no run. Two disjoint measurement lanes can proceed concurrently within aggregate capacity; a joint class/cap policy cannot promote from isolated results that omit their interference."
       ],
       "deviation_triggers": [
         "Increase concurrency only after each candidate step passes the commissioned matrix on the actual hardware, with no limit breach or OOM and the reserve still available.",
@@ -11858,18 +11876,20 @@
       ],
       "free_grow": {
         "data_or_config_growth": "New backend configurations use one adapter conformance interface and owner-scoped manifests.",
-        "extension_boundary": "Each new provider, mount, encryption/retention mode or multi-cell topology requires its own semantic adapter and restore proof; API similarity is not equivalence.",
+        "extension_boundary": "A new configuration of an already supported backend/mount/retention semantic class reuses its existing adapter and runs exact selected configuration/restore conformance. Only changed protocol, atomicity, encryption/key, retention or topology semantics require an adapter extension; a new bucket/site name alone is not a new code module.",
         "resource_behavior": "Bound bytes, request rate, concurrency, cache and retries; provider outage or ambiguous write yields reconciliation-required state, never silent head rollback."
       },
       "migration_and_rollback": "Migrate one selected cell at a time with dual-compatible readers and explicit object versions/owner scope. Stop new writes, pin verified manifests, restore the last qualified adapter/config and reconcile object/control references before serving. Never roll back into a superseded rights generation.",
       "composition_contracts": [
         "Object authority comes from resolved owner/manifest grant; provider key, bucket prefix and content digest do not self-authorize.",
         "Include backend/config/schema versions and object generation/time, cell, audience, provenance and recovery cut in receipts.",
-        "Bind conditional-write guarantees to the exact provider API operation and multipart route: for example GCS XML multipart does not support request preconditions. Select a supported route or retain an explicitly proved immutable-version/owner-head protocol; provider-level capability labels cannot substitute for the actual operation race test."
+        "Bind conditional-write guarantees to the exact provider API operation and multipart route: for example GCS XML multipart does not support request preconditions. Select a supported route or retain an explicitly proved immutable-version/owner-head protocol; provider-level capability labels cannot substitute for the actual operation race test.",
+        "One canonical semantic owner does not require one physical process or a global mutex. Keep atomicity/fencing on the actual invariant key (job/attempt, source partition, claim head or budget principal). Distinct verified scopes can use separate workers/transactions; scopes sharing a cap, rights/disclosure budget or head still coordinate through its existing owner. Partitioning is an implementation option only after proving non-overlap and preservation of shared invariants, never by tenant/job labels alone."
       ],
       "acceptance_discriminators": [
         "Exact backend/config supports concurrent owner-scoped create/read, bounded read, lifecycle and quarantined restore with hash/reference agreement and a fresh authorized consumer.",
-        "Cross-cell IDs, cache-key collision, partial multipart write, stale generation and old-manifest rollback do not disclose or authorize an object."
+        "Cross-cell IDs, cache-key collision, partial multipart write, stale generation and old-manifest rollback do not disclose or authorize an object.",
+        "A second supported backend configuration is discovered and used without central routing or adapter-code edits, with its own namespace/IAM/restore evidence. A same-API configuration changing atomicity or retention cannot borrow that conformance. Disjoint cells can operate independently; shared billing/custody invariants remain shared."
       ],
       "deviation_triggers": [
         "Scale out after a source-bound deployment decision justified by its actual objective and costed alternatives; no unsupported throughput claim, no compulsory vertical-exhaustion gate for custody/failure-domain needs.",

@@ -1,6 +1,6 @@
 # Согласованные инженерные решения
 
-Актуальная карточка задачи = исходная карточка + все её `r14_extension` / `r15_extension` в [tasks.json](../tasks.json) и mirrored solution manifest. Чтение только старой prose-карточки не даёт полного assignment. [R15 implementation guidance](14-adaptive-trajectories-and-studies.md) и [method profiles](15-technical-method-lifecycle.md) раскрывают новые обязанности; ссылки на профили не означают обязательное внедрение всех технологий.
+Актуальная карточка задачи = исходная карточка + **все присутствующие `*_extension`** в [tasks.json](../tasks.json) и mirrored solution manifest, а также текущие acceptance/stage requirements. Имена R14/R15/R16/R17/R19 обозначают происхождение дополнений, не закрытый список для reader. Чтение только старой prose-карточки не даёт полного assignment. [R15 implementation guidance](14-adaptive-trajectories-and-studies.md) и [method profiles](15-technical-method-lifecycle.md) раскрывают новые обязанности; ссылки на профили не означают обязательное внедрение всех технологий.
 
 Эти рекомендации выбирают общий механизм для нескольких задач. Они конкретизируют [уже распределённых владельцев](../architecture/01-integration-boundaries.md), не создавая новый центральный subsystem. Ратифицированные AD-E02-01–06, Fabric N818 и SDD сохраняются. Задачи используют соответствующую строку, а затем доказывают свой фактический consumer path.
 
@@ -64,7 +64,7 @@ Incremental invalidation допустим, когда владелец може�
 
 GY O1/O2/O3 и CNT-05/06/08 сохраняют разделение подтверждения, exploratory hypotheses, нормативного выбора и допустимого действия. Ратифицированный B01 допускает конкурирующие/неопределённые causal completions. C01 допускает validated exact joint witness для конкретного свойства наряду с simulation; сумма pairwise эффектов им не является. C02 допускает обоснованные inference profiles, сохраняя их разные guarantees. Native O1 Bayesian updater — целевой профиль, а не разрешение активировать его. WP-01/WP-02 сейчас запрещают operative posterior mutation: live producers и concrete activation packet готовятся внутри, actual scoped activation выдаёт компетентный principal. C02 не снимает этот запрет. Подробнее — [границы решений](decision-clarifications.md).
 
-Существующие AD-E02 method-output/unit и inference решения используются как contracts. Unit consistency не даёт empirical calibration; posterior не даёт политического мандата. Политическое предпочтение и метод измерения показываются вместе с alternatives/sensitivity, без скрытого scalar collapse. O2 hypotheses проходят отдельный confirmatory intake; O3 write-back требует реально допустимого подтверждения и чтения следующим циклом.
+Существующие AD-E02 method-output/unit и inference решения используются как contracts. Unit consistency не даёт empirical calibration; posterior не даёт политического мандата. Политическое предпочтение и метод измерения показываются вместе с alternatives/sensitivity, без скрытого scalar collapse. O2 hypotheses проходят claim-type-qualified intake: effect-posterior route сохраняет O1/AS3/WP, structural route — [CNT-06/native method → единственный GYD-12 writer](18-structural-world-learning.md). O3 write-back требует собственного действующего правила и чтения следующим циклом; слово confirmatory не заставляет structural evidence принимать форму O1 posterior.
 
 ## S10. Atlas проецирует native смысл и реальные ограничения
 
@@ -96,10 +96,37 @@ Pattern pass: P01/P02/P04/P05/P07/P08/P10/P13/P14/P15/P27/P29/P31–P41. Цел�
 
 ## S14. Кандидатная постановка и общий охват
 
-Sponsor задаёт вопрос, purpose, decision boundary и ограничения; система может предложить candidate atom/estimand, measure/weights и сравнить условные результаты. Protected use требует выбранного и допустимого основания. Это не право системе присвоить principal политический выбор. Общие grammar/routes/limits для всех 26 текущих семейств R9 остаются программным обязательством; каждый case приобретает только нужные ему источники. Все 197 source cards не становятся обязательным corpus.
+Sponsor задаёт вопрос, purpose, decision boundary и ограничения; система может предложить candidate atom/estimand, measure/weights и сравнить условные результаты. Protected use требует выбранного и допустимого основания. Это не право системе присвоить principal политический выбор. Общие grammar/routes/limits для полного набора семейств из текущего source inventory остаются программным обязательством (26 на исходном срезе R13, не runtime enum); каждый case приобретает только нужные ему источники. Все 197 source cards не становятся обязательным corpus.
 
 ## S15. Внутренняя работа и реальные внешние входы
 
-Во всех 109 карточках inputs_to_resolve — перечень для классификации, не список внешних стопов. Отсутствующий parser, bridge, validator, producer, allocation или migration назначается и строится. Уже pinned criterion читается, а не повторно запрашивается. External hold требует конкретного недостающего факта/акта/permission, supplier investigation, допустимых альтернатив и точно заблокированного claim. Каждая рекомендация содержит [root review](root-review.md) этого различия.
+Во всех текущих карточках `inputs_to_resolve` — перечень для классификации, не список внешних стопов; полный denominator берётся из task manifest, а не исторического числа R13. Отсутствующий parser, bridge, validator, producer, allocation или migration назначается и строится. Уже pinned criterion читается, а не повторно запрашивается. External hold требует конкретного недостающего факта/акта/permission, supplier investigation, допустимых альтернатив и точно заблокированного claim. Каждая рекомендация содержит [root review](root-review.md) этого различия.
 
 Ни один ресурс не освобождается только от expiry lease: требуются прекращение процесса или согласованный outcome. Сторонний scheduler, SDK, CRD или provenance framework служит примером механизма, не основанием заменить существующего owner. Источники исследования и пределы переноса собраны в [sources](sources.md).
+
+## S16. Free-grow без ошибочных физических и проверочных барьеров
+
+[R21 самостоятельное review](../assurance/r21-self-review.md) уточняет восемь
+engineering boundaries в существующих tasks. Новый профиль того же класса использует
+существующий adapter плюс собственное conformance; новый смысл требует native-owner
+extension. Первый WDI witness не задаёт порядок готовности всех протоколов.
+
+Один semantic owner — единый контракт и invariant, а не обязательный singleton
+process/global mutex. Atomic/fencing key выводится из реального job/head/partition/
+budget scope. Disjoint scopes допускают отдельные workers и transactions; общие
+provider/disclosure/cap invariants нельзя разделить tenant labels. Это не изменение
+source write leases: один writer по-прежнему владеет каждым shared source file.
+
+Fresh-use check переиспользует immutable content-bound assessment, но заново
+разрешает relevant purpose/rights/generation/currentness. Он не обязан повторять
+полный научный verifier или читать весь payload при каждом доступе. Неполный
+invalidation/dependency closure исключает такой cache hit; TTL не заменяет fence.
+
+Новый resource class можно измерить в заранее проверенном, разрешённом конечном
+изоляционном envelope без нового custody commitment. Это не разрешение запускать
+неограниченную работу с unknown cost. Production qualification потребляет actual
+measurement; перенос reservation никогда не скрывает живые allocations.
+
+Append-only означает порядок сохранённых разрешённых фактов. Это не исключение из
+LIF-05 для хранения raw data, identifiers, hashes и provenance. Утрата lawful replay
+показывается явно, а история не используется для восстановления отозванных прав.

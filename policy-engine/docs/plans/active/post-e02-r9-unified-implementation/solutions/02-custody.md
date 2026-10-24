@@ -10,7 +10,8 @@
 
 ### Предпочтительное решение
 
-Extend existing Claim support, domain verification and Claim Ledger consumption. Resolve the exact permitted representation and selected profile before admission: retained bytes where lawful, or the permitted query/result receipt verified against its actual custodian-side execution and content/operation binding. A digest alone cannot replace unavailable content, and query-only limits on replay remain explicit. Keep assertion, assessment and use distinguishable: assertion binds exact occurrences/propositions; assessment records the predicate/method/rule and limitations; use binds the assessment to claim, estimand, purpose, audience, frozen basis and dependencies. Check polarity, population, unit, scope, effective-time role, translation occurrence, selection trace and any claimed independence at the existing consumer. Reassess changed purpose/audience. Same-code replay establishes consistency only; independent correctness evidence is required only where the selected claim or method asserts it, not as a universal verifier tax. Search no-hit is not absence and anonymous occurrences gain no invented identity.
+Extend existing Claim support, domain verification and Claim Ledger consumption. Resolve the exact permitted representation and selected profile before admission: retained bytes where lawful, or the permitted query/result receipt verified against its actual custodian-side execution and content/operation binding. A digest alone cannot replace unavailable content, and query-only limits on replay remain explicit. Keep assertion, assessment and use distinguishable: assertion binds exact occurrences/propositions; assessment records the predicate/method/rule and limitations; use binds the assessment to claim, estimand, purpose, audience, frozen basis and dependencies. Check polarity, population, unit, scope, effective-time role, translation occurrence, selection trace and any claimed independence at the existing consumer. Reassess changed purpose/audience. Same-code replay establishes consistency only; independent correctness evidence is required only where the selected claim or method asserts it, not as a universal verifier tax. Search no-hit is not absence and anonymous occurrences gain no invented identity. Fresh-use qualification is a current predicate, not compulsory repetition of every expensive verifier or full payload scan. Reuse an immutable content-bound assessment only for its exact semantic input/rule/verifier/profile closure and allowed lifetime; resolve current purpose/audience, rights, claim/source generations and publication fence on every affected use. Cache keys include relevant negative/membership dependencies; TTL or equal bytes alone is insufficient. Unknown dependency coverage or an unavailable required freshness fence triggers scoped requalification, limitation or refusal. Preserve per-use binding/decision through the native owner, without duplicating assessment payloads.
+
 
 ### Что переиспользовать
 
@@ -22,18 +23,22 @@ Extend existing Claim support, domain verification and Claim Ledger consumption.
 
 Наблюдение на историческом pin не устанавливает текущую реализацию или принятую базу.
 
+
 ### Последовательность реализации
 
 1. Resolve the selected retained ArtifactRef/profile or lawful query/result receipt and verify its native content/operation binding. Missing required evidence refuses authority; absence of prohibited raw retention is not itself a failure of a receipt-based contract. Preserve replay limitations.
 2. Have the domain verifier emit immutable predicate, exact inputs, rule/method version, verifier provenance, time roles, result and limitation. Keep integrity, applicability, entailment, causal validity and authority separate.
 3. Bind assessment to one ClaimRecord/use and frozen denominator; persist lifecycle change through the existing claim owner and expose it through the selected API/audit surface.
 4. Rebind legacy records by exact content and intended use; unresolved records remain candidate/unknown.
+5. Separate immutable assessment reuse from current use validation; version the exact predicate cache and dependency invalidation under existing claim/lineage owners. Do not require a new human decision or full scientific/legal re-verification when the qualified basis is unchanged and its use remains covered.
+
 
 ### Рассмотренные альтернативы
 
 - **Use references, hashes or PROV-O structure as relation proof** — Provenance describes who/what/when; it does not prove semantics or admit a purpose-specific use.
 - **One universal verifier or mandatory independence check for every artifact** — Duplicates domain semantics and overstates independence for routine replay. Check only the claim predicate and authority band actually asserted.
 - **Producer assertion promotes the claim** — Allows a source or LLM to supply its own authority and bypass the canonical consumer.
+
 
 ### Free-grow и ресурсы
 
@@ -52,6 +57,7 @@ Rebind historical records by exact content/profile. Suspend only the affected us
 - CAP supplies exact receipt/profile/bytes; domain owner supplies relation assessment; Claim Ledger owns use, head and projection.
 - Classify gate predicates: content/rule checks may be recomputed; legal act/applicability is institutionally supplied; unknown scope remains candidate.
 - Expose the selected use and audience without a universal metadata envelope.
+- LIF-01 owns assessment/use semantics, CAP-03 its library consumer, and existing native lineage/cache owners (including LIF-07 where selected) own dependency storage/invalidation. Bind the actual producer→reuse reader before enabling a cache claim; reuse does not authorize a second cache/lineage subsystem or impose caching on a method whose semantics require a fresh evaluation.
 
 
 ### Acceptance и различающие проверки
@@ -59,6 +65,7 @@ Rebind historical records by exact content/profile. Suspend only the affected us
 - Positive: verified receipt supports one persisted use visible to a fresh consumer; changed purpose/audience is reassessed.
 - Negative: wrong polarity/unit/population/scope, unbound translation, no-hit as absence, repeated cohort as independent, anonymous occurrence with invented identity.
 - Removal: remove content resolution but keep refs/labels; reject. Remove purpose binding but keep assessment; changed-use reuse refuses or reassesses.
+- For a selected cache-eligible assessment, repeated covered use reuses the same qualified assessment with observable verifier-call accounting, yet a changed rule/rights generation or newly matching dependency alters fresh use even when payload bytes are identical. Removing current dependency/fence validation must fail; disabling the cache must preserve the scoped decision. A method requiring fresh evaluation or lacking a complete dependency closure cannot borrow this reuse guarantee.
 
 
 ### Входы и ответственность за их получение
@@ -74,8 +81,8 @@ Rebind historical records by exact content/profile. Suspend only the affected us
 - If predicate cannot be constructed or only search-hit evidence exists, keep candidate/limited pending a verifier receipt.
 - New authority semantics require typed owner extension before publication.
 
-
 Classify each input at accepted-source rebind as internal engineering output/allocation, existing source record, or genuine external fact/permission. Missing native producer/bridge is assigned work, not an external blocker. Only the last class can justify an external-input hold after supplier/alternative investigation. See root-review.md for the task-specific distinction.
+
 
 ### Исследование и предел переноса
 
@@ -261,6 +268,7 @@ Classify each input at accepted-source rebind as internal engineering output/all
 
 Extend the existing RuntimeOperationIntent/ControlPlaneStore path. Persist stable scoped effect identity and request digest before remote call; keep intent, attempts, provider observations and final local commit distinct. Reuse the same provider idempotency key only with exact request binding and within the provider’s documented retention/reconciliation window. Complete local result/event/outbox under the existing transaction and owner token. Cancellation races explicitly with provider acceptance and local publication; timeout, lease expiry and cancel request do not prove that the provider stopped. If response is lost or window uncertain, retain unknown/recovery_required and reconcile by provider receipt/status before retry. Recheck actor authority before resumed sensitive action; keep long-lived duty on authorized service identity with visible transfer/cutoff.
 
+
 ### Что переиспользовать
 
 - `policy-engine/src/polisyos/runtime/http/services/run_operation_idempotency.py@dccea950845cda5b38f026e7770c07819d31f4d9` — `RuntimeOperationIntentStatus, RuntimeOperationIntentKey, RuntimeOperationIntentStore`. Typed local status already includes unknown/pending/completed/refused/recovery_required and disclaims external exactly-once.
@@ -269,6 +277,7 @@ Extend the existing RuntimeOperationIntent/ControlPlaneStore path. Persist stabl
 
 Наблюдение на историческом pin не устанавливает текущую реализацию или принятую базу.
 
+
 ### Последовательность реализации
 
 1. Persist scoped intent, actor, exact request digest, provider operation identity, duty owner and bounded attempt policy before dispatch.
@@ -276,11 +285,13 @@ Extend the existing RuntimeOperationIntent/ControlPlaneStore path. Persist stabl
 3. Reconcile provider status before atomically persisting effect observation, final job/claim result and lifecycle event.
 4. Expose unknown separately; transfer or retire duty through OPS-authorized successor/cutoff.
 
+
 ### Рассмотренные альтернативы
 
 - **Add Temporal as a second scheduler/status plane** — It illustrates retries and heartbeat cancellation, but existing ControlPlaneStore is the canonical local intent owner.
 - **Idempotency key means indefinite exactly-once** — Provider windows differ; Stripe v1 may prune after 24 hours and then reuse starts a new request.
 - **Saga compensation means remote rollback** — Compensation is another act; saga is eventually consistent and cannot erase irreversible disclosure.
+
 
 ### Free-grow и ресурсы
 
@@ -299,6 +310,7 @@ Reconcile legacy pending/completed rows against provider receipt and request dig
 - ControlPlaneStore owns local intent/attempt/result/outbox; do not create a second scheduler.
 - Provider receipt/window/quota is institutionally supplied evidence.
 - OPS supplies service identity and continuity; actor grants are rechecked before sensitive resume.
+- One canonical semantic owner does not require one physical process or a global mutex. Keep atomicity/fencing on the actual invariant key (job/attempt, source partition, claim head or budget principal). Distinct verified scopes can use separate workers/transactions; scopes sharing a cap, rights/disclosure budget or head still coordinate through its existing owner. Partitioning is an implementation option only after proving non-overlap and preservation of shared invariants, never by tenant/job labels alone.
 
 
 ### Acceptance и различающие проверки
@@ -306,6 +318,7 @@ Reconcile legacy pending/completed rows against provider receipt and request dig
 - Positive: known provider effect becomes one reconciled local effect/final result; retry within real provider window preserves identity.
 - Negative: accepted effect/lost reply after key expiry, cancel before/after acceptance, old worker after lease, 429, store outage, compacted history and wrong issuer receipt.
 - Removal: remove outcome reconciliation but keep key; blind repeat fails. Remove cancel/final fence but keep marker; accepted effect cannot report stopped.
+- Independent operation scopes make progress without a global job lock, while two attempts for the same protected effect still fence at its canonical key. Partition labels cannot split a shared provider/disclosure budget; delayed old attempts fail the expected-generation write.
 
 
 ### Входы и ответственность за их получение
@@ -321,8 +334,8 @@ Reconcile legacy pending/completed rows against provider receipt and request dig
 - If already accepted E02 provides complete outcome inbox, consume it instead of duplicating.
 - Irreversible effect gets local-only rollback plus bounded public limitation.
 
-
 Classify each input at accepted-source rebind as internal engineering output/allocation, existing source record, or genuine external fact/permission. Missing native producer/bridge is assigned work, not an external blocker. Only the last class can justify an external-input hold after supplier/alternative investigation. See root-review.md for the task-specific distinction.
+
 
 ### Исследование и предел переноса
 

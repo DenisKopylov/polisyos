@@ -92,7 +92,7 @@ Classify each input at accepted-source rebind as internal engineering output/all
 
 ### Предпочтительное решение
 
-Extend the selected Fabric HTTP connector to capture one bounded response as an immutable body-plus-request/response witness when the selected profile permits raw retention; otherwise use CAP-03’s lawful query/result-receipt boundary under the exact source profile, then make later readers resolve that exact root through ArtifactRef/manifest and current admission. Treat an ETag as an opaque representation validator, not the body's hash. A 304 is usable only when the matching stored body is readable and its target, representation profile, Vary dimensions, source identity, and permission still resolve; otherwise return unavailable. Ship the bounded single-response route first. Pagination, delta, ranges, or competing cursor writers activate only with source-native completeness/cut evidence and LIF-03's conditional receipt-before-frontier commit; CAP does not add a second cursor writer.
+Extend the selected Fabric HTTP connector to capture one bounded response as an immutable body-plus-request/response witness when the selected profile permits raw retention; otherwise use CAP-03’s lawful query/result-receipt boundary under the exact source profile, then make later readers resolve that exact root through ArtifactRef/manifest and current admission. Treat an ETag as an opaque representation validator, not the body's hash. A 304 is usable only when the matching stored body is readable and its target, representation profile, Vary dimensions, source identity, and permission still resolve; otherwise return unavailable. Retain the bounded WDI single-response route as the original A1 witness, not a system-wide transport or scheduling restriction. Prepare disjoint selected file/query/stream/paged adapters in parallel against their exact interfaces; each activates only after its own required conformance, rights and resource checks. Pagination, delta, ranges, or competing cursor writers activate only with source-native completeness/cut evidence and LIF-03's conditional receipt-before-frontier commit; CAP does not add a second cursor writer.
 
 
 ### Что переиспользовать
@@ -140,6 +140,7 @@ Reuse legacy roots only after reopening and verifying exact bytes, request/profi
 - A complete snapshot means source-defined cut plus all required continuation pages and exact child bodies. A page count, ETag, hash, or high offset by itself is not completeness evidence.
 - Transport safety and source-use/materialization permission both precede capture side effects. LIF-05 fences each actual write/disclosure; LIF-01/03 admission and later CAP-03 reuse consume the lawful representation. An HTTP-valid response is not permission to store it.
 - LIF-05/native source-use producer supplies a current, qualified source/profile/purpose/audience/actual-sink decision before the selected CAP-02 body/temp/log/cache placement. CAP-01 outbound-query permission and CAP-03 later reuse admission do not authorize capture storage. If authorized query egress returns a body whose placement is unknown/denied, do not stage/store/log/cache or expose its digest/ref. Discard at the authorized ephemeral processing boundary and emit only a permitted opaque non-admission receipt; if ephemeral response processing itself lacks permission, refuse the fetch. Do not label this a complete admitted capture. See the task conditional supplier: this is a selected-effect join, not a whole-task start dependency.
+- HTTP ETag/304 rules apply only to that representation protocol. Existing qualified file, database-query or bounded stream producers retain their native receipt/cut semantics; they are not wrapped in a fictitious HTTP response. WDI first-route evidence neither closes nor blocks a disjoint selected protocol extension.
 
 
 ### Acceptance и различающие проверки
@@ -149,6 +150,7 @@ Reuse legacy roots only after reopening and verifying exact bytes, request/profi
 - Redirect-to-private-IP, DNS rebinding between check and connect, parser-confused URL, credential-forwarding hop, and disallowed proxy path are blocked at the actual socket/egress boundary.
 - Removal of body binding or LIF-03 expected-head fencing while status markers remain makes the matched negative fail.
 - Query-only canaries remain absent from managed staging/temp/CAS/log/cache sinks at capture time, not merely after cleanup; permitted receipt/result remains usable. Removing pre-materialization permission while leaving later reuse checks must fail.
+- With WDI still honestly single-response, a separately qualified source protocol completes its own capture→receipt→fresh consumer without HTTP-specific assumptions. An unsupported continuation cannot borrow the WDI receipt; removing that protocol’s actual completeness/fence changes its result.
 
 
 ### Входы и ответственность за их получение
@@ -222,7 +224,7 @@ Wire the selected acquisition route to native passport admission and the governe
 
 ### Миграция и восстановление
 
-Do not infer rights from historical artifacts or preseed receipts. Reopen exact roots with current owner evidence and completeness; unavailable roots remain unavailable. On revoke or failed revalidation, disable new reads, cache hits, resume and export under LIF-05, preserve permitted audit history, and separately account for actual copies; already disclosed bytes cannot be recalled by a status change.
+Do not infer rights from historical artifacts or preseed receipts. Reopen exact roots with current owner evidence and completeness; unavailable roots remain unavailable. On revoke or failed revalidation, disable new reads, cache hits, resume and export under LIF-05, preserve permitted audit history, and separately account for actual copies; already disclosed bytes cannot be recalled by a status change. Append-only is a history-order rule, not permission to retain forbidden bodies, identifiers or digests. Apply LIF-05’s actual retention decision and retain only permitted historical facts, exposing lost replay/verification capability.
 
 
 ### Композиция и owners
@@ -231,6 +233,7 @@ Do not infer rights from historical artifacts or preseed receipts. Reopen exact 
 - A second purpose gets a fresh admission trace even when it resolves the same bytes. Rights to read, process, derive, and publish remain separately scoped where source terms distinguish them.
 - For query-only profiles, allowed derived outputs can remain consumable only if the selected rights/sink policy proves raw bytes did not persist in each inventoried CAS, log/trace, browser, backup, or provider temporary sink.
 - Selected cost-dependent route consumes the actual acquisition_planner native cost artifact, also supplying DEB-13 net-value composition. DEB-07 records the source-row disposition without a second writer. For the source-selected free WDI route, the canonical runtime/quality/acquisition_planner.py cost-schedule owner may admit dated expert_hours/calendar_days/collection_mode effort under the principal’s 2026-09-17 option A: first inspect actual connector/comparable-ingest evidence, prefer measured comparable effort, otherwise explicitly label and justify the owner estimate. Neither fixture hours/days nor a cap is the basis. A paid/licensed selected source invalidates that premise and needs its real quote/rights evidence; no default institutional price request for free-data engineering.
+- Fresh-use qualification is a current predicate, not compulsory repetition of every expensive verifier or full payload scan. Reuse an immutable content-bound assessment only for its exact semantic input/rule/verifier/profile closure and allowed lifetime; resolve current purpose/audience, rights, claim/source generations and publication fence on every affected use. Cache keys include relevant negative/membership dependencies; TTL or equal bytes alone is insufficient. Unknown dependency coverage or an unavailable required freshness fence triggers scoped requalification, limitation or refusal. Preserve per-use binding/decision through the native owner, without duplicating assessment payloads.
 
 
 ### Acceptance и различающие проверки
@@ -239,6 +242,7 @@ Do not infer rights from historical artifacts or preseed receipts. Reopen exact 
 - Revoke/expiry/purpose, audience, tenant, profile, schema, source generation, or verifier change between admission and resume/cache/export blocks the fresh effect even while an old passport/marker remains.
 - Remove content resolution/verifier provenance but preserve `admitted` and hash labels; promotion and the actual consumer read must fail.
 - For query-only mode, controlled raw-byte canaries are absent from all selected sinks while the permitted derived result and receipt remain usable.
+- Same-root repeated authorized reuse need not rerun the immutable assessment, but a rights/purpose/generation change still changes fresh admission. Deletion restrictions apply to identifying lineage and receipts as well as payloads; restore cannot resurrect their prior access.
 
 
 ### Входы и ответственность за их получение
@@ -272,7 +276,8 @@ Classify each input at accepted-source rebind as internal engineering output/all
 
 ### Предпочтительное решение
 
-Add only source-specific change/retraction/rights event producers next to their accountable source owner, then hand the exact event into LIF-02's existing enrollment, replay, generation, and publication-currentness fence. Bind event identity, exact old/new source root or relation, source generation, verifier/issuer evidence, source journal, recorded time, effective time, and affected audience. CAP emits events; it does not create another universal cascade or scheduler. Until a source has a complete event/change contract, its currentness remains limited to an explicit as-of cut or unclaimed. The academic work-ID retraction parser remains a narrow adapter, not proof of general update coverage.
+Add only source-specific change/retraction/rights event producers next to their accountable source owner, then hand the exact event into LIF-02's existing enrollment, replay, generation, and publication-currentness fence. Bind event identity, exact old/new source root or relation, source generation, verifier/issuer evidence, source journal, recorded time, effective time, and affected audience. CAP emits events; it does not create another universal cascade or scheduler. Until a source has a complete event/change contract, its currentness remains limited to an explicit as-of cut or unclaimed. The academic work-ID retraction parser remains a narrow adapter, not proof of general update coverage. Support both a source-native feed and an explicitly observed snapshot-comparison route. For the latter, CAP-02 supplies comparable permitted observations; CAP-04 persists the exact observed old/new representations, selector/profile/coverage and acquisition times, without inventing source-effective time or completeness between polls. Local journal positions order our observations only. A detected disappearance, access failure or changed representation is not by itself repeal/retraction or a whole-source deletion. Qualified observations can invalidate dependent use through LIF-02; unchanged reads justify only the measured scope/cut and cannot erase missed transients.
+
 
 ### Что переиспользовать
 
@@ -283,12 +288,15 @@ Add only source-specific change/retraction/rights event producers next to their 
 
 Наблюдение на историческом pin не устанавливает текущую реализацию или принятую базу.
 
+
 ### Последовательность реализации
 
-1. Choose one selected source and enumerate its actual change journal, correction/repeal/retraction protocol, event completeness/retention window, and stable source identities.
+1. Choose a selected source and bind either its supported change journal or its bounded observation/reconciliation route; state coverage, replay/reset behavior, stable identities and what changes the route cannot observe.
 2. Implement a typed source adapter that persists event receipts and binds them to CAP-02 roots/relation versions; treat provider events as supplied evidence and verify their source/issuer through the accountable owner.
 3. Enroll the dependency denominator and replay the source interval through LIF-02; make publication/currentness participate in its source/right cut fence or expose the accepted bounded cutoff.
 4. Make a fresh claim/decision consumer show historical publication separately from current validity; no scheduler may be required for an authority read to refuse a stale green projection.
+5. For a source without a feed, compare complete selected observations through its existing capture/decoder owner. Emit an observed-change/coverage-loss fact with the exact local observation basis; preserve source-effective semantics as unknown until their owner verifies them. Failed/partial polls cannot certify unchanged state or manufacture removals.
+
 
 ### Рассмотренные альтернативы
 
@@ -296,9 +304,10 @@ Add only source-specific change/retraction/rights event producers next to their 
 - **Build a CAP-owned invalidation cascade and scheduler** — LIF-02 owns dependency enrollment, replay, source generations, and currentness fencing; duplication creates divergent green states.
 - **Treat a webhook's arrival as a complete denominator** — Delivery may be delayed, replayed, omitted, or expire; provider-specific source contracts and reconciliation cut are still required.
 
+
 ### Free-grow и ресурсы
 
-- **data or config growth:** A new source event feed adds a versioned adapter/profile and event source registry entry; sources sharing a proven event semantic class use the same LIF-02 lifecycle consumer.
+- **data or config growth:** New sources instantiate a supported feed or observation/reconciliation profile in the existing source registry; a new event/observation semantic class needs its own adapter, without central routing edits.
 - **extension boundary:** New event kinds or source-specific semantics require a typed producer and conformance contract; no hand-maintained capability list in central routing and no event-type string promoted by presence.
 - **resource behavior:** Replay/fanout work is bounded by enrolled dependencies and retained source cursor; lag, replay-floor expiry, event storm, or missing interval yields pending/limited status and durable work receipts, not a currentness claim.
 
@@ -321,22 +330,23 @@ Do not infer enrollment from positive references or verified events from URL mov
 - Event-before-enrollment, backdated event, replay/duplicate, missing journal segment, stale index, replay-floor expiration, rights race, and scheduler-off read cannot leave an unjustified green current projection.
 - Remove source generation/dependency binding while leaving an event and current marker; the fresh consumer must refuse green.
 - Surface shows event source, verifier/cut basis, source/effective time, limitations, and historic publication separately.
+- A no-webhook source changes its observed representation: the authorized poll persists an observed delta and a fresh affected claim changes without invented source-effective time. A→B→A between polls remains unobserved; partial/failed polls and selector drift cannot certify no change or semantic repeal. Removing actual comparison while retaining poll heartbeat fails the observed-change positive.
 
 
 ### Входы и ответственность за их получение
 
-- Source institution/custodian's signed or otherwise verifiable event feed, correction/retraction protocol, complete source denominator, replay/reset behavior, retention window, and event timing.
+- Existing source feed/correction protocol where available, or actual selected observations and a permitted polling/reconciliation recipe. A missing feed is external only for claims requiring that feed’s continuity, not for implementing observed-change detection.
 - Claim-type-specific owner rule mapping a changed source relation to affected dependencies; no generic equivalence from bytes to legal effect.
 - LIF-02's accepted source generation, replay, and publication-fence interface.
 
 
 ### Когда обоснованно отклониться
 
-- If the source exposes no complete journal or durable lookup/cut, report `not_established` currentness beyond the observed as-of read; do not simulate an event feed from web scraping.
+- Without a complete source journal or supported cut, do not claim complete intervening event history/currentness. Continue bounded authorized observation, explicit as-of/coverage limits and affected-use reaction; never relabel scraped observations as a source-authoritative feed.
 - If an event cannot be tied to a verifier-qualified source/relation, retain it as a candidate and do not advance authority-grade current status.
 
-
 Classify each input at accepted-source rebind as internal engineering output/allocation, existing source record, or genuine external fact/permission. Missing native producer/bridge is assigned work, not an external blocker. Only the last class can justify an external-input hold after supplier/alternative investigation. See root-review.md for the task-specific distinction.
+
 
 ### Исследование и предел переноса
 

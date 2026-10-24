@@ -1750,7 +1750,7 @@
       "external_inputs": [
         "Для expert-identified obligation — конкретный экспертный counterexample и reviewer только в объёме существующего owner contract."
       ],
-      "unresolved_research": "Различающий кейс для нового primitive должен показать, что существующие facets/compositions не выражают повторяющийся спрос; универсальная novelty-метрика не нужна.",
+      "unresolved_research": "Различающий кейс должен показать конкретное существенное свойство/потребность, которое существующие facets/compositions не выражают корректно. Повторяемость спроса может обосновывать приоритет, но единичный material counterexample не отбрасывается; универсальная novelty-метрика и закрытый список оснований не нужны.",
       "implementation_status": "planned_after_E02_acceptance",
       "product_verification": "UNRUN"
     },

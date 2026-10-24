@@ -542,7 +542,8 @@ Classify each input at accepted-source rebind as internal engineering output/all
 
 ### Предпочтительное решение
 
-Consume the single LIF-06 native admission contract and implement the selected host enforcement adapters; do not create a second admission authority in ControlPlaneStore. One worker is an initial rehearsal-profile setting, not a global invariant. Commission measured class concurrency and enforce the aggregate cap, and a separately measured reserve for API, OS/control and restore; unmeasured classes receive no protected admission. On Linux, cgroup v2 can bound process groups, with memory.high/PSI used for pre-exhaustion load shedding and memory.max as a final failure boundary; directory/project quotas or an equivalent owner mechanism bound scratch. The admission transaction accounts for every API/worker process on the host and holds reservations until the process/attempt is actually reconciled. Raise concurrency only one class/cap at a time after a representative, pinned workload matrix meets the service-owner's resource, queue-age, latency and outcome ceilings with reserve intact. Use bounded low-cardinality metric dimensions for operational class/profile/status and expose overflow explicitly. OpenTelemetry cardinality overflow can preserve an aggregate total while dropping the whole per-measurement attribute combination, making filtered/grouped views undercount; do not use metrics, sampled traces, or their apparent absence as exact per-job, per-tenant, admission, or audit evidence. Persist exact permitted decision/attempt receipts in the existing control/audit owner and bind their access separately. Kubernetes may supply placement and aggregate quotas where already justified, but adds no PolicyOS semantics.
+Consume the single LIF-06 native admission contract and implement the selected host enforcement adapters; do not create a second admission authority in ControlPlaneStore. One worker is an initial rehearsal-profile setting, not a global invariant. Commission measured class concurrency and enforce the aggregate cap, and a separately measured reserve for API, OS/control and restore; unmeasured classes receive no protected admission. On Linux, cgroup v2 can bound process groups, with memory.high/PSI used for pre-exhaustion load shedding and memory.max as a final failure boundary; directory/project quotas or an equivalent owner mechanism bound scratch. The admission transaction accounts for every API/worker process on the host and holds reservations until the process/attempt is actually reconciled. Change class/concurrency policy through a scoped qualification matrix with reserve intact. Single-factor tuning is useful for diagnosis, not a permanent scheduling rule: independent isolated measurements may run concurrently, and interacting class/cap changes require matched joint-load evidence before promotion. Use bounded low-cardinality metric dimensions for operational class/profile/status and expose overflow explicitly. OpenTelemetry cardinality overflow can preserve an aggregate total while dropping the whole per-measurement attribute combination, making filtered/grouped views undercount; do not use metrics, sampled traces, or their apparent absence as exact per-job, per-tenant, admission, or audit evidence. Persist exact permitted decision/attempt receipts in the existing control/audit owner and bind their access separately. Kubernetes may supply placement and aggregate quotas where already justified, but adds no PolicyOS semantics.
+
 
 ### Что переиспользовать
 
@@ -552,24 +553,28 @@ Consume the single LIF-06 native admission contract and implement the selected h
 
 Наблюдение на историческом pin не устанавливает текущую реализацию или принятую базу.
 
+
 ### Последовательность реализации
 
-1. Define measured classes for network, interactive, CPU, high-RSS/native threads, model/GPU, index and restore; class limits include bytes, CPU, RSS, I/O, scratch, queue age, retries and drain.
-2. Atomically reserve aggregate host and class capacity in the existing shared control store before starting work; release only after confirmed process/attempt termination or reconciliation.
-3. Apply Linux cgroup or the selected platform's native hard controls and measure PSI/peak resource use; defer or reject before owner-set ceilings are reached.
-4. Test cold/warm, skewed, concurrent tenants, slow provider, OOM pressure, restart, cancel and restore; preserve semantic outcomes while saturated.
-5. Place control/custody/restore in protected process groups or leave measured headroom under a hard bulk ceiling, with actual scratch quotas. memory.high may be breached and memory.max can trigger OOM; neither setting alone proves graceful completion or a protected reserve. Qualify real saturation and recovery behavior.
+1. Qualify a new class in a distinct finite measurement run authorized by the platform/service owner within an already verified isolation/enforcement envelope, with a hard bulk ceiling, existing control reserve, bounded scratch/time and no new protected custody commitment. Start small and increase only within that envelope; if the host cannot enforce it, use a suitable isolated host or record the qualification as unavailable. A candidate label alone authorizes neither unsafe workload nor unknown spend.
+2. Define measured classes for network, interactive, CPU, high-RSS/native threads, model/GPU, index and restore; class limits include bytes, CPU, RSS, I/O, scratch, queue age, retries and drain.
+3. Atomically reserve aggregate host and class capacity in the existing shared control store before starting work; release only after confirmed process/attempt termination or reconciliation.
+4. Apply Linux cgroup or the selected platform's native hard controls and measure PSI/peak resource use; defer or reject before owner-set ceilings are reached.
+5. Test cold/warm, skewed, concurrent tenants, slow provider, OOM pressure, restart, cancel and restore; preserve semantic outcomes while saturated.
+6. Place control/custody/restore in protected process groups or leave measured headroom under a hard bulk ceiling, with actual scratch quotas. memory.high may be breached and memory.max can trigger OOM; neither setting alone proves graceful completion or a protected reserve. Qualify real saturation and recovery behavior.
+
 
 ### Рассмотренные альтернативы
 
 - **Use per-process semaphores, run-count tickets or Kubernetes ResourceQuota alone.** — These can multiply across replicas or cover infrastructure resources without application/provider budgets, semantic overload behavior, or a process-wide denominator.
 - **Infer runtime capacity from agentparallel100 or CI concurrency.** — Those are tool/reviewer capacities, not measured production runtime throughput or memory.
 
+
 ### Free-grow и ресурсы
 
 - **data or config growth:** Supported class dimensions and ceilings can grow as versioned measured policy data.
 - **extension boundary:** A new enforcement dimension or OS needs a native enforcement adapter; declarations without an enforcing owner remain not_established.
-- **resource behavior:** Unmeasured class, missing shared reservation owner, exhausted reserve, stale process census or unsupported hard limit refuses/defer; no silent overcommit.
+- **resource behavior:** Unmeasured classes receive no protected workload or prospective custody-duty admission. Bounded qualification uses the separately permitted existing enforcement envelope; absent envelope, exhausted reserve, stale process census or unsupported hard limit defers/refuses. No silent overcommit.
 
 
 ### Миграция и восстановление
@@ -581,6 +586,7 @@ Version class policies and in-flight reservations; keep agent/reviewer limits di
 
 - Class membership and resource limits are institutionally selected inputs; observed usage and permit consumption are recomputed; permit release requires reconciled process termination.
 - Per-tenant quota, shared host admission and provider spend ceiling compose independently.
+- Resource classification/measurement policy belongs to the actual platform/service owner; no new institutional act is needed for each in-envelope sample unless that owner contract requires it. Production class admission consumes completed measurements and the actual supported concurrency/terminal denominator.
 
 
 ### Acceptance и различающие проверки
@@ -588,6 +594,7 @@ Version class policies and in-flight reservations; keep agent/reviewer limits di
 - Under the commissioned workload/process and supported simultaneous-terminal denominator, multiple workers cannot multiply the cap; shared scratch/memory pressure triggers bounded defer/refusal and the measured physical control reserve remains available. memory.max/OOM is a final failure boundary, not a guarantee of graceful handling for arbitrary workloads or host failure.
 - Removing shared admission while leaving per-process limit markers makes the multi-process acceptance fail.
 - High-cardinality telemetry visibly reports overflow; totals remain useful for operations, while exact per-job/tenant outcomes remain available only from authorized receipts and no aggregate or sampled signal can make an admission/audit decision.
+- An unknown class can produce measurements inside an existing enforceable isolated envelope while its production/duty eligibility stays unavailable. No envelope means no run. Two disjoint measurement lanes can proceed concurrently within aggregate capacity; a joint class/cap policy cannot promote from isolated results that omit their interference.
 
 
 ### Входы и ответственность за их получение
@@ -601,8 +608,8 @@ Version class policies and in-flight reservations; keep agent/reviewer limits di
 - Increase concurrency only after each candidate step passes the commissioned matrix on the actual hardware, with no limit breach or OOM and the reserve still available.
 - Use Kubernetes only if measured deployment/failure/isolation needs and an operator owner justify its additional lifecycle cost.
 
-
 Classify each input at accepted-source rebind as internal engineering output/allocation, existing source record, or genuine external fact/permission. Missing native producer/bridge is assigned work, not an external blocker. Only the last class can justify an external-input hold after supplier/alternative investigation. See root-review.md for the task-specific distinction.
+
 
 ### Исследование и предел переноса
 
@@ -698,6 +705,7 @@ Classify each input at accepted-source rebind as internal engineering output/all
 
 Use a qualified local profile as the initial default, but separate adapter implementation/conformance, deployment activation and replica sizing. A selected remote profile may be justified by custody, institutional topology, operability, availability or measured scale/cost requirements; exhausting vertical capacity is not a universal prerequisite. Bind the objective and compare the simplest suitable alternatives. For each selected S3/GCS adapter, namespace objects and caches by tenant/cell, prohibit cross-tenant deduplication and existence probes, bound reads by manifest size, and use the provider's conditional create/version/generation preconditions for immutable objects and mutable heads. Bind each read to owner scope before returning bytes. Treat DB pointer updates and object writes as a recoverable multi-store sequence, never as a provider-atomic transaction. Qualify concurrency, multipart failure, stale version, credential loss, delete/lifecycle, cache isolation and quarantine restore on the exact bucket/prefix/IAM/config.
 
+
 ### Что переиспользовать
 
 - `policy-engine/src/polisyos/core/artifacts/backends/config.py@dccea950845cda5b38f026e7770c07819d31f4d9` — `CAS backend configuration and ownership gate`. Historical plan says remote backends are named but explicit tenant/cell ownership factory is filesystem-only.
@@ -707,6 +715,7 @@ Use a qualified local profile as the initial default, but separate adapter imple
 
 Наблюдение на историческом pin не устанавливает текущую реализацию или принятую базу.
 
+
 ### Последовательность реализации
 
 1. Name the concrete service, custody, topology or failure-domain objective and select the simplest qualifying local/remote alternative. A scale-specific choice should address measured workload causes; independent adapter preparation/conformance need not wait for local capacity exhaustion.
@@ -714,15 +723,17 @@ Use a qualified local profile as the initial default, but separate adapter imple
 3. Make object writes immutable and size/hash verified, then publish a versioned owner-scoped manifest/head through a compare-and-swap operation; reconcile partial object/database publication.
 4. Run exact-provider/config concurrent publish, cache collision, multipart interruption, stale generation, credentials revocation, bounded read, restore and fresh-reader cases.
 
+
 ### Рассмотренные альтернативы
 
 - **Switch to a bucket enum, S3-compatible endpoint or Kubernetes replicas and assume parity.** — Provider APIs have different conditional semantics, cache/identity configuration and failure modes; replica placement does not provide tenant or recovery correctness.
 - **Use cross-tenant content deduplication by hash.** — It can reveal object existence and collapse independent ownership/retention boundaries.
 
+
 ### Free-grow и ресурсы
 
 - **data or config growth:** New backend configurations use one adapter conformance interface and owner-scoped manifests.
-- **extension boundary:** Each new provider, mount, encryption/retention mode or multi-cell topology requires its own semantic adapter and restore proof; API similarity is not equivalence.
+- **extension boundary:** A new configuration of an already supported backend/mount/retention semantic class reuses its existing adapter and runs exact selected configuration/restore conformance. Only changed protocol, atomicity, encryption/key, retention or topology semantics require an adapter extension; a new bucket/site name alone is not a new code module.
 - **resource behavior:** Bound bytes, request rate, concurrency, cache and retries; provider outage or ambiguous write yields reconciliation-required state, never silent head rollback.
 
 
@@ -736,12 +747,14 @@ Migrate one selected cell at a time with dual-compatible readers and explicit ob
 - Object authority comes from resolved owner/manifest grant; provider key, bucket prefix and content digest do not self-authorize.
 - Include backend/config/schema versions and object generation/time, cell, audience, provenance and recovery cut in receipts.
 - Bind conditional-write guarantees to the exact provider API operation and multipart route: for example GCS XML multipart does not support request preconditions. Select a supported route or retain an explicitly proved immutable-version/owner-head protocol; provider-level capability labels cannot substitute for the actual operation race test.
+- One canonical semantic owner does not require one physical process or a global mutex. Keep atomicity/fencing on the actual invariant key (job/attempt, source partition, claim head or budget principal). Distinct verified scopes can use separate workers/transactions; scopes sharing a cap, rights/disclosure budget or head still coordinate through its existing owner. Partitioning is an implementation option only after proving non-overlap and preservation of shared invariants, never by tenant/job labels alone.
 
 
 ### Acceptance и различающие проверки
 
 - Exact backend/config supports concurrent owner-scoped create/read, bounded read, lifecycle and quarantined restore with hash/reference agreement and a fresh authorized consumer.
 - Cross-cell IDs, cache-key collision, partial multipart write, stale generation and old-manifest rollback do not disclose or authorize an object.
+- A second supported backend configuration is discovered and used without central routing or adapter-code edits, with its own namespace/IAM/restore evidence. A same-API configuration changing atomicity or retention cannot borrow that conformance. Disjoint cells can operate independently; shared billing/custody invariants remain shared.
 
 
 ### Входы и ответственность за их получение
@@ -755,8 +768,8 @@ Migrate one selected cell at a time with dual-compatible readers and explicit ob
 - Scale out after a source-bound deployment decision justified by its actual objective and costed alternatives; no unsupported throughput claim, no compulsory vertical-exhaustion gate for custody/failure-domain needs.
 - Admit a specific remote CAS adapter only after exact configuration restore and cross-cell negative tests pass; otherwise preserve filesystem-only supported scope.
 
-
 Classify each input at accepted-source rebind as internal engineering output/allocation, existing source record, or genuine external fact/permission. Missing native producer/bridge is assigned work, not an external blocker. Only the last class can justify an external-input hold after supplier/alternative investigation. See root-review.md for the task-specific distinction.
+
 
 ### Исследование и предел переноса
 

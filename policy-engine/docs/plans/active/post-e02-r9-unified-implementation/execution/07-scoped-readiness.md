@@ -89,3 +89,19 @@ Selected WDI source-row reconciliation additionally binds `CAP-03 actual native
 admitted-cost emission → DEB-07 fresh original-row observation`. This does not
 wait for unrelated CAP-03 completion, substitute an estimate from the reconciler,
 or make a mandatory original cost criterion optional by executor preference.
+
+## R21: a pilot route and a measurement are not universal start gates
+
+The original bounded WDI A1 witness remains required in its source scope.
+Independent selected protocol preparation and qualification do not wait for that
+whole route when their interface, actual rights/resources and own required
+suppliers are ready. A completed WDI witness cannot close pagination or a second
+source. CAP-04 can deliver a bounded observed-change route without a complete
+source feed; that route never claims unobserved event completeness.
+
+OPS-08 qualification runs use an already verified finite enforcement envelope;
+new class production/duty eligibility still requires its actual measurements.
+This staged path does not remove LIF-06 or resource admission, nor create a second
+scheduler. One logical owner is not a global runtime mutex; source-file leases
+and shared semantic writers remain as defined above. Direct task dependencies
+are unchanged. See [R21 review](../assurance/r21-self-review.md).

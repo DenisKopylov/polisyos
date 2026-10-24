@@ -86,3 +86,23 @@ OPS-01 admits an initial trust provision through an independently authenticated 
 ## R17: preservation, access и custody на выбранном deployment
 
 [Access architecture](../architecture/09-design-isolation-and-access.md) и [D2/D6](../solutions/17-design-custody-and-succession.md#D2) дополняют OPS criteria: preservation/crypto duty, restored-rights frontier, recipient-specific transfer, actual provider egress ordering и conditional offline rollback proof. Не выбранные modes не добавляют global dependencies. Длительная история, текущая authority и контроль downloaded copies — разные guarantees.
+
+## R21: qualification and physical scaling boundaries
+
+OPS-08 separates an already enforceable finite measurement envelope from the new
+class it measures. A permitted isolated qualification run may establish class
+measurements without accepting a protected workload or future claim duty from that
+unmeasured class. Absent enforceable isolation/headroom/bounded scratch and time,
+use a suitable isolated host or keep the qualification unavailable. A candidate
+label does not authorize host risk or provider spending. Independent isolated
+measurement lanes may run concurrently within shared capacity; promote interacting
+class/cap changes only after the matching joint-load matrix. Single-factor tuning
+is a diagnostic choice, not a permanent serialization policy.
+
+OPS-10 reuses a qualified semantic adapter for another supported configuration;
+its exact namespace/IAM/retention/restore conformance remains required. A new
+bucket/mount name alone does not mandate a new code module. Changed semantics do
+require a bounded adapter extension and affected review. LIF-04/06 keep one
+canonical invariant owner while allowing disjoint runtime keys/processes to
+progress in parallel. Actual shared caps/effect identities remain coordinated.
+See [R21](../assurance/r21-self-review.md) and the amended task cards for falsifiers.

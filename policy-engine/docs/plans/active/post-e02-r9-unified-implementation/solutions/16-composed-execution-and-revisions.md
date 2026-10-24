@@ -79,7 +79,7 @@ Correction/retraction пересобирает evidence basis и affected infere
 <a id="C7"></a>
 ## C7. Ограниченная стоимость и реальные adapters — LIF-06, OPS-08/09, CAP-06
 
-Использовать existing aggregate resource owner и actual runner/provider contracts. Compile cost estimate одного graph не cap для всех multistarts/Jacobians/surrogate checks/restarts. Учитывать all actual calls, held permits, stored outputs/checkpoints, read/spill bytes и finalization/recovery reserve. Новые children получают долю общей capacity; parent не держит последний permit, ожидая child из того же пула.
+Использовать existing aggregate resource owner и actual runner/provider contracts. Compile cost estimate одного graph не cap для всех multistarts/Jacobians/surrogate checks/restarts. Учитывать all actual calls, held permits, stored outputs/checkpoints, read/spill bytes и finalization/recovery reserve. Новые children получают долю общей capacity. Parent не ждёт child, удерживая недостающий ему ресурс: заранее резервируется feasible combined peak либо checkpoint/park действительно освобождает необходимую capacity. CPU yield не снимает RAM/disk charges; shared buffers считаются один раз по actual lifetime, copies — отдельно. Перенос reservation меняет владельца учёта, но не освобождает физическую память.
 
 Новая native method family не требует нового scheduler. Remote/private adapter активируется только selected deployment profile; source rights, external side effects и returned participant denominator идут через CAP-06/LIF-04/05. State reset не отменяет charge/disclosure. Результат незавершённого обязательного member не заменяется default-zero или старым current value.
 

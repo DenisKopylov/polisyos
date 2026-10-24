@@ -1,0 +1,90 @@
+{
+  "base_commit": "30e70777b2c577c66912af3e24d7fd123bfdfde8",
+  "executor": "root",
+  "predicate_basis": "recomputed",
+  "scope": "documentation only; no product imports/tests/builds",
+  "task_objects": 121,
+  "task_prefixes": {
+    "CAP": 6,
+    "LIF": 9,
+    "GYD": 33,
+    "UI": 20,
+    "CNT": 9,
+    "OPS": 12,
+    "P0": 2,
+    "DEB": 14,
+    "FINAL": 4,
+    "DES": 12
+  },
+  "preserved_direct_dependency_edges": 368,
+  "acyclic": true,
+  "extension_mirrors": {
+    "r19_extension": 72,
+    "r17_extension": 41,
+    "r16_extension": 28,
+    "r14_extension": 24,
+    "r15_extension": 28
+  },
+  "retained_questions": 84,
+  "question_task_routes": 388,
+  "approved_proposals": 5,
+  "stable_question_ids": [
+    "8.4-waist-altitude",
+    "8.4-real-grounding-cost",
+    "8.4-demand-pull-strength",
+    "8.4-search-recall-freshness",
+    "8.4-agent-orchestration-authority-leak"
+  ],
+  "static_id_match_not_runtime_join": true,
+  "markdown_file_denominator": 142,
+  "relative_markdown_links": 1613,
+  "missing_files": [],
+  "unresolved_anchors": [],
+  "product_execution": "UNRUN",
+  "E02_acceptance": false,
+  "json_file_denominator": 36,
+  "changed_task_rows": [
+    "CAP-02",
+    "CAP-03",
+    "CAP-04",
+    "LIF-01",
+    "LIF-04",
+    "LIF-06",
+    "GYD-32",
+    "CNT-03",
+    "OPS-08",
+    "OPS-10"
+  ],
+  "human_changed_cards_and_acceptance_mirrors": "PASS",
+  "retained_stage_requirements": "PASS",
+  "new_SDD_changes": 0,
+  "delegation": "none; solo review requested",
+  "documentation_only": true,
+  "substantive_review_limit": "Focused cross-owner/extension/resource/reuse review; not runtime verification or a new independent source review.",
+  "schema": "policyos.documentation_review_receipt.r21.v1",
+  "status": "PASS_bounded_document_checks",
+  "review_method": "Solo substantive cross-owner review plus repeated counterexample analysis; no subagent or independent reviewer of this delta.",
+  "verification_command": "python3 policy-engine/_build/post-e02-r21-solo-20261024/validate.py",
+  "verification_script": {
+    "path": "policy-engine/_build/post-e02-r21-solo-20261024/validate.py",
+    "sha256": "281dca726d43ff246b8451e3db50ca14a0d55b6c1f844c6111a00a846d3bdad4",
+    "standing": "ignored local audit helper; no product implementation"
+  },
+  "checks_scope": [
+    "All JSON documents under this plan parse; all task/solution IDs and all present extension mirrors checked.",
+    "Every direct task prerequisite and declared stage/conditional supplier unchanged against base; complete direct DAG acyclic.",
+    "All retained 84 question IDs and 388 question-task routes checked, including changed GYD-32 rationale.",
+    "Ten changed preferred/task rows agree on added acceptance checks; changed human preferred and acceptance sections contain those full clauses.",
+    "Every parsed inline relative Markdown link in 142 plan Markdown files resolves, with Markdown heading/explicit anchors checked.",
+    "Previously approved five SDD proposal objects unchanged and static question IDs still match; no canonical SDD edit.",
+    "git diff --check passed; source/tests/config files unchanged."
+  ],
+  "limits": [
+    "Not a runtime, scientific, security, performance, code-acceptance or E02 closure receipt.",
+    "Markdown checker covers parsed inline relative links, not external URL availability or arbitrary embedded HTML/reference-link syntax.",
+    "No product tests/builds/installations, heavy processes, production reads or cleanup.",
+    "Native dashboard contrast/reduced-motion pre-commit commands and typecheck pre-push remain UNRUN for this documentation-only delivery under the user no-heavy-process instruction; hook configuration is unchanged.",
+    "Implementation awaits actual E02 acceptance and accepted-source rebind; future acceptance probes are requirements, not executed results."
+  ],
+  "closure_ids": []
+}

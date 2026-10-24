@@ -8,7 +8,7 @@
 
 ## Как читать
 
-1. [Executive summary R13 — PDF, 10 страниц](executive/summary.pdf), [текст с отметкой версии](executive/summary.md) и дополнения [R14](executive/r14-capabilities.md) / [R15](executive/r15-adaptive-and-models.md) / [R16](executive/r16-composed-models.md) / [R17](executive/r17-design-lifetimes.md) / [R19](executive/r19-full-lifecycle-solutions.md). Текущее общее review и правила чтения — [R20](assurance/r20-general-review.md).
+1. [Executive summary R13 — PDF, 10 страниц](executive/summary.pdf), [текст с отметкой версии](executive/summary.md) и дополнения [R14](executive/r14-capabilities.md) / [R15](executive/r15-adaptive-and-models.md) / [R16](executive/r16-composed-models.md) / [R17](executive/r17-design-lifetimes.md) / [R19](executive/r19-full-lifecycle-solutions.md). Общее review — [R20](assurance/r20-general-review.md); актуальный самостоятельный delta и устранённые free-grow барьеры — [R21](assurance/r21-self-review.md).
 2. [Границы, источники и правила перехода](execution/01-charter-and-entry.md).
 3. [Сверенный остаток](inventory/README.md), [исходные версии](inventory/sources.json), полные GY/Atlas/debt crosswalks.
 4. [Архитектура композиции](architecture/01-integration-boundaries.md): кто пишет общий механизм, кто только потребляет.
@@ -70,3 +70,14 @@ R13 receipts и PDF — исторический снимок до R14; их has
 ## R19: решения по всем 84 вопросам полного жизненного цикла
 
 [Итог](executive/r19-full-lifecycle-solutions.md) и [20 карточек/84 вопроса](solutions/lifecycle-r19/README.md) дополняют 72 существующие задачи через `r19_extension` в обоих task catalogs. [Общая композиция](architecture/10-full-lifecycle-composition.md), [проверки](assurance/12-full-lifecycle-quality.md), [параллельность](execution/10-full-lifecycle-parallelism.md), [исследование/review](research/full-lifecycle-solutions-r19/README.md). [Пять уточнений SDD](architecture/proposals/r19-system-design-clarifications.md) согласованы и применены 2026-10-24; действует [каноническая запись принятия](../../../system-design-decisions/lifecycle-cross-scope-clarifications-r19-ratification.md). Исходные 121 задача и их dependencies сохранены; новых верхнеуровневых задач нет. Реализация — после фактической приёмки E02.
+
+## R21: самостоятельный разбор ограничений и расширяемости
+
+[Восемь исправленных границ и повторные атаки](assurance/r21-self-review.md)
+уточняют existing tasks: независимые acquisition protocols, наблюдаемые изменения
+без feed, qualification нового resource class, lifetime nested reservations,
+assessment reuse с fresh-use fence, logical owner без global runtime mutex,
+повторное применение supported backend adapter и lawful retention истории.
+S15 больше не объявляет draft D2.3 grounds ратифицированным закрытым списком.
+[Проверка документации](assurance/r21-validation.json). Реализация остаётся
+закрытой до actual E02 acceptance; новые SDD не принимались.

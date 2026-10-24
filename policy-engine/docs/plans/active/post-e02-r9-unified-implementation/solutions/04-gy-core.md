@@ -1205,6 +1205,7 @@ Classify each input at accepted-source rebind as internal engineering output/all
 
 Extend canonical Data Forge registries and Foundry L1/L4/L5 ingestion to bind real populated Ukraine substrate into queryable content-addressed GlobalState/WMR. Include actual L4 registry and firm_fundamentals/distress/budget panels through L1 DCAT and L5; retain period_id, record_hash, schema_version and source_snapshot_id. Measure selected corpus/count read-only under permit; historic 8.8M is not current. Real substrate is required, not sparse/synthetic positive. Identification mode, trust, prewar/wartime schema regime/buffer and calibration mismatch must change actual ValueOuterSet or downgrade/refuse; proxy never becomes point by relabeling. Conforming resource registers with zero CENTRAL code (Rule 12).
 
+
 ### Что переиспользовать
 
 - `policy-engine/src/polisyos/data_forge/domains/catalog/knowledge/search.py@dccea950845cda5b38f026e7770c07819d31f4d9` — `DatasetCatalogGraph`. Present at bounded static source observation only; rebind at accepted E02.
@@ -1215,6 +1216,7 @@ Extend canonical Data Forge registries and Foundry L1/L4/L5 ingestion to bind re
 
 Наблюдение на историческом pin не устанавливает текущую реализацию или принятую базу.
 
+
 ### Последовательность реализации
 
 1. Under permit, measure complete selected real-substrate/file denominator.
@@ -1224,12 +1226,14 @@ Extend canonical Data Forge registries and Foundry L1/L4/L5 ingestion to bind re
 5. Verify conforming resource registration with zero CENTRAL code.
 6. Implement missing native producers/bridges/readers or enforcement inside the assigned scope after owner allocation; do not stop by classifying internal engineering as an external input. Real institutional appointments, authentic observations and permission facts remain separately sourced and cannot be fabricated.
 
+
 ### Рассмотренные альтернативы
 
 - **Sparse synthetic fixture as completion** — Original positive needs real populated substrate.
 - **One-off importer/parallel catalog** — Bypasses free-grow canonical owners.
 - **Historic 8.8M count** — Not current permitted measurement.
 - **Proxy point by relabeling** — Cannot manufacture identification.
+
 
 ### Free-grow и ресурсы
 
@@ -1255,6 +1259,7 @@ Keep source facts in owning systems, preserve WMR/history and references; failed
 
 - Real populated source panels query through L1/L5 to GlobalState/WMR with required fields.
 - Conforming new source registers without CENTRAL code; synthetic does not count.
+- A single material counterexample outside the draft D2.3 examples can enter the native extension/research route without fabricated repetition or authority. Same-meaning resources remain data/config growth; changed protected semantics requires its actual owner rule and review, not a ratified label borrowed from an adjacent document.
 
 
 ### Входы и ответственность за их получение
@@ -1266,8 +1271,8 @@ Keep source facts in owning systems, preserve WMR/history and references; failed
 
 - No permitted source leaves positive unresolved. New semantic class may need typed adapter. Missing trust/schema widens/refuses.
 
-
 Classify each input at accepted-source rebind as internal engineering output/allocation, existing source record, or genuine external fact/permission. Missing native producer/bridge is assigned work, not an external blocker. Only the last class can justify an external-input hold after supplier/alternative investigation. See root-review.md for the task-specific distinction.
+
 
 ### Исследование и предел переноса
 

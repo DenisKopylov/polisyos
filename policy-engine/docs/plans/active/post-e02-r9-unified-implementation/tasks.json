@@ -182,7 +182,7 @@
         "existing: core/artifacts/manifest.py; core/artifacts/store.py::FileSystemCAS",
         "proposed: extend selected connector/cursor owner after A0"
       ],
-      "deliverable": "Safe transport/representation capture and exact reuse, consuming LIF-03 conditional frontier commit when the selected protocol advances resumable/page/partition progress. A bounded single-response route proves its own complete durable root and more-pages refusal without waiting for the full cursor mechanism. No second cursor writer. Keep single-response first-route scope; activate pagination/range separately. Also accept the explicitly selected second-source producer sub-slice required by LIF-08. First-route completion does not cover a new page/range/parser behavior; root allocates that delta before second-source composition.",
+      "deliverable": "Safe transport/representation capture and exact reuse, consuming LIF-03 conditional frontier commit when the selected protocol advances resumable/page/partition progress. A bounded single-response route proves its own complete durable root and more-pages refusal without waiting for the full cursor mechanism. No second cursor writer. Keep WDI single-response first-route scope; disjoint protocol preparation is parallel and pagination/range activates only under its own qualified contract, not a global first-route completion barrier. Also accept the explicitly selected second-source producer sub-slice required by LIF-08. First-route completion does not cover a new page/range/parser behavior; root allocates that delta before second-source composition.",
       "positive": "Allowed capture persists immutable root/receipt; second run resolves same exact body/profile without fetching; consumer verifies completeness and hash.",
       "adversarial": "Crash/partial/unreadable child, mismatch/oversize, 304 without body, invalid range, changed ETag, stale writer, disallowed redirect/private IP/credential hop and changed pagination scope yield partial/unavailable/deny. If authorized query egress returns a body whose placement is unknown/denied, do not stage/store/log/cache or expose its digest/ref. Discard at the authorized ephemeral processing boundary and emit only a permitted opaque non-admission receipt; if ephemeral response processing itself lacks permission, refuse the fetch. Do not label this a complete admitted capture.",
       "removal": "Remove body binding or head fence but keep markers; probe must fail.",
@@ -209,6 +209,7 @@
         "Pin expected property and independent oracle where needed; reproduce a distinguishing baseline negative.",
         "Implement the smallest native-owner invariant and actual use; preserve native status/authority/time semantics.",
         "Prove positive, adversarial and matched removal signals below through persisted state and fresh consumer; include public/generated companions.",
+        "With WDI still honestly single-response, a separately qualified source protocol completes its own capture→receipt→fresh consumer without HTTP-specific assumptions. An unsupported continuation cannot borrow the WDI receipt; removing that protocol’s actual completeness/fence changes its result.",
         "Review exact candidate independently, resolve blockers, run scoped gates under resource permit, read back committed delivery and report limitations."
       ],
       "test_path_rule": "Use mirrored tests adjacent to actual affected modules after P0 rebind. Proposed paths in prose are not asserted existing. Record exact paths/commands before execution.",
@@ -359,6 +360,7 @@
         "Pin expected property and independent oracle where needed; reproduce a distinguishing baseline negative.",
         "Implement the smallest native-owner invariant and actual use; preserve native status/authority/time semantics.",
         "Prove positive, adversarial and matched removal signals below through persisted state and fresh consumer; include public/generated companions.",
+        "Same-root repeated authorized reuse need not rerun the immutable assessment, but a rights/purpose/generation change still changes fresh admission. Deletion restrictions apply to identifying lineage and receipts as well as payloads; restore cannot resurrect their prior access.",
         "Review exact candidate independently, resolve blockers, run scoped gates under resource permit, read back committed delivery and report limitations."
       ],
       "test_path_rule": "Use mirrored tests adjacent to actual affected modules after P0 rebind. Proposed paths in prose are not asserted existing. Record exact paths/commands before execution.",
@@ -565,7 +567,7 @@
         "existing: data_forge/domains/academic/batch/claim_adjudicator.py::_parse_retracted_ids (work-ID only)",
         "proposed: root enrollment→event→fenced projection bridge"
       ],
-      "deliverable": "Emit source-qualified change/retraction/rights events and wire the acquisition consumer to LIF-02. LIF-02 alone owns enrollment, replay and publication fencing. LIF-09 proves the composed path.",
+      "deliverable": "Emit source-qualified change/retraction/rights events or explicitly bounded source-observation changes and wire the acquisition consumer to LIF-02. LIF-02 alone owns enrollment, replay and publication fencing. LIF-09 proves the composed path.",
       "positive": "Material enrolled change invalidates dependent current projection; unrelated source stays valid; fresh consumer recomputes status.",
       "adversarial": "Late/backdated event, enrollment gap, missing journal, storm, stale index, rights race, unrelated change and scheduler-off read cannot leave unjustified green.",
       "removal": "Remove dependency/generation binding while retaining event/current marker; fresh consumer refuses green.",
@@ -593,6 +595,7 @@
         "Pin expected property and independent oracle where needed; reproduce a distinguishing baseline negative.",
         "Implement the smallest native-owner invariant and actual use; preserve native status/authority/time semantics.",
         "Prove positive, adversarial and matched removal signals below through persisted state and fresh consumer; include public/generated companions.",
+        "A no-webhook source changes its observed representation: the authorized poll persists an observed delta and a fresh affected claim changes without invented source-effective time. A→B→A between polls remains unobserved; partial/failed polls and selector drift cannot certify no change or semantic repeal. Removing actual comparison while retaining poll heartbeat fails the observed-change positive.",
         "Review exact candidate independently, resolve blockers, run scoped gates under resource permit, read back committed delivery and report limitations."
       ],
       "test_path_rule": "Use mirrored tests adjacent to actual affected modules after P0 rebind. Proposed paths in prose are not asserted existing. Record exact paths/commands before execution.",
@@ -1499,6 +1502,7 @@
         "Pin expected property and independent oracle where needed; reproduce a distinguishing baseline negative.",
         "Implement the smallest native-owner invariant and actual use; preserve native status/authority/time semantics.",
         "Prove positive, adversarial and matched removal signals below through persisted state and fresh consumer; include public/generated companions.",
+        "For a selected cache-eligible assessment, repeated covered use reuses the same qualified assessment with observable verifier-call accounting, yet a changed rule/rights generation or newly matching dependency alters fresh use even when payload bytes are identical. Removing current dependency/fence validation must fail; disabling the cache must preserve the scoped decision. A method requiring fresh evaluation or lacking a complete dependency closure cannot borrow this reuse guarantee.",
         "Review exact candidate independently, resolve blockers, run scoped gates under resource permit, read back committed delivery and report limitations."
       ],
       "test_path_rule": "Use mirrored tests adjacent to actual affected modules after P0 rebind. Proposed paths in prose are not asserted existing. Record exact paths/commands before execution.",
@@ -2373,6 +2377,7 @@
         "Pin expected property and independent oracle where needed; reproduce a distinguishing baseline negative.",
         "Implement the smallest native-owner invariant and actual use; preserve native status/authority/time semantics.",
         "Prove positive, adversarial and matched removal signals below through persisted state and fresh consumer; include public/generated companions.",
+        "Independent operation scopes make progress without a global job lock, while two attempts for the same protected effect still fence at its canonical key. Partition labels cannot split a shared provider/disclosure budget; delayed old attempts fail the expected-generation write.",
         "Review exact candidate independently, resolve blockers, run scoped gates under resource permit, read back committed delivery and report limitations."
       ],
       "test_path_rule": "Use mirrored tests adjacent to actual affected modules after P0 rebind. Proposed paths in prose are not asserted existing. Record exact paths/commands before execution.",
@@ -2805,7 +2810,7 @@
           "note": "No cross-process pool is admitted by R9 source; name existing owner before implementation or mark absent/unallocated."
         }
       ],
-      "deliverable": "Measured, owner-local multidimensional budget for resident/native/IPC memory, disk generations/checkpoint/spill, CPU/IO/network/provider spend, queues and metadata; terminal fan-in reserve; transitive child admission or parent release; explicit overload/defer/refusal outcomes.",
+      "deliverable": "Measured, owner-local multidimensional budget for resident/native/IPC memory, disk generations/checkpoint/spill, CPU/IO/network/provider spend, queues and metadata; terminal fan-in reserve; transitive child admission with live parent allocations charged until actually freed; explicit overload/defer/refusal outcomes.",
       "positive": [
         "Accepted workload completes within measured cap and leaves reserved capacity for simultaneous terminal transitions and recovery.",
         "Overload defers boundedly and preserves duty/currentness without unbounded retry; streaming and spill stay within declared storage/rights scope."
@@ -2815,7 +2820,7 @@
       ],
       "removal": [
         "Remove terminal reserve but retain estimate constants; max fan-in must expose capacity exhaustion.",
-        "Remove transitive reservation or parent release but keep per-task semaphore; nested wait must not deadlock.",
+        "Remove aggregate reservation or verified physical release while retaining per-task markers: the bounded nested probe must detect false admission or lack of progress, rather than accept a green deadlock-free claim.",
         "Remove physical cap and leave declared byte fields; measurement/removal gate must fail."
       ],
       "surface": "Existing job/progress surface reports defer, quota, partial, unavailable or refused with bounded reason and retry time; no separate scheduler dashboard unless explicitly out_of_scope.",
@@ -2842,6 +2847,7 @@
         "Pin expected property and independent oracle where needed; reproduce a distinguishing baseline negative.",
         "Implement the smallest native-owner invariant and actual use; preserve native status/authority/time semantics.",
         "Prove positive, adversarial and matched removal signals below through persisted state and fresh consumer; include public/generated companions.",
+        "A parked parent retaining 60/100 RAM cannot admit a 50/100 child merely by yielding its CPU slot or moving a ledger entry. Actual release of sufficient memory permits progress; shared parent/child buffers count once, copies twice. Remove lifetime accounting but keep permit markers: the nested resource control must fail.",
         "Review exact candidate independently, resolve blockers, run scoped gates under resource permit, read back committed delivery and report limitations."
       ],
       "test_path_rule": "Use mirrored tests adjacent to actual affected modules after P0 rebind. Proposed paths in prose are not asserted existing. Record exact paths/commands before execution.",
@@ -6790,6 +6796,7 @@
         "Pin expected property and independent oracle where needed; reproduce a distinguishing baseline negative.",
         "Implement the smallest native-owner invariant and actual use; preserve native status/authority/time semantics.",
         "Prove positive, adversarial and matched removal signals below through persisted state and fresh consumer; include public/generated companions.",
+        "A single material counterexample outside the draft D2.3 examples can enter the native extension/research route without fabricated repetition or authority. Same-meaning resources remain data/config growth; changed protected semantics requires its actual owner rule and review, not a ratified label borrowed from an adjacent document.",
         "Review exact candidate independently, resolve blockers, run scoped gates under resource permit, read back committed delivery and report limitations."
       ],
       "test_path_rule": "Use mirrored tests adjacent to actual affected modules after P0 rebind. Proposed paths in prose are not asserted existing. Record exact paths/commands before execution.",
@@ -6873,7 +6880,7 @@
           },
           {
             "role": "primary writer",
-            "delta": "Apply D2.3 to a real facet; separate resource growth from semantic delta.",
+            "delta": "Apply the exact ratified Vision/native-owner rule to a real facet; use draft D2.3 examples as non-exhaustive design guidance, separating conforming resource growth from semantic delta without requiring repeated demand.",
             "positive": "Fresh consumer discovers a new supported profile without central edit.",
             "adversarial": "Same schema hides changed unit while semantic ID stays fixed.",
             "removal": "Keep `conforming` marker, remove real conformance: protected use is denied.",
@@ -9792,6 +9799,7 @@
         "Pin expected property and independent oracle where needed; reproduce a distinguishing baseline negative.",
         "Implement the smallest native-owner invariant and actual use; preserve native status/authority/time semantics.",
         "Prove positive, adversarial and matched removal signals below through persisted state and fresh consumer; include public/generated companions.",
+        "Exercise a qualified non-WDI protocol without the WDI page==pages==1 guard; the unchanged WDI route still refuses continuation. After an applicable deletion decision, a fresh consumer cannot recover forbidden payload or identifying provenance through history/cache/export/restore; any permitted minimal record and lost replay guarantee stay explicit.",
         "Review exact candidate independently, resolve blockers, run scoped gates under resource permit, read back committed delivery and report limitations."
       ],
       "test_path_rule": "Use mirrored tests adjacent to actual affected modules after P0 rebind. Proposed paths in prose are not asserted existing. Record exact paths/commands before execution.",
@@ -12937,6 +12945,7 @@
         "Pin expected property and independent oracle where needed; reproduce a distinguishing baseline negative.",
         "Implement the smallest native-owner invariant and actual use; preserve native status/authority/time semantics.",
         "Prove positive, adversarial and matched removal signals below through persisted state and fresh consumer; include public/generated companions.",
+        "An unknown class can produce measurements inside an existing enforceable isolated envelope while its production/duty eligibility stays unavailable. No envelope means no run. Two disjoint measurement lanes can proceed concurrently within aggregate capacity; a joint class/cap policy cannot promote from isolated results that omit their interference.",
         "Review exact candidate independently, resolve blockers, run scoped gates under resource permit, read back committed delivery and report limitations."
       ],
       "test_path_rule": "Use mirrored tests adjacent to actual affected modules after P0 rebind. Proposed paths in prose are not asserted existing. Record exact paths/commands before execution.",
@@ -13338,6 +13347,7 @@
         "Pin expected property and independent oracle where needed; reproduce a distinguishing baseline negative.",
         "Implement the smallest native-owner invariant and actual use; preserve native status/authority/time semantics.",
         "Prove positive, adversarial and matched removal signals below through persisted state and fresh consumer; include public/generated companions.",
+        "A second supported backend configuration is discovered and used without central routing or adapter-code edits, with its own namespace/IAM/restore evidence. A same-API configuration changing atomicity or retention cannot borrow that conformance. Disjoint cells can operate independently; shared billing/custody invariants remain shared.",
         "Review exact candidate independently, resolve blockers, run scoped gates under resource permit, read back committed delivery and report limitations."
       ],
       "test_path_rule": "Use mirrored tests adjacent to actual affected modules after P0 rebind. Proposed paths in prose are not asserted existing. Record exact paths/commands before execution.",

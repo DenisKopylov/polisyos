@@ -12,6 +12,7 @@
 
 Extend the existing resource-enforcement owner(s) with owner-local multidimensional admission and a separately protected custody/control reserve. Let new correctly implemented resource profiles be discovered and executed through the typed owner contract and generic accounting path; do not require a central capability allowlist or hardcoded fallback. Keep capacity estimates advisory until measured against the accepted OPS process profile and a complete accounting denominator. No cross-process enforcement is claimed as already implemented. LIF-06 owns the single shared admission contract and minimal native mechanism; at scoped rebind it first extends the accepted E02 owner. If that owner lacks the necessary seam, root allocates its smallest native extension to this task. OPS-08 implements/qualifies selected host enforcement adapters against that contract. Missing internal code is engineering work, not an institutional blocker. The priority rule is bounded defer/refusal under pressure, with a measured reserve for terminal state persistence, cancellation/reconciliation, and recovery; a semaphore or expired lease is not physical resource control.
 
+
 ### Что переиспользовать
 
 - `policy-engine/src/polisyos/core/artifacts/store.py@dc075e7dc0275fb8ea38a5a5bd8cd7a00968b895` — `FileSystemCAS.open_member`. Verified at the planning source pin: streams a selected CAS member with bounded memory and hashes the complete member before releasing its read lease. This does not establish sublinear I/O, governed spill, or a whole-process memory cap.
@@ -20,21 +21,24 @@ Extend the existing resource-enforcement owner(s) with owner-local multidimensio
 
 Наблюдение на историческом pin не устанавливает текущую реализацию или принятую базу.
 
+
 ### Последовательность реализации
 
 1. At W0, inventory actual processes, native and IPC allocations, concurrent work, storage generations, spill/checkpoint paths, and current per-owner enforcement. For each resource, label the admission predicate `recomputed`, `independently_reconciled`, `institutionally_supplied`, `consumer_asserted`, or `not_established`; only the first two support a hard local bound.
 2. At W0, identify the canonical resource-enforcement owner and its existing descriptor/registry seam. If the seam is absent, root allocates the smallest typed extension to LIF-06 and OPS-08 consumes its agreed interface; do not assume a registry or add a central capability list. Through the owner contract, interpret versioned dimension descriptors generically (dimension identity, unit, accounting source, enforcement binding and scope), so a correctly implemented resource profile is discovered and executed without a central per-capability branch. Dimension identifiers and schema/status vocabularies are data/types, not capability allowlists. An unmetered or unenforced dimension cannot support hard admission.
 3. Represent each admitted operation by a versioned resource vector for resident/native/IPC memory, disk and spill, checkpoint and overlapping generations, CPU, I/O, network/provider allowance, queue slots, and control metadata. Bind the vector to the actual owner, operation class, process/cgroup or provider principal, expiry, and durable attempt identity.
 4. Reserve capacity before work at one canonical owner boundary. Size the terminal reserve from the measured worst supported fan-in and recovery overlap. Maintain a non-overcommitted custody/control allowance; use weighted or dominant-share fairness only among otherwise eligible bulk work and only under an explicitly selected policy.
-5. For nested work, atomically transfer or release the parent's reservation before the child waits, or reserve the combined peak. Lease expiry only makes a process suspect; retain its charge until the owner confirms termination or reconciles it. Stream bounded windows and spill only through the existing storage/right owner with a finite quota and cleanup lifecycle.
+5. For nested work, preserve charges for every still-live parent allocation, shared buffer, child and overlapping generation. Transfer changes accounting ownership, never physical consumption; count shared allocation once and IPC/copies separately. Reserve a feasible combined peak, execute within an already reserved envelope, or checkpoint/park and verify the relevant capacity actually freed before admitting the child. An idle parent may release a CPU slot while retaining its RAM/disk charges. If neither fits, durably defer/refuse without synchronously waiting while holding the resource the child needs.
 6. On saturation, persist the existing job/progress disposition with a bounded reason and due time; avoid unbounded retries. Exercise simultaneous terminal transitions, nested 60/100-plus-50/100-style deadlock shape, live worker after lease expiry, old/new root overlap, OOM/ENOSPC, shared-account 429, and terminal-lane behavior through the actual consumer. Thresholds remain unset until measured.
 7. Use only resource dimensions materially consumed by the selected profile. Protect control/custody capacity through actual process-group/bulk limits and scratch quota that leave measured headroom; distinguish graceful shedding from OOM containment. A reservation ledger alone cannot protect memory.
+
 
 ### Рассмотренные альтернативы
 
 - **Keep only task estimates, request counts, or per-process semaphores.** — SRE documents heterogeneous and drifting request cost; a semaphore does not account native allocations, disk generations, provider spend, or child-process lifetime. It can remain a pre-measurement advisory state, not a cap.
 - **Create a new global PolicyOS scheduler or universal DRF service.** — The lifecycle plan explicitly rejects a global scheduler. DRF is a published fairness mechanism under a particular model, but it does not choose authority priorities or protect terminal duties; use it only if an existing owner has a measured fairness need and an authorized policy.
 - **Treat cgroup or analytical-engine configuration as the whole bound.** — Kernel controls depend on deployment support and can throttle, overcommit, or invoke OOM behavior; DuckDB's memory limit covers its buffer manager and spill can exhaust disk. These are possible enforcement layers, not substitutes for complete owner accounting and a custody reserve.
+
 
 ### Free-grow и ресурсы
 
@@ -54,6 +58,7 @@ Inventory current callers and live allocations first. Keep existing estimates ad
 - Terminal transitions, recovery and currentness duties retain physically protected capacity under bulk saturation within the tested reserve; if the shared host cannot protect them, report the bounded limitation and deny new bulk work.
 - Provider timeout/retry on a shared billable principal consumes or holds the same reconciled allowance; a rotated credential or second source does not imply a separate quota.
 - Spill records carry purpose, source artifact, retention/right scope and owning storage reference; ENOSPC yields an explicit partial/unavailable/refused outcome rather than an empty result.
+- Measurement and production admission are separate stages under this same owner. OPS-08 may qualify a new class inside an already enforced, explicitly permitted finite measurement envelope; unmeasured expected cost is never an admission guarantee and no protected claim duty is accepted from that run.
 
 
 ### Acceptance и различающие проверки
@@ -65,6 +70,7 @@ Inventory current callers and live allocations first. Keep existing estimates ad
 - Surface: the existing job/progress consumer exposes defer, quota, partial, unavailable or refused with the bounded reason and retry time. No separate scheduler dashboard is introduced.
 - Saturate native bulk allocation and spill while terminal writes/recovery run in the actual protected process groups; persisted outcomes and control reserve survive within the declared profile, or that hard-bound claim remains unavailable.
 - A new profile using already supported resource semantics requires no central branch. A genuinely new physical resource dimension needs a native enforcement adapter/conformance before it can claim a hard cap; generic discovery alone is not enforcement.
+- A parked parent retaining 60/100 RAM cannot admit a 50/100 child merely by yielding its CPU slot or moving a ledger entry. Actual release of sufficient memory permits progress; shared parent/child buffers count once, copies twice. Remove lifetime accounting but keep permit markers: the nested resource control must fail.
 
 
 ### Входы и ответственность за их получение
@@ -81,8 +87,8 @@ Inventory current callers and live allocations first. Keep existing estimates ad
 - If provider usage cannot be bounded or metered across all callers, report only the measured per-operation limit plus declared external-consumption uncertainty; do not claim a hard account-wide cap.
 - If the host, backend, or spill destination changes after freeze, invalidate the resource measurement and reprice the bounded replay wave.
 
-
 Classify each input at accepted-source rebind as internal engineering output/allocation, existing source record, or genuine external fact/permission. Missing native producer/bridge is assigned work, not an external blocker. Only the last class can justify an external-input hold after supplier/alternative investigation. See root-review.md for the task-specific distinction.
+
 
 ### Исследование и предел переноса
 

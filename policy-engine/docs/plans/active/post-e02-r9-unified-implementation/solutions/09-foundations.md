@@ -165,7 +165,8 @@ Classify each input at accepted-source rebind as internal engineering output/all
 
 ### Предпочтительное решение
 
-Reuse the acquisition planner/executor, epoch admission, Fabric CAS and lineage, and existing security/retention owners. For a file source, persist the exact received representation and its issuer/version, content digest, request and response details, peer/redirect chain, scope, relevant time roles, transformations and lineage. For a custodian-query source, keep raw rows at the custodian and persist a permitted query/result receipt with the query, protocol, version, scope and verifier. Bind the actual permission instrument to principal, purpose, audience, processor, transformations, retention and revocation. Recheck permission and freshness for each use; cache presence, public URL, ETag, or citation is not permission or currentness. Preserve the existing WDI single-response rule: excess pages are explicit incomplete/refusal, not silent truncation.
+Reuse the acquisition planner/executor, epoch admission, Fabric CAS and lineage, and existing security/retention owners. For a file source, persist the exact received representation and its issuer/version, content digest, request and response details, peer/redirect chain, scope, relevant time roles, transformations and lineage. For a custodian-query source, keep raw rows at the custodian and persist a permitted query/result receipt with the query, protocol, version, scope and verifier. Bind the actual permission instrument to principal, purpose, audience, processor, transformations, retention and revocation. Recheck permission and freshness for each use; cache presence, public URL, ETag, or citation is not permission or currentness. Preserve the existing WDI single-response rule only for that route: excess pages are explicit incomplete/refusal. A separately qualified CAP-02/LIF-03 protocol may capture its bounded page/range/query/stream scope without inheriting WDI-specific restrictions.
+
 
 ### Что переиспользовать
 
@@ -176,16 +177,19 @@ Reuse the acquisition planner/executor, epoch admission, Fabric CAS and lineage,
 
 Наблюдение на историческом pin не устанавливает текущую реализацию или принятую базу.
 
+
 ### Последовательность реализации
 
 1. Bind each acquisition action to request, principal, route, source version, exact response representation or query receipt, request parameters and completion state.
 2. Persist only the permitted artifact/receipt through existing CAS and lineage boundaries; keep query-only content out of CAS, logs, browser state and provider temporaries.
 3. At fresh consumption, resolve use-purpose and current rights evidence and produce admitted, limited, denied or incomplete status with affected-use links.
 
+
 ### Рассмотренные альтернативы
 
 - **Treat catalog URL, cache hit, publisher checksum or HTTP 304 as reusable evidence.** — These can identify a resource or unchanged response without proving the original body, grant, intended use or lawful retention.
-- **Fetch pages until exhaustion or scrape mirrors by default.** — Unbounded or unapproved capture expands resource and rights risk; keep the agreed single-response route and return an explicit partial state.
+- **Fetch pages until exhaustion or scrape mirrors by default.** — Unbounded or unapproved capture expands resource and rights risk. Preserve each selected protocol’s completion/cut and budget; WDI remains single-response until its own reviewed extension, while other qualified protocols need no WDI waiver.
+
 
 ### Free-grow и ресурсы
 
@@ -196,7 +200,7 @@ Reuse the acquisition planner/executor, epoch admission, Fabric CAS and lineage,
 
 ### Миграция и восстановление
 
-Retain prior receipts and artifacts by generation. On denial, revocation or changed purpose, withdraw affected use and cascade to dependents without deleting provenance history.
+Retain prior permitted receipts and artifacts by generation. On denial, revocation or changed purpose, withdraw affected use and cascade to dependents. LIF-05’s lawful retention/deletion decision governs payloads, identifiers, hashes and provenance too: keep only permitted minimal history, record replay/verification unavailability honestly, and do not use append-only history as a retention exemption.
 
 
 ### Композиция и owners
@@ -210,6 +214,7 @@ Retain prior receipts and artifacts by generation. On denial, revocation or chan
 - Same artifact can be reused only for an admitted matching use and audience after fresh admission.
 - Revoked or purpose-mismatched grant, unapproved redirect, missing prior body behind 304, foreign tenant, incomplete pages or forged citation fails closed.
 - Removing receipt or content-bound permission resolution prevents fresh protected use even when cache/catalog labels remain.
+- Exercise a qualified non-WDI protocol without the WDI page==pages==1 guard; the unchanged WDI route still refuses continuation. After an applicable deletion decision, a fresh consumer cannot recover forbidden payload or identifying provenance through history/cache/export/restore; any permitted minimal record and lost replay guarantee stay explicit.
 
 
 ### Входы и ответственность за их получение
@@ -223,8 +228,8 @@ Retain prior receipts and artifacts by generation. On denial, revocation or chan
 - No lawful basis, processor permission or retention limit is established: keep raw content out of the system and return a bounded refusal.
 - Source protocol introduces pagination, resumable transfer or a new peer: require the owner for that protocol and recovery state before enabling it.
 
-
 Classify each input at accepted-source rebind as internal engineering output/allocation, existing source record, or genuine external fact/permission. Missing native producer/bridge is assigned work, not an external blocker. Only the last class can justify an external-input hold after supplier/alternative investigation. See root-review.md for the task-specific distinction.
+
 
 ### Исследование и предел переноса
 

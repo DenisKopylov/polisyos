@@ -58,3 +58,8 @@ Source/data drift, model inadequacy, uncertainty inflation и external legal inv
 Сохраняются полные deciding outputs и removal receipts; tracked source не дублируется. Raw dumps — ignored path@sha. Исторический FAIL не объявляется inherited без P41 exact pre-slice reproduction и complete input disjointness. Лимит ресурса, unavailable input, skipped backend, setup ERROR и product FAIL учитываются отдельно.
 
 Документационные проверки этого пакета — JSON parse, exact84 coverage, mirrors, сохранение старых task fields/edges, reference checks и independent design review. Они не исполняют и не удостоверяют перечисленные product properties.
+
+
+## R20 structural-learning discriminator
+
+For CNT-06/GYD-12 R18-D06-Q02, exercise the real qualifier → persisted structural assessment → sole WMR writer → fresh later-cycle reader using [the complete positive/adversarial/removal sequence](../solutions/18-structural-world-learning.md#acceptance-and-scheduling). Evidence semantics and write authority are distinct. An effect-posterior PASS cannot close structural admission; a candidate-only positive cannot close operative write. Keep all original effect-path controls.

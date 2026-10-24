@@ -1037,6 +1037,8 @@ robust/limited designs without weakening production evidence floors.
 
 ### D2.6 Design-Composition Algebra, Coupling, And Scale Axis
 
+**Scoped addition accepted 2026-10-24 — [R19-SDD-05](lifecycle-cross-scope-clarifications-r19-ratification.md#r19-sdd-05--composed-claims-have-their-own-bounded-support).** A cross-root claim binds purpose, exact editions, supported edges where needed, exclusions, audience and temporal support. Member display, verified descriptive/arithmetic derivation and joint-policy authority are different claims. Verified arithmetic supports only its inputs/operator; joint causal, feasibility and program claims need support for their own relevant interactions/dependencies, justified decomposition and emergent/system-level conclusions. The accepted semantic floor is defined in R19-SDD-05; D2.6 and topology §5 remain target references, and their specific proposed mechanisms, thresholds, schemas and not-yet-pinned algebra are not imported as binding gates. The existing owner tracks the composed claim's own dependency/freshness closure; affected uses change without globally invalidating unrelated claims. Membership never proves adoption, an external act requiring resolved/content-bound applicability. No global subject ontology, common mandate, new certificate or default weight is introduced. This scoped clause does not ratify the surrounding draft in full.
+
 Facet algebra gives domain breadth; it does not by itself represent policy
 scale. D2 must therefore define a second algebra: recursive composition of
 designs. A `DesignCandidate` can be:

@@ -139,6 +139,8 @@ future plan edits):
 | Individual-decision firewall | **OWN the firewall** | The prohibition (policy-level output never decides an individual case) is our claim and our gate; the individual decision is never ours. |
 | Omnichannel service journeys, enforcement discretion, whistleblower channels, foresight programs | **OUT_OF_SCOPE / defer** | Other institutions' signatures and sovereign functions. Track as deferred research until a pilot produces institutional facts. |
 
+**2026-10-24 clarification:** the historical `PolicyMatter` row is read through Stage-0 K01's qualified local custody-subject reference. [R19-SDD-01](lifecycle-cross-scope-clarifications-r19-ratification.md#r19-sdd-01--references-do-not-transfer-admissibility) forbids inference of inherited admissibility; [R19-SDD-05](lifecycle-cross-scope-clarifications-r19-ratification.md#r19-sdd-05--composed-claims-have-their-own-bounded-support) binds cross-root claim scope/currentness. Neither creates a global identity ontology or treats membership as institutional adoption.
+
 ## 7. The cheap-extension criterion
 
 The owner's qualifier — "do not be too narrow when an extension seriously raises
@@ -276,6 +278,12 @@ reconciliation require new sovereign machinery — decline them, integrate inste
    the decision is reopened by name, even when the conclusion may survive. Research commissioned to
    inform a decision delivers options with their costs, premises and revisit triggers, so that the
    decision record can be assembled without re-deriving the reasoning.
+
+8. **For apparent SDD conflicts (accepted 2026-10-24, R19-SDD-02):** record both source-bound versions, scope/time, the common protected act and incompatible obligations. Any consumer may report the finding, but may not choose precedence. Only a dated accepted record of the competent human principal changes standing. Until resolution, the affected PolicyOS protected use is not admitted; independent authorized work continues. This concerns only meaning/standing of PolicyOS SDDs: it does not change actual active system/developer/user instruction hierarchy or tool permissions, override legal/safety prohibitions, or authorize prohibited actions. Repository rules apply only to the compatible extent.
+
+9. **For amendment delegation (accepted 2026-10-24, R19-SDD-03):** amendment authority is not inferred from issuer/root succession, key or technical custody, architecture governance, repository access, task assignment or principal unavailability. Only the current human principal may delegate it in a previously accepted record binding identity, the specific amendment act, scope and duration/revocation. Without that record, or with contested standing, no successor is assumed; the amendment stays proposed. This limits amendment authority only; authorized engineering continues. No successor is appointed here.
+
+The [dated R19 acceptance record](lifecycle-cross-scope-clarifications-r19-ratification.md) supplies the exact scope, alternatives, falsifiers and impact for items 8–9; it does not ratify adjacent draft rules.
 
 ## 10. Impact note (constitution §12 requirements)
 

@@ -16,4 +16,17 @@ For legal/design/doc cases supply exact lawful source/version/span and distinct 
 
 ### Companion R19
 
-Прочитай `r19_extension` только назначенных задач и связанные `solutions/lifecycle-r19/` карточки; передай исполнителю точные slices, native owner, выбранные producer/consumer/profile и stage-specific obligations из `execution/10-full-lifecycle-parallelism.md`. Соблюдай `architecture/10-full-lifecycle-composition.md` и `assurance/12-full-lifecycle-quality.md`. Это не новый общий barrier: поставляй доступные source-qualified inputs и называй конкретные внешние residuals. Не создавай второй registry/scheduler/authority owner и не повышай candidate/условный результат до политического полномочия. SDD proposals ожидают согласования; фактические ограничения delegation и tool permissions имеют силу. Реализация только после фактической приёмки E02.
+Прочитай `r19_extension` только назначенных задач и связанные `solutions/lifecycle-r19/` карточки; передай исполнителю точные slices, native owner, выбранные producer/consumer/profile и stage-specific obligations из `execution/10-full-lifecycle-parallelism.md`. Соблюдай `architecture/10-full-lifecycle-composition.md` и `assurance/12-full-lifecycle-quality.md`. Это не новый общий barrier: поставляй доступные source-qualified inputs и называй конкретные внешние residuals. Не создавай второй registry/scheduler/authority owner и не повышай candidate/условный результат до политического полномочия. Пять R19 SDD clauses приняты 2026-10-24: прочитай architecture/proposals/r19-system-design-clarifications.md и canonical acceptance record; прочие proposals не приняты этим решением. Фактические ограничения delegation и tool permissions имеют силу. Реализация только после фактической приёмки E02.
+
+### Полнота назначенного пакета
+
+Читай каждое присутствующее у назначенной задачи поле `*_extension` и все его
+referenced delivery/quality/solution clauses вместе с base task и
+`preferred_solution_ref`. На текущем source это `r14_extension`, `r15_extension`,
+`r16_extension`, `r17_extension`, `r19_extension`; R18 — inventory вопросов,
+назначаемых через R19. Набор выводится из task manifest, не из этого списка.
+Root/lead включают все assigned clauses в write lease, supplier-stage bindings,
+review и coverage; writer исполняет их, reviewer/verification проверяют их,
+foundation supplier поставляет только назначенные evidence/consumer slices.
+Незнакомое поле нельзя молча отбросить: разреши его контракт и scope до affected
+acceptance. Оно само не вводит новую authority или разрешение реализовать до E02.

@@ -5728,8 +5728,7 @@
       "route_target": "GY-DEF22 environment discriminant",
       "program_tasks": [
         "GYD-15",
-        "DEB-04",
-        "DEB-09"
+        "DEB-04"
       ],
       "program_disposition": "explicit_programme_route_original_status_preserved",
       "property_review": {

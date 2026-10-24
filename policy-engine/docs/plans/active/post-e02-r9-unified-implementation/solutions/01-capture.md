@@ -94,6 +94,7 @@ Classify each input at accepted-source rebind as internal engineering output/all
 
 Extend the selected Fabric HTTP connector to capture one bounded response as an immutable body-plus-request/response witness when the selected profile permits raw retention; otherwise use CAP-03’s lawful query/result-receipt boundary under the exact source profile, then make later readers resolve that exact root through ArtifactRef/manifest and current admission. Treat an ETag as an opaque representation validator, not the body's hash. A 304 is usable only when the matching stored body is readable and its target, representation profile, Vary dimensions, source identity, and permission still resolve; otherwise return unavailable. Ship the bounded single-response route first. Pagination, delta, ranges, or competing cursor writers activate only with source-native completeness/cut evidence and LIF-03's conditional receipt-before-frontier commit; CAP does not add a second cursor writer.
 
+
 ### Что переиспользовать
 
 - `policy-engine/src/polisyos/fabric/connectors/sources/http_base.py@dccea950845cda5b38f026e7770c07819d31f4d9` — `RawHTTPResponseObserver`. Pinned C inventory reports bounded body hooks and original-request observation, but not per-hop redirect authorization.
@@ -104,6 +105,7 @@ Extend the selected Fabric HTTP connector to capture one bounded response as an 
 
 Наблюдение на историческом pin не устанавливает текущую реализацию или принятую базу.
 
+
 ### Последовательность реализации
 
 1. Use a contract-owned endpoint/profile, not a page-supplied URL. For each hop, validate scheme/host/port, resolve and bind approved IPv4/IPv6 addresses at connect time, recheck redirects, constrain proxy and origin-scoped credentials, and enforce deployment egress policy.
@@ -112,11 +114,13 @@ Extend the selected Fabric HTTP connector to capture one bounded response as an 
 4. For pagination, accept a provider's opaque continuation/snapshot token only within the admitted source/query and independently authorized recipient set; a provider CDN or foreign-origin continuation needs its own exact egress/credential scope rather than blanket same-origin acceptance or prohibition. Persist each page receipt; commit the final cut through LIF-03's expected-head/attempt fence.
 5. Treat a byte-identical retried page under the same source-defined token/cut idempotently; conflicting contents, skipped required coverage or unbound continuation remain partial/refused. Allocate the actual second-source capture/parser/protocol sub-slice required by LIF-08; first-route completion cannot substitute for it.
 
+
 ### Рассмотренные альтернативы
 
 - **Treat 304 as an empty dataset or reconstruct from ETag alone** — RFC 9110 defines 304 as no representation body and RFC 9111 reuses a matching stored response; without that body, the capture is unavailable.
 - **Enable generic pagination/range based on Link or max offset** — Link does not prove a stable snapshot; range support is optional and validators can change. A protocol-specific completeness receipt and LIF-03 fence are required.
 - **Add a second cursor/frontier store in CAP** — LIF-03 owns expected-head, attempt fencing, crash recovery, and receipt-before-frontier ordering.
+
 
 ### Free-grow и ресурсы
 
@@ -135,6 +139,7 @@ Reuse legacy roots only after reopening and verifying exact bytes, request/profi
 - The CAP receipt is the supplier input to LIF-03; LIF-03 alone commits the selected cursor/frontier and rejects stale attempts, reset/ABA, or missing prior head.
 - A complete snapshot means source-defined cut plus all required continuation pages and exact child bodies. A page count, ETag, hash, or high offset by itself is not completeness evidence.
 - Transport safety and source-use/materialization permission both precede capture side effects. LIF-05 fences each actual write/disclosure; LIF-01/03 admission and later CAP-03 reuse consume the lawful representation. An HTTP-valid response is not permission to store it.
+- LIF-05/native source-use producer supplies a current, qualified source/profile/purpose/audience/actual-sink decision before the selected CAP-02 body/temp/log/cache placement. CAP-01 outbound-query permission and CAP-03 later reuse admission do not authorize capture storage. If authorized query egress returns a body whose placement is unknown/denied, do not stage/store/log/cache or expose its digest/ref. Discard at the authorized ephemeral processing boundary and emit only a permitted opaque non-admission receipt; if ephemeral response processing itself lacks permission, refuse the fetch. Do not label this a complete admitted capture. See the task conditional supplier: this is a selected-effect join, not a whole-task start dependency.
 
 
 ### Acceptance и различающие проверки
@@ -158,8 +163,8 @@ Reuse legacy roots only after reopening and verifying exact bytes, request/profi
 - If the provider offers no stable cut for pagination, bound the result to the observed window and leave snapshot completeness not established; do not enable resumable cursor progress.
 - If a backend cannot enforce LIF-03's conditional head or LIF-05's rights checks, keep the affected profile unsupported rather than adding a parallel cursor or permission owner.
 
-
 Classify each input at accepted-source rebind as internal engineering output/allocation, existing source record, or genuine external fact/permission. Missing native producer/bridge is assigned work, not an external blocker. Only the last class can justify an external-input hold after supplier/alternative investigation. See root-review.md for the task-specific distinction.
+
 
 ### Исследование и предел переноса
 
@@ -182,6 +187,7 @@ Classify each input at accepted-source rebind as internal engineering output/all
 
 Wire the selected acquisition route to native passport admission and the governed library resolver. For retention-permitted profiles, keep exact bytes immutable in CAS with a manifest binding content, source receipt, producer/profile/schema and relevant tenant context. For query-only profiles, retain only the permitted result/receipt with verifier provenance and the actual custodian-side binding; do not copy restricted source bytes; store admission and later reuse as append-only owner decisions. LIF-01 owns the specific relation/use admission, and LIF-05 owns rights-sensitive materialization and shared disclosure composition. Each reuse reopens the current purpose, audience, source-right generation, and content binding, while preserving the same exact root. A hash, HTTP 304, source contract, or ODRL permission statement is not by itself an admission decision. Existing filesystem-scoped support does not establish S3/GCS tenant parity.
 
+
 ### Что переиспользовать
 
 - `policy-engine/src/polisyos/runtime/quality/acquisition_executor.py@dccea950845cda5b38f026e7770c07819d31f4d9` — `build_admission_passport/admit_acquisition_with_semantic_epoch/revalidate_admission_passport`. R9's pinned C inventory reports passport construction, semantic-epoch admission, and revalidation; the live producer's terminal result is still pending passport.
@@ -191,6 +197,7 @@ Wire the selected acquisition route to native passport admission and the governe
 
 Наблюдение на историческом pin не устанавливает текущую реализацию или принятую базу.
 
+
 ### Последовательность реализации
 
 1. Connect the CAP-02 persisted root receipt to the existing passport/admission functions; add only owner-approved binding fields absent after E02 rebind.
@@ -198,11 +205,13 @@ Wire the selected acquisition route to native passport admission and the governe
 3. Place cache, reader, resume, export, and materialization paths behind the same source-use and LIF-05 rights-generation decision; recheck on resume and effect/commit, not just first fetch.
 4. Consume LIF-05's shared disclosure reserve/commit and indeterminate outcome for AP07 profiles; do not add a per-request counter or duplicate entitlement ledger.
 
+
 ### Рассмотренные альтернативы
 
 - **Mutable latest-file directory, URL-keyed cache, or content hash treated as permission** — It loses exact source/profile/use identity and cannot represent rights or schema changes; a digest proves byte identity only.
 - **Create a CAP permission service or disclosure budget** — LIF-01 owns use admission and LIF-05 owns copy/disclosure transitions; another owner would make revocation and shared-release accounting disagree.
 - **Use an HTTP cache as the governed library** — HTTP caching solves representation reuse; it does not re-evaluate purpose, audience, tenant, or source rights.
+
 
 ### Free-grow и ресурсы
 
@@ -221,6 +230,7 @@ Do not infer rights from historical artifacts or preseed receipts. Reopen exact 
 - CAP-02 supplies immutable roots; LIF-01 supplies current claim/use-specific relation admission; LIF-05 supplies rights generations, managed-copy boundaries, restore handling, and any shared disclosure accounting.
 - A second purpose gets a fresh admission trace even when it resolves the same bytes. Rights to read, process, derive, and publish remain separately scoped where source terms distinguish them.
 - For query-only profiles, allowed derived outputs can remain consumable only if the selected rights/sink policy proves raw bytes did not persist in each inventoried CAS, log/trace, browser, backup, or provider temporary sink.
+- Selected cost-dependent route consumes the actual acquisition_planner native cost artifact, also supplying DEB-13 net-value composition. DEB-07 records the source-row disposition without a second writer. For the source-selected free WDI route, the canonical runtime/quality/acquisition_planner.py cost-schedule owner may admit dated expert_hours/calendar_days/collection_mode effort under the principal’s 2026-09-17 option A: first inspect actual connector/comparable-ingest evidence, prefer measured comparable effort, otherwise explicitly label and justify the owner estimate. Neither fixture hours/days nor a cap is the basis. A paid/licensed selected source invalidates that premise and needs its real quote/rights evidence; no default institutional price request for free-data engineering.
 
 
 ### Acceptance и различающие проверки
@@ -243,8 +253,8 @@ Do not infer rights from historical artifacts or preseed receipts. Reopen exact 
 - If external grant or backend copy control cannot be verified, retain capture only in the permitted quarantine scope and mark reuse unadmitted; do not claim filesystem behavior transfers to remote storage.
 - If source composition law is unavailable, refuse the affected aggregate/query output rather than inventing a universal privacy budget.
 
-
 Classify each input at accepted-source rebind as internal engineering output/allocation, existing source record, or genuine external fact/permission. Missing native producer/bridge is assigned work, not an external blocker. Only the last class can justify an external-input hold after supplier/alternative investigation. See root-review.md for the task-specific distinction.
+
 
 ### Исследование и предел переноса
 

@@ -259,6 +259,7 @@ Classify each input at accepted-source rebind as internal engineering output/all
 
 Create the distinct AS3 versioned corpus under the appointed runtime/quality packet/oracle owner, preserving the original 24 immutable packets, five isolated O3 consumer mutations, and adjacent valid controls. Its job is to prove the real O3 write path rejects candidate-only and self-confirming evidence, including quarantine after a full reprocessing pass; it is not a second diagnosis holdout or a way to tune O3.
 
+
 ### Что переиспользовать
 
 - `policy-engine/src/polisyos/runtime/quality/world_model_record.py@dccea950845cda5b38f026e7770c07819d31f4d9` — `WorldModelRecord; load_world_model_record`. Typed WMR and exact verified artifact reader are present; no AS3 corpus owner is allocated at C.
@@ -266,16 +267,19 @@ Create the distinct AS3 versioned corpus under the appointed runtime/quality pac
 
 Наблюдение на историческом pin не устанавливает текущую реализацию или принятую базу.
 
+
 ### Последовательность реализации
 
 1. Freeze the exact original 24 packet identities and five mutation definitions from the accepted GY-AS3 source at rebind; bind each packet to oracle, rule, O1 input, and expected consumer behavior.
 2. Run every mutation through the production O3 consumer/writer boundary and use adjacent valid controls. Recompute result from packet bytes and exact refs rather than reading expected marker fields.
 3. For the self-confirmation mutation, change the observation process downstream of the policy and then attempt full reprocessing; keep it quarantined and preserve the original failure reason in the receipt.
 
+
 ### Рассмотренные альтернативы
 
 - **Use constructor-only or marker-string mutation tests** — They can pass while the O3 consumer accepts the candidate or reprocessing lifts quarantine; they do not exercise the property.
 - **Merge AS2 and AS3 into a single shared corpus** — AS2 admits diagnosis evidence; AS3 probes world-write mutations. Their lock, custodian, and acceptance properties differ.
+
 
 ### Free-grow и ресурсы
 
@@ -294,7 +298,7 @@ A corpus revision is a new immutable release; quarantine and old receipts remain
 - AS3 oracle -> actual O3 read/branch-write consumer -> persisted failure/success receipt; O3 does not depend on O2.
 - P37: corpus membership and mutation expectations are independently_reconciled to the original source; O3 posterior/context refs must be resolve-bind-verify, not caller asserted.
 - P38: the property is durable refusal of the five mutations. A corpus validator that checks a seal/expected marker while the branch writer accepts the mutated payload is the divergent case; the writer consumer itself must run.
-- The operative update positive requires actual GYD-09/WP activation where that policy applies. Isolated test-policy/corpus research is labelled non-authoritative and cannot mutate the operative posterior/world or close the activation-dependent positive. Other engineering preparation continues.
+- The effect-posterior positive requires actual GYD-09/WP activation where that policy applies. Isolated test-policy/corpus research is non-authoritative and cannot mutate that operative posterior or close its activation-dependent positive. Structural admission follows its distinct actual rule in solutions/18-structural-world-learning.md; other engineering preparation continues.
 
 
 ### Acceptance и различающие проверки
@@ -315,8 +319,8 @@ A corpus revision is a new immutable release; quarantine and old receipts remain
 - If the five source mutation identities cannot be rebound, retain `not_established` rather than invent substitute cases.
 - If a test is excluded as unrelated, finish the prescribed isolation/replay before excluding it; otherwise keep the O3 result unaccepted.
 
-
 Classify each input at accepted-source rebind as internal engineering output/allocation, existing source record, or genuine external fact/permission. Missing native producer/bridge is assigned work, not an external blocker. Only the last class can justify an external-input hold after supplier/alternative investigation. See root-review.md for the task-specific distinction.
+
 
 ### Исследование и предел переноса
 
@@ -328,13 +332,14 @@ Classify each input at accepted-source rebind as internal engineering output/all
 
 <a id="GYD-12"></a>
 
-## GYD-12 — O3 O1-confirmed versioned world write-back
+## GYD-12 — O3 versioned world writer: distinct effect and structural inputs
 
 Исходная запись: [tasks.json](../tasks.json), `tasks[id=GYD-12]`. Review: [root-review](root-review.md#GYD-12).
 
 ### Предпочтительное решение
 
-Add a typed bridge in the existing runtime/quality WMR owner that consumes an O1-confirmed effect update or an O2-origin hypothesis only after its O1 confirmation under the actual active policy plus all AS3 self-confirmation checks and current N12/N13b context, then appends one Fabric branch/event and one versioned WMR. Preserve set-valued/competing admissible causal completions rather than forcing a unique graph or effect. The next real policy-design cycle must read the exact new artifact/version. Keep O3 as the only world-growth writer; O2 is not a prerequisite, and UI-08/DS21 is downstream. This update does not itself prove a candidate design’s whole-design joint property: the design consumer may use simulation or a validated exact joint derivation/witness for the concrete property it proves, never marginal/pairwise checks as a substitute.
+Extend the existing runtime/quality WMR owner with two type-specific inputs and one writer. O1 + AS3 + current N12/N13b context and applicable WP policy govern the effect-posterior branch. O2 itself stays candidate-only and may motivate DES-12 research; it never writes or grounds a claim. A returned lineage-bound structural assessment is a distinct CNT-06/native-method input. The actual rule owner supplies the applicable structural write rule; GYD-12 verifies it and may append the qualified structural result without O1 posterior only if that rule permits the exact transition. Missing rule means scoped proposal/conditional work, not implicit permission. Original effect obligations remain required for whole-task GYD-12 completion. Preserve set-valued/competing admissible causal completions rather than forcing a unique graph or effect. The next real policy-design cycle must read the exact new artifact/version. Keep O3 as the only world-growth writer; O2 is not a prerequisite, and UI-08/DS21 is downstream. This update does not itself prove a candidate design’s whole-design joint property: the design consumer may use simulation or a validated exact joint derivation/witness for the concrete property it proves, never marginal/pairwise checks as a substitute. Structural inputs use the separate CNT-06/native-method route in solutions/18-structural-world-learning.md; WP-01/02 are scoped to posterior mutation and cannot prove an edge. The same writer verifies actual applicable structural admission, otherwise preserves candidate/conditional work without operative mutation.
+
 
 ### Что переиспользовать
 
@@ -345,18 +350,22 @@ Add a typed bridge in the existing runtime/quality WMR owner that consumes an O1
 
 Наблюдение на историческом pin не устанавливает текущую реализацию или принятую базу.
 
+
 ### Последовательность реализации
 
 1. Resolve and verify the O1 profile-qualified update and AS3 conformance receipt, then compare effect type, jurisdiction/population/resolution, valid time, transaction time, intervention ancestry, observation-process context, and the scope of any competing completions to the current WMR.
 2. On one canonical bridge path, create the branch/event from the current snapshot and append the updated WMR with parent/content refs, rule/schema version, attribution, and actor/time provenance. Reject a stale head or mismatched context instead of merging silently.
 3. Start a later real cycle from the emitted WMR ref and capture the exact read binding; expose the branch audit and WMR to UI-08/DS21 after producer acceptance.
 4. Choose one commit boundary over branch/event/WMR after rebind. If the existing backend transaction covers all of them, commit atomically; otherwise persist an intent with staged immutable objects, fence the branch head and reconcile event/WMR publication idempotently. Incomplete combinations remain unservable/quarantined; a branch CAS alone is not a multi-object transaction.
+5. Implement and exercise the distinct structural path in solutions/18-structural-world-learning.md after exact native-owner rebind; do not relabel a set/bound as O1 posterior or grant write authority by scientific qualification.
+
 
 ### Рассмотренные альтернативы
 
 - **Mutate the current WMR or branch in place** — It destroys replayable history and makes rollback/correction indistinguishable from a new claim.
 - **Use an external model registry or mutable alias as world head** — A mutable alias can resolve differently later; PolicyOS already has Fabric branch refs and typed WMR lineage.
 - **Write exploratory O2 anomalies directly into the world** — It bypasses the confirmatory firewall and turns a candidate into authority.
+
 
 ### Free-grow и ресурсы
 
@@ -367,7 +376,7 @@ Add a typed bridge in the existing runtime/quality WMR owner that consumes an O1
 
 ### Миграция и восстановление
 
-No in-place update or parallel world store. Correct an erroneous update with a new event/branch and explicit supersession; never erase the old branch. O2 remains optional only after O1 confirmation; UI-08 reads O3 after it exists.
+No in-place update or parallel world store. Correct errors by new event/branch and explicit supersession; retain prior generation. O2-origin effect updates need O1 confirmation; separately qualified structural results follow their actual rule. UI-08 consumes emitted O3 output, not a build prerequisite.
 
 
 ### Композиция и owners
@@ -377,22 +386,25 @@ No in-place update or parallel world store. Correct an erroneous update with a n
 - P38: the property is that the later cycle reads the exact admitted updated world; checking only `posterior_update_refs` or a branch-name field diverges when the referenced artifact is missing, mismatched, stale, or not bound into the loaded WMR.
 - Transportability requires explicit source/target graph assumptions; no posterior alone licenses a move across population, jurisdiction, period, or interference context.
 - C01: for any later whole-design claim, accept simulation or a validated exact joint derivation/witness only for the property/assumptions it actually proves; neither marginal nor pairwise checks can stand in for joint analysis, and model truth still needs grounding.
-- An O2-origin hypothesis may enter only through O1 confirmation and the actual active update policy; O2 is optional, not a global prerequisite. WP-01/02 restrictions remain applicable to operative posterior changes.
-- The operative update positive requires actual GYD-09/WP activation where that policy applies. Isolated test-policy/corpus research is labelled non-authoritative and cannot mutate the operative posterior/world or close the activation-dependent positive. Other engineering preparation continues.
+- The effect-posterior positive requires actual GYD-09/WP activation where that policy applies. Isolated test-policy/corpus research is non-authoritative and cannot mutate that operative posterior or close its activation-dependent positive. Structural admission follows its distinct actual rule in solutions/18-structural-world-learning.md; other engineering preparation continues.
+- CNT-06/native method assessment -> GYD-12 type-specific admission -> append-only WMR/Fabric -> fresh later reader; question-scoped join, not a whole-task start edge.
+- O1 + AS3 + current N12/N13b context and applicable WP policy govern the effect-posterior branch. O2 itself stays candidate-only and may motivate DES-12 research; it never writes or grounds a claim. A returned lineage-bound structural assessment is a distinct CNT-06/native-method input. The actual rule owner supplies the applicable structural write rule; GYD-12 verifies it and may append the qualified structural result without O1 posterior only if that rule permits the exact transition. Missing rule means scoped proposal/conditional work, not implicit permission. Original effect obligations remain required for whole-task GYD-12 completion.
 
 
 ### Acceptance и различающие проверки
 
 - Positive: O1 + AS3 + exact current context produce an append-only branch/event and WMR preserving any supported competing completions; the next real cycle reads it by exact content/version ref. A downstream joint-design claim is accepted only with simulation or a validated witness for that joint property.
-- Negative: candidate-only, stale/mismatched context, self-confirming observation process, replay, or reprocessed quarantine cannot advance the branch head; removing O1 or AS3 admission makes the writer refuse.
+- Effect-branch negative: raw candidate, stale context, self-confirmation or replay cannot advance the head; removing applicable O1/AS3 admission refuses that effect write. Structural-branch negative/removal separately checks actual scientific warrant and write rule; lack of posterior alone does not reject a supported structural input.
 - The DS21/UI-08 readout is a downstream consumer and acceptance dependency, never an O3 build prerequisite or authority by adjacency.
 - Crash before/after each event, branch-head and WMR write and retry the same intent. A fresh next-cycle reader sees either one complete admitted generation or explicit pending/refused state, never a half-published world or duplicate growth.
+- Exercise structural positive, changed-evidence adversarial and remove-warrant controls in solutions/18-structural-world-learning.md; no operative positive is claimed absent an actual write-admission rule.
 
 
 ### Входы и ответственность за их получение
 
 - O1 profile-qualified update and AS3 consumer-mutation receipt, with any independent-correctness claim supported by a genuinely independent check as scoped by K14.
 - Real current N12/N13b source/context evidence, actual branch-head state, and the later cycle's source/version readback.
+- Exact structural assessment/profile, native qualifier/verifier and applicable O3 structural write policy. Missing internal bridge is engineering; a genuinely absent accepted rule is a scoped proposal, not permission.
 
 
 ### Когда обоснованно отклониться
@@ -400,8 +412,8 @@ No in-place update or parallel world store. Correct an erroneous update with a n
 - If the target context differs and transport evidence/selection assumptions are absent, append no general effect; retain the narrower scope or a typed limitation.
 - If exact branch-head compare-and-update or currentness cannot be proven at rebind, keep the writer refused; do not create a parallel coordinator.
 
-
 Classify each input at accepted-source rebind as internal engineering output/allocation, existing source record, or genuine external fact/permission. Missing native producer/bridge is assigned work, not an external blocker. Only the last class can justify an external-input hold after supplier/alternative investigation. See root-review.md for the task-specific distinction.
+
 
 ### Исследование и предел переноса
 

@@ -67,3 +67,25 @@ For DES-12, `conditional_composition_dependencies` is a claim-selected compositi
 ## R17 lifecycle stages
 
 [Stage map](09-design-lifetimes-and-access.md) уточняет preparation interfaces и actual composed acceptance без новых global edges. Все `r17_extension` включаются в readiness и existing final wave. Unselected cloud/offline/format/estimator не становится blocker локального scope; реально заявленная гарантия требует настоящего supplier/reader, не marker.
+
+## R20 consumer joins
+
+CAP-02 resolves LIF-05/native source-use permission before each selected placement;
+CAP-01 query egress and later CAP-03 admission cannot authorize that write. Query-only
+profiles prove no forbidden raw-body staging. UI-01’s R19 Q05 currentness positive
+requires an actual LIF-02 reaction consumed by its fresh verifier view. These are
+conditional effect/composition joins in `tasks.json`, not blanket task-start edges.
+No-fetch/interface work and base report authentication retain their own useful
+completion boundary; they do not close the selected capture/currentness positive.
+
+The DEB-06/UI-19 reciprocal acceptance witness is `DEB-06 persisted lineage/reissue
+emission → UI-19 fresh API/MACHINE observation`. Neither task waits for the other’s
+whole completion before preparation. Selected DEB-07/UI-06 semantic relations and
+DEB-13/UI-17 numeric VOI use the same emission/observation split; unsupported
+meanings/numbers keep typed limitations. Net/cost-dependent claims bind their real
+cost supplier; gross EVSI does not require a WDI cost by default.
+
+Selected WDI source-row reconciliation additionally binds `CAP-03 actual native
+admitted-cost emission → DEB-07 fresh original-row observation`. This does not
+wait for unrelated CAP-03 completion, substitute an estimate from the reconciler,
+or make a mandatory original cost criterion optional by executor preference.

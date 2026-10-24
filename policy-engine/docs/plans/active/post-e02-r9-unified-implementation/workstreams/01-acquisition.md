@@ -1,4 +1,4 @@
-> Canonical allocation: see [integration boundaries](../architecture/01-integration-boundaries.md). CAP-03 is a consumer of LIF-01/05; CAP-04 is the source adapter/consumer of LIF-02; CAP-02 uses LIF-03 cursor fencing. These packets must not create duplicate mechanisms.
+> Canonical allocation: see [integration boundaries](../architecture/01-integration-boundaries.md). CAP-03 is a consumer of LIF-01/05; CAP-04 is the source adapter/consumer of LIF-02; CAP-02 consumes LIF-05/native source-use permission before materialization and uses LIF-03 cursor fencing. These packets must not create duplicate mechanisms.
 
 # R9 acquisition and library implementation slices
 

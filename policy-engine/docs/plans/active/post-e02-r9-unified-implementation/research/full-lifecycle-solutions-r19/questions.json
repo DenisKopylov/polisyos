@@ -635,6 +635,7 @@
         "S06-M3"
       ],
       "task_ids": [
+        "CNT-06",
         "DES-12",
         "GYD-10",
         "GYD-12"
@@ -645,7 +646,7 @@
         "S06-R05"
       ],
       "external_inputs": [
-        "Protocol/data and provenance; regime bridge; study design that distinguishes structural from measurement/selection causes."
+        "Case-selected source/data provenance, applicable data/conduct permission and actual returned evidence or regime/measurement bridge facts where externally held. Discriminator selection and study design are DES-12 internal work; sufficiently qualified existing evidence may avoid a new study."
       ],
       "unresolved_research": "Best feasible discriminator is setting-specific; DES-12 can optimize over declared rivals without asserting completeness.",
       "implementation_status": "planned_after_E02_acceptance",

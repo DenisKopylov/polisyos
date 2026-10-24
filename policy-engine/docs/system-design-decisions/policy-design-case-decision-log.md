@@ -435,3 +435,26 @@ implementation evidence to resolve, supersede, or re-scope the question.
 - **Revisit wave**: quarterly review
 - **Promotion status**: retired
 - **Closes**: DL-PDC-0001, DL-PDC-0002, DL-PDC-0003, DL-PDC-0004, DL-PDC-0005, DL-PDC-0006, DL-PDC-0007, DL-PDC-0008, DL-PDC-0009, DL-PDC-0010, DL-PDC-0011, DL-PDC-0012, DL-PDC-0013, DL-PDC-0014, DL-PDC-0015
+
+
+### DL-PDC-0017 - vision open-question crosswalk (R19-SDD-04)
+
+- **Date**: 2026-10-24.
+- **Context**: Explicit approval of R19-SDD-04; existing G8 empirical rows must not settle normative/design choices. The canonical denominator is vision §8.4 at the source version used for each freeze.
+- **Decision**: Maintain the complete stable-ID join below through this existing log. This is an initial documentation crosswalk, not evidence that current runtime answers were read or passed. Separate empirical observations from choice/remainder; later evidence/dispositions append and cite this entry.
+- **Affected SDD**: vision §8.4; [lifecycle-cross-scope-clarifications-r19-ratification.md](lifecycle-cross-scope-clarifications-r19-ratification.md#r19-sdd-04--open-questions-keep-evidence-and-choice-distinct).
+- **Affected plan**: GYD-33 and its R19 extension; no new task, registry or scheduler.
+- **Owner**: `team-architecture-governance` maintains the join and decision standing; the already appointed scientific/runtime owners supply evidence within their actual scopes.
+- **Reversibility**: The crosswalk is amendable by append-only records; a normative answer requires its own authorized decision.
+- **Revisit trigger**: A canonical ID changes, evidence contradicts a premise, a relevant WP activates, or a dated authorized choice is made. Review does not itself close the question.
+- **Promotion status**: scoped procedure accepted by the human principal; the five substantive questions remain open in this record. No assertion about later evidence outside this review.
+
+| Canonical §8.4 ID / existing G8 spelling | Empirical component | Choice/remainder | Evidence owner; review trigger | Current log disposition |
+|---|---|---|---|---|
+| `8.4-waist-altitude` | Observed forced changes, counterexamples and compatibility costs | Whether to change the waist vocabulary is a design choice | `team-runtime-quality` / `team-architecture-governance`; a demonstrated missing dimension | Open mixed question; no new evidence admitted; log ref DL-PDC-0017 |
+| `8.4-real-grounding-cost` | Grounding success/cost under explicit domains, workload and envelope | Which cost/abstention tradeoff is acceptable remains an explicit value/design choice | `team-science-quality`; changed cost or grounding evidence | Open mixed question; no new evidence admitted; log ref DL-PDC-0017 |
+| `8.4-demand-pull-strength` | Observed acquisition, useful exits and abstention inertia under an actual profile | Required adequacy target or operating-policy change is not selected by a metric | `team-runtime-control` / `team-science-quality`; new demand-pull evidence | Open mixed question; no new evidence admitted; log ref DL-PDC-0017 |
+| `8.4-search-recall-freshness` | Measured recall/freshness under a declared search denominator | Any acceptable sufficiency boundary stays qualified to its intended use | `team-science-quality`; changed sources, coverage or stale-index counterexample | Open empirical question with explicit criterion remainder; log ref DL-PDC-0017 |
+| `8.4-agent-orchestration-authority-leak` | Counterexamples and evidence against the existing authority boundary | Repair may reuse that boundary; changing it needs a separate accepted act | `team-runtime-control` / `team-quality-closeout`; orchestration counterexample | Open empirical question; no new evidence admitted; log ref DL-PDC-0017 |
+
+Owner labels here route work to existing role responsibilities from this log; they grant no new signing or amendment authority. No WP ID is inferred, and no future sixth question may be omitted because this initial table has five rows. Resolved source-qualified G8 evidence refs and later dispositions must be appended when actually examined; they are not fabricated from the current builder's static strings.

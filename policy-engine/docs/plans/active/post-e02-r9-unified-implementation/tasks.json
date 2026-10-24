@@ -171,7 +171,8 @@
       "requires_other_mechanisms": [
         "A0-selected source/caller",
         "Per-hop DNS/socket/proxy/credential policy",
-        "Durable root reader and cursor commit fence"
+        "Durable root reader and cursor commit fence",
+        "LIF-05/native source-use producer supplies a current, qualified source/profile/purpose/audience/actual-sink decision before the selected CAP-02 body/temp/log/cache placement. CAP-01 outbound-query permission and CAP-03 later reuse admission do not authorize capture storage."
       ],
       "owner_paths": [
         "existing: runtime/quality/acquisition_executor.py::execute_live_catalog_acquisition (single-page WDI)",
@@ -183,7 +184,7 @@
       ],
       "deliverable": "Safe transport/representation capture and exact reuse, consuming LIF-03 conditional frontier commit when the selected protocol advances resumable/page/partition progress. A bounded single-response route proves its own complete durable root and more-pages refusal without waiting for the full cursor mechanism. No second cursor writer. Keep single-response first-route scope; activate pagination/range separately. Also accept the explicitly selected second-source producer sub-slice required by LIF-08. First-route completion does not cover a new page/range/parser behavior; root allocates that delta before second-source composition.",
       "positive": "Allowed capture persists immutable root/receipt; second run resolves same exact body/profile without fetching; consumer verifies completeness and hash.",
-      "adversarial": "Crash/partial/unreadable child, mismatch/oversize, 304 without body, invalid range, changed ETag, stale writer, disallowed redirect/private IP/credential hop and changed pagination scope yield partial/unavailable/deny.",
+      "adversarial": "Crash/partial/unreadable child, mismatch/oversize, 304 without body, invalid range, changed ETag, stale writer, disallowed redirect/private IP/credential hop and changed pagination scope yield partial/unavailable/deny. If authorized query egress returns a body whose placement is unknown/denied, do not stage/store/log/cache or expose its digest/ref. Discard at the authorized ephemeral processing boundary and emit only a permitted opaque non-admission receipt; if ephemeral response processing itself lacks permission, refuse the fetch. Do not label this a complete admitted capture.",
       "removal": "Remove body binding or head fence but keep markers; probe must fail.",
       "surface": "Consumer/audit distinguishes complete, partial, unavailable; 304 without retained body is never empty.",
       "resource_locks": [
@@ -265,6 +266,16 @@
           ],
           "output": "Actual receipt-before-frontier and expected-head/attempt fence, including recovery and stale-writer negatives",
           "consumer": "CAP-02 selected protocol; required before enabling that protocol, not deferred to programme closeout"
+        },
+        {
+          "when": "Selected CAP-02 profile performs body, temporary, log, cache or other staged/durable materialization",
+          "suppliers": [
+            "LIF-05"
+          ],
+          "output": "Resolved and verified native source-use decision for exact source/profile/purpose/audience/sink and current generation; allow or typed non-allow with provenance",
+          "consumer": "CAP-02 actual placement boundary, immediately before the covered write; durable capture receipt only after allowed complete write",
+          "required_stage": "composition",
+          "preparation_rule": "No-fetch discovery and contract/probe preparation may proceed. Query-only binds its permitted output/receipt; unknown body placement cannot pass composed capture."
         }
       ],
       "r19_extension": {
@@ -527,7 +538,10 @@
         ],
         "writer_rule": "The original native owner and actual path lease remain authoritative; cross-owner route means a producer/consumer companion, not a second writer or a new global dependency.",
         "acceptance_ref": "assurance/12-full-lifecycle-quality.md"
-      }
+      },
+      "acceptance_evidence_requirements": [
+        "For selected WDI/cost-dependent positive: bind the actual canonical acquisition cost artifact and its dated basis under the existing 2026-09-17 option A. CAP-03 owns this native admission/cost companion; DEB-07 reconciles the source row. Exact path lease and consumer census precede writes. For the source-selected free WDI route, the canonical runtime/quality/acquisition_planner.py cost-schedule owner may admit dated expert_hours/calendar_days/collection_mode effort under the principal’s 2026-09-17 option A: first inspect actual connector/comparable-ingest evidence, prefer measured comparable effort, otherwise explicitly label and justify the owner estimate. Neither fixture hours/days nor a cap is the basis. A paid/licensed selected source invalidates that premise and needs its real quote/rights evidence; no default institutional price request for free-data engineering."
+      ]
     },
     {
       "id": "CAP-04",
@@ -2614,8 +2628,14 @@
         "policy-engine/src/polisyos/core/security/access_scope.py",
         "policy-engine/src/polisyos/core/artifacts/store.py"
       ],
+      "canonical_write_allocation": {
+        "semantic_lease": "write:semantic-owner/source-disclosure",
+        "decision_producer": "Resolve the actual source-use decision producer path and symbol on accepted E02. Add that exact path and all producer/consumer companions to this task's candidates and lease before writer dispatch; the two listed paths are known touchpoints, not a complete producer allocation.",
+        "if_absent": "LIF-05 allocates one narrow typed source-use decision boundary in the canonical core/security owner after checking existing source rights/verifier adapters and import boundaries; record its proposed exact path, API and consumers. Implement it in this task, not as an external-input wait or a second CAP decision owner.",
+        "separation": "AccessScope supplies actor/request identity, RetentionPlanner supplies planning/impact, artifact store fences placement; none independently establishes a source grant. CAP-03/06 consume the same resolved decision producer."
+      },
       "read_only_mechanism_anchors": [],
-      "owner_paths_role": "Research anchors only; canonical_write_candidates overrides mechanism write ownership. Exact existing/proposed path lease resolved before edits; consumers do not gain writes to supplier owners.",
+      "owner_paths_role": "Research anchors only; canonical_write_candidates plus canonical_write_allocation govern the exact before-write resolution. The source-use producer must be added explicitly; these candidates are not an exhaustive admitted lease. Consumers do not gain writes to supplier owners.",
       "rollback_precedence": "The rights-aware first sentences control any legacy wording about preserving bytes or restoring a prior head.",
       "canonical_lease_keys": [
         "write:governed-copy",
@@ -4798,13 +4818,15 @@
     },
     {
       "id": "GYD-12",
-      "execution_qualification": "Current WP-01/WP-02 prohibit operative posterior mutation. Build the assigned producers/diagnostics/refusal and activation consumer, but update-dependent positive requires an actual competent scoped activation. Isolated research is non-authoritative and does not close that positive. See solutions/decision-clarifications.md.",
+      "execution_qualification": "O1 + AS3 + current N12/N13b context and applicable WP policy govern the effect-posterior branch. O2 itself stays candidate-only and may motivate DES-12 research; it never writes or grounds a claim. A returned lineage-bound structural assessment is a distinct CNT-06/native-method input. The actual rule owner supplies the applicable structural write rule; GYD-12 verifies it and may append the qualified structural result without O1 posterior only if that rule permits the exact transition. Missing rule means scoped proposal/conditional work, not implicit permission. Original effect obligations remain required for whole-task GYD-12 completion.",
       "preferred_solution_ref": "solutions/05-gy-learning.md#GYD-12",
-      "title": "O3 O1-confirmed versioned world write-back",
+      "title": "O3 versioned world writer: distinct effect and structural inputs",
       "source_ids": [
         "GY-O3"
       ],
-      "requires_other_mechanisms": [],
+      "requires_other_mechanisms": [
+        "For R18-D06-Q02 composition: actual CNT-06/native-method assessment and actual applicable structural write rule, if one exists, resolved from its owner at accepted-source rebind. No presumption that the rule exists; interface preparation is independent of O1 posterior implementation. See solutions/18-structural-world-learning.md. Original GYD-09/11 effect obligations remain required for whole-task completion."
+      ],
       "owner_paths": {
         "existing": [
           "src/polisyos/fabric/world/events.py::persist_world_event_with_facts",
@@ -4816,14 +4838,14 @@
           "Proposed typed bridge in existing runtime/quality WMR owner."
         ]
       },
-      "deliverable": "O1-confirmed effect + current N12/N13b context writes append-only Fabric branch/event and versioned WMR; later cycle reads branch.",
+      "deliverable": "O1-confirmed effect + current N12/N13b context writes append-only Fabric branch/event and versioned WMR; later cycle reads branch. Structural extension: selected native method/CNT-06 warrant and an actual applicable structural write rule reach the same GYD-12 writer; preserve native uncertainty/rivals and fresh readback. No O1 posterior proxy or inferred structural write authority.",
       "positive": "Later cycle grounds against exact new version with attribution/provenance.",
       "adversarial": "Candidate-only, mismatch, observation-process self-confirmation, replay or reprocessed quarantine cannot write.",
-      "removal": "Remove O1 confirmation or AS3 self-confirmation guard; branch write refuses.",
+      "removal": "On the effect branch remove O1/AS3 admission: effect write refuses. Separately on the structural branch remove method/rival/identification or applicable write-rule binding: structural write refuses with predecessor intact. O1 posterior absence alone is not a structural falsifier.",
       "surface": "Fabric branch audit + WMR + later run.",
       "resource_locks": "One branch-head/WMR writer.",
       "rollback": "Append correction; never rewrite branch.",
-      "migration": "O2 is optional input only via O1; N13b typed-deeper-terminal is not world growth.",
+      "migration": "Append new version and preserve old meaning. O2-origin effect input needs O1 confirmation; an O2-motivated study result uses the separate method-qualified structural route. N13b typed-deeper-terminal is not world growth.",
       "workstream": "GYD",
       "detail": "workstreams/03-gy.md",
       "implementation_status": "planned_after_E02_acceptance",
@@ -4867,10 +4889,10 @@
       ],
       "downstream_consumer": "UI-08/DS21 reads O3 output; it is not an O3 producer/build prerequisite.",
       "r15_extension": {
-        "requirement": "Bind actual policy/measurement/support regime and design-analysis evidence into existing O1-qualified world write-back; preserve no-mutation until competent activation.",
+        "requirement": "For the O1 effect-posterior branch: Bind actual policy/measurement/support regime and design-analysis evidence into existing O1-qualified world write-back; preserve no-mutation until competent activation. The distinct structural route follows solutions/18-structural-world-learning.md; no O1-posterior-only barrier is extended to a qualified structural result.",
         "positive": "A properly authorized qualified result updates only bound world scope; stale regime becomes historical evidence and current limitation.",
         "adversarial": "Changed implementation/measurement mistaken for prediction error or synthetic study returns cannot silently rewrite causal world.",
-        "removal": "Remove O1/regime binding while preserving posterior/version refs: unauthorized or wrong-scope write is detected.",
+        "removal": "Effect-branch control: Remove O1/regime binding while preserving posterior/version refs: unauthorized or wrong-scope write is detected.",
         "detail": "solutions/14-adaptive-trajectories-and-studies.md#extensions",
         "quality_ref": "assurance/09-adaptive-research-and-method-quality.md",
         "technical_profiles": [
@@ -4881,7 +4903,7 @@
         "product_verification": "UNRUN"
       },
       "r16_extension": {
-        "requirement": "Consume actual authorized O1-confirmed versioned world write-back, preserving historical information sets and scoped activation. Scenario/mechanism candidates and old attempt completions cannot bypass this route.",
+        "requirement": "For the O1 effect-posterior branch: Consume actual authorized O1-confirmed versioned world write-back, preserving historical information sets and scoped activation. Scenario/mechanism candidates and old attempt completions cannot bypass this route. The distinct structural route follows solutions/18-structural-world-learning.md; no O1-posterior-only barrier is extended to a qualified structural result.",
         "positive": "Qualified new world version reaches actual world consumer and superseded outputs stay historically bound.",
         "adversarial": "Hypothetical branch, O2 output, stale completion or same-valued changed premise silently replaces operative world.",
         "removal": "Remove actual authorized activation/basis fence while keeping version tags; fresh consumer fails.",
@@ -4896,10 +4918,10 @@
         "product_verification": "UNRUN"
       },
       "r17_extension": {
-        "requirement": "World write-back keeps existing O1 authorization and qualification; bind exact regime/scope and verified operational evidence for any actual-deployment claim. Conditional simulated evidence cannot mutate operative world as actual policy activation.",
+        "requirement": "For the O1 effect-posterior branch: World write-back keeps existing O1 authorization and qualification; bind exact regime/scope and verified operational evidence for any actual-deployment claim. Conditional simulated evidence cannot mutate operative world as actual policy activation. The distinct structural route follows solutions/18-structural-world-learning.md; no O1-posterior-only barrier is extended to a qualified structural result.",
         "positive": "Admitted supported update reaches versioned world and fresh surface; proposal-only counterpart remains conditional.",
         "adversarial": "Candidate/publication/LLM institutional assertion used to activate actual regime, or original history silently rewritten fail.",
-        "removal": "Remove operational/source and O1 qualification consumption while retaining version fields; actual world consumer rejects.",
+        "removal": "Effect-branch control: Remove operational/source and O1 qualification consumption while retaining version fields; actual world consumer rejects.",
         "delivery_slices": [
           "solutions/17-design-custody-and-succession.md#D5",
           "solutions/17-design-custody-and-succession.md#D7"
@@ -4918,10 +4940,10 @@
         "question_slices": [
           {
             "role": "primary writer",
-            "delta": "Write activated structure as new WMR version after evidence/activation handshake.",
-            "positive": "Bound evidence creates new version and reevaluation of dependents.",
-            "adversarial": "Keep activation flag, remove evidence binding; remain candidate.",
-            "removal": "Remove evidence ref; fresh/restored consumer loses support, prior version stays.",
+            "delta": "Consume CNT-06/native-method structural assessment and the applicable current write rule; append one WMR/Fabric generation with predecessor and retained rivals. WP-01/02 apply to posterior mutation only. See solutions/18-structural-world-learning.md.",
+            "positive": "Under the actual structural admission rule, the bound scientific warrant yields a new generation consumed by a fresh later cycle, with partial-ID/result semantics intact.",
+            "adversarial": "Valid method/ref/activation markers with altered measurement/selection evidence, unsupported identification or no applicable write rule cannot mutate the operative model.",
+            "removal": "Remove content-bound structural warrant while keeping ref shapes and flags: writer refuses structural mutation, retains predecessor/rivals and independently supported parameter bounds.",
             "question_id": "R18-D06-Q02",
             "solution_ref": "solutions/lifecycle-r19/S06.md#r18-d06-q02",
             "mechanism_ids": [
@@ -4944,10 +4966,10 @@
           },
           {
             "role": "consumer",
-            "delta": "Keep candidate/O2 report outside operative write; require O1 scope-bound evidence.",
+            "delta": "For the report/O2-origin effect route, keep the raw signal outside operative write and require O1 scope-bound evidence. A separately returned structural study assessment follows S06/CNT-06 and the actual structural rule; the report itself grants neither.",
             "positive": "Later qualified effect updates WMR; raw signal remains history.",
             "adversarial": "Complaint count/LLM summary becomes causal fact.",
-            "removal": "Remove O1/source verifier but keep WMR ref: active reader refuses.",
+            "removal": "On the effect branch remove O1/source verifier while keeping WMR refs: writer refuses. Structural removal separately exercises S06 warrant/rule predicates.",
             "question_id": "R18-D22-Q05",
             "solution_ref": "solutions/lifecycle-r19/S13.md#r18-d22-q05",
             "mechanism_ids": [
@@ -7138,7 +7160,19 @@
         ],
         "writer_rule": "The original native owner and actual path lease remain authoritative; cross-owner route means a producer/consumer companion, not a second writer or a new global dependency.",
         "acceptance_ref": "assurance/12-full-lifecycle-quality.md"
-      }
+      },
+      "conditional_acceptance_requirements": [
+        {
+          "when": "The R19 R18-D12-Q05 currentness extension is selected for UI-01, and UI-01 claims a fresh current status after a material enrolled correction",
+          "suppliers": [
+            "LIF-02"
+          ],
+          "output": "Actual LIF-02 enrolled-dependency evaluation and scoped currentness reaction for the affected claim/use, with event/as-of time and reason; unrelated claims remain current",
+          "consumer": "UI-01 fresh selected verification response; historical report_authentication remains distinct from current claim validity",
+          "required_stage": "composition",
+          "preparation_rule": "Base UI-01 authentication work remains preparable and independently acceptable with currentness not_established. If Q05 is selected, its positive remains incomplete until LIF-02 emits the owner result and the fresh UI-01 consumer reads it."
+        }
+      ]
     },
     {
       "id": "UI-02",
@@ -7176,15 +7210,17 @@
           "tests/integration/runtime_frontend/test_atlas_publication_end_to_end.py"
         ]
       },
-      "deliverable": "Producer→exact CAS view/typed-empty slot→event→verify→browser/MACHINE/CLI→audit/rights-gated egress; include DS11 signature population.",
-      "positive": "Before PR1 publish refusal chronology only; then issue exact-view data record under signer policy; preserve INT-K02/06/08. Public route has the original no-third-party-tracker/security-header/mobile/i18n/plain-language posture. Actual beacon/fetch/error-telemetry transports obey the selected self-hosted/scrubbed/absent public policy; classification/redaction occurs before persisted signing.",
-      "adversarial": "Candidate, wrong view/tenant, lost rights, pending intent, bad signature or proof leak never yields public bytes. DS1-N020: identifiers/payloads in route/query/tags/breadcrumbs/extras cannot leave via telemetry. DS1-N023: encoded/nested private fields are rejected/redacted before signing, not hidden only after persistence. Allowed telemetry destination does not authorize protected content.",
-      "removal": "Remove view/owner gate with markers retained; served negative fails. Remove request/telemetry projection or pre-sign classification while preserving signature and badge markers; controlled egress/builders detect the private payload and must fail.",
+      "deliverable": "Producer→exact CAS view/typed-empty slot→event→verify→browser/MACHINE/CLI→audit/rights-gated egress; include DS11 signature population. One exact DS12 record/view projects PUBLIC, REVIEWER, EXPERT and MACHINE through the existing authorized audience readers. Bind each actual reader/path at P0; UI-02 owns these same-record projections, UI-05 Clerk is not their substitute. Preserve exact edition, source/authority/audit refs, rule/schema version, limits and each audience permission; transport parity alone is insufficient. Missing internal readers are assigned UI-02 work. A genuinely uncommissioned channel needs an explicit source-qualified owner disposition and re-entry trigger; it does not silently close the original four-projection obligation or block independent public preparation.",
+      "positive": "Before PR1 publish refusal chronology only; then issue exact-view data record under signer policy; preserve INT-K02/06/08. Public route has the original no-third-party-tracker/security-header/mobile/i18n/plain-language posture. Actual beacon/fetch/error-telemetry transports obey the selected self-hosted/scrubbed/absent public policy; classification/redaction occurs before persisted signing. All four DS12 projections preserve exact record/view and permitted source/authority/audit refs. The full original DS12 operational bar is enforced by source-bound CI against the built public route/actual responses and egress: no third-party trackers, owner-admitted Core Web Vitals budgets, security headers, mobile/responsive behavior, current DS0 locale posture and plain-language register. Reuse existing checks and bind missing ones to their native CI owners; no invented budget or posture-only PASS. If a budget is absent, the accountable frontend performance owner measures and proposes it; that internal criterion stays not_established until accepted, without blocking independent publication work. Automated checks establish their measured predicates, not human comprehension; retain qualified semantic audience review where required.",
+      "adversarial": "Candidate, wrong view/tenant, lost rights, pending intent, bad signature or proof leak never yields public bytes. DS1-N020: identifiers/payloads in route/query/tags/breadcrumbs/extras cannot leave via telemetry. DS1-N023: encoded/nested private fields are rejected/redacted before signing, not hidden only after persistence. Allowed telemetry destination does not authorize protected content. Reviewer/expert access cannot follow from a public result or label; MACHINE must retain reconstructable refs. A bound CWV regression, missing header, 320-CSS-pixel overflow, wrong locale/fallback or missing plain-language register entry fails its corresponding CI check.",
+      "removal": "Remove view/owner gate with markers retained; served negative fails. Remove request/telemetry projection or pre-sign classification while preserving signature and badge markers; controlled egress/builders detect the private payload and must fail. Remove an audience gate with labels intact: the actual fresh projection must detect unauthorized emission. Remove the real header/egress/layout/locale/performance protection while retaining its CI/status markers: the corresponding existing CI witness fails on the controlled regression.",
       "surface": [
-        "citizen browser",
-        "MACHINE",
+        "PUBLIC: citizen browser/API/client",
+        "REVIEWER: same-record audience projection through its existing authorized reader",
+        "EXPERT: same-record audience projection through its existing authorized reader",
+        "MACHINE twin with reconstructable source/authority/audit references",
         "read-only CLI/offline verifier",
-        "audit/egress"
+        "authorized-read audit and actual egress"
       ],
       "resource_locks": [
         "public record/export/CAS",
@@ -7276,8 +7312,8 @@
         "question_slices": [
           {
             "role": "consumer",
-            "delta": "For selected public/MACHINE renditions, consume exact admitted content, permission and audience-scoped basis; other private exports remain on their commissioned owner paths.",
-            "positive": "Public/MACHINE output matches the selected authorized rendition and limits.",
+            "delta": "One exact DS12 record/view projects PUBLIC, REVIEWER, EXPERT and MACHINE through the existing authorized audience readers. Bind each actual reader/path at P0; UI-02 owns these same-record projections, UI-05 Clerk is not their substitute. Preserve exact edition, source/authority/audit refs, rule/schema version, limits and each audience permission; transport parity alone is insufficient. Missing internal readers are assigned UI-02 work. A genuinely uncommissioned channel needs an explicit source-qualified owner disposition and re-entry trigger; it does not silently close the original four-projection obligation or block independent public preparation.",
+            "positive": "Fresh PUBLIC/REVIEWER/EXPERT/MACHINE readers consume the same bound edition with their authorized rendition and limits; no transport or audience receives a hidden private sibling.",
             "adversarial": "A public projection exposes an unselected private rendition or stale text.",
             "removal": "Remove actual audience projection check while retaining status labels; fresh consumer catches mismatch.",
             "question_id": "R18-D12-Q04",
@@ -7482,7 +7518,7 @@
         "DEBT:ds8-global-case-index"
       ],
       "requires_other_mechanisms": [
-        "Use DS12 index; no second store or auto-dispute.",
+        "Use the UI-03 canonical DS10/DS12 case index; allocate/extend the in-slice DS13 event/history/feed producer, no second store or automatic dispute resolution.",
         "R9 disclosure and DS18 currentness remain gates."
       ],
       "owner_paths": {
@@ -7495,10 +7531,10 @@
           "tests/integration/runtime_frontend/test_public_accountability_history_bridge.py"
         ]
       },
-      "deliverable": "Append-only response/revocation/supersession events through API/client to browser, CLI, MACHINE and audit.",
-      "positive": "Closed bytes stay fixed; attributable response and new supersession are visible. Retained Phase5.7 accessibility requires actual large-text, screen-reader and plain-language behavior on consultation/response/history surfaces, with qualified human plain-language assessment rather than a keyword assertion. Formal language register follows the accepted locale/authoring contract and applicable audience requirements.",
-      "adversarial": "Mutation, self-asserted response, auto-resolution, hidden lineage or collapsed status refuses. Private challenger exposed without consent, silent comment removal, informal statement shown as adjudication, or consultative response shown as binding fails; external institution decides, PolicyOS records typed evidence and its own claim reaction. Large-text clipping/lost controls, wrong screen-reader order/labels or semantically inaccessible/plain-language distortion fail. A locale badge or translation-presence assertion is insufficient; the independent audience-qualified reviewer must assess the selected text and meaning.",
-      "removal": "Remove event join with markers retained; parity witness fails. Remove large-text/screen-reader semantics or substitute meaning-changing copy while keeping accessibility and locale markers; corresponding rendered/audience checks fail.",
+      "deliverable": "Append attributed response, revocation, supersession and law-7 learning-history events against the exact case/edition; produce the generic DS13 read-only transparency feed from that same canonical event/history source and UI-03 index. Browser/API/client/CLI/MACHINE/audit retain response-to-comment links, supersession lineage and the source-linked distinction “this case” versus “new evidence”. This description does not itself establish a causal effect or adopt an institutional act. Keep actor, authority, event/as-of time, rights and the separate LIF-02 currentness reaction. No second case store, notification service or automatic dispute resolution.",
+      "positive": "Closed bytes stay fixed; attributable response and new supersession are visible. Retained Phase5.7 accessibility requires actual large-text, screen-reader and plain-language behavior on consultation/response/history surfaces, with qualified human plain-language assessment rather than a keyword assertion. Formal language register follows the accepted locale/authoring contract and applicable audience requirements. Fresh feed/history readers expose the persisted event, exact parent edition and law-7 distinction with reconstructable MACHINE refs; optional regulator-feed scope does not discharge generic DS13 feed delivery.",
+      "adversarial": "Mutation, self-asserted response, auto-resolution, hidden lineage or collapsed status refuses. Private challenger exposed without consent, silent comment removal, informal statement shown as adjudication, or consultative response shown as binding fails; external institution decides, PolicyOS records typed evidence and its own claim reaction. Large-text clipping/lost controls, wrong screen-reader order/labels or semantically inaccessible/plain-language distortion fail. A locale badge or translation-presence assertion is insufficient; the independent audience-qualified reviewer must assess the selected text and meaning. Missing event-to-feed join, omitted learning event, stale feed, rewritten original bytes or lost MACHINE reference cannot pass fresh DS13 parity.",
+      "removal": "Remove event join with markers retained; parity witness fails. Remove large-text/screen-reader semantics or substitute meaning-changing copy while keeping accessibility and locale markers; corresponding rendered/audience checks fail. Remove the event-to-feed/history join while keeping labels: the original persisted event must be missing/misbound at the fresh consumer and the witness fails.",
       "surface": [
         "history UI",
         "API/client",
@@ -7572,6 +7608,11 @@
           "source": "Marketing retained Phase6.6",
           "plane": "own scoped feed projection; integrate regulator authority",
           "property": "If regulator feed is claimed, bind exact schema/signature/verifier/audience and update semantics to existing DS13 producer. Otherwise explicit out_of_scope for that delivery channel plus owner/trigger; generic MACHINE history is not feed parity."
+        },
+        {
+          "source": "POLICYOS_ATLAS_SURFACE_IMPLEMENTATION_MASTER_PLAN.md#DS13 Deliverables",
+          "plane": "own DS13 ledger/feed producer, bridge, and projections; integrate institutional act evidence",
+          "property": "The generic transparency feed and law-7 learning history are produced from the canonical DS13 event/history source; history preserves the original edition and renders whether information concerns this case or new evidence. MACHINE carries reconstructable source/authority/audit refs. The optional regulator feed remains a separate Phase 6.6 condition."
         }
       ],
       "locale_scope_reconciliation": {
@@ -7923,6 +7964,15 @@
           "property": "Accepted actual DS7 capstone value/quantity/basis witness, or an already accepted exact equivalent reconciled at P0. DS7 closed label/static hero/refusal-only output is insufficient. Early controlled surface preparation is permitted; real-value acceptance waits on this witness.",
           "required_stage": "composed_acceptance",
           "preparation_rule": "Consumer preparation before final replay may use a pinned interface, not claim real-data acceptance."
+        },
+        {
+          "when": "The selected projection consumes a still-open CORR/INT-R2 meaning allocated by DEB-07",
+          "suppliers": [
+            "DEB-07"
+          ],
+          "output": "Actual owner-defined relation and source/rule version, preserving unknown/incomparable",
+          "consumer": "UI-06 actual value/uncertainty reader",
+          "required_stage": "composition"
         }
       ],
       "r15_extension": {
@@ -8273,39 +8323,55 @@
     {
       "id": "UI-10",
       "preferred_solution_ref": "solutions/07-atlas-public.md#UI-10",
-      "title": "Rebind DS1-N010 dashboard identity/fallback consumer",
+      "title": "Close DS1-N010 default-deny protected-chrome consumers",
       "source_ids": [
-        "DS20",
         "DS1-N010",
-        "DS4",
         "DS5",
+        "P26",
+        "P05",
         "consumer_missing"
       ],
       "requires_other_mechanisms": [
-        "DS20 authz remains closed; DS4/DS5 own this UI residual."
+        "Rebind the original DS1-N010 negative to the actual remaining DS5 C09 consumers and owner tests. DS20's HTTP authorization floor remains closed and outside this task; it is not the source or substitute for this client-side default-deny property."
       ],
       "owner_paths": {
         "existing": [
-          "apps/runtime-dashboard/src/features/runs/components/AtlasRunDeck.tsx",
-          "src/polisyos/runtime/http/routes/governed_projections.py#get_governed_projection",
-          "docs/reference/frontend/atlas-surface-readiness-reconciliation.md"
+          "apps/runtime-dashboard/src/app/authz/AuthzProvider.tsx",
+          "apps/runtime-dashboard/src/app/authz/AuthzProvider.test.tsx",
+          "apps/runtime-dashboard/src/app/routes/WorkspaceBoundary.tsx",
+          "apps/runtime-dashboard/src/app/layout/Sidebar.tsx",
+          "apps/runtime-dashboard/src/app/layout/Header.tsx",
+          "apps/runtime-dashboard/src/app/routes/routeBoundaries.test.tsx",
+          "apps/runtime-dashboard/src/app/layout/layoutSurfaces.test.tsx",
+          "apps/runtime-dashboard/src/app/authz/authzDecisionSurfaces.test.tsx",
+          "apps/runtime-dashboard/src/app/providers/InterfaceModeProvider.tsx",
+          "apps/runtime-dashboard/src/features/commandPalette/CommandPalette.tsx",
+          "apps/runtime-dashboard/src/features/runs/routes/RunDetailLayout.tsx",
+          "apps/runtime-dashboard/src/app/layout/AppMobileNav.tsx",
+          "apps/runtime-dashboard/src/features/runs/routes/runDetailSurfaces.test.tsx"
         ],
-        "proposed": [
-          "DS4/DS5 accepted consumer successor and test"
-        ]
+        "proposed": []
       },
-      "deliverable": "Replace placeholder/fallback only from assigned DS4/DS5 owner evidence.",
-      "positive": "Server projection drives identity/status; unknown remains visible.",
-      "adversarial": "Missing owner, foreign tenant, stale binding or local placeholder cannot look current/authorized.",
-      "removal": "Remove server binding with markers; consumer witness fails.",
+      "deliverable": "Close only the still-required DS1-N010 default-deny consumer obligation through the canonical AuthzProvider and DS5 C09 protected-chrome consumers; use current server identity evidence and preserve unknown as deny.",
+      "positive": "For /auth/me loading, absence, network error, malformed response, or 401, no analyst permission, MFA state, clerk action, or high-stakes CTA is exposed. Cached-prior-user and tenant-switch cases remain unknown until current identity is verified. Fixed permission-free PUBLIC chrome remains visible.",
+      "adversarial": "An unavailable or malformed identity response, stale prior subject, tenant switch, or review-collaboration pseudo-flag cannot grant protected chrome or an action.",
+      "removal": "Remove the verified-identity decision at one actual protected consumer while retaining labels; the existing C09 cross-surface witness must fail on the unauthorized render/action.",
       "surface": [
-        "dashboard",
-        "API/client if contract changes",
-        "audit"
+        "AuthzProvider",
+        "WorkspaceBoundary",
+        "Sidebar",
+        "Header",
+        "protected-chrome tests",
+        "audit/status-retirement receipt",
+        "InterfaceModeProvider",
+        "CommandPalette",
+        "RunDetailLayout",
+        "AppMobileNav",
+        "loaded/bootstrap runDetailSurfaces witness"
       ],
       "resource_locks": [
-        "DS4/5 owner + AtlasRunDeck",
-        "contract/client only if needed"
+        "AuthzProvider + actual DS5 C09 protected-chrome paths",
+        "DS5 scanner owner result is read-only; lease exact companions before edits"
       ],
       "rollback": "Fail closed; preserve prior artifacts.",
       "migration": "Append provenance/history; no rewrite.",
@@ -8345,7 +8411,10 @@
         "original_obligation_disposition: canonical owner decision; history preserved"
       ],
       "dependency_stage": "owner_readiness",
-      "completion_contract_ref": "execution/stage-requirements.json#default"
+      "completion_contract_ref": "execution/stage-requirements.json#default",
+      "acceptance_evidence_requirements": [
+        "Rebind the complete original DS5 C09a/C09b consumer/disposition set, not just the named initial C09a paths. Include mode, command, loaded/bootstrap run-detail and mobile chrome witnesses; reuse already-landed C09b evidence only if exact accepted source still qualifies it. Preserve the declared bounded indirect-flow residual and falsifier. A missing required consumer leaves N010 open; no per-example closure or arbitrary-program-flow claim."
+      ]
     },
     {
       "id": "UI-11",
@@ -9001,6 +9070,17 @@
       "interface_agreement_scope_ref": "execution/07-scoped-readiness.md#edge-decisions",
       "acceptance_evidence_requirements": [
         "When numeric VOI is claimed, consume DEB-13 actual metric/ranking evidence in the shared composed witness; acquisition-cost admission alone is insufficient. Refusal-only UI preparation does not wait for this positive."
+      ],
+      "conditional_acceptance_requirements": [
+        {
+          "when": "The selected acquisition surface claims a numeric VOI",
+          "suppliers": [
+            "DEB-13"
+          ],
+          "output": "Actual persisted supported metric/decision/ranking basis and limits; otherwise typed refusal",
+          "consumer": "UI-17 acquisition route projection",
+          "required_stage": "composition"
+        }
       ]
     },
     {
@@ -9239,7 +9319,8 @@
       ],
       "acceptance_dependencies": [
         "CAP-04",
-        "DEB-14"
+        "DEB-14",
+        "DEB-06"
       ],
       "dependency_stage": "owner_readiness",
       "completion_contract_ref": "execution/stage-requirements.json#default",
@@ -10749,6 +10830,19 @@
               "S20-M3",
               "S20-M1"
             ]
+          },
+          {
+            "role": "method-specific structural-claim qualifier/producer",
+            "delta": "Qualify a content-bound structural proposition at declared resolution/regime under the selected native method. Bind identification, rivals, lineage, uncertainty and limitations; supply GYD-12 without writing WMR. See solutions/18-structural-world-learning.md.",
+            "positive": "A supported partial-ID/robust/non-Bayesian structural result retains its actual output type and supports only the scoped proposition.",
+            "adversarial": "Keep artifact labels while removing discriminator/identification or changing measurement/cohort: structural change is not qualified.",
+            "removal": "Remove structural evidence/rival binding but retain method/activation labels; fresh GYD-12 cannot append the change.",
+            "question_id": "R18-D06-Q02",
+            "solution_ref": "solutions/lifecycle-r19/S06.md#r18-d06-q02",
+            "mechanism_ids": [
+              "S06-M2",
+              "S06-M3"
+            ]
           }
         ],
         "question_ids": [
@@ -10759,6 +10853,7 @@
           "R18-D03-Q02",
           "R18-D03-Q03",
           "R18-D06-Q01",
+          "R18-D06-Q02",
           "R18-D06-Q03",
           "R18-D06-Q04",
           "R18-D09-Q02",
@@ -13195,7 +13290,7 @@
       ],
       "requires_other_mechanisms": [
         "Chosen cloud object provider and identity owner",
-        "Measured evidence that single cell misses approved target",
+        "Named custody, topology, operability, availability or scale/cost objective and comparison of simplest suitable alternatives; a measured single-cell target miss is required only for a scale-exhaustion rationale",
         "Cell-scoped remote ownership and restore conformance"
       ],
       "owner_paths": {
@@ -14063,13 +14158,19 @@
       ],
       "owner_paths": [
         "policy-engine/src/polisyos/ir",
+        "policy-engine/src/polisyos/runtime/quality/epoch_transition_origin.py",
+        "policy-engine/src/polisyos/runtime/quality/epoch_validity_cascade.py",
+        "policy-engine/src/polisyos/runtime/http/container.py",
+        "policy-engine/src/polisyos/runtime/http/services/control/run_lifecycle.py",
+        "policy-engine/tools/quality/validation/check_package_import_gates.py",
+        "policy-engine/tests/repo_quality/architecture",
         "policy-engine/architecture/public_surface",
         "policy-engine/release-notes"
       ],
-      "deliverable": "Reconcile E02-covered private imports and all residual public API inventories; close class through public canonical owner or boundary repair.",
-      "positive": "Actual callers use reviewed public contract; release fragments match inventory.",
-      "adversarial": "A sibling private import or unreviewed API break is caught without blanket ignores.",
-      "removal": "Remove the decisive native binding while retaining declarations; the unchanged consumer/gate must fail its exact property. For documentary reconciliation, dropping a source obligation must be detected.",
+      "deliverable": "Rebind the complete production-source cross-module private-name reach set (imports and private attributes), route each through a reviewed supported entrypoint or justified owner-local boundary, and separately review every residual public-API release inventory. Historical IR overlap is an example, not the full source criterion.",
+      "positive": "Both import and private-attribute forms resolve to their actual module owners and approved boundary; current release fragments match source/API delta and content-bound inventory reviews.",
+      "adversarial": "Sibling/function-local import and cross-module private attribute (for example self._origins._admit_completed_execution) cannot escape merely because the import gate passes. Underscore spelling alone is not ownership evidence.",
+      "removal": "Remove attribute-edge resolution while import checks/markers remain: the measured reach-set check detects the lost predicate or declares the exact unresolved limitation. Remove an inventory-review receipt but keep its boolean: release promotion refuses.",
       "surface": "Source-qualified journal, native API/audit or explicit out_of_scope; no invented authority.",
       "resource_locks": [
         "exact write set assigned at P0",
@@ -14102,7 +14203,11 @@
       ],
       "dependency_stage": "owner_readiness",
       "completion_contract_ref": "execution/stage-requirements.json#default",
-      "dispatch_condition": "Actual E02 acceptance; completed task-scoped accepted-source rebind under execution/07-scoped-readiness.md; exact required upstream stage/interface pins; non-overlapping write lease and phase-specific resource permit. Global P0 completion is not required for a reconciled independent scope."
+      "dispatch_condition": "Actual E02 acceptance; completed task-scoped accepted-source rebind under execution/07-scoped-readiness.md; exact required upstream stage/interface pins; non-overlapping write lease and phase-specific resource permit. Global P0 completion is not required for a reconciled independent scope.",
+      "acceptance_evidence_requirements": [
+        "Complete accepted-source owner-bound import and private-attribute reach census; state roots/file types and unresolved dynamic cases. Source-row examples seed discovery, not a permanent allowlist or count.",
+        "Separate content-bound review for each originally named release fragment and its actual current public API inventory. A bounded private-access limitation does not close the full source obligation."
+      ]
     },
     {
       "id": "DEB-04",
@@ -14177,7 +14282,12 @@
       ],
       "dependency_stage": "owner_readiness",
       "completion_contract_ref": "execution/stage-requirements.json#default",
-      "dispatch_condition": "Actual E02 acceptance; completed task-scoped accepted-source rebind under execution/07-scoped-readiness.md; exact required upstream stage/interface pins; non-overlapping write lease and phase-specific resource permit. Global P0 completion is not required for a reconciled independent scope."
+      "dispatch_condition": "Actual E02 acceptance; completed task-scoped accepted-source rebind under execution/07-scoped-readiness.md; exact required upstream stage/interface pins; non-overlapping write lease and phase-specific resource permit. Global P0 completion is not required for a reconciled independent scope.",
+      "acceptance_owner_binding": "DEB-04 owns internal allocation/reconciliation for GY-DEF22 through the source-named Foundry correctness / GY-N12 execution role. At task rebind name the competent catalog/discovery reviewer and emit its source-qualified decision for the complete current bounded-claim set. Root routes this internal work; an unfilled owner is assigned work, not a request for institutional permission. GYD-15 supplies an output only if its actual accepted interface proves this claim; shared source ID alone is insufficient. P41 red attribution remains an independent conjunct.",
+      "acceptance_evidence_requirements": [
+        "Re-enumerate current GY-DEF22 claims and bind actual Foundry/GY-N12 owner decision. Historical six claims are a snapshot, not a test constant. Reviewer/implementer self-attestation and a test exit do not supply this decision.",
+        "Keep exact slice-base replay and full transitive input-disjointness proof separate from internal catalog/discovery owner acceptance."
+      ]
     },
     {
       "id": "DEB-05",
@@ -14196,13 +14306,15 @@
         "DEBT:calibration-report-fixture-blanket-fields"
       ],
       "owner_paths": [
-        "policy-engine/src/polisyos/data_forge",
-        "policy-engine/src/polisyos/foundry",
-        "Mirrored affected tests"
+        "policy-engine/src/polisyos/data_forge/kernel/artifacts.py",
+        "policy-engine/src/polisyos/foundry/calibration/report.py",
+        "policy-engine/tests/_helpers/runtime_http.py",
+        "policy-engine/tests/integration/foundry_calibration/test_method_calibration_bridge.py",
+        "Mirrored actual retained-source and runtime-helper tests after owner rebind"
       ],
-      "deliverable": "Repair malformed retained UDF schema and self-rejecting calibration version/default/fixture contracts at their owners; preserve unreadable versus empty.",
-      "positive": "Persist actual producer output and consume through fresh downstream reader.",
-      "adversarial": "Malformed schema, invalid/defaultversion or fixture-only extra fields refuse at correct boundary.",
+      "deliverable": "Repair malformed retained UDF schema and self-rejecting calibration version/default/fixture contracts at their owners; preserve unreadable versus empty. Repair the full shared fixture-helper mutation class, not only CalibrationReport. Census all accepted-source _with_runtime_fixture_authority callers and payload-kind families, including source test.root/test.child siblings; 31 calls/28 kind strings are historical, never a future constant. Reuse type/producer serialization at the helper boundary; verify no unsupported authority fields are injected or persisted for any covered family. Generic CAS persistence proves bytes, not schema validity, and does not become the schema owner by default.",
+      "positive": "Persist actual producer output and consume through fresh downstream reader. Actual shared-helper families preserve producer-supported payloads through persistence/fresh readers, with strict DTOs.",
+      "adversarial": "Malformed schema, invalid/defaultversion or fixture-only extra fields refuse at correct boundary. A calibration-only round trip cannot conceal unsupported injected fields in test.root/test.child or other currently discovered families.",
       "removal": "Remove the decisive native binding while retaining declarations; the unchanged consumer/gate must fail its exact property. For documentary reconciliation, dropping a source obligation must be detected.",
       "surface": "Source-qualified journal, native API/audit or explicit out_of_scope; no invented authority.",
       "resource_locks": [
@@ -14241,7 +14353,12 @@
       ],
       "dependency_stage": "owner_readiness",
       "completion_contract_ref": "execution/stage-requirements.json#default",
-      "dispatch_condition": "Actual E02 acceptance; completed task-scoped accepted-source rebind under execution/07-scoped-readiness.md; exact required upstream stage/interface pins; non-overlapping write lease and phase-specific resource permit. Global P0 completion is not required for a reconciled independent scope."
+      "dispatch_condition": "Actual E02 acceptance; completed task-scoped accepted-source rebind under execution/07-scoped-readiness.md; exact required upstream stage/interface pins; non-overlapping write lease and phase-specific resource permit. Global P0 completion is not required for a reconciled independent scope.",
+      "acceptance_owner_binding": "Foundry / runtime test owners resolve the helper/schema decision already required by the source row during task rebind; bind exact helper and producer paths/companions before dispatch. CAS is inspected read-only unless a separately justified native boundary change is required.",
+      "acceptance_evidence_requirements": [
+        "Census all accepted-source _with_runtime_fixture_authority callers and payload-kind families, including source test.root/test.child siblings; 31 calls/28 kind strings are historical, never a future constant. Reuse type/producer serialization at the helper boundary; verify no unsupported authority fields are injected or persisted for any covered family. Generic CAS persistence proves bytes, not schema validity, and does not become the schema owner by default.",
+        "Remove helper-field/producer serialization protection with markers intact: a non-calibration sibling detects unsupported persisted fields. Keep malformed/unreadable versus valid-empty and supported-version negatives."
+      ]
     },
     {
       "id": "DEB-06",
@@ -14260,7 +14377,6 @@
         "DEBT:ds18-positive-transition-verification-producer-missing",
         "DEBT:governed-public-record-refuses-later-epoch-heads",
         "DEBT:epoch-origin-admission-collapses-distinct-failures-into-one-refusal",
-        "DEBT:GY-DEF23",
         "DEBT:gy-n12-epoch-current-decision-lineage-carrier-unallocated"
       ],
       "owner_paths": [
@@ -14403,7 +14519,10 @@
         ],
         "writer_rule": "The original native owner and actual path lease remain authoritative; cross-owner route means a producer/consumer companion, not a second writer or a new global dependency.",
         "acceptance_ref": "assurance/12-full-lifecycle-quality.md"
-      }
+      },
+      "acceptance_dependencies": [
+        "UI-19"
+      ]
     },
     {
       "id": "DEB-07",
@@ -14427,9 +14546,10 @@
         "DEBT:ds15-int-r2-gap-acquisition-case-union"
       ],
       "owner_paths": [
-        "policy-engine/src/polisyos/foundry",
-        "policy-engine/src/polisyos/runtime/quality",
-        "Actual CORR/INT-R2 native owners"
+        "policy-engine/src/polisyos/runtime/quality/acquisition_planner.py (CAP-03 native cost/admission writer companion; DEB-07 owns source-obligation reconciliation, not a second writer)",
+        "policy-engine/src/polisyos/foundry/methods/selection/requirements.py",
+        "policy-engine/src/polisyos/fabric/evidence/ceiling_vocabulary.json",
+        "Exact additional CORR/INT-R2 owner/consumer paths allocated by team-architecture before writes"
       ],
       "deliverable": "Resolve each remaining INT-R2 field meaning/owner, estimand terms and CORR destination against existing algebras; implement missing owner-local definitions and consumer relation after review.",
       "positive": "Unknown/incomparable remain typed; every semantic destination has actual native consumer.",
@@ -14497,7 +14617,28 @@
       ],
       "dependency_stage": "owner_readiness",
       "completion_contract_ref": "execution/stage-requirements.json#default",
-      "dispatch_condition": "Actual E02 acceptance; completed task-scoped accepted-source rebind under execution/07-scoped-readiness.md; exact required upstream stage/interface pins; non-overlapping write lease and phase-specific resource permit. Global P0 completion is not required for a reconciled independent scope."
+      "dispatch_condition": "Actual E02 acceptance; completed task-scoped accepted-source rebind under execution/07-scoped-readiness.md; exact required upstream stage/interface pins; non-overlapping write lease and phase-specific resource permit. Global P0 completion is not required for a reconciled independent scope.",
+      "acceptance_owner_binding": "team-architecture performs the CORR/INT-R2 allocation assigned by the original source: for each current semantic slot emit existing owner/path, exact meaning/use, real producer/consumer and disposition. Preserve already delivered mechanical crosswalks; internal missing producers become assigned tasks, not external-input waits. A genuine normative/meaning choice remains a source-qualified proposal until accepted. Do not fabricate semantic identity or institution authority. For the source-selected free WDI route, the canonical runtime/quality/acquisition_planner.py cost-schedule owner may admit dated expert_hours/calendar_days/collection_mode effort under the principal’s 2026-09-17 option A: first inspect actual connector/comparable-ingest evidence, prefer measured comparable effort, otherwise explicitly label and justify the owner estimate. Neither fixture hours/days nor a cap is the basis. A paid/licensed selected source invalidates that premise and needs its real quote/rights evidence; no default institutional price request for free-data engineering.",
+      "conditional_acceptance_requirements": [
+        {
+          "when": "The selected CORR/INT-R2 meaning is consumed by the UI-06 value/uncertainty projection",
+          "suppliers": [
+            "UI-06"
+          ],
+          "output": "Actual fresh observation of the emitted source-qualified semantic relation; unknown/incomparable stays typed",
+          "consumer": "DEB-07 source-obligation composed acceptance",
+          "required_stage": "composition"
+        },
+        {
+          "when": "DEB-07 reconciles the original selected-WDI admitted-cost/positive-route obligation",
+          "suppliers": [
+            "CAP-03"
+          ],
+          "output": "Actual native-owner admitted cost record bound to exact variables/route/purpose/time and dated option-A basis; missing selected record remains unresolved",
+          "consumer": "DEB-07 fresh original-row reconciliation consumes the same persisted cost artifact as the route; no second cost writer",
+          "required_stage": "composition"
+        }
+      ]
     },
     {
       "id": "DEB-08",
@@ -14598,11 +14739,13 @@
         "DEBT:w5-institutional-authority-slots",
         "DEBT:gy-n12-epoch-predicate-policy-authority-unappointed",
         "DEBT:gy-n12-epoch-transition-signing-authority-unappointed",
-        "DEBT:GY-DEF22",
         "DEBT:GY-DEF23"
       ],
       "owner_paths": [
-        "Native institutional/rights/signing owners; no new administration service"
+        "policy-engine/src/polisyos/runtime/quality/epoch_transition_origin.py",
+        "policy-engine/src/polisyos/runtime/quality/institutional_provenance.py",
+        "policy-engine/src/polisyos/scientist/validation/decision_validity.py",
+        "policy-engine/src/polisyos/runtime/http/dependencies.py"
       ],
       "deliverable": "Complete intake/verifier/refusal paths and actively seek lawful original facts for named signing/holder/mandate slots; keep missing real authority typed-empty and scope-bound.",
       "positive": "Authentic scoped evidence resolves through independent trust and actual claim consumer.",
@@ -14665,11 +14808,6 @@
           "criterion_ref": "inventory/debt-inventory.json#w5-institutional-authority-slots"
         },
         {
-          "id": "GY-DEF22",
-          "source_line": null,
-          "criterion_ref": "inventory/debt-inventory.json#GY-DEF22"
-        },
-        {
           "id": "GY-DEF23",
           "source_line": null,
           "criterion_ref": "inventory/debt-inventory.json#GY-DEF23"
@@ -14714,7 +14852,8 @@
         ],
         "writer_rule": "The original native owner and actual path lease remain authoritative; cross-owner route means a producer/consumer companion, not a second writer or a new global dependency.",
         "acceptance_ref": "assurance/12-full-lifecycle-quality.md"
-      }
+      },
+      "acceptance_owner_binding": "Scientist Decision Validity / Runtime quality own internal resolution, content binding, verifier provenance, typed refusal and history. Actual legal/institutional signers, mandate issuers and independent holders remain external/unappointed. GY-DEF22 is internal Foundry/GY-N12 allocation in DEB-04, not an institutional prerequisite."
     },
     {
       "id": "DEB-10",
@@ -15728,7 +15867,10 @@
         "DEBT:ds15-numeric-voi-metric-residual-granularity"
       ],
       "owner_paths": [
-        "Native metric/VOI owner and DS15 metric consumer; exact paths after accepted-source caller census"
+        "policy-engine/src/polisyos/runtime/quality/acquisition_planner.py (refusal/cost owner; not automatically metric owner)",
+        "Native metric owner path explicitly commissioned by Atlas/DS15 + root after accepted-source census",
+        "policy-engine/src/polisyos/runtime/http/services/acquisition_surface_projection.py (UI-17 consumer companion)",
+        "policy-engine/apps/runtime-dashboard/src/features/runs/domain/acquisitionRoutePresentation.ts (UI-17 companion)"
       ],
       "deliverable": "Separate metric-design work from acquisition cost admission. Resolve the original 15-row predicate against accepted E02; research and propose measure, population, horizon, estimand, expected-value/expected-cost assumptions and authority purpose. Bind a content-qualified owner decision/ranking artifact and actual inputs; implement the approved native metric producer, persisted result and DS15 consumer. Do not invent a number from unsupported inputs.",
       "positive": "On independently specified small data, approved law and real owner decision/ranking basis, recompute the declared metric and exact granularity at the fresh consumer; distinguish candidate from authorized use.",
@@ -15813,7 +15955,22 @@
         ],
         "writer_rule": "The original native owner and actual path lease remain authoritative; cross-owner route means a producer/consumer companion, not a second writer or a new global dependency.",
         "acceptance_ref": "assurance/12-full-lifecycle-quality.md"
-      }
+      },
+      "acceptance_owner_binding": "Accountable Atlas/DS15 scope owner, coordinated by the P0/root engineering lead, commissions one competent native metric/decision owner and binds its purpose, source and ranking/law decision. Acquisition planner remains refusal/cost owner and is not automatically that metric owner. If no metric producer exists, DEB-13 researches/proposes the native-owner extension and implements after the actual owner decision; do not stop as if an external institution must supply code. Unsupported metrics retain producer_missing/typed refusal until this work and genuine inputs suffice.",
+      "acceptance_evidence_requirements": [
+        "Re-enumerate the actual metric_residual_granularity_not_supported rows; fifteen is historical. Bind supported subset to its declared metric/decision basis and retain exact refusals for unsupported rows. No unsupported number or all-or-nothing closure."
+      ],
+      "conditional_acceptance_requirements": [
+        {
+          "when": "Selected metric claims ENBS/net value or a cost-sensitive ranking/action using the selected WDI route",
+          "suppliers": [
+            "CAP-03"
+          ],
+          "output": "Actual admitted cost artifact from the selected native cost owner for exact variables/route/purpose/time; DEB-07 supplies original-row allocation/reconciliation, not a second writer. Other routes bind their real cost supplier, no default WDI premise.",
+          "consumer": "DEB-13 net metric/ranking",
+          "required_stage": "composition"
+        }
+      ]
     },
     {
       "id": "DEB-14",

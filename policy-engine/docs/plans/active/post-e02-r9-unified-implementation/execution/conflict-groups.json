@@ -103,7 +103,6 @@
         "UI-04",
         "UI-07",
         "UI-08",
-        "UI-10",
         "UI-18"
       ],
       "anchors": [
@@ -116,8 +115,7 @@
       "classification": "mixed_reference_roles",
       "tasks": [
         "UI-06",
-        "UI-08",
-        "UI-10"
+        "UI-08"
       ],
       "anchors": [
         "AtlasRunDeck component (exact path at P0)",

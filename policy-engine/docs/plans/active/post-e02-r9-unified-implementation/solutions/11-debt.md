@@ -173,27 +173,32 @@ Classify each input at accepted-source rebind as internal engineering output/all
 
 ### Предпочтительное решение
 
-Treat the historical E02 overlap as conditional evidence, not a closure: candidate dccea950845cda5b38f026e7770c07819d31f4d9 imports private `_ArtifactManifestReader` from `ir.artifacts.lineage` into `ir.passes.core`, while the debt's accepted-source status remains open until rebind. On the accepted tree, either place the shared protocol at its canonical architectural owner and route both modules through that owner, or keep it internal behind a legitimate same-boundary API; do not bless a private import by making every private symbol public. Separately, close the two release fragments only after a reviewer inspects the generated/current public-surface inventory and records the actual affected names, old/new contracts and disposition. `public_surface_inventory_reviewed=true` is evidence only when it binds to that review artifact/source version. Preserve the repo's public_surface contract and actual release policy; use PEP 387 as analogy, not authority.
+Cover the original cross-module private-name reach class, including imports and private attributes in runtime/quality/container owners. Reuse the existing architecture/import tooling, extend its source-derived owner resolution for the missing class, and name genuinely unresolved dynamic edges as bounded limitations rather than pretending underscore spelling proves ownership. The historical IR _ArtifactManifestReader case is one example, not the denominator. Route actual edges through supported owner entrypoints or justified internal APIs; do not enlarge public API merely to make a checker pass. Separately retain both release-fragment inventory reviews and their content-bound source/symbol receipts; a bare reviewed flag is insufficient.
+
 
 ### Что переиспользовать
 
 - `policy-engine/src/polisyos/ir/passes/core.py@dccea950845cda5b38f026e7770c07819d31f4d9` — `_ArtifactManifestReader import (historical candidate only)`. The candidate imports a private name across module ownership; accepted E02 source not established.
 - `policy-engine/architecture/public_surface/contract.toml@dc075e7dc0275fb8ea38a5a5bd8cd7a00968b895` — `public surface contract`. Repository-owned stability/deprecation and inventory requirements; authoritative over external Python guidance.
 - `policy-engine/tools/quality/validation/check_package_import_gates.py@dc075e7dc0275fb8ea38a5a5bd8cd7a00968b895` — `package import gate`. Existing import-boundary/surface consumer to verify behavior, not add broad suppression.
+- `policy-engine/docs/plans/active/DEBT-REGISTER.md@9f32d2706d60a5970d6fdd9ec9896242271a02ab` — `cross-module-private-names-reached-from-src`. Original class includes private attributes, runtime-quality same-package edges and container access; import-only acceptance is insufficient.
 
 Наблюдение на историческом pin не устанавливает текущую реализацию или принятую базу.
 
+
 ### Последовательность реализации
 
-1. Rebind candidate commit overlap against accepted E02 and classify whether the private import remains on the complete production import graph.
-2. If present, move the shared protocol to its canonical owner or change the consuming architecture so ownership remains coherent; add a sibling-private-import probe to the existing guardrail.
+1. Rebind the complete accepted production-source owner/reach set, including imports, function-local imports and private attributes. Source row examples and IR overlap are starting witnesses; derive the current set and all runtime/quality/container companions.
+2. Repair at canonical boundaries and extend existing tooling/tests with import and attribute negatives. Dynamic owner resolution may require a declared residual/falsifier; it cannot be reported as full closure. Avoid per-site exemptions and publicizing internals by default.
 3. Resolve all current release fragments against the regenerated public API inventory, capturing affected symbols and an actual owner review receipt/content reference.
 4. Make release promotion reject a bare marker, stale inventory, or incomplete symbol diff; do not broaden public API simply to satisfy a mechanical checker.
+
 
 ### Рассмотренные альтернативы
 
 - **Export `_ArtifactManifestReader` publicly** — The underscore and current module ownership indicate private protocol; making it stable solely for internal coupling enlarges public commitment unnecessarily.
 - **Add a per-import allowlist or reviewer boolean** — Both leave sibling private edges or unreviewed public breaks green and repeat P27/P29/P38.
+
 
 ### Free-grow и ресурсы
 
@@ -216,9 +221,10 @@ If protocol location changes, keep a deprecated compatibility adapter only when 
 
 ### Acceptance и различающие проверки
 
-- Accepted production import graph contains no unreviewed cross-module private import, including a sibling module probe.
+- No unreviewed cross-module private-name reach remains in the declared measured production-source set; both sibling import and private attribute negatives exercise the actual resolver. Any unresolved dynamic class stays explicit and leaves the full source criterion open.
 - Each fragment's public break inventory matches the actual source/API delta and reviewed inventory version.
 - Removing the inventory review receipt while keeping the marker makes promotion fail.
+- Removal of attribute-edge resolution with import checks intact is detected as missing coverage/unknown, not a green full-boundary result.
 
 
 ### Входы и ответственность за их получение
@@ -232,8 +238,8 @@ If protocol location changes, keep a deprecated compatibility adapter only when 
 - If rebind shows the import was removed in accepted E02, record conditional absorption and still independently close release-inventory rows.
 - If a private symbol has a demonstrated external consumer, route through the repo's compatibility policy rather than private-to-public rename by assumption.
 
-
 Classify each input at accepted-source rebind as internal engineering output/allocation, existing source record, or genuine external fact/permission. Missing native producer/bridge is assigned work, not an external blocker. Only the last class can justify an external-input hold after supplier/alternative investigation. See root-review.md for the task-specific distinction.
+
 
 ### Исследование и предел переноса
 
@@ -251,6 +257,7 @@ Classify each input at accepted-source rebind as internal engineering output/all
 
 Repair each test at the falsified property and preserve provenance for unresolved reds. For the governed-projection test, stop assigning a fake production module directly into process-global `sys.modules`; prefer the existing injectable seam, otherwise use a short `monkeypatch.context()` that registers/restores every mapping mutation, or a subprocess when import-time aliases survive mapping restoration. For N13a, remove the canonical catalog input from the actual temporary fixture and assert the producer's typed fail-closed result; repository layout is not the absence oracle. For the two value-gate reds, capture the exact discriminant bytes and decide whether the real artifact, validator or fixture is wrong before changing code or expected results. For the education-importer red, classify it inherited only after replaying the exact command at the slice base and proving its complete input denominator disjoint from changed paths (P41); otherwise name the introducing slice. Keep GY-DEF22's Foundry catalog/discovery appointment distinct from unattributed engineering red. No red gets assigned to a lane from proximity.
 
+
 ### Что переиспользовать
 
 - `policy-engine/tests/unit/runtime/http/test_governed_projection_service.py@dc075e7dc0275fb8ea38a5a5bd8cd7a00968b895` — `sys.modules production-module replacement test`. Debt identifies process-global replacement that persists and can pollute execution order.
@@ -259,6 +266,7 @@ Repair each test at the falsified property and preserve provenance for unresolve
 
 Наблюдение на историческом pin не устанавливает текущую реализацию или принятую базу.
 
+
 ### Последовательность реализации
 
 1. For each failing test, record exact slice base, command, inputs, outputs and current changed-path set; use full input denominator before inherited/disjoint classification.
@@ -266,12 +274,15 @@ Repair each test at the falsified property and preserve provenance for unresolve
 3. Build an explicit temporary catalog fixture, delete the canonical file/artifact, and assert the same production loader refuses it; remove any layout-derived assumption.
 4. Reconcile exact discriminant bytes with the real artifact producer and schema; repair only the evidenced side, then include an actual remove-input behavioral test.
 5. Retain GY-DEF22 appointment as a distinct owner input; do not claim its open authority obligation explains a particular engineering red.
+6. DEB-04 owns internal allocation/reconciliation for GY-DEF22 through the source-named Foundry correctness / GY-N12 execution role. At task rebind name the competent catalog/discovery reviewer and emit its source-qualified decision for the complete current bounded-claim set. Root routes this internal work; an unfilled owner is assigned work, not a request for institutional permission. GYD-15 supplies an output only if its actual accepted interface proves this claim; shared source ID alone is insufficient. P41 red attribution remains an independent conjunct.
+
 
 ### Рассмотренные альтернативы
 
 - **Clear all sys.modules entries globally in test setup** — Broad cache surgery is itself order-sensitive and can leave stale object references; isolate only the touched import boundary.
 - **Infer missing catalog from absent repository file** — Repository file layout is not the runtime input; a present-but-unused or externally loaded catalog would invalidate the test.
 - **Mark the education failure inherited from a nearby base** — P41 requires exact slice-base replay and complete disjointness; failure to replay means `not_established`.
+
 
 ### Free-grow и ресурсы
 
@@ -312,8 +323,8 @@ Update affected tests in place, retain original test evidence and exact base ide
 - If reproducing value-gate bytes are not available, preserve `not_established`; do not invent an expected value.
 - If old test harness holds a module alias that cannot be safely reset, use process isolation rather than escalating to global test order controls.
 
-
 Classify each input at accepted-source rebind as internal engineering output/allocation, existing source record, or genuine external fact/permission. Missing native producer/bridge is assigned work, not an external blocker. Only the last class can justify an external-input hold after supplier/alternative investigation. See root-review.md for the task-specific distinction.
+
 
 ### Исследование и предел переноса
 
@@ -330,28 +341,33 @@ Classify each input at accepted-source rebind as internal engineering output/all
 
 ### Предпочтительное решение
 
-Repair source schema and calibration contracts at their existing producers/readers. A malformed retained-UDF source schema must fail with an explicit malformed/unreadable result and stay distinct from a genuinely empty source portfolio; never coerce unreadable into empty. Correct the calibration schema-version grammar so the declared default itself validates: if the supported version is fixed use a real `Literal`; if it evolves, use a constrained type and validate defaults at the same boundary, with only admitted versions accepted. Remove blanket fixture-only fields that the real producer cannot emit. Keep public DTOs strict (`extra=forbid`), versioned and typed; handle evolution with a new schema/version or an explicit adapter, not permissive extras. Verify by persisting current producer output and reading it with a fresh consumer, then mutate malformed schema, extra fields, missing data and invalid version individually to check the right refusal.
+Repair source schema and calibration contracts at their existing producers/readers. A malformed retained-UDF source schema must fail with an explicit malformed/unreadable result and stay distinct from a genuinely empty source portfolio; never coerce unreadable into empty. Correct the calibration schema-version grammar so the declared default itself validates: if the supported version is fixed use a real `Literal`; if it evolves, use a constrained type and validate defaults at the same boundary, with only admitted versions accepted. Remove blanket fixture-only fields that the real producer cannot emit. Keep public DTOs strict (`extra=forbid`), versioned and typed; handle evolution with a new schema/version or an explicit adapter, not permissive extras. Verify by persisting current producer output and reading it with a fresh consumer, then mutate malformed schema, extra fields, missing data and invalid version individually to check the right refusal. Census all accepted-source _with_runtime_fixture_authority callers and payload-kind families, including source test.root/test.child siblings; 31 calls/28 kind strings are historical, never a future constant. Reuse type/producer serialization at the helper boundary; verify no unsupported authority fields are injected or persisted for any covered family. Generic CAS persistence proves bytes, not schema validity, and does not become the schema owner by default.
+
 
 ### Что переиспользовать
 
 - `policy-engine/src/polisyos/data_forge/kernel/artifacts.py@dc075e7dc0275fb8ea38a5a5bd8cd7a00968b895` — `ArtifactRef / schema version patterns / load_json_artifact`. Existing artifact identity/versioned reader boundary; preserve read/parse failure distinctions.
 - `policy-engine/src/polisyos/foundry/calibration/report.py@dc075e7dc0275fb8ea38a5a5bd8cd7a00968b895` — `CalibrationReport and nested DTOs`. Owner schema location for calibration contract; exact version validator/default needs accepted-tree rebind.
 - `policy-engine/tests/integration/foundry_calibration/test_method_calibration_bridge.py@dc075e7dc0275fb8ea38a5a5bd8cd7a00968b895` — `calibration producer-reader bridge`. Existing integration surface for actual output and fresh-reader verification.
+- `policy-engine/tests/_helpers/runtime_http.py@9f32d2706d60a5970d6fdd9ec9896242271a02ab` — `_with_runtime_fixture_authority`. Shared mapping mutation is the class-wide boundary; exact accepted-source helper/caller set must be rebound.
 
 Наблюдение на историческом pin не устанавливает текущую реализацию или принятую базу.
+
 
 ### Последовательность реализации
 
 1. Identify the exact retained-UDF producer schema and distinguish parse/read errors, malformed source schemas and valid empty source records.
 2. Repair calibration version type/default together; make the default pass the same validation as received input.
-3. Remove fixture-only fields; construct fixtures from actual producer serialization and forbid extra public fields.
+3. Foundry/runtime test owners select the existing helper/schema boundary and enumerate its full current callers/kinds. Replace blanket authority decoration with actual supported producer serialization; retain strict extras and source/empty distinctions.
 4. Persist one produced artifact, then load it through a fresh reader and verify accepted version/unknown-field/malformed behavior.
+
 
 ### Рассмотренные альтернативы
 
 - **Use `extra=allow` to keep fixtures passing** — It lets unsupported fields become silent contract surface and obscures producer/consumer drift.
 - **Treat parse failure as empty** — That loses the source-portfolio distinction and can make an absence claim falsely complete.
 - **Broaden version regex until it passes** — An unconstrained string repairs the example while weakening the schema; type actual supported grammar.
+
 
 ### Free-grow и ресурсы
 
@@ -378,6 +394,7 @@ Use schema-versioned expand/read-verify/retire: accept old versions through a na
 - A producer-generated report has no unrecognized fixture-only fields and passes a fresh reader.
 - Malformed retained source does not produce an empty source portfolio.
 - Invalid version, missing required field and extra field each yield the intended typed refusal.
+- Census all accepted-source _with_runtime_fixture_authority callers and payload-kind families, including source test.root/test.child siblings; 31 calls/28 kind strings are historical, never a future constant. Reuse type/producer serialization at the helper boundary; verify no unsupported authority fields are injected or persisted for any covered family. Generic CAS persistence proves bytes, not schema validity, and does not become the schema owner by default. Matched removal of the helper protection must fail the non-calibration sibling witness while calibration-only tests could still pass.
 
 
 ### Входы и ответственность за их получение
@@ -391,8 +408,8 @@ Use schema-versioned expand/read-verify/retire: accept old versions through a na
 - If historical stored artifacts rely on the malformed interpretation, preserve them as legacy ambiguous and add a migration reader; never silently reinterpret.
 - If producer emits an extra field in the accepted tree, classify producer/contract drift before deleting fixture data.
 
-
 Classify each input at accepted-source rebind as internal engineering output/allocation, existing source record, or genuine external fact/permission. Missing native producer/bridge is assigned work, not an external blocker. Only the last class can justify an external-input hold after supplier/alternative investigation. See root-review.md for the task-specific distinction.
+
 
 ### Исследование и предел переноса
 
@@ -411,6 +428,7 @@ Classify each input at accepted-source rebind as internal engineering output/all
 
 Wire the residual transition semantics through the existing strict epoch verifier/intake and common lifecycle writer. The fifth authorized merge must be an append-only reissue that records merge premise, both predecessor refs, resulting merged state, admissibility and preservation check; read back the emitted receipt before closing. Do not reopen the already-landed positive verifier/denominator producer: its open item is strict production composition. Permit a governed public record to represent a later epoch head with a typed currentness/limited/replay result rather than an unconditional refusal, while keeping stale or non-replayable heads from appearing current. Split epoch-origin programmer/configuration errors from missing institutional inputs into distinct typed outcomes. Carry current packet lineage/currentness through LIF-02's canonical head/lifecycle writer; UI-19 owns the governed projection. GY-DEF23's signing/producer-identity appointment is a real institutional dependency but must remain typed-empty and must not block feature construction.
 
+
 ### Что переиспользовать
 
 - `policy-engine/src/polisyos/runtime/quality/epoch_transition_verification.py@dc075e7dc0275fb8ea38a5a5bd8cd7a00968b895` — `CanonicalEpochTransitionVerifier / ProducingEpochDenominatorReconciliationReader`. Positive transition verification and denominator reconciliation are existing owners; open criterion is strict production composition.
@@ -418,6 +436,7 @@ Wire the residual transition semantics through the existing strict epoch verifie
 - `policy-engine/src/polisyos/scientist/validation/decision_validity.py@dc075e7dc0275fb8ea38a5a5bd8cd7a00968b895` — `epoch validity receipt and reconciliation persistence`. Existing persisted lifecycle/evidence adapter, not a new parallel history store.
 
 Наблюдение на историческом pin не устанавливает текущую реализацию или принятую базу.
+
 
 ### Последовательность реализации
 
@@ -427,11 +446,13 @@ Wire the residual transition semantics through the existing strict epoch verifie
 4. Return distinct typed errors for malformed origin/configuration versus required input absent; preserve candidate behavior when unknown.
 5. Use LIF-02 for current lineage/head writes and UI-19 for surface; keep external signer appointment as a typed-empty limitation.
 
+
 ### Рассмотренные альтернативы
 
 - **Replace old epoch head with merged head** — That destroys the independent predecessor lineage and violates the fifth transition criterion.
 - **Refuse every later head** — It blocks honest replayable later epochs and hides a representable typed currentness limitation.
 - **Mark verifier producer missing** — The positive verifier and denominator reconciliation already landed; only production composition remains open.
+
 
 ### Free-grow и ресурсы
 
@@ -450,6 +471,7 @@ Add a versioned merge/replay record and read old heads unchanged. On incompatibl
 - A reissue binds both parent heads, merge premise, merged content and exact readback.
 - Later epoch does not imply current; currentness is evaluated against valid/known time and replayable lineage.
 - Input absence and programming error produce distinct statuses; external authority does not block candidate capability.
+- DEB-06 emits the actual persisted current-decision lineage/reissue receipt through LIF-02; UI-19 reads it afresh into the governed API/MACHINE projection. Source cut, both predecessors, expected head, current/limited status and original as-known issue remain distinguishable. Reciprocal acceptance references bind emission→observation stages, not whole-task completion cycles; interface preparation is independent. GY-DEF23 is context owned by DEB-09, not a DEB-06 disposition predicate.
 
 
 ### Acceptance и различающие проверки
@@ -458,6 +480,7 @@ Add a versioned merge/replay record and read old heads unchanged. On incompatibl
 - A later compatible head returns a typed replay/currentness result; an unbound or expired head cannot claim current.
 - Removing required origin input differs from invalid program configuration in status/remediation.
 - Strict production consumer accepts the real positive verifier receipt, while signer absence remains explicit.
+- Fresh UI-19 observation of the actual emitted DEB-06 receipt is required. Remove source-cut/expected-head binding while keeping labels: consumer cannot project a current successor.
 
 
 ### Входы и ответственность за их получение
@@ -471,8 +494,8 @@ Add a versioned merge/replay record and read old heads unchanged. On incompatibl
 - If rebind shows positive verification no longer composes with the production route, reopen the exact producer/bridge owner rather than reverting the closed denominator criterion.
 - If existing epoch schema cannot hold second reissue checkpoint, version the schema through its owner and retain old records.
 
-
 Classify each input at accepted-source rebind as internal engineering output/allocation, existing source record, or genuine external fact/permission. Missing native producer/bridge is assigned work, not an external blocker. Only the last class can justify an external-input hold after supplier/alternative investigation. See root-review.md for the task-specific distinction.
+
 
 ### Исследование и предел переноса
 
@@ -489,7 +512,8 @@ Classify each input at accepted-source rebind as internal engineering output/all
 
 ### Предпочтительное решение
 
-Keep the five CORR destination meanings, five INT-R2 meanings and their current owners separate; do not revive the obsolete four-of-five or eight-owner counts. Route each semantic proposal to its appointed owner and preserve typed unknown/incomparable relations. For estimand-binding strength, define one versioned meaning per intended target, bind quantity-defining referents and represent identity/equivalence/derivation/transport separately; use a partial order only where the owner justifies it, with incomparable and unknown values explicit. A changed target horizon/regime must not compare equal by name. Use the existing WDI owner `runtime/quality/acquisition_planner.py` for owner-admitted acquisition cost on the exact variables/route. DS15's production route is exercised only with controlled fixtures/test cost and SQLite; it is not evidence of real-world use, a valid production cost selection or PostgreSQL concurrency. Keep the GapAcquisitionCase union owned by INT-R2 ratification; keep numeric VOI metric design with DEB-13. Do not substitute the method-selection `compute_voi` helper unless equivalence of semantics is proven.
+Re-enumerate current CORR destination and INT-R2 meaning/owner dispositions; five/five is the historical reviewed snapshot, not a fixed runtime denominator. Keep distinct semantic acts separate and preserve delivered dispositions. Route each semantic proposal to its appointed owner and preserve typed unknown/incomparable relations. For estimand-binding strength, define one versioned meaning per intended target, bind quantity-defining referents and represent identity/equivalence/derivation/transport separately; use a partial order only where the owner justifies it, with incomparable and unknown values explicit. A changed target horizon/regime must not compare equal by name. Use the existing WDI owner `runtime/quality/acquisition_planner.py` for owner-admitted acquisition cost on the exact variables/route. DS15's production route is exercised only with controlled fixtures/test cost and SQLite; it is not evidence of real-world use, a valid production cost selection or PostgreSQL concurrency. Keep the GapAcquisitionCase union owned by INT-R2 ratification; keep numeric VOI metric design with DEB-13. Do not substitute the method-selection `compute_voi` helper unless equivalence of semantics is proven. For the source-selected free WDI route, the canonical runtime/quality/acquisition_planner.py cost-schedule owner may admit dated expert_hours/calendar_days/collection_mode effort under the principal’s 2026-09-17 option A: first inspect actual connector/comparable-ingest evidence, prefer measured comparable effort, otherwise explicitly label and justify the owner estimate. Neither fixture hours/days nor a cap is the basis. A paid/licensed selected source invalidates that premise and needs its real quote/rights evidence; no default institutional price request for free-data engineering.
+
 
 ### Что переиспользовать
 
@@ -499,19 +523,24 @@ Keep the five CORR destination meanings, five INT-R2 meanings and their current 
 
 Наблюдение на историческом pin не устанавливает текущую реализацию или принятую базу.
 
+
 ### Последовательность реализации
 
-1. Reconcile each vocabulary row with its original meaning, distinct consumer and authorized owner; preserve settled owner/decision state and only list genuine unresolved semantic acts.
-2. Specify target-bound estimand referents and represent relationship as typed equality/derivation/transport/incomparability with version and regime/horizon bindings.
-3. Admit WDI cost only through the existing cost record with exact variable set, route, source, purpose and time; no test-only hypothetical cost enters production evidence.
-4. Keep DS15's deterministic bundle producer/composition status as built; separate real institutional appointments, valid scoped inputs and actual cost selection from it.
-5. Leave INT-R2's `GapAcquisitionCase` union to its owning ratification and keep DEB-13 responsible for metric formula/decision basis.
+1. team-architecture performs the CORR/INT-R2 allocation assigned by the original source: for each current semantic slot emit existing owner/path, exact meaning/use, real producer/consumer and disposition. Preserve already delivered mechanical crosswalks; internal missing producers become assigned tasks, not external-input waits. A genuine normative/meaning choice remains a source-qualified proposal until accepted. Do not fabricate semantic identity or institution authority.
+2. Reconcile each vocabulary row with its original meaning, distinct consumer and authorized owner; preserve settled owner/decision state and only list genuine unresolved semantic acts.
+3. Specify target-bound estimand referents and represent relationship as typed equality/derivation/transport/incomparability with version and regime/horizon bindings.
+4. Admit WDI cost only through the existing cost record with exact variable set, route, source, purpose and time; no test-only hypothetical cost enters production evidence.
+5. Keep DS15's deterministic bundle producer/composition status as built; separate real institutional appointments, valid scoped inputs and actual cost selection from it.
+6. Leave INT-R2's `GapAcquisitionCase` union to its owning ratification and keep DEB-13 responsible for metric formula/decision basis.
+7. CAP-03 routes the actual admitted cost artifact from the existing native cost owner; DEB-07 records the original row’s basis/allocation disposition and consumes the same receipt. Exact shared file lease forbids two cost writers.
+
 
 ### Рассмотренные альтернативы
 
 - **Create one total ordering over all binding terms** — The source decision preserves distinct relations and does not establish that all targets/regimes are comparable.
 - **Count vocabularies or owners as a single gap metric** — It conflates distinct semantics and retains obsolete counts instead of current consumer/owner dispositions.
 - **Reuse method-selection `compute_voi` as the acquisition metric** — Same name does not prove same estimand, utility, target population, or cost semantics.
+
 
 ### Free-grow и ресурсы
 
@@ -535,7 +564,7 @@ Version semantic definitions and cost records; retain legacy bindings and identi
 ### Acceptance и различающие проверки
 
 - No four-of-five or eight-vocabulary count remains as a current semantic claim.
-- Each of five destinations and five meanings has a distinct current purpose/owner/consumer disposition.
+- Every current source-enumerated destination/meaning has a distinct purpose/owner/consumer disposition; preserve settled and unresolved semantic parts without a fixed five/five gate.
 - A horizon/regime change changes the target binding; unsupported cross-target ordering returns incomparable/unknown.
 - A missing real WDI cost still refuses costed production route while the fixture-only demonstration remains correctly scoped.
 
@@ -544,7 +573,7 @@ Version semantic definitions and cost records; retain legacy bindings and identi
 
 - Owner decision for open CORR B1 reviewer/profile and B2 semantic producer, plus actual first regime/consumer propositions where open.
 - Foundry owner ratification for estimand semantics and INT-R2 owner ratification of `GapAcquisitionCase`.
-- Institutionally supplied WDI acquisition cost for the exact served variables and route.
+- For the source-selected free WDI route, the canonical runtime/quality/acquisition_planner.py cost-schedule owner may admit dated expert_hours/calendar_days/collection_mode effort under the principal’s 2026-09-17 option A: first inspect actual connector/comparable-ingest evidence, prefer measured comparable effort, otherwise explicitly label and justify the owner estimate. Neither fixture hours/days nor a cap is the basis. A paid/licensed selected source invalidates that premise and needs its real quote/rights evidence; no default institutional price request for free-data engineering.
 - Any required acquisition-admission and decision-signer acts remain typed-empty until assigned.
 
 
@@ -553,8 +582,8 @@ Version semantic definitions and cost records; retain legacy bindings and identi
 - If the accepted source already resolves an owner/semantic row, record absorption with evidence instead of rebuilding a registry.
 - If someone proposes numeric value or monetary amount, route to DEB-13 and its metric owner; do not add it here.
 
-
 Classify each input at accepted-source rebind as internal engineering output/allocation, existing source record, or genuine external fact/permission. Missing native producer/bridge is assigned work, not an external blocker. Only the last class can justify an external-input hold after supplier/alternative investigation. See root-review.md for the task-specific distinction.
+
 
 ### Исследование и предел переноса
 
@@ -655,6 +684,7 @@ Classify each input at accepted-source rebind as internal engineering output/all
 
 Treat the remaining slots as distinct institutional acts: epoch predicate-policy signer; epoch-transition signer/producer identity; independent complete-history holder; external signed v2 delegation plus current mandate-owner evidence; and purpose-scoped semantic epoch-qualification admission of the signed policy and exact native relation. Keep each typed-empty until the actual institution supplies a current, purpose/scope/time-bound artifact. The strict runtime intake, epoch-history adapter and DS15 deployment composition already exist where the source says so; use their verification and refusal paths. A transition signer is not the predicate-policy signer, a producer identity is not an independent history holder, and DS15 mandate composition is not the external mandate itself. Do not invent a permissions administrator or let missing external appointments gate candidate capability construction. For authority-band claims, admission requires resolve + content bind + verifier provenance; for candidate-band exploration, preserve an explicit unknown/limited route.
 
+
 ### Что переиспользовать
 
 - `policy-engine/src/polisyos/runtime/quality/epoch_transition_origin.py@dc075e7dc0275fb8ea38a5a5bd8cd7a00968b895` — `EpochTransitionSigningProfileAdmissionReader / FileEpochTransitionOriginOwner`. Existing typed verification/intake path for epoch-origin evidence; external signer identity remains supplied evidence.
@@ -662,6 +692,7 @@ Treat the remaining slots as distinct institutional acts: epoch predicate-policy
 - `policy-engine/src/polisyos/scientist/validation/decision_validity.py@dc075e7dc0275fb8ea38a5a5bd8cd7a00968b895` — `epoch receipt and history admission`. Existing history/receipt reader, including already-built GY-DEF23 adapter composition.
 
 Наблюдение на историческом pin не устанавливает текущую реализацию или принятую базу.
+
 
 ### Последовательность реализации
 
@@ -671,11 +702,13 @@ Treat the remaining slots as distinct institutional acts: epoch predicate-policy
 4. Keep missing/expired/unverifiable evidence typed-empty or blocked for authority-band claims while allowing candidate feature construction with declared limits.
 5. Close GY-DEF22 engineering provenance only after its exact slice-base replay and complete disjointness; keep Foundry catalog/discovery appointment separate.
 
+
 ### Рассмотренные альтернативы
 
 - **Have PolicyOS self-appoint or use a local default signer** — The external institution owns the act; self-attestation would turn an unappointed slot into authority by implementation default.
 - **Create a general institution/mandate administration service** — This adds a sovereign subsystem; the boundary calls for typed evidence intake and scoped claim reaction only.
 - **Block all development until appointments arrive** — The source explicitly says appointments are claim-scoped and should not gate capability construction; only authority-band promotion waits.
+
 
 ### Free-grow и ресурсы
 
@@ -694,6 +727,7 @@ Add role profile versions without changing historic appointment meaning. Revocat
 - A valid signature binds signer, purpose, scope, content, valid time and currentness; signature alone is not appointment authority.
 - Each external role is non-substitutable unless its mandate explicitly says otherwise.
 - Candidate feature path may proceed with typed unknown; authority-band promotion fails closed when appointment is required and absent.
+- GY-DEF22 internal catalog/discovery owner allocation is owned by DEB-04; this task owns GY-DEF23 and the other actual institutional slots. Scientist Decision Validity/Runtime quality provide the internal verifier/intake; they cannot appoint external signers.
 
 
 ### Acceptance и различающие проверки
@@ -715,8 +749,8 @@ Add role profile versions without changing historic appointment meaning. Revocat
 - If an institution changes role/purpose/mandate, require new evidence and revalidate dependent claims; do not extend an old signature by inference.
 - If an existing typed path cannot distinguish an external role, add a narrow adapter or schema version, not a new admin service.
 
-
 Classify each input at accepted-source rebind as internal engineering output/allocation, existing source record, or genuine external fact/permission. Missing native producer/bridge is assigned work, not an external blocker. Only the last class can justify an external-input hold after supplier/alternative investigation. See root-review.md for the task-specific distinction.
+
 
 ### Исследование и предел переноса
 
@@ -970,6 +1004,7 @@ Classify each input at accepted-source rebind as internal engineering output/all
 
 Commission a native numeric VOI metric owner and decision/ranking reference before changing the 15 truthful `metric_residual_granularity_not_supported` refusals. The candidate decision-theoretic definition, if the owner ratifies it, is EVSI: expected improvement in the selected decision's utility after the proposed information, minus the current best expected utility; for net value of sampling subtract the admitted acquisition/research cost. Bind decision alternatives, utility/loss measure, uncertain state distribution, proposed observation likelihood, target population, useful horizon/discount, cost/opportunity-cost basis, metric version and assumptions. EVPI is only a perfect-information upper bound; EV(P)PI concerns selected uncertain parameters; EVSI depends on a specific study/observation design. These are not interchangeable rankings. Unknown required objective, likelihood, population or horizon means typed refusal/limited estimate; missing cost blocks net value/action claims but does not by itself invalidate an otherwise supported gross EVSI, not guessed entropy, arbitrary dollars or a confidence proxy. Keep cost admission at its canonical WDI/CAP03 owner and the SearchLedger writer as-is; UI-17 is a consumer only. Do not import health utility or a VOI number from the literature as PolicyOS authority.
 
+
 ### Что переиспользовать
 
 - `policy-engine/src/polisyos/runtime/quality/acquisition_planner.py@dc075e7dc0275fb8ea38a5a5bd8cd7a00968b895` — `AcquisitionCostBasisRecord`. Existing cost evidence owner and route-specific cost record; it does not define a utility metric or admit all missing costs.
@@ -978,20 +1013,24 @@ Commission a native numeric VOI metric owner and decision/ranking reference befo
 
 Наблюдение на историческом pin не устанавливает текущую реализацию или принятую базу.
 
+
 ### Последовательность реализации
 
-1. Appoint the metric/decision owner and specify target decision, utility/loss, state uncertainty, information-generating design and ranking direction before coding.
-2. Choose whether the metric is EVPI, EVPPI, EVSI or net benefit of sampling; write its exact estimand and versioned input law with population/horizon/time basis.
-3. Bind cost as a separate admitted input from the WDI/CAP03 owner, including variable, fixed and opportunity costs where the decision requires them.
-4. Implement producer that emits reproducible metric artifact with all assumptions, uncertainty/calibration and provenance; persist it and have DS15 consumer recompute/verify identity and use it for ranking.
-5. Keep all 15 rows in explicit residual-refusal state when required inputs are missing; show named missing dimensions in consumer output.
-6. Default computation profile: finite selected decision alternatives and discrete state/observation law, evaluating EVSI = E_y[max_a E[U(a,theta)|y]] - max_a E[U(a,theta)] by exact finite sums with a small independent oracle. Preserve utility units, numerical tolerance, ties and uncertainty. Subtract separately admitted cost only for a dimensionally compatible net estimand. For continuous/large problems, extend the existing method with quadrature or nested Monte Carlo only when necessary; report approximation error/convergence and avoid optimizer/Monte-Carlo bias masquerading as real decision improvement. Selected finite alternatives are task inputs, not a central capability allowlist.
+1. Accountable Atlas/DS15 scope owner, coordinated by the P0/root engineering lead, commissions one competent native metric/decision owner and binds its purpose, source and ranking/law decision. Acquisition planner remains refusal/cost owner and is not automatically that metric owner. If no metric producer exists, DEB-13 researches/proposes the native-owner extension and implements after the actual owner decision; do not stop as if an external institution must supply code. Unsupported metrics retain producer_missing/typed refusal until this work and genuine inputs suffice.
+2. Appoint the metric/decision owner and specify target decision, utility/loss, state uncertainty, information-generating design and ranking direction before coding.
+3. Choose whether the metric is EVPI, EVPPI, EVSI or net benefit of sampling; write its exact estimand and versioned input law with population/horizon/time basis.
+4. Bind cost as a separate admitted input from the WDI/CAP03 owner, including variable, fixed and opportunity costs where the decision requires them.
+5. Implement producer that emits reproducible metric artifact with all assumptions, uncertainty/calibration and provenance; persist it and have DS15 consumer recompute/verify identity and use it for ranking.
+6. Keep all 15 rows in explicit residual-refusal state when required inputs are missing; show named missing dimensions in consumer output.
+7. Default computation profile: finite selected decision alternatives and discrete state/observation law, evaluating EVSI = E_y[max_a E[U(a,theta)|y]] - max_a E[U(a,theta)] by exact finite sums with a small independent oracle. Preserve utility units, numerical tolerance, ties and uncertainty. Subtract separately admitted cost only for a dimensionally compatible net estimand. For continuous/large problems, extend the existing method with quadrature or nested Monte Carlo only when necessary; report approximation error/convergence and avoid optimizer/Monte-Carlo bias masquerading as real decision improvement. Selected finite alternatives are task inputs, not a central capability allowlist.
+
 
 ### Рассмотренные альтернативы
 
 - **Use entropy reduction or confidence improvement as numeric VOI** — Information has value only through its effect on a decision's payoff; uncertainty reduction alone need not change the decision.
 - **Treat cost-basis money as VOI** — Acquisition cost is a distinct input, and cost without expected payoff improvement does not establish net value.
 - **Reuse method-selection compute_voi by name** — Shared naming is not semantic equivalence of action space, utility, estimand or evidence boundary.
+
 
 ### Free-grow и ресурсы
 
@@ -1010,6 +1049,7 @@ Add metric as a separate versioned artifact alongside current refusal. Promote o
 - VOI metric does not create acquisition authority; it supports a separately authorized ranking purpose.
 - Cost and expected benefit remain separate, source-bound inputs with distinct owners.
 - Missing or uncalibrated inputs yield typed refusal/limited value, not a number; a ranking requires a declared decision and population/time horizon.
+- Actual UI-17 numeric projection consumes the persisted metric/decision basis. CAP-03 delivers the actual native-owner cost artifact for net/cost-dependent use of that route; DEB-07 retains the source-row reconciliation; gross supported EVSI may remain with explicit cost limitation. Other selected routes bind their actual admitted cost owner, not a WDI default.
 
 
 ### Acceptance и различающие проверки
@@ -1034,8 +1074,8 @@ Add metric as a separate versioned artifact alongside current refusal. Promote o
 - If no decision owner/utility exists, retain the refusal and commission the decision design; do not implement a placeholder metric.
 - If accepted source shows existing compute_voi is semantically identical, reuse with an explicit owner mapping and conformance case rather than duplicate producer.
 
-
 Classify each input at accepted-source rebind as internal engineering output/allocation, existing source record, or genuine external fact/permission. Missing native producer/bridge is assigned work, not an external blocker. Only the last class can justify an external-input hold after supplier/alternative investigation. See root-review.md for the task-specific distinction.
+
 
 ### Исследование и предел переноса
 

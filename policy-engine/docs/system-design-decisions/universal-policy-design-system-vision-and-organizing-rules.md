@@ -353,17 +353,19 @@ ceiling is in the search layer — a repairable system defect, not a domain limi
 
 ### 8.4 Open questions (resolve before ADR promotion)
 
-- Is the waist vocabulary (`authority + envelope + calibration`) at the right
+- **`8.4-waist-altitude`** — Is the waist vocabulary (`authority + envelope + calibration`) at the right
   altitude, or does it need a first-class dimension it currently encodes only as a
   status (e.g. value-pluralism / contestedness)? (T2, T5)
-- Is real grounding achievable at acceptable cost in the target domains, or is the
+- **`8.4-real-grounding-cost`** — Is real grounding achievable at acceptable cost in the target domains, or is the
   honest equilibrium mostly abstention? (T1)
-- Is the demand-pull (S12 VOI / accountable principal) strong enough to overcome
+- **`8.4-demand-pull-strength`** — Is the demand-pull (S12 VOI / accountable principal) strong enough to overcome
   abstention inertia? (T6)
-- Does capability search have enough recall and freshness to distinguish honest
+- **`8.4-search-recall-freshness`** — Does capability search have enough recall and freshness to distinguish honest
   abstention from a missed grounding path? (T7)
-- Does the bounded agent leak authority through orchestration choices in ways the
+- **`8.4-agent-orchestration-authority-leak`** — Does the bounded agent leak authority through orchestration choices in ways the
   current search ledger does not capture? (T4)
+
+**Scoped addition accepted 2026-10-24 — [R19-SDD-04](lifecycle-cross-scope-clarifications-r19-ratification.md#r19-sdd-04--open-questions-keep-evidence-and-choice-distinct).** Each current §8.4 ID has one stable-ID [crosswalk row in the existing Decision Log](policy-design-case-decision-log.md#dl-pdc-0017---vision-open-question-crosswalk-r19-sdd-04), with append-only disposition, owner and revisit trigger. Empirical propositions may link G8 evidence-only answers; evidence for normative/design choices informs options but leaves choice/remainder open until dated authorized decision. Mixed items separate these parts. The expected set is all IDs in this canonical source/version at freeze; today's five are a snapshot, not a limit. A generic join detects missing, duplicate and orphan rows. WP links apply only to actually withheld propositions. New evidence or activation opens review; it never automatically closes or ratifies a question. These IDs preserve the existing G8 spellings; the static spelling match is not an empirical answer or proof of a live join.
 
 ### 8.5 Grounding
 
@@ -465,3 +467,6 @@ the status lattice, authority boundaries, replay behavior, and affected slice
 plans, plus a rule-version reference so closed cases replay under the rules that
 closed them. Proposed rules become accepted only when their open questions,
 health signals, and enforcement surfaces are owned.
+
+
+**Scoped addition accepted 2026-10-24 — [R19-SDD-03](lifecycle-cross-scope-clarifications-r19-ratification.md#r19-sdd-03--amendment-authority-needs-actual-delegation).** Amendment authority needs a previously accepted delegation from the current human principal binding identity, the specific act, scope and duration/revocation. Technical custody, repository access, task assignment or principal absence do not appoint a successor. Contested or absent delegation leaves the amendment proposed, while authorized engineering continues. This accepts only that boundary; it does not promote this document as a whole or appoint anyone.

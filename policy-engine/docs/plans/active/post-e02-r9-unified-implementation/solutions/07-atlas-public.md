@@ -12,6 +12,7 @@
 
 Finish only the remaining consumer wiring over the accepted server verification record. Reuse the closed verifier/badge bridge and show 'report signature authenticated' separately from all seven decision-authority dimensions, which remain not_established in the positive case. Carry record ID, exact source view, key reference, schema/rule version, issue and status-snapshot times, and explicit limitations through browser, API/client, CLI, MACHINE, and authorized-read audit. An offline check may establish signature authenticity only against its included trust snapshot; live revocation and currentness remain not_established unless independently established.
 
+
 ### Что переиспользовать
 
 - `policy-engine/src/polisyos/runtime/http/services/public_decision_verification.py@dccea950845cda5b38f026e7770c07819d31f4d9` — `PublicDecisionVerificationService.verify`. Existing server-owned verification returns a response from the issuance index and byte-bound verifier; this is the source of the UI cue.
@@ -21,6 +22,7 @@ Finish only the remaining consumer wiring over the accepted server verification 
 
 Наблюдение на историческом pin не устанавливает текущую реализацию или принятую базу.
 
+
 ### Последовательность реализации
 
 1. After actual E02 acceptance, bind this row to the accepted verifier response and resolve the still-open R9 full-head, anonymous-read, tenant, and exact-view gates.
@@ -28,10 +30,12 @@ Finish only the remaining consumer wiring over the accepted server verification 
 3. Render a plain-language explanation of what the signature proves and does not prove; expose the seven unestablished authority dimensions as named fields, not a collapsed green badge.
 4. Keep verifier reads no-store and omit credentials/redirects as the accepted route requires; record authorized read/denial events through the access-audit owner.
 
+
 ### Рассмотренные альтернативы
 
 - **Recompute signatures or authority status independently in each browser, CLI, and MACHINE consumer.** — Duplicates trust decisions, risks divergent badges, and turns client-calculated evidence into an authority path.
 - **Display one generic 'verified' flag.** — It merges report byte authentication with promotion, admissibility, currentness, and authorization.
+
 
 ### Free-grow и ресурсы
 
@@ -50,6 +54,7 @@ Do not rewrite existing issuance records. Disable a consumer's verified cue on p
 - The report-authentication result cannot imply any authority dimension. Keep each dimension and any absent trust/currentness input visible.
 - P37: signature over resolved bytes and record binding may be recomputed; signer appointment, public-use rights, and external revocation facts must be content-bound and independently reconciled against their trusted owner sources before a positive claim. If they are only institutionally supplied, consumer asserted, or not_established, preserve refused/unknown.
 - P38 divergence: a 'verified' badge based only on a valid signature remains green even when one authority dimension is not_established; the consumer must test the composed display, not merely a valid signature.
+- R19 Q05 currentness composition consumes the actual LIF-02 scoped reaction and as-of result before the fresh UI-01 positive. Base signature authentication remains independently acceptable with currentness not_established; see the task conditional_acceptance_requirements.
 
 
 ### Acceptance и различающие проверки
@@ -71,8 +76,8 @@ Do not rewrite existing issuance records. Disable a consumer's verified cue on p
 - Any accepted-source rebind changes response meaning, currentness, or the authorized public view.
 - A consumer requires a distinct trust-store protocol or an authority dimension not represented by the accepted contract.
 
-
 Classify each input at accepted-source rebind as internal engineering output/allocation, existing source record, or genuine external fact/permission. Missing native producer/bridge is assigned work, not an external blocker. Only the last class can justify an external-input hold after supplier/alternative investigation. See root-review.md for the task-specific distinction.
+
 
 ### Исследование и предел переноса
 
@@ -91,7 +96,8 @@ Classify each input at accepted-source rebind as internal engineering output/all
 
 ### Предпочтительное решение
 
-Ship one narrow public data-record practice through the existing producer, exact CAS view, issuance/verifier route, and shared public/MACHINE/CLI projection. Before applicable GY-PR1a evidence admits a real data-only record, publish only the typed refusal/chronology path. After the predicate is satisfied, issue the exact-view data-only record; keep the signer slot typed-empty until the actual signer policy is supplied. Preserve INT-K02 obligation membership, INT-K06 no-number wording, and INT-K08 refusal chronology. Keep the public path free of third-party trackers; classify and scrub request, beacon/fetch, and error telemetry before any signed persistence, including route/query/tags/breadcrumbs/extras.
+Ship one narrow public data-record practice through the existing producer, exact CAS view, issuance/verifier route, and shared public/MACHINE/CLI projection. Before applicable GY-PR1a evidence admits a real data-only record, publish only the typed refusal/chronology path. After the predicate is satisfied, issue the exact-view data-only record; keep the signer slot typed-empty until the actual signer policy is supplied. Preserve INT-K02 obligation membership, INT-K06 no-number wording, and INT-K08 refusal chronology. Keep the public path free of third-party trackers; classify and scrub request, beacon/fetch, and error telemetry before any signed persistence, including route/query/tags/breadcrumbs/extras. One exact DS12 record/view projects PUBLIC, REVIEWER, EXPERT and MACHINE through the existing authorized audience readers. Bind each actual reader/path at P0; UI-02 owns these same-record projections, UI-05 Clerk is not their substitute. Preserve exact edition, source/authority/audit refs, rule/schema version, limits and each audience permission; transport parity alone is insufficient. Missing internal readers are assigned UI-02 work. A genuinely uncommissioned channel needs an explicit source-qualified owner disposition and re-entry trigger; it does not silently close the original four-projection obligation or block independent public preparation.
+
 
 ### Что переиспользовать
 
@@ -101,6 +107,7 @@ Ship one narrow public data-record practice through the existing producer, exact
 
 Наблюдение на историческом pin не устанавливает текущую реализацию или принятую базу.
 
+
 ### Последовательность реализации
 
 1. Rebind the exact accepted source, then satisfy the applicable GY-PR1a data-only condition for a real public record (do not add protected PR1b as a blanket prerequisite); separately resolve R9 anonymous-read, pending-intent, rights, tenant, and exact-view gates.
@@ -108,11 +115,15 @@ Ship one narrow public data-record practice through the existing producer, exact
 3. Use one owner-issued response in the citizen browser, MACHINE bundle, and read-only CLI/offline verifier; retain the same provenance, status, audience, rule/schema version, issue time, status-snapshot time, and currentness limits.
 4. Exercise all actual egress builders before signing: routes, query parameters, tags, breadcrumbs, extras, beacons, fetch failures, and error telemetry. Block or scrub private fields before persistence; never equate an allowed telemetry destination with allowed content.
 5. Retain the existing security-header, mobile, locale, plain-language, no-store and audit posture; do not move the publication logic into a CMS.
+6. One exact DS12 record/view projects PUBLIC, REVIEWER, EXPERT and MACHINE through the existing authorized audience readers. Bind each actual reader/path at P0; UI-02 owns these same-record projections, UI-05 Clerk is not their substitute. Preserve exact edition, source/authority/audit refs, rule/schema version, limits and each audience permission; transport parity alone is insufficient. Missing internal readers are assigned UI-02 work. A genuinely uncommissioned channel needs an explicit source-qualified owner disposition and re-entry trigger; it does not silently close the original four-projection obligation or block independent public preparation.
+7. The full original DS12 operational bar is enforced by source-bound CI against the built public route/actual responses and egress: no third-party trackers, owner-admitted Core Web Vitals budgets, security headers, mobile/responsive behavior, current DS0 locale posture and plain-language register. Reuse existing checks and bind missing ones to their native CI owners; no invented budget or posture-only PASS. If a budget is absent, the accountable frontend performance owner measures and proposes it; that internal criterion stays not_established until accepted, without blocking independent publication work. Automated checks establish their measured predicates, not human comprehension; retain qualified semantic audience review where required.
+
 
 ### Рассмотренные альтернативы
 
 - **Publish a manually maintained static/CMS version of the decision.** — It would bypass exact CAS view, issuance, currentness, and rights gates, and could diverge from MACHINE/CLI.
 - **Block reusable publication capability until an institutional signer is appointed.** — Signer absence gates a signature, not the capability; the typed-empty slot and refusal chronology remain useful.
+
 
 ### Free-grow и ресурсы
 
@@ -132,6 +143,7 @@ Stop issuance/serving and return an explicit unavailable/refusal response on los
 - P37: exact CAS digest/view is recomputed; rights, audience, pending intent, and signer appointment must be independently reconciled from exact owner evidence. If a decisive scope predicate is only consumer_asserted, institutionally_supplied without verification, or not_established, public bytes fail closed.
 - P38 divergence: a signature and green browser badge can remain intact while a nested private field leaks through telemetry; verify the real egress property at all exits.
 - Separate three predicates: capability/refusal surface; data-only issue after applicable PR1a evidence with signer slot empty where permitted; pilot/signature claim after PR1b plus the actual applicable signer/holder mandate. No institutional appointment is prerequisite for PR1a data-only issue.
+- Audience (PUBLIC/REVIEWER/EXPERT/MACHINE) and transport (browser/API/client/CLI/audit) are separate axes. PR1a remains data-only, PR1b/signature requires its actual authority; private projection gaps cannot transfer content to public.
 
 
 ### Acceptance и различающие проверки
@@ -141,6 +153,9 @@ Stop issuance/serving and return an explicit unavailable/refusal response on los
 - Removal: remove the view/owner gate while keeping markers and show a served negative; remove request projection or pre-sign classification while keeping signature/badge and show egress detection fails.
 - Accessibility/audience: check the original mobile, locale, security-header, and plain-language posture on the actual public page; no copy may convert the data record into a policy-authority claim.
 - Actual public page: original WCAG 2.2 AA checks, keyboard/focus, 320-CSS-pixel reflow/large text, screen-reader order/status and no color-only authority/currentness cues. English-authored primary, Ukrainian translation, Russian legacy-frozen; preserve limitation meanings through audience-qualified plain-language review, without claiming comprehension from readability alone.
+- Four-audience witness: actual selected readers consume one exact edition, preserving permitted provenance/authority/limits. Remove one audience gate or MACHINE source ref with labels intact; the fresh-consumer witness fails.
+- The full original DS12 operational bar is enforced by source-bound CI against the built public route/actual responses and egress: no third-party trackers, owner-admitted Core Web Vitals budgets, security headers, mobile/responsive behavior, current DS0 locale posture and plain-language register. Reuse existing checks and bind missing ones to their native CI owners; no invented budget or posture-only PASS. If a budget is absent, the accountable frontend performance owner measures and proposes it; that internal criterion stays not_established until accepted, without blocking independent publication work. Automated checks establish their measured predicates, not human comprehension; retain qualified semantic audience review where required.
+- Matched CI falsifier: delete the actual header/egress/layout/locale/performance protection with labels and CI configuration intact; the deciding behavioral check fails. No recursive verifier-of-verifier suite is required.
 
 
 ### Входы и ответственность за их получение
@@ -156,8 +171,8 @@ Stop issuance/serving and return an explicit unavailable/refusal response on los
 - Any public route becomes anonymous without a reconciled exact-view/rights contract.
 - A new telemetry destination or exporter changes the complete egress denominator.
 
-
 Classify each input at accepted-source rebind as internal engineering output/allocation, existing source record, or genuine external fact/permission. Missing native producer/bridge is assigned work, not an external blocker. Only the last class can justify an external-input hold after supplier/alternative investigation. See root-review.md for the task-specific distinction.
+
 
 ### Исследование и предел переноса
 
@@ -257,7 +272,8 @@ Classify each input at accepted-source rebind as internal engineering output/all
 
 ### Предпочтительное решение
 
-Extend DS13 over the single canonical index and an append-only, typed consultation/response/supersession event source. Keep the closed decision bytes fixed; publish a new attributed event that references its exact record/version and states whether it is a formal institutional act, an informal statement, a correction, or PolicyOS's own claim reaction. No automatic dispute resolution and no presentation of consultation as binding. Use the existing access-audit trail only for authorized reads; do not repurpose it as the user-comment ledger. Public projection may expose only rights-cleared content, with withholding/consent decisions explicit and auditable.
+Extend DS13 over the single canonical index and an append-only, typed consultation/response/supersession event source. Keep the closed decision bytes fixed; publish a new attributed event that references its exact record/version and states whether it is a formal institutional act, an informal statement, a correction, or PolicyOS's own claim reaction. No automatic dispute resolution and no presentation of consultation as binding. Use the existing access-audit trail only for authorized reads; do not repurpose it as the user-comment ledger. Public projection may expose only rights-cleared content, with withholding/consent decisions explicit and auditable. Append attributed response, revocation, supersession and law-7 learning-history events against the exact case/edition; produce the generic DS13 read-only transparency feed from that same canonical event/history source and UI-03 index. Browser/API/client/CLI/MACHINE/audit retain response-to-comment links, supersession lineage and the source-linked distinction “this case” versus “new evidence”. This description does not itself establish a causal effect or adopt an institutional act. Keep actor, authority, event/as-of time, rights and the separate LIF-02 currentness reaction. No second case store, notification service or automatic dispute resolution.
+
 
 ### Что переиспользовать
 
@@ -267,19 +283,23 @@ Extend DS13 over the single canonical index and an append-only, typed consultati
 
 Наблюдение на историческом pin не устанавливает текущую реализацию или принятую базу.
 
+
 ### Последовательность реализации
 
 1. Resolve the actual DS13 event producer and LIF-02 currentness/right-cut interfaces during rebind; the assigned existing-path list does not name a producer symbol, so do not claim that access audit is already the consultation chain.
-2. Agree the event contract before isolated consumer work: immutable parent ArtifactRef/profile, event ID and actor/authority provenance, event kind, relevant time roles, rights/consent posture, currentness relation, and whether the event is an external act or PolicyOS reaction.
-3. Render and export the same ordered event lineage in browser, API/client, CLI, MACHINE, and audit; retain the original record and show which later item supersedes or revokes it.
-4. Use WCAG 2.2 AA page-level checks plus actual keyboard, large-text/reflow, screen-reader order/labels/status announcements and audience-qualified plain-language review on consultation, response, and history content.
-5. Follow accepted locale rules: English authored primary, Ukrainian translation, and Russian legacy_continuity_frozen; do not reactivate Russian by a locale badge or translation-presence check.
+2. At accepted-source rebind bind the exact DS13 event/history, learning and feed producer/readers. Reuse an existing owner; if absent UI-04 allocates one typed append-only producer and its read-only feed under the actual runtime boundary, with all path companions in the lease. This is assigned internal work, not an external-input wait.
+3. Agree the event contract before isolated consumer work: immutable parent ArtifactRef/profile, event ID and actor/authority provenance, event kind, relevant time roles, rights/consent posture, currentness relation, and whether the event is an external act or PolicyOS reaction.
+4. Render and export the same ordered event lineage in browser, API/client, CLI, MACHINE, and audit; retain the original record and show which later item supersedes or revokes it.
+5. Use WCAG 2.2 AA page-level checks plus actual keyboard, large-text/reflow, screen-reader order/labels/status announcements and audience-qualified plain-language review on consultation, response, and history content.
+6. Follow accepted locale rules: English authored primary, Ukrainian translation, and Russian legacy_continuity_frozen; do not reactivate Russian by a locale badge or translation-presence check.
+
 
 ### Рассмотренные альтернативы
 
 - **Edit the closed decision packet in place or keep only a latest-state row.** — Both erase the historical basis and make replay of what was public at an earlier time impossible.
 - **Use access audit as the full consultation event store.** — Authorization audit proves access outcomes; it does not establish comment authorship, consent, institutional response, or policy decision authority.
 - **Have PolicyOS adjudicate or auto-resolve consultation.** — External institutions decide; PolicyOS can record typed evidence and its own scoped claim reaction.
+
 
 ### Free-grow и ресурсы
 
@@ -298,6 +318,7 @@ On loss of consent, public rights, or currentness, withdraw the affected project
 - External response evidence, formal decision, informal statement, and PolicyOS claim reaction remain distinct event/authority types; no event closes another automatically.
 - P37: event bytes and parent binding are recomputed; identity, consent, institutional status, and legal effect must be independently reconciled through content-bound source evidence. A bare institutional assertion, consumer assertion, or unknown may appear only as explicitly limited evidence, never as an authoritative public act.
 - P38 divergence: a `response received` marker can remain green after the event join is removed, or a translated summary can alter meaning; verify event parity and human semantic review, not marker presence.
+- The generic DS13 transparency feed and law-7 history are mandatory original deliverables. The separately conditional Phase 6.6 regulator channel and RuntimeDataAccessAuditTrail do not replace them.
 
 
 ### Acceptance и различающие проверки
@@ -306,6 +327,8 @@ On loss of consent, public rights, or currentness, withdraw the affected project
 - Adversarial: mutation, self-assertion, auto-resolution, hidden lineage, collapsed status, private challenger disclosure without consent, silent removal, or informal consultation displayed as binding fails.
 - Removal: remove the event join with markers retained and fail parity; remove large-text/screen-reader semantics or substitute meaning-changing copy and fail the corresponding audience check.
 - Accessibility/plain language: qualified reviewers from the selected audiences assess actual text and meaning. A locale flag, translation presence, readability score, or WCAG pass alone is insufficient.
+- Feed/history positive: persist a real event, then read the feed and history afresh across named transports with exact parent, time/authority roles and “this case”/“new evidence” distinction; MACHINE reconstructs permitted refs.
+- Feed removal: delete the actual event-to-feed/history join with labels intact, or omit a learning event; the fresh producer→persisted-event→consumer witness fails. Preserve original bytes, access/consent, formal/informal and accessibility negatives.
 
 
 ### Входы и ответственность за их получение
@@ -319,8 +342,8 @@ On loss of consent, public rights, or currentness, withdraw the affected project
 - The DS13 ledger producer, privacy/consent owner, LIF-02 invalidation edge, or accepted locale contract is unbound.
 - A claim of response-to-comment or appeal handling reaches beyond a typed evidence record into institutional case management.
 
-
 Classify each input at accepted-source rebind as internal engineering output/allocation, existing source record, or genuine external fact/permission. Missing native producer/bridge is assigned work, not an external blocker. Only the last class can justify an external-input hold after supplier/alternative investigation. See root-review.md for the task-specific distinction.
+
 
 ### Исследование и предел переноса
 
@@ -416,81 +439,90 @@ Classify each input at accepted-source rebind as internal engineering output/all
 
 <a id="UI-10"></a>
 
-## UI-10 — Rebind DS1-N010 dashboard identity/fallback consumer
+## UI-10 — Close DS1-N010 default-deny protected-chrome consumers
 
 Исходная запись: [tasks.json](../tasks.json), `tasks[id=UI-10]`. Review: [root-review](root-review.md#UI-10).
 
 ### Предпочтительное решение
 
-Rebind only the dashboard identity/fallback consumer using the assigned DS4/DS5 owner evidence. The server-governed projection is the identity/status source; an unknown identity, stale binding, or missing owner stays visibly unknown/refused. Do not infer identity from local placeholders or change the already-closed DS20 HTTP authorization floor.
+Close only the original DS1-N010 default-deny consumer obligation through the existing DS5 C09 AuthzProvider/protected-chrome owner set. Rebind the accepted E02 source and determine which C09 consumers still fail the original negative before writing. Reuse the current AuthzProvider decision and C09 tests; do not route this obligation through AtlasRunDeck or the governed identity/status projection. DS20's HTTP authorization floor stays closed and outside this task.
+
 
 ### Что переиспользовать
 
-- `policy-engine/apps/runtime-dashboard/src/features/runs/components/AtlasRunDeck.tsx@dccea950845cda5b38f026e7770c07819d31f4d9` — `AtlasRunDeck`. Existing dashboard run-deck is the consumer named by DS1-N010.
-- `policy-engine/src/polisyos/runtime/http/routes/governed_projections.py@dccea950845cda5b38f026e7770c07819d31f4d9` — `get_governed_projection`. Existing server projection waist supplies the authoritative identity/status binding.
-- `policy-engine/docs/reference/frontend/atlas-surface-readiness-reconciliation.md@dc075e7dc0275fb8ea38a5a5bd8cd7a00968b895` — `DS1-N010 assigned DS4/DS5 consumer successor`. The remaining consumer obligation is routed to DS4/DS5; DS20 authz remains closed.
+- `policy-engine/docs/reference/frontend/atlas-live-application-audit.md@9f32d2706d60a5970d6fdd9ec9896242271a02ab` — `DS1-N010 at L822`. Original negative: /auth/me loading, network error, malformed response, or 401 must not grant analyst permissions/MFA or high-stakes CTA.
+- `policy-engine/docs/plans/active/atlas-slices/DS5-enforcement-waist.md@9f32d2706d60a5970d6fdd9ec9896242271a02ab` — `DS5-C09a-R1/R2 N010 default deny`. Canonical consumer set, cross-surface negative, and source status still_required because C09 consumers remain.
+- `policy-engine/apps/runtime-dashboard/src/app/authz/AuthzProvider.tsx@9f32d2706d60a5970d6fdd9ec9896242271a02ab` — `AuthzProvider`. Existing provider owns the client decision consumed by protected chrome; unknown identity must remain deny.
+- `policy-engine/apps/runtime-dashboard/src/app/authz/AuthzProvider.test.tsx@9f32d2706d60a5970d6fdd9ec9896242271a02ab` — `test_authz_provider_denies_loading_error_malformed_401_prior_user_and_tenant_switch_identity`. Existing owner test covers the original response/fallback negative and identity transition siblings.
+- `policy-engine/apps/runtime-dashboard/src/app/authz/authzDecisionSurfaces.test.tsx@9f32d2706d60a5970d6fdd9ec9896242271a02ab` — `test_unknown_authz_decision_never_defaults_authority_surface_to_allow`. Existing C09 behavioral witness exercises actual protected surfaces, not just provider shape.
+- `policy-engine/docs/plans/active/atlas-slices/DS5-enforcement-waist.md@9f32d2706d60a5970d6fdd9ec9896242271a02ab` — `DS5-C09b-R1 mode/command/run/mobile cut and original disposition`. Completes the C09 consumer census; historical landing is not unqualified current acceptance.
+- `policy-engine/apps/runtime-dashboard/src/features/runs/routes/runDetailSurfaces.test.tsx@9f32d2706d60a5970d6fdd9ec9896242271a02ab` — `actual RunDetailLayout loaded/bootstrap witness`. Cross-surface authz witness alone does not render this consumer; retain its separate source-qualified evidence.
 
 Наблюдение на историческом pin не устанавливает текущую реализацию или принятую базу.
 
+
 ### Последовательность реализации
 
-1. Resolve which DS4 or DS5 owner artifact supplies identity/status and its exact source, schema, epoch, tenant, and authority semantics.
-2. Wire the server binding into the existing AtlasRunDeck consumer; avoid an API change unless the accepted owner output requires one.
-3. Render a missing/stale/foreign result as unknown/refused and audit the read or denial through the existing owner.
-4. Retain the fallback only for non-semantic presentation defaults such as spacing/copy; never let it supply run identity or authorization.
+1. At accepted-source rebind, bind DS1-N010 to its audit criterion and DS5 C09 status; identify the exact still-open consumers and do not infer closure from a similarly named dashboard task. Rebind the complete original DS5 C09a/C09b consumer/disposition set, not just the named initial C09a paths. Include mode, command, loaded/bootstrap run-detail and mobile chrome witnesses; reuse already-landed C09b evidence only if exact accepted source still qualifies it. Preserve the declared bounded indirect-flow residual and falsifier. A missing required consumer leaves N010 open; no per-example closure or arbitrary-program-flow claim.
+2. Exercise the existing AuthzProvider and C09 consumer set for loading, absence, network error, malformed response, 401, cached-prior-user, tenant-switch, partial permission, and full allow; preserve the fixed permission-free PUBLIC control.
+3. Extend only the existing owner tests needed to cover the original N010 negative at each still-open consumer. Preserve the explicit C09 bounded indirect-flow residual/falsifier and DS5 scanner owner; do not claim arbitrary-flow proof.
+4. Read back the accepted source status and test result. Do not close DS1-N010 from an identity label, AtlasRunDeck projection, DS20 HTTP denial, or scanner marker alone.
+
 
 ### Рассмотренные альтернативы
 
-- **Keep frontend-local identity/status fallback so the screen remains populated.** — A visually complete fallback can look current or authorized without a server binding.
-- **Reopen DS20 or add another authorization check in the page.** — DS20 is the closed authz owner; this row is only the DS4/DS5 consumer residual.
+- **Bind DS1-N010 to AtlasRunDeck and a generic governed identity/status response** — The original criterion names /auth/me fallback and protected chrome; the cited readiness-reconciliation document does not bind DS1-N010.
+- **Reopen DS20 or add a second page-local authorization rule** — DS20 remains closed; a server HTTP authorization floor does not replace the original AuthzProvider consumer property.
+
 
 ### Free-grow и ресурсы
 
-- **data or config growth:** New statuses flow through the canonical DS4/DS5 grammar and projection; the consumer preserves unknown variants rather than aliasing them.
-- **extension boundary:** New identity-source or status semantics require an owner decision and typed source projection before UI adaptation.
-- **resource behavior:** Reuse the one projection read and existing caches/audit; no new identity registry or local resolver.
+- **data or config growth:** New protected chrome consumers reuse the one current AuthzProvider decision and join the accepted DS5 consumer census; no page-local permission table.
+- **extension boundary:** A new permission/identity meaning changes its existing owner contract and all actual consumers; unsupported identity remains unknown/deny.
+- **resource behavior:** Reuse the existing provider/query cache and source-bound response; no extra per-component identity query or registry.
 
 
 ### Миграция и восстановление
 
-On missing or stale server binding, show unknown/refused and preserve the last source-bound receipt for investigation; never roll back to a locally asserted identity.
+Keep fixed permission-free PUBLIC chrome. A failed migration, stale prior identity or missing current response leaves protected consumers denied; never restore a permissive placeholder. Preserve the DS5 bounded indirect-flow residual and its falsifier.
 
 
 ### Композиция и owners
 
-- The server record determines identity/status; DS20 checks read permission; UI fallback cannot supply either predicate.
-- P37: current DS4/DS5 binding is recomputed/reconciled; tenant rights are admitted through the existing DS20 authority path. Caller-supplied labels or missing owner outputs are not_established and cannot drive identity/status.
-- P38 divergence: a fallback title can match the expected run label while bound identity points to a different run; test the resolved identity value, not placeholder text.
+- The original response-state negative is tested at the actual AuthzProvider and C09 protected consumers; `unknown` never yields permission, MFA, or high-stakes action.
+- DS20 HTTP authorization remains a separate closed owner and supplies no credit for this client-side N010 criterion.
+- P37/P38: the test resolves actual provider state and rendered/actionable consumers; matching placeholder copy or a missing marker is not the property.
 
 
 ### Acceptance и различающие проверки
 
-- Positive: server projection drives the correct identity and status; unknown status remains visible.
-- Adversarial: missing owner output, foreign tenant, stale binding, or local placeholder cannot appear current/authorized.
-- Removal: remove the server binding with markers retained and show the consumer witness fails.
-- Cross-surface: dashboard matches the API projection and audit for the same resolved identity.
+- Positive: accepted verified identity exposes only its current permissions; fixed permission-free PUBLIC chrome remains visible.
+- Adversarial: loading, absent, error, malformed, 401, cached-prior-user, tenant-switch, and pseudo-flag inputs do not grant protected UI or action.
+- Removal: remove the current verified-decision guard with status labels intact; the existing C09 cross-surface witness fails on a protected consumer.
+- Source disposition: DS1-N010 remains still_required until the accepted original negative and required consumer set are proven closed.
+- Rebind the complete original DS5 C09a/C09b consumer/disposition set, not just the named initial C09a paths. Include mode, command, loaded/bootstrap run-detail and mobile chrome witnesses; reuse already-landed C09b evidence only if exact accepted source still qualifies it. Preserve the declared bounded indirect-flow residual and falsifier. A missing required consumer leaves N010 open; no per-example closure or arbitrary-program-flow claim.
 
 
 ### Входы и ответственность за их получение
 
-- Accepted DS4/DS5 identity/status owner output.
-- Tenant/authz decision from the existing DS20 owner.
+- Accepted E02 tree and current DS1-N010 source disposition.
+- Exact DS5 C09 consumers/tests still required by the original audit negative.
 
 
 ### Когда обоснованно отклониться
 
-- E02 rebind identifies a different canonical consumer or a new shared status/identity owner.
-- The DS4/DS5 artifact does not expose enough information to distinguish stale, unknown, or foreign identity.
-
+- Accepted E02 rebind shows DS1-N010 already closed by the exact original consumers; reconcile its source disposition instead of duplicating DS5 work.
+- A remaining consumer or test has a different canonical owner; bind that exact source path and add only its producer/consumer companion.
+- A claimed closure depends on a DS20 HTTP check or placeholder/identity projection rather than the N010 client consumer.
 
 Classify each input at accepted-source rebind as internal engineering output/allocation, existing source record, or genuine external fact/permission. Missing native producer/bridge is assigned work, not an external blocker. Only the last class can justify an external-input hold after supplier/alternative investigation. See root-review.md for the task-specific distinction.
 
-### Исследование и предел переноса
 
-- [Web Content Accessibility Guidelines (WCAG) 2.2](https://www.w3.org/TR/WCAG22/) — WCAG 2.2 defines testable, technology-independent criteria. Relevant examples include text resize, reflow without loss at 320 CSS px, programmatic status messages, keyboard focus visibility/order, and name/role/value. **Граница:** WCAG conformance is scoped to the tested pages and criteria and does not establish human comprehension or an audience's understanding of policy meaning.
-- [PROV-O: The PROV Ontology](https://www.w3.org/TR/2013/REC-prov-o-20130430/) — PROV-O supplies interoperable Entity, Activity, and Agent provenance terms and relations for use, generation, attribution, derivation, and responsibility. **Граница:** A provenance vocabulary cannot prove lawful use, correct interpretation, source independence, institutional mandate, or PolicyOS admissibility.
+### Основание исправления
 
-Ссылки подтверждают только указанный внешний механизм; выбор для PolicyOS — инженерный вывод, требующий собственного source-bound proof.
+Исходный DS1-N010 и DS5 C09 source-bound критерий, указанные выше, определяют
+эту задачу. R20 исправляет ошибочную привязку к AtlasRunDeck; прежний review
+сохраняется как история. Runtime-проверки здесь не выполнялись.
 
 <a id="UI-15"></a>
 

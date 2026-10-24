@@ -32,4 +32,17 @@ R15 supplement: if the task has `r15_extension`, read the entire extension, `sol
 
 ### Обязательный companion R19
 
-Прочитай `r19_extension` назначенных задач в tasks.json/preferred-solutions и связанные карточки `solutions/lifecycle-r19/`. Примени `architecture/10-full-lifecycle-composition.md`, `assurance/12-full-lifecycle-quality.md` и stage-specific правила `execution/10-full-lifecycle-parallelism.md`. Сохраняй старые обязательства. SDD proposals не применены и не являются новыми полномочиями. Различай useful conditional result, scientific support и institutional endorsement; не создавай 84 новых gates или параллельного owner. Выбери actual producer/consumer/public closure и independent falsifier; product UNRUN нельзя повышать по документации. Реализация только после фактической приёмки E02.
+Прочитай `r19_extension` назначенных задач в tasks.json/preferred-solutions и связанные карточки `solutions/lifecycle-r19/`. Примени `architecture/10-full-lifecycle-composition.md`, `assurance/12-full-lifecycle-quality.md` и stage-specific правила `execution/10-full-lifecycle-parallelism.md`. Сохраняй старые обязательства. Пять R19 SDD clauses приняты и применены 2026-10-24; ссылка на canonical acceptance record — в architecture/proposals/r19-system-design-clarifications.md. Они не назначают внешних полномочий и не ратифицируют остальные proposals. Различай useful conditional result, scientific support и institutional endorsement; не создавай 84 новых gates или параллельного owner. Выбери actual producer/consumer/public closure и independent falsifier; product UNRUN нельзя повышать по документации. Реализация только после фактической приёмки E02.
+
+### Полнота назначенного пакета
+
+Читай каждое присутствующее у назначенной задачи поле `*_extension` и все его
+referenced delivery/quality/solution clauses вместе с base task и
+`preferred_solution_ref`. На текущем source это `r14_extension`, `r15_extension`,
+`r16_extension`, `r17_extension`, `r19_extension`; R18 — inventory вопросов,
+назначаемых через R19. Набор выводится из task manifest, не из этого списка.
+Root/lead включают все assigned clauses в write lease, supplier-stage bindings,
+review и coverage; writer исполняет их, reviewer/verification проверяют их,
+foundation supplier поставляет только назначенные evidence/consumer slices.
+Незнакомое поле нельзя молча отбросить: разреши его контракт и scope до affected
+acceptance. Оно само не вводит новую authority или разрешение реализовать до E02.

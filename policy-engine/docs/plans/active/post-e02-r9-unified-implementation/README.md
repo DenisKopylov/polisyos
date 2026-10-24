@@ -1,14 +1,14 @@
 # Post-E02: единая программа R9, GY, Atlas и остаточных долгов
 
-**Дата текущего дополнения:** 23 октября 2026. **Статус:** проект исполнения; продуктовые проверки UNRUN. **Начало реализации:** только после фактической приёмки E02. Предположение «E02 будет полностью завершён» используется для планирования, а не как разрешение начать код.
+**Дата текущего дополнения:** 24 октября 2026. **Статус:** проект исполнения; продуктовые проверки UNRUN. **Начало реализации:** только после фактической приёмки E02. Предположение «E02 будет полностью завершён» используется для планирования, а не как разрешение начать код.
 
 **Цель:** довести инфраструктуру внешних оснований, незавершённые механизмы PolicyOS и их рабочие поверхности до согласованного, проверяемого состояния; затем обоснованно допустить ограниченное практическое применение. Ограничивается конкретное применение, а не универсальная архитектура или весь объём программы.
 
-Это интегрирующий слой над каноническими планами. Он сохраняет их исторические статусы, связывает остатки с конкретными работами и устраняет дублирование исполнителей. Он не изменяет system-design-decisions, не присваивает closure IDs, не принимает E02 и не объявляет источники атласа допустимыми для реального policy case.
+Это интегрирующий слой над каноническими планами. Он сохраняет их исторические статусы, связывает остатки с конкретными работами и устраняет дублирование исполнителей. Пять отдельно согласованных уточнений SDD применены 24 октября; остальные нормативные proposals сохраняют своё standing. План не присваивает closure IDs, не принимает E02 и не объявляет источники атласа допустимыми для реального policy case.
 
 ## Как читать
 
-1. [Executive summary R13 — PDF, 10 страниц](executive/summary.pdf), [текст с отметкой версии](executive/summary.md) и дополнения [R14](executive/r14-capabilities.md) / [R15](executive/r15-adaptive-and-models.md) / [R16](executive/r16-composed-models.md).
+1. [Executive summary R13 — PDF, 10 страниц](executive/summary.pdf), [текст с отметкой версии](executive/summary.md) и дополнения [R14](executive/r14-capabilities.md) / [R15](executive/r15-adaptive-and-models.md) / [R16](executive/r16-composed-models.md) / [R17](executive/r17-design-lifetimes.md) / [R19](executive/r19-full-lifecycle-solutions.md). Текущее общее review и правила чтения — [R20](assurance/r20-general-review.md).
 2. [Границы, источники и правила перехода](execution/01-charter-and-entry.md).
 3. [Сверенный остаток](inventory/README.md), [исходные версии](inventory/sources.json), полные GY/Atlas/debt crosswalks.
 4. [Архитектура композиции](architecture/01-integration-boundaries.md): кто пишет общий механизм, кто только потребляет.
@@ -69,4 +69,4 @@ R13 receipts и PDF — исторический снимок до R14; их has
 
 ## R19: решения по всем 84 вопросам полного жизненного цикла
 
-[Итог](executive/r19-full-lifecycle-solutions.md) и [20 карточек/84 вопроса](solutions/lifecycle-r19/README.md) дополняют 72 существующие задачи через `r19_extension` в обоих task catalogs. [Общая композиция](architecture/10-full-lifecycle-composition.md), [проверки](assurance/12-full-lifecycle-quality.md), [параллельность](execution/10-full-lifecycle-parallelism.md), [исследование/review](research/full-lifecycle-solutions-r19/README.md). [Пять уточнений SDD](architecture/proposals/r19-system-design-clarifications.md) только предложены, не применены. Исходные 121 задача и их dependencies сохранены; новых верхнеуровневых задач нет. Реализация — после фактической приёмки E02.
+[Итог](executive/r19-full-lifecycle-solutions.md) и [20 карточек/84 вопроса](solutions/lifecycle-r19/README.md) дополняют 72 существующие задачи через `r19_extension` в обоих task catalogs. [Общая композиция](architecture/10-full-lifecycle-composition.md), [проверки](assurance/12-full-lifecycle-quality.md), [параллельность](execution/10-full-lifecycle-parallelism.md), [исследование/review](research/full-lifecycle-solutions-r19/README.md). [Пять уточнений SDD](architecture/proposals/r19-system-design-clarifications.md) согласованы и применены 2026-10-24; действует [каноническая запись принятия](../../../system-design-decisions/lifecycle-cross-scope-clarifications-r19-ratification.md). Исходные 121 задача и их dependencies сохранены; новых верхнеуровневых задач нет. Реализация — после фактической приёмки E02.

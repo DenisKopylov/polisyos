@@ -72,6 +72,8 @@ schedule. An entry records a proposition and the condition under which it may be
 grants nothing. (This is wave 5's fifth withheld group, which was a *class* rather than a
 proposition, and it is recorded here as the register's own rule.)
 
+**2026-10-24 linkage clarification — [R19-SDD-04](lifecycle-cross-scope-clarifications-r19-ratification.md#r19-sdd-04--open-questions-keep-evidence-and-choice-distinct).** The vision §8.4 crosswalk lives in the existing Decision Log. It links this register only when the proposition is actually withheld; an unanswered question is not automatically a WP. Evidence or activation opens review and does not ratify or close a normative/design choice. No new authority, registry or global gate is created.
+
 ## Entry form
 
 ```

@@ -25,6 +25,8 @@ Do not use this directory for:
 
 Those belong in `docs/plans/`, `docs/backlog/`, or `_build/diagnostics/`.
 
+The [2026-10-24 R19 acceptance record](lifecycle-cross-scope-clarifications-r19-ratification.md) ratifies five narrow additions: references without admissibility transfer, scoped SDD conflict handling, explicit amendment delegation, typed open-question lifecycle and bounded cross-root claim support. Its links identify the applied clauses; surrounding drafts keep their prior standing.
+
 ## Relationship To ADRs
 
 ADRs in `docs/adr/` are accepted architecture records and may be machine-indexed

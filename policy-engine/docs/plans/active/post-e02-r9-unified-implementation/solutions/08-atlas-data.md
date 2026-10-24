@@ -818,6 +818,7 @@ Classify each input at accepted-source rebind as internal engineering output/all
 
 Reuse epoch_validity_cascade and decision_validity; keep positive DS18 transition unavailable until producer, configured GY-CR4 reader, and actual consumer are source-proven. At P0 bind selected claim/decision, publisher, API/MACHINE readers, full original DS18 denominator, CAP-04 source-change events, and LIF-02 duties. Distinguish DS18 requiredness from new R9 event classes. Current renders only from replayable reconciled transition and lineage; legacy branch, opt-in None, equal hash, caller label, or unappointed signer cannot establish authority.
 
+
 ### Что переиспользовать
 
 - `policy-engine/src/polisyos/runtime/quality/epoch_validity_cascade.py@dc075e7dc0275fb8ea38a5a5bd8cd7a00968b895` — `epoch validity cascade`. Existing currentness and perturbation owner.
@@ -826,6 +827,7 @@ Reuse epoch_validity_cascade and decision_validity; keep positive DS18 transitio
 
 Наблюдение на историческом pin не устанавливает текущую реализацию или принятую базу.
 
+
 ### Последовательность реализации
 
 1. At P0 reconcile DS18 closure with GY-CR4 unconfigured opt-in reader and exact source; name positive-transition producer and consumers.
@@ -833,11 +835,13 @@ Reuse epoch_validity_cascade and decision_validity; keep positive DS18 transitio
 3. Persist replayable versioned transition/lineage; configure real reader and route fresh claim/decision consumer plus API/MACHINE/audit.
 4. Keep signers empty and protected currentness unavailable until external evidence exists.
 
+
 ### Рассмотренные альтернативы
 
 - **Treat hash equality, legacy branch, or caller label as current** — These proxies do not prove source events, epoch origin, lineage, or reissue.
 - **Use UI-17 acquisition status as currentness consumer** — Acquisition does not prove selected claim/decision state or lineage.
 - **Add another epoch/currentness engine** — Duplicates existing cascade and decision-validity owner.
+
 
 ### Free-grow и ресурсы
 
@@ -856,6 +860,7 @@ Append transitions/reissues and preserve old epochs and DS18 requiredness. Rollb
 - Currentness requires accepted producer, configured reader, CAP-04 events, LIF-02 composition, and fresh consumer.
 - Original DS18 denominator and new R9 event classes are separately identified and reconciled.
 - Code does not appoint institutional signers.
+- DEB-06 emits the actual persisted current-decision lineage/reissue receipt through LIF-02; UI-19 reads it afresh into the governed API/MACHINE projection. Source cut, both predecessors, expected head, current/limited status and original as-known issue remain distinguishable. Reciprocal acceptance references bind emission→observation stages, not whole-task completion cycles; interface preparation is independent.
 
 
 ### Acceptance и различающие проверки
@@ -877,8 +882,8 @@ Append transitions/reissues and preserve old epochs and DS18 requiredness. Rollb
 - Until producer/reader accepted, classify positive transition producer_missing/consumer_missing and keep unavailable.
 - If exact surface or event denominator cannot be named at P0, block affected closure; UI-17 does not substitute.
 
-
 Classify each input at accepted-source rebind as internal engineering output/allocation, existing source record, or genuine external fact/permission. Missing native producer/bridge is assigned work, not an external blocker. Only the last class can justify an external-input hold after supplier/alternative investigation. See root-review.md for the task-specific distinction.
+
 
 ### Исследование и предел переноса
 

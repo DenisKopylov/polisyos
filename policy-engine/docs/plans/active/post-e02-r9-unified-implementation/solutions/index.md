@@ -60,7 +60,7 @@
 | GYD-09 | O1 confirmatory effect updater | [карточка](05-gy-learning.md#GYD-09) |
 | GYD-10 | O2 exploratory FDR candidate controller | [карточка](05-gy-learning.md#GYD-10) |
 | GYD-11 | AS3 O3 sealed corpus + consumer mutations | [карточка](05-gy-learning.md#GYD-11) |
-| GYD-12 | O3 O1-confirmed versioned world write-back | [карточка](05-gy-learning.md#GYD-12) |
+| GYD-12 | O3 versioned world writer: distinct effect and structural inputs | [карточка](05-gy-learning.md#GYD-12) |
 | GYD-13 | CB2 operator-trial production consumer | [карточка](05-gy-learning.md#GYD-13) |
 | GYD-14 | ML2 Lex rendition production consumer | [карточка](05-gy-learning.md#GYD-14) |
 | GYD-15 | FA1 four owner-allocated authority capabilities | [карточка](05-gy-learning.md#GYD-15) |
@@ -76,7 +76,7 @@
 | UI-03 | Allocate accepted index and wire DS13 consumer | [карточка](07-atlas-public.md#UI-03) |
 | UI-04 | Add DS13 consultation and immutable history | [карточка](07-atlas-public.md#UI-04) |
 | UI-05 | Re-ground Clerk in G6 candidate and audit artifacts | [карточка](07-atlas-public.md#UI-05) |
-| UI-10 | Rebind DS1-N010 dashboard identity/fallback consumer | [карточка](07-atlas-public.md#UI-10) |
+| UI-10 | Close DS1-N010 default-deny protected-chrome consumers | [карточка](07-atlas-public.md#UI-10) |
 | UI-15 | Resolve Trust Center/Docs IA successor scope, then deliver assigned content | [карточка](07-atlas-public.md#UI-15) |
 | UI-16 | Keep DS11 performance claims blocked until grounded evidence | [карточка](07-atlas-public.md#UI-16) |
 | UI-06 | Land DS16 value/uncertainty grammar | [карточка](08-atlas-data.md#UI-06) |

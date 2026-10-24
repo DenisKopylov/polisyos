@@ -6,4 +6,6 @@
 
 Число ссылок не является evidence strength; источник имеет explicit supports/limits. Исследовательские результаты адаптированы к existing owners, а не превращены в обязательный список внешних библиотек. Невоспроизводимый внешний факт или неизвестный empirical predicate остаётся named limitation/input.
 
+Исторические review/provenance/validation в этой директории относятся к поставке R19 на `9f32d2706` и сохраняют тогдашний pending статус пяти предложений. Текущее принятие этих пяти — [2026-10-24](../../architecture/proposals/r19-system-design-clarifications.md); оно не обновляет hashes или verdict старых receipts.
+
 Product tests, builds, installation, runtime execution и E02 acceptance — UNRUN. Документационная полнота не означает готовую capability.

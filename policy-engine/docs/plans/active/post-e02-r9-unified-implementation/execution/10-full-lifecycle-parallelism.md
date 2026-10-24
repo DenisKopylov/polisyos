@@ -36,7 +36,7 @@ LIF-02 и GYD-30 будут получать много запросов из к
 
 Каждый unavailable input записывается как exact owner/source/scope/time/needed predicate и минимальная форма. Прежде чем объявить stop, исполнитель проверяет: существует ли уже accepted supplier; можно ли recompute property из разрешённых inputs; остаётся ли полезный conditional result; нужен ли только инженерный adapter; требуется ли настоящий внешний акт/эмпирический результат. Он не назначает закон, политические веса, issuer/currentness или эмпирическую truth самостоятельно.
 
-Неразрешённый SDD proposal о transfer authority блокирует только такое protected применение. Он не блокирует adapter-local refs, immutable provenance links, fresh claim evaluation и независимый candidate research. Неизвестная actual public capacity не мешает строить parameterized feasibility method, но не даёт actual feasibility PASS.
+R19-SDD-01 принят 2026-10-24: provenance link сам не передаёт admissibility; существующий owner квалифицирует child use заново. Adapter-local refs, immutable provenance links, fresh claim evaluation и независимый candidate research продолжаются. Новое изменение authority за пределами принятого правила требует отдельного решения только для затронутого protected use. Неизвестная actual public capacity не мешает строить parameterized feasibility method, но не даёт actual feasibility PASS.
 
 ## 5. Итоговая интеграция
 

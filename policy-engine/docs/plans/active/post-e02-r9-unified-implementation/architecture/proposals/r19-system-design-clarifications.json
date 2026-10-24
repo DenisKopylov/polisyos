@@ -1,5 +1,9 @@
 {
-  "status": "pending_user_approval_not_applied",
+  "status": "accepted_applied_20261024",
+  "acceptance_date": "2026-10-24",
+  "acceptance_record": "policy-engine/docs/system-design-decisions/lifecycle-cross-scope-clarifications-r19-ratification.md",
+  "approved_source_commit": "9f32d2706d60a5970d6fdd9ec9896242271a02ab",
+  "proposal_fields_standing": "Historical approved proposal text below, including scope_pending_approval; current normative clauses are in acceptance_record. No other proposal is ratified.",
   "proposals": [
     {
       "source_cluster": "S01",

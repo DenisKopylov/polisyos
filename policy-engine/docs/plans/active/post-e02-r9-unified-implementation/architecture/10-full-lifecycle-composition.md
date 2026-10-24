@@ -60,6 +60,8 @@ Qualified local custody-subject ref допустим без внешнего ins
 
 Различаются представление member outcomes, проверенный описательный/арифметический вывод и joint-policy/system claim. Сумма сопоставимых наблюдаемых величин может быть подписана ровно как этот расчёт: её target, measure/unit, coverage, editions и operator проверены; она не утверждает independence, совместный causal effect, feasibility или program admissibility. Совместная uncertainty требует dependence/covariance basis либо корректной границы. Для вывода о совокупном вмешательстве и authority программы сохраняются D2.6/CouplingGate, доказанная decomposition и релевантное emergent/system-level grounding. Unknown coupling не означает modularity; сумма stand-alone causal estimates не даёт joint effect. Каждый scoped aggregate имеет свой enrollment/dependency closure, а индивидуальные claims сохраняются.
 
+Структурное обучение имеет отдельный [путь CNT-06/native method → GYD-12](../solutions/18-structural-world-learning.md): фактический study/result и lineage квалифицируют структурное утверждение, после чего единственный world writer проверяет применимое правило записи. O1 effect-posterior и WP-01/02 не заменяют structural warrant. W5-K03 сохраняется в своей области; отсутствие принятого structural write rule ограничивает operative promotion, а не candidate/conditional исследование.
+
 ## 6. Автономный поиск и содержательное обучение
 
 LLM предлагает новые механизмы, framing, studies и документы; selected method owners проверяют соответствующие scientific/legal/value predicates. Candidate search может самостоятельно распределять разрешённый бюджет между обратимыми исследованиями по versioned operational exploration profile, не спрашивая политические веса при каждом сравнении. Такое распределение не объявляет социального победителя и не разрешает внешнее действие.
@@ -86,6 +88,6 @@ Selected local/remote/hybrid/offline profile проверяет свой реа�
 
 Реализация не должна утратить возможность сравнивать несовместимые основания, показывать векторы вместо одного score, сохранять спор, строить новые studies и возвращать costed refusal-with-a-path. Нельзя скрывать intrinsic non-identifiability за contract completeness. Непроверенная популяция/право/доступ/denominator остаётся конкретным внешним input или исследовательским residual.
 
-[SDD proposals](proposals/r19-system-design-clarifications.md) подготовлены отдельно и не применены. Они не блокируют независимые инженерные части, уже разрешённые действующими правилами.
+[Пять R19 SDD clauses](proposals/r19-system-design-clarifications.md) согласованы и применены 2026-10-24; [каноническая запись](../../../../system-design-decisions/lifecycle-cross-scope-clarifications-r19-ratification.md). Прочие draft scopes не ратифицированы. Независимые инженерные части продолжаются по действующим правилам.
 
 Pattern pass: P01/P02/P03/P04/P05/P07/P08/P10/P14/P15/P27/P29/P31/P32/P35/P37/P38/P40. Target — source-bound meaningful producer→consumer→fresh surface с scoped authority и falsifier; документация не присваивает capability-complete.

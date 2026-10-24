@@ -139,6 +139,8 @@ term. **No package, issuer, registry, resolver, or schema is ratified** — the 
 posture stays adapter-local references plus explicit mappings constrained by the
 profile.
 
+**Dated clarification, 2026-10-24 — [R19-SDD-01](lifecycle-cross-scope-clarifications-r19-ratification.md#r19-sdd-01--references-do-not-transfer-admissibility).** A qualified subject reference or parent/child split/merge link is provenance/reference and transfers no authority, status, currentness, applicability, permission, audience or retention entitlement. A child protected claim may reuse an artifact only after current owners resolve/content-bind it and check child scope/time/method/rights. Adapter-local references remain available without external IDs; external aliases are optional and source/time-qualified. No canonical owner, schema, relation vocabulary or cardinality is selected.
+
 ### 4.2 K14 — independence binds verification claims, not every rebuild
 
 K14 as written says current-state semantic reconstruction *must* use an independently
@@ -235,6 +237,8 @@ scheduler, or service topology; public correction states, cache fan-out, or long
 key and archive policy; institutional operator, competence, proof-of-service, remedy,
 or payment facts; benchmark passage, numerical efficiency targets, or production
 RPO/RTO.
+
+**2026-10-24 boundary amendment:** [R19-SDD-01](lifecycle-cross-scope-clarifications-r19-ratification.md#r19-sdd-01--references-do-not-transfer-admissibility) now decides only that a link cannot transfer admissibility and that a new child use is freshly qualified. The unresolved identity ontology, canonical relation model and general inheritance mechanisms listed above remain unresolved.
 
 ## 8. Impact note (constitution §12 form)
 

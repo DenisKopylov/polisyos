@@ -1,8 +1,8 @@
 # R19: предложения уточнений system-design-decisions
 
-**Статус: pending user approval; не применены.** Эти пять предложений не назначают новых полномочий, не создают продуктовые enums/registries и не расширяют фактические tool permissions. Источники и номера разделов повторно проверяются при будущем согласованном внесении.
+**Текущий статус: все пять предложений согласованы пользователем и применены 2026-10-24.** [Канонический acceptance record](../../../../../system-design-decisions/lifecycle-cross-scope-clarifications-r19-ratification.md) задаёт действующий смысл. Ниже сохранён точный исходный текст предложений и прежних границ `scope_pending_approval` как история на `9f32d2706`; его pending формулировки больше не являются текущим блокером для этих пяти scope. Эти пять предложений не назначают новых полномочий, не создают продуктовые enums/registries и не расширяют фактические tool permissions. Источники и номера разделов повторно проверяются при будущем согласованном внесении.
 
-Изменение этих документов требует отдельного согласования пользователя. До него независимые инженерные действия, уже разрешённые действующими правилами, продолжаются. Нельзя объявить всю R19-программу заблокированной из-за одного предложенного уточнения.
+Отдельное согласование именно этих пяти предложений получено. Новые нормативные изменения за их пределами требуют своего решения. Независимые инженерные действия, уже разрешённые действующими правилами, продолжаются. Нельзя объявить всю R19-программу заблокированной из-за одного предложенного уточнения.
 
 ## R19-SDD-01. Ссылка на subject и наследование admissibility
 
@@ -44,7 +44,7 @@
 - **why_needed**: Clarify scoped dependency/freshness for composed claims without promoting independent membership to joint approval or globally invalidating unrelated claims.
 - **scope_pending_approval**: Cross-root claim scope/freshness only; no new entity, certificate, authority, global model, default weights or hold on independent claims.
 
-## Практическая граница до согласования
+## Историческая практическая граница до согласования
 
 - Adapter-local qualified ref, immutable parent/child links и fresh per-claim evaluation уже допустимы; новая ссылка сама не создаёт transfer authority.
 - Применение принятой делегации проверяется по её реальному scope. Project SDD process никогда не отменяет действующую instruction hierarchy или запрет.

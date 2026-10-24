@@ -8,7 +8,7 @@
 
 ## Как читать
 
-1. [Executive summary R13 — PDF, 10 страниц](executive/summary.pdf), [текст с отметкой версии](executive/summary.md) и дополнения [R14](executive/r14-capabilities.md) / [R15](executive/r15-adaptive-and-models.md) / [R16](executive/r16-composed-models.md) / [R17](executive/r17-design-lifetimes.md) / [R19](executive/r19-full-lifecycle-solutions.md). Общее review — [R20](assurance/r20-general-review.md); самостоятельный delta и устранённые free-grow барьеры — [R21](assurance/r21-self-review.md); актуальный redteam технических стыков — [R22](assurance/r22-redteam.md).
+1. [Executive summary R13 — PDF, 10 страниц](executive/summary.pdf), [текст с отметкой версии](executive/summary.md) и дополнения [R14](executive/r14-capabilities.md) / [R15](executive/r15-adaptive-and-models.md) / [R16](executive/r16-composed-models.md) / [R17](executive/r17-design-lifetimes.md) / [R19](executive/r19-full-lifecycle-solutions.md). Общее review — [R20](assurance/r20-general-review.md); самостоятельный delta и устранённые free-grow барьеры — [R21](assurance/r21-self-review.md); redteam технических стыков — [R22](assurance/r22-redteam.md); актуальный самостоятельный разбор — [R23](assurance/r23-self-review.md).
 2. [Границы, источники и правила перехода](execution/01-charter-and-entry.md).
 3. [Сверенный остаток](inventory/README.md), [исходные версии](inventory/sources.json), полные GY/Atlas/debt crosswalks.
 4. [Архитектура композиции](architecture/01-integration-boundaries.md): кто пишет общий механизм, кто только потребляет.
@@ -91,3 +91,12 @@ restore continuity и отдельный structural-write predicate. Задач�
 обновлены; новые joins действуют при выбранном composition, без новых start edges.
 [Документарный receipt](assurance/r22-validation.json). Implementation/product
 verification остаются UNRUN до actual E02 acceptance; SDD не изменены.
+
+## R23: самостоятельное review R22
+
+[Разбор и четыре группы исправлений](assurance/r23-self-review.md) уточняют
+reuse для случайных методов, порядок перекрывающихся наблюдений, recovery
+разнородных разрешённых представлений и действительный прогресс очереди.
+Исправлены существующие задачи и их human/machine acceptance; новые start edges,
+сервисы и нормативные SDD не введены. [Проверка документации](assurance/r23-validation.json).
+Реализация и продуктовые проверки по-прежнему только после фактической приёмки E02.

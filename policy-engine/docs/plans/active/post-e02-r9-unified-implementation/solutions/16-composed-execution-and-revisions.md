@@ -37,7 +37,7 @@ Checkpoint eligibility включает state schema, participant closure, exact
 3. Change plan выбирает affected closure + demanded outputs, source-derived coverage. Если completeness read-set не установлена, exact selective hit недоступен; clean recompute в охваченном scope допустим. Не подменять unknown dependencies пустым множеством.
 4. Два native пути: unaffected exact reuse и fresh evaluation. Owner-specific delta update — отдельная условная оптимизация с insert/correct/retract semantics. Для SCC по умолчанию единица пересчёта весь coupled block; для temporal chain — affected suffix.
 5. Проверить pruning по полной consumer-facing semantics, включая support/selection/guarantee/provenance. Равенство числа не отсеивает rights/currentness cascade. Approximate pruning только при contract-bound downstream error bound; иначе fresh calculation.
-6. Сохранить permitted dependency/read receipt и причину reuse/recompute/miss; публичная проекция не раскрывает private membership/hash. Fresh result соответствует независимому clean recompute при той же selected guarantee.
+6. Сохранить permitted dependency/read receipt и причину reuse/recompute/miss; публичная проекция не раскрывает private membership/hash. Fresh result соответствует независимому clean recompute при той же selected guarantee. Замороженный realization и новая stochastic replicate — разные invocation intents: random-stream/state/backend identity учитывается там, где этого требует native method. Exact replay проверяет свой sample-path contract; distributional сравнение использует заранее выбранный statistical criterion, не равенство отдельных samples. Cache hit не увеличивает число независимых observations; distributional similarity не подменяет exact historical artifact.
 
 **Проверки:** Q06/Q07/Q08/Q11/Q16. **Граница записи:** LIF-07 владеет общей influence/reuse relation; actual Foundry cache reader — GYD-30, Scientist search reader — DES-03. Один adapter contract не создаёт второго графа lineage. DES-03 получает LIF-07 `interface_agreement` для подготовки; actual supplier output обязателен для composed cache acceptance.
 
@@ -112,3 +112,16 @@ LIF-04's due-intent selector applies the selected bounded service/aging/expiry
 policy, with LIF-06 eligibility and OPS-08 measurements. Expiry may conclude an
 eligible exploratory job as refused/cancelled; it cannot silently discard a
 custody duty or imply that work ran. See the exact task acceptance clauses.
+
+### R23 C4/C7 ordering and progress companion
+
+CAP-04 observation receipts keep their actual request/observation interval and
+attempt/head relation. A delayed old response cannot clear a later known
+invalidation merely by arriving last in the local journal; LIF-02 reconciles
+the supported scoped order and retains the observation/as-of limitation.
+
+Review-required is unresolved work, not proof of service. LIF-04 retains its
+original age and accountable continuation/escalation or owner-permitted cutoff;
+LIF-02 exposes missed custody coverage without waiting for compute/review.
+Only the class’s actual promised progress is scored as service; explicit
+best-effort refusal remains a truthful, distinct disposition.

@@ -135,3 +135,26 @@
 Scoped proofs выполняются владельцами после E02. Все selected Q-cases входят в existing FINAL-FREEZE → FINAL-REVIEW → FINAL-REPLAY; отдельной дорогой глобальной волны R16 нет. Неподдержанная optional profile получает explicit disposition; required capability не исчезает из denominator. Report различает source implementation, useful behavior, mathematical guarantee, external validity и current lawful/public use. Historical E02 closures не меняются.
 
 Pattern pass: P01/P02/P04/P05/P07/P08/P10/P14/P15/P27/P29/P31/P32/P33/P35/P37/P38/P40/P41. До реализации конкретные gaps — `bridge_missing`, `verification_missing`, иногда `consumer_missing`/`surface_missing`; точное текущее состояние устанавливает accepted-E02 rebind, не этот исследовательский документ. Новая атака классифицируется как новый класс или пример уже описанного residual; не запускать бесконечную лестницу per-fixture repairs.
+
+## R23: различающие дополнения к Q06/Q09/Q13/Q14
+
+- **Cache и случайность:** один qualified frozen realization проходит свой
+  cache-on/off replay criterion. Новый native stochastic replicate получает новый
+  invocation/draw basis и проверяется по заранее выбранному scientific guarantee.
+  Разные допустимые samples сами по себе не cache defect; повтор старого draw как
+  нового независимого evidence — defect. Убрать invocation relation при сохранённых
+  seed/cache labels: второй случай обязан обнаруживаться. Distributional agreement
+  не восстанавливает утраченный exact historical artifact.
+- **Порядок observations:** медленный poll A начинает раньше B, B видит изменение
+  и fences use, затем A возвращает старые bytes. Local completion position не
+  снимает fence. Qualified follow-up восстанавливает лишь поддержанную as-of
+  гарантию; независимый scope продолжает работу. Удаление expected-head/order
+  reconciliation при сохранённых journal labels разрушает этот discriminator.
+- **Прогресс:** поток review markers/retry IDs не засчитывается за actual service
+  и не сбрасывает overdue age. Реальный policy-bound review outcome оставляет
+  accountable continuation/transfer/cutoff либо явно unresolved coverage. Убрать
+  affected custody reaction, оставить metrics — claim consumer выявляет ложную
+  актуальность. Best-effort expiry не доказывает гарантию исполнения service class.
+
+Это будущие selected-path cases; сейчас runtime **UNRUN**. Полные task mirrors:
+[LIF](../solutions/02-custody.md), [lineage/resources](../solutions/03-lineage.md).

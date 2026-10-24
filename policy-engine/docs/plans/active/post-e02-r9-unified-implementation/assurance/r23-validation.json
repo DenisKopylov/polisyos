@@ -1,0 +1,79 @@
+{
+  "base_commit": "c71e972d519e84754b5a5fcf31ec601ffe613f65",
+  "executor": "root",
+  "predicate_basis": "recomputed",
+  "scope": "documentation only; no product imports/tests/builds",
+  "task_objects": 121,
+  "task_prefixes": {
+    "CAP": 6,
+    "LIF": 9,
+    "GYD": 33,
+    "UI": 20,
+    "CNT": 9,
+    "OPS": 12,
+    "P0": 2,
+    "DEB": 14,
+    "FINAL": 4,
+    "DES": 12
+  },
+  "preserved_direct_dependency_edges": 368,
+  "acyclic": true,
+  "extension_mirrors": {
+    "r19_extension": 72,
+    "r17_extension": 41,
+    "r16_extension": 28,
+    "r14_extension": 24,
+    "r15_extension": 28
+  },
+  "retained_questions": 84,
+  "question_task_routes": 388,
+  "approved_proposals": 5,
+  "stable_question_ids": [
+    "8.4-waist-altitude",
+    "8.4-real-grounding-cost",
+    "8.4-demand-pull-strength",
+    "8.4-search-recall-freshness",
+    "8.4-agent-orchestration-authority-leak"
+  ],
+  "static_id_match_not_runtime_join": true,
+  "markdown_file_denominator": 144,
+  "relative_markdown_links": 1650,
+  "missing_files": [],
+  "unresolved_anchors": [],
+  "product_execution": "UNRUN",
+  "E02_acceptance": false,
+  "json_file_denominator": 38,
+  "changed_task_rows": [
+    "CAP-03",
+    "CAP-04",
+    "LIF-01",
+    "LIF-02",
+    "LIF-04",
+    "LIF-06",
+    "LIF-07",
+    "OPS-04",
+    "OPS-05",
+    "OPS-08"
+  ],
+  "human_changed_cards_and_acceptance_mirrors": "PASS",
+  "retained_start_stage_requirements": "PASS",
+  "new_conditional_composition_joins": [],
+  "new_SDD_changes": 0,
+  "new_top_level_tasks": 0,
+  "delegation": "none; solo root review and final substantive counterexample pass",
+  "documentation_only": true,
+  "substantive_review_limit": "Solo review of R22 seams: stochastic reuse, overlapping observations, native representation/retention recovery, directional rollout compatibility and queue progress; no runtime verification or exhaustive fresh review of every historical source.",
+  "documentation_status": "PASS",
+  "validator": {
+    "path": "policy-engine/_build/post-e02-r23-self-review-20261024/validate.py",
+    "sha256": "a8990c7c33e11a6153fb824e77bbed14ac645eb1113fab6a087ae16b2839d89c",
+    "method": "stdlib JSON/text and Git object reads; no product imports"
+  },
+  "product_hooks": {
+    "check-contrast": "UNRUN",
+    "check-reduced-motion": "UNRUN",
+    "typecheck": "UNRUN",
+    "reason": "User prohibits product/heavy processes during documentation work; per-invocation LEFTHOOK_EXCLUDE, no hook configuration change."
+  },
+  "missing_capability_boundary": "Plan corrections only; runtime producer/bridge/consumer/semantic evidence to be established after actual E02 acceptance and source rebind."
+}

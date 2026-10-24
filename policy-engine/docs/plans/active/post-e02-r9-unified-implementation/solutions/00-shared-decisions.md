@@ -166,3 +166,33 @@ LIF-05 для хранения raw data, identifiers, hashes и provenance. Ут
 
 Original criteria и поддержанные native contracts остаются определяющими; эти
 уточнения не принимают код, не устанавливают внешние факты и не меняют SDD.
+
+## S18. R23: гарантия определяется смыслом use, а не удобным proxy
+
+[Самостоятельное review](../assurance/r23-self-review.md) уточняет S16/S17 без
+новых owners или start prerequisites:
+
+- **Reuse:** LIF-01/07 и CAP-03 отделяют повтор сохранённого assessment/realization
+  от нового stochastic invocation. Cache-off проверяет ту же выбранную гарантию
+  на том же basis/use cut; bitwise или exact sample-path equality не навязывается
+  всем методам. Distributional similarity не заменяет exact referenced artifact;
+  cached draw не становится новым независимым наблюдением.
+- **Наблюдение:** CAP-04 сохраняет actual attempt и observation interval; LIF-02
+  проверяет scoped expected head и основание порядка. Поздний старый ответ не
+  отменяет известную invalidation. Receipt order не становится source succession;
+  независимые опросы остаются параллельными. Reconciliation может вернуть лишь
+  подтверждённый observation/as-of use, не непрерывную внешнюю актуальность.
+- **Recovery:** OPS-05 классифицирует required retained bytes, lawful result-only
+  receipts и verified-erased dependencies через native contracts/LIF-05. Законное
+  отсутствие raw input не ошибка backup; пропажа обещанного retained object —
+  ошибка. Холодный объект проверяется до его protected use, если профиль допускает
+  scoped recovery; это не corpus-wide integrity. Старую подпись нельзя оживить
+  новым кандидатным расчётом или реконструкцией запрещённых данных.
+- **Очередь:** LIF-04/06 и OPS-08 различают service promise, best-effort disposition
+  и unresolved review. Повтор review/retry не обнуляет возраст и не подтверждает
+  service. Пропущенный custody interval получает truthful claim/coverage reaction
+  через LIF-02; реальная новая bounded continuation не переписывает прошлый lapse.
+
+Каждая selected guarantee получает свой positive, adversarial и removal signal.
+Неподдержанная гарантия ограничивает соответствующий use, а не все native methods,
+все архивы или все источники. Это плановые engineering corrections, не acceptance.

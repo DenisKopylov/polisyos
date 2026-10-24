@@ -167,3 +167,5 @@ R15: читать также 28 `r15_extension` в task/solution manifests и [�
 [Все 84 решения](lifecycle-r19/README.md) и `r19_extension` в preferred-solutions/tasks являются дополнительными обязательствами назначенного slice. Прочитать также [composition rules](../architecture/10-full-lifecycle-composition.md); research/source assumptions не являются runtime PASS или разрешением на реализацию до E02 acceptance.
 
 Актуальный redteam cross-owner решений и source-bound corrections: [R22](../assurance/r22-redteam.md).
+
+Самостоятельное содержательное review R22 и актуальные уточнения: [R23](../assurance/r23-self-review.md).

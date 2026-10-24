@@ -240,6 +240,7 @@ Classify each input at accepted-source rebind as internal engineering output/all
 
 Add one supervised entrypoint around the existing ControlWorker/ControlPlaneStore lifecycle and handler registry. The worker shares the existing durable job records, lease generation, heartbeat, renewal, cancellation and receipt path; it must not create a second queue or scheduler. For a single Linux host, systemd is a suitable supervisor with restart-on-failure and start-rate limiting. Treat restart as process recovery only: leases constrain concurrent ownership, while an effect completed just before a crash but not yet receipted remains an unknown effect. Retry only with provider-supported idempotency or positive reconciliation; otherwise preserve the attempt as unresolved and require review. Readiness consumes the live worker signal from OPS-03.
 
+
 ### Что переиспользовать
 
 - `policy-engine/src/polisyos/runtime/http/services/control_worker.py@dccea950845cda5b38f026e7770c07819d31f4d9` — `ControlWorker`. Historical plan source says the embedded worker owns leasing and handler execution.
@@ -248,6 +249,7 @@ Add one supervised entrypoint around the existing ControlWorker/ControlPlaneStor
 
 Наблюдение на историческом pin не устанавливает текущую реализацию или принятую базу.
 
+
 ### Последовательность реализации
 
 1. Create the external process entrypoint under the existing runtime ops-runner owner and construct the same store, handler registry and worker lifecycle as embedded mode.
@@ -255,10 +257,12 @@ Add one supervised entrypoint around the existing ControlWorker/ControlPlaneStor
 3. Use a host service manager for process start, restart throttling, shutdown and operator health; leave job retry semantics to the existing control lifecycle.
 4. For independently rolling API/worker profiles, qualify mixed-version compatibility over the complete affected supported reader/writer/schema/rule/backend window. N-1 is only a possible minimum, not the denominator; an atomic same-host pair does not acquire a new rolling-upgrade start barrier.
 
+
 ### Рассмотренные альтернативы
 
 - **Launch one runner per API process or add a new broker/scheduler.** — That risks multiplying concurrency and duplicates the current job owner before the existing lifecycle has been composed externally.
 - **Infer exactly-once execution from a lease or process restart.** — A lease cannot atomically cover a remote provider effect and local receipt.
+
 
 ### Free-grow и ресурсы
 
@@ -269,7 +273,7 @@ Add one supervised entrypoint around the existing ControlWorker/ControlPlaneStor
 
 ### Миграция и восстановление
 
-Stop new claims, drain or cancel active leases, reconcile uncertain external effects, then roll back worker/API together. Preserve old job attempts and control-store history; do not delete or reinterpret unresolved attempts.
+Stop affected new claims, drain or cancel their active leases and reconcile uncertain external effects before rollback. Use the actual supported directional API/worker/schema/rule matrix from OPS-05: independently roll back a component where the mixed version is qualified; coordinate an atomic pair only when required by that selected profile. Preserve permitted old job attempts/control history and unresolved effects; do not reinterpret old attempts or require all supported deployments to roll back together.
 
 
 ### Композиция и owners
@@ -282,6 +286,7 @@ Stop new claims, drain or cancel active leases, reconcile uncertain external eff
 
 - Authorized durable job completes through the external runner and a fresh API consumer sees its persisted result.
 - Worker absence blocks readiness; duplicate runner, expired lease, cancel/crash window and unauthorized scope cannot emit false completion.
+- Under a selected independently rolling profile, the actual supported mixed API/worker/schema direction serves a durable job and its fresh result reader; rollback may change only the affected component when that direction is supported. A supported retained older replay remains readable, while an undeclared or incompatible direction refuses. Remove the real compatibility check while keeping N-1/version labels: the incompatible-pair probe fails. Atomic-pair-only profiles retain their explicitly bounded coordinated rollback.
 
 
 ### Входы и ответственность за их получение
@@ -295,8 +300,8 @@ Stop new claims, drain or cancel active leases, reconcile uncertain external eff
 - Use another process supervisor only where the supported OS or institution already operates it.
 - A broker is considered only if measured control-store polling/lease behavior misses approved delivery targets and a separate owner approves durable bridge semantics.
 
-
 Classify each input at accepted-source rebind as internal engineering output/allocation, existing source record, or genuine external fact/permission. Missing native producer/bridge is assigned work, not an external blocker. Only the last class can justify an external-input hold after supplier/alternative investigation. See root-review.md for the task-specific distinction.
+
 
 ### Исследование и предел переноса
 
@@ -312,7 +317,7 @@ Classify each input at accepted-source rebind as internal engineering output/all
 
 ### Предпочтительное решение
 
-Give ControlPlaneStore an explicit versioned migration chain with expand → dual-compatible reader/writer → backfill/verify → contract, and keep it separate from runtime-state and CAS schema owners. Before a protected restore, pin the actual database backup/timeline and the exact CAS mount or bucket/prefix, manifest root, object inventory and version. Restore DB and CAS into quarantine, compare object hashes, owner heads and control references, then reconcile post-snapshot rights changes, retractions and revocations from their canonical owners before a fresh protected read. Define RPO over accepted events, job state, CAS references and rights history; define RTO through the first permitted fresh protected read. Neither startup time nor a database snapshot alone is recovery. Recovery proof covers material Claim Ledger/publication withdrawal, correction, supersession and reissue history as well as rights/control state. Bind each relevant journal incarnation, cut/high-water, replay floor and its mapping to restored heads. Obtain a trusted continuity witness outside the actual selected rollback closure (not a second copy rolled back with the same snapshot); this may be an independently retained permitted checkpoint/journal, not a mandatory new service. Reconcile through LIF-02 and the existing claim/publication owner, then fence fresh-read enablement against intervening material transitions. A rights regrant never resurrects a withdrawn claim. Missing, deleted or unverifiable required history/witness keeps the affected restored head quarantined or explicitly historical/verification-limited; unaffected proven scopes may proceed. Respect LIF-05 minimization and do not reconstruct forbidden history merely to make restore green.
+Give ControlPlaneStore an explicit versioned migration chain with expand → dual-compatible reader/writer → backfill/verify → contract, and keep it separate from runtime-state and CAS schema owners. Before a protected restore, pin the actual database backup/timeline and the exact CAS mount or bucket/prefix, manifest root, object inventory and version. Restore DB and CAS into quarantine, compare object hashes, owner heads and control references, then reconcile post-snapshot rights changes, retractions and revocations from their canonical owners before a fresh protected read. Define RPO over accepted events, job state, CAS references and rights history; define RTO through the first permitted fresh protected read. Neither startup time nor a database snapshot alone is recovery. Recovery proof covers material Claim Ledger/publication withdrawal, correction, supersession and reissue history as well as rights/control state. Bind each relevant journal incarnation, cut/high-water, replay floor and its mapping to restored heads. Obtain a trusted continuity witness outside the actual selected rollback closure (not a second copy rolled back with the same snapshot); this may be an independently retained permitted checkpoint/journal, not a mandatory new service. Reconcile through LIF-02 and the existing claim/publication owner, then fence fresh-read enablement against intervening material transitions. A rights regrant never resurrects a withdrawn claim. Missing, deleted or unverifiable required history/witness keeps the affected restored head quarantined or explicitly historical/verification-limited; unaffected proven scopes may proceed. Respect LIF-05 minimization and do not reconstruct forbidden history merely to make restore green. Recovery follows each native representation and lawful retention contract; verify the required retained payload or receipt, preserve explicit gaps, and permit bounded cold verification only where the selected profile allows it. Neither every historical URI nor a readable root manifest defines successful recovery.
 
 
 ### Что переиспользовать
@@ -328,7 +333,7 @@ Give ControlPlaneStore an explicit versioned migration chain with expand → dua
 
 1. Add monotonic schema version checks and compatibility for every distinct supported retained reader/writer/schema/rule direction (N-1 alone is insufficient) before separately supervised API/worker rollout; preserve the existing tenant/RLS migration order.
 2. Inventory the actual SQLite/PostgreSQL backup method, WAL/timeline set, CAS mount type/options, object versions, root manifest, and store topology.
-3. Restore to quarantine, verify all referenced bytes and owner scope, reconcile rights/revocations newer than the backup from their authoritative owners, and only then enable fresh protected reads.
+3. Restore to quarantine; classify and verify the exact use-required retained payloads or allowed query/result receipts, reconcile rights/claim histories newer than the backup, then fence each protected fresh use. Unexpected missing required retained bytes fail; lawful non-retention/deletion is not repaired by reconstructing forbidden input.
 4. Measure owner-approved RPO/RTO on the exact selected backend and capture migration/restore receipts.
 5. Recovery proof covers material Claim Ledger/publication withdrawal, correction, supersession and reissue history as well as rights/control state. Bind each relevant journal incarnation, cut/high-water, replay floor and its mapping to restored heads. Obtain a trusted continuity witness outside the actual selected rollback closure (not a second copy rolled back with the same snapshot); this may be an independently retained permitted checkpoint/journal, not a mandatory new service. Reconcile through LIF-02 and the existing claim/publication owner, then fence fresh-read enablement against intervening material transitions. A rights regrant never resurrects a withdrawn claim. Missing, deleted or unverifiable required history/witness keeps the affected restored head quarantined or explicitly historical/verification-limited; unaffected proven scopes may proceed. Respect LIF-05 minimization and do not reconstruct forbidden history merely to make restore green.
 
@@ -348,20 +353,22 @@ Give ControlPlaneStore an explicit versioned migration chain with expand → dua
 
 ### Миграция и восстановление
 
-Use versioned forward migrations with N-1 readers and reviewed compatible rollback. Never restore old rights over newer correction/revocation. SQLite uses its Online Backup API or equivalent coordinated WAL-aware process; PostgreSQL uses the selected dump/base-backup/WAL strategy with timelines. All targets are measured, not inherited from documentation.
+Use versioned forward migrations with the explicitly supported retained reader/writer/schema/rule directions and reviewed compatible rollback (including N-1 where supported, not limited to it). Never restore old rights over newer correction/revocation. SQLite uses its Online Backup API or equivalent coordinated WAL-aware process; PostgreSQL uses the selected dump/base-backup/WAL strategy with timelines. All targets are measured, not inherited from documentation.
 
 
 ### Композиция и owners
 
 - A recovery checkpoint binds database snapshot identity, CAS manifest/root, exact mount/backend configuration, control high-water, rights/revocation high-water, material Claim/public-history cuts and replay floors, externally-to-rollback continuity witness, and relevant time semantics.
 - Fresh-read enablement is a separately enforced state transition, not an operator's claim that restore succeeded.
+- Derive the recovery obligation set from the selected native representation/use and actual LIF-05 retention decisions, not every historical URI. Retained payload required by that use must resolve and verify; a lawful query-only/result-receipt contract verifies its own retained result, execution binding and limitations without demanding prohibited raw input. Verified lawful erasure is an explicit unavailable dependency, never corruption silently ignored or invented permission to re-fetch. A use still requiring the erased input remains limited/unavailable; independently sufficient current evidence can support a new scoped candidate/use under its own rules, without rehabilitating the old head or inventing continuity. Distinguish loss of an object that was required to survive the backup from an object deliberately not retained. Control/head/rights reconciliation and fences precede enablement. Large archives may use bounded per-scope retrieval and verification before each protected use where the native profile permits it; do not claim corpus-wide integrity from a sampled scan or a readable manifest. Full integrity/preservation obligations, if selected, remain separately scheduled and evidenced. No universal full-payload startup scan or second archive is required.
 
 
 ### Acceptance и различающие проверки
 
-- Partial DB/CAS cut, absent WAL/object, stale rights history, interrupted migration and any incompatible required supported reader remain quarantined.
+- Partial required DB/CAS cut, absent required retained WAL/object, stale required rights/claim history, interrupted migration and any incompatible required supported reader keep the affected scope quarantined; lawful non-retention follows the native representation/retention contract.
 - Exact tested mount supports concurrent publish/crash/restart/restore and a fresh authorized read; changing the mount invalidates conformance.
 - Restore a backup containing signed S0 after a later withdrawal and reissue: a continuity witness outside the selected rollback closure plus actual claim/public replay yields the correct fresh head and permitted history. Lose/roll back that witness, delete required history, or inject a withdrawal between reconcile and enablement: the affected restored scope remains fenced. Remove the claim-history witness while retaining rights/hash markers: the false-current recovery probe fails. An independently proven unaffected scope need not wait.
+- Restore a mixed lawful archive containing a retained payload, a query-only result/receipt and a verified-erased dependency. The first two support only their actually qualified uses without copying forbidden raw input; the erased-dependent use remains unavailable, while a genuinely independent scope can proceed. Unexpected loss of a required retained object or omission of a claimed required dependency fails. Lazy verification must catch a corrupted cold object before that object’s protected use and cannot attest whole-archive integrity. Removing representation/retention classification while retaining restore markers exposes either forbidden reconstruction or false admission.
 
 
 ### Входы и ответственность за их получение
@@ -595,6 +602,7 @@ Version class policies and in-flight reservations; keep agent/reviewer limits di
 - Resource classification/measurement policy belongs to the actual platform/service owner; no new institutional act is needed for each in-envelope sample unless that owner contract requires it. Production class admission consumes completed measurements and the actual supported concurrency/terminal denominator.
 - Bind a versioned profile-specific queue/progress policy at LIF-04’s existing due-intent selector: eligibility and aggregate reservations come from LIF-06, measured headroom/age targets from OPS-08. Specify priority, fairness/aging or an explicitly limited best-effort class, queue admission/expiry and a bounded terminal/review disposition. Retry must preserve original admission age. No universal numeric deadline or mandatory DRF is imposed. An unbounded service/progress promise is forbidden; adverse load yields the declared defer/cancel/refusal/review result. Custody/revocation/reconciliation duties cannot disappear on queue TTL: retain their durable obligation and expose overdue/coverage loss through the existing owner.
 - Accounting may use a conservative enforced process/pool envelope with verified shared-allocation ownership and reconciliation; no per-Python-object tracing or universal allocation ledger is required. Uncertain lifetime retains the relevant conservative charge/headroom bound rather than inventing free capacity. Partition or aggregate only when the physical bound remains valid.
+- Treat review-required as an unresolved service/coverage state, not a terminal service success. The existing duty owner binds the actual review owner, triggering evidence, next wakeup/escalation or owner-permitted cutoff/transfer and original admission/due age; a callback, repeated review marker or fresh retry ID alone cannot discharge the duty or reset its clock. A class promising service/aging needs actual service progress within its commissioned bound; a class declaring best-effort may expire/refuse without that guarantee, with a visible outcome. For custody work, missed service changes the affected claim/coverage promptly through LIF-02 even if bulk compute or review is unavailable. A review result can authorize a new bounded plan but cannot rewrite the missed interval. This qualifies the selected policy, not a universal SLA or a new human-approval gate.
 
 
 ### Acceptance и различающие проверки
@@ -605,6 +613,7 @@ Version class policies and in-flight reservations; keep agent/reviewer limits di
 - An unknown class can produce measurements inside an existing enforceable isolated envelope while its production/duty eligibility stays unavailable. No envelope means no run. Two disjoint measurement lanes can proceed concurrently within aggregate capacity; a joint class/cap policy cannot promote from isolated results that omit their interference.
 - A terminal attempt leaves a shared 60/100 allocation alive: a new 50/100 request must defer/refuse until sufficient actual capacity is released or a separately qualified capacity envelope covers it. Duplicate completion/transfer cannot release twice; privately freed resources become usable. Removing lifetime reconciliation while retaining a completion receipt fails the saturation/admission discriminator.
 - Under sustained arrivals in one eligible class, an older competing job either receives its selected-policy service opportunity or reaches its declared bounded terminal/review disposition; it cannot silently defer forever. Retry preserves first-admission age, and a custody/revocation duty remains durable with a truthful overdue/limited surface. Remove aging/expiry/disposition behavior while preserving queue-age metrics: the selected progress-policy probe fails; do not claim successful execution when only expiry/refusal occurred.
+- Replace real service by repeated review-required events and new retry IDs while preserving queue-age metrics: the declared service guarantee fails and the duty remains overdue/unresolved. A real review disposition either schedules an accountable continuation, makes an authorized cutoff/transfer or preserves explicit limited coverage with its next trigger; it is not counted as execution. Positive service-class work progresses under its stated load bound, while explicit best-effort refusal remains a different truthful result. Remove the overdue-to-claim reaction but retain review markers: the custody coverage probe fails.
 
 
 ### Входы и ответственность за их получение

@@ -113,6 +113,7 @@ Extend the selected Fabric HTTP connector to capture one bounded response as an 
 3. For 304, resolve the exact retained representation matching request key and source profile and update only permitted metadata. For range, require strong If-Range validator, valid Content-Range, gap-free nonoverlapping assembly, and whole-body digest; a 200 response replaces the partial path.
 4. For pagination, accept a provider's opaque continuation/snapshot token only within the admitted source/query and independently authorized recipient set; a provider CDN or foreign-origin continuation needs its own exact egress/credential scope rather than blanket same-origin acceptance or prohibition. Persist each page receipt; commit the final cut through LIF-03's expected-head/attempt fence.
 5. Treat a byte-identical retried page under the same source-defined token/cut idempotently; conflicting contents, skipped required coverage or unbound continuation remain partial/refused. Allocate the actual second-source capture/parser/protocol sub-slice required by LIF-08; first-route completion cannot substitute for it.
+6. For a selected controlled-proxy route, verify an authenticated request-bound enforcement result binding the exact request/attempt, resolved final target, proxy/policy identity and actual egress decision, including redirected hops and credential audience. A client socket peer that is merely the proxy, a forwarding header or proxy configuration is not target evidence. Use the existing transport/security seam; missing or mismatched required evidence refuses that destination/use. Private targets may pass only under the expressly permitted private-connector profile, never public-discovery privilege.
 
 
 ### Рассмотренные альтернативы
@@ -141,6 +142,7 @@ Reuse legacy roots only after reopening and verifying exact bytes, request/profi
 - Transport safety and source-use/materialization permission both precede capture side effects. LIF-05 fences each actual write/disclosure; LIF-01/03 admission and later CAP-03 reuse consume the lawful representation. An HTTP-valid response is not permission to store it.
 - LIF-05/native source-use producer supplies a current, qualified source/profile/purpose/audience/actual-sink decision before the selected CAP-02 body/temp/log/cache placement. CAP-01 outbound-query permission and CAP-03 later reuse admission do not authorize capture storage. If authorized query egress returns a body whose placement is unknown/denied, do not stage/store/log/cache or expose its digest/ref. Discard at the authorized ephemeral processing boundary and emit only a permitted opaque non-admission receipt; if ephemeral response processing itself lacks permission, refuse the fetch. Do not label this a complete admitted capture. See the task conditional supplier: this is a selected-effect join, not a whole-task start dependency.
 - HTTP ETag/304 rules apply only to that representation protocol. Existing qualified file, database-query or bounded stream producers retain their native receipt/cut semantics; they are not wrapped in a fictitious HTTP response. WDI first-route evidence neither closes nor blocks a disjoint selected protocol extension.
+- For a selected controlled-proxy route, verify an authenticated request-bound enforcement result binding the exact request/attempt, resolved final target, proxy/policy identity and actual egress decision, including redirected hops and credential audience. A client socket peer that is merely the proxy, a forwarding header or proxy configuration is not target evidence. Use the existing transport/security seam; missing or mismatched required evidence refuses that destination/use. Private targets may pass only under the expressly permitted private-connector profile, never public-discovery privilege.
 
 
 ### Acceptance и различающие проверки
@@ -151,6 +153,7 @@ Reuse legacy roots only after reopening and verifying exact bytes, request/profi
 - Removal of body binding or LIF-03 expected-head fencing while status markers remain makes the matched negative fail.
 - Query-only canaries remain absent from managed staging/temp/CAS/log/cache sinks at capture time, not merely after cleanup; permitted receipt/result remains usable. Removing pre-materialization permission while leaving later reuse checks must fail.
 - With WDI still honestly single-response, a separately qualified source protocol completes its own capture→receipt→fresh consumer without HTTP-specific assumptions. An unsupported continuation cannot borrow the WDI receipt; removing that protocol’s actual completeness/fence changes its result.
+- Controlled-proxy positive: an authorized target with a verified request-bound enforcement result reaches the selected receipt/reader. Through the same proxy, a forbidden metadata/private target, a receipt for another attempt or a forwarding-header substitute must fail; explicitly permitted private-source traffic retains its separate positive. Remove target-result verification while retaining proxy labels: the forbidden-target probe fails. Direct/nonproxy routes use their own actual-boundary proof.
 
 
 ### Входы и ответственность за их получение
@@ -322,6 +325,7 @@ Do not infer enrollment from positive references or verified events from URL mov
 - LIF-02 exclusively owns C/W enrollment, replay floor, duplicate/effect ordering, generation, affected-claim reaction, and public currentness fence; CAP only supplies a verified source-specific event or bounded source read.
 - A provider delta token may be an opaque cursor and snapshot witness only under that provider's contract; replays are idempotently reconciled, expired tokens trigger bounded resync, and a feed with undocumented omissions cannot support completeness.
 - Recorded, effective, retrieved, and publication times remain distinct; source change does not itself establish correction, repeal, or legal applicability.
+- LIF-02 consumes local observation-cut identity/coverage through its explicit bounded-observation branch; our journal closes local enrollment races but cannot supply source continuity or effective time. Selected fresh projections retain observation/as-of limitations.
 
 
 ### Acceptance и различающие проверки

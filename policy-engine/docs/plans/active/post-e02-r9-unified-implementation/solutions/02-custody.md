@@ -55,7 +55,7 @@ Rebind historical records by exact content/profile. Suspend only the affected us
 ### Композиция и owners
 
 - CAP supplies exact receipt/profile/bytes; domain owner supplies relation assessment; Claim Ledger owns use, head and projection.
-- Classify gate predicates: content/rule checks may be recomputed; legal act/applicability is institutionally supplied; unknown scope remains candidate.
+- External institutional acts enter as supplied evidence, not automatically qualified applicability. At admission classify each required content, authenticity/competence, current status and claim-specific applicability predicate by its actual verification basis. A qualified native rule may recompute scope/time/subject/condition/exception predicates or independently reconcile them; an unresolved interpretation, competence or conflict remains limited/blocked for the affected protected claim. Do not assign a P37 grade from the legal field name.
 - Expose the selected use and audience without a universal metadata envelope.
 - LIF-01 owns assessment/use semantics, CAP-03 its library consumer, and existing native lineage/cache owners (including LIF-07 where selected) own dependency storage/invalidation. Bind the actual producer→reuse reader before enabling a cache claim; reuse does not authorize a second cache/lineage subsystem or impose caching on a method whose semantics require a fresh evaluation.
 
@@ -66,6 +66,7 @@ Rebind historical records by exact content/profile. Suspend only the affected us
 - Negative: wrong polarity/unit/population/scope, unbound translation, no-hit as absence, repeated cohort as independent, anonymous occurrence with invented identity.
 - Removal: remove content resolution but keep refs/labels; reject. Remove purpose binding but keep assessment; changed-use reuse refuses or reassesses.
 - For a selected cache-eligible assessment, repeated covered use reuses the same qualified assessment with observable verifier-call accounting, yet a changed rule/rights generation or newly matching dependency alters fresh use even when payload bytes are identical. Removing current dependency/fence validation must fail; disabling the cache must preserve the scoped decision. A method requiring fresh evaluation or lacking a complete dependency closure cannot borrow this reuse guarantee.
+- An authenticated legal source plus a qualified rule and all required applicability predicates actually recomputed/independently reconciled may support the scoped use without a new institutional conclusion for each call. Remove the applicability evaluator while retaining official-source markers: admission fails; a genuine unresolved interpretation/competence conflict remains limited. This does not infer legal validity from a signature alone.
 
 
 ### Входы и ответственность за их получение
@@ -98,7 +99,8 @@ Classify each input at accepted-source rebind as internal engineering output/all
 
 ### Предпочтительное решение
 
-Extend source-event and Claim/Decision Validity owners with source cut C, enrollment high-water W and replay floor. Where source and dependency share one transaction owner, record edge/generation/outbox together. Otherwise evaluate at source-supported cut C, register exact scope and journal identity at W, then replay (C,W] before claiming currentness. Use source-native incarnation + partition + position, not wall time. Couple event receipt, dedupe, invalidation effect, append-only history and processed position in the consumer transaction. Publication compares expected claim head plus enrolled source/right cuts in a writer-participating transaction; if stores cannot share it, use prepare/reconcile or an explicitly scoped as-of cutoff with a verified source cut and native validity/expiry rule; signing the cutoff alone does not establish cross-store currentness. Mark coarse generation stale before delayed precise fanout. Missing replay floor/cut means stale/not_established.
+Extend source-event and Claim/Decision Validity owners with source cut C, enrollment high-water W and replay floor. Where source and dependency share one transaction owner, record edge/generation/outbox together. Otherwise evaluate at source-supported cut C, register exact scope and journal identity at W, then replay (C,W] before claiming currentness. For the source-native route use source-native incarnation + partition + position, not wall time. Couple event receipt, dedupe, invalidation effect, append-only history and processed position in the consumer transaction. Publication compares expected claim head plus enrolled source/right cuts in a writer-participating transaction; if stores cannot share it, use prepare/reconcile or an explicitly scoped as-of cutoff with a verified source cut and native validity/expiry rule; signing the cutoff alone does not establish cross-store currentness. Mark coarse generation stale before delayed precise fanout. Missing required replay floor/cut means stale/not_established for that route. For a source without a qualifying native feed, consume CAP-04’s bounded observation cut as a distinct evidence basis: exact CAP-02 representation/root, selector/profile/coverage, observation time and local journal incarnation/position. Enroll and replay our own observation journal to close observed-event-before-enrollment races; never reinterpret it as the source journal or proof of unobserved continuity. An observed mismatch or coverage loss fences affected claims; successful observation supports only the explicitly qualified observation/as-of claim. Current source completeness, legal effective time and changes between observations remain unestablished without their own evidence. Missing local replay coverage requires scoped reconciliation, not a fabricated source position.
+
 
 ### Что переиспользовать
 
@@ -109,18 +111,22 @@ Extend source-event and Claim/Decision Validity owners with source cut C, enroll
 
 Наблюдение на историческом pin не устанавливает текущую реализацию или принятую базу.
 
+
 ### Последовательность реализации
 
-1. Bind evaluation to exact dependency scope and source cut C, journal identity, incarnation and supported continuity proof.
-2. Enroll at high-water W and replay (C,W]; refuse when replay floor or cut mapping cannot be established.
+1. Bind evaluation to exact dependency scope and route-qualified cut C (source-native or explicitly local observation), journal identity, incarnation and supported continuity proof.
+2. Enroll in the matching journal at high-water W and replay (C,W]; refuse when replay floor or cut mapping cannot be established.
 3. Persist receipt, dedupe, invalidation, claim action and processed position together locally; use an outbox only for a local dual-write boundary.
 4. Fence final public head on current source/right cut and expected head, or emit an explicit bounded cutoff; fresh reads surface pending reconciliation while scheduler is stopped.
+5. For a source without a qualifying native feed, consume CAP-04’s bounded observation cut as a distinct evidence basis: exact CAP-02 representation/root, selector/profile/coverage, observation time and local journal incarnation/position. Enroll and replay our own observation journal to close observed-event-before-enrollment races; never reinterpret it as the source journal or proof of unobserved continuity. An observed mismatch or coverage loss fences affected claims; successful observation supports only the explicitly qualified observation/as-of claim. Current source completeness, legal effective time and changes between observations remain unestablished without their own evidence. Missing local replay coverage requires scoped reconciliation, not a fabricated source position.
+
 
 ### Рассмотренные альтернативы
 
 - **TTL polling only** — Leaves a check/commit race and may stay green while the scheduler is down; acceptable only as an explicit candidate freshness bound.
 - **Best-effort dual writes** — Crash between source and event creates a permanent gap; outbox must be atomic with its local owner.
 - **Global source/claim/rights transaction or scheduler** — No shared transaction domain is established and a new service duplicates ownership without creating source evidence.
+
 
 ### Free-grow и ресурсы
 
@@ -139,6 +145,7 @@ Enroll old uses only from exact inputs and reconstructable cuts. Missing cuts/hi
 - CAP/source owns event and source cut; LIF consumes them.
 - Claim owner atomically applies local receipt/dedupe/effect/head. Cross-store source/right commits require reconciliation or cutoff.
 - Source completeness supplied by caller is consumer_asserted and cannot carry protected publication.
+- CAP-04 emits either source-native events/cuts or explicitly bounded observation evidence. LIF-02 validates the corresponding basis and owns the scoped reaction; API/UI/export preserve the distinction. No whole-task prerequisite or second event owner is introduced.
 
 
 ### Acceptance и различающие проверки
@@ -146,6 +153,7 @@ Enroll old uses only from exact inputs and reconstructable cuts. Missing cuts/hi
 - Positive: before/after-enrollment changes invalidate a negative; unrelated generation does not; currentness is visible with scheduler stopped.
 - Negative: pre-enrollment event, crash after dedupe, passed replay floor, lagging index, backdated event, coalesced revoke/restore and unchanged head with source drift.
 - Removal: remove C-to-W replay or writer-participating fence while retaining markers; corresponding missed event/racing publication fails.
+- No-feed positive: a persisted CAP-04 observation before enrollment is replayed locally and an observed mismatch changes only dependent claims in a fresh reader. Identical later bytes, A→B→A between polls, partial polls or a missing local replay floor cannot establish uninterrupted source currentness. Remove the observation-cut/basis binding while retaining journal labels: the reader must not emit unjustified current green.
 
 
 ### Входы и ответственность за их получение
@@ -161,8 +169,8 @@ Enroll old uses only from exact inputs and reconstructable cuts. Missing cuts/hi
 - If publisher/source/right cannot share a transaction, agree prepare/reconcile or cutoff before edits.
 - Keep coarse invalidation until a precise affected set is independently reconciled.
 
-
 Classify each input at accepted-source rebind as internal engineering output/allocation, existing source record, or genuine external fact/permission. Missing native producer/bridge is assigned work, not an external blocker. Only the last class can justify an external-input hold after supplier/alternative investigation. See root-review.md for the task-specific distinction.
+
 
 ### Исследование и предел переноса
 
@@ -311,6 +319,7 @@ Reconcile legacy pending/completed rows against provider receipt and request dig
 - Provider receipt/window/quota is institutionally supplied evidence.
 - OPS supplies service identity and continuity; actor grants are rechecked before sensitive resume.
 - One canonical semantic owner does not require one physical process or a global mutex. Keep atomicity/fencing on the actual invariant key (job/attempt, source partition, claim head or budget principal). Distinct verified scopes can use separate workers/transactions; scopes sharing a cap, rights/disclosure budget or head still coordinate through its existing owner. Partitioning is an implementation option only after proving non-overlap and preservation of shared invariants, never by tenant/job labels alone.
+- Bind a versioned profile-specific queue/progress policy at LIF-04’s existing due-intent selector: eligibility and aggregate reservations come from LIF-06, measured headroom/age targets from OPS-08. Specify priority, fairness/aging or an explicitly limited best-effort class, queue admission/expiry and a bounded terminal/review disposition. Retry must preserve original admission age. No universal numeric deadline or mandatory DRF is imposed. An unbounded service/progress promise is forbidden; adverse load yields the declared defer/cancel/refusal/review result. Custody/revocation/reconciliation duties cannot disappear on queue TTL: retain their durable obligation and expose overdue/coverage loss through the existing owner.
 
 
 ### Acceptance и различающие проверки
@@ -319,6 +328,7 @@ Reconcile legacy pending/completed rows against provider receipt and request dig
 - Negative: accepted effect/lost reply after key expiry, cancel before/after acceptance, old worker after lease, 429, store outage, compacted history and wrong issuer receipt.
 - Removal: remove outcome reconciliation but keep key; blind repeat fails. Remove cancel/final fence but keep marker; accepted effect cannot report stopped.
 - Independent operation scopes make progress without a global job lock, while two attempts for the same protected effect still fence at its canonical key. Partition labels cannot split a shared provider/disclosure budget; delayed old attempts fail the expected-generation write.
+- Under sustained arrivals in one eligible class, an older competing job either receives its selected-policy service opportunity or reaches its declared bounded terminal/review disposition; it cannot silently defer forever. Retry preserves first-admission age, and a custody/revocation duty remains durable with a truthful overdue/limited surface. Remove aging/expiry/disposition behavior while preserving queue-age metrics: the selected progress-policy probe fails; do not claim successful execution when only expiry/refusal occurred.
 
 
 ### Входы и ответственность за их получение
@@ -356,6 +366,7 @@ Classify each input at accepted-source rebind as internal engineering output/all
 
 LIF-05 owns the single source-use/AP07 decision and composition seam consumed by CAP-03/06. Before writer dispatch, bind write:semantic-owner/source-disclosure to the exact existing decision-producer path/symbol and append its full companions to LIF-05 canonical_write_candidates. If no producer exists after scoped census, allocate one narrow canonical core/security boundary under LIF-05 and record its proposed exact path/API. AccessScope, RetentionPlanner and the store remain distinct request, planning and sink touchpoints; the current candidate path list is not a complete producer allocation. At accepted-source rebind, bind competent external rights evidence/verifier, native source-use decision owner, placement/write/delete/restore owners and retention planner separately. Reuse a proved decision owner; if absent, extend the canonical core/security source-use boundary once under LIF-05, with typed contract, producer, consumer and public companions. This is internal engineering, not an external wait. Do not derive grant authority from AccessScope or RetentionPlanner. AccessScope is request identity/authz scope; RetentionPlanner plans policy/impact and does not prove grants or purge. Consume a scoped rights decision carrying authority, provenance, effective time, rule version, purpose/audience and generation. Enroll writes/disclosures before materialization, stage bytes unservable, and publish only if the rights generation still matches at the actual write/head fence. Revoke during staging blocks publication; disclosed bytes cannot be recalled. Pin/drain active readers where supported. Record deletion outcome per actual managed placement and distinguish membership unlink, managed-byte deletion, backup status and external/provider copies. Restore into quarantine and replay post-backup rights/retention history before serving. CAP-03/06 consume this same rights/privacy owner for protected-unit aliases/overlap and disclosure composition; unknown overlap is not disjoint and unknown output holds reservation.
 
+
 ### Что переиспользовать
 
 - `policy-engine/src/polisyos/core/security/access_scope.py@dccea950845cda5b38f026e7770c07819d31f4d9` — `AccessScope`. Per-request tenant/cell/principal/roles scope is not source-specific lawful-use authority.
@@ -365,6 +376,7 @@ LIF-05 owns the single source-use/AP07 decision and composition seam consumed by
 
 Наблюдение на историческом pin не устанавливает текущую реализацию или принятую базу.
 
+
 ### Последовательность реализации
 
 1. Rights owner resolves actual grant/revoke/hold, use, audience, scope, effective time and generation; AP07 unit/alias/recipient composition is the same owner used by CAP-03/06.
@@ -373,12 +385,14 @@ LIF-05 owns the single source-use/AP07 decision and composition seam consumed by
 4. Restore quarantine replays post-backup rights events and roots. Unknown history or placement blocks serving; disclosure timeout after possible output is indeterminate and not refunded.
 5. Record one canonical decision API and consumer census for CAP-03/06; absent decision/composition is absent/unallocated or bridge_missing to implement in this task. Distinct competent authority, verification, placement and retention responsibilities remain explicit; one seam does not make one institution sovereign over all sources.
 
+
 ### Рассмотренные альтернативы
 
 - **Tombstone or impact plan proves all-copy deletion** — S3 versioning illustrates that delete marker hides bytes while older versions remain retrievable.
 - **Universal crypto-shred** — Requires complete copy/key/backup/shared-object and active-reader inventory; otherwise exceeds custody.
 - **New global rights or privacy-budget registry** — Splits the existing rights/privacy owner and CAP-03/06 consumers.
 - **Restore then apply tombstone asynchronously** — Creates a serve window and can miss expired post-backup history.
+
 
 ### Free-grow и ресурсы
 
@@ -397,6 +411,7 @@ Inventory actual placements and post-backup rights history. Unindexed/foreign pl
 - One canonical rights/privacy owner emits decision/generation/composition; CAP-03/06 consume it.
 - Artifact/CAS owner owns write/head/delete/pins/restore; OPS supplies backup topology.
 - External legal act, provider and backup receipts are typed evidence with bounded custody; unqualified all-copy claims require independently reconciled inventory.
+- Rights replay is necessary but not sufficient for restored claim currentness. OPS-05 binds material Claim/public-history cuts outside the actual rollback closure; LIF-02/current publisher reconciles them and fences enablement. If permitted retained evidence cannot establish that cut, show the affected restore limitation rather than revive the old signed head.
 
 
 ### Acceptance и различающие проверки
@@ -420,8 +435,8 @@ Inventory actual placements and post-backup rights history. Unindexed/foreign pl
 - If lawful retention applies, preserve only within that decision/safeguards; if erasure applies, report placement-specific outcomes.
 - No atomic rights/write boundary: keep staged bytes quarantined until prepare/reconcile/cutoff.
 
-
 Classify each input at accepted-source rebind as internal engineering output/allocation, existing source record, or genuine external fact/permission. Missing native producer/bridge is assigned work, not an external blocker. Only the last class can justify an external-input hold after supplier/alternative investigation. See root-review.md for the task-specific distinction.
+
 
 ### Исследование и предел переноса
 

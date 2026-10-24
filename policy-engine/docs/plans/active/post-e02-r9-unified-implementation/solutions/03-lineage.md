@@ -59,6 +59,9 @@ Inventory current callers and live allocations first. Keep existing estimates ad
 - Provider timeout/retry on a shared billable principal consumes or holds the same reconciled allowance; a rotated credential or second source does not imply a separate quota.
 - Spill records carry purpose, source artifact, retention/right scope and owning storage reference; ENOSPC yields an explicit partial/unavailable/refused outcome rather than an empty result.
 - Measurement and production admission are separate stages under this same owner. OPS-08 may qualify a new class inside an already enforced, explicitly permitted finite measurement envelope; unmeasured expected cost is never an admission guarantee and no protected claim duty is accepted from that run.
+- Allocation identity/lifetime is authoritative for capacity accounting, not job status. At attempt completion transfer surviving shared/cache/IPC charges to their existing native owner without multiplying or erasing them; OPS-08 reconciles actual enforced headroom. A duplicate release/transfer is idempotent and cannot create capacity.
+- Bind a versioned profile-specific queue/progress policy at LIF-04’s existing due-intent selector: eligibility and aggregate reservations come from LIF-06, measured headroom/age targets from OPS-08. Specify priority, fairness/aging or an explicitly limited best-effort class, queue admission/expiry and a bounded terminal/review disposition. Retry must preserve original admission age. No universal numeric deadline or mandatory DRF is imposed. An unbounded service/progress promise is forbidden; adverse load yields the declared defer/cancel/refusal/review result. Custody/revocation/reconciliation duties cannot disappear on queue TTL: retain their durable obligation and expose overdue/coverage loss through the existing owner.
+- Accounting may use a conservative enforced process/pool envelope with verified shared-allocation ownership and reconciliation; no per-Python-object tracing or universal allocation ledger is required. Uncertain lifetime retains the relevant conservative charge/headroom bound rather than inventing free capacity. Partition or aggregate only when the physical bound remains valid.
 
 
 ### Acceptance и различающие проверки
@@ -71,6 +74,8 @@ Inventory current callers and live allocations first. Keep existing estimates ad
 - Saturate native bulk allocation and spill while terminal writes/recovery run in the actual protected process groups; persisted outcomes and control reserve survive within the declared profile, or that hard-bound claim remains unavailable.
 - A new profile using already supported resource semantics requires no central branch. A genuinely new physical resource dimension needs a native enforcement adapter/conformance before it can claim a hard cap; generic discovery alone is not enforcement.
 - A parked parent retaining 60/100 RAM cannot admit a 50/100 child merely by yielding its CPU slot or moving a ledger entry. Actual release of sufficient memory permits progress; shared parent/child buffers count once, copies twice. Remove lifetime accounting but keep permit markers: the nested resource control must fail.
+- Finish or cancel an attempt whose allocation remains shared by another reader/cache: its charge survives under one live allocation owner, while actual private releases can be reclaimed. Transfer/release replay cannot create capacity. Removing shared-lifetime accounting while preserving terminal markers causes a bounded overadmission probe to fail.
+- Under sustained arrivals in one eligible class, an older competing job either receives its selected-policy service opportunity or reaches its declared bounded terminal/review disposition; it cannot silently defer forever. Retry preserves first-admission age, and a custody/revocation duty remains durable with a truthful overdue/limited surface. Remove aging/expiry/disposition behavior while preserving queue-age metrics: the selected progress-policy probe fails; do not claim successful execution when only expiry/refusal occurred.
 
 
 ### Входы и ответственность за их получение
@@ -110,6 +115,7 @@ Classify each input at accepted-source rebind as internal engineering output/all
 
 Extend the canonical ArtifactManifest/InputRef and existing ArtifactLineageGraph path so each derivative and cache use can bind its exact influence parents, then let current owner generations drive scoped invalidation and reassessment. Begin with conservative cache misses or full recomputation through the current owner; add incremental closure/invalidation only if a representative measured workload demonstrates a crossover that justifies its complexity. Cache identity and present admissibility are separate: a matching key is only a candidate reuse result, and the consumer must recheck current rights, audience, purpose, rules, and source/model generations. Missing or unresolved influence is a cache miss or a limited candidate, never proof of no effect or equivalence. Independence is checked only for a specific verification claim that depends on it; graph topology can contribute dependency facts but never proves independence. Confirmatory learning must enter the existing method-valid correction path; exploratory output remains lower authority. Preserve unresolved competing causal worlds and validated joint alternatives in the existing model/world owner rather than caching one alternative as if it were uniquely established.
 
+
 ### Что переиспользовать
 
 - `policy-engine/src/polisyos/core/artifacts/manifest.py@dc075e7dc0275fb8ea38a5a5bd8cd7a00968b895` — `InputRef; ArtifactRef; ArtifactManifest.inputs; input_ref_from_artifact_ref`. Verified at the planning source pin: manifests persist typed direct input references, roles, artifact identity, and selected manifest-profile hash; references also carry kind/media type. Current fields do not encode the full rights/audience/model/selection proof required by this row.
@@ -117,20 +123,23 @@ Extend the canonical ArtifactManifest/InputRef and existing ArtifactLineageGraph
 
 Наблюдение на историческом pin не устанавливает текущую реализацию или принятую базу.
 
+
 ### Последовательность реализации
 
 1. After E02 rebind, inventory all derivative producers, cache-key builders, model/training producers, selection/frontier producers, and actual claim/evaluation consumers. Extend the existing artifact/lineage owner only where the accepted native contract is insufficient; do not create another lineage graph.
-2. Record direct influence dependencies for exact parent artifact and manifest profile, semantic predicate/rule version, source and right/use generation, resolved model generation, training/input set, selection frontier, audience, purpose, and output profile. Persist the producer’s exact selection trace and method provenance where learning is involved.
-3. Derive reuse identity from the complete canonical dependency set, but separately re-resolve current permission and current-use validity at the consuming boundary. Any material parent, purpose, audience, right, rule, model, or selection change produces a miss, affected-use invalidation, or explicit refusal/limitation.
+2. Record dependencies with distinct roles: exact computational/selection/model/semantic inputs, current-use predicates, and retention/disclosure constraints. Bind right/use generation, audience and purpose into the computational key only when they actually affect selection, redaction, computation or output meaning; retain the other roles in the per-use decision/fence. Persist selection trace and method provenance where learning is involved.
+3. Derive reuse identity from the complete computational/semantic dependency closure, then independently resolve current use and LIF-05 retention eligibility at the actual consumer. An admission-only grant rotation may change allowed use without rerunning an unchanged lawful assessment. A changed selected dataset/redaction, model, predicate rule or other computational influence causes a cache miss/reassessment. Unknown role or incomplete closure cannot be treated as irrelevant.
 4. Use coarse invalidation for unknown or lagging reverse-index influence, then bounded precise reassessment for known affected uses. Never turn no-hit, ANN recall unknown, byte equality, a cached certificate, or shared graph ancestry into equivalence or independence credit.
 5. Bind the evaluated alternative set and joint-assessment generation where a derivative depends on competing causal worlds. Retain unresolved plurality and validated joint alternatives as typed owner output; a winning selection remains a decision-layer choice, not evidence that other worlds are false.
 6. Route confirmatory outcome learning through the existing method owner’s correction/reassessment protocol; mark exploratory proposals as candidate. Persist each resulting artifact/event and prove a fresh consumer observes the downgraded/stale/reassessed state.
+
 
 ### Рассмотренные альтернативы
 
 - **Use content hashes or existing lineage labels as the complete cache key.** — Equal bytes do not imply equal audience, purpose, applicable right, rule, resolved model, or training/selection basis; the required cross-audience cache negative would still hit.
 - **Adopt a generic build cache or duplicate a second semantic dependency graph.** — Bazel/DVC show the value of exact declared inputs, but do not model rights or PolicyOS authority. The existing manifest and graph are canonical owners; any additional semantics belong there or in a linked native owner record, not in a parallel graph/cache authority. No new incremental engine is mandatory: measure a representative workload and demonstrate a crossover before paying for more complex incremental behavior.
 - **Invalidate all descendants forever after any change.** — This is safe but can destroy usable candidate work and create unbounded operational fanout. Prefer conservative scoped stale/limited state and bounded reassessment; shrink the closure only with independently reconciled exact dependencies.
+
 
 ### Free-grow и ресурсы
 
@@ -152,6 +161,7 @@ Backfill only parent, model, rule, right, audience and selection edges that reso
 - Exploratory model proposals cannot update confirmatory claim standing without method-valid outcome/exposure provenance and correction/reassessment.
 - Uncertain competing causal worlds, validated joint alternatives, and inference plurality remain explicit in their existing owner records; a cache key or selected frontier cannot silently erase them.
 - Historical capture identity is not source-currentness. For a claim presented as current, bind actual CAP/LIF-02 revision/cut/high-water and validity; same-ID correction with a lagging feed makes currentness limited/stale. Explicitly historical/as-of use may retain the old derivative. Bind actual material influence roles, not every possible metadata field on every artifact.
+- LIF-01 owns assertion/assessment/use meanings; LIF-07 supplies role-qualified influence, cache identity and invalidation. A retained analytic result can remain mathematically unchanged while its current use is denied. Retain neither result nor its identifiers beyond actual LIF-05 permission; a cache hit cannot bypass deletion or authorize publication.
 
 
 ### Acceptance и различающие проверки
@@ -161,6 +171,7 @@ Backfill only parent, model, rule, right, audience and selection edges that reso
 - Removal: remove exact selection/model/right parent binding while retaining lineage labels; remove the live rights check while retaining cache-key fields; remove confirmatory correction while retaining a learning label. The consumer must miss/refuse/downgrade in each case.
 - For a verification claim that explicitly relies on independence, test its exact method/source-dependence analysis against shared cohorts, methods, authors, training inputs and derivatives. A lineage graph may inform this claim-scoped test but cannot prove independence by topology. Claims that do not require independence do not gain a mandatory extra gate.
 - Revise or withdraw the source under the same locator while delaying its event feed: a historically correct cached root must not produce an unjustified current claim.
+- Rotate only the grant generation for unchanged lawfully retained inputs/method: the analytic verifier call count stays flat while fresh admission consumes the new generation. Revoke permission and the sink blocks. Change permission-driven redaction or selected rows and recomputation is required. Remove the live-use check or the computational role binding while retaining lineage markers: the corresponding denied-use or changed-input probe fails; cache-off preserves the qualified result.
 
 
 ### Входы и ответственность за их получение
@@ -177,8 +188,8 @@ Backfill only parent, model, rule, right, audience and selection edges that reso
 - If reverse lineage is incomplete or stale, broaden invalidation to the reconciled owner scope; do not claim exact minimal invalidation.
 - If the downstream method cannot supply valid correction semantics, keep the learned result exploratory and do not promote it through this task.
 
-
 Classify each input at accepted-source rebind as internal engineering output/allocation, existing source record, or genuine external fact/permission. Missing native producer/bridge is assigned work, not an external blocker. Only the last class can justify an external-input hold after supplier/alternative investigation. See root-review.md for the task-specific distinction.
+
 
 ### Исследование и предел переноса
 

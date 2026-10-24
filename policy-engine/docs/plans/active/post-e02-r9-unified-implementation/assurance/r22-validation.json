@@ -1,0 +1,92 @@
+{
+  "base_commit": "7bf96b19d437dba747cab8489f898c4a0dc41eaf",
+  "executor": "root",
+  "predicate_basis": "recomputed",
+  "scope": "documentation only; no product imports/tests/builds",
+  "task_objects": 121,
+  "task_prefixes": {
+    "CAP": 6,
+    "LIF": 9,
+    "GYD": 33,
+    "UI": 20,
+    "CNT": 9,
+    "OPS": 12,
+    "P0": 2,
+    "DEB": 14,
+    "FINAL": 4,
+    "DES": 12
+  },
+  "preserved_direct_dependency_edges": 368,
+  "acyclic": true,
+  "extension_mirrors": {
+    "r19_extension": 72,
+    "r17_extension": 41,
+    "r16_extension": 28,
+    "r14_extension": 24,
+    "r15_extension": 28
+  },
+  "retained_questions": 84,
+  "question_task_routes": 388,
+  "approved_proposals": 5,
+  "stable_question_ids": [
+    "8.4-waist-altitude",
+    "8.4-real-grounding-cost",
+    "8.4-demand-pull-strength",
+    "8.4-search-recall-freshness",
+    "8.4-agent-orchestration-authority-leak"
+  ],
+  "static_id_match_not_runtime_join": true,
+  "markdown_file_denominator": 143,
+  "relative_markdown_links": 1630,
+  "missing_files": [],
+  "unresolved_anchors": [],
+  "product_execution": "UNRUN",
+  "E02_acceptance": false,
+  "json_file_denominator": 37,
+  "changed_task_rows": [
+    "CAP-02",
+    "CAP-04",
+    "LIF-01",
+    "LIF-02",
+    "LIF-04",
+    "LIF-05",
+    "LIF-06",
+    "LIF-07",
+    "UI-02",
+    "UI-04",
+    "OPS-05",
+    "OPS-08",
+    "DES-12"
+  ],
+  "human_changed_cards_and_acceptance_mirrors": "PASS",
+  "retained_start_stage_requirements": "PASS",
+  "new_conditional_composition_joins": [
+    "LIF-01",
+    "UI-02",
+    "UI-04",
+    "OPS-05"
+  ],
+  "new_SDD_changes": 0,
+  "delegation": "8 direct read-only reviewers, no children; 7 affected-scope delta re-reviews, root final substantive review",
+  "documentation_only": true,
+  "substantive_review_limit": "Scoped technical, science, acquisition, resource, retention, surface and stage review; neither runtime verification nor exhaustive re-review of all research sources.",
+  "validation_program": {
+    "path": "policy-engine/_build/post-e02-r22-redteam-20261024/validate.py",
+    "sha256": "364e6b0bb437d34cbc85ea7e8de3ab09302fee2a47677eaa59804e1cdc4cf8c0",
+    "runtime": "python3 stdlib only"
+  },
+  "verification_limits": [
+    "No product tests/imports/builds/install/production reads",
+    "Local inline Markdown file/heading targets checked; external URL availability and all Markdown syntaxes not checked",
+    "Static document consistency is not capability acceptance",
+    "Independent reviews are scoped to the named R22 cuts; no whole-corpus scientific optimality claim"
+  ],
+  "publication_hook_scope": {
+    "planned_exclusions": [
+      "pre-commit check-contrast",
+      "pre-commit check-reduced-motion",
+      "pre-push typecheck"
+    ],
+    "reason": "User requires documentation-only work without heavy processes while coding agent has resource priority; these product checks are UNRUN, not PASS; no hook configuration changed"
+  }
+}

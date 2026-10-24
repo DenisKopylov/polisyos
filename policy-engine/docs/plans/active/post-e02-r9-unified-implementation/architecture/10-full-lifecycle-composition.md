@@ -53,7 +53,7 @@ Qualified local custody-subject ref допустим без внешнего ins
 1. CAP-01/selected connector или native assessment producer получает content-bound материал под actual rights/query-disclosure profile.
 2. Native owner различает source fact, measurement, scientific interpretation, hypothetical assumption и institutional act; сохраняет профиль, версии и relevant time.
 3. LIF-07 связывает реально повлиявшие inputs с outputs. Ссылка «читали документ» не заменяет load-bearing influence.
-4. CAP-04 выпускает реальные внешние события. Собственная квалифицированная CNT-06 assessment отдельно поступает в LIF-02 и может изменить наше утверждение без webhook; она не маскируется под внешний акт.
+4. CAP-04 выпускает source-native события либо явно ограниченные observed-change receipts; local observation journal не выдаётся за внешний журнал. Собственная квалифицированная CNT-06 assessment отдельно поступает в LIF-02 и может изменить наше утверждение без webhook; она не маскируется под внешний акт.
 5. LIF-02 оценивает scoped dependency closure и немедленно ограждает затронутое current/protected use. Recompute может быть delayed/offline; это не разрешает stale green. Не затронутые claims продолжают жить.
 6. Native method/DES-11/GYD-30 пересчитывает выбранный closure. Candidate, qualified conditional output, scoped claim reaction и institutional adoption остаются разными переходами.
 7. Fresh UI-19/current decision API-MACHINE и выбранные export/browser consumers читают новый status и basis. Историческая выдача сохраняется as-known; system не обещает отзыв скачанных внешних копий.

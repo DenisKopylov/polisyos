@@ -105,3 +105,27 @@ This staged path does not remove LIF-06 or resource admission, nor create a seco
 scheduler. One logical owner is not a global runtime mutex; source-file leases
 and shared semantic writers remain as defined above. Direct task dependencies
 are unchanged. See [R21 review](../assurance/r21-self-review.md).
+
+## R22: explicit composition joins without start cycles
+
+For selected LIF-01 assessment caching, stage the witness as
+`LIF-01 assessment/use contract + owner readiness → LIF-07 (or accepted rebound
+native owner) emitted role-qualified closure → actual LIF-01/CAP-03 fresh reuse
+reader → composed acceptance`. The conditional requirement in tasks.json names
+this supplier/output/consumer. Uncached evaluation may finish its own useful
+boundary but cannot close a selected reuse claim. It does not wait for whole
+LIF-07 completion before releasing the LIF-01 owner interface.
+
+UI-02/04 protected retention/deletion/history effects join actual LIF-05 output;
+OPS-05 current/protected restore joins actual LIF-02/LIF-05 reconciliation and the
+selected material Claim/public-history witness outside rollback closure. These
+are effect/composition predicates. Independent UI, migration and quarantine
+preparation can proceed against exact interfaces; no new whole-task start edge
+is created. Missing external continuity evidence limits the affected recovered
+scope and does not create a global deployment hold.
+
+CAP-04 observation-journal emission → LIF-02 bounded-observation enrollment/replay
+→ fresh claim projection is distinct from source-native C/W replay. The local
+journal can close the local enrollment race without proving external currentness.
+The existing source-native route and its original acceptance remain required for
+claims that assert source continuity.

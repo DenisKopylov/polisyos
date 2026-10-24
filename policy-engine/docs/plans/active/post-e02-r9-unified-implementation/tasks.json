@@ -182,7 +182,7 @@
         "existing: core/artifacts/manifest.py; core/artifacts/store.py::FileSystemCAS",
         "proposed: extend selected connector/cursor owner after A0"
       ],
-      "deliverable": "Safe transport/representation capture and exact reuse, consuming LIF-03 conditional frontier commit when the selected protocol advances resumable/page/partition progress. A bounded single-response route proves its own complete durable root and more-pages refusal without waiting for the full cursor mechanism. No second cursor writer. Keep WDI single-response first-route scope; disjoint protocol preparation is parallel and pagination/range activates only under its own qualified contract, not a global first-route completion barrier. Also accept the explicitly selected second-source producer sub-slice required by LIF-08. First-route completion does not cover a new page/range/parser behavior; root allocates that delta before second-source composition.",
+      "deliverable": "Safe transport/representation capture and exact reuse, consuming LIF-03 conditional frontier commit when the selected protocol advances resumable/page/partition progress. A bounded single-response route proves its own complete durable root and more-pages refusal without waiting for the full cursor mechanism. No second cursor writer. Keep WDI single-response first-route scope; disjoint protocol preparation is parallel and pagination/range activates only under its own qualified contract, not a global first-route completion barrier. Also accept the explicitly selected second-source producer sub-slice required by LIF-08. First-route completion does not cover a new page/range/parser behavior; root allocates that delta before second-source composition. Selected controlled proxies require authenticated per-request destination/enforcement evidence at the shared transport boundary.",
       "positive": "Allowed capture persists immutable root/receipt; second run resolves same exact body/profile without fetching; consumer verifies completeness and hash.",
       "adversarial": "Crash/partial/unreadable child, mismatch/oversize, 304 without body, invalid range, changed ETag, stale writer, disallowed redirect/private IP/credential hop and changed pagination scope yield partial/unavailable/deny. If authorized query egress returns a body whose placement is unknown/denied, do not stage/store/log/cache or expose its digest/ref. Discard at the authorized ephemeral processing boundary and emit only a permitted opaque non-admission receipt; if ephemeral response processing itself lacks permission, refuse the fetch. Do not label this a complete admitted capture.",
       "removal": "Remove body binding or head fence but keep markers; probe must fail.",
@@ -210,6 +210,7 @@
         "Implement the smallest native-owner invariant and actual use; preserve native status/authority/time semantics.",
         "Prove positive, adversarial and matched removal signals below through persisted state and fresh consumer; include public/generated companions.",
         "With WDI still honestly single-response, a separately qualified source protocol completes its own capture→receipt→fresh consumer without HTTP-specific assumptions. An unsupported continuation cannot borrow the WDI receipt; removing that protocol’s actual completeness/fence changes its result.",
+        "Controlled-proxy positive: an authorized target with a verified request-bound enforcement result reaches the selected receipt/reader. Through the same proxy, a forbidden metadata/private target, a receipt for another attempt or a forwarding-header substitute must fail; explicitly permitted private-source traffic retains its separate positive. Remove target-result verification while retaining proxy labels: the forbidden-target probe fails. Direct/nonproxy routes use their own actual-boundary proof.",
         "Review exact candidate independently, resolve blockers, run scoped gates under resource permit, read back committed delivery and report limitations."
       ],
       "test_path_rule": "Use mirrored tests adjacent to actual affected modules after P0 rebind. Proposed paths in prose are not asserted existing. Record exact paths/commands before execution.",
@@ -567,7 +568,7 @@
         "existing: data_forge/domains/academic/batch/claim_adjudicator.py::_parse_retracted_ids (work-ID only)",
         "proposed: root enrollment→event→fenced projection bridge"
       ],
-      "deliverable": "Emit source-qualified change/retraction/rights events or explicitly bounded source-observation changes and wire the acquisition consumer to LIF-02. LIF-02 alone owns enrollment, replay and publication fencing. LIF-09 proves the composed path.",
+      "deliverable": "Emit source-qualified change/retraction/rights events or explicitly bounded source-observation changes and wire the acquisition consumer to LIF-02. LIF-02 alone owns enrollment, replay and publication fencing. LIF-09 proves the composed path. Its local observation-cut output is consumed by the LIF-02 bounded-observation branch; local replay order never becomes external source continuity.",
       "positive": "Material enrolled change invalidates dependent current projection; unrelated source stays valid; fresh consumer recomputes status.",
       "adversarial": "Late/backdated event, enrollment gap, missing journal, storm, stale index, rights race, unrelated change and scheduler-off read cannot leave unjustified green.",
       "removal": "Remove dependency/generation binding while retaining event/current marker; fresh consumer refuses green.",
@@ -1503,6 +1504,7 @@
         "Implement the smallest native-owner invariant and actual use; preserve native status/authority/time semantics.",
         "Prove positive, adversarial and matched removal signals below through persisted state and fresh consumer; include public/generated companions.",
         "For a selected cache-eligible assessment, repeated covered use reuses the same qualified assessment with observable verifier-call accounting, yet a changed rule/rights generation or newly matching dependency alters fresh use even when payload bytes are identical. Removing current dependency/fence validation must fail; disabling the cache must preserve the scoped decision. A method requiring fresh evaluation or lacking a complete dependency closure cannot borrow this reuse guarantee.",
+        "An authenticated legal source plus a qualified rule and all required applicability predicates actually recomputed/independently reconciled may support the scoped use without a new institutional conclusion for each call. Remove the applicability evaluator while retaining official-source markers: admission fails; a genuine unresolved interpretation/competence conflict remains limited. This does not infer legal validity from a signature alone.",
         "Review exact candidate independently, resolve blockers, run scoped gates under resource permit, read back committed delivery and report limitations."
       ],
       "test_path_rule": "Use mirrored tests adjacent to actual affected modules after P0 rebind. Proposed paths in prose are not asserted existing. Record exact paths/commands before execution.",
@@ -1697,7 +1699,19 @@
         ],
         "writer_rule": "The original native owner and actual path lease remain authoritative; cross-owner route means a producer/consumer companion, not a second writer or a new global dependency.",
         "acceptance_ref": "assurance/12-full-lifecycle-quality.md"
-      }
+      },
+      "conditional_acceptance_requirements": [
+        {
+          "when": "A cache-eligible assessment reuse guarantee is selected; not selected for a method requiring fresh evaluation or a deliberately uncached route",
+          "suppliers": [
+            "LIF-07"
+          ],
+          "output": "Actual role-qualified computational/semantic dependency closure and invalidation/generation evidence from LIF-07, or an already accepted equivalent native owner explicitly rebound at P0; include relevant negative/membership dependencies",
+          "consumer": "Actual LIF-01 claim/use reader and selected CAP-03 library consumer; exact reader paths/profiles bound at rebind",
+          "required_stage": "composition",
+          "preparation_rule": "LIF-01 releases its admitted assessment/use contract and owner-readiness independently; LIF-07 implements/emits the selected closure against that interface; the fresh reuse reader then proves the joined guarantee. No wait for whole LIF-07 completion before LIF-01 owner readiness. Uncached evaluation keeps a useful scoped outcome but cannot close selected reuse obligations."
+        }
+      ]
     },
     {
       "id": "LIF-02",
@@ -1754,7 +1768,7 @@
           "note": "Owner-local extension or explicit reconciliation protocol, not a new universal service."
         }
       ],
-      "deliverable": "Durable dependency enrollment at input cut C and high-water W; replay of (C,W] with replay-floor refusal; dedupe coupled to committed effect; append-only invalidation history; publication fence over enrolled source and right cuts, or a signed/typed bounded cutoff where shared transaction is impossible.",
+      "deliverable": "Durable dependency enrollment at input cut C and high-water W; replay of (C,W] with replay-floor refusal; dedupe coupled to committed effect; append-only invalidation history; publication fence over enrolled source and right cuts, or a signed/typed bounded cutoff where shared transaction is impossible. Include a separate bounded-observation enrollment/reaction branch with honest as-of coverage; source-native continuity remains a distinct guarantee.",
       "positive": [
         "Change before/after enrollment is observed with no gap; new matching record dirties a prior negative/set result.",
         "Currentness and refusal are visible with scheduler stopped; unrelated source generation does not invalidate the claim."
@@ -1790,6 +1804,7 @@
         "Pin expected property and independent oracle where needed; reproduce a distinguishing baseline negative.",
         "Implement the smallest native-owner invariant and actual use; preserve native status/authority/time semantics.",
         "Prove positive, adversarial and matched removal signals below through persisted state and fresh consumer; include public/generated companions.",
+        "No-feed positive: a persisted CAP-04 observation before enrollment is replayed locally and an observed mismatch changes only dependent claims in a fresh reader. Identical later bytes, A→B→A between polls, partial polls or a missing local replay floor cannot establish uninterrupted source currentness. Remove the observation-cut/basis binding while retaining journal labels: the reader must not emit unjustified current green.",
         "Review exact candidate independently, resolve blockers, run scoped gates under resource permit, read back committed delivery and report limitations."
       ],
       "test_path_rule": "Use mirrored tests adjacent to actual affected modules after P0 rebind. Proposed paths in prose are not asserted existing. Record exact paths/commands before execution.",
@@ -2378,6 +2393,7 @@
         "Implement the smallest native-owner invariant and actual use; preserve native status/authority/time semantics.",
         "Prove positive, adversarial and matched removal signals below through persisted state and fresh consumer; include public/generated companions.",
         "Independent operation scopes make progress without a global job lock, while two attempts for the same protected effect still fence at its canonical key. Partition labels cannot split a shared provider/disclosure budget; delayed old attempts fail the expected-generation write.",
+        "Under sustained arrivals in one eligible class, an older competing job either receives its selected-policy service opportunity or reaches its declared bounded terminal/review disposition; it cannot silently defer forever. Retry preserves first-admission age, and a custody/revocation duty remains durable with a truthful overdue/limited surface. Remove aging/expiry/disposition behavior while preserving queue-age metrics: the selected progress-policy probe fails; do not claim successful execution when only expiry/refusal occurred.",
         "Review exact candidate independently, resolve blockers, run scoped gates under resource permit, read back committed delivery and report limitations."
       ],
       "test_path_rule": "Use mirrored tests adjacent to actual affected modules after P0 rebind. Proposed paths in prose are not asserted existing. Record exact paths/commands before execution.",
@@ -2574,7 +2590,7 @@
           "note": "Extend actual copy owners; do not claim universal deletion."
         }
       ],
-      "deliverable": "Rights-sensitive write enrollment and commit fence; rights decision with authority/provenance/effective time; actual-placement deletion outcomes; restore quarantine and reconciliation of post-backup rights history; separate membership, managed bytes and external-copy scope. For AP07 profiles, own the source-use disclosure transition through the existing rights/privacy owner: source/custodian-defined protected unit, aliases/overlap/lineage, recipient cooperation scope and composition law; atomic reserve/commit and indeterminate holds after unknown output. CAP-03/06 call this same owner. This does not invent a universal privacy law, DP guarantee, monetary budget or second scheduler. Selected query-only sink/retention rules and revoke generations are the same owner output consumed by CAP-03/06; all-copy deletion and no-provider-retention claims stay within verified custody scope, never self-attested remote state.",
+      "deliverable": "Rights-sensitive write enrollment and commit fence; rights decision with authority/provenance/effective time; actual-placement deletion outcomes; restore quarantine and reconciliation of post-backup rights history; separate membership, managed bytes and external-copy scope. For AP07 profiles, own the source-use disclosure transition through the existing rights/privacy owner: source/custodian-defined protected unit, aliases/overlap/lineage, recipient cooperation scope and composition law; atomic reserve/commit and indeterminate holds after unknown output. CAP-03/06 call this same owner. This does not invent a universal privacy law, DP guarantee, monetary budget or second scheduler. Selected query-only sink/retention rules and revoke generations are the same owner output consumed by CAP-03/06; all-copy deletion and no-provider-retention claims stay within verified custody scope, never self-attested remote state. On restore, join OPS-05 material Claim/public-history continuity and LIF-02 reconciliation; a rights-only replay cannot revive a withdrawn head.",
       "positive": [
         "Applicable grant authorizes the selected purpose/audience and enrolled managed writes commit under current rights generation.",
         "A restore combines the retained payload with post-backup revoke/retention decisions before becoming readable; authorized sharing remains possible.",
@@ -2597,7 +2613,7 @@
         "Artifact root publication versus final GC/delete fence",
         "Active reader pins and restore switch"
       ],
-      "rollback": "Suspend affected use; preserve audit/decision history as legally permitted. Raw bytes retained only under applicable recovery/retention rights; otherwise quarantine and reconcile actual copies through LIF-05. Never restore old authority over newer revocation/correction. Before public disclosure, stop new admission and restore prior authorized head if safe. After any disclosure or irreversible provider action, preserve event history and state the limitation; never erase the evidence of the public interval.",
+      "rollback": "Suspend affected use; preserve audit/decision history as legally permitted. Raw bytes retained only under applicable recovery/retention rights; otherwise quarantine and reconcile actual copies through LIF-05. Never restore old authority over newer revocation/correction. Before public disclosure, stop new admission and restore prior authorized head if safe. After disclosure or an irreversible provider action, preserve evidence of the public interval only where the actual retention/metadata decision permits it; lawful erasure must not be represented as reversal of that action. If no evidence/receipt/existence disclosure may remain, suppress prohibited records and use only a permitted limitation surface. Never reconstruct erased history to pass restore; keep the affected current/protected scope fenced.",
       "migration": "Enumerate actual placements and post-backup history. Unindexed, externally copied or legacy placements are not silently assumed deleted; quarantine or declare exact unresolved scope pending owner reconciliation.",
       "workstream": "LIF",
       "detail": "workstreams/02-lifecycle.md",
@@ -2848,6 +2864,8 @@
         "Implement the smallest native-owner invariant and actual use; preserve native status/authority/time semantics.",
         "Prove positive, adversarial and matched removal signals below through persisted state and fresh consumer; include public/generated companions.",
         "A parked parent retaining 60/100 RAM cannot admit a 50/100 child merely by yielding its CPU slot or moving a ledger entry. Actual release of sufficient memory permits progress; shared parent/child buffers count once, copies twice. Remove lifetime accounting but keep permit markers: the nested resource control must fail.",
+        "Finish or cancel an attempt whose allocation remains shared by another reader/cache: its charge survives under one live allocation owner, while actual private releases can be reclaimed. Transfer/release replay cannot create capacity. Removing shared-lifetime accounting while preserving terminal markers causes a bounded overadmission probe to fail.",
+        "Under sustained arrivals in one eligible class, an older competing job either receives its selected-policy service opportunity or reaches its declared bounded terminal/review disposition; it cannot silently defer forever. Retry preserves first-admission age, and a custody/revocation duty remains durable with a truthful overdue/limited surface. Remove aging/expiry/disposition behavior while preserving queue-age metrics: the selected progress-policy probe fails; do not claim successful execution when only expiry/refusal occurred.",
         "Review exact candidate independently, resolve blockers, run scoped gates under resource permit, read back committed delivery and report limitations."
       ],
       "test_path_rule": "Use mirrored tests adjacent to actual affected modules after P0 rebind. Proposed paths in prose are not asserted existing. Record exact paths/commands before execution.",
@@ -3048,7 +3066,7 @@
           "note": "Extend lineage/cache owner, not a second graph."
         }
       ],
-      "deliverable": "Derived artifact and cache bindings that include exact parent identities, semantic predicate, right/use scope, rule/time, resolved model generation, training inputs and selection frontier; changed influence triggers affected-use invalidation/reassessment.",
+      "deliverable": "Derived artifact and cache bindings that include exact parent identities, semantic predicate, right/use scope, rule/time, resolved model generation, training inputs and selection frontier; changed influence triggers affected-use invalidation/reassessment. Separate computational/semantic influence from current-use and retention roles so admission-only changes do not force needless scientific recomputation.",
       "positive": [
         "Same exact inputs/model/right/audience reuse a valid derivative; changed audience, purpose, model, source or selection causes miss/rebuild or scoped refusal.",
         "Confirmatory path runs method-valid correction/reassessment; exploratory candidate output remains visibly lower authority."
@@ -3087,6 +3105,7 @@
         "Pin expected property and independent oracle where needed; reproduce a distinguishing baseline negative.",
         "Implement the smallest native-owner invariant and actual use; preserve native status/authority/time semantics.",
         "Prove positive, adversarial and matched removal signals below through persisted state and fresh consumer; include public/generated companions.",
+        "Rotate only the grant generation for unchanged lawfully retained inputs/method: the analytic verifier call count stays flat while fresh admission consumes the new generation. Revoke permission and the sink blocks. Change permission-driven redaction or selected rows and recomputation is required. Remove the live-use check or the computational role binding while retaining lineage markers: the corresponding denied-use or changed-input probe fails; cache-off preserves the qualified result.",
         "Review exact candidate independently, resolve blockers, run scoped gates under resource permit, read back committed delivery and report limitations."
       ],
       "test_path_rule": "Use mirrored tests adjacent to actual affected modules after P0 rebind. Proposed paths in prose are not asserted existing. Record exact paths/commands before execution.",
@@ -7233,8 +7252,8 @@
         "public record/export/CAS",
         "OpenAPI/client + viewer/audit"
       ],
-      "rollback": "Fail closed; preserve prior artifacts.",
-      "migration": "Append provenance/history; no rewrite.",
+      "rollback": "Preserve immutable historical meaning and original bytes only while their retention is permitted by the actual LIF-05 decision. Withdrawal of public display, erasure of payload/identifiers/hashes/lineage, and retention under a valid hold are distinct outcomes. Consume owner-qualified per-placement decisions at history/index/feed/API/browser/MACHINE/audit/export/cache and restore boundaries. A lawful minimal status/receipt may remain only when its content and existence disclosure are permitted; otherwise suppress identifying/existence metadata as required by the selected threat model. This does not recall copies outside managed custody or invent a deletion law.",
+      "migration": "Do not rewrite retained historical meaning. Apply actual LIF-05 retention/deletion outcomes to payload and identifying metadata, with permitted minimal history and explicit replay limitations.",
       "workstream": "UI",
       "detail": "workstreams/04-atlas.md",
       "implementation_status": "planned_after_E02_acceptance",
@@ -7250,6 +7269,7 @@
         "Pin expected property and independent oracle where needed; reproduce a distinguishing baseline negative.",
         "Implement the smallest native-owner invariant and actual use; preserve native status/authority/time semantics.",
         "Prove positive, adversarial and matched removal signals below through persisted state and fresh consumer; include public/generated companions.",
+        "With a valid retention basis, authorized readers can inspect the exact historical edition. With an owner-qualified erasure basis, fresh selected browser/feed/API/MACHINE/audit/export/cache and restored managed readers cannot recover the canary payload or prohibited identifying provenance. Preserve only a permitted minimal receipt/status; a mere caller deletion request does not erase records. Remove the LIF-05 join from one history/export reader while retaining labels: forbidden-canary access must fail the probe. External downloaded copies remain outside recall claims.",
         "Review exact candidate independently, resolve blockers, run scoped gates under resource permit, read back committed delivery and report limitations."
       ],
       "test_path_rule": "Use mirrored tests adjacent to actual affected modules after P0 rebind. Proposed paths in prose are not asserted existing. Record exact paths/commands before execution.",
@@ -7389,7 +7409,19 @@
         ],
         "writer_rule": "The original native owner and actual path lease remain authoritative; cross-owner route means a producer/consumer companion, not a second writer or a new global dependency.",
         "acceptance_ref": "assurance/12-full-lifecycle-quality.md"
-      }
+      },
+      "conditional_acceptance_requirements": [
+        {
+          "when": "The selected history/publication path retains, discloses, deletes or restores rights-governed content or identifying metadata",
+          "suppliers": [
+            "LIF-05"
+          ],
+          "output": "Actual owner-qualified placement-specific retention/withdrawal/deletion decision and current generation, including receipt/existence-disclosure limits",
+          "consumer": "UI-02 actual selected history/publication/index/feed/export and restore consumers",
+          "required_stage": "composition",
+          "preparation_rule": "Prepare the contract and readers independently; bind actual LIF-05 output before the protected effect. No blanket wait for all rights sources or full LIF-05 task completion."
+        }
+      ]
     },
     {
       "id": "UI-03",
@@ -7539,8 +7571,8 @@
         ]
       },
       "deliverable": "Append attributed response, revocation, supersession and law-7 learning-history events against the exact case/edition; produce the generic DS13 read-only transparency feed from that same canonical event/history source and UI-03 index. Browser/API/client/CLI/MACHINE/audit retain response-to-comment links, supersession lineage and the source-linked distinction “this case” versus “new evidence”. This description does not itself establish a causal effect or adopt an institutional act. Keep actor, authority, event/as-of time, rights and the separate LIF-02 currentness reaction. No second case store, notification service or automatic dispute resolution.",
-      "positive": "Closed bytes stay fixed; attributable response and new supersession are visible. Retained Phase5.7 accessibility requires actual large-text, screen-reader and plain-language behavior on consultation/response/history surfaces, with qualified human plain-language assessment rather than a keyword assertion. Formal language register follows the accepted locale/authoring contract and applicable audience requirements. Fresh feed/history readers expose the persisted event, exact parent edition and law-7 distinction with reconstructable MACHINE refs; optional regulator-feed scope does not discharge generic DS13 feed delivery.",
-      "adversarial": "Mutation, self-asserted response, auto-resolution, hidden lineage or collapsed status refuses. Private challenger exposed without consent, silent comment removal, informal statement shown as adjudication, or consultative response shown as binding fails; external institution decides, PolicyOS records typed evidence and its own claim reaction. Large-text clipping/lost controls, wrong screen-reader order/labels or semantically inaccessible/plain-language distortion fail. A locale badge or translation-presence assertion is insufficient; the independent audience-qualified reviewer must assess the selected text and meaning. Missing event-to-feed join, omitted learning event, stale feed, rewritten original bytes or lost MACHINE reference cannot pass fresh DS13 parity.",
+      "positive": "Retained closed bytes stay unchanged under applicable LIF-05 permission; attributable response and new supersession are visible. Retained Phase5.7 accessibility requires actual large-text, screen-reader and plain-language behavior on consultation/response/history surfaces, with qualified human plain-language assessment rather than a keyword assertion. Formal language register follows the accepted locale/authoring contract and applicable audience requirements. Fresh feed/history readers expose the persisted event, exact parent edition and law-7 distinction with reconstructable MACHINE refs; optional regulator-feed scope does not discharge generic DS13 feed delivery.",
+      "adversarial": "Mutation, self-asserted response, auto-resolution, hidden lineage or collapsed status refuses. Private challenger exposed without consent, unqualified/silent comment removal (owner-qualified erasure is handled under LIF-05, with only permitted residual disclosure), informal statement shown as adjudication, or consultative response shown as binding fails; external institution decides, PolicyOS records typed evidence and its own claim reaction. Large-text clipping/lost controls, wrong screen-reader order/labels or semantically inaccessible/plain-language distortion fail. A locale badge or translation-presence assertion is insufficient; the independent audience-qualified reviewer must assess the selected text and meaning. Missing event-to-feed join, omitted learning event, stale feed, rewritten retained original bytes or unjustifiably lost permitted MACHINE reference cannot pass fresh DS13 parity.",
       "removal": "Remove event join with markers retained; parity witness fails. Remove large-text/screen-reader semantics or substitute meaning-changing copy while keeping accessibility and locale markers; corresponding rendered/audience checks fail. Remove the event-to-feed/history join while keeping labels: the original persisted event must be missing/misbound at the fresh consumer and the witness fails.",
       "surface": [
         "history UI",
@@ -7552,8 +7584,8 @@
         "index/event owner",
         "OpenAPI/client + public route/i18n"
       ],
-      "rollback": "Fail closed; preserve prior artifacts.",
-      "migration": "Append provenance/history; no rewrite.",
+      "rollback": "Preserve immutable historical meaning and original bytes only while their retention is permitted by the actual LIF-05 decision. Withdrawal of public display, erasure of payload/identifiers/hashes/lineage, and retention under a valid hold are distinct outcomes. Consume owner-qualified per-placement decisions at history/index/feed/API/browser/MACHINE/audit/export/cache and restore boundaries. A lawful minimal status/receipt may remain only when its content and existence disclosure are permitted; otherwise suppress identifying/existence metadata as required by the selected threat model. This does not recall copies outside managed custody or invent a deletion law.",
+      "migration": "Do not rewrite retained historical meaning. Apply actual LIF-05 retention/deletion outcomes to payload and identifying metadata, with permitted minimal history and explicit replay limitations.",
       "workstream": "UI",
       "detail": "workstreams/04-atlas.md",
       "implementation_status": "planned_after_E02_acceptance",
@@ -7570,6 +7602,7 @@
         "Pin expected property and independent oracle where needed; reproduce a distinguishing baseline negative.",
         "Implement the smallest native-owner invariant and actual use; preserve native status/authority/time semantics.",
         "Prove positive, adversarial and matched removal signals below through persisted state and fresh consumer; include public/generated companions.",
+        "With a valid retention basis, authorized readers can inspect the exact historical edition. With an owner-qualified erasure basis, fresh selected browser/feed/API/MACHINE/audit/export/cache and restored managed readers cannot recover the canary payload or prohibited identifying provenance. Preserve only a permitted minimal receipt/status; a mere caller deletion request does not erase records. Remove the LIF-05 join from one history/export reader while retaining labels: forbidden-canary access must fail the probe. External downloaded copies remain outside recall claims.",
         "Review exact candidate independently, resolve blockers, run scoped gates under resource permit, read back committed delivery and report limitations."
       ],
       "test_path_rule": "Use mirrored tests adjacent to actual affected modules after P0 rebind. Proposed paths in prose are not asserted existing. Record exact paths/commands before execution.",
@@ -7744,7 +7777,19 @@
         ],
         "writer_rule": "The original native owner and actual path lease remain authoritative; cross-owner route means a producer/consumer companion, not a second writer or a new global dependency.",
         "acceptance_ref": "assurance/12-full-lifecycle-quality.md"
-      }
+      },
+      "conditional_acceptance_requirements": [
+        {
+          "when": "The selected history/publication path retains, discloses, deletes or restores rights-governed content or identifying metadata",
+          "suppliers": [
+            "LIF-05"
+          ],
+          "output": "Actual owner-qualified placement-specific retention/withdrawal/deletion decision and current generation, including receipt/existence-disclosure limits",
+          "consumer": "UI-04 actual selected history/publication/index/feed/export and restore consumers",
+          "required_stage": "composition",
+          "preparation_rule": "Prepare the contract and readers independently; bind actual LIF-05 output before the protected effect. No blanket wait for all rights sources or full LIF-05 task completion."
+        }
+      ]
     },
     {
       "id": "UI-05",
@@ -12542,6 +12587,7 @@
         "Pin expected property and independent oracle where needed; reproduce a distinguishing baseline negative.",
         "Implement the smallest native-owner invariant and actual use; preserve native status/authority/time semantics.",
         "Prove positive, adversarial and matched removal signals below through persisted state and fresh consumer; include public/generated companions.",
+        "Restore a backup containing signed S0 after a later withdrawal and reissue: a continuity witness outside the selected rollback closure plus actual claim/public replay yields the correct fresh head and permitted history. Lose/roll back that witness, delete required history, or inject a withdrawal between reconcile and enablement: the affected restored scope remains fenced. Remove the claim-history witness while retaining rights/hash markers: the false-current recovery probe fails. An independently proven unaffected scope need not wait.",
         "Review exact candidate independently, resolve blockers, run scoped gates under resource permit, read back committed delivery and report limitations."
       ],
       "test_path_rule": "Use mirrored tests adjacent to actual affected modules after P0 rebind. Proposed paths in prose are not asserted existing. Record exact paths/commands before execution.",
@@ -12645,7 +12691,20 @@
         ],
         "writer_rule": "The original native owner and actual path lease remain authoritative; cross-owner route means a producer/consumer companion, not a second writer or a new global dependency.",
         "acceptance_ref": "assurance/12-full-lifecycle-quality.md"
-      }
+      },
+      "conditional_acceptance_requirements": [
+        {
+          "when": "Restore enables current/protected claim or publication reads",
+          "suppliers": [
+            "LIF-02",
+            "LIF-05"
+          ],
+          "output": "Actual rights and material Claim/public-history reconciliation for selected restore cuts, permitted continuity witness outside rollback closure, and fenced current-read enablement",
+          "consumer": "Existing claim/publication owner and fresh selected readers of the restored scope",
+          "required_stage": "composition",
+          "preparation_rule": "Migration/quarantine tooling prepares against exact agreed interfaces. Restore acceptance joins emitted reconciliation; it does not wait for unrelated claim domains or whole LIF task completion."
+        }
+      ]
     },
     {
       "id": "OPS-06",
@@ -12946,6 +13005,8 @@
         "Implement the smallest native-owner invariant and actual use; preserve native status/authority/time semantics.",
         "Prove positive, adversarial and matched removal signals below through persisted state and fresh consumer; include public/generated companions.",
         "An unknown class can produce measurements inside an existing enforceable isolated envelope while its production/duty eligibility stays unavailable. No envelope means no run. Two disjoint measurement lanes can proceed concurrently within aggregate capacity; a joint class/cap policy cannot promote from isolated results that omit their interference.",
+        "A terminal attempt leaves a shared 60/100 allocation alive: a new 50/100 request must defer/refuse until sufficient actual capacity is released or a separately qualified capacity envelope covers it. Duplicate completion/transfer cannot release twice; privately freed resources become usable. Removing lifetime reconciliation while retaining a completion receipt fails the saturation/admission discriminator.",
+        "Under sustained arrivals in one eligible class, an older competing job either receives its selected-policy service opportunity or reaches its declared bounded terminal/review disposition; it cannot silently defer forever. Retry preserves first-admission age, and a custody/revocation duty remains durable with a truthful overdue/limited surface. Remove aging/expiry/disposition behavior while preserving queue-age metrics: the selected progress-policy probe fails; do not claim successful execution when only expiry/refusal occurred.",
         "Review exact candidate independently, resolve blockers, run scoped gates under resource permit, read back committed delivery and report limitations."
       ],
       "test_path_rule": "Use mirrored tests adjacent to actual affected modules after P0 rebind. Proposed paths in prose are not asserted existing. Record exact paths/commands before execution.",
@@ -18540,6 +18601,7 @@
         "Pin expected property and independent oracle where needed; reproduce a distinguishing baseline negative.",
         "Implement the smallest native-owner invariant and actual use; preserve native status/authority/time semantics.",
         "Prove positive, adversarial and matched removal signals below through persisted state and fresh consumer; include public/generated companions.",
+        "Return a qualified structural result with no effect-posterior WP activation: under an actual applicable structural-write rule it can reach the sole GYD-12 writer and fresh next-cycle reader. Remove that structural rule and it remains candidate/conditional. Separately, the O1 effect-posterior route without its required activation refuses operative mutation. One route’s receipt cannot close the other; no new write authority is granted by this plan.",
         "Review exact candidate independently, resolve blockers, run scoped gates under resource permit, read back committed delivery and report limitations."
       ],
       "test_path_rule": "Use mirrored tests adjacent to actual affected modules after P0 rebind. Proposed paths in prose are not asserted existing. Record exact paths/commands before execution.",

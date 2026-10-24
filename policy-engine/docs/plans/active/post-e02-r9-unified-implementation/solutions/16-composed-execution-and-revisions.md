@@ -101,3 +101,14 @@ C1 compiler/joint, C2 temporal adapter, C3 influence/cache, C4 event/currentness
 Original121 tasks сохраняются. Новые slices — единицы поставки внутри существующих tasks, а не 8 дополнительных engines или 8 независимых authorities. Все selected slice obligations должны попасть в readiness/final coverage; группировка не заменяет complete `r16_extension` denominator.
 
 Pattern pass: P01/P02/P03/P05/P07/P08/P10/P13/P14/P17/P24/P25/P27/P29/P31/P32/P35/P37/P38/P40. Status/authority/currentness и scientific assumptions требуют настоящих owning consumers; marker-based completion не принимается.
+
+### R22 C7 lifetime and queue companion
+
+The same LIF-06 lifetime accounting applies after an attempt is terminal: shared
+buffers, retained cache, IPC and overlapping generations remain charged until
+actual release or reconciled transfer to a live native owner. OPS-08 enforces and
+reconciles the physical envelope; an attempt receipt is not a capacity receipt.
+LIF-04's due-intent selector applies the selected bounded service/aging/expiry
+policy, with LIF-06 eligibility and OPS-08 measurements. Expiry may conclude an
+eligible exploratory job as refused/cancelled; it cannot silently discard a
+custody duty or imply that work ran. See the exact task acceptance clauses.

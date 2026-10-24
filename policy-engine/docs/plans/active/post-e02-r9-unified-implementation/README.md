@@ -8,7 +8,7 @@
 
 ## Как читать
 
-1. [Executive summary R13 — PDF, 10 страниц](executive/summary.pdf), [текст с отметкой версии](executive/summary.md) и дополнения [R14](executive/r14-capabilities.md) / [R15](executive/r15-adaptive-and-models.md) / [R16](executive/r16-composed-models.md) / [R17](executive/r17-design-lifetimes.md) / [R19](executive/r19-full-lifecycle-solutions.md). Общее review — [R20](assurance/r20-general-review.md); актуальный самостоятельный delta и устранённые free-grow барьеры — [R21](assurance/r21-self-review.md).
+1. [Executive summary R13 — PDF, 10 страниц](executive/summary.pdf), [текст с отметкой версии](executive/summary.md) и дополнения [R14](executive/r14-capabilities.md) / [R15](executive/r15-adaptive-and-models.md) / [R16](executive/r16-composed-models.md) / [R17](executive/r17-design-lifetimes.md) / [R19](executive/r19-full-lifecycle-solutions.md). Общее review — [R20](assurance/r20-general-review.md); самостоятельный delta и устранённые free-grow барьеры — [R21](assurance/r21-self-review.md); актуальный redteam технических стыков — [R22](assurance/r22-redteam.md).
 2. [Границы, источники и правила перехода](execution/01-charter-and-entry.md).
 3. [Сверенный остаток](inventory/README.md), [исходные версии](inventory/sources.json), полные GY/Atlas/debt crosswalks.
 4. [Архитектура композиции](architecture/01-integration-boundaries.md): кто пишет общий механизм, кто только потребляет.
@@ -81,3 +81,13 @@ assessment reuse с fresh-use fence, logical owner без global runtime mutex,
 S15 больше не объявляет draft D2.3 grounds ратифицированным закрытым списком.
 [Проверка документации](assurance/r21-validation.json). Реализация остаётся
 закрытой до actual E02 acceptance; новые SDD не принимались.
+
+## R22: редтим решений и cross-owner contracts
+
+[Девять групп исправлений, независимые reviews и root review](assurance/r22-redteam.md)
+уточняют observation-cut admission, proxy evidence, assessment reuse, legal
+predicate qualification, allocation lifetime, queue dispositions, lawful history,
+restore continuity и отдельный structural-write predicate. Задачи и mirrors
+обновлены; новые joins действуют при выбранном composition, без новых start edges.
+[Документарный receipt](assurance/r22-validation.json). Implementation/product
+verification остаются UNRUN до actual E02 acceptance; SDD не изменены.

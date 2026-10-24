@@ -63,3 +63,24 @@ Source/data drift, model inadequacy, uncertainty inflation и external legal inv
 ## R20 structural-learning discriminator
 
 For CNT-06/GYD-12 R18-D06-Q02, exercise the real qualifier → persisted structural assessment → sole WMR writer → fresh later-cycle reader using [the complete positive/adversarial/removal sequence](../solutions/18-structural-world-learning.md#acceptance-and-scheduling). Evidence semantics and write authority are distinct. An effect-posterior PASS cannot close structural admission; a candidate-only positive cannot close operative write. Keep all original effect-path controls.
+
+## R22 cross-owner discriminators
+
+Use the exact new acceptance clauses in tasks.json and mirrored preferred
+solutions, with the following joined routes in the existing final wave:
+
+| Property | Joined positive | Counterexample/removal |
+|---|---|---|
+| Observation basis | CAP-04 observed change → local replay → LIF-02 scoped reaction → fresh reader | A→B→A or partial poll cannot become source continuity; remove observation-basis binding |
+| Actual proxy destination | Approved target plus authenticated request-bound enforcement → capture | Same proxy to forbidden target / mismatched receipt / header substitute; preserve proxy label |
+| Assessment reuse vs use policy | Same analytic basis + new grant → reuse assessment, fresh admission | Redaction changes compute; revoke changes use; remove either role binding or use gate |
+| Legal applicability | Qualified rule + verified required predicates → scoped use | Keep official-source markers, remove applicability evaluator; no invented institutional conclusion |
+| Allocation lifetime | Terminal private allocation frees; surviving shared allocation stays charged | Completed attempt retains60/100 then requests50/100; duplicate transfer/release must not create capacity |
+| Queue progress policy | Eligible older job obtains service or declared bounded terminal/review result | Sustained arrivals + retry age reset; metrics without disposition cannot pass; custody duty retained |
+| Lawful history | Retained edition stays immutable where permitted; erasure reaches selected managed readers | Canary in history/feed/export/cache/restore; labels without actual LIF-05 join fail |
+| Restore continuity | External-to-rollback witness + claim/rights replay + enablement fence → correct head | Roll back both journal and backup, delete necessary history, or withdraw during switch; rights-only hash green is insufficient |
+| Scientific write scope | Structural rule permits its qualified result; O1 separately requires its activation | Remove either route-specific rule while retaining the other; no cross-route authority inheritance |
+
+These are planning obligations, not executed tests. Scope original selected
+profiles; absence of permission to retain identifying history is not a reason to
+restore it for a green recovery check. No new global verification wave is added.

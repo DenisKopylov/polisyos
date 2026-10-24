@@ -30,7 +30,7 @@ LIF-01 расширяет существующий semantic evidence/legal/scien
 
 ## S04. Currentness — локальная проверка relevant generation, а не глобальная остановка
 
-LIF-02 использует существующие Claim Ledger, Decision Validity и публикационный owner; CAP-04 поставляет source-specific events. Enrollment включает selected source cut и устранение окна event-before-enrollment. Publication/use сверяет relevant generations и зависимости; stale reverse index не становится разрешением на старое green. Новое событие делает affected conclusions требующими reconciliation, сохраняя историю и точную временную границу.
+LIF-02 использует существующие Claim Ledger, Decision Validity и публикационный owner; CAP-04 поставляет source-specific events либо явно ограниченные observation-cut receipts. Enrollment включает selected source cut и устранение окна event-before-enrollment. Publication/use сверяет relevant generations и зависимости; stale reverse index не становится разрешением на старое green. Новое событие делает affected conclusions требующими reconciliation, сохраняя историю и точную временную границу.
 
 Разные times — событие, действие нормы, наблюдение, admission, публикация — не объединяются в один timestamp. Нельзя округлять expiry/legal time ради batching. Индекс, reverse map и cache ускоряют поиск, но не определяют authority. Если полного change feed нет, заявляется измеренная bounded freshness и соответствующий cutoff; polling не выдаётся за отсутствие неизвестных изменений.
 
@@ -102,7 +102,7 @@ Sponsor задаёт вопрос, purpose, decision boundary и огранич�
 
 Во всех текущих карточках `inputs_to_resolve` — перечень для классификации, не список внешних стопов; полный denominator берётся из task manifest, а не исторического числа R13. Отсутствующий parser, bridge, validator, producer, allocation или migration назначается и строится. Уже pinned criterion читается, а не повторно запрашивается. External hold требует конкретного недостающего факта/акта/permission, supplier investigation, допустимых альтернатив и точно заблокированного claim. Каждая рекомендация содержит [root review](root-review.md) этого различия.
 
-Ни один ресурс не освобождается только от expiry lease: требуются прекращение процесса или согласованный outcome. Сторонний scheduler, SDK, CRD или provenance framework служит примером механизма, не основанием заменить существующего owner. Источники исследования и пределы переноса собраны в [sources](sources.md).
+Ни одна capacity charge не снимается только от expiry lease или terminal attempt: нужна проверенная release соответствующей allocation либо reconciled transfer её живому owner. Остановка процесса сама по себе не освобождает shared/provider allocations. Сторонний scheduler, SDK, CRD или provenance framework служит примером механизма, не основанием заменить существующего owner. Источники исследования и пределы переноса собраны в [sources](sources.md).
 
 ## S16. Free-grow без ошибочных физических и проверочных барьеров
 
@@ -130,3 +130,39 @@ measurement; перенос reservation никогда не скрывает ж�
 Append-only означает порядок сохранённых разрешённых фактов. Это не исключение из
 LIF-05 для хранения raw data, identifiers, hashes и provenance. Утрата lawful replay
 показывается явно, а история не используется для восстановления отозванных прав.
+
+## S17. R22: границы фактов, lifetime и сквозной приёмки
+
+[R22 redteam](../assurance/r22-redteam.md) закрывает несовпадения между выбранными
+механизмами и их потребителями. Новых owners, глобальных start barriers или
+обязательных технологий не вводится.
+
+- CAP-04 local observation cut и source-native cut — разные evidence bases.
+  LIF-02 закрывает race наших наблюдений/enrollment, но не выдумывает внешнюю
+  continuity; fresh projections показывают bounded observation/as-of semantics.
+- LIF-07 хранит роли зависимостей: computational/semantic, fresh-use и retention.
+  Admission-only изменение прав не обязано повторять научный расчёт; изменение
+  permission-driven selection/redaction обязано менять соответствующую основу.
+  LIF-01 reuse proof потребляет реальный emitted closure и fresh reader при
+  composition, не требует завершённого LIF-07 для выпуска своего интерфейса.
+- Данные внешнего института и проверенный predicate их применимости не одно и
+  то же. P37 basis вычисляется на каждом required predicate, а не по имени поля.
+- LIF-06/OPS-08 учитывают lifetime actual allocations, включая surviving shared
+  buffers/cache после terminal attempt. LIF-04 применяет выбранную queue policy:
+  service opportunity либо bounded terminal/review disposition, а не бесконечный
+  defer с красивой queue-age метрикой. Custody duties не исчезают по TTL.
+- UI-02/04 потребляют LIF-05 для retention/deletion своих исторических surfaces.
+  Общие слова «preserve prior artifacts/history» во всех карточках означают
+  **только разрешённое сохранение**, включая identifiers/hashes/lineage; они не
+  отменяют этот owner. Это не право переписать сохранившееся историческое значение
+  или удалить сведения по неподтверждённому запросу.
+- OPS-05 восстанавливает material Claim/public histories вместе с rights/control
+  state. Witness должен переживать выбранный rollback closure; второй откатившийся
+  журнал не служит независимым подтверждением. LIF-02/publisher fencing защищает
+  промежуток до fresh-read enablement. При утрате lawful evidence — scoped
+  quarantine/limitation, а не восстановленная false-current подпись.
+- Effect-posterior WP activation и structural-write rule остаются отдельными
+  predicates. DES-12 assurance теперь проверяет оба, сохраняя одного GYD-12 writer.
+
+Original criteria и поддержанные native contracts остаются определяющими; эти
+уточнения не принимают код, не устанавливают внешние факты и не меняют SDD.

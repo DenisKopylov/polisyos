@@ -68,6 +68,8 @@
 
 **Alternatives:** общий autonomous laboratory controller выходит за границу; единственный hardcoded RCT исключит полезные observation/audit/quasi designs; требование полного causal discovery до каждого решения создаёт лишнюю работу; LLM-scored informativeness не заменяет метод/сценарии. Bayesian experimental design/CBO применяется только под соответствующими предпосылками, не как универсальная обязанность.
 
+**R22 — отдельные effect/structural predicates:** Return a qualified structural result with no effect-posterior WP activation: under an actual applicable structural-write rule it can reach the sole GYD-12 writer and fresh next-cycle reader. Remove that structural rule and it remains candidate/conditional. Separately, the O1 effect-posterior route without its required activation refuses operative mutation. One route’s receipt cannot close the other; no new write authority is granted by this plan.
+
 **Stage dependencies:** DES-04, CNT-06 и CAP-01 interfaces для подготовки, реальные selected outputs для composition. DEB-13 требуется только если выбран numeric scientific EVSI claim; отсутствие его probability/loss basis не блокирует обоснованный nonnumeric design. DES-11 не prerequisite. Actual external experiment/approval нужен только affected action/claim, не owner readiness на controlled data. Full programme FINAL-USE не получает скрытых waivers по прежним обязательствам.
 
 <a id="extensions"></a>

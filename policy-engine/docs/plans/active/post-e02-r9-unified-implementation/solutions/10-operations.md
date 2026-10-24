@@ -312,7 +312,8 @@ Classify each input at accepted-source rebind as internal engineering output/all
 
 ### Предпочтительное решение
 
-Give ControlPlaneStore an explicit versioned migration chain with expand → dual-compatible reader/writer → backfill/verify → contract, and keep it separate from runtime-state and CAS schema owners. Before a protected restore, pin the actual database backup/timeline and the exact CAS mount or bucket/prefix, manifest root, object inventory and version. Restore DB and CAS into quarantine, compare object hashes, owner heads and control references, then reconcile post-snapshot rights changes, retractions and revocations from their canonical owners before a fresh protected read. Define RPO over accepted events, job state, CAS references and rights history; define RTO through the first permitted fresh protected read. Neither startup time nor a database snapshot alone is recovery.
+Give ControlPlaneStore an explicit versioned migration chain with expand → dual-compatible reader/writer → backfill/verify → contract, and keep it separate from runtime-state and CAS schema owners. Before a protected restore, pin the actual database backup/timeline and the exact CAS mount or bucket/prefix, manifest root, object inventory and version. Restore DB and CAS into quarantine, compare object hashes, owner heads and control references, then reconcile post-snapshot rights changes, retractions and revocations from their canonical owners before a fresh protected read. Define RPO over accepted events, job state, CAS references and rights history; define RTO through the first permitted fresh protected read. Neither startup time nor a database snapshot alone is recovery. Recovery proof covers material Claim Ledger/publication withdrawal, correction, supersession and reissue history as well as rights/control state. Bind each relevant journal incarnation, cut/high-water, replay floor and its mapping to restored heads. Obtain a trusted continuity witness outside the actual selected rollback closure (not a second copy rolled back with the same snapshot); this may be an independently retained permitted checkpoint/journal, not a mandatory new service. Reconcile through LIF-02 and the existing claim/publication owner, then fence fresh-read enablement against intervening material transitions. A rights regrant never resurrects a withdrawn claim. Missing, deleted or unverifiable required history/witness keeps the affected restored head quarantined or explicitly historical/verification-limited; unaffected proven scopes may proceed. Respect LIF-05 minimization and do not reconstruct forbidden history merely to make restore green.
+
 
 ### Что переиспользовать
 
@@ -322,17 +323,21 @@ Give ControlPlaneStore an explicit versioned migration chain with expand → dua
 
 Наблюдение на историческом pin не устанавливает текущую реализацию или принятую базу.
 
+
 ### Последовательность реализации
 
 1. Add monotonic schema version checks and compatibility for every distinct supported retained reader/writer/schema/rule direction (N-1 alone is insufficient) before separately supervised API/worker rollout; preserve the existing tenant/RLS migration order.
 2. Inventory the actual SQLite/PostgreSQL backup method, WAL/timeline set, CAS mount type/options, object versions, root manifest, and store topology.
 3. Restore to quarantine, verify all referenced bytes and owner scope, reconcile rights/revocations newer than the backup from their authoritative owners, and only then enable fresh protected reads.
 4. Measure owner-approved RPO/RTO on the exact selected backend and capture migration/restore receipts.
+5. Recovery proof covers material Claim Ledger/publication withdrawal, correction, supersession and reissue history as well as rights/control state. Bind each relevant journal incarnation, cut/high-water, replay floor and its mapping to restored heads. Obtain a trusted continuity witness outside the actual selected rollback closure (not a second copy rolled back with the same snapshot); this may be an independently retained permitted checkpoint/journal, not a mandatory new service. Reconcile through LIF-02 and the existing claim/publication owner, then fence fresh-read enablement against intervening material transitions. A rights regrant never resurrects a withdrawn claim. Missing, deleted or unverifiable required history/witness keeps the affected restored head quarantined or explicitly historical/verification-limited; unaffected proven scopes may proceed. Respect LIF-05 minimization and do not reconstruct forbidden history merely to make restore green.
+
 
 ### Рассмотренные альтернативы
 
 - **Treat a filesystem snapshot or DB backup as a multi-store transaction.** — Database control state and CAS object publication have no shared atomic commit and can be captured at different cuts.
 - **Copy a live SQLite database file or reuse local directory results for a network/container mount.** — WAL is persistent state, and mount locking, visibility, rename durability and failure behavior are specific to the tested filesystem.
+
 
 ### Free-grow и ресурсы
 
@@ -348,7 +353,7 @@ Use versioned forward migrations with N-1 readers and reviewed compatible rollba
 
 ### Композиция и owners
 
-- A recovery checkpoint binds database snapshot identity, CAS manifest/root, exact mount/backend configuration, control high-water, rights/revocation high-water, and relevant time semantics.
+- A recovery checkpoint binds database snapshot identity, CAS manifest/root, exact mount/backend configuration, control high-water, rights/revocation high-water, material Claim/public-history cuts and replay floors, externally-to-rollback continuity witness, and relevant time semantics.
 - Fresh-read enablement is a separately enforced state transition, not an operator's claim that restore succeeded.
 
 
@@ -356,6 +361,7 @@ Use versioned forward migrations with N-1 readers and reviewed compatible rollba
 
 - Partial DB/CAS cut, absent WAL/object, stale rights history, interrupted migration and any incompatible required supported reader remain quarantined.
 - Exact tested mount supports concurrent publish/crash/restart/restore and a fresh authorized read; changing the mount invalidates conformance.
+- Restore a backup containing signed S0 after a later withdrawal and reissue: a continuity witness outside the selected rollback closure plus actual claim/public replay yields the correct fresh head and permitted history. Lose/roll back that witness, delete required history, or inject a withdrawal between reconcile and enablement: the affected restored scope remains fenced. Remove the claim-history witness while retaining rights/hash markers: the false-current recovery probe fails. An independently proven unaffected scope need not wait.
 
 
 ### Входы и ответственность за их получение
@@ -370,8 +376,8 @@ Use versioned forward migrations with N-1 readers and reviewed compatible rollba
 - Move from SQLite to PostgreSQL only when the selected same-host contract or measured concurrent writes fail an owner-approved target.
 - Remote CAS recovery is selected only after OPS-10 adapter and restore conformance.
 
-
 Classify each input at accepted-source rebind as internal engineering output/allocation, existing source record, or genuine external fact/permission. Missing native producer/bridge is assigned work, not an external blocker. Only the last class can justify an external-input hold after supplier/alternative investigation. See root-review.md for the task-specific distinction.
+
 
 ### Исследование и предел переноса
 
@@ -558,7 +564,7 @@ Consume the single LIF-06 native admission contract and implement the selected h
 
 1. Qualify a new class in a distinct finite measurement run authorized by the platform/service owner within an already verified isolation/enforcement envelope, with a hard bulk ceiling, existing control reserve, bounded scratch/time and no new protected custody commitment. Start small and increase only within that envelope; if the host cannot enforce it, use a suitable isolated host or record the qualification as unavailable. A candidate label alone authorizes neither unsafe workload nor unknown spend.
 2. Define measured classes for network, interactive, CPU, high-RSS/native threads, model/GPU, index and restore; class limits include bytes, CPU, RSS, I/O, scratch, queue age, retries and drain.
-3. Atomically reserve aggregate host and class capacity in the existing shared control store before starting work; release only after confirmed process/attempt termination or reconciliation.
+3. Atomically reserve aggregate host and class capacity in the existing shared control store before starting work; release each resource charge only after verified release of its actual allocation or reconciled transfer to another live owner. Attempt completion/termination permits release only of proven attempt-private resources; shared caches, mapped files, IPC buffers and overlapping generations remain charged for their real lifetime.
 4. Apply Linux cgroup or the selected platform's native hard controls and measure PSI/peak resource use; defer or reject before owner-set ceilings are reached.
 5. Test cold/warm, skewed, concurrent tenants, slow provider, OOM pressure, restart, cancel and restore; preserve semantic outcomes while saturated.
 6. Place control/custody/restore in protected process groups or leave measured headroom under a hard bulk ceiling, with actual scratch quotas. memory.high may be breached and memory.max can trigger OOM; neither setting alone proves graceful completion or a protected reserve. Qualify real saturation and recovery behavior.
@@ -584,9 +590,11 @@ Version class policies and in-flight reservations; keep agent/reviewer limits di
 
 ### Композиция и owners
 
-- Class membership and resource limits are institutionally selected inputs; observed usage and permit consumption are recomputed; permit release requires reconciled process termination.
+- Class membership and resource limits are institutionally selected inputs; observed usage and permit consumption are recomputed; capacity release requires reconciled allocation lifetime; process/attempt termination alone does not release shared or persistent allocations.
 - Per-tenant quota, shared host admission and provider spend ceiling compose independently.
 - Resource classification/measurement policy belongs to the actual platform/service owner; no new institutional act is needed for each in-envelope sample unless that owner contract requires it. Production class admission consumes completed measurements and the actual supported concurrency/terminal denominator.
+- Bind a versioned profile-specific queue/progress policy at LIF-04’s existing due-intent selector: eligibility and aggregate reservations come from LIF-06, measured headroom/age targets from OPS-08. Specify priority, fairness/aging or an explicitly limited best-effort class, queue admission/expiry and a bounded terminal/review disposition. Retry must preserve original admission age. No universal numeric deadline or mandatory DRF is imposed. An unbounded service/progress promise is forbidden; adverse load yields the declared defer/cancel/refusal/review result. Custody/revocation/reconciliation duties cannot disappear on queue TTL: retain their durable obligation and expose overdue/coverage loss through the existing owner.
+- Accounting may use a conservative enforced process/pool envelope with verified shared-allocation ownership and reconciliation; no per-Python-object tracing or universal allocation ledger is required. Uncertain lifetime retains the relevant conservative charge/headroom bound rather than inventing free capacity. Partition or aggregate only when the physical bound remains valid.
 
 
 ### Acceptance и различающие проверки
@@ -595,6 +603,8 @@ Version class policies and in-flight reservations; keep agent/reviewer limits di
 - Removing shared admission while leaving per-process limit markers makes the multi-process acceptance fail.
 - High-cardinality telemetry visibly reports overflow; totals remain useful for operations, while exact per-job/tenant outcomes remain available only from authorized receipts and no aggregate or sampled signal can make an admission/audit decision.
 - An unknown class can produce measurements inside an existing enforceable isolated envelope while its production/duty eligibility stays unavailable. No envelope means no run. Two disjoint measurement lanes can proceed concurrently within aggregate capacity; a joint class/cap policy cannot promote from isolated results that omit their interference.
+- A terminal attempt leaves a shared 60/100 allocation alive: a new 50/100 request must defer/refuse until sufficient actual capacity is released or a separately qualified capacity envelope covers it. Duplicate completion/transfer cannot release twice; privately freed resources become usable. Removing lifetime reconciliation while retaining a completion receipt fails the saturation/admission discriminator.
+- Under sustained arrivals in one eligible class, an older competing job either receives its selected-policy service opportunity or reaches its declared bounded terminal/review disposition; it cannot silently defer forever. Retry preserves first-admission age, and a custody/revocation duty remains durable with a truthful overdue/limited surface. Remove aging/expiry/disposition behavior while preserving queue-age metrics: the selected progress-policy probe fails; do not claim successful execution when only expiry/refusal occurred.
 
 
 ### Входы и ответственность за их получение

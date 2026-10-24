@@ -301,6 +301,7 @@ Update affected tests in place, retain original test evidence and exact base ide
 - A test establishes property only through the real producer/consumer behavior; marker presence and repo layout do not establish source absence (P29/P38).
 - A cached module replacement is not isolated if surviving references retain the fake object.
 - A test failure's ownership is `not_established` until P41 replay/disjointness completes.
+- DEB-04 alone owns the internal Foundry correctness / GY-N12 catalog-discovery owner acceptance for GY-DEF22. Re-enumerate the complete current bounded-claim set at source rebind; historical six is not a fixed acceptance denominator. Preserve content-bound owner readback and the separate P41 attribution requirement; neither substitutes for the other or for FA1 mechanisms.
 
 
 ### Acceptance и различающие проверки
@@ -700,7 +701,7 @@ Treat the remaining slots as distinct institutional acts: epoch predicate-policy
 2. Publish an exact role-to-claim-scope matrix with purpose, subject, valid/known time, required evidence and refusal code; use it only as an intake contract, not an appointment.
 3. Verify the real incoming artifact against the exact role/profile, signature/identity evidence, content digest, expiry and complete relevant history where required.
 4. Keep missing/expired/unverifiable evidence typed-empty or blocked for authority-band claims while allowing candidate feature construction with declared limits.
-5. Close GY-DEF22 engineering provenance only after its exact slice-base replay and complete disjointness; keep Foundry catalog/discovery appointment separate.
+5. Do not assign GY-DEF22 implementation or internal owner acceptance here: DEB-04 owns that work and its separate P41 conjunct. Preserve this task’s actual institutional-slot requirements; a shared source reference creates neither a second writer nor an extra global prerequisite.
 
 
 ### Рассмотренные альтернативы
@@ -741,7 +742,7 @@ Add role profile versions without changing historic appointment meaning. Revocat
 ### Входы и ответственность за их получение
 
 - Actual predicate-policy signer, transition-signing identity, independent history holder, signed delegation artifact/current mandate-owner evidence, and semantic epoch-qualification admission.
-- Foundry catalog/discovery appointment for GY-DEF22's six bounded claims, distinct from the unresolved DigestPredicateMismatch provenance.
+- GY-DEF22 is routed to DEB-04 for internal owner acceptance and independent provenance attribution; it is not a missing external appointment or required supplier for every DEB-09 slot.
 
 
 ### Когда обоснованно отклониться

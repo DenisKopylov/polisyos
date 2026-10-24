@@ -14413,7 +14413,10 @@
       "acceptance_evidence_requirements": [
         "Re-enumerate current GY-DEF22 claims and bind actual Foundry/GY-N12 owner decision. Historical six claims are a snapshot, not a test constant. Reviewer/implementer self-attestation and a test exit do not supply this decision.",
         "Keep exact slice-base replay and full transitive input-disjointness proof separate from internal catalog/discovery owner acceptance."
-      ]
+      ],
+      "original_specific_obligations": {
+        "GY-DEF22": "DEB-04 alone owns the internal Foundry correctness / GY-N12 catalog-discovery owner acceptance for GY-DEF22. Re-enumerate the complete current bounded-claim set at source rebind; historical six is not a fixed acceptance denominator. Preserve content-bound owner readback and the separate P41 attribution requirement; neither substitutes for the other or for FA1 mechanisms."
+      }
     },
     {
       "id": "DEB-05",
@@ -14951,9 +14954,6 @@
       ],
       "dependency_stage": "owner_readiness",
       "completion_contract_ref": "execution/stage-requirements.json#overrides/DEB-09",
-      "original_specific_obligations": {
-        "GY-DEF22": "Obtain the exact appointed Foundry catalog/discovery owner acceptance of all six bounded claims with content-bound readback. This is separate from FA1 mechanisms and from P41 attribution of the two-host digest mismatch. Neither acceptance nor provenance finding closes the other."
-      },
       "dispatch_condition": "Actual E02 acceptance; completed task-scoped accepted-source rebind under execution/07-scoped-readiness.md; exact required upstream stage/interface pins; non-overlapping write lease and phase-specific resource permit. Global P0 completion is not required for a reconciled independent scope.",
       "r19_extension": {
         "status": "planned_after_E02_acceptance",

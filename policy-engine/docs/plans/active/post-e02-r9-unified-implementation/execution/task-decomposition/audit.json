@@ -1,0 +1,2193 @@
+{
+  "revision": "R25",
+  "kind": "documentation_dispatch_recommendations",
+  "base_commit": "f8e2c66edf6b56a5436e696e669bfe690f68e58b",
+  "basis": "Complete parent task and preferred-solution rows at R24, referenced R14–R24 clauses; root reviewed recommendations. R25 corrects DEB-04/DEB-09 GY-DEF22 routing without changing the source criterion.",
+  "selector": "All 121 tasks.json tasks and matching preferred-solutions tasks; one assigned family assessment per ID. Extra CAP reviewer CNT observations excluded from the canonical count.",
+  "counts": {
+    "parent_tasks": 121,
+    "dispositions": {
+      "split": 48,
+      "sequence": 40,
+      "retain": 33
+    },
+    "families": {
+      "capture": {
+        "split": 5,
+        "sequence": 1
+      },
+      "lifecycle": {
+        "split": 4,
+        "sequence": 4,
+        "retain": 1
+      },
+      "gy": {
+        "split": 12,
+        "sequence": 12,
+        "retain": 9
+      },
+      "atlas": {
+        "sequence": 9,
+        "split": 3,
+        "retain": 8
+      },
+      "content": {
+        "sequence": 7,
+        "retain": 8,
+        "split": 6
+      },
+      "ops": {
+        "sequence": 3,
+        "retain": 1,
+        "split": 8
+      },
+      "debt": {
+        "split": 10,
+        "sequence": 4,
+        "retain": 6
+      }
+    }
+  },
+  "semantics": {
+    "retain": "Keep coherent scope; six P0/FINAL rows are coordination/acceptance aggregates, not implementation leaves.",
+    "sequence": "Keep one writer/invariant; checkpoint order is selected after source/interface rebind, independent preparation allowed.",
+    "split": "Proposed bounded result boundaries, not concurrency permission, new canonical tasks or closed parent obligations."
+  },
+  "dispatch_state": "proposal_requires_accepted_source_rebind_full_clause_allocation_and_exact_leases",
+  "preserved": "Canonical task IDs, original criteria, dependency/stage graph and all extensions. No product or SDD change.",
+  "implementation_status": "planned_after_E02_acceptance",
+  "product_verification": "UNRUN",
+  "limits": [
+    "No empirical model-context retention or implementation speed measurement.",
+    "Outline catalogue is not a complete clause-to-slice allocation or a runnable dispatch grant.",
+    "No full fresh audit of historical source code, production data or external authorities.",
+    "Unmentioned obligations remain with the canonical parent and must be explicitly routed before its completion."
+  ],
+  "review_inputs": [
+    {
+      "group": "capture",
+      "path": "policy-engine/_build/post-e02-r25-card-audit-20261024/capture.json",
+      "sha256": "57671daab16e0b4b81c6f26e31ac4b0bf7ebdaaaed488d93c6f1c5841045baa3",
+      "assigned_rows": 6
+    },
+    {
+      "group": "lifecycle",
+      "path": "policy-engine/_build/post-e02-r25-card-audit-20261024/lifecycle.json",
+      "sha256": "595a29f4fcae4a1e01a1bfeffb17577cf99e07ce7213d17570a9dbd8c7ae6fdc",
+      "assigned_rows": 9
+    },
+    {
+      "group": "gy",
+      "path": "policy-engine/_build/post-e02-r25-card-audit-20261024/gy.json",
+      "sha256": "acf1a89ac0e05f78b45d546e4ab95a19c69a88ebe9efcbccf7fa0d065fc75c2e",
+      "assigned_rows": 33
+    },
+    {
+      "group": "atlas",
+      "path": "policy-engine/_build/post-e02-r25-card-audit-20261024/atlas.json",
+      "sha256": "a7d760aa35bf26201f02771a9191d172519b7a075145ba7ec2370a657e48224d",
+      "assigned_rows": 20
+    },
+    {
+      "group": "content",
+      "path": "policy-engine/_build/post-e02-r25-card-audit-20261024/content.json",
+      "sha256": "896d41a8a54a4e3f105c90a00282ae92e406b413271b620fd33119f376f66e53",
+      "assigned_rows": 21
+    },
+    {
+      "group": "ops",
+      "path": "policy-engine/_build/post-e02-r25-card-audit-20261024/ops.json",
+      "sha256": "cb31baad6177bed138a78173810735203e4d0a164546e53f56f50415c1841c0b",
+      "assigned_rows": 12
+    },
+    {
+      "group": "debt",
+      "path": "policy-engine/_build/post-e02-r25-card-audit-20261024/debt.json",
+      "sha256": "df6790c9b4c6ba0da703b1f9b96307fa7f6b593ede0eb06ec792b5a95e64950e",
+      "assigned_rows": 20
+    }
+  ],
+  "assessments": [
+    {
+      "id": "CAP-01",
+      "disposition": "split",
+      "rationale": "Three distinct predicates share a route but need separate contexts: candidate resolution, pre-egress query authority, and claim-scoped coverage/no-hit. The R19 coverage questions are a measurement artifact, not extra prose around discovery.",
+      "source_selector": "tasks.json:tasks[id=CAP-01]; solutions/preferred-solutions.json:tasks[task_id=CAP-01]",
+      "family": "capture",
+      "proposed_results": [
+        {
+          "key": "candidate-resolution",
+          "title": "Resolve candidate to exact source/profile",
+          "property": "Ambiguity, stale identity, and candidate ranking never become admitted source authority.",
+          "boundary": "Existing SemanticDatasetCatalog, SourceContract, and located acquisition caller; no new registry."
+        },
+        {
+          "key": "query-disclosure",
+          "title": "Authorize the exact outbound query",
+          "property": "Only the exact permitted query projection reaches the admitted provider and allowed logging/retention sinks.",
+          "boundary": "CAP-01 route at transport boundary; native source/custodian verifier and LIF-05 permission owner."
+        },
+        {
+          "key": "bounded-coverage",
+          "title": "Measure claim-scoped search coverage and no-hit",
+          "property": "A no-hit supports only the source/routes/languages/cut whose known-item coverage was measured.",
+          "boundary": "Catalog/discovery owner produces coverage receipt; CNT-08 consumes its claim limitation."
+        }
+      ]
+    },
+    {
+      "id": "CAP-02",
+      "disposition": "split",
+      "rationale": "The preferred solution combines four independently reviewable contexts: per-hop network policy, retained representation and reader, conditional continuation/fencing, and a selected second-source adapter. R19 adds exact-content binding; it does not make these transport/protocol properties one mechanism.",
+      "source_selector": "tasks.json:tasks[id=CAP-02]; solutions/preferred-solutions.json:tasks[task_id=CAP-02]",
+      "family": "capture",
+      "proposed_results": [
+        {
+          "key": "transport-boundary",
+          "title": "Enforce destination policy at each network hop",
+          "property": "Only an authorized exact target/attempt can be reached, including redirects, DNS resolution, credentials, and controlled proxies.",
+          "boundary": "Existing Fabric HTTP transport/security seam and selected connector owner."
+        },
+        {
+          "key": "single-response-root",
+          "title": "Capture and resolve one exact bounded representation",
+          "property": "A complete retained response has one immutable root; a later reader returns the same verified bytes or unavailable.",
+          "boundary": "Selected connector/runtime producer plus ArtifactManifest/FileSystemCAS; no backend-parity claim."
+        },
+        {
+          "key": "continuation-and-frontier",
+          "title": "Activate a selected range or paginated protocol",
+          "property": "Only source-supported complete coverage and a fenced expected-head commit advance resumable progress.",
+          "boundary": "Source-specific adapter consumes LIF-03 cursor/frontier owner; CAP-02 adds no cursor writer."
+        },
+        {
+          "key": "second-source-adapter",
+          "title": "Qualify the selected second-source producer",
+          "property": "A second source's actual protocol/parser has its own complete receipt and cannot borrow WDI or another route's proof.",
+          "boundary": "Selected native source/connector owner; composed with LIF-08."
+        }
+      ]
+    },
+    {
+      "id": "CAP-03",
+      "disposition": "split",
+      "rationale": "Root admission is distinct from current rights at sinks, method-specific replay identity, and binding verification to bytes actually read. The preferred-solutions card carries method/stream acceptance beyond the core library property; keep those native owners and compose them rather than giving CAP-03 a new universal mechanism.",
+      "source_selector": "tasks.json:tasks[id=CAP-03]; solutions/preferred-solutions.json:tasks[task_id=CAP-03]",
+      "family": "capture",
+      "proposed_results": [
+        {
+          "key": "root-admission",
+          "title": "Admit and promote an exact root once",
+          "property": "Only resolved content plus verifier-provenance and current use evidence can create a reusable library receipt.",
+          "boundary": "CAP-03 acquisition/library consumer, native passport, LIF-01 relation/use owner."
+        },
+        {
+          "key": "fresh-sink-rights",
+          "title": "Recheck the exact operation at every selected sink",
+          "property": "Read permission does not grant analyze, derive, cache, resume, export, restore, or publish permission.",
+          "boundary": "LIF-05 and actual storage/security owners; CAP-03 wires selected consumers and owns no rights ledger."
+        },
+        {
+          "key": "method-realization-reuse",
+          "title": "Preserve method-specific realization and retry meaning",
+          "property": "Reusing a realization is not a new independent observation; late/duplicate attempts cannot silently replace a referenced result.",
+          "boundary": "Existing GY/method trial, attempt, and lineage owner; CAP-03 resolves its exact input root only."
+        },
+        {
+          "key": "verified-read-release",
+          "title": "Bind verification to the bytes the reader actually consumes",
+          "property": "No protected effect/export escapes before the selected integrity contract has verified the consumed bytes.",
+          "boundary": "Existing CAS/object-store reader, version-pin/lease and bounded-streaming owner."
+        }
+      ]
+    },
+    {
+      "id": "CAP-04",
+      "disposition": "split",
+      "rationale": "Source-supplied change events, measured observation cuts, and LIF-02 currentness are different evidence/authority contexts. Keeping them together risks treating a heartbeat/empty feed as a source event or giving CAP-04 a second cascade. R19 operational/incident records stay typed apart from legal events, causal assessments, and source-supplied events.",
+      "source_selector": "tasks.json:tasks[id=CAP-04]; solutions/preferred-solutions.json:tasks[task_id=CAP-04]",
+      "family": "capture",
+      "proposed_results": [
+        {
+          "key": "native-source-event",
+          "title": "Persist source-qualified change and rights events",
+          "property": "Only an authenticated, source-scoped event can state a source change with its own position and time roles.",
+          "boundary": "CAP-04 adapter adjacent to accountable source owner; LIF-02 remains canonical consumer."
+        },
+        {
+          "key": "bounded-observation",
+          "title": "Record change only within an observed source cut",
+          "property": "Snapshot comparison supports only measured selector/profile/coverage and cannot claim source continuity between polls.",
+          "boundary": "CAP-02 permitted observation plus source-specific CAP-04 observation journal."
+        },
+        {
+          "key": "currentness-consumer",
+          "title": "Compose event receipt into fenced fresh projection",
+          "property": "An enrolled claim is green only after replay and publication fencing cover its source dependency cut.",
+          "boundary": "Existing LIF-02/Claim Ledger/Decision Validity/publisher owners; UI-19 projects the result."
+        }
+      ]
+    },
+    {
+      "id": "CAP-05",
+      "disposition": "sequence",
+      "rationale": "Keep one jurisdiction-specific legal relation vertical: the R14/R17/R19 cases are variants of exact source relation, competence/applicability, and time-scoped consumer meaning. Sequencing reduces simultaneous legal contexts while preserving one native Lex relation owner and the full composed legal proof.",
+      "source_selector": "tasks.json:tasks[id=CAP-05]; solutions/preferred-solutions.json:tasks[task_id=CAP-05]",
+      "family": "capture",
+      "proposed_results": [
+        {
+          "key": "checkpoint-1",
+          "title": "Bind exact official source and candidate relation",
+          "property": "The cited legal text/version/span/language is the resolved artifact, while extraction or translation remains candidate evidence.",
+          "boundary": "CAP-05 source relation adapter over CAP-02 root; existing Lex/legal source owner."
+        },
+        {
+          "key": "checkpoint-2",
+          "title": "Resolve legal competence, scope, and time",
+          "property": "Legal force is limited to a competent issuer, exact jurisdiction/parties/provision and supported effective/transition scope.",
+          "boundary": "Existing Lex applicability and actual-act owner; CNT-04 supplies human/institutional determinations."
+        },
+        {
+          "key": "checkpoint-3",
+          "title": "Apply relation to the selected legal consumer",
+          "property": "Only the exact supported legal premise affects the selected recommendation, with unresolved law left limited/contested.",
+          "boundary": "DES-05 generic interpretation composition and CNT-09 selected case consumer."
+        }
+      ]
+    },
+    {
+      "id": "CAP-06",
+      "disposition": "split",
+      "rationale": "The card combines private/federated evidence qualification, durable remote effects/retries, and output-rights/sink enforcement. R15/R16/R17/R19 explicitly assign these to separate native owners; a single implementer otherwise holds statistical, provider, and custody contexts at once.",
+      "source_selector": "tasks.json:tasks[id=CAP-06]; solutions/preferred-solutions.json:tasks[task_id=CAP-06]",
+      "family": "capture",
+      "proposed_results": [
+        {
+          "key": "private-input",
+          "title": "Bind selected private/federated inputs and participant coverage",
+          "property": "A private result is bound to actual inputs, roster/omissions, alignment, executable and allowed recipient; aggregation alone does not establish inference or independence.",
+          "boundary": "CAP-06 capture/result-intake contract; CNT-06 qualifies population/inference; OPS-09 consumes the selected deployment cell."
+        },
+        {
+          "key": "remote-effect-reconciliation",
+          "title": "Persist and reconcile each remote operation",
+          "property": "Every selected remote call has one exact intent/input/executable/recipient and a verifiable completed or indeterminate effect.",
+          "boundary": "CAP-06 provider-specific adapter consumes existing LIF-04/ControlPlaneStore owner."
+        },
+        {
+          "key": "rights-and-output-sinks",
+          "title": "Release only source-authorized outputs",
+          "property": "Remote completion/encryption does not authorize storing, ingesting, transferring, or publishing an output.",
+          "boundary": "LIF-05 owns copy/disclosure policy and sink inventory; CAP-06 consumes its selected decision."
+        }
+      ]
+    },
+    {
+      "id": "LIF-01",
+      "disposition": "split",
+      "rationale": "One card currently joins exact relation/applicability admission, current-use/cache qualification, and stochastic invocation/result denominator. These cross distinct consumer and native-producer contexts. Split the implementer contexts while keeping claim-support/ledger as the sole relation/use writer; DES-03/GYD-30 and LIF-07 remain their native writers for realization and lineage.",
+      "source_selector": "tasks.json:tasks[id=LIF-01]; solutions/preferred-solutions.json:tasks[task_id=LIF-01]",
+      "family": "lifecycle",
+      "proposed_results": [
+        {
+          "key": "relation_use",
+          "title": "Bind relation assessment to one admissible claim use",
+          "property": "Resolved content/operation and verifier basis support only the exact proposition, polarity, population, unit, scope, rule, time, purpose and audience admitted by the consumer.",
+          "boundary": "Extend the existing claim-support and Claim Ledger owners; CAP/domain verifier are suppliers, not second writers."
+        },
+        {
+          "key": "reuse_trial_consumption",
+          "title": "Consume qualified reuse and native trial identity",
+          "property": "Reuse preserves the selected method guarantee and does not turn retries, a late attempt, or a reused realization into another independent observation.",
+          "boundary": "LIF-01/CAP-03 are consumers; LIF-07 owns influence/reuse dependencies and DES-03/GYD-30 own invocation/trial/attempt/accepted-result identity; LIF-04 recovers the same intent."
+        }
+      ]
+    },
+    {
+      "id": "LIF-02",
+      "disposition": "sequence",
+      "rationale": "Keep one claim-currentness/enrollment writer. Separate native ordered-event replay from bounded observation cuts, then add the R24 conditional duty composition witness after shared interfaces are ready. The stages have different evidence bases and consumers but share the currentness owner and do not add start edges.",
+      "source_selector": "tasks.json:tasks[id=LIF-02]; solutions/preferred-solutions.json:tasks[task_id=LIF-02]",
+      "family": "lifecycle",
+      "proposed_results": [
+        {
+          "key": "native_event_replay",
+          "title": "Enroll and replay source-native events",
+          "property": "No event is missed between evaluation cut C and enrollment high-water W; current publication is fenced by the enrolled source/right cut and expected claim head.",
+          "boundary": "LIF-02 is the sole semantic currentness/enrollment/head owner under write:claim-currentness; ledger persistence and the publisher commit fence participate within that lease, not as peer semantic writers. CAP and source owners emit cuts/events."
+        },
+        {
+          "key": "bounded_observation_order",
+          "title": "Consume bounded observations with honest as-of scope",
+          "property": "Local observation receipts support only declared observed coverage; completion order or byte equality cannot establish source continuity or clear a newer mismatch.",
+          "boundary": "LIF-02 remains currentness writer; CAP-04 supplies observation receipts and CAP-02 the exact representation."
+        },
+        {
+          "key": "conditional_duty_join",
+          "title": "Compose selected duty outcome into claim currentness",
+          "property": "A missed or limited continuing custody promise changes only enrolled dependent coverage, and wrong/missing duty relation cannot bypass the join.",
+          "boundary": "LIF-02 is the consumer; LIF-04 is the duty producer, with OPS-11 and LIF-06/OPS-08 joined only for their asserted guarantees."
+        }
+      ]
+    },
+    {
+      "id": "LIF-03",
+      "disposition": "retain",
+      "rationale": "The task has one native commit property: a stale capture attempt cannot advance the cursor/frontier over a newer root, and a partial representation cannot become complete. CAP remains the producer; the R19 extension strengthens the same owner-native fence.",
+      "source_selector": "tasks.json:tasks[id=LIF-03]; solutions/preferred-solutions.json:tasks[task_id=LIF-03]",
+      "family": "lifecycle",
+      "proposed_results": [
+        {
+          "key": "conditional_frontier_commit",
+          "title": "Fence cursor advancement against stale writers",
+          "property": "Only the active attempt with the expected prior root can advance a partition frontier, after the exact receipt and representation are durable.",
+          "boundary": "Existing Fabric CursorStore commit path; CAP produces the verified receipt; artifact/OPS supply storage facts."
+        }
+      ]
+    },
+    {
+      "id": "LIF-04",
+      "disposition": "split",
+      "rationale": "Remote side-effect reconciliation and durable service-progress commitments are distinct native properties with different evidence and consumers, despite sharing the existing ControlPlaneStore. Keep one canonical store/writer and serialize its checkpoints; stochastic trial identity is supplied by DES-03/GYD-30 and consumed here, not implemented as another ledger.",
+      "source_selector": "tasks.json:tasks[id=LIF-04]; solutions/preferred-solutions.json:tasks[task_id=LIF-04]",
+      "family": "lifecycle",
+      "proposed_results": [
+        {
+          "key": "effect_recovery",
+          "title": "Reconcile external effect and local commit",
+          "property": "An uncertain provider effect is never treated as success or blindly repeated; cancellation, attempt identity and final local publication are ordered at the actual effect key.",
+          "boundary": "Existing RuntimeOperationIntent/ControlPlaneStore writer; provider receipt/status and OPS service identity are inputs."
+        },
+        {
+          "key": "durable_service_commitment",
+          "title": "Preserve admitted service class and due duty",
+          "property": "A committed duty retains its admission policy, terms, original age and durable next trigger through policy changes/restart; review is not service and safety/caps remain immediate.",
+          "boundary": "Same ControlPlaneStore duty owner; LIF-06 supplies eligibility, OPS-08 measured envelope, OPS-11 selected institutional duty config, and LIF-02 consumes affected coverage."
+        },
+        {
+          "key": "native_trial_recovery_consumer",
+          "title": "Consume method-qualified trial recovery",
+          "property": "Same native invocation retry/late reply resolves one accepted realization set and preserves failures/dependence; only explicit new replicate changes basis.",
+          "boundary": "DES-03/GYD-30 own invocation/trial/attempt/result binding; LIF-04 carries the same intent through orchestration recovery; LIF-01/LIF-07/CAP-03 consume it."
+        }
+      ]
+    },
+    {
+      "id": "LIF-05",
+      "disposition": "split",
+      "rationale": "The card joins source-use authority, actual egress/materialization, shared privacy exposure composition, and physical placement/restore. These are different decision and sink boundaries. Retain one canonical rights/privacy decision owner; sinks and storage owners consume it, and OPS-05/LIF-02 remain their own writers.",
+      "source_selector": "tasks.json:tasks[id=LIF-05]; solutions/preferred-solutions.json:tasks[task_id=LIF-05]",
+      "family": "lifecycle",
+      "proposed_results": [
+        {
+          "key": "rights_decision",
+          "title": "Resolve current source-use and action rights",
+          "property": "A source-qualified decision binds applicable rule/act, purpose, audience, scope, effective time and generation; request scope/planner output is not a grant.",
+          "boundary": "One existing or narrowly allocated LIF-05 rights/privacy decision owner; competent external authority remains typed supplied evidence."
+        },
+        {
+          "key": "egress_and_exposure_fence",
+          "title": "Fence disclosure at actual sinks",
+          "property": "Rights and source policy are checked at the irreversible sink; shared alias/unit/recipient exposure is reserved and committed once, and uncertain possible output is held.",
+          "boundary": "Canonical LIF-05 decision/composition owner plus actual CAP-03/06 and other selected sink consumers; no second privacy ledger."
+        },
+        {
+          "key": "placement_restore_and_retained_use",
+          "title": "Reconcile copies, retention and restored use",
+          "property": "Per-placement deletion/retention and post-backup rights history govern serving; lawful retained derivatives may remain usable only on their own current rights and sufficient verification basis.",
+          "boundary": "LIF-05 rights consumer with actual CAS/provider/backup placement owners; OPS-05 supplies restore topology, LIF-02 fences public claim/history currentness, LIF-07 binds derivative influence."
+        }
+      ]
+    },
+    {
+      "id": "LIF-06",
+      "disposition": "split",
+      "rationale": "The row mixes a hard physical resource admission property, shared allocation/fan-in lifetime, durable service fairness/claim coverage and energy/copy/verification accounting. Keep one LIF-06 admission writer; measured enforcement adapters stay with OPS-08 and service-policy/claim reactions stay with LIF-04/LIF-02. The extra contexts are composition obligations, not new ledgers.",
+      "source_selector": "tasks.json:tasks[id=LIF-06]; solutions/preferred-solutions.json:tasks[task_id=LIF-06]",
+      "family": "lifecycle",
+      "proposed_results": [
+        {
+          "key": "physical_admission",
+          "title": "Admit work against measured physical envelope",
+          "property": "A hard cap is supported only by a selected profile whose declared resource dimensions bind to actual enforcement and a complete workload denominator.",
+          "boundary": "Existing canonical resource-enforcement owner, extended once by LIF-06 if absent; OPS-08 qualifies selected host/provider adapters."
+        },
+        {
+          "key": "allocation_lifetime_reserve",
+          "title": "Reserve terminal fan-in and preserve live allocation charges",
+          "property": "Terminal/recovery reserve covers measured simultaneous fan-in; a permit is held until physical release or reconciled transfer of each live shared allocation.",
+          "boundary": "Same LIF-06 resource owner and OPS-08 physical measurement; LIF-04 owns attempt terminal state."
+        },
+        {
+          "key": "duty_and_material_cost_composition",
+          "title": "Join measured capacity and support cost to selected duties",
+          "property": "A continuing duty's eligibility and any cost/energy/copy coverage are stated only for the exact measured scope and denominator; resource receipts cannot discharge a missed duty.",
+          "boundary": "LIF-06/OPS-08 emit resource evidence; LIF-04 consumes eligibility under its service policy; LIF-02 consumes overdue coverage; OPS/storage owners supply material support receipts."
+        }
+      ]
+    },
+    {
+      "id": "LIF-07",
+      "disposition": "sequence",
+      "rationale": "One canonical ArtifactManifest/InputRef/ArtifactLineageGraph writer owns the shared influence relation. Stage its acceptance by consumer property: computational identity/cache reuse, current-use and rights/source descendant invalidation, then method-valid learning/plurality and archived-design readers. Do not split into per-domain graphs or move current-claim fencing from LIF-02.",
+      "source_selector": "tasks.json:tasks[id=LIF-07]; solutions/preferred-solutions.json:tasks[task_id=LIF-07]",
+      "family": "lifecycle",
+      "proposed_results": [
+        {
+          "key": "computational_closure",
+          "title": "Bind complete computational and selection influence",
+          "property": "Reuse requires exact actual positive, negative, membership, executable, model, method and selection dependencies; unknown closure is a miss/limitation, not empty influence.",
+          "boundary": "Canonical manifest/lineage writer; actual cache readers remain GYD-30/DES-03 and consumers."
+        },
+        {
+          "key": "current_use_descendants",
+          "title": "Propagate scoped source, right and derivative changes",
+          "property": "Known material influence reaches affected descendants and current-use consumers; permission/current-use remains separate from analytic cache identity.",
+          "boundary": "LIF-07 owns influence edges; LIF-05 owns rights decisions and LIF-02 owns claim currentness/publication fences."
+        },
+        {
+          "key": "learning_and_preservation_consumers",
+          "title": "Compose learning and completed-design influence",
+          "property": "Confirmatory outcomes follow method-valid correction/reassessment; exploratory proposals remain candidate; archived design closure reflects actual dependencies and retained representations.",
+          "boundary": "LIF-07 supplies lineage/influence; GYD owns inference/write-back, DES-06 owns design artifact, LIF-05 owns retention; no new writer for those capabilities."
+        }
+      ]
+    },
+    {
+      "id": "LIF-08",
+      "disposition": "sequence",
+      "rationale": "One second-source vertical is a coherent composition unit, but its producer is CAP-owned and trust/backup profile is OPS-owned. Stage preparation, compatibility/requiredness, then migration/old-reader retirement; do not make source capture or bootstrap a duplicate LIF writer.",
+      "source_selector": "tasks.json:tasks[id=LIF-08]; solutions/preferred-solutions.json:tasks[task_id=LIF-08]",
+      "family": "lifecycle",
+      "proposed_results": [
+        {
+          "key": "producer_readiness",
+          "title": "Prepare one materially distinct second-source profile",
+          "property": "A real CAP artifact exists for a source/layout/transport distinction selected after freeze, with its own receipt, cut and limits.",
+          "boundary": "CAP owns capture/parser; OPS owns trust/bootstrap/backup; LIF-08 consumes their actual outputs."
+        },
+        {
+          "key": "directional_semantics",
+          "title": "Check semantic mapping and consumer requiredness",
+          "property": "Compatibility is directional and consumer-requiredness controls whether an unknown facet is inert or blocks its use.",
+          "boundary": "Existing SourceContract/catalog registry and selected reader; source producer declarations are inputs, not authority."
+        },
+        {
+          "key": "migration_retirement",
+          "title": "Close mixed-generation migration and old-reader lifetime",
+          "property": "New and supported old readers remain safe through rollout, and current publish binds one source/profile/reader generation until roots/readers are retired.",
+          "boundary": "Existing catalog/readers and migration/GC roots; OPS supplies restore/offline-reader limits."
+        }
+      ]
+    },
+    {
+      "id": "LIF-09",
+      "disposition": "sequence",
+      "rationale": "Keep this as one final acceptance receipt/journal owner, not a lifecycle mechanism. Bound execution with freeze/readiness, selected end-to-end property witnesses, and one reviewed final join. All active original and extension predicates retain separate identities and dispositions, including the three R19 Q22 paths.",
+      "source_selector": "tasks.json:tasks[id=LIF-09]; solutions/preferred-solutions.json:tasks[task_id=LIF-09]",
+      "family": "lifecycle",
+      "proposed_results": [
+        {
+          "key": "freeze_and_readiness",
+          "title": "Freeze exact acceptance identity and obligations",
+          "property": "The evaluated source, owner/consumer closure, selected profile, reviewer candidate and full active denominator are exact and immutable for this acceptance wave.",
+          "boundary": "Existing programme journal/receipt; LIF-01..08, CAP and OPS remain artifact/effect owners."
+        },
+        {
+          "key": "vertical_witnesses",
+          "title": "Run selected lifecycle properties through actual consumers",
+          "property": "Each accepted claim follows actual producer to persisted event/artifact, orchestration bridge, fresh authorized consumer and surface; each removal probe deletes the property itself.",
+          "boundary": "Native owners and consumers of LIF-01..08; LIF-09 records exact evidence but does not become their verifier or mechanism writer."
+        },
+        {
+          "key": "final_join_receipt",
+          "title": "Join one reviewed final identity and retain evidence",
+          "property": "Only complete required evidence on the final replay identity closes acceptance; a diagnostic refusal/UNRUN does not satisfy a positive original obligation.",
+          "boundary": "Single LIF-09 receipt writer over the existing frozen verification/journal path; no new evidence ledger or broad replay wave."
+        }
+      ]
+    },
+    {
+      "id": "GYD-01",
+      "disposition": "split",
+      "rationale": "PR1a data-only receipt and PR1b protected-mode admission have separate authority purposes, evidence bundles, receipts, and independently decidable outcomes. Serialize both at the existing N9 writer. Keep authentic GY-O0-NC-01 near-miss as its own original criterion; it is not a fixture or a substitute prerequisite for PR1a.",
+      "source_selector": "tasks.json:tasks[id=GYD-01]; solutions/preferred-solutions.json:tasks[task_id=GYD-01]",
+      "family": "gy",
+      "proposed_results": [
+        {
+          "key": "GYD-01-PR1a",
+          "title": "Canonical data-only N4 receipt",
+          "property": "A real source-bound data-only result can be consumed at N4 without claiming protected field-pilot eligibility.",
+          "boundary": "Existing N9 v8 intake/epoch and promotion port; no protected-mode authority."
+        },
+        {
+          "key": "GYD-01-PR1b",
+          "title": "Protected-mode admission conjunction",
+          "property": "Protected eligibility is admitted only from the amended S6 all-five-axis evidence, S8 normative admission, promotion safety, and bound S7 human decision.",
+          "boundary": "Same N9 writer plus existing S6/S8/safety/S7 owners; human decision remains an external institutional act."
+        }
+      ]
+    },
+    {
+      "id": "GYD-02",
+      "disposition": "sequence",
+      "rationale": "One catalog identity-repair mechanism: same Data Forge writer repairs and reissues, then the measurement/planner consumer proves resource-to-distribution resolution. Sequence: recount the complete post-E02 set → reissue with source/unit/period validity → test correct and wrong/removed bindings. Keep GDP/WDI unit-period mismatch routed to D2/PR1; do not widen this repair.",
+      "source_selector": "tasks.json:tasks[id=GYD-02]; solutions/preferred-solutions.json:tasks[task_id=GYD-02]",
+      "family": "gy",
+      "proposed_results": []
+    },
+    {
+      "id": "GYD-03",
+      "disposition": "sequence",
+      "rationale": "The independently authored D0, requirement basis, and safety/context are prerequisites from distinct evidence owners; the owned engineering result is one source-bound route through ConstraintStore to the real optimizer. Sequence: rebind/obtain actual prerequisites and owner → persist recomputed basis or typed refusal → run optimizer and read its receipt → remove each binding. Missing internal producer/bridge is assigned work, not an external wait; never synthesize institutional evidence.",
+      "source_selector": "tasks.json:tasks[id=GYD-03]; solutions/preferred-solutions.json:tasks[task_id=GYD-03]",
+      "family": "gy",
+      "proposed_results": []
+    },
+    {
+      "id": "GYD-04",
+      "disposition": "retain",
+      "rationale": "A single measured property: full-denominator precision/recall from independent adjudication. Retrieval failover and AxisEntailmentWitness are inputs or controls, not separate accuracy owners. Keep the result unavailable until competent labels and denominator are bound.",
+      "source_selector": "tasks.json:tasks[id=GYD-04]; solutions/preferred-solutions.json:tasks[task_id=GYD-04]",
+      "family": "gy",
+      "proposed_results": []
+    },
+    {
+      "id": "GYD-05",
+      "disposition": "retain",
+      "rationale": "One legal-membership evidence contract and current consumer comparison; source membership and competent ruling are distinct inputs, but jointly determine one scoped membership claim. Preserve `not_established` authority until the institutional act is admitted; do not split into a new legal authority subsystem.",
+      "source_selector": "tasks.json:tasks[id=GYD-05]; solutions/preferred-solutions.json:tasks[task_id=GYD-05]",
+      "family": "gy",
+      "proposed_results": []
+    },
+    {
+      "id": "GYD-06",
+      "disposition": "sequence",
+      "rationale": "The authentic positive producer is currently absent/unappointed, so the coherent result is a typed producer-to-admission chain, not an invented producer. Sequence: appoint/reconcile the canonical source owner and population → define/resolve its typed evidence → persist real input and read it at native admission → keep the separate synthetic negative control. Preserve 0/1 and `a_spec_gap` until an authentic positive exists.",
+      "source_selector": "tasks.json:tasks[id=GYD-06]; solutions/preferred-solutions.json:tasks[task_id=GYD-06]",
+      "family": "gy",
+      "proposed_results": []
+    },
+    {
+      "id": "GYD-07",
+      "disposition": "sequence",
+      "rationale": "GYD-07 owns the post-output GX readout, while the 38 routed reds have named upstream owners; folding their fixes into GX would duplicate owners and hide attribution. Sequence: clear/reconcile each routed owner red with exact-base P41 evidence → run current-family GX over actual outputs → persist ProductionLoopRunProof and matched property-removal failure. Preserve allowed `a_spec_gap` and all reds until actually resolved.",
+      "source_selector": "tasks.json:tasks[id=GYD-07]; solutions/preferred-solutions.json:tasks[task_id=GYD-07]",
+      "family": "gy",
+      "proposed_results": []
+    },
+    {
+      "id": "GYD-08",
+      "disposition": "retain",
+      "rationale": "One sealed AS2 evaluation contract with one holdout/oracle, frozen risk-coverage estimand, baseline, and exposure discipline. Those are conditions of the same blindness property; splitting them would make the holdout or comparator independently claimable. Keep the original holdout-tuned comparator open pending the exact owner clarification.",
+      "source_selector": "tasks.json:tasks[id=GYD-08]; solutions/preferred-solutions.json:tasks[task_id=GYD-08]",
+      "family": "gy",
+      "proposed_results": []
+    },
+    {
+      "id": "GYD-09",
+      "disposition": "sequence",
+      "rationale": "One canonical confirmatory update owner, with a binding activation boundary. Sequence: build real measurement/diagnosis/provenance/comparison and prove refusal/no posterior mutation → present live activation packet to the competent principal → only after actual scoped WP-01 activation, implement the selected immutable estimator and fresh O3 reader; WP-02/R4-Q01 remains separately required for routine assimilation. Interim refusal is not the future update positive.",
+      "source_selector": "tasks.json:tasks[id=GYD-09]; solutions/preferred-solutions.json:tasks[task_id=GYD-09]",
+      "family": "gy",
+      "proposed_results": []
+    },
+    {
+      "id": "GYD-10",
+      "disposition": "sequence",
+      "rationale": "One exploratory procedure and canonical candidate ledger. Sequence: bind accepted FDR plan and real DDM family/denominator/look/state → recompute p/e-value and dependence validity under that plan → persist only `candidate_unverified` with spend and `may_not_use_for` → let O1 provide the separate confirmation route. R15 adaptive exposure and R16 C6 deepen the same candidate/independence wall; they do not authorize a second ledger or direct world write.",
+      "source_selector": "tasks.json:tasks[id=GYD-10]; solutions/preferred-solutions.json:tasks[task_id=GYD-10]",
+      "family": "gy",
+      "proposed_results": []
+    },
+    {
+      "id": "GYD-11",
+      "disposition": "sequence",
+      "rationale": "AS3 is one frozen corpus/oracle exercised through the actual O3 writer. Sequence: pin the exact 24 packets and five isolated mutations with valid controls → run each through the production consumer → persist/read back each outcome. Corpus seal and markers alone are not proof; retain separate O1 activation and structural-write rules.",
+      "source_selector": "tasks.json:tasks[id=GYD-11]; solutions/preferred-solutions.json:tasks[task_id=GYD-11]",
+      "family": "gy",
+      "proposed_results": []
+    },
+    {
+      "id": "GYD-12",
+      "disposition": "split",
+      "rationale": "The same canonical WMR/Fabric writer must admit two different scientific authorities: O1-confirmed effect updates and rule-qualified structural revisions. They have different evidence, activation, refusal and removal predicates, so make them independently verifiable slices while keeping one append-only writer and requiring the original effect obligations for full task completion.",
+      "source_selector": "tasks.json:tasks[id=GYD-12]; solutions/preferred-solutions.json:tasks[task_id=GYD-12]",
+      "family": "gy",
+      "proposed_results": [
+        {
+          "key": "GYD-12-effect",
+          "title": "Activated O1 effect-posterior branch",
+          "property": "Only an activated, qualified O1 update with AS3 and current context advances the operative effect posterior into a versioned world generation.",
+          "boundary": "Existing runtime/quality WMR writer and Fabric branch/event; WP-01 activation governs posterior mutation, WP-02 separately governs routine schedule."
+        },
+        {
+          "key": "GYD-12-structural",
+          "title": "Rule-qualified structural revision",
+          "property": "A content-bound CNT-06/native-method structural assessment changes the operative graph only when the actual structural write rule permits that transition.",
+          "boundary": "Same GYD-12 writer, distinct structural input and actual rule owner; WP-01/02 are not structural-write authority."
+        }
+      ]
+    },
+    {
+      "id": "GYD-13",
+      "disposition": "retain",
+      "rationale": "One CB2 production-consumer capability: discoverable real operator invocation, persisted trial receipt and fresh recomputing readback. The command registry and diagnostic persistence are companions to the same consumer result, not a second trial engine.",
+      "source_selector": "tasks.json:tasks[id=GYD-13]; solutions/preferred-solutions.json:tasks[task_id=GYD-13]",
+      "family": "gy",
+      "proposed_results": []
+    },
+    {
+      "id": "GYD-14",
+      "disposition": "retain",
+      "rationale": "One Lex production-consumer capability over the complete real rendition denominator. Resolve the existing consumer owner at rebind; keep signers, trust roots and the human-comprehension claim withheld unless their separate authority criteria are met.",
+      "source_selector": "tasks.json:tasks[id=GYD-14]; solutions/preferred-solutions.json:tasks[task_id=GYD-14]",
+      "family": "gy",
+      "proposed_results": []
+    },
+    {
+      "id": "GYD-15",
+      "disposition": "split",
+      "rationale": "FA1 explicitly groups four absent/unallocated mechanisms with distinct predicates and owner seams. Split the task into four bounded receipts, each with its own producer, persisted artifact, exact reader and negative; join them at N8 without treating a common receipt shape or the unratified FR-AUTH-01 proposal as authority.",
+      "source_selector": "tasks.json:tasks[id=GYD-15]; solutions/preferred-solutions.json:tasks[task_id=GYD-15]",
+      "family": "gy",
+      "proposed_results": [
+        {
+          "key": "GYD-15-cutoff",
+          "title": "Runtime subtree cutoff basis",
+          "property": "The admitted source subtree is independently reconciled to the declared cutoff before it can support a runtime claim.",
+          "boundary": "Existing Foundry/runtime cutoff seam; actual subtree membership is the deciding source."
+        },
+        {
+          "key": "GYD-15-resolution",
+          "title": "Owner-resolved receipt store",
+          "property": "A reader resolves the exact owner-selected receipt bytes and verifies source, content and scope before consumption.",
+          "boundary": "Existing receipt-store/resolution seam; no caller-selected or plan-named duplicate store."
+        },
+        {
+          "key": "GYD-15-toolchain",
+          "title": "Platform and toolchain admission",
+          "property": "Runtime admission is based on the actual supported platform/toolchain identity and its selected contract.",
+          "boundary": "Existing platform/toolchain admission owner; observations alone remain non-authoritative."
+        },
+        {
+          "key": "GYD-15-data-trust",
+          "title": "Production-data trust policy",
+          "property": "Production-data use is limited to the actual source, trust, rights and scope evidence verified by its native owner.",
+          "boundary": "Existing production-data trust owner and N8 reader; no blanket signer or inferred source authority."
+        }
+      ]
+    },
+    {
+      "id": "GYD-16",
+      "disposition": "sequence",
+      "rationale": "One recomputing coverage matrix and one final measured result. Sequence across its explicit activation boundary: before freeze prepare source-derived complete row set, semantic owners and removal probes → after FINAL-REVIEW execute the V1 re-enumeration and read back chain plus semantic-test status. Do not equate moved-row presence with accepted capability.",
+      "source_selector": "tasks.json:tasks[id=GYD-16]; solutions/preferred-solutions.json:tasks[task_id=GYD-16]",
+      "family": "gy",
+      "proposed_results": []
+    },
+    {
+      "id": "GYD-17",
+      "disposition": "sequence",
+      "rationale": "One B2-triggered production loop proof; the required WorkspaceContract, artifact graph, SearchLedger, FrontierSnapshot, SearchExitContract and canonical hashes form one event/artifact chain. Sequence: prepare real case and exact route/oracles before freeze → run the actual permitted HTTP trigger after FINAL-REVIEW → resolve every artifact from CAS through fresh consumers and prove measurement-rooted result or certified honest ceiling. A route-only/refusal-only run is not the V2 positive.",
+      "source_selector": "tasks.json:tasks[id=GYD-17]; solutions/preferred-solutions.json:tasks[task_id=GYD-17]",
+      "family": "gy",
+      "proposed_results": []
+    },
+    {
+      "id": "GYD-18",
+      "disposition": "retain",
+      "rationale": "The per-domain distribution is one source-derived denominator over all original local, recursive, non-panel, unseen-third and post-N13b cases. Splitting by domain would let partial pools masquerade as complete; retain one report and use existing CompositionCertificate only for an actual tested joint property. Preserve mixed outcomes and typed ceilings.",
+      "source_selector": "tasks.json:tasks[id=GYD-18]; solutions/preferred-solutions.json:tasks[task_id=GYD-18]",
+      "family": "gy",
+      "proposed_results": []
+    },
+    {
+      "id": "GYD-19",
+      "disposition": "sequence",
+      "rationale": "V4 is a complete original a–v owner-bound negative matrix, not a new firewall implementation. Sequence: bind every row to its original property, actual consumer and deciding evidence → freeze the exact list and commands → run every negative against its native boundary → perform per-mechanism removal and only then record any P34-complete exclusion. Do not split away cases or repair sibling owners inside this audit.",
+      "source_selector": "tasks.json:tasks[id=GYD-19]; solutions/preferred-solutions.json:tasks[task_id=GYD-19]",
+      "family": "gy",
+      "proposed_results": []
+    },
+    {
+      "id": "GYD-20",
+      "disposition": "split",
+      "rationale": "The three stated replay claims are independently testable and use different canonical owners/evidence paths. Keep a shared frozen source profile, but do not imply byte replay, trace reconstruction and artifact revalidation are one guarantee.",
+      "source_selector": "tasks.json:tasks[id=GYD-20]; solutions/preferred-solutions.json:tasks[task_id=GYD-20]",
+      "family": "gy",
+      "proposed_results": [
+        {
+          "key": "GYD-20-deterministic",
+          "title": "Deterministic operation replay",
+          "property": "A named deterministic operation reproduces exact output bytes under the same complete input and execution profile.",
+          "boundary": "Canonical operation owner; deterministic profile only, with non-deterministic dependencies explicitly bounded."
+        },
+        {
+          "key": "GYD-20-trace",
+          "title": "Stored agentic trace reconstruction",
+          "property": "A persisted Research DAG and decision/provenance trace reconstructs offline without invoking a live provider.",
+          "boundary": "Existing Research DAG trace owner; reconstruct historical work, do not promise identical model output or fresh re-execution."
+        },
+        {
+          "key": "GYD-20-promoted-artifact",
+          "title": "Promoted artifact and semantic-time revalidation",
+          "property": "Resolved promoted bytes, provenance and historical/current rule checks are distinguished, with effective/as-of time preserved.",
+          "boundary": "CAS artifact reader plus owner-bound rule validators and gy_evidence_canon time handling."
+        }
+      ]
+    },
+    {
+      "id": "GYD-21",
+      "disposition": "sequence",
+      "rationale": "This is one final applicability/consumption closure over the frozen GY artifact family and the existing GX, Task-0, 16 audit and GY-V validators. Sequence: derive expected artifact×validator pairs from original criteria and owner contracts before looking at invocations → run each real validator once in the frozen wave → compare resolved actual consumption, corruption and omitted-artifact probes → publish exact red/unknown capability gaps. Keep this after FINAL-REVIEW; do not add a parallel registry or claim full-repository coverage.",
+      "source_selector": "tasks.json:tasks[id=GYD-21]; solutions/preferred-solutions.json:tasks[task_id=GYD-21]",
+      "family": "gy",
+      "proposed_results": []
+    },
+    {
+      "id": "GYD-22",
+      "disposition": "split",
+      "rationale": "The five named diagnostic signals have distinct source owners and independently verifiable denominators. Keep their producers/readouts separate, then join them once through existing G8/Cycle Board. A missing signal remains missing, not zero; the combined readout is descriptive and not a policy-design or causal authority.",
+      "source_selector": "tasks.json:tasks[id=GYD-22]; solutions/preferred-solutions.json:tasks[task_id=GYD-22]",
+      "family": "gy",
+      "proposed_results": [
+        {
+          "key": "GYD-22-T1",
+          "title": "Envelope expansion",
+          "property": "The named T1 envelope signal is recomputed from its canonical source and frozen V2/V3 runs.",
+          "boundary": "T1 metric owner; descriptive metric only."
+        },
+        {
+          "key": "GYD-22-T2",
+          "title": "Semantic loss",
+          "property": "The named T2 signal measures semantic loss from its canonical owner on the bound run and denominator.",
+          "boundary": "T2 metric owner; no normative judgment."
+        },
+        {
+          "key": "GYD-22-T3",
+          "title": "Governance throughput",
+          "property": "The named T3 signal is recomputed from its canonical governance-throughput events and window.",
+          "boundary": "T3 metric owner; descriptive throughput, not authority or quality by itself."
+        },
+        {
+          "key": "GYD-22-T6",
+          "title": "Demand-pull and abstention",
+          "property": "The named T6 signal measures demand-pull and abstention from its canonical source without treating abstention as failure or success by default.",
+          "boundary": "T6 metric owner; diagnostic signal and original status meanings retained."
+        },
+        {
+          "key": "GYD-22-T7",
+          "title": "Search recall and index staleness",
+          "property": "A no-hit result is separated into supported domain ceiling versus search ceiling only when known-seed recall and index freshness are measured.",
+          "boundary": "T7 metric owner plus existing G8 search-ceiling interpretation."
+        }
+      ]
+    },
+    {
+      "id": "GYD-23",
+      "disposition": "retain",
+      "rationale": "A single deterministic Slice-0 contract over exact BIND/ESTIMATE/VERIFY, minimal §3.5.1 budget, manifest-sourced expectations, measurement-rooted Estimate terminal and poor-recall repair. Groundable and tourism cases are contrasting controls for the same terminal/precedence invariant, not separate products. Preserve the original H terminal at Estimate only.",
+      "source_selector": "tasks.json:tasks[id=GYD-23]; solutions/preferred-solutions.json:tasks[task_id=GYD-23]",
+      "family": "gy",
+      "proposed_results": []
+    },
+    {
+      "id": "GYD-24",
+      "disposition": "split",
+      "rationale": "Applicability and acquisition are distinct outputs with different owners, but order is binding: applicability over the complete 16-facet/three-connector basis must persist before ACQUIRE may fetch or issue a rung-7 costed exit. Split by native owner and sequence B after A; retain one composed RequiredDataSpec→DataNeedSpec→ACQUIRE route.",
+      "source_selector": "tasks.json:tasks[id=GYD-24]; solutions/preferred-solutions.json:tasks[task_id=GYD-24]",
+      "family": "gy",
+      "proposed_results": [
+        {
+          "key": "GYD-24-applicability",
+          "title": "Complete pre-fetch applicability result",
+          "property": "The native applicability owner recomputes all original required facets and connector support before any fetch/admission.",
+          "boundary": "ApplicabilityResult and versioned method/data-source requirements; no acquisition or caller VOI decision yet."
+        },
+        {
+          "key": "GYD-24-acquire",
+          "title": "Pinned-gap acquisition or rung-7 costed exit",
+          "property": "A source-pinned missing distribution resolves to a permitted real fetch or an exact costed rung-7 `acquisition_required` outcome.",
+          "boundary": "Existing RequiredDataSpec→DataNeedSpec→canonical acquisition planner and connector consumers; no second scheduler."
+        }
+      ]
+    },
+    {
+      "id": "GYD-25",
+      "disposition": "retain",
+      "rationale": "One governed semantic-adequacy gate over one complete benchmark: precision, known-seed recall, negative controls and owner-derived freshness jointly determine the same consumer decision. Keep the threshold and low-recall repair route; freshness defaults and benchmark markers are proxies, not a reason to create a second benchmark runner.",
+      "source_selector": "tasks.json:tasks[id=GYD-25]; solutions/preferred-solutions.json:tasks[task_id=GYD-25]",
+      "family": "gy",
+      "proposed_results": []
+    },
+    {
+      "id": "GYD-26",
+      "disposition": "retain",
+      "rationale": "One judge-output-to-real-verdict binding. Exact input, execution/version, output bytes and fresh consumer jointly establish the verdict; the existing delete-output/keep-name counterexample is the distinguishing negative. Keep the claim candidate-only until actual output is resolved.",
+      "source_selector": "tasks.json:tasks[id=GYD-26]; solutions/preferred-solutions.json:tasks[task_id=GYD-26]",
+      "family": "gy",
+      "proposed_results": []
+    },
+    {
+      "id": "GYD-27",
+      "disposition": "split",
+      "rationale": "The card combines three separately verifiable native predicates: event-backed role production/no-client refusal, construction-level Ring-2 authority rejection, and VOI normalization. Keep the real tool loop as common input and one event grammar; do not let their evidence or authority claims substitute for one another.",
+      "source_selector": "tasks.json:tasks[id=GYD-27]; solutions/preferred-solutions.json:tasks[task_id=GYD-27]",
+      "family": "gy",
+      "proposed_results": [
+        {
+          "key": "GYD-27-events",
+          "title": "Persisted role events and no-client refusal",
+          "property": "Role/action claims derive from actual persisted runtime events linked to actor, run, tool invocation and artifacts.",
+          "boundary": "Existing AgentEventBridge and real `run_tool_loop`; AgentDecisionRecord remains candidate-only."
+        },
+        {
+          "key": "GYD-27-ring2",
+          "title": "Ring-2 construction/admission refusal",
+          "property": "An agent/caller cannot construct or submit Ring-2 authority without resolved verifier provenance.",
+          "boundary": "Single construction/intake boundary using existing `assert_ring2_verifier_provenance`; Ring-1 remains proposal."
+        },
+        {
+          "key": "GYD-27-voi",
+          "title": "VOI normalization from a declared basis",
+          "property": "VOISelectionAudit reflects the actual source, denominator and time basis and has no authority when that basis is missing or biased.",
+          "boundary": "Existing GY waist VOI audit and selection consumer; no second selection engine."
+        }
+      ]
+    },
+    {
+      "id": "GYD-28",
+      "disposition": "split",
+      "rationale": "F2 joins confidentiality scanning, CAS lifecycle integrity and authority admission for actual DAG/loop artifacts. They are different properties and owners; measure each independently and compose all required outcomes at the real consumer. A digest never supplies source truth or manifest authority.",
+      "source_selector": "tasks.json:tasks[id=GYD-28]; solutions/preferred-solutions.json:tasks[task_id=GYD-28]",
+      "family": "gy",
+      "proposed_results": [
+        {
+          "key": "GYD-28-scan",
+          "title": "Raw/public secret and PII scan",
+          "property": "Scoped raw/public and nested connector/DAG outputs are scanned and prohibited content is redacted or blocked before leaving the governed surface.",
+          "boundary": "Existing SecretAndPIIScanReport producer and actual raw/public emission path."
+        },
+        {
+          "key": "GYD-28-cas",
+          "title": "CAS bytes, deduplication, tamper and retention",
+          "property": "Canonical artifact bytes, digest/dedup refs, tamper detection, GC survival and dereference agree at actual CAS consumers.",
+          "boundary": "Existing CASIntegrityReport and CAS storage/read paths; byte integrity only."
+        },
+        {
+          "key": "GYD-28-authority",
+          "title": "Actual artifact manifest-authority admission",
+          "property": "Every DAG/loop artifact is admitted only under its actual purpose/boundary/source authority manifest resolved by the consumer.",
+          "boundary": "Shared actual artifact intake/emission and consumer boundary; authority is distinct from canonical-byte integrity."
+        }
+      ]
+    },
+    {
+      "id": "GYD-29",
+      "disposition": "split",
+      "rationale": "Time/reference validity and complete candidate-positive inventory have separate consumer mechanisms and independently useful outcomes. Use one shared source-derived row inventory, then join them; do not let a complete count stand in for row-level firewall/P37 review, or let a timestamp stand in for authority.",
+      "source_selector": "tasks.json:tasks[id=GYD-29]; solutions/preferred-solutions.json:tasks[task_id=GYD-29]",
+      "family": "gy",
+      "proposed_results": [
+        {
+          "key": "GYD-29-time-refs",
+          "title": "Time-role and source-reference reconciliation",
+          "property": "Each source/artifact reference resolves and its action, observation, publication, receipt, knowledge and effective/as-of roles are distinguished in currentness/downgrade decisions.",
+          "boundary": "Existing epoch validity cascade and S12 dereference/downgrade consumer."
+        },
+        {
+          "key": "GYD-29-census",
+          "title": "Complete candidate-positive inventory and false-exclusion review",
+          "property": "Every current source-derived candidate-positive row is enumerated and carries the complete firewall/exclusion/boundary disposition with P37 evidence class.",
+          "boundary": "Existing AuthorityCandidateInventoryRow/firewall owner; 406 is historical baseline, not a current cap."
+        }
+      ]
+    },
+    {
+      "id": "GYD-30",
+      "disposition": "split",
+      "rationale": "Use the already-authored R16 native slices: C1 compiler/joint execution, C2 selected temporal/cyclic boundary and recovery, C3 influence/cache. These are distinct properties and writers; C3 remains LIF-07's influence owner with GYD-30 only as the actual Foundry reader. Reconcile PDC/IR certificate ownership once, keep one GYD-30 joint-result writer, and join only selected slice outputs. Do not create per-family branches, a second lineage/scheduler, or a blanket external simulator mandate.",
+      "source_selector": "tasks.json:tasks[id=GYD-30]; solutions/preferred-solutions.json:tasks[task_id=GYD-30]",
+      "family": "gy",
+      "proposed_results": [
+        {
+          "key": "GYD-30-C1",
+          "title": "Canonical compiler, exact joint execution and full method-family coverage",
+          "property": "The selected complete participant graph executes with owner-derived typed facets and an actual joint witness; every current source-derived Ukraine method family reaches a real workflow consumer or exact limitation.",
+          "boundary": "One canonical CompositionCertificate/compiler/method-chain owner after PDC/IR duplicate reconciliation; GYD-30 owns shared compile/execute/schema paths."
+        },
+        {
+          "key": "GYD-30-C2",
+          "title": "Selected temporal/cyclic boundary and state recovery",
+          "property": "For a selected temporal or zero-lag SCC claim, actual clock/order/state transitions and checkpoint/recovery cover every affected participant.",
+          "boundary": "Reuse R16 C2; DES-11 owns temporal adapter changes, GYD-30 consumes the actual joint result. Conditional on selected profile."
+        },
+        {
+          "key": "GYD-30-C3",
+          "title": "Exact influence/reuse at the Foundry reader",
+          "property": "Cache reuse is admitted only when actual reads, negative dependencies, rights/currentness and semantic basis match; otherwise recompute or limit.",
+          "boundary": "Reuse R16 C3: LIF-07 owns influence/reuse relation; GYD-30 owns only its actual Foundry cache reader."
+        }
+      ]
+    },
+    {
+      "id": "GYD-31",
+      "disposition": "sequence",
+      "rationale": "One ValueOuterSet contract with multiple required readers; do not split by S1/N8/N6 and accidentally let one narrow consumer stand in for the value set. Sequence: bind owner-derived width/trust/identification and epoch at S1 → carry it through N8 → verify N6 comparison uses set semantics → run missing-status/sample/timeout/trust removal controls. Keep GYD-32 substrate delivery separate.",
+      "source_selector": "tasks.json:tasks[id=GYD-31]; solutions/preferred-solutions.json:tasks[task_id=GYD-31]",
+      "family": "gy",
+      "proposed_results": []
+    },
+    {
+      "id": "GYD-32",
+      "disposition": "split",
+      "rationale": "S0 real-substrate lift and S1 free-grow are independently verifiable properties. Split input/custody from extensibility while reusing the same canonical Data Forge registries, WMR and GYD-30 compiler; GYD-31 remains the ValueOuterSet semantics owner. R16 C1/C7 apply only to the selected execution/adapter profile, not as a new registry, scheduler or universal runtime dependency.",
+      "source_selector": "tasks.json:tasks[id=GYD-32]; solutions/preferred-solutions.json:tasks[task_id=GYD-32]",
+      "family": "gy",
+      "proposed_results": [
+        {
+          "key": "GYD-32-S0",
+          "title": "Real L4 substrate through L1/L5 into WMR",
+          "property": "The permitted real corpus is content-addressed and its period, record, schema and source-snapshot identities survive the L4→L1 DCAT→L5→GlobalState/WMR consumer path.",
+          "boundary": "Canonical Data Forge source registry and Foundry/PDC ingestion bridge; no synthetic corpus as the positive."
+        },
+        {
+          "key": "GYD-32-S1",
+          "title": "Registered free-grow and typed-facet extension",
+          "property": "A new conforming supported participant flows through actual registration, bootstrap, typed facets and shared execution without a central family branch; new semantics require reviewed owner adapter.",
+          "boundary": "Canonical registries and GYD-30 shared compiler/executor; no parallel catalog or per-family dispatch switch."
+        }
+      ]
+    },
+    {
+      "id": "GYD-33",
+      "disposition": "split",
+      "rationale": "Scholar L2 and Lex L3 have distinct source owners, time semantics and independently verifiable consumer consequences. Split the source-bound evidence slices, then consume both through exactly one shared N4/N8/N1/N2 binding bridge; no duplicate bridge or transfer of GY-K/GY-G obligations.",
+      "source_selector": "tasks.json:tasks[id=GYD-33]; solutions/preferred-solutions.json:tasks[task_id=GYD-33]",
+      "family": "gy",
+      "proposed_results": [
+        {
+          "key": "GYD-33-L2",
+          "title": "Scholar L2 confidence, transport and contested knowledge",
+          "property": "Full-denominator Scholar evidence changes its scoped downstream support: contested edges widen and transport limits constrain applicability.",
+          "boundary": "Scholar remains L2 KG/version/estimate writer; the shared bridge is a consumer, not a second writer."
+        },
+        {
+          "key": "GYD-33-L3",
+          "title": "Lex L3 threshold and amendment as-of binding",
+          "property": "A Lex threshold/amendment applies only when its exact source, version and effective_from/as-of time bind the downstream consumer.",
+          "boundary": "Lex remains L3 threshold/amendment writer; same shared bridge as L2."
+        }
+      ]
+    },
+    {
+      "id": "UI-01",
+      "disposition": "sequence",
+      "rationale": "One server-issued verification response must retain the same authentication-versus-authority meaning across selected consumers. R19 adds currentness and denied/absent disclosure checkpoints; neither warrants splitting by browser, API, CLI, MACHINE, or audit.",
+      "source_selector": "tasks.json:tasks[id=UI-01]; solutions/preferred-solutions.json:tasks[task_id=UI-01]",
+      "family": "atlas",
+      "proposed_results": [],
+      "checkpoints": [
+        "Base: project report_authentication separately from seven not_established authority dimensions through the accepted record.",
+        "R18-D12-Q05: compose fresh LIF-02 currentness in the selected readers; historical authenticity cannot render as current.",
+        "R18-D12-Q06: bind the complete selected emission/index/cache path set and test denied/absent indistinguishability."
+      ]
+    },
+    {
+      "id": "UI-02",
+      "disposition": "split",
+      "rationale": "The exact-record publication and four-audience projections are one cross-surface invariant and stay together. Pre-persistence telemetry privacy and LIF-05 placement lifecycle are different properties with different owner evidence and removal probes; separating them shrinks implementation context without cutting transports apart. Keep accessibility, locale, security-header, mobile, performance, and human semantic review as required publication companions.",
+      "source_selector": "tasks.json:tasks[id=UI-02]; solutions/preferred-solutions.json:tasks[task_id=UI-02]",
+      "family": "atlas",
+      "proposed_results": [
+        {
+          "key": "UI02-PUB",
+          "title": "Issue and project one exact public record",
+          "property": "A permitted data-only record or typed refusal is issued from one exact CAS view; authority stays typed-empty unless the separate signer predicate is met, and every selected audience reads the same edition with its own permission.",
+          "boundary": "public_export → exact ArtifactRef/CAS view → issue/verify → PUBLIC/REVIEWER/EXPERT/MACHINE projections across actual browser/API/CLI readers → authorized-read audit. Do not rebuild the closed verifier or create another store."
+        },
+        {
+          "key": "UI02-EGRESS",
+          "title": "Gate private data before persistence and egress",
+          "property": "No private field escapes through public request, telemetry, beacon, fetch-failure, or error paths; classification/redaction occurs before signed persistence.",
+          "boundary": "Actual public route and every selected egress builder, including route/query/tags/breadcrumbs/extras/beacon/fetch/error paths; reuse the approved telemetry policy and existing audit boundary."
+        },
+        {
+          "key": "UI02-RIGHTS",
+          "title": "Apply owner retention and disclosure decisions to selected readers",
+          "property": "Selected publication/history readers apply LIF-05 placement-specific display, retention, withdrawal, erasure, cache, and restore decisions without implying recall of unknown downloaded copies.",
+          "boundary": "UI-02 selected history/index/feed/API/browser/MACHINE/audit/export/cache/restore readers; compose with UI-04 history and LIF-05 owner outputs. No second retention engine."
+        }
+      ]
+    },
+    {
+      "id": "UI-03",
+      "disposition": "retain",
+      "rationale": "Single canonical index allocation/read path; splitting browser, MACHINE, CLI, or receipts would duplicate the admitted-case set and freshness/rights checks.",
+      "source_selector": "tasks.json:tasks[id=UI-03]; solutions/preferred-solutions.json:tasks[task_id=UI-03]",
+      "family": "atlas",
+      "proposed_results": []
+    },
+    {
+      "id": "UI-04",
+      "disposition": "sequence",
+      "rationale": "The append-only DS13 event/history/feed chain is one canonical lineage capability. Sequence producer contract, same-source feed/history projection, then LIF-02/LIF-05 composition; do not split per transport or repurpose access audit as the event ledger.",
+      "source_selector": "tasks.json:tasks[id=UI-04]; solutions/preferred-solutions.json:tasks[task_id=UI-04]",
+      "family": "atlas",
+      "proposed_results": [],
+      "checkpoints": [
+        "Bind the actual event/history producer and exact parent/version, actor/authority, event kind, time, consent/rights, and formal-act-versus-PolicyOS-reaction contract.",
+        "Persist append-only response/correction/revocation/supersession/learning events and prove a fresh generic DS13 feed/history reader consumes them with UI-03 identity.",
+        "Compose the selected projections with LIF-02 currentness and LIF-05 placement disclosure/erasure; preserve accessibility, locale, consent, and no-auto-adjudication companions."
+      ]
+    },
+    {
+      "id": "UI-05",
+      "disposition": "retain",
+      "rationale": "One G6 session/choice/loss artifact projection with candidate/refusal authority held at zero; the PUBLIC exclusion is part of the same bounded surface contract.",
+      "source_selector": "tasks.json:tasks[id=UI-05]; solutions/preferred-solutions.json:tasks[task_id=UI-05]",
+      "family": "atlas",
+      "proposed_results": []
+    },
+    {
+      "id": "UI-06",
+      "disposition": "sequence",
+      "rationale": "Keep DS4/AQ1 value grammar as the single owner path. The card already distinguishes contract/surface preparation from actual DS7 values; R15/R16 add temporal and learning meaning to the same value reader, not another grammar or scalar producer.",
+      "source_selector": "tasks.json:tasks[id=UI-06]; solutions/preferred-solutions.json:tasks[task_id=UI-06]",
+      "family": "atlas",
+      "proposed_results": [],
+      "checkpoints": [
+        "Derive the full current AQ1 relation set and bind the DS4 oneOf grammar, units/basis, purpose, provenance, rule and time; keep unknown/incomparable/refusal distinct.",
+        "Regenerate one canonical client family and prove mixed-value DOM/MACHINE round-trip; reuse C23 refusals.",
+        "Compose actual quantity claims only after the accepted DS7 capstone value/basis witness; layer R15/R16 as-of, branch, study and currentness context through the same grammar."
+      ]
+    },
+    {
+      "id": "UI-07",
+      "disposition": "retain",
+      "rationale": "One N13b derivation certificate/currentness bridge through CAS; producer, persisted certificate, invalidation/replay and fresh projection form one capability chain and must be jointly accepted.",
+      "source_selector": "tasks.json:tasks[id=UI-07]; solutions/preferred-solutions.json:tasks[task_id=UI-07]",
+      "family": "atlas",
+      "proposed_results": []
+    },
+    {
+      "id": "UI-08",
+      "disposition": "sequence",
+      "rationale": "One read-only DS21 view over the O1/O3 persisted world branch. O1 and O3 are both composition inputs, O2 remains candidate-only; R15/R16/R17 add time/currentness qualifiers. Splitting by causal class, source, or transport would fragment the property.",
+      "source_selector": "tasks.json:tasks[id=UI-08]; solutions/preferred-solutions.json:tasks[task_id=UI-08]",
+      "family": "atlas",
+      "proposed_results": [],
+      "checkpoints": [
+        "Preparation can bind one projection contract; composition waits for both accepted O1 confirmatory and O3 versioned world-growth outputs.",
+        "Exercise all four owner cause classes plus compound/unresolved through persisted state; preserve current WP-01/02 no-posterior-mutation and O2 candidate_unverified.",
+        "Project acquisition and deployment as distinct provenance on one world branch, with R15/R16/R17 as-of/currentness and scope limits; no deploy/action controls."
+      ]
+    },
+    {
+      "id": "UI-09",
+      "disposition": "retain",
+      "rationale": "This is one complete-set routing/census property over the canonical register. The source/history denominator is the work; splitting by array would create multiple closure ledgers and omissions. Keep the 85 auxiliary decisions as assignment companions, not a new source register.",
+      "source_selector": "tasks.json:tasks[id=UI-09]; solutions/preferred-solutions.json:tasks[task_id=UI-09]",
+      "family": "atlas",
+      "proposed_results": []
+    },
+    {
+      "id": "UI-10",
+      "disposition": "sequence",
+      "rationale": "One AuthzProvider default-deny decision governs the full C09 consumer census. The long protected-chrome list is a denominator and test coverage requirement, not a reason for per-surface tasks.",
+      "source_selector": "tasks.json:tasks[id=UI-10]; solutions/preferred-solutions.json:tasks[task_id=UI-10]",
+      "family": "atlas",
+      "proposed_results": [],
+      "checkpoints": [
+        "Rebind the original DS1-N010 negative and the full C09a/C09b required consumer/disposition set, including mobile and loaded/bootstrap RunDetail.",
+        "Apply unknown/absent/error/malformed/401/prior-user/tenant-switch/partial/full inputs through the provider and actual protected consumers; preserve fixed permission-free PUBLIC chrome.",
+        "Close only after the same C09 cross-surface witness and accepted source disposition pass; keep the bounded indirect-flow residual explicit."
+      ]
+    },
+    {
+      "id": "UI-11",
+      "disposition": "retain",
+      "rationale": "The single property is atomic expected-revision CAS at the Fabric mutation boundary with a durable receipt; DS20 remains a handoff. Separating API, receipt, and handoff would claim a capability before the atomic chain closes.",
+      "source_selector": "tasks.json:tasks[id=UI-11]; solutions/preferred-solutions.json:tasks[task_id=UI-11]",
+      "family": "atlas",
+      "proposed_results": []
+    },
+    {
+      "id": "UI-12",
+      "disposition": "sequence",
+      "rationale": "One real-PostgreSQL verification receipt, not four product tasks. Qualify the environment first, preserve each of four independent B5 outcomes, and issue joint acceptance only when all four run on bound source across independent stores/apps.",
+      "source_selector": "tasks.json:tasks[id=UI-12]; solutions/preferred-solutions.json:tasks[task_id=UI-12]",
+      "family": "atlas",
+      "proposed_results": [],
+      "checkpoints": [
+        "Qualify a real PostgreSQL DSN/driver/version, two independent stores/apps and isolated schemas; otherwise keep environment_blocked.",
+        "Retain distinct replay, mutation+409, pre-OPA corrupted-head, and fresh-app unheaded-CAS outcomes with PASS/FAIL/ERROR/SKIP/UNRUN semantics.",
+        "Join all four against the same accepted source/harness; DS9 reservation evidence remains a separate property."
+      ]
+    },
+    {
+      "id": "UI-13",
+      "disposition": "sequence",
+      "rationale": "The source-cut scorecard route is one DS9 intake/effect chain; N012 exposure/mandate/dissent is a separate unresolved artifact state that must stay visible but must not silently become a blocker or a parallel ledger.",
+      "source_selector": "tasks.json:tasks[id=UI-13]; solutions/preferred-solutions.json:tasks[task_id=UI-13]",
+      "family": "atlas",
+      "proposed_results": [],
+      "checkpoints": [
+        "Reconcile exact source cut, merge state, content and ops-config producer trust; resolve and verify through DS9 before approval effect.",
+        "Preserve N012 exposure and signed mandate/dissent as artifact_missing/consumer_missing until their own artifacts and reader exist; do not infer completion from DS20 authz."
+      ]
+    },
+    {
+      "id": "UI-14",
+      "disposition": "retain",
+      "rationale": "One complete source-to-packaged-mirror parity property; decide canonical consumption versus deterministic generated mirror, then compare complete paths and raw bytes. Package signature alone is not parity.",
+      "source_selector": "tasks.json:tasks[id=UI-14]; solutions/preferred-solutions.json:tasks[task_id=UI-14]",
+      "family": "atlas",
+      "proposed_results": []
+    },
+    {
+      "id": "UI-15",
+      "disposition": "split",
+      "rationale": "The card currently combines an unresolved architecture allocation with two different canonical owners and outputs. Preserve the decision as the gate; only create the two delivery scopes after it names owners. No site/CMS or dispatch while the Docs owner is absent/unallocated.",
+      "source_selector": "tasks.json:tasks[id=UI-15]; solutions/preferred-solutions.json:tasks[task_id=UI-15]",
+      "family": "atlas",
+      "proposed_results": [
+        {
+          "key": "UI15-ALLOC",
+          "title": "Record Trust Center and Docs IA ownership",
+          "property": "A competent, content-bound decision allocates the unique evidence posture/download and user-needs IA/copy surfaces and names their canonical sources.",
+          "boundary": "Planning/architecture decision only; task IDs and retained marketing prose do not appoint an owner."
+        },
+        {
+          "key": "UI15-TRUST",
+          "title": "Project DS11 evidence posture",
+          "property": "Authority-bearing Trust claims and dated/versioned evidence posture resolve from the existing DS11 typed source and cannot be strengthened by explanatory copy.",
+          "boundary": "DS11 claim/MACHINE posture owner and approved public projection; no second claim register, downloads publisher, DS12/13 history, or CMS."
+        },
+        {
+          "key": "UI15-DOCS",
+          "title": "Deliver user-needs Docs IA",
+          "property": "The existing Docs owner may organize explanatory content and canonical links but cannot author or elevate DS11 claim status.",
+          "boundary": "Existing Docs/marketing owner’s landing/article IA; no new CMS or independent evidence register."
+        }
+      ]
+    },
+    {
+      "id": "UI-16",
+      "disposition": "retain",
+      "rationale": "One exact grounded-performance claim stays blocked until substantive promoted-design evidence is bound. Trust Center and DS11 MACHINE are readers of the same status, not separate tasks.",
+      "source_selector": "tasks.json:tasks[id=UI-16]; solutions/preferred-solutions.json:tasks[task_id=UI-16]",
+      "family": "atlas",
+      "proposed_results": []
+    },
+    {
+      "id": "UI-17",
+      "disposition": "split",
+      "rationale": "The preferred row already distinguishes three independently authored claims: exact acquisition route/action eligibility, gross VOI, and acquisition cost/net utility. Split by typed claim and owner evidence, not UI transport; jointly compose them only for the claim or action that consumes them.",
+      "source_selector": "tasks.json:tasks[id=UI-17]; solutions/preferred-solutions.json:tasks[task_id=UI-17]",
+      "family": "atlas",
+      "proposed_results": [
+        {
+          "key": "UI17-ROUTE",
+          "title": "Bind the acquisition route and action eligibility",
+          "property": "Only an exact route/cutoff/facet with permitted rights, mandate and N13b production evidence may support acquisition use; otherwise preserve lawful route and refusal.",
+          "boundary": "Existing DS15 routes/projection/client; no auto/offline action and no guessed gap."
+        },
+        {
+          "key": "UI17-VOI",
+          "title": "Project gross VOI from its owner basis",
+          "property": "A numeric gross VOI is a producer-backed decision/utility measure with its own value/ranking ref and basis; cost unknown does not erase a valid gross metric.",
+          "boundary": "Existing acquisition projection/client consumes the canonical planner output; the client never calculates or reinterprets VOI."
+        },
+        {
+          "key": "UI17-COST-NET",
+          "title": "Project cost and net utility as separate claims",
+          "property": "Actionable cost requires its own admitted schedule/ref; net value or ranking requires a named utility contract combining separately owned VOI and cost.",
+          "boundary": "Same acquisition surface consumes cost and utility owner outputs; it cannot subtract unknown cost or make one claim authorize another."
+        }
+      ]
+    },
+    {
+      "id": "UI-18",
+      "disposition": "sequence",
+      "rationale": "Positive risk-spend is one GY-N11-owned certificate consumed by the governed projection; enumerations, N12 and actual over-spend/Bayesian witnesses are evidence checkpoints, not separate ledgers. Keep DS17 negative and audience limits intact.",
+      "source_selector": "tasks.json:tasks[id=UI-18]; solutions/preferred-solutions.json:tasks[task_id=UI-18]",
+      "family": "atlas",
+      "proposed_results": [],
+      "checkpoints": [
+        "Bind full current live scope/sequence and GY-N11 owner certificate with verifier provenance.",
+        "Compose actual N12, over-spend and Bayesian witnesses from persisted outputs; missing evidence remains missing, not numeric.",
+        "Expose accepted positive only to reviewer/MACHINE/audit; no public delta before DS12/13."
+      ]
+    },
+    {
+      "id": "UI-19",
+      "disposition": "sequence",
+      "rationale": "One epoch/currentness projection over the existing validity cascade. The full original denominator, CAP-04 events, LIF-02/DEB-06 lineage, GY-CR4 reader, and R17/R19 cases are checkpoints within that property; do not add a second engine or treat acquisition status as the claim consumer.",
+      "source_selector": "tasks.json:tasks[id=UI-19]; solutions/preferred-solutions.json:tasks[task_id=UI-19]",
+      "family": "atlas",
+      "proposed_results": [],
+      "checkpoints": [
+        "At P0 bind the full original DS18 denominator, selected claim/decision and actual publisher/API/MACHINE reader.",
+        "Consume CAP-04 changes and LIF-02/DEB-06 persisted current-decision lineage/reissue receipts through the existing cascade; preserve original as-known epoch.",
+        "Configure the real GY-CR4 reader and exercise selected fresh currentness across the complete named surface; keep missing producer/reader unavailable.",
+        "Apply R17/R19 partial, delayed, historical and corrected-scope cases without blanket invalidation; institutional signer evidence remains separate."
+      ]
+    },
+    {
+      "id": "UI-20",
+      "disposition": "retain",
+      "rationale": "Generated promotion union, module-private issuer, runtime evidence validation and real DS15 consumer are one authority/admission chain. Splitting by generator/API/issuer would create contract-only or form-only closures. Keep exact DS5 source row and original negative bound at P0.",
+      "source_selector": "tasks.json:tasks[id=UI-20]; solutions/preferred-solutions.json:tasks[task_id=UI-20]",
+      "family": "atlas",
+      "proposed_results": []
+    },
+    {
+      "id": "CNT-01",
+      "disposition": "sequence",
+      "rationale": "The internal owner/source census and the sponsor's real case, authority, and answerer selection belong to one scoped routing contract but arrive at different times. Prepare the conditional facet map first; compose only selected real sponsor inputs. R19's commission, delegation/successor, and local custody-ref questions already separate the checks. A no-hit or generic card remains candidate state.",
+      "source_selector": "tasks.json:tasks[id=CNT-01]; solutions/preferred-solutions.json:tasks[task_id=CNT-01]",
+      "family": "content",
+      "proposed_results": []
+    },
+    {
+      "id": "CNT-02",
+      "disposition": "retain",
+      "rationale": "This is a single catalog metadata/configuration owner with a clean boundary: identity, version, coverage, language, and access metadata help route discovery but grant no content, rights, applicability, or currentness. Those admissions already belong to other owners, so splitting this card would add handoffs without separating a property.",
+      "source_selector": "tasks.json:tasks[id=CNT-02]; solutions/preferred-solutions.json:tasks[task_id=CNT-02]",
+      "family": "content",
+      "proposed_results": []
+    },
+    {
+      "id": "CNT-03",
+      "disposition": "retain",
+      "rationale": "Exact capture and fresh purpose-bounded reuse form one capability: the persisted receipt must bind the representation, peer, time, rights, verifier, and consuming use. Splitting capture from admission would risk a P01/P02 contract with no live-use bridge. Real custodians and grants remain external inputs; the capture/admission path is internal work.",
+      "source_selector": "tasks.json:tasks[id=CNT-03]; solutions/preferred-solutions.json:tasks[task_id=CNT-03]",
+      "family": "content",
+      "proposed_results": []
+    },
+    {
+      "id": "CNT-04",
+      "disposition": "sequence",
+      "rationale": "Version/effectivity events, human applicability and competence review, and an issuer's actual act have distinct sources and time roles. Keep one legal evidence route, staged from selected text/version to reviewer-qualified relation to recipient/scope-bound act. Only the selected case's actual instruments are needed; legal-source delivery is not a global dependency for unrelated work.",
+      "source_selector": "tasks.json:tasks[id=CNT-04]; solutions/preferred-solutions.json:tasks[task_id=CNT-04]",
+      "family": "content",
+      "proposed_results": []
+    },
+    {
+      "id": "CNT-05",
+      "disposition": "split",
+      "rationale": "Metric qualification and normative selection have different producers, external principals, and valid outcomes. A correctly computed conditional comparison remains useful without a mandate; only an operative winner needs current principal authority. The parent CNT-05 card retains the full measure-to-choice criteria and composes the selected result. CNT-07 supplies mandate evidence; it does not become a second metric or selector owner.",
+      "source_selector": "tasks.json:tasks[id=CNT-05]; solutions/preferred-solutions.json:tasks[task_id=CNT-05]",
+      "family": "content",
+      "proposed_results": [
+        {
+          "key": "CNT05-measure",
+          "title": "Qualify measure, denominator, and conditional comparison",
+          "property": "A metric result is reproducible for its bound construct, unit, population, time, instrument, denominator, formula, and declared alternatives.",
+          "boundary": "Extend existing measurement/metric owners; no principal selection, universal construct catalog, or case authority claim."
+        },
+        {
+          "key": "CNT05-selector",
+          "title": "Bind authorized operative objective and value selection",
+          "property": "Only a competent principal's scoped, current mandate can select an operative objective, threshold, or value schedule.",
+          "boundary": "Use the existing mandate/value gate; CNT-05 consumes mandate evidence and does not create the act or infer it from participation counts."
+        }
+      ]
+    },
+    {
+      "id": "CNT-06",
+      "disposition": "split",
+      "rationale": "Causal identification/transport and predictive calibration are different inference properties with different method predicates and target validation. Real studies, local effects, and independent labels are external evidence inputs; missing claim binding, method selection, or consumer wiring is internal work. The parent retains the complete claim basis and conditionally joins the selected paths; calibration is not a universal prerequisite for causal claims.",
+      "source_selector": "tasks.json:tasks[id=CNT-06]; solutions/preferred-solutions.json:tasks[task_id=CNT-06]",
+      "family": "content",
+      "proposed_results": [
+        {
+          "key": "CNT06-causal-support",
+          "title": "Qualify claim-specific identification, estimability, and transport",
+          "property": "A target-scoped causal or structural claim is supported only under its bound intervention, estimand, assignment, identification, transport, and uncertainty conditions.",
+          "boundary": "Scientist/Foundry inference and existing claim-support consumers; source acquisition stays with CAP/Scholar owners and study design with DES-12."
+        },
+        {
+          "key": "CNT06-calibration",
+          "title": "Validate prediction calibration on an independent target",
+          "property": "A predictive probability claim is calibrated only for its named target, labels, population, period, and protocol on permitted independent validation evidence.",
+          "boundary": "Use the existing calibration/method owner; calibration does not establish causal identification or transport."
+        }
+      ]
+    },
+    {
+      "id": "CNT-07",
+      "disposition": "split",
+      "rationale": "Testimony/participation, an authorized value mandate, and institutional capacity are different external premises, authorities, and consumers. Their internal evidence/context/affected-use bridges are assigned work, not external blockers. CNT-05 remains the normative metric selector; CNT-07 supplies mandate evidence without duplicating its selector. The parent retains full composition and shared dissent, correction, and use-link criteria.",
+      "source_selector": "tasks.json:tasks[id=CNT-07]; solutions/preferred-solutions.json:tasks[task_id=CNT-07]",
+      "family": "content",
+      "proposed_results": [
+        {
+          "key": "CNT07-participation",
+          "title": "Bind contextualized testimony and participation evidence",
+          "property": "A permitted account supports only its contextual, represented, translated, and claim-linked scope; occurrence is not prevalence or mandate.",
+          "boundary": "Existing claim, permission, access, and lineage owners; no inferred identity, default publication, or authority to commission."
+        },
+        {
+          "key": "CNT07-mandate",
+          "title": "Resolve authorized principal and value mandate evidence",
+          "property": "A value objective or non-compensable constraint is attributed only to the competent principal's scoped mandate.",
+          "boundary": "CNT-07 records and qualifies mandate evidence; CNT-05 owns metric arithmetic and operative selector composition."
+        },
+        {
+          "key": "CNT07-capacity",
+          "title": "Qualify operator capacity and execution status",
+          "property": "Feasibility distinguishes measured, planned, committed, and executed resources for the accountable institution and time horizon.",
+          "boundary": "Consume external operator/technical evidence through native feasibility owners; PolicyOS neither promises nor executes delivery."
+        }
+      ]
+    },
+    {
+      "id": "CNT-08",
+      "disposition": "sequence",
+      "rationale": "The core owner is one cross-foundation comparison/currentness bridge. First persist immutable basis branches, changed-premise diffs, ancestry, and bounded search state; then, only when a selected correction/revocation/currentness event arrives, recompute affected uses. Shared lineage, exploratory-vs-confirmatory status, and claim-specific independence compose in the same consumer; they are not reasons for a new evidence service. No outside correction, holdout, or source event is required for owner readiness.",
+      "source_selector": "tasks.json:tasks[id=CNT-08]; solutions/preferred-solutions.json:tasks[task_id=CNT-08]",
+      "family": "content",
+      "proposed_results": []
+    },
+    {
+      "id": "CNT-09",
+      "disposition": "retain",
+      "rationale": "This card is deliberately the vertical integration proof: one selected packet must traverse actual owner artifacts, status consumers, and permitted projections. It must keep selected-case inputs separate from the programme-wide 26-family grammar/routes obligation. Splitting the endpoint into upstream producer tasks would lose the fresh end-to-end consumer; genuine case/supplier absence limits the authentic positive but does not block independent mechanism work.",
+      "source_selector": "tasks.json:tasks[id=CNT-09]; solutions/preferred-solutions.json:tasks[task_id=CNT-09]",
+      "family": "content",
+      "proposed_results": []
+    },
+    {
+      "id": "DES-01",
+      "disposition": "retain",
+      "rationale": "Intent/framing preservation is one handoff property from the actual request to native N4. The UI owns intake wiring, DES-01 owns the formulator bridge, and user selection is an input; splitting frames from the persisted generation request would weaken the semantic-loss/removal proof.",
+      "source_selector": "tasks.json:tasks[id=DES-01]; solutions/preferred-solutions.json:tasks[task_id=DES-01]",
+      "family": "content",
+      "proposed_results": []
+    },
+    {
+      "id": "DES-02",
+      "disposition": "retain",
+      "rationale": "N4 emission, semantic alternative comparison, compilation/loss, persistence, and fresh consumer are one candidate-generation chain. LLM and grammar sources need truthful channel attribution and separate live-provider evidence, but should not become separate generators or authorities; a missing model still leaves the native non-LLM route testable.",
+      "source_selector": "tasks.json:tasks[id=DES-02]; solutions/preferred-solutions.json:tasks[task_id=DES-02]",
+      "family": "content",
+      "proposed_results": []
+    },
+    {
+      "id": "DES-03",
+      "disposition": "sequence",
+      "rationale": "Structural proposals, actual numerical trials/joint evaluation, then the fresh Pareto/model-sensitive reader are dependent stages of one existing Scientist search responsibility. Keep one search owner; consume GYD-30/31 witnesses and avoid another optimizer. Value weights or legal facts are needed only for claims that use them; set-valued candidate comparison remains available.",
+      "source_selector": "tasks.json:tasks[id=DES-03]; solutions/preferred-solutions.json:tasks[task_id=DES-03]",
+      "family": "content",
+      "proposed_results": []
+    },
+    {
+      "id": "DES-04",
+      "disposition": "split",
+      "rationale": "Within-run counterexample feedback and acquisition-return-to-next-choice are separately falsifiable bridges with different producers, rights, and latency. Keep both under the existing N6 bridge writer; CAP/GYD-24/DEB-13 retain their producers and mechanisms. The parent keeps the complete feedback/acquisition loop and integration criterion. Actual evidence is conditional input, not a global start dependency; numeric EVSI is optional.",
+      "source_selector": "tasks.json:tasks[id=DES-04]; solutions/preferred-solutions.json:tasks[task_id=DES-04]",
+      "family": "content",
+      "proposed_results": [
+        {
+          "key": "DES04-feedback",
+          "title": "Route persisted evaluation feedback into the next candidate choice",
+          "property": "A material, owner-produced counterexample or result changes the next candidate/frontier or yields a reasoned scoped refusal.",
+          "boundary": "DES-04 owns the N6/N7 feedback bridge; GYD and other producers own result semantics, and sealed confirmation remains protected from tuning."
+        },
+        {
+          "key": "DES04-acquisition",
+          "title": "Bridge selected evidence needs and actual acquisition returns",
+          "property": "A selected evidence gap becomes a permission-bounded native acquisition request, and an admitted return can change a later trial/choice.",
+          "boundary": "DES-04 connects to CAP/GYD-24 and optional DEB-13; it owns no connector, scheduler, source permission, or evidence authority."
+        }
+      ]
+    },
+    {
+      "id": "DES-05",
+      "disposition": "retain",
+      "rationale": "Multi-norm interpretation and its Scientist design consumer are one legal-branch composition property. CAP-05 owns extracted/relation evidence and CNT-04 supplies selected law/effectivity facts; DES-05 owns the native synthesis/consumer bridge. Current-law and proposed-amendment branches stay distinct in the same artifact, with no second legal store.",
+      "source_selector": "tasks.json:tasks[id=DES-05]; solutions/preferred-solutions.json:tasks[task_id=DES-05]",
+      "family": "content",
+      "proposed_results": []
+    },
+    {
+      "id": "DES-06",
+      "disposition": "retain",
+      "rationale": "The semantic document projection is a single producer/artifact/consumer path: exact statements and table cells must remain bound through the actual carrier, authorized private renderer, and fresh reader. Document profiles and format/readability cases may be separately selected, but do not need independent schemas or a public-text surface. DES-07 is the separate edit-back bridge.",
+      "source_selector": "tasks.json:tasks[id=DES-06]; solutions/preferred-solutions.json:tasks[task_id=DES-06]",
+      "family": "content",
+      "proposed_results": []
+    },
+    {
+      "id": "DES-07",
+      "disposition": "sequence",
+      "rationale": "One round-trip property is easier to assign in stages: resolve actual carrier/revision identity and rights; classify human edits into native candidate patches; recompute affected owners; then read the new edition. A hash or LLM cannot establish semantic equivalence. Keep the shared schema single-writer with DES-06 and do not make document editing an institutional submission act.",
+      "source_selector": "tasks.json:tasks[id=DES-07]; solutions/preferred-solutions.json:tasks[task_id=DES-07]",
+      "family": "content",
+      "proposed_results": []
+    },
+    {
+      "id": "DES-08",
+      "disposition": "retain",
+      "rationale": "Cross-run memory has one deciding property: a later search choice changes using eligible prior experience, with rights, lineage, exposure, and transfer scope resolved. GYD-25 owns retrieval adequacy and LIF-07 influence/retraction; DES-08 owns its retrieval adapter and measured use. Splitting success/failure/opportunity records would lose the balanced-memory test.",
+      "source_selector": "tasks.json:tasks[id=DES-08]; solutions/preferred-solutions.json:tasks[task_id=DES-08]",
+      "family": "content",
+      "proposed_results": []
+    },
+    {
+      "id": "DES-09",
+      "disposition": "sequence",
+      "rationale": "Treat one actual call as the unit: first bind permitted exact context/recipient and current egress rights, then observe the real provider invocation, then persist result, cost, cancellation/retry, and replay state for a fresh consumer. Provider credentials and rights are external inputs to live proof; missing internal gateway/ledger wiring remains engineering work. OPS/CAP/LIF retain their native permits.",
+      "source_selector": "tasks.json:tasks[id=DES-09]; solutions/preferred-solutions.json:tasks[task_id=DES-09]",
+      "family": "content",
+      "proposed_results": []
+    },
+    {
+      "id": "DES-10",
+      "disposition": "split",
+      "rationale": "The current card joins independent properties with different producers and evaluators: productive search, learning transfer, numerical/reexecution correctness, document fidelity, and target-reader comprehension. Reuse the existing GYD/R19 slices as five bounded campaigns. The DES-10 parent retains frozen scope, equal ceilings, source-derived denominators, exposure/cost/disagreement accounting, authority-independent reporting, and one FINAL-REPLAY/FINAL-USE integration; this is not five corpora, services, or global waves.",
+      "source_selector": "tasks.json:tasks[id=DES-10]; solutions/preferred-solutions.json:tasks[task_id=DES-10]",
+      "family": "content",
+      "proposed_results": [
+        {
+          "key": "DES10-productivity",
+          "title": "Test decision-relevant alternatives on known-solvable controls",
+          "property": "The real candidate producer returns a non-no-op, semantically distinct response to a predeclared decision need on designated known-solvable cases.",
+          "boundary": "GYD-17/18 producer and case owners plus DES-02; candidate productivity only, not factual effect truth, admissibility, or universal superiority."
+        },
+        {
+          "key": "DES10-learning",
+          "title": "Measure actual transfer of retrieved experience into search",
+          "property": "Eligible memory changes a later search choice usefully or preserves a justified no-transfer result without laundering evidence.",
+          "boundary": "DES-08/DES-04 and GYD-25 retrieval evidence; no causal/effect update, authority promotion, or retrieval-service rebuild."
+        },
+        {
+          "key": "DES10-numerical",
+          "title": "Check selected numerical, trajectory, and reexecution properties",
+          "property": "A selected native method returns the correct result/uncertainty and reexecutes or limits correctly on the bound basis/profile.",
+          "boundary": "Use GYD-20 and selected GYD-30/31, DES-03/11/12 owners; correctness and useful design stay separate; no universal solver comparison."
+        },
+        {
+          "key": "DES10-document-fidelity",
+          "title": "Verify private document semantic fidelity and edit readback",
+          "property": "Material document bytes/edits faithfully project exact semantic roles and changed meanings trigger native recomputation before CNT-09 reuse.",
+          "boundary": "DES-06/07 private reviewer route and CNT-09; no public recommendation text, enactment, or publication authority."
+        },
+        {
+          "key": "DES10-reader-comprehension",
+          "title": "Study comprehension with the selected target audience",
+          "property": "The intended readers can identify status, authority, basis, limits, unresolved choice, and next action in the exact selected edition.",
+          "boundary": "Evaluation claim only; no reader certification, training authority, universal audience generalization, or replacement of the engineering fidelity campaign."
+        }
+      ]
+    },
+    {
+      "id": "DES-11",
+      "disposition": "sequence",
+      "rationale": "One adaptive-trajectory property depends on a staged path: bind what was observable at each decision cut and actual/assumed incumbent exposure; execute order/lag/carryover/commitment-sensitive paths without future leakage; then compare through the fresh frontier reader. This is not a new MDP or general simulator. Actual capacity, transition, observation, and mandate facts are conditional inputs for the claims using them.",
+      "source_selector": "tasks.json:tasks[id=DES-11]; solutions/preferred-solutions.json:tasks[task_id=DES-11]",
+      "family": "content",
+      "proposed_results": []
+    },
+    {
+      "id": "DES-12",
+      "disposition": "split",
+      "rationale": "The card currently combines an internal discriminator/design producer, external conduct permissions, actual study return/denominator, and optional numeric portfolio valuation. These have different authorities and can fail independently. Reuse R19 S09-M1..M4 rather than build new DTOs/services. The DES-12 parent retains the full design-to-return-to-CNT-06/DES-04 integration; no external executor, global permission dependency, or unconditional numeric EVSI gate is introduced.",
+      "source_selector": "tasks.json:tasks[id=DES-12]; solutions/preferred-solutions.json:tasks[task_id=DES-12]",
+      "family": "content",
+      "proposed_results": [
+        {
+          "key": "DES12-design",
+          "title": "Design a feasible study that distinguishes decision-relevant rivals",
+          "property": "A versioned study candidate identifies observations that separate rival explanations in a way that can affect the scoped policy decision.",
+          "boundary": "Extend existing CausalExperimentDesigner/ExperimentPlan and acquisition interface; no conduct executor, complete-world discovery, or default numeric EVSI claim."
+        },
+        {
+          "key": "DES12-authorization",
+          "title": "Check only the authority required for selected study conduct/use",
+          "property": "A protected conduct or data-use action proceeds only when the actual native authority owner resolves current coverage of every required operation facet.",
+          "boundary": "Institutional commission, site/ethics permission, and action-specific data rights remain external acts; CAP/LIF/native authority owners verify them. No new permission service or permission to design."
+        },
+        {
+          "key": "DES12-return",
+          "title": "Bind actual study outcomes, deviations, denominator, and inference handoff",
+          "property": "A returned result is interpreted against its exact protocol/analysis, actual looks/deviations, outcome presence/denominator, cohort, and claim-specific method.",
+          "boundary": "DES-12 binds return; CNT-06 qualifies inference; CNT-08 qualifies dependence/ancestry; CAP/LIF decide current-use rights. No return is synthesized."
+        },
+        {
+          "key": "DES12-optional-economics",
+          "title": "Keep numeric EVSI and study-portfolio ranking optional and qualified",
+          "property": "Numeric expected decision value, net value, or feasibility is claimed only with the selected probability/loss, cost, dependence, and actual capacity basis.",
+          "boundary": "DEB-13 owns selected numeric EVSI semantics; OPS-08 owns compute budgets; CNT-07 capacity and CNT-08 dependence are consumed inputs. Compute VOI remains separate."
+        }
+      ]
+    },
+    {
+      "id": "OPS-01",
+      "disposition": "sequence",
+      "rationale": "One commissioning receipt is the right product boundary. Effective process/profile, source grant, independent root, and emergency scope are different premises, so resolve them in order and bind each as evidence instead of making one dossier field or owner authoritative for all of them.",
+      "source_selector": "tasks.json:tasks[id=OPS-01]; solutions/preferred-solutions.json:tasks[task_id=OPS-01]",
+      "family": "ops",
+      "proposed_results": [],
+      "checkpoints": [
+        {
+          "key": "profile-readback",
+          "title": "Resolve selected build and live profile",
+          "property": "The selected running process and required instances match the exact build/config digest and effective profile.",
+          "done_when": "A fresh reader observes runtime instances; environment labels and receipt markers alone do not pass."
+        },
+        {
+          "key": "source-and-trust",
+          "title": "Resolve rights and initial trust evidence",
+          "property": "The exact source/use grant and independently appointed trust generation cover the intended action, purpose, recipient, audience, and time.",
+          "done_when": "Unknown institutional premises remain typed limitations and protected input is held."
+        },
+        {
+          "key": "scoped-change",
+          "title": "Bind any emergency child receipt",
+          "property": "A predelegated same-scope patch is distinguished from a change to recipient, purpose, root, or authority boundary.",
+          "done_when": "Only the uncovered external action waits for a competent owner; local containment remains available."
+        },
+        {
+          "key": "commission",
+          "title": "Issue the composed receipt",
+          "property": "The versioned dossier references the resolved evidence and binds the exact digest/profile without appointing authority itself.",
+          "done_when": "Fresh source-use reader and effective-profile check agree on the same selected generation."
+        }
+      ]
+    },
+    {
+      "id": "OPS-02",
+      "disposition": "sequence",
+      "rationale": "The card is one local candidate-pilot journey, and its steps are ordered parts of that journey. Keep the existing route, embedded worker, SQLite, and filesystem-CAS profile; consume OPS-01/05/07/08 evidence instead of recreating commissioning, restore, spend, or admission owners.",
+      "source_selector": "tasks.json:tasks[id=OPS-02]; solutions/preferred-solutions.json:tasks[task_id=OPS-02]",
+      "family": "ops",
+      "proposed_results": [],
+      "checkpoints": [
+        {
+          "key": "commission-local",
+          "title": "Select finite local profile",
+          "property": "Synthetic candidate work starts only under the commissioned one-host profile, explicit workload/expiry/resource bounds, and permitted spend/source scope.",
+          "done_when": "No private input or paid call starts on an unresolved profile or grant."
+        },
+        {
+          "key": "capture-quarantine",
+          "title": "Persist and quarantine the run",
+          "property": "The existing acquisition/job path persists its receipt and artifact; capture does not imply admission.",
+          "done_when": "A restarted fresh consumer can resolve the persisted quarantined result."
+        },
+        {
+          "key": "admit-read",
+          "title": "Admit and read through the consumer",
+          "property": "Separate admission and fresh read consume the stored evidence rather than producer memory or status markers.",
+          "done_when": "Removing admission/readback leaves the run unaccepted."
+        },
+        {
+          "key": "reuse-and-recovery",
+          "title": "Exercise permitted reuse and restore",
+          "property": "A second use rechecks rights; WAL-aware restore enters quarantine and consumes the joined OPS-05 recovery result.",
+          "done_when": "Cost/unknown charges use OPS-07; shared resource limits use OPS-08; no OPS-02-only full-recovery claim is made."
+        }
+      ]
+    },
+    {
+      "id": "OPS-03",
+      "disposition": "retain",
+      "rationale": "This is one projection property: readiness reflects the selected profile's actually required live components, while liveness remains process viability. DB/CAS/worker/site/offline/remote predicates are composed inputs, not separate readiness systems. Keep operation-scoped readiness where needed to avoid blocking unrelated scopes.",
+      "source_selector": "tasks.json:tasks[id=OPS-03]; solutions/preferred-solutions.json:tasks[task_id=OPS-03]",
+      "family": "ops",
+      "proposed_results": []
+    },
+    {
+      "id": "OPS-04",
+      "disposition": "sequence",
+      "rationale": "A supervised runner is one durable job-lifecycle integration. Runner lifecycle, unknown effects, and mixed-version compatibility are distinct checkpoints on the same path; R24-01 already aligns rollback with the directional compatibility matrix. Keep the same worker/store and existing supervisor seam.",
+      "source_selector": "tasks.json:tasks[id=OPS-04]; solutions/preferred-solutions.json:tasks[task_id=OPS-04]",
+      "family": "ops",
+      "proposed_results": [],
+      "checkpoints": [
+        {
+          "key": "runner-lifecycle",
+          "title": "Run the existing worker externally",
+          "property": "The supervised process reuses ControlWorker, ControlPlaneStore, handler registry, lease, heartbeat, cancellation, and receipt lifecycle.",
+          "done_when": "A fresh API reader sees the durable result; no second queue or scheduler exists."
+        },
+        {
+          "key": "attempt-outcome",
+          "title": "Preserve uncertain effects",
+          "property": "Crash after effect but before receipt remains unresolved unless endpoint idempotency or positive reconciliation proves retry safe.",
+          "done_when": "Restart or duplicate runner cannot emit false completion."
+        },
+        {
+          "key": "directional-rollout",
+          "title": "Qualify selected mixed versions",
+          "property": "Actual supported API/worker/handler/schema/rule directions determine admission and rollback; N-1 is not assumed as the complete matrix.",
+          "done_when": "R24-01 mixed-version positive, incompatible-direction refusal, and removal probe are preserved; pair rollback is used only when the selected profile requires it."
+        }
+      ]
+    },
+    {
+      "id": "OPS-05",
+      "disposition": "split",
+      "rationale": "The card currently carries three independently falsifiable properties: directional schema compatibility, a cross-store/history restore join, and binding verified bytes to the actual consuming reader and release sink. Keep them as property slices under the existing persistence/read owners; migration, restored state, rights/history, and actual-byte verification must still join before protected use.",
+      "source_selector": "tasks.json:tasks[id=OPS-05]; solutions/preferred-solutions.json:tasks[task_id=OPS-05]",
+      "family": "ops",
+      "proposed_results": [
+        {
+          "key": "OPS-05.MIGRATION-DIRECTIONS",
+          "title": "Directional schema and reader compatibility",
+          "property": "Every selected reader/writer/schema/rule direction can consume the actual persisted representation before rollout or rollback.",
+          "boundary": "ControlPlaneStore migration owner; runtime-state and CAS schema owners remain separate. This slice proves version compatibility, not recovery."
+        },
+        {
+          "key": "OPS-05.RESTORE-JOIN",
+          "title": "Reconcile the restored control, CAS, rights, and claim frontier",
+          "property": "One selected restore cut is admitted only after required DB/CAS state, allowed retained representation, post-snapshot rights, and material claim/publication history reconcile.",
+          "boundary": "Existing replay-or-restore and ControlPlaneStore owners join DB/PITR, exact CAS mount or bucket/prefix, object/version inventory, LIF-05 retention decisions, LIF-02 claim history, and an allowed continuity witness outside the rollback closure. A receipt, subsystem restore, or bounded sample alone is not complete recovery."
+        },
+        {
+          "key": "OPS-05.ACTUAL-BYTES",
+          "title": "Bind verification to bytes actually consumed",
+          "property": "The object/version verified for integrity is the same object/version consumed, and integrity-dependent release waits for the required verification boundary.",
+          "boundary": "Existing qualified immutable handle, version pin, read lease, or verified bounded stream in the native CAS reader and actual consumer/effect sink; not a second archive or full-object RAM copy."
+        }
+      ]
+    },
+    {
+      "id": "OPS-06",
+      "disposition": "split",
+      "rationale": "Authorization is being applied to two distinct emission planes: information returned by job/artifact reads and effects released to a source/provider. Both reuse the same policy authority but need separate actual consumer fences; network policy and a credential are never semantic permission.",
+      "source_selector": "tasks.json:tasks[id=OPS-06]; solutions/preferred-solutions.json:tasks[task_id=OPS-06]",
+      "family": "ops",
+      "proposed_results": [
+        {
+          "key": "OPS-06.READ-SCOPE",
+          "title": "Authorize object reads and safe projection",
+          "property": "Before serialization, the authenticated actor, target owner, tenant/cell, action, and exact grant permit this job/artifact read and its audience projection.",
+          "boundary": "Existing authz middleware and job/control/artifact read consumers; one canonical decision/audit owner, all sibling reads routed through it."
+        },
+        {
+          "key": "OPS-06.EFFECT-RELEASE",
+          "title": "Authorize source actions at execution and release",
+          "property": "The exact source/query/purpose/recipient/time grant remains valid at execution and the actual external release boundary; a revocation that wins before release prevents bytes/effect.",
+          "boundary": "Existing source-right owner and connector/effect sinks; OPS-06 owns the semantic decision, OPS-07 secrets, OPS-09 site execution, and network policy supplies only perimeter evidence."
+        }
+      ]
+    },
+    {
+      "id": "OPS-07",
+      "disposition": "split",
+      "rationale": "JIT secret custody and account-wide spend reconciliation are independent predicates and authorities. They must bind to the same durable attempt, but neither is the other: a secret is not permission, and a tenant quota is not an account billing cap.",
+      "source_selector": "tasks.json:tasks[id=OPS-07]; solutions/preferred-solutions.json:tasks[task_id=OPS-07]",
+      "family": "ops",
+      "proposed_results": [
+        {
+          "key": "OPS-07.SECRET-REFERENCE",
+          "title": "Resolve scoped secrets just in time",
+          "property": "Only a current purpose/source/recipient-scoped credential is exposed to the connector process at execution, and no secret value enters a job, log, receipt, or projection.",
+          "boundary": "Existing institutional secret authority and connector execution boundary; secret reference and redaction extend existing connector/config owner."
+        },
+        {
+          "key": "OPS-07.ACCOUNT-BUDGET",
+          "title": "Reserve and reconcile spend by billing principal",
+          "property": "Concurrent calls, retries, and unknown outcomes are charged once against the actual provider billing principal, with unconfirmed charges remaining reserved.",
+          "boundary": "Reuse an existing monetary/budget owner if it covers provider-principal reservations; otherwise one minimal native core/security extension. ControlPlaneStore holds attempt references, not duplicate budget authority."
+        }
+      ]
+    },
+    {
+      "id": "OPS-08",
+      "disposition": "split",
+      "rationale": "The shared physical cap and a service/duty guarantee are different properties. The R15/R16 workloads, accounting and queue clauses add further contexts. Keep OPS-08 as one aggregate resource owner with separate cap and measured-envelope outputs; LIF-04 remains the durable duty/scheduler owner and LIF-02 the selected claim consumer.",
+      "source_selector": "tasks.json:tasks[id=OPS-08]; solutions/preferred-solutions.json:tasks[task_id=OPS-08]",
+      "family": "ops",
+      "proposed_results": [
+        {
+          "key": "OPS-08.AGGREGATE-CAP",
+          "title": "Enforce one shared physical host bound",
+          "property": "All selected API/worker/process classes and live shared allocations fit the measured aggregate host envelope and protected control/restore reserve; process termination releases only resources proven free.",
+          "boundary": "LIF-06 native admission contract plus the selected host/cgroup/scratch enforcement adapter; one shared admission authority, no second store scheduler."
+        },
+        {
+          "key": "OPS-08.MEASURED-ENVELOPE",
+          "title": "Qualify the selected class and report usable capacity",
+          "property": "Production/duty eligibility uses representative measured classes and complete supported terminal denominators; estimates, unmeasured classes, and omitted active/reserved loads cannot become capacity facts.",
+          "boundary": "OPS-08 emits measured headroom, age/progress targets, and bounded outcomes; LIF-06 uses capacity eligibility, LIF-04 owns durable committed duty/policy version/age/due/trigger, and LIF-02 consumes the actual consequence."
+        }
+      ]
+    },
+    {
+      "id": "OPS-09",
+      "disposition": "split",
+      "rationale": "Site execution/lease and recipient/custody release have different authorities and failure boundaries. The selected private-cell capability may compose them, but successful secure execution does not establish source permission, allowed disclosure, population coverage, or inference validity.",
+      "source_selector": "tasks.json:tasks[id=OPS-09]; solutions/preferred-solutions.json:tasks[task_id=OPS-09]",
+      "family": "ops",
+      "proposed_results": [
+        {
+          "key": "OPS-09.SITE-EXECUTION",
+          "title": "Execute through the selected custodian-side worker",
+          "property": "The source-side worker consumes the existing durable job/lease generation and returns a source/version-bound attempt result or unresolved outcome.",
+          "boundary": "Existing ControlWorker/LIF-04 lease and selected source-site runtime; no second queue, remote-result authority, or scheduler."
+        },
+        {
+          "key": "OPS-09.CUSTODY-RELEASE",
+          "title": "Control local copies and permitted output release",
+          "property": "Raw inputs, credentials, temp/cache/crash outputs stay in the declared custody boundary and only the exact cleared result reaches the granted recipient after a current release check.",
+          "boundary": "Custodian host/network and actual output sink; OPS-06 owns semantic rights, LIF-05 retention/copy policy, and the institution owns local operator/security controls."
+        }
+      ]
+    },
+    {
+      "id": "OPS-10",
+      "disposition": "split",
+      "rationale": "Remote CAS adapter conformance and multi-cell/replica activation are independently selectable properties. Keep remote activation conditional, compare the simplest suitable profile, and never make adapter conformance or local completion imply full recovery or provider-wide parity.",
+      "source_selector": "tasks.json:tasks[id=OPS-10]; solutions/preferred-solutions.json:tasks[task_id=OPS-10]",
+      "family": "ops",
+      "proposed_results": [
+        {
+          "key": "OPS-10.REMOTE-CAS",
+          "title": "Qualify selected remote object and cache behavior",
+          "property": "An exact selected adapter returns the owner-scoped immutable object/version actually requested, isolates cell caches, and exposes bounded write/read/lifecycle failures honestly.",
+          "boundary": "Existing S3/GCS/caching store owners and exact bucket/prefix/IAM/config; provider object writes and DB pointer updates remain a recoverable multi-store sequence."
+        },
+        {
+          "key": "OPS-10.CELL-ACTIVATION",
+          "title": "Activate and size a justified remote cell",
+          "property": "Selected API replicas and fixed worker pools meet a named owner-approved target under actual load, compatibility, and shared resource bounds; absent an objective the tier stays unselected.",
+          "boundary": "Deployment topology/OPS-03 readiness/OPS-04 worker profile plus OPS-08 measured resource class; excludes universal cloud parity and any new scheduler."
+        }
+      ]
+    },
+    {
+      "id": "OPS-11",
+      "disposition": "split",
+      "rationale": "Trust-root succession, continuing currentness duties, and preservation/archive renewal are explicitly separate in R17 and require different evidence. Keep the external institution as authority, reuse the existing duty and archive owners, and keep claim freshness a consumer result rather than an OPS-11 status flag.",
+      "source_selector": "tasks.json:tasks[id=OPS-11]; solutions/preferred-solutions.json:tasks[task_id=OPS-11]",
+      "family": "ops",
+      "proposed_results": [
+        {
+          "key": "OPS-11.TRUST-ROOT",
+          "title": "Admit technical trust-root succession",
+          "property": "The current trust generation and successor are established by an independent authorized path; a compromised root cannot authorize itself, and history remains verifiable.",
+          "boundary": "PolicyOS technical issuer/root and its existing identity/release owners only; no external policy or institutional authority is created."
+        },
+        {
+          "key": "OPS-11.CURRENTNESS-DUTY",
+          "title": "Bind an accepted owner to currentness coverage or cutoff",
+          "property": "A currentness-bearing claim has an accepted owner/deputy, due basis/source/cadence, bounded coverage and reaction/transfer/cutoff; missing or overdue duty limits only its enrolled claim.",
+          "boundary": "OPS-11 supplies owner/scope/trust evidence; LIF-04 remains the durable duty/wakeup/policy-version owner, LIF-06/OPS-08 capacity suppliers, and LIF-02 the selected claim consumer."
+        },
+        {
+          "key": "OPS-11.ARCHIVE-RENEWAL-TRANSFER",
+          "title": "Transfer and renew custody evidence for retained archives",
+          "property": "A successor actually accepts the bounded preservation duty and any renewal claim is based on retrieved, verified retained bytes under the selected protocol; uploaded data or a later timestamp is insufficient.",
+          "boundary": "OPS-05/LIF-05 retain the bytes, copies, rights, and cold-retrieval/retention decisions; OPS-11 supplies trust/accepted-duty evidence and never becomes a second archive or recovery writer."
+        }
+      ]
+    },
+    {
+      "id": "OPS-12",
+      "disposition": "split",
+      "rationale": "A selected offline cell combines bundle admission/currentness, physical no-egress, and local restore/custody. These are independently falsifiable boundaries and must be joined for any selected offline claim. The tier stays conditional; local profile evidence does not confer cloud/current status or complete recovery.",
+      "source_selector": "tasks.json:tasks[id=OPS-12]; solutions/preferred-solutions.json:tasks[task_id=OPS-12]",
+      "family": "ops",
+      "proposed_results": [
+        {
+          "key": "OPS-12.BUNDLE-CURRENTNESS",
+          "title": "Verify actual local import generation and as-of cutoff",
+          "property": "A selected offline read uses the exact locally imported signed bundle, a monotonic verified generation, and an independently supported as-of/freshness basis.",
+          "boundary": "Named offline profile and local fresh reader; trust-root evidence from OPS-11/OPS-01, with explicit historical/limited status when currentness cannot be established."
+        },
+        {
+          "key": "OPS-12.NO-EGRESS",
+          "title": "Establish the selected cell's no-egress boundary",
+          "property": "No unapproved network route transmits data or telemetry from the selected offline cell; an application setting alone does not establish no-egress.",
+          "boundary": "Actual host/network interfaces, DNS, update, telemetry, crash, and maintenance paths under the institution's network/security owner."
+        },
+        {
+          "key": "OPS-12.RESTORE-JOIN",
+          "title": "Restore local state and reconcile before protected use",
+          "property": "A selected offline restore admits only a supported local bundle/runtime/DB/CAS state whose rights, trust, generation, and as-of cutoff are reconciled for the fresh local consumer.",
+          "boundary": "Reuse OPS-05's restore-to-reader join and existing local source/identity/model/secret operators; this slice is a profile-specific composition, not a standalone recovery capability."
+        }
+      ]
+    },
+    {
+      "id": "DEB-01",
+      "disposition": "split",
+      "rationale": "Five instrument-disclosure/census debts share FileReadMeasurement and one full-source-denominator property; transitive runner closure is a separate trust boundary and remains intake-only unless an independent runner identity is admitted.",
+      "source_selector": "tasks.json:tasks[id=DEB-01]; solutions/preferred-solutions.json:tasks[task_id=DEB-01]",
+      "family": "debt",
+      "proposed_results": [
+        {
+          "key": "DEB01-INSTRUMENT-DISCLOSURE",
+          "title": "Disclose and reconcile measurement inputs",
+          "property": "An absence result is eligible only when declared roots, file types, selectors, exclusions, reads, and read failures reconcile over the complete accepted-source set.",
+          "boundary": "Extend FileReadMeasurement and migrate its current instrument owners; do not add syscall/network capture."
+        },
+        {
+          "key": "DEB01-RUNNER-RESIDUAL",
+          "title": "Recheck the existing transitive-runner falsifier",
+          "property": "An intake receipt cannot imply executable integrity; changed transitive executable bytes are detected under unchanged entry identity or the claim stays not_established.",
+          "boundary": "Run the original covered runner/chunk falsifier and complete current path/file-type denominator; no new out-of-band attestation service."
+        }
+      ]
+    },
+    {
+      "id": "DEB-02",
+      "disposition": "split",
+      "rationale": "The semantic packaging-budget predicate and reproducible OpenAPI identity have different owners, inputs, consumers, and falsifiers; a shared DevX label is not a semantic boundary.",
+      "source_selector": "tasks.json:tasks[id=DEB-02]; solutions/preferred-solutions.json:tasks[task_id=DEB-02]",
+      "family": "debt",
+      "proposed_results": [
+        {
+          "key": "DEB02-SEMANTIC-CONFIG-BUDGET",
+          "title": "Measure effective packaging configuration",
+          "property": "Moving unchanged settings between declared packaging files does not reduce measured semantic configuration.",
+          "boundary": "Existing pyproject-size gate and complete packaging-config owner set; preserve threshold pending owner decision."
+        },
+        {
+          "key": "DEB02-OPENAPI-IDENTITY",
+          "title": "Make OpenAPI export source and environment reproducible",
+          "property": "The full OpenAPI Description and client inputs are stable for identical admitted source, lock, toolchain, and declared profile.",
+          "boundary": "Existing OpenAPI renderer, reference resolver, snapshot consumer, and client generator; no exporter replacement by default."
+        }
+      ]
+    },
+    {
+      "id": "DEB-03",
+      "disposition": "split",
+      "rationale": "Private-name reachability and public-release inventory are separate properties with separate consumers; one cannot close the other.",
+      "source_selector": "tasks.json:tasks[id=DEB-03]; solutions/preferred-solutions.json:tasks[task_id=DEB-03]",
+      "family": "debt",
+      "proposed_results": [
+        {
+          "key": "DEB03-PRIVATE-REACH",
+          "title": "Close cross-module private-name reach class",
+          "property": "Every production cross-module private import, function-local import, and private-attribute edge routes through a supported owner boundary or stays an explicit unresolved dynamic limitation.",
+          "boundary": "Existing import-architecture tooling and canonical module owners; no blanket allowlist or public API expansion."
+        },
+        {
+          "key": "DEB03-RELEASE-INVENTORY",
+          "title": "Bind release-fragment API-break reviews",
+          "property": "Each originally named release fragment's public break inventory matches the current generated API/source delta and a content-bound owner review.",
+          "boundary": "Existing public-surface contract, generated inventory, release-fragment review and promotion consumer."
+        }
+      ]
+    },
+    {
+      "id": "DEB-04",
+      "disposition": "split",
+      "rationale": "This card mixes four independent test/attribution properties with an owner-acceptance obligation; keep each native test owner and P41 decision distinct under one parent disposition.",
+      "source_selector": "tasks.json:tasks[id=DEB-04]; solutions/preferred-solutions.json:tasks[task_id=DEB-04]",
+      "family": "debt",
+      "proposed_results": [
+        {
+          "key": "DEB04-IMPORT-ISOLATION",
+          "title": "Isolate governed-projection test imports",
+          "property": "A test replacing a production module leaves no process-global fake object in either execution order.",
+          "boundary": "The governed-projection test's injectable/import seam; use subprocess only if aliases survive scoped restoration."
+        },
+        {
+          "key": "DEB04-CATALOG-ABSENCE",
+          "title": "Test catalog absence at the runtime input boundary",
+          "property": "The actual canonical catalog missing from an explicit fixture produces the same typed fail-closed result as production.",
+          "boundary": "N13a producer/loader and temporary catalog artifact; repository checkout layout is not an oracle."
+        },
+        {
+          "key": "DEB04-VALUE-DISCRIMINANT",
+          "title": "Resolve value-gate discriminant against producer truth",
+          "property": "The value gate accepts only the exact producer/schema discriminant bytes and rejects unresolved or malformed values.",
+          "boundary": "Existing value-gate DTO, artifact producer, and fixture; no expected-value edits before source attribution."
+        },
+        {
+          "key": "DEB04-EDUCATION-RED-PROVENANCE",
+          "title": "Classify education-importer red from its slice base",
+          "property": "A carried red is inherited only if the exact command reproduces at the slice base and its complete input denominator is disjoint from changed paths.",
+          "boundary": "Evidence/provenance classification only until P41 identifies an owned defect; no proximity assignment."
+        },
+        {
+          "key": "DEB04-GY-DEF22",
+          "title": "Complete GY-DEF22 internal owner acceptance",
+          "property": "The competent Foundry catalog/discovery owner accepts the full current bounded-claim set, independently of P41 attribution for the two-host mismatch.",
+          "boundary": "Internal owner allocation/readback; no institutional appointment and no GYD-15 output by shared ID alone."
+        }
+      ]
+    },
+    {
+      "id": "DEB-05",
+      "disposition": "split",
+      "rationale": "Retained-source schema, calibration DTO grammar, and shared fixture-authority mutation have different producers; keep the last class-wide across every discovered caller.",
+      "source_selector": "tasks.json:tasks[id=DEB-05]; solutions/preferred-solutions.json:tasks[task_id=DEB-05]",
+      "family": "debt",
+      "proposed_results": [
+        {
+          "key": "DEB05-RETAINED-UDF",
+          "title": "Repair retained-source schema outcome",
+          "property": "Malformed/unreadable retained source remains distinct from valid empty source data.",
+          "boundary": "Canonical Data Forge retained-UDF schema and reader; CAS remains a byte store, not schema owner."
+        },
+        {
+          "key": "DEB05-CALIBRATION-SCHEMA",
+          "title": "Align calibration version grammar and fixture fields",
+          "property": "The declared calibration default validates under the same constrained grammar as input, and the real producer emits no fixture-only fields.",
+          "boundary": "Foundry CalibrationReport DTO and its producer/reader bridge."
+        },
+        {
+          "key": "DEB05-FIXTURE-HELPER-CLASS",
+          "title": "Close shared fixture-authority mutation class",
+          "property": "No `_with_runtime_fixture_authority` caller injects unsupported authority fields for any discovered payload-kind family.",
+          "boundary": "Shared test helper plus all accepted-source callers, including root/child siblings; do not convert CAS into schema authority."
+        }
+      ]
+    },
+    {
+      "id": "DEB-06",
+      "disposition": "sequence",
+      "rationale": "Retain one epoch-reissue/current-decision vertical: existing verifier and denominator producer -> append-only fifth merge/replay artifact -> LIF-02 canonical currentness/head writer -> UI-19 fresh projection. Do not split shared owner writes or rebuild the verifier. GY-DEF23 appointment belongs to DEB-09 and stays typed-empty without blocking candidate work.",
+      "source_selector": "tasks.json:tasks[id=DEB-06]; solutions/preferred-solutions.json:tasks[task_id=DEB-06]",
+      "family": "debt",
+      "proposed_results": []
+    },
+    {
+      "id": "DEB-07",
+      "disposition": "split",
+      "rationale": "The card conflates ceiling allocation, estimand relations, route cost, DS15 production composition, and INT-R2 union ownership; those are distinct owners and predicates. Do not assign numeric VOI here (DEB-13).",
+      "source_selector": "tasks.json:tasks[id=DEB-07]; solutions/preferred-solutions.json:tasks[task_id=DEB-07]",
+      "family": "debt",
+      "proposed_results": [
+        {
+          "key": "DEB07-CORR-CEILING-ALLOCATION",
+          "title": "Allocate CORR destinations and ceiling meanings",
+          "property": "Every current destination/ceiling has a distinct owner, exact meaning, producer, consumer, and typed unknown/incomparable result.",
+          "boundary": "Original CORR and INT-R2 owner dispositions feeding UI-06; no scalar total-order shortcut."
+        },
+        {
+          "key": "DEB07-ESTIMAND-RELATIONS",
+          "title": "Bind estimand strength to target semantics",
+          "property": "Binding strength compares only explicit owner-defined relations over the same target, regime, horizon, and version.",
+          "boundary": "Foundry semantic owner and actual target consumers; no unregistered free-form total order."
+        },
+        {
+          "key": "DEB07-WDI-COST-RECONCILIATION",
+          "title": "Reconcile WDI cost through CAP-03 owner",
+          "property": "A selected cost-sensitive route consumes the same persisted, purpose/time/variable-bound cost artifact emitted by CAP-03.",
+          "boundary": "CAP-03 is sole native cost writer; DEB-07 owns original-row allocation/reconciliation only."
+        },
+        {
+          "key": "DEB07-DS15-ROUTE-COMPOSITION",
+          "title": "Reconcile DS15 production route and bundle handshake",
+          "property": "A real selected N13b route emits the required deterministic admission artifact and fresh consumer receipt; fixture route evidence stays test-only.",
+          "boundary": "Reuse CAP-03 producer and UI-17 consumer; route/cost admissibility is not numeric VOI."
+        },
+        {
+          "key": "DEB07-GAP-CASE-UNION",
+          "title": "Keep GapAcquisitionCase with INT-R2 ratification",
+          "property": "The admitted case union matches the ratified INT-R2 semantics and the real consumer; DEB-07 does not create a parallel case owner.",
+          "boundary": "INT-R2 ratification owner and actual typed consumer; no duplicate CAP-03/UI-17 union."
+        }
+      ]
+    },
+    {
+      "id": "DEB-08",
+      "disposition": "split",
+      "rationale": "GAP2 policy choice, GAP3 controlled transcript, GAP5 run enumeration, GAP6 per-row movement, and DS15-to-GY receipt admission are independent properties and owners; one shared population does not make them one task.",
+      "source_selector": "tasks.json:tasks[id=DEB-08]; solutions/preferred-solutions.json:tasks[task_id=DEB-08]",
+      "family": "debt",
+      "proposed_results": [
+        {
+          "key": "DEB08-GAP2-COMPOSITION",
+          "title": "Decide cross-scope confidence composition",
+          "property": "Combined confidence is emitted only under an owner-approved scope-composition rule with explicit dependence assumptions.",
+          "boundary": "Confidence-ledger product decision; no new producer or generic literature threshold."
+        },
+        {
+          "key": "DEB08-GAP3-TRANSCRIPT",
+          "title": "Admit controlled release-family transcript",
+          "property": "Transcript evidence binds the actual controlled family, full row set, source, and rule version.",
+          "boundary": "Existing signal owner and GY consumer; fixture transcript is not production evidence."
+        },
+        {
+          "key": "DEB08-GAP5-RUNS",
+          "title": "Enumerate production recursive-cycle runs",
+          "property": "GY-GAP5 enumerates the complete production run/row denominator and excludes fixtures from numerator.",
+          "boundary": "Existing recursive_generation_cycle production owner and GY consumer."
+        },
+        {
+          "key": "DEB08-GAP6-ROW-MOVEMENT",
+          "title": "Bind per-row re-entry and terminal movement",
+          "property": "Each GY-GAP6 row has evidence linking actual re-entry to deeper terminal movement.",
+          "boundary": "GY row evidence/register owner; not a duplicate DS15 receipt producer."
+        },
+        {
+          "key": "DEB08-DS15-RECEIPT-ADMISSION",
+          "title": "Consume existing DS15 receipt into GY register",
+          "property": "The existing DS15 receipt is admitted by GY against the exact original row and produces a GY closure disposition.",
+          "boundary": "Receipt producer remains acquisition_route_loop; add only the missing GY consumer/bridge."
+        }
+      ]
+    },
+    {
+      "id": "DEB-09",
+      "disposition": "split",
+      "rationale": "The external acts are explicitly non-substitutable and can arrive independently; split their evidence-slot decisions while reusing one internal intake/verifier. Keep the full W5 slot crosswalk and do not create an appointment service.",
+      "source_selector": "tasks.json:tasks[id=DEB-09]; solutions/preferred-solutions.json:tasks[task_id=DEB-09]",
+      "family": "debt",
+      "proposed_results": [
+        {
+          "key": "DEB09-POLICY-SIGNER",
+          "title": "Admit predicate-policy signer evidence",
+          "property": "A current purpose/scope/time-bound signer authorizes only the intended epoch predicate-policy claim.",
+          "boundary": "External appointment evidence plus existing strict intake; no PolicyOS self-appointment."
+        },
+        {
+          "key": "DEB09-TRANSITION-IDENTITY",
+          "title": "Admit transition signer and producer identity",
+          "property": "Transition-signing authority and producer identity are explicitly bound to their intended claim role and cannot substitute for the policy signer or history holder.",
+          "boundary": "Existing epoch origin/provenance intake; no local signer default."
+        },
+        {
+          "key": "DEB09-HISTORY-HOLDER",
+          "title": "Admit independent complete-history holder evidence",
+          "property": "Complete-history authenticity is established only by an independent holder whose evidence covers the required history.",
+          "boundary": "External independent holder and existing history reader; not producer integrity alone."
+        },
+        {
+          "key": "DEB09-DELEGATION-MANDATE",
+          "title": "Admit signed delegation and current mandate-owner evidence",
+          "property": "DS15 delegation authority is present only when the external signed v2 delegation and current mandate owner bind the selected purpose and scope.",
+          "boundary": "External mandate act plus already-built deployment composition; do not recreate UI-17/CAP-03 machinery."
+        },
+        {
+          "key": "DEB09-EPOCH-QUALIFICATION",
+          "title": "Admit purpose-scoped semantic epoch qualification",
+          "property": "The signed policy and exact native relation are admitted only for the intended purpose, scope, and complete history.",
+          "boundary": "Existing qualification/verifier path; do not infer authority from transition-signing or producer receipt."
+        },
+        {
+          "key": "DEB09-W5-CROSSWALK",
+          "title": "Reconcile complete W5 authority-slot crosswalk",
+          "property": "Every route in the original W5 slot inventory retains its own meaning, owner, current status, and evidence need; vocabulary-name similarity is not equivalence.",
+          "boundary": "Complete original W5 source row; this crosswalk is coordination evidence, not an appointment service."
+        }
+      ]
+    },
+    {
+      "id": "DEB-10",
+      "disposition": "split",
+      "rationale": "Independent external accessibility assessment and append-only DS18 print reconciliation have different evidence producers and closure predicates; retain the already-current C13 capture and keep row dispositions separate.",
+      "source_selector": "tasks.json:tasks[id=DEB-10]; solutions/preferred-solutions.json:tasks[task_id=DEB-10]",
+      "family": "debt",
+      "proposed_results": [
+        {
+          "key": "DEB10-ACCESSIBILITY",
+          "title": "Admit independent content-bound accessibility evidence",
+          "property": "An independent evaluator's report supports only its exact content/carrier/sample/criteria/time scope.",
+          "boundary": "External evaluator evidence and existing verification/projection; dashboard/tests cannot self-countersign."
+        },
+        {
+          "key": "DEB10-PRINT-RECONCILIATION",
+          "title": "Reconcile append-only second DS18 print checkpoint",
+          "property": "The second checkpoint is preserved alongside the original and binds exact current content, browser, and print instance.",
+          "boundary": "Existing DS18 schema/owner and current C13 evidence; add schema only if current schema cannot represent the checkpoint."
+        }
+      ]
+    },
+    {
+      "id": "DEB-11",
+      "disposition": "split",
+      "rationale": "Connector resource lifecycle and fresh-worktree toolchain identity have different owners and falsifiers; recover exact pinned criteria before any implementation, and do not treat `foreign` routing as closure.",
+      "source_selector": "tasks.json:tasks[id=DEB-11]; solutions/preferred-solutions.json:tasks[task_id=DEB-11]",
+      "family": "debt",
+      "proposed_results": [
+        {
+          "key": "DEB11-AIOHTTP-LIFECYCLE",
+          "title": "Close authorized connector/session lifecycle paths",
+          "property": "The application-owned aiohttp session is released on success, exception, and cancellation without closing a still-shared caller-owned session.",
+          "boundary": "Only the exact discover_data_sources/resolve_data_needs handlers in the recovered source criterion."
+        },
+        {
+          "key": "DEB11-WORKTREE-TOOLCHAIN",
+          "title": "Reproduce fresh-worktree source/toolchain baseline",
+          "property": "The documented workspace check uses the intended editable checkout, lock, package links, and toolchain in a fresh worktree.",
+          "boundary": "Existing workspace bootstrap/doctor and pinned DS1/DS19 criterion; no new bootstrap platform."
+        }
+      ]
+    },
+    {
+      "id": "DEB-12",
+      "disposition": "sequence",
+      "rationale": "Keep as one owner-first strangle capability: complete consumer census -> owner decision -> canonical typed migration if a live duplicate exists -> prove zero bypass before retirement. A measured no-consumer result is a valid route; don't split the census from its required decision/retirement predicate.",
+      "source_selector": "tasks.json:tasks[id=DEB-12]; solutions/preferred-solutions.json:tasks[task_id=DEB-12]",
+      "family": "debt",
+      "proposed_results": []
+    },
+    {
+      "id": "DEB-13",
+      "disposition": "sequence",
+      "rationale": "Keep one DS15 numeric-VOI vertical: owner decision and estimand/oracle -> versioned producer and persisted artifact -> fresh DS15/UI-17 consumer. Preserve each source row's refusal until its own supported basis exists. Gross EVSI is independent of cost; net/ENBS and cost-sensitive ranking require actual selected-route cost. Don't split metric arithmetic from its consumer or merge cost ownership into it.",
+      "source_selector": "tasks.json:tasks[id=DEB-13]; solutions/preferred-solutions.json:tasks[task_id=DEB-13]",
+      "family": "debt",
+      "proposed_results": []
+    },
+    {
+      "id": "DEB-14",
+      "disposition": "sequence",
+      "rationale": "Keep one scope-ruling capability vertical but sequence ownership: source-bound one-plane predicate resolver/producer -> persistence through LIF-02's canonical head/lifecycle writer -> UI-19 fresh governed projection. Candidate stays non-authoritative. The ruling chain is currently contract_only; do not add a second head writer or institution service.",
+      "source_selector": "tasks.json:tasks[id=DEB-14]; solutions/preferred-solutions.json:tasks[task_id=DEB-14]",
+      "family": "debt",
+      "proposed_results": []
+    },
+    {
+      "id": "P0-ACCEPT",
+      "disposition": "retain",
+      "rationale": "Correctly one competent external E02 entry decision. It resolves and reads back the actual acceptance boundary; it cannot be leaf-implemented or replaced by a second PolicyOS acceptance service.",
+      "source_selector": "tasks.json:tasks[id=P0-ACCEPT]; solutions/preferred-solutions.json:tasks[task_id=P0-ACCEPT]",
+      "family": "debt",
+      "proposed_results": []
+    },
+    {
+      "id": "P0-REBIND",
+      "disposition": "retain",
+      "rationale": "Legitimate root coordination aggregate over the complete original GY/Atlas/debt/R9 set, source delta, owner/consumer/generated closure, stages, and leases. It may release fully reconciled scopes progressively; global completion remains mandatory before FINAL-FREEZE. Do not dispatch as a leaf writer or create per-lead ledgers.",
+      "source_selector": "tasks.json:tasks[id=P0-REBIND]; solutions/preferred-solutions.json:tasks[task_id=P0-REBIND]",
+      "family": "debt",
+      "proposed_results": []
+    },
+    {
+      "id": "FINAL-FREEZE",
+      "disposition": "retain",
+      "rationale": "Legitimate read-only coordination checkpoint that binds one immutable review candidate after global P0 reconciliation and internal readiness. Unresolved genuine external facts remain visible without closure credit; an internal missing producer blocks. Not a leaf implementation task.",
+      "source_selector": "tasks.json:tasks[id=FINAL-FREEZE]; solutions/preferred-solutions.json:tasks[task_id=FINAL-FREEZE]",
+      "family": "debt",
+      "proposed_results": []
+    },
+    {
+      "id": "FINAL-REVIEW",
+      "disposition": "retain",
+      "rationale": "Legitimate independent review/delta-review aggregate. Assign reviewers by semantic scope, classify findings before repair under P40, and bind each reviewer to the immutable candidate. The task coordinates reviews; it is not a product implementation leaf.",
+      "source_selector": "tasks.json:tasks[id=FINAL-REVIEW]; solutions/preferred-solutions.json:tasks[task_id=FINAL-REVIEW]",
+      "family": "debt",
+      "proposed_results": []
+    },
+    {
+      "id": "FINAL-REPLAY",
+      "disposition": "retain",
+      "rationale": "Legitimate one-wave dispatcher/join aggregate over the frozen expected matrix and source/input/backend identity. Verification shards remain independent owner tasks; join actual outcomes and properties, not exit codes/counts. LIF-09 and GYD-16–22 join at completion, not as global start barriers. Not one leaf worker running the entire wave.",
+      "source_selector": "tasks.json:tasks[id=FINAL-REPLAY]; solutions/preferred-solutions.json:tasks[task_id=FINAL-REPLAY]",
+      "family": "debt",
+      "proposed_results": []
+    },
+    {
+      "id": "FINAL-USE",
+      "disposition": "retain",
+      "rationale": "Legitimate source-qualified release dossier and human/institution decision proposal. Preserve the complete rebound original predicates and every mandatory nonclosed row; only explicit human scope change can authorize earlier use. No leaf implementation, profile-based waiver, or automatic PolicyOS deployment authority.",
+      "source_selector": "tasks.json:tasks[id=FINAL-USE]; solutions/preferred-solutions.json:tasks[task_id=FINAL-USE]",
+      "family": "debt",
+      "proposed_results": []
+    }
+  ]
+}

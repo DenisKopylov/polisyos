@@ -28,3 +28,11 @@ The programme provides up to100 subagent seats including nested leaves, not100 i
 Reject two differently named tasks with the same normalized file; two leads asking for the same generated family; a write hidden behind a read-only anchor; a source change that invalidates a prepared consumer interface; and a child quota that duplicates the parent/global allowance. Permit two read-only reviewers on one immutable candidate, and disjoint source changes that do not share a resource. These are procedure predicates for future execution; no product scheduling implementation is requested here.
 
 Pattern pass: P13/P27/P31/P35/P37/P38. The missing evidence is the accepted-source concrete lease set, not another architectural subsystem.
+
+## R25: размер assignment
+
+Before issuing a writer lease, apply [task decomposition](task-decomposition/README.md).
+Keep canonical parent obligations and one shared invariant writer; admit a bounded
+property packet with its complete companions. Context partitioning does not
+establish disjoint writes or add a start edge. Root/lead owns full parent coverage;
+the leaf owns its exact result and required clauses, not implicit sibling work.

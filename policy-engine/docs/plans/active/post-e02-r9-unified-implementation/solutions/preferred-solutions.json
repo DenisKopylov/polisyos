@@ -12747,7 +12747,8 @@
       "composition_contracts": [
         "A test establishes property only through the real producer/consumer behavior; marker presence and repo layout do not establish source absence (P29/P38).",
         "A cached module replacement is not isolated if surviving references retain the fake object.",
-        "A test failure's ownership is `not_established` until P41 replay/disjointness completes."
+        "A test failure's ownership is `not_established` until P41 replay/disjointness completes.",
+        "DEB-04 alone owns the internal Foundry correctness / GY-N12 catalog-discovery owner acceptance for GY-DEF22. Re-enumerate the complete current bounded-claim set at source rebind; historical six is not a fixed acceptance denominator. Preserve content-bound owner readback and the separate P41 attribution requirement; neither substitutes for the other or for FA1 mechanisms."
       ],
       "acceptance_discriminators": [
         "Both test orders load the real module after the fake case; process-global object identity is restored or the case is process-isolated.",
@@ -13207,7 +13208,7 @@
         "Publish an exact role-to-claim-scope matrix with purpose, subject, valid/known time, required evidence and refusal code; use it only as an intake contract, not an appointment.",
         "Verify the real incoming artifact against the exact role/profile, signature/identity evidence, content digest, expiry and complete relevant history where required.",
         "Keep missing/expired/unverifiable evidence typed-empty or blocked for authority-band claims while allowing candidate feature construction with declared limits.",
-        "Close GY-DEF22 engineering provenance only after its exact slice-base replay and complete disjointness; keep Foundry catalog/discovery appointment separate."
+        "Do not assign GY-DEF22 implementation or internal owner acceptance here: DEB-04 owns that work and its separate P41 conjunct. Preserve this task’s actual institutional-slot requirements; a shared source reference creates neither a second writer nor an extra global prerequisite."
       ],
       "alternatives": [
         {
@@ -13253,7 +13254,7 @@
       "original_task_ref": "../tasks.json#DEB-09",
       "inputs_to_resolve": [
         "Actual predicate-policy signer, transition-signing identity, independent history holder, signed delegation artifact/current mandate-owner evidence, and semantic epoch-qualification admission.",
-        "Foundry catalog/discovery appointment for GY-DEF22's six bounded claims, distinct from the unresolved DigestPredicateMismatch provenance."
+        "GY-DEF22 is routed to DEB-04 for internal owner acceptance and independent provenance attribution; it is not a missing external appointment or required supplier for every DEB-09 slot."
       ],
       "input_resolution_rule": "Classify each input at accepted-source rebind as internal engineering output/allocation, existing source record, or genuine external fact/permission. Missing native producer/bridge is assigned work, not an external blocker. Only the last class can justify an external-input hold after supplier/alternative investigation. See root-review.md for the task-specific distinction.",
       "r19_extension": {

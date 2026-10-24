@@ -1,0 +1,93 @@
+{
+  "base_commit": "f8e2c66edf6b56a5436e696e669bfe690f68e58b",
+  "executor": "root",
+  "predicate_basis": "recomputed",
+  "scope": "documentation only; no product imports/tests/builds",
+  "task_objects": 121,
+  "task_prefixes": {
+    "CAP": 6,
+    "LIF": 9,
+    "GYD": 33,
+    "UI": 20,
+    "CNT": 9,
+    "OPS": 12,
+    "P0": 2,
+    "DEB": 14,
+    "FINAL": 4,
+    "DES": 12
+  },
+  "preserved_direct_dependency_edges": 368,
+  "acyclic": true,
+  "extension_mirrors": {
+    "r19_extension": 72,
+    "r17_extension": 41,
+    "r16_extension": 28,
+    "r14_extension": 24,
+    "r15_extension": 28
+  },
+  "retained_questions": 84,
+  "question_task_routes": 388,
+  "approved_proposals": 5,
+  "stable_question_ids": [
+    "8.4-waist-altitude",
+    "8.4-real-grounding-cost",
+    "8.4-demand-pull-strength",
+    "8.4-search-recall-freshness",
+    "8.4-agent-orchestration-authority-leak"
+  ],
+  "static_id_match_not_runtime_join": true,
+  "markdown_file_denominator": 154,
+  "relative_markdown_links": 1716,
+  "missing_files": [],
+  "unresolved_anchors": [],
+  "product_execution": "UNRUN",
+  "E02_acceptance": false,
+  "json_file_denominator": 41,
+  "changed_task_rows": [
+    "DEB-04",
+    "DEB-09"
+  ],
+  "human_changed_cards_and_acceptance_mirrors": "PASS",
+  "retained_start_and_composition_requirements": "PASS",
+  "audit_rows": 121,
+  "audit_dispositions": {
+    "split": 48,
+    "sequence": 40,
+    "retain": 33
+  },
+  "new_SDD_changes": 0,
+  "new_top_level_tasks": 0,
+  "delegation": "8 direct family/structure reviewers; root sole tracked writer; delta reviews of structure, debt route and selected examples; no children",
+  "documentation_only": true,
+  "substantive_review_limit": "Task-card scope and context review, not a fresh exhaustive historical source audit or empirical model-memory measurement. Slice outlines require complete clause allocation and E02 source rebind before dispatch.",
+  "documentation_status": "PASS",
+  "input_trace": {
+    "path": "policy-engine/_build/post-e02-r25-card-audit-20261024/validation-inputs.json",
+    "sha256": "bb9a307c3dd4331b06c263e228917f8e9375c2fa3d8bcfb44e070c1b192e1fee",
+    "actual_read_count": 205,
+    "failed_read_count": 0
+  },
+  "selector": "Complete plan *.md and *.json paths; parsed inline local Markdown links/anchors; changed task/preferred rows vs exact base; explicit SDD/static-ID reads",
+  "unresolved_by_construction": [
+    "External URLs not fetched",
+    "Reference-style/HTML/autolinks and full Markdown rendering not validated",
+    "Product runtime/API/generated/browser behavior UNRUN",
+    "No empirical scientific or resource guarantee",
+    "No exhaustive fresh historical source audit",
+    "Working-tree validation does not prove future branch/remote bytes; publication readback is separate",
+    "The R25 validation receipt is a generated output, not evidence used to establish its own verdict"
+  ],
+  "earlier_document_validator_attempt": {
+    "status": "harness_error_corrected",
+    "detail": "Initial reused R24 helper assumed acceptance_steps existed on DEB-09. R25 now checks optional field presence and equality against the exact base; no product execution or product failure."
+  },
+  "full_output": {
+    "path": "policy-engine/_build/post-e02-r25-card-audit-20261024/validation-output.txt",
+    "sha256": "72ccd0965412992677a516151e086c8bc78b71c4516ec04ddaf73fb59eef78b4"
+  },
+  "verification_limits": [
+    "Structural checks cannot establish semantic completeness of future slice assignments.",
+    "Eight direct assessments plus root review are the substantive basis; exact dispatch requires full clause routing after E02.",
+    "No runtime, empirical speed, model-memory, or concurrency guarantee."
+  ]
+}

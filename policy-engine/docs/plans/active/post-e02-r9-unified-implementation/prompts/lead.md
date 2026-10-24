@@ -14,15 +14,24 @@ Read the assigned task’s `preferred_solution_ref` from [tasks.json](../tasks.j
 
 Прочитай `r19_extension` только назначенных задач и связанные `solutions/lifecycle-r19/` карточки; передай исполнителю точные slices, native owner, выбранные producer/consumer/profile и stage-specific obligations из `execution/10-full-lifecycle-parallelism.md`. Соблюдай `architecture/10-full-lifecycle-composition.md` и `assurance/12-full-lifecycle-quality.md`. Это не новый общий barrier: поставляй доступные source-qualified inputs и называй конкретные внешние residuals. Не создавай второй registry/scheduler/authority owner и не повышай candidate/условный результат до политического полномочия. Пять R19 SDD clauses приняты 2026-10-24: прочитай architecture/proposals/r19-system-design-clarifications.md и canonical acceptance record; прочие proposals не приняты этим решением. Фактические ограничения delegation и tool permissions имеют силу. Реализация только после фактической приёмки E02.
 
-### Полнота назначенного пакета
+### Полнота родителя и bounded dispatch R25
 
-Читай каждое присутствующее у назначенной задачи поле `*_extension` и все его
-referenced delivery/quality/solution clauses вместе с base task и
-`preferred_solution_ref`. На текущем source это `r14_extension`, `r15_extension`,
-`r16_extension`, `r17_extension`, `r19_extension`; R18 — inventory вопросов,
-назначаемых через R19. Набор выводится из task manifest, не из этого списка.
-Root/lead включают все assigned clauses в write lease, supplier-stage bindings,
-review и coverage; writer исполняет их, reviewer/verification проверяют их,
-foundation supplier поставляет только назначенные evidence/consumer slices.
-Незнакомое поле нельзя молча отбросить: разреши его контракт и scope до affected
-acceptance. Оно само не вводит новую authority или разрешение реализовать до E02.
+Прочитай полный parent task/preferred solution, каждое присутствующее
+`*_extension` и referenced delivery/quality clauses. Набор выводится из manifest,
+а не из списка известных revision numbers. Применяй
+[R25 decomposition](../execution/task-decomposition/README.md): маршрутизируй
+каждое substantive обязательство в конкретный slice, shared binding condition,
+parent composition witness или явный нераспределённый остаток в существующем
+coverage/lease journal. Не создавай новый tracker/owner или gate по числу карточек.
+
+Leaf получает [work packet](../execution/task-decomposition/work-packet.md)
+с достаточным operative контекстом только назначенного результата, точными
+нормативными inputs и всеми его companions. Sibling obligations сохраняются у
+родителя и не наследуются leaf как скрытая дополнительная реализация. Unknown
+applicability не отменяет условие. Whole-parent closure требует actual joined
+evidence по полному исходному scope; локальные PASS не суммируются в capability.
+
+Сохрани source/question/debt IDs и task-level DAG. Применяй readiness/composition
+stages к реальным input/output, без порядка по номерам slices. Новые plan/source/
+contract изменения требуют semantic delta rebind affected packets. Никаких
+реализаций до фактической приёмки E02; historical approvals не расширяются.

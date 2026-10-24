@@ -1,5 +1,20 @@
 # Prompt: substantive foundation supplier
 
+**Scope R25:** `{parent_task_ids}` и `{slice_packet_ref@plan_commit}` задают
+точный assignment. Ни общий task ID, ни широкий linked document не
+расширяют lease; все необходимые clauses включаются в packet по
+[правилу полноты среза](#полнота-рабочего-среза-r25) ниже.
+
+**Приоритет правил чтения R25.** При bounded-packet assignment все указания ниже
+«прочитай task/workstream/preferred solution/extension/семейство slices целиком»
+означают exact clauses и транзитивные contracts, назначенные в packet; широкие
+документы служат навигацией, если packet не требует конкретный selector.
+Root/lead читает полного родителя и обеспечивает полный маршрут обязательств.
+При прямом назначении полного parent сохраняются требования полного чтения.
+AGENTS, CONTRIBUTING и applicable repo rules этим не сужаются. Если необходимый
+clause пропущен, останови affected writes/acceptance и уточни packet; не считай
+его отсутствие разрешением нарушить контракт.
+
 Supply `{missing_predicate}` for `{case/claim/estimand/population/period/audience}` using family/facets `{EF_refs}`, native owner `{owner}`, intake route `{CAP/LIF}` and allowed sources/rights `{scope}`. No children. Read the substantive workstream and exact source cards; cards and URLs are discovery inputs, not admitted evidence.
 
 Research primary sources and competing grounds. Deliver actual accessible content or its permitted exact reference, capture/version/provenance, original language/span, scope and time roles, method/rule and limits, related countergrounds and dependence, operation-specific rights, native verification path and intended consumer. Do not choose a metric after observing the favorable answer. For inequality/poverty preserve formula, unit, population, weights, equivalization, aversion parameter and zero/negative-value policy; expose rank reversals and which normative premise drives them.
@@ -18,15 +33,20 @@ For legal/design/doc cases supply exact lawful source/version/span and distinct 
 
 Прочитай `r19_extension` только назначенных задач и связанные `solutions/lifecycle-r19/` карточки; передай исполнителю точные slices, native owner, выбранные producer/consumer/profile и stage-specific obligations из `execution/10-full-lifecycle-parallelism.md`. Соблюдай `architecture/10-full-lifecycle-composition.md` и `assurance/12-full-lifecycle-quality.md`. Это не новый общий barrier: поставляй доступные source-qualified inputs и называй конкретные внешние residuals. Не создавай второй registry/scheduler/authority owner и не повышай candidate/условный результат до политического полномочия. Пять R19 SDD clauses приняты 2026-10-24: прочитай architecture/proposals/r19-system-design-clarifications.md и canonical acceptance record; прочие proposals не приняты этим решением. Фактические ограничения delegation и tool permissions имеют силу. Реализация только после фактической приёмки E02.
 
-### Полнота назначенного пакета
+### Полнота рабочего среза R25
 
-Читай каждое присутствующее у назначенной задачи поле `*_extension` и все его
-referenced delivery/quality/solution clauses вместе с base task и
-`preferred_solution_ref`. На текущем source это `r14_extension`, `r15_extension`,
-`r16_extension`, `r17_extension`, `r19_extension`; R18 — inventory вопросов,
-назначаемых через R19. Набор выводится из task manifest, не из этого списка.
-Root/lead включают все assigned clauses в write lease, supplier-stage bindings,
-review и coverage; writer исполняет их, reviewer/verification проверяют их,
-foundation supplier поставляет только назначенные evidence/consumer slices.
-Незнакомое поле нельзя молча отбросить: разреши его контракт и scope до affected
-acceptance. Оно само не вводит новую authority или разрешение реализовать до E02.
+Если root назначил bounded slice, используй его materialized
+[work packet](../execution/task-decomposition/work-packet.md), а не весь parent
+как неявное задание. Полностью прочитай все назначенные clauses, shared invariants
+и транзитивно необходимые producer/consumer/interface/surface/migration contracts.
+Указания R14–R19 и ссылки выше применяются к этому scope; root обязан включить
+все относящиеся к нему требования. Нельзя отказаться от нужного clause ради
+длины prompt или заменить normative input summary автора.
+
+Parent task и все присутствующие `*_extension` полностью учитываются root/lead
+в общем coverage journal: sibling work, composition joins и нераспределённые
+остатки не исчезают. Leaf не обязан реализовать siblings и не принимает весь
+parent. При прямом назначении parent без декомпозиции действует его полный scope;
+если он непосилен как одно связное назначение, предложи конкретные срезы вместо
+молчаливого усечения. Неизвестное поле или новый consumer требует affected rebind.
+Результат проверки одного среза не даёт parent closure. Реализация только после E02.

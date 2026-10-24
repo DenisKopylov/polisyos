@@ -1,5 +1,20 @@
 # Prompt: independent source and semantic reviewer
 
+**Scope R25:** `{parent_task_ids}` и `{slice_packet_ref@plan_commit}` задают
+точный assignment. Ни общий task ID, ни широкий linked document не
+расширяют lease; все необходимые clauses включаются в packet по
+[правилу полноты среза](#полнота-рабочего-среза-r25) ниже.
+
+**Приоритет правил чтения R25.** При bounded-packet assignment все указания ниже
+«прочитай task/workstream/preferred solution/extension/семейство slices целиком»
+означают exact clauses и транзитивные contracts, назначенные в packet; широкие
+документы служат навигацией, если packet не требует конкретный selector.
+Root/lead читает полного родителя и обеспечивает полный маршрут обязательств.
+При прямом назначении полного parent сохраняются требования полного чтения.
+AGENTS, CONTRIBUTING и applicable repo rules этим не сужаются. Если необходимый
+clause пропущен, останови affected writes/acceptance и уточни packet; не считай
+его отсутствие разрешением нарушить контракт.
+
 Review `{task_ids}` at immutable `{candidate/tree}` against `{base/tree}`, original criteria `{IDs}`, exact inputs/profile `{refs}`, and the complete code/test/generated/consumer footprint. Read AGENTS, pattern register and the task's handoff. You did not author this change and are outside the authoring lead subtree. An authoring lead or sibling leaf cannot count as independent review. Root assigns the review against an exact candidate. No children. Read-only source; tests require a separately assigned resource slot and isolated exact candidate.
 
 Check actual predicate versus claimed property, canonical writer, ancestry/input identity, producer→durable artifact→bridge→fresh consumer, mixed status/authority/time cases, audience/API/MACHINE/browser companions, migration/old-reader retirement and retained deciding outputs. Distinguish consistency from independent evidence. Attack present-but-fake refs, changed premise with unchanged declaration, same bytes under different purpose, stale source/right cuts, sibling consumers and crash/retry boundaries as applicable.
@@ -22,15 +37,20 @@ Review all assigned `r17_extension` and actual selected D/Q obligations. Attack 
 
 Прочитай `r19_extension` назначенных задач в tasks.json/preferred-solutions и связанные карточки `solutions/lifecycle-r19/`. Примени `architecture/10-full-lifecycle-composition.md`, `assurance/12-full-lifecycle-quality.md` и stage-specific правила `execution/10-full-lifecycle-parallelism.md`. Сохраняй старые обязательства. Пять R19 SDD clauses приняты и применены 2026-10-24; ссылка на canonical acceptance record — в architecture/proposals/r19-system-design-clarifications.md. Они не назначают внешних полномочий и не ратифицируют остальные proposals. Различай useful conditional result, scientific support и institutional endorsement; не создавай 84 новых gates или параллельного owner. Выбери actual producer/consumer/public closure и independent falsifier; product UNRUN нельзя повышать по документации. Реализация только после фактической приёмки E02.
 
-### Полнота назначенного пакета
+### Полнота рабочего среза R25
 
-Читай каждое присутствующее у назначенной задачи поле `*_extension` и все его
-referenced delivery/quality/solution clauses вместе с base task и
-`preferred_solution_ref`. На текущем source это `r14_extension`, `r15_extension`,
-`r16_extension`, `r17_extension`, `r19_extension`; R18 — inventory вопросов,
-назначаемых через R19. Набор выводится из task manifest, не из этого списка.
-Root/lead включают все assigned clauses в write lease, supplier-stage bindings,
-review и coverage; writer исполняет их, reviewer/verification проверяют их,
-foundation supplier поставляет только назначенные evidence/consumer slices.
-Незнакомое поле нельзя молча отбросить: разреши его контракт и scope до affected
-acceptance. Оно само не вводит новую authority или разрешение реализовать до E02.
+Если root назначил bounded slice, используй его materialized
+[work packet](../execution/task-decomposition/work-packet.md), а не весь parent
+как неявное задание. Полностью прочитай все назначенные clauses, shared invariants
+и транзитивно необходимые producer/consumer/interface/surface/migration contracts.
+Указания R14–R19 и ссылки выше применяются к этому scope; root обязан включить
+все относящиеся к нему требования. Нельзя отказаться от нужного clause ради
+длины prompt или заменить normative input summary автора.
+
+Parent task и все присутствующие `*_extension` полностью учитываются root/lead
+в общем coverage journal: sibling work, composition joins и нераспределённые
+остатки не исчезают. Leaf не обязан реализовать siblings и не принимает весь
+parent. При прямом назначении parent без декомпозиции действует его полный scope;
+если он непосилен как одно связное назначение, предложи конкретные срезы вместо
+молчаливого усечения. Неизвестное поле или новый consumer требует affected rebind.
+Результат проверки одного среза не даёт parent closure. Реализация только после E02.

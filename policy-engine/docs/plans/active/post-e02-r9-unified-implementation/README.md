@@ -109,3 +109,12 @@ service commitments, actual-read integrity и lawful retained-use границы
 Состав задач и start DAG сохраняются; added conditional join относится только
 к selected custody promise. [Документарная проверка](assurance/r24-validation.json).
 Реализация и runtime проверки остаются UNRUN до фактической приёмки E02.
+
+## R25: обозримые рабочие назначения
+
+[Аудит размера и связности карточек](assurance/r25-card-audit.md) охватывает
+все parent tasks. [Правила разделения](execution/task-decomposition/README.md),
+[контуры меньших работ](execution/task-decomposition/proposals.md) и
+[work packet](execution/task-decomposition/work-packet.md) отделяют полный
+договор родителя от конкретного назначения leaf. Исходные criteria/DAG сохранены;
+реализация не начинается до E02.

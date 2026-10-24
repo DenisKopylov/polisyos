@@ -22,7 +22,7 @@
 
 **Distinguishing negative.** Missing witness/history, stale rights, missing required WAL/object, withdrawal between reconcile and enablement, unsupported reader or changed mount leaves only affected scope quarantined/historical; never reconstruct forbidden data.
 
-**Matched removal.** Remove claim-history witness or the enablement fence but keep hashes/restore markers; a false-current read is refused. Unaffected proven scopes need not wait.
+**Matched removal.** Два различающих mechanism-removal сценария на том же cut и доступных witness/history/rights/reader inputs: (1) отключить необходимую witness/history reconciliation при post-snapshot withdrawal; (2) отключить фактический enablement fence и внести withdrawal после reconciliation до fresh read. Passing baseline допускает обоснованный scope и удерживает ложный current; isolated mutant должен дойти до того же внешнего oracle и нарушить его, допустив false-current read. Missing witness — отдельный input negative. Если redundant guard сохраняет свойство, это не провал реализации: выбрать полный relevant enforcement cut по общему guide. Blanket quarantine не заменяет positive; независимо доказанный unaffected scope проходит.
 
 **Граница контекста.** This card joins the physical restore cut and current claim frontier; it does not own rights or claim history. Restore scope is derived from selected native representation and retention decision, not every historical URI. P05/P07/P08/P37/P38/P41 remain decisive.
 

@@ -1,5 +1,5 @@
 {
-  "revision": "R28",
+  "revision": "R29",
   "base_commit": "ec3d7d38b4d246b3e1d225a1c0fc9aefae9ced0d",
   "source_files": [
     {
@@ -15,7 +15,7 @@
   ],
   "selector_semantics": "task/solution prefix selects the pinned manifest row by parent ID; dot fields and zero-based bracket indices select exact content. Whole question object remains one fragment, possibly containing multiple obligations. UID counts are not counts of requirements.",
   "question_companion_resolution": "For a question_id, find task-local slices by that exact value across parents and follow each own primary route/clause_uses. This derives peer navigation without storing duplicate peer slices or implying all-peer inputs. companion_refs retains only explicitly reviewed native output-contract links not represented by a target question slice; selected contract/use controls actual composition.",
-  "accountability": "One primary route per selected source fragment. Binding is a constraint, not an implementation or receipt. Parent join consumes named actual card outputs; any missing substantive producer remains explicitly unallocated, not hidden completion.",
+  "accountability": "One primary route per selected source fragment. Compound execute clause_uses assign named subresults to existing writers/consumers; the primary receiver reconciles the whole fragment without taking their leases. Binding is a constraint, not an implementation or receipt. Parent join consumes named actual card outputs; any missing substantive producer remains explicitly unallocated, not hidden completion.",
   "parents": [
     {
       "parent": "CAP-01",
@@ -2094,7 +2094,7 @@
         {
           "to": "CAP-04.operational-records",
           "role": "execute",
-          "because": "Operational-records supplies the measured source cut/resource evidence and the prohibition on estimating workforce. Source-cut event production stays conditional on actual source/custodian support; do not synthesize an event from a metric.",
+          "because": "operational-records supplies the measured source-cut/resource evidence and does not estimate workforce or emit an LIF-02 event. clause_uses assigns conditional supported source-cut event production to existing native-events and selected delta consumption to currentness-join. Actual source/custodian support or a separately qualified bounded observation is required on its own route; measurement alone is not an event.",
           "source_fragments": [
             {
               "uid": "U062",
@@ -2286,14 +2286,14 @@
           "unit": "U062",
           "card": "CAP-04.native-events",
           "clause": "Emit/bind a source-cut event only when an authenticated source/custodian event supports the material operational/resource change; never manufacture an event from a projected budget, missing feed, owner label, or measurement alone.",
-          "role": "binding",
+          "role": "execute",
           "selector": "task.r19_extension.question_slices[3]"
         },
         {
           "unit": "U062",
           "card": "CAP-04.currentness-join",
           "clause": "When that source event or a separately qualified bounded observation is selected, carry only its supported delta to the enrolled feasibility claim through LIF-02 replay/fencing.",
-          "role": "binding",
+          "role": "execute",
           "selector": "task.r19_extension.question_slices[3]"
         },
         {
@@ -34267,7 +34267,7 @@
         {
           "to": "CNT-05.measure-profile",
           "role": "execute",
-          "because": "These clauses define/version/compute measurement basis, denominator/instrument/weights/crosswalk, sensitivity and comparison; data owner supplies definitions, metric mechanism owner computes.",
+          "because": "measure-profile computes source-qualified alternatives, denominator/weights/crosswalk and sensitivity. The same positive also requires preservation of the prior authorized choice: mandate-choice owns that selector/history limb via clause_uses; the existing parent join reads both outputs. Neither metric arithmetic nor this primary route transfers selection authority.",
           "source_fragments": [
             {
               "uid": "U003",
@@ -34867,6 +34867,13 @@
           "clause": "Require additional principal authority only for normative selection; preserve the supported conditional ranking/effect vector without it.",
           "role": "binding",
           "selector": "task.r19_extension.question_slices[9]"
+        },
+        {
+          "unit": "U003",
+          "card": "CNT-05.mandate-choice",
+          "clause": "Preserve and read back the prior authorized choice through the existing selector/history owner while measure-profile computes alternative metrics/sensitivity; join both results without granting selection authority to metric arithmetic.",
+          "role": "execute",
+          "selector": "task.positive"
         }
       ],
       "inherited_fields": [
@@ -47364,7 +47371,7 @@
         {
           "to": "DEB-09.delegation-mandate",
           "role": "execute",
-          "because": "Primary accountability is DEB-09.delegation-mandate (execute) for this parent’s source-defined R19 input collection slice: DEB-09 collects external mandate separately from signer/epoch evidence. The embedded question_id R18-D23-Q02 was matched by value to the same value in task.r19_extension.question_ids; the task and preferred-solution mirrors match by question_id value. Full slice positive/adversarial/removal and mechanism refs are retained in the immutable source slice and not narrowed here.",
+          "because": "Primary accountability is DEB-09.delegation-mandate (input collection) for R18-D23-Q02/S18-M2: search accepted history and bind the current human principal’s exact SDD amendment delegation separately from DS15 signer/mandate evidence. Absence/contestation leaves amendment proposed while authorized engineering continues. Embedded question_id and its ID selector match by value; all source positive/adversarial/removal clauses remain required.",
           "source_fragments": [
             {
               "uid": "U011",

@@ -1,6 +1,6 @@
 # Prompt: canonical implementation writer
 
-Действующий консолидированный prompt R28. Используй его вместе с заполненным
+Действующий консолидированный prompt R29. Используй его вместе с заполненным
 [work packet](../execution/task-decomposition/work-packet.md) и
 [порядком для исполнителя](../execution/work-cards/executor-guide.md).
 Реализация только после фактической приёмки E02. Не создавай детей и не делегируй.
@@ -44,7 +44,9 @@ writes/acceptance, назови точный пропуск и продолжи 
    и полный scoped rebind; mock или название задачи не доказывают readiness.
    Agreed interface разрешает предусмотренную isolated preparation, но actual
    composition/protected execution требует настоящих входов и соответствующих
-   разрешений. Подготовка соседей не ждёт полного завершения чужого parent.
+   разрешений. Preparation-only fixtures/test doubles по этому соглашению
+   допустимы в изолированном test scope; они не заменяют actual supplier evidence.
+   Подготовка соседей не ждёт полного завершения чужого parent.
 3. Свяжи предпочитаемое решение с actual source: reuse → extend → consolidate →
    new только при доказанно недостающей способности существующего owner.
    Не создавай второй scheduler/store/gate/schema owner и не меняй чужой lease.
@@ -65,7 +67,11 @@ time, rule/schema version, provenance, audience, права и replay semantics 
 Input-negative меняет вход в исправной реализации: тест ожидаемого ограничения
 проходит. Mechanism removal отключает выбранную enforcement/bridge функцию при
 тех же inputs/markers: неизменённая семантическая проверка должна **провалиться**.
-Для documentary reconciliation портится отдельная рабочая копия source/route,
+Если исходный falsifier требует удалить/подменить evidence binding при включённом
+verifier, сохранить именно этот runtime control; он не равен отключению механизма.
+Тип, область мутации, baseline и смысл verdict выбираются по
+[общему порядку проверок](../execution/work-cards/executor-guide.md#как-превратить-проверку-в-воспроизводимый-сценарий),
+а не по одному заголовку `Matched removal`. Для documentary reconciliation портится отдельная рабочая копия source/route,
 а проверка обязана обнаружить расхождение. Сохраняй baseline/candidate identities,
 полные deciding outputs, длительность и ограничения. Independent oracle применяй
 по исходному claim; labels, mocks и exit code не заменяют actual property.

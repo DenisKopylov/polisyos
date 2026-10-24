@@ -12,7 +12,7 @@
 
 **Входы.** Complete original W5 slot inventory and actual role-specific outputs from the five slot cards; complete current status.
 
-**Выход и consumer.** Versioned W5 row-to-role/scope/evidence crosswalk and unresolved slot list.
+**Выход и consumer.** Versioned W5 row-to-role/scope/evidence crosswalk and unresolved slot list. Q02 current-principal amendment standing остаётся отдельной purpose-bound записью и передаётся existing amendment process/dependent FINAL-USE, не подменяя DS15 slot.
 
 **Что можно готовить независимо.** После разрешённого исходным stage contract source/lease rebind выполнить первые действия ниже; до разрешённой стадии — только назначенное read-only discovery. Actual supplier outputs нужны при их потреблении, а не для всей независимой подготовки. Карточка не добавляет start barrier.
 
@@ -20,7 +20,7 @@
 
 **Positive.** Crosswalk сохраняет каждый original W5 slot как отдельную строку со своим owner/status/evidence need; пять slot outputs разрешаются к предназначенным строкам, и свежий reconciliation consumer подтверждает покрытие полного inventory.
 
-**Distinguishing negative.** Общий source ID, строка роли, generic signature или local default не заполняет два разных W5 slots; пропуск или подмена остаётся unresolved.
+**Distinguishing negative.** Общий source ID, строка роли, generic signature или local default не заполняет два разных W5 slots; пропуск или подмена остаётся unresolved. Это не требование разных institution IDs: один институт может присутствовать в нескольких rows при explicit mandate на каждую роль и отдельно проверенном role-bound evidence; самостоятельное требование независимости history holder сохраняется.
 
 **Matched removal.** Reconciliation probe (существующая сверка полного W5 inventory остаётся включена): объединить два original slot IDs в одну crosswalk row, сохранив `complete` marker. Сравнение с исходным inventory должно показать незакрытый слот, даже если число отображённых строк не изменилось.
 

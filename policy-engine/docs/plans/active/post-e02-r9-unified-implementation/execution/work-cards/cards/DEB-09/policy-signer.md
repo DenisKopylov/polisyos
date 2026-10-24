@@ -24,7 +24,7 @@
 
 **Matched removal.** Reconciliation probe (существующий LIF-01 verifier остаётся включён): заменить content digest или valid-time binding в signer evidence на значение другой policy/периода, сохранив verifier-role marker. Проверка должна обнаружить, что артефакт не authorizes исходный predicate-policy claim, и отказать.
 
-**Граница контекста.** Non-substitutable external role; does not substitute for transition signer or history holder.
+**Граница контекста.** Non-substitutable external role; does not substitute for transition signer or history holder. Отсутствие внешнего signer ограничивает только dependent authority-band claim/promotion; candidate construction продолжается с явно сохранённым unknown/limited status, не создавая полномочие.
 
 ## Первые действия и передача
 

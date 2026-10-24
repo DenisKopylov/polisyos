@@ -2,19 +2,19 @@
 
 Группа: [G00 — Вход в программу, интеграция и итоговый допуск](../../groups/G00.md). Родитель: [P0-ACCEPT](../../parents/P0-ACCEPT.md). Роль: `coordination`.
 
-Плановая рабочая карточка. Реализация только после E02 acceptance и exact source/lease rebind; эта запись не является execution grant или closure. [Общие правила](../../README.md).
+Документарная entry-карточка: read-only поиск и чтение уже выданного G решения не ждут завершения P0-REBIND. Root заранее назначает точный journal path/lease для записи readback; если решения G ещё нет, entry остаётся unresolved. Запись не выдаёт acceptance и не разрешает продуктовую реализацию до фактической приёмки E02 и scoped source rebind. [Общие правила](../../README.md).
 
 **Проверяемый результат.** Only the existing competent G decision, bound to its exact accepted source, scope, inputs, backends, limitations and authority boundary, opens the named entry scope.
 
 **Предпочтительное решение.** Use the existing G acceptance owner and decision; resolve immutable commit/tree identity and append source-qualified root evidence.
 
-**Граница владельца.** Root owns the read-back journal only; the G owner alone issues the decision. Use the parent native exact-path lease family; exact paths remain unresolved until E02 rebind.
+**Граница владельца.** Root writes only the existing read-back journal under its explicitly assigned exact-path lease; the G owner alone issues the decision. P0-REBIND subsequently binds product owner/code paths. Its completion is not a prerequisite for this documentary readback.
 
 **Входы.** Existing G decision and its competent owner; accepted source/input/backend/profile identities.
 
 **Выход и consumer.** Read-back acceptance record with immutable source/tree, precise admitted scope, inputs, backends, limitations, exclusions and decision provenance.
 
-**Что можно готовить независимо.** После разрешённого исходным stage contract source/lease rebind выполнить первые действия ниже; до разрешённой стадии — только назначенное read-only discovery. Actual supplier outputs нужны при их потреблении, а не для всей независимой подготовки. Карточка не добавляет start barrier.
+**Что можно готовить независимо.** Read-only найти решение компетентного G, проверить доступность exact refs и подготовить его сверку. Append в root journal выполняется по собственному назначенному lease после фактического чтения решения; неподтверждённые поля остаются unresolved. Не ждать будущего глобального product rebind и не открывать entry по topic head или шаблону.
 
 **Где результат соединяется с другими.** Read the named output through P0-REBIND root journal consumes this exact accepted decision and opens only matched scopes.; composition is limited to this property and the exact original scope.
 

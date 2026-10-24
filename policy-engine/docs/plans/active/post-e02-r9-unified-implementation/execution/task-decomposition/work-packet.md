@@ -5,7 +5,7 @@
 Не заполнять неизвестные inputs выдуманными defaults. Неразрешённая обязательная
 граница препятствует affected dispatch/acceptance по существующим stage rules.
 
-[Порядок R28 для исполнителя](../work-cards/executor-guide.md) объясняет заполнение.
+[Порядок R29 для исполнителя](../work-cards/executor-guide.md) объясняет заполнение.
 Root выдаёт заполненный packet с действующим operative смыслом. Ссылки на прежние
 редакции обеспечивают трассировку, но не заставляют leaf собирать действующее
 задание по истории. Unknown source/path можно назначить как read-only discovery;
@@ -64,6 +64,9 @@ coordinating leases/consumer changes явно; название карточки
 Для каждого supplier назвать output, owning task, требуемую **стадию** и actual
 ref либо agreed interface для preparation. Отдельно completion composition join;
 не использовать одну общую dependency list для этих разных отношений.
+Изолированные fixtures/test doubles по pinned реальному соглашению допустимы
+только как preparation evidence; они не выдают actual supplier output для
+composition/protected use/acceptance и не передают lease supplier к consumer.
 
 Указать `root_journal_ref`: точный путь/ref действующего журнала назначений и
 его наблюдаемую revision; приложить относящиеся к этому packet lease/dispatch entries.
@@ -78,7 +81,8 @@ mandatory companions, ресурсы и stop/recovery rule. При неизве�
 
 - Полезный positive через реальный native path и свежего consumer.
 - Distinguishing negative, включая ближайший sibling consumer/границу.
-- Matched removal, при котором markers остаются, а свойство исчезает.
+- Source-required matched control: назвать удаляемый/подменяемый binding или
+  механизм, сохраняемые declarations и неизменный observable/oracle.
 - Полный selected denominator, источники oracle, необходимые compatibility и
   migration cases; фактические проверки только под ресурсным разрешением.
 - Конкретный downstream join и его owner; ограничения локального результата.
@@ -90,7 +94,12 @@ mandatory companions, ресурсы и stop/recovery rule. При неизве�
 запуска. Input negative и mechanism removal — разные строки: при испорченном
 входе исправный consumer ограничивает/отказывает и тест проходит; при отключённом
 механизме неизменённый semantic test должен провалиться. Documentary corruption
-портит отдельную копию evidence/route при действующем reconciliation. Не требовать,
+портит отдельную копию evidence/route при действующем reconciliation. Если исходный
+criterion требует подмену evidence при включённом native verifier, это runtime
+binding-substitution control, а не documentary check или code-removal proof.
+Для code mutation указать изолированные paths/lease, paired baseline и mutant;
+setup crash не заменяет достигнутое наблюдение нарушенного свойства. Правило
+redundant guards и полного enforcement cut — в общем executor guide. Не требовать,
 чтобы отключённый guard сам продолжал защищать свойство. Сценарии — witnesses
 полного criterion, не разрешение сузить набор profiles/consumers до примера.
 

@@ -46,7 +46,7 @@ Source-manifest base: `ec3d7d38b4d246b3e1d225a1c0fc9aefae9ced0d`; это не pl
 
 ### Обязанности внутри составных fragments
 
-- `solution.preferred_solution` — For the snapshot-comparison route, CAP-02 supplies comparable permitted observations and CAP-04 persists exact observed old/new representations, selector/profile/coverage and acquisition times without inventing source-effective time or inter-poll completeness. (primary accountability остаётся в coverage; это конкретный подрезультат, не второй writer).
+- `solution.preferred_solution` — **binding**: For the snapshot-comparison route, CAP-02 supplies comparable permitted observations and CAP-04 persists exact observed old/new representations, selector/profile/coverage and acquisition times without inventing source-effective time or inter-poll completeness. (primary accountability остаётся в coverage; конкретный подрезультат существующего owner, не второй writer).
 
 Inherited owner/lease/stage/activation constraints указаны в parent contract. Root/lead проверяет полное parent coverage; output этой карточки не закрывает siblings. При обнаружении пропуска остановить только affected writes/acceptance, назвать точный clause и reconciled next owner.
 

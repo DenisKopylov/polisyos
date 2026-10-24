@@ -54,7 +54,7 @@ Source-manifest base: `ec3d7d38b4d246b3e1d225a1c0fc9aefae9ced0d`; это не pl
 
 - **execute** — These clauses define/version/compute measurement basis, denominator/instrument/weights/crosswalk, sensitivity and comparison; data owner supplies definitions, metric mechanism owner computes.
   `task.deliverable`
-- **execute** — These clauses define/version/compute measurement basis, denominator/instrument/weights/crosswalk, sensitivity and comparison; data owner supplies definitions, metric mechanism owner computes.
+- **execute** — measure-profile computes source-qualified alternatives, denominator/weights/crosswalk and sensitivity. The same positive also requires preservation of the prior authorized choice: mandate-choice owns that selector/history limb via clause_uses; the existing parent join reads both outputs. Neither metric arithmetic nor this primary route transfers selection authority.
   `task.positive`
 - **execute** — These clauses define/version/compute measurement basis, denominator/instrument/weights/crosswalk, sensitivity and comparison; data owner supplies definitions, metric mechanism owner computes.
   `task.surface[0]`
@@ -91,8 +91,8 @@ Source-manifest base: `ec3d7d38b4d246b3e1d225a1c0fc9aefae9ced0d`; это не pl
 
 ### Обязанности внутри составных fragments
 
-- `task.r19_extension.question_slices[4]` — Produce qualified conditional calculations, value-order alternatives, input/method/rights/currentness bindings and existing result-support status. (primary accountability остаётся в coverage; это конкретный подрезультат, не второй writer).
-- `task.r19_extension.question_slices[7]` — Preserve denominator alternatives and disclose outcome-driven metric/source selection. (primary accountability остаётся в coverage; это конкретный подрезультат, не второй writer).
+- `task.r19_extension.question_slices[4]` — **binding**: Produce qualified conditional calculations, value-order alternatives, input/method/rights/currentness bindings and existing result-support status. (primary accountability остаётся в coverage; конкретный подрезультат существующего owner, не второй writer).
+- `task.r19_extension.question_slices[7]` — **binding**: Preserve denominator alternatives and disclose outcome-driven metric/source selection. (primary accountability остаётся в coverage; конкретный подрезультат существующего owner, не второй writer).
 
 Inherited owner/lease/stage/activation constraints указаны в parent contract. Root/lead проверяет полное parent coverage; output этой карточки не закрывает siblings. При обнаружении пропуска остановить только affected writes/acceptance, назвать точный clause и reconciled next owner.
 

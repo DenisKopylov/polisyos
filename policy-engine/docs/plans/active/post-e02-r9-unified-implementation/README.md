@@ -8,9 +8,9 @@
 
 ## Как читать
 
-Для назначения работ начните с [R28: краткий обзор групп и точные количества](execution/work-cards/overview.md) и [рабочих карточек](execution/work-cards/README.md). Исходные parents и критерии остаются в manifest; новая карта уменьшает контекст конкретного назначения.
+Для назначения работ начните с [R29: краткий обзор групп и точные количества](execution/work-cards/overview.md) и [рабочих карточек](execution/work-cards/README.md). Исходные parents и критерии остаются в manifest; новая карта уменьшает контекст конкретного назначения.
 
-1. [Executive summary R13 — PDF, 10 страниц](executive/summary.pdf), [текст с отметкой версии](executive/summary.md) и дополнения [R14](executive/r14-capabilities.md) / [R15](executive/r15-adaptive-and-models.md) / [R16](executive/r16-composed-models.md) / [R17](executive/r17-design-lifetimes.md) / [R19](executive/r19-full-lifecycle-solutions.md). Общее review — [R20](assurance/r20-general-review.md); самостоятельный delta и устранённые free-grow барьеры — [R21](assurance/r21-self-review.md); redteam технических стыков — [R22](assurance/r22-redteam.md); самостоятельный разбор — [R23](assurance/r23-self-review.md); актуальный redteam — [R24](assurance/r24-redteam.md).
+1. [Executive summary R13 — PDF, 10 страниц](executive/summary.pdf), [текст с отметкой версии](executive/summary.md) и дополнения [R14](executive/r14-capabilities.md) / [R15](executive/r15-adaptive-and-models.md) / [R16](executive/r16-composed-models.md) / [R17](executive/r17-design-lifetimes.md) / [R19](executive/r19-full-lifecycle-solutions.md). Общее review — [R20](assurance/r20-general-review.md); самостоятельный delta и устранённые free-grow барьеры — [R21](assurance/r21-self-review.md); redteam технических стыков — [R22](assurance/r22-redteam.md); самостоятельный разбор — [R23](assurance/r23-self-review.md); исторический redteam — [R24](assurance/r24-redteam.md).
 2. [Границы, источники и правила перехода](execution/01-charter-and-entry.md).
 3. [Сверенный остаток](inventory/README.md), [исходные версии](inventory/sources.json), полные GY/Atlas/debt crosswalks.
 4. [Архитектура композиции](architecture/01-integration-boundaries.md): кто пишет общий механизм, кто только потребляет.
@@ -134,3 +134,5 @@ service commitments, actual-read integrity и lawful retained-use границы
 ## R28: конкретное назначение исполнителю
 
 [Порядок работы](execution/work-cards/executor-guide.md), [консолидированный writer prompt](prompts/writer.md) и [результат ревью](assurance/r28-executor-clarity.md) уточняют первые действия, границы записи, supplier/consumer handoffs и различие input-negative, mechanism removal и документарной сверки. Исправлены три маршрута acceptance в OPS-05 и устаревшие audit-пояснения. Исходные manifests, 262 карточки, 121 parent, 11 групп и task dependencies сохранены; конкретные команды и leases привязываются к фактически принятому E02. Реализация сейчас не начинается.
+
+R29: [редтим с позиции исполнителя и исправления](assurance/r29-executor-redteam.md). Первые действия, compound ownership и различающие проверки уточнены без изменения source manifests, числа задач или зависимостей; реализация остаётся после приёмки E02.

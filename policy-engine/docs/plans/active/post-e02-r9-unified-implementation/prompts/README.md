@@ -10,7 +10,7 @@ R19 companion входит в orchestrator/lead/writer/supplier/reviewer/verific
 
 Начальная единица назначения — [рабочая карточка](../execution/work-cards/README.md) с `{work_card_id}`, `{plan_commit}` и exact clauses из coverage. [Группа](../execution/work-cards/overview.md) показывает назначение, parent page — siblings и общий join. Root/lead сохраняет весь parent scope; leaf не читает все группы. Проверяйте conditional/execution relations отдельно от direct preparation edges.
 
-R28: [порядок для исполнителя](../execution/work-cards/executor-guide.md) и
+R29: [порядок для исполнителя](../execution/work-cards/executor-guide.md) и
 консолидированный writer prompt применяют все назначенные source clauses без
 чтения истории редакций как дополнительного задания. Root заполняет первые
 действия, native owner/consumer, actual refs и сценарии проверок в packet.

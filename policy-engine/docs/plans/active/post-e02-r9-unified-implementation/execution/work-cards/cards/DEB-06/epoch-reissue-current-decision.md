@@ -20,7 +20,7 @@
 
 **Positive.** При материальном изменении owning PolicyOS claim и корректном source cut/expected head обе parent refs и merge premise сохраняются в append-only successor; LIF-02 пишет его, fresh UI-19 читает typed current/replay result, а прежний as-known issue остаётся доступен.
 
-**Distinguishing negative.** Correction/comment/incident/rerun/candidate ID или numerical success без материального claim change не создаёт successor; stale/unbound head не становится current. Для protected production отсутствие issuer admission даёт refusal, но не блокирует candidate construction; missing origin и programming/configuration error имеют разные статусы.
+**Distinguishing negative.** Correction/comment/incident/rerun/candidate ID или numerical success без материального claim change не создаёт successor; stale/unbound head не становится current. Для protected production отсутствие issuer admission даёт refusal, но не блокирует candidate construction; missing origin и programming/configuration error имеют разные статусы. Отдельно предъявить unrelated predecessor bases и stale merge origin: они не могут стать generic valid/unavailable; existing typed refusal/limitation должна сохранить причину и затронутый scope.
 
 **Matched removal.** Отключить source-cut/expected-head/issuer consumption, сохранив epoch labels и success markers; неизменённый protected-reissue test должен упасть, если current successor принимается без этих bindings, а прежний issue остаётся сохранён.
 

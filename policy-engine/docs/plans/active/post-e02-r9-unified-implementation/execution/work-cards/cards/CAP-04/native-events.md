@@ -56,8 +56,8 @@ Source-manifest base: `ec3d7d38b4d246b3e1d225a1c0fc9aefae9ced0d`; это не pl
 
 ### Обязанности внутри составных fragments
 
-- `task.migration` — Do not infer enrollment from positive references or verified events from URL changes. (primary accountability остаётся в coverage; это конкретный подрезультат, не второй writer).
-- `task.r19_extension.question_slices[3]` — Emit/bind a source-cut event only when an authenticated source/custodian event supports the material operational/resource change; never manufacture an event from a projected budget, missing feed, owner label, or measurement alone. (primary accountability остаётся в coverage; это конкретный подрезультат, не второй writer).
+- `task.migration` — **binding**: Do not infer enrollment from positive references or verified events from URL changes. (primary accountability остаётся в coverage; конкретный подрезультат существующего owner, не второй writer).
+- `task.r19_extension.question_slices[3]` — **execute**: Emit/bind a source-cut event only when an authenticated source/custodian event supports the material operational/resource change; never manufacture an event from a projected budget, missing feed, owner label, or measurement alone. (primary accountability остаётся в coverage; конкретный подрезультат существующего owner, не второй writer).
 
 Inherited owner/lease/stage/activation constraints указаны в parent contract. Root/lead проверяет полное parent coverage; output этой карточки не закрывает siblings. При обнаружении пропуска остановить только affected writes/acceptance, назвать точный clause и reconciled next owner.
 

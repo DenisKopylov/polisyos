@@ -1,5 +1,5 @@
 {
-  "revision": "R28",
+  "revision": "R29",
   "kind": "documentation_work_card_navigation_not_runtime_schema_or_progress_tracker",
   "base_commit": "ec3d7d38b4d246b3e1d225a1c0fc9aefae9ced0d",
   "base_commit_semantics": "Immutable source-manifest base, distinct from the current plan_commit supplied by the dispatch packet.",
@@ -12207,7 +12207,7 @@
         "DEB-09.epoch-qualification",
         "DEB-09.w5-crosswalk"
       ],
-      "parent_join": "policy-signer emits Role-specific source-qualified signer admission or typed-empty/refusal.; transition-identity emits Role-bound transition/producer admission or explicit typed-empty status.; history-holder emits Coverage-bound verified history receipt or typed incomplete-history refusal.; delegation-mandate emits Scope-bound delegation/mandate admission or typed-empty status.; epoch-qualification emits Purpose-scoped qualification/admission result with explicit typed refusal.; w5-crosswalk emits Versioned W5 row-to-role/scope/evidence crosswalk and unresolved slot list.. Root reconciles these exact outputs at the original parent disposition and sends the composed result to Fresh scientist/validation/decision_validity epoch/claim consumer and selected DS15 admission-bundle consumer.. This join does not create implementation, a second owner, or an extra start gate.",
+      "parent_join": "policy-signer emits Role-specific source-qualified signer admission or typed-empty/refusal.; transition-identity emits Role-bound transition/producer admission or explicit typed-empty status.; history-holder emits Coverage-bound verified history receipt or typed incomplete-history refusal.; delegation-mandate emits Scope-bound delegation/mandate admission or typed-empty status.; epoch-qualification emits Purpose-scoped qualification/admission result with explicit typed refusal.; w5-crosswalk emits Versioned W5 row-to-role/scope/evidence crosswalk and unresolved slot list.. Root reconciles these exact outputs at the original parent disposition and sends the composed result to Fresh scientist/validation/decision_validity epoch/claim consumer and selected DS15 admission-bundle consumer.. This join does not create implementation, a second owner, or an extra start gate. Separately, delegation-mandate collects Q02 exact human-principal amendment standing from accepted history; root routes that scoped record to the existing amendment decision process and FINAL-USE only when the selected use depends on the amendment. Missing/contested standing leaves the amendment proposed and does not block authorized engineering under current rules.",
       "parent_join_cards": [
         "DEB-09.policy-signer",
         "DEB-09.transition-identity",
@@ -12216,7 +12216,7 @@
         "DEB-09.epoch-qualification",
         "DEB-09.w5-crosswalk"
       ],
-      "parent_join_consumer": "Fresh scientist/validation/decision_validity.py consumes role-bound epoch evidence only for a dependent authority claim; selected DS15 route admission consumes signed delegation/current mandate only when that route requires it. GYD-01 S7 HumanDecision and GYD-15 N8 remain their own applied consumers.",
+      "parent_join_consumer": "Fresh scientist/validation/decision_validity.py consumes role-bound epoch evidence only for a dependent authority claim; selected DS15 route admission consumes signed delegation/current mandate only when that route requires it. GYD-01 S7 HumanDecision and GYD-15 N8 remain their own applied consumers. Q02 standing goes separately to the existing amendment decision process and conditional FINAL-USE; no amendment is ratified by this intake.",
       "overload_review": "Five non-substitutable external roles require separate evidence slots; W5 crosswalk is a consumer/coordination result, not an appointment service.",
       "dependency_routes": [
         {
@@ -16481,7 +16481,7 @@
       }
     }
   ],
-  "current_review_ref": "../../assurance/r28-executor-clarity.md",
+  "current_review_ref": "../../assurance/r29-executor-redteam.md",
   "review_inputs_semantics": "Historical R26 scratch provenance; may be unavailable in another checkout. Operative scope comes from tracked source manifests, current work cards and actual dispatch packet/journal, not scratch receipts.",
   "review_inputs": [
     {

@@ -60,10 +60,11 @@ Source-manifest base: `ec3d7d38b4d246b3e1d225a1c0fc9aefae9ced0d`; это не pl
 
 ### Обязанности внутри составных fragments
 
-- `task.r15_extension.requirement` — Preserve alternative value orders and principal-authorized hard floors independently of metric arithmetic; a supported conditional result does not require a collective winner. (primary accountability остаётся в coverage; это конкретный подрезультат, не второй writer).
-- `task.r19_extension.question_slices[4]` — Bind real principal/remit only for normative selection; absence blocks collective winner, not a grounded conditional result. (primary accountability остаётся в coverage; это конкретный подрезультат, не второй writer).
-- `task.r19_extension.question_slices[8]` — Require current principal/rule/version authority only when claiming a normative selected winner; hypothetical weights remain assumptions. (primary accountability остаётся в coverage; это конкретный подрезультат, не второй writer).
-- `task.r19_extension.question_slices[9]` — Require additional principal authority only for normative selection; preserve the supported conditional ranking/effect vector without it. (primary accountability остаётся в coverage; это конкретный подрезультат, не второй writer).
+- `task.r15_extension.requirement` — **binding**: Preserve alternative value orders and principal-authorized hard floors independently of metric arithmetic; a supported conditional result does not require a collective winner. (primary accountability остаётся в coverage; конкретный подрезультат существующего owner, не второй writer).
+- `task.r19_extension.question_slices[4]` — **binding**: Bind real principal/remit only for normative selection; absence blocks collective winner, not a grounded conditional result. (primary accountability остаётся в coverage; конкретный подрезультат существующего owner, не второй writer).
+- `task.r19_extension.question_slices[8]` — **binding**: Require current principal/rule/version authority only when claiming a normative selected winner; hypothetical weights remain assumptions. (primary accountability остаётся в coverage; конкретный подрезультат существующего owner, не второй writer).
+- `task.r19_extension.question_slices[9]` — **binding**: Require additional principal authority only for normative selection; preserve the supported conditional ranking/effect vector without it. (primary accountability остаётся в coverage; конкретный подрезультат существующего owner, не второй writer).
+- `task.positive` — **execute**: Preserve and read back the prior authorized choice through the existing selector/history owner while measure-profile computes alternative metrics/sensitivity; join both results without granting selection authority to metric arithmetic. (primary accountability остаётся в coverage; конкретный подрезультат существующего owner, не второй writer).
 
 Inherited owner/lease/stage/activation constraints указаны в parent contract. Root/lead проверяет полное parent coverage; output этой карточки не закрывает siblings. При обнаружении пропуска остановить только affected writes/acceptance, назвать точный clause и reconciled next owner.
 

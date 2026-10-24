@@ -1,4 +1,4 @@
-# R28: рабочие карточки по способностям системы
+# R29: рабочие карточки по способностям системы
 
 Это основной навигатор будущих назначений после R25. Реализация начинается
 только после фактической приёмки E02. Карточки уточняют работу, но не выдают
@@ -7,6 +7,7 @@ resource/authority/write grants и не объявляют capability приня
 [Короткий обзор и количества](overview.md) · [Машинная карта](registry.json) ·
 [Маршруты исходных требований](coverage.json) ·
 [Первые действия, проверки и передача результата](executor-guide.md) ·
+[Редтим для исполнителя R29](../../assurance/r29-executor-redteam.md) ·
 [Уточнения для исполнителя R28](../../assurance/r28-executor-clarity.md) ·
 [Редтим и исправления R27](../../assurance/r27-card-redteam.md); [историческая проверка R26](../../assurance/r26-grouping-review.md).
 
@@ -55,7 +56,7 @@ receiver обязан собрать названные supplier outputs и пр
 
 `companion_refs` ведут к существующим task-local scopes других owners; это navigation, не новые write assignments или all-peer prerequisites. Для карточки обязательны только её selected contract/use и actual supplier outputs.
 
-`clause_uses` явно назначает подрезультаты составного fragment другим карточкам; это не второй primary route и не двойной счёт требования. Индексы массивов применимы только
+`clause_uses` явно назначает подрезультаты составного fragment другим карточкам; это не второй primary route и не двойной счёт требования. `execute` назначает реальный подрезультат существующему writer/consumer, `binding` сохраняет ограничение и не доказывает реализацию. Primary receiver собирает весь fragment, но не получает чужой write lease. Root отражает эти роли в packet и именует actual output/join; одного binding на producer недостаточно для исполнения producer limb. Индексы массивов применимы только
 к указанной версии; изменение источника вызывает affected rebind.
 
 R19 `question_ids` и `question_slices` соединяются **по значению question_id**. Порядок массивов может различаться. В coverage оба source selectors показывают фактический ID и одного accountable receiver; смешанный вопрос сохраняет конкретные secondary clauses. Техническая перестановка массива не меняет исполнителя.

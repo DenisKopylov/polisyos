@@ -8,7 +8,7 @@
 
 **Предпочтительное решение.** Reuse acquisition_planner.py SearchLedger/refusal and native UI-17; appoint metric owner/oracle, persist versioned result, and keep CAP-03 as sole cost writer.
 
-**Граница владельца.** Metric producer owns VOI formula/artifact; CAP-03 alone writes cost. DEB-13 reads CAP-03 cost only for net/ENBS or cost-sensitive selected routes. Native exact-path lease family; exact paths unresolved until E02.
+**Граница владельца.** Metric producer owns VOI formula/artifact; CAP-03 alone writes cost. DEB-13 reads CAP-03 cost only for net/ENBS or cost-sensitive selected routes. Native exact-path lease family; exact paths unresolved until E02. Atlas/DS15 scope owner под координацией P0/root commissions native metric/decision owner; при отсутствии producer DEB-13 исследует и предлагает extension этого owner, затем реализует после actual owner decision. UI-17 остаётся consumer, не вторым metric writer.
 
 **Входы.** Owner decision and estimand/oracle; versioned source inputs and actual fresh DS15/UI-17 route; conditional CAP-03 persisted cost for net/ENBS/cost-sensitive use only.; UI-17 actual route acceptance is composed with the persisted supported metric/refusal; cost-sensitive conditions remain as specified and do not gate preparation.
 
@@ -18,21 +18,22 @@
 
 **Где результат соединяется с другими.** Read the named output through Fresh DS15/UI-17 selected-route consumer; CAP-03 receipt is consumed only when the selected metric requires cost.; composition is limited to this property and the exact original scope.
 
-**Positive.** Для owner-commissioned finite case с заданным набором actions exact finite-sum EVSI recomputation совпадает с независимым oracle и меняется при смене owner-bound utility/likelihood. Без CAP-03 cost тот же gross EVSI остаётся доступен с явной cost limitation; net/ENBS route не проходит без соответствующей стоимости.
+**Positive.** Для выбранных finite alternatives/state/observation law exact finite-sum gross EVSI совпадает с независимым oracle в declared tolerance; zero-information/irrelevant-observation case даёт ноль в этой tolerance. Смена bound utility/likelihood меняет результат когда это следует из oracle. Explicit hypothetical/unqualified, но полностью заданные inputs дают labeled conditional gross estimate, не policy value. Для qualified policy-value/rank нужны соответствующие owner-bound основания. Missing cost не стирает supported gross; supplied compatible CAP-03 cost позволяет отдельно проверить net/ENBS.
 
-**Distinguishing negative.** Неизвестная utility, observation law, population или horizon, entropy вместо decision-specific EVSI либо caller-supplied ranking сохраняет typed refusal. Отсутствие cost блокирует только net/ENBS/cost-sensitive use, не поддержанный gross EVSI.
+**Distinguishing negative.** Отсутствующий обязательный model input (utility, observation law, population/horizon для selected estimand) не заменяется числом. Полностью заданные hypothetical inputs сохраняют conditional result с исходными limits, но не authority. Entropy/compute VOI или caller ranking не становятся decision EVSI. Missing cost ограничивает net/ENBS/cost-sensitive rank, missing capacity/window/deadline — feasibility/resource-constrained rank; ни то ни другое само не уничтожает gross EVSI. Неизвестное перекрытие observations не объявляется независимостью.
 
-**Matched removal.** Reconciliation probe (существующий DS15 recomputing consumer остаётся включён): заменить owner-bound likelihood в source input, сохранив предыдущий metric artifact и `EVSI`/`ranked` markers. Consumer должен обнаружить несовпадение binding и пересчитать значение либо вернуть typed refusal; сохранение старого результата нарушает неизменённое утверждение о recomputation.
+**Matched removal.** Native binding-substitution controls с включённым recomputing consumer и сохранёнными metric/ranked markers: удалить owner decision для supported policy-value/rank use или подменить measure/expected cost — consumer пересчитывает затронутый результат либо typed refuses/limits, не сохраняет прежний green. Отдельно сменить utility/likelihood при прежнем artifact; снять cost — withheld net/cost rank при сохранении supported gross; снять capacity — withheld feasibility/constrained rank. Эти controls не заменяются одним likelihood-тестом и не выдаются за code-guard removal; conditional estimate сохраняет свои явно заданные assumptions.
 
 **Граница контекста.** One sequence retains formula-to-artifact-to-consumer; do not split arithmetic from use or merge cost ownership into VOI.
 
 ## Первые действия и передача
 
-1. Заново перечислить реальные `metric_residual_granularity_not_supported` rows и составить per-row matrix: target decision, supported basis и отсутствующие utility/likelihood/population/horizon inputs.
-2. Подготовить owner decision record с выбранным estimand (EVPI/EVPPI/EVSI/ENBS), action set, utility/loss units, state prior, observation law, population и horizon; не начинать с произвольного числа.
-3. Согласовать маленький exact finite oracle на owner-admitted inputs и отдельную CAP-03 cost link только для net/ENBS или cost-sensitive route.
+1. Перечислить весь фактический набор `metric_residual_granularity_not_supported` rows после E02; исторические 15 — baseline, не лимит. Для каждой строки зафиксировать target decision, supported/conditional basis и отсутствующие inputs. Готовый обоснованный subset не ждёт всех остальных.
+2. Atlas/DS15 scope owner с P0/root commissions native metric owner. DEB-13 находит существующий producer либо готовит конкретное extension proposal и owner decision; не возвращает отсутствие внутреннего кода как external hold. Выбрать estimand, alternatives, utility/units, prior, observation law, population и horizon.
+3. Задать small independent oracle и tolerance, zero-information и changed-input cases; explicit hypothetical inputs отделить от qualified policy-value basis. CAP-03 cost связывается только для net/cost use, capacity — только для feasibility/constrained rank.
+4. Persist source-bound metric/refusal и прочитать его fresh DS15/UI-17 consumer; проверить owner/measure/cost/capacity falsifiers и отдельный outcome каждой исходной строки. Joint portfolio использует joint observation law/overlap, не сумму standalone EVSI; shared model/rank owners не дублируются.
 
-**Ответственность и handoff.** Назначение native metric/decision owner — внутренняя product decision. CAP-03 остаётся единственным cost writer; отсутствие внутренних producer/bridge — инженерная работа, а не внешний blocker. Число из литературы не создаёт PolicyOS authority.
+**Ответственность и handoff.** Native metric owner владеет формулой/artifact и квалифицированным decision basis, CAP-03 — стоимостью, UI-17 — projection. Внутренний commissioning/bridge имеет named engineering owner; реальные law/utility/rights inputs не выдумываются. Conditional gross computation не требует внешнего endorsement, а его число не даёт policy authority.
 
 Порядок действий внутри назначения не добавляет dependency edges. Примеры проверок дополняют полный назначенный criterion; actual commands/paths закрепляются в [packet](../../../task-decomposition/work-packet.md) после source rebind.
 

@@ -71,3 +71,7 @@ evidence по полному исходному scope; локальные PASS �
 stages к реальным input/output, без порядка по номерам slices. Новые plan/source/
 contract изменения требуют semantic delta rebind affected packets. Никаких
 реализаций до фактической приёмки E02; historical approvals не расширяются.
+
+### R26: конкретные назначения внутри способности
+
+Используй [рабочие карточки и группы](../execution/work-cards/README.md). Выдай exact card ID и plan commit; сверь назначенные clauses и inherited contract с accepted source. Parent page задаёт named outputs и fresh consumer общего join; group — только навигация, не новый owner и не стартовый барьер. Один native writer сохраняется при нескольких карточках. Для mixed source fragment проверь все named sub-results, а не только primary route. Не назначай один и тот же механизм двум writers из разных групп. Unknown internal owner/path — порученная discovery/rebind работа; реальные внешние authority inputs остаются отдельными.

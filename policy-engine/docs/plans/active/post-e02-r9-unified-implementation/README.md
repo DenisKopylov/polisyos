@@ -8,6 +8,8 @@
 
 ## Как читать
 
+Для назначения работ начните с [R26: краткий обзор групп и точные количества](execution/work-cards/overview.md) и [рабочих карточек](execution/work-cards/README.md). Исходные parents и критерии остаются в manifest; новая карта уменьшает контекст конкретного назначения.
+
 1. [Executive summary R13 — PDF, 10 страниц](executive/summary.pdf), [текст с отметкой версии](executive/summary.md) и дополнения [R14](executive/r14-capabilities.md) / [R15](executive/r15-adaptive-and-models.md) / [R16](executive/r16-composed-models.md) / [R17](executive/r17-design-lifetimes.md) / [R19](executive/r19-full-lifecycle-solutions.md). Общее review — [R20](assurance/r20-general-review.md); самостоятельный delta и устранённые free-grow барьеры — [R21](assurance/r21-self-review.md); redteam технических стыков — [R22](assurance/r22-redteam.md); самостоятельный разбор — [R23](assurance/r23-self-review.md); актуальный redteam — [R24](assurance/r24-redteam.md).
 2. [Границы, источники и правила перехода](execution/01-charter-and-entry.md).
 3. [Сверенный остаток](inventory/README.md), [исходные версии](inventory/sources.json), полные GY/Atlas/debt crosswalks.
@@ -118,3 +120,7 @@ service commitments, actual-read integrity и lawful retained-use границы
 [work packet](execution/task-decomposition/work-packet.md) отделяют полный
 договор родителя от конкретного назначения leaf. Исходные criteria/DAG сохранены;
 реализация не начинается до E02.
+
+## R26: рабочие карточки и цепочки способностей
+
+[Группы и количества](execution/work-cards/overview.md), [карточки и routes](execution/work-cards/registry.json), [сохранение исходного scope](execution/work-cards/coverage.json) и [проверка декомпозиции](assurance/r26-grouping-review.md). Результаты R9, GY, Atlas и долгов соединены по назначению способности; прежние ID/DAG/owners сохранены. Группы не являются модулями, очередями или новыми владельцами. Реализация остаётся после фактической приёмки E02.

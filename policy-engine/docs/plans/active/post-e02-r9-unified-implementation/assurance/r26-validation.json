@@ -1,0 +1,65 @@
+{
+  "revision": "R26",
+  "status": "PASS",
+  "base_commit": "ec3d7d38b4d246b3e1d225a1c0fc9aefae9ced0d",
+  "scope": "Documentation structural readback; no product execution or semantic completeness theorem.",
+  "counts": {
+    "parent_tasks": 121,
+    "work_cards": 261,
+    "groups": 11,
+    "cards_by_group": {
+      "G01": 20,
+      "G06": 31,
+      "G10": 38,
+      "G09": 37,
+      "G07": 34,
+      "G05": 22,
+      "G02": 23,
+      "G08": 21,
+      "G03": 21,
+      "G04": 8,
+      "G00": 6
+    },
+    "cards_by_kind": {
+      "consumer": 94,
+      "mechanism": 74,
+      "verification": 65,
+      "input": 19,
+      "coordination": 9
+    },
+    "primary_source_fragments": 7196,
+    "inherited_field_dispositions": 3711,
+    "supplemental_clause_uses": 54,
+    "original_direct_edges": 368,
+    "consumption_routes": 461,
+    "interface_reference_routes": 19,
+    "card_markdown_files": 261,
+    "all_work_card_markdown_files": 395,
+    "local_link_targets_checked": 3732
+  },
+  "checks_total": 9863,
+  "failed_checks": [],
+  "failed_reads": [],
+  "limits": [
+    "Selectors prove unchanged pinned source fragment routing; whole fragments can contain multiple obligations.",
+    "Source text and linked semantic obligations require actual independent/root review; path presence is not proof of runtime ownership or implementation.",
+    "Actual E02 source/path/consumer/resource rebind and selected conditional inputs remain necessary before implementation.",
+    "Markdown local file existence is checked; all arbitrary historical anchors/external URLs are not revalidated."
+  ],
+  "product_verification": "UNRUN",
+  "independent_review_receipts": [
+    {
+      "path": "policy-engine/_build/post-e02-r26-groups-20261024/cross-review.md",
+      "sha256": "94339ff0cf2d7ad92e3e53806170db435af40de5713dff1b61e2265066310dba"
+    },
+    {
+      "path": "policy-engine/_build/post-e02-r26-groups-20261024/cross-review-delta.md",
+      "sha256": "62a7910573d71c014ebcc79d10f4f1a1ecb066d92bd649f1ecabe2637d778bb3"
+    }
+  ],
+  "measurement_receipt": {
+    "path": "policy-engine/_build/post-e02-r26-groups-20261024/full-validation.json",
+    "sha256": "5f42600ab6e82f4c8f9f0367b63618cf2c2706e2229382639942fa0784a54a27",
+    "actual_files_read": 417
+  }
+}

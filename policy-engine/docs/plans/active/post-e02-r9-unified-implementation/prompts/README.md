@@ -7,3 +7,5 @@ Resolve placeholders before dispatch. A worker receives a ready, bounded work pa
 The prompt is an implementation aid, not a replacement for canonical AGENTS/CONTRIBUTING, actual E02 acceptance, original criteria or commissioned authority. Unavailable external evidence stays scoped; implementation research and independent tasks continue.
 
 R19 companion входит в orchestrator/lead/writer/supplier/reviewer/verification prompts: [84 решения](../solutions/lifecycle-r19/README.md), [диспетчеризация](../execution/10-full-lifecycle-parallelism.md). В grant указываются только относящиеся к назначенной работе exact slices и стадии; перечень 84 не является единым блокирующим gate.
+
+R26: начальная единица назначения — [рабочая карточка](../execution/work-cards/README.md) с `{work_card_id}`, `{plan_commit}` и exact clauses из coverage. [Группа](../execution/work-cards/overview.md) показывает назначение, parent page — siblings и общий join. Root/lead сохраняет весь parent scope; leaf не читает все группы. Проверяйте conditional/execution relations отдельно от direct preparation edges.

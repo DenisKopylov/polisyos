@@ -1,0 +1,48 @@
+# DEB-09.transition-identity — Проверить transition signer и producer identity
+
+Группа: [G06 — Допустимость, полномочия и квалифицированные решения](../../groups/G06.md). Родитель: [DEB-09](../../parents/DEB-09.md). Роль: `input`.
+
+Плановая рабочая карточка. Реализация только после E02 acceptance и exact source/lease rebind; эта запись не является execution grant или closure. [Общие правила](../../README.md).
+
+**Проверяемый результат.** Transition-signing authority and producer identity bind to their intended claim role and remain distinct from policy signer and history holder.
+
+**Предпочтительное решение.** Reuse LIF-01 intake/verification and existing epoch origin fields; bind each evidence object to the exact role.
+
+**Граница владельца.** External act/identity evidence is supplied by its source institution; PolicyOS verifies but does not appoint. Native exact-path lease family; exact paths unresolved until E02.
+
+**Входы.** Authentic transition-signing identity, producer identity and GY-DEF23 slot as precisely rebound; LIF-01 verifier.
+
+**Выход и consumer.** Role-bound transition/producer admission or explicit typed-empty status.
+
+**Что можно готовить независимо.** Rebind source, owner, consumer and exact lease after P0-ACCEPT where applicable; any earlier census/preparation is only what the original parent stage permits. This card neither adds nor removes a start barrier.
+
+**Где результат соединяется с другими.** Read the named output through Fresh protected transition/current-decision consumer through scientist/validation/decision_validity.py.; composition is limited to this property and the exact original scope.
+
+**Positive.** The accepted inputs produce the bounded result and the fresh consumer accepts the scoped property: Transition-signing authority and producer identity bind to their intended claim role and remain distinct from policy signer and history holder.
+
+**Distinguishing negative.** Candidate ID, local default signer or policy-signer evidence cannot establish transition authority or producer identity.
+
+**Matched removal.** Remove the decisive binding for this property while retaining declarations/markers; the named consumer must fail or return its typed unknown/refusal: Transition-signing authority and producer identity bind to their intended claim role and remain distinct from policy signer and history holder.
+
+**Граница контекста.** Keep GY-DEF23 here only for its source-confirmed role; never absorb DEB-04 GY-DEF22 or sibling slots.
+
+## Место в цепочке
+
+| Отношение | Точный смысл |
+|---|---|
+| Supplier [P0-ACCEPT.accepted-boundary](../../cards/P0-ACCEPT/accepted-boundary.md) | `direct:actual_E02_G_acceptance`: Consume this supplier’s actual accepted output as required by the canonical DEB-09 source dependency; this is a consumption map only and does not alter source stage/dispatch semantics.<br>Выбор output: Select the exact output named in need and its original conditions, not all supplier cards. Actual source-qualified artifacts are pinned at dispatch/composition.<br>Условия: original direct relation; source stage rules govern |
+| Supplier [LIF-01](../../parents/LIF-01.md) | `direct:owner_readiness`: Consume this supplier’s actual accepted output as required by the canonical DEB-09 source dependency; this is a consumption map only and does not alter source stage/dispatch semantics.<br>Выбор output: Select the exact output named in need and its original conditions, not all supplier cards. Actual source-qualified artifacts are pinned at dispatch/composition.<br>Условия: original direct relation; source stage rules govern |
+| Composition output (не start gate) [DEB-09.w5-crosswalk](../../cards/DEB-09/w5-crosswalk.md) | Consume only for the exact composition described here: Read the named output through Fresh protected transition/current-decision consumer through scientist/validation/decision_validity.py.; composition is limited to this property and the exact original scope. This link is not an unconditional all-of or preparation gate. |
+
+Отсутствие внутреннего after не отменяет parent prerequisites. Conditional acceptance, execution rights и выбранные profiles разрешаются отдельно, как указано в parent contract. Номера групп и карточек не задают порядок.
+
+## Назначенный нормативный контекст
+
+Основа: `ec3d7d38b4d246b3e1d225a1c0fc9aefae9ced0d`. Полные selectors и accountable routes — [coverage.json](../../coverage.json), parent `DEB-09`. Эти ссылки не требуют чтения всех siblings. Читайте целиком каждый назначенный fragment и необходимые связанные contracts; mixed clause нельзя усечь до удобной части.
+
+- **execute** — These fragments bind transition signer and producer identity, including the source-rebound GY-DEF23 role only where confirmed.
+  `solution.implementation_steps[4]`
+
+Inherited owner/lease/stage/activation constraints указаны в parent contract. Root/lead проверяет полное parent coverage; output этой карточки не закрывает siblings. При обнаружении пропуска остановить только affected writes/acceptance, назвать точный clause и reconciled next owner.
+
+Product verification: **UNRUN**. Полные deciding outputs и fresh-consumer witness появятся при исполнении; markers или этот документ их не заменяют.

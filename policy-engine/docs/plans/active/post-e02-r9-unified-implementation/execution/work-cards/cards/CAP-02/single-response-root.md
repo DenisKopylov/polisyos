@@ -1,0 +1,53 @@
+# CAP-02.single-response-root — Capture and resolve one exact bounded representation
+
+Группа: [G01 — Поиск, получение и точная фиксация источников](../../groups/G01.md). Родитель: [CAP-02](../../parents/CAP-02.md). Роль: `mechanism`.
+
+Плановая рабочая карточка. Реализация только после E02 acceptance и exact source/lease rebind; эта запись не является execution grant или closure. [Общие правила](../../README.md).
+
+**Проверяемый результат.** A complete retained response has one immutable root; a later reader returns the same verified bytes or unavailable.
+
+**Предпочтительное решение.** Use RawHTTPResponseObserver through execute_live_catalog_acquisition to persist one bounded immutable body-plus-request/response witness only when the exact sink is allowed, then return ArtifactManifest/ArtifactRef to fresh readers. A 304 reuses only the matching readable body/Vary/profile/source root; otherwise unavailable. Anchors: fabric/connectors/sources/http_base.py; runtime/quality/acquisition_executor.py:execute_live_catalog_acquisition; core/artifacts/manifest.py:ArtifactManifest/ArtifactRef.
+
+**Граница владельца.** Selected connector/runtime producer plus ArtifactManifest/FileSystemCAS; no backend-parity claim. Parent native lease family: `write:capture-protocol`, `resource:source/{source_profile}/fetch`. Exact post-E02 paths/overlap are unresolved; do not infer sibling disjointness or create a child lease. Root binds the actual path/lease before writes; cards sharing a native family serialize there.
+
+**Входы.** Bounded response, exact request/profile/Vary/version, size limits, current LIF-05 permission for each sink.
+
+**Выход и consumer.** Persisted body/root receipt and fresh exact reader result; query-only yields only its permitted output receipt.
+
+**Что можно готовить независимо.** Reuse the selected capture connector and root reader after accepted-source rebind.
+
+**Где результат соединяется с другими.** Per-hop transport proof precedes capture; CAP-03/LIF-01 and LIF-05 govern later use/materialization.
+
+**Positive.** Allowed response resolves on second use without refetch and verifies exact content/profile.
+
+**Distinguishing negative.** 304 without readable prior body, partial/oversize response, changed validator, or Vary mismatch stays unavailable/partial.
+
+**Matched removal.** Remove body-to-root binding while retaining status/hash markers; fresh reader cannot establish the input.
+
+**Граница контекста.** The preferred solution combines four independently reviewable contexts: per-hop network policy, retained representation and reader, conditional continuation/fencing, and a selected second-source adapter. R19 adds exact-content binding; it does not make these transport/protocol properties one mechanism. This is one bounded property view; parent source pins, stage/dispatch, conditional acceptance and mandatory companions remain inherited.
+
+## Место в цепочке
+
+| Отношение | Точный смысл |
+|---|---|
+| Supplier [P0-ACCEPT.accepted-boundary](../../cards/P0-ACCEPT/accepted-boundary.md) | `direct:actual_E02_G_acceptance`: Accepted source/path owner is consumed where selected; no blanket barrier.<br>Выбор output: Select the exact output named in need and its original conditions, not all supplier cards. Actual source-qualified artifacts are pinned at dispatch/composition.<br>Условия: original direct relation; source stage rules govern |
+| Supplier [CAP-01](../../parents/CAP-01.md) | `direct:owner_readiness; acceptance:composition`: Consume exact selected source/profile; query permission is not body placement or cursor completeness.<br>Выбор output: Select the exact output named in need and its original conditions, not all supplier cards. Actual source-qualified artifacts are pinned at dispatch/composition.<br>Условия: original direct relation; source stage rules govern; selected parent composed claim; not a new preparation dependency |
+| Supplier [LIF-05](../../parents/LIF-05.md) | `conditional_acceptance_requirements:composition`: Only when the selected profile materializes body/temp/log/cache or another covered sink: consume the exact resolved source/profile/purpose/audience/sink and current-generation decision immediately before that write; persist a durable capture receipt only after an allowed complete write. No-fetch discovery and contract probes remain preparable; query-only retains only permitted output/receipt.<br>Выбор output: Select the exact output named in need and its original conditions, not all supplier cards. Actual source-qualified artifacts are pinned at dispatch/composition.<br>Условия: Selected CAP-02 profile performs body, temporary, log, cache or other staged/durable materialization |
+| Composition output (не start gate) [CAP-02.transport-boundary](../../cards/CAP-02/transport-boundary.md) | Consume only for the exact composition described here: Per-hop transport proof precedes capture; CAP-03/LIF-01 and LIF-05 govern later use/materialization. This link is not an unconditional all-of or preparation gate. |
+
+Отсутствие внутреннего after не отменяет parent prerequisites. Conditional acceptance, execution rights и выбранные profiles разрешаются отдельно, как указано в parent contract. Номера групп и карточек не задают порядок.
+
+## Назначенный нормативный контекст
+
+Основа: `ec3d7d38b4d246b3e1d225a1c0fc9aefae9ced0d`. Полные selectors и accountable routes — [coverage.json](../../coverage.json), parent `CAP-02`. Эти ссылки не требуют чтения всех siblings. Читайте целиком каждый назначенный fragment и необходимые связанные contracts; mixed clause нельзя усечь до удобной части.
+
+- **execute** — Persist one permitted bounded body/root and fresh exact reader; HTTP validators apply only to that protocol, and every raw/temp/log/cache write needs LIF-05.
+  `task.positive`; `task.r19_extension.question_slices[0]`; `task.r19_extension.question_ids[0]`; `solution.preferred_solution`; `solution.implementation_steps[1]`; `solution.free_grow.data_or_config_growth`; `solution.composition_contracts[4]`; `solution.acceptance_discriminators[0]`; `solution.acceptance_discriminators[4]`; `solution.inputs_to_resolve[2]`
+- **join** — LIF-05 placement decision and CAP-01 query permission are separate; body write consumes only its sink decision.
+  `solution.composition_contracts[3]`
+- **binding** — 304 requires a matching readable root; the range/gap subclause is separately routed to continuation.
+  `solution.implementation_steps[2]`
+
+Inherited owner/lease/stage/activation constraints указаны в parent contract. Root/lead проверяет полное parent coverage; output этой карточки не закрывает siblings. При обнаружении пропуска остановить только affected writes/acceptance, назвать точный clause и reconciled next owner.
+
+Product verification: **UNRUN**. Полные deciding outputs и fresh-consumer witness появятся при исполнении; markers или этот документ их не заменяют.

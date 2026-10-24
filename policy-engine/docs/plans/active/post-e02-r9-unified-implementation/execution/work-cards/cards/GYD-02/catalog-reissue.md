@@ -1,0 +1,46 @@
+# GYD-02.catalog-reissue — Повторная привязка каталога к distribution
+
+Группа: [G01 — Поиск, получение и точная фиксация источников](../../groups/G01.md). Родитель: [GYD-02](../../parents/GYD-02.md). Роль: `mechanism`.
+
+Плановая рабочая карточка. Реализация только после E02 acceptance и exact source/lease rebind; эта запись не является execution grant или closure. [Общие правила](../../README.md).
+
+**Проверяемый результат.** Every admitted resource ID resolves to the correct distribution before planner/fetch or N9 MEASUREMENT use.
+
+**Предпочтительное решение.** Use DatasetCatalogGraph and the canonical Data Forge writer to recount, correct and reissue existing resource/distribution bindings; preserve source, units, period and validity.
+
+**Граница владельца.** Data Forge remains the only catalog writer. AcquisitionPlanner and CanonicalN9PromotionPort consume the reissued rows. GDP/WDI unit-period truth remains a separate D2/PR1 fact; do not fabricate it or reopen a source correction without basis.
+
+**Входы.** Complete post-E02 mismatch census (the historical four is a starting observation, not a cap).; Authoritative distribution identity and any available source metadata.; Fresh acquisition planner/fetch and N9 measurement consumer.
+
+**Выход и consumer.** Reissued source-bound catalog bindings, plus a fresh MEASUREMENT receipt that resolves resource ID to distribution identity.
+
+**Что можно готовить независимо.** Recount the complete current set after accepted-source rebind.; Reissue each internal identity defect through the canonical writer, preserving available source/unit/period/time fields.; Keep unavailable provider facts explicitly blocked and routed to D2/PR1.
+
+**Где результат соединяется с другими.** Join the reissued catalog rows at actual planner/fetch and promotion_sequence._measurement_obligation readback. No row shape alone closes the measurement obligation.
+
+**Positive.** Every current admitted resource ID resolves to its actual distribution and the fresh consumer uses that binding.
+
+**Distinguishing negative.** Wrong resource/distribution mapping refuses; a curated-GDP/WDI units or period mismatch remains blocked and cannot be “fixed” by identity repair.
+
+**Matched removal.** Remove or corrupt one binding while keeping its ID/markers; fetch/promotion cannot consume the row.
+
+**Граница контекста.** One identity-repair mechanism with an ordered census → reissue → consumer proof. The source says “four”; accepted-source census governs the set. Parent dispatch/lease and post-E02 stage stay inherited.
+
+## Место в цепочке
+
+| Отношение | Точный смысл |
+|---|---|
+| Supplier [P0-ACCEPT.accepted-boundary](../../cards/P0-ACCEPT/accepted-boundary.md) | `direct:actual_E02_G_acceptance`: Accepted E02 source and task-scoped source rebind are the source/version basis consumed by this card; original P0-ACCEPT and parent dispatch semantics remain authoritative.<br>Выбор output: Select the exact output named in need and its original conditions, not all supplier cards. Actual source-qualified artifacts are pinned at dispatch/composition.<br>Условия: original direct relation; source stage rules govern |
+
+Отсутствие внутреннего after не отменяет parent prerequisites. Conditional acceptance, execution rights и выбранные profiles разрешаются отдельно, как указано в parent contract. Номера групп и карточек не задают порядок.
+
+## Назначенный нормативный контекст
+
+Основа: `ec3d7d38b4d246b3e1d225a1c0fc9aefae9ced0d`. Полные selectors и accountable routes — [coverage.json](../../coverage.json), parent `GYD-02`. Эти ссылки не требуют чтения всех siblings. Читайте целиком каждый назначенный fragment и необходимые связанные contracts; mixed clause нельзя усечь до удобной части.
+
+- **execute** — The catalog-reissue card owns this source-specific result or constraint and consumes other owners only through the named interface; no sibling rewrites that native owner.
+  `task.deliverable`; `task.positive`; `task.adversarial`; `task.removal`; `task.surface`; `task.rollback`; `task.migration`; `task.acceptance_steps[0]`; `task.acceptance_steps[1]`; `task.acceptance_steps[2]`; `task.acceptance_steps[3]`; `task.acceptance_steps[4]`; `task.mandatory_companions[0]`; `task.mandatory_companions[1]`; `task.mandatory_companions[2]`; `task.mandatory_companions[3]`; `task.mandatory_companions[4]`; `solution.preferred_solution`; `solution.implementation_steps[0]`; `solution.implementation_steps[1]`; `solution.implementation_steps[2]`; `solution.free_grow.data_or_config_growth`; `solution.free_grow.extension_boundary`; `solution.free_grow.resource_behavior`; `solution.migration_and_rollback`; `solution.composition_contracts[0]`; `solution.composition_contracts[1]`; `solution.acceptance_discriminators[0]`; `solution.acceptance_discriminators[1]`; `solution.deviation_triggers[0]`; `solution.inputs_to_resolve[0]`; `solution.input_resolution_rule`
+
+Inherited owner/lease/stage/activation constraints указаны в parent contract. Root/lead проверяет полное parent coverage; output этой карточки не закрывает siblings. При обнаружении пропуска остановить только affected writes/acceptance, назвать точный clause и reconciled next owner.
+
+Product verification: **UNRUN**. Полные deciding outputs и fresh-consumer witness появятся при исполнении; markers или этот документ их не заменяют.

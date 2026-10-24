@@ -34,7 +34,7 @@ from polisyos.ir.analytics.uncertainty import (
 )
 
 from .config import PropagationConfig
-from .covariance import extract_std, has_unknown_dependency
+from .covariance import build_covariance_matrix, extract_std, has_unknown_dependency
 from .protocol import PropagationResult
 
 logger = get_logger(__name__)
@@ -64,6 +64,55 @@ class _EmpiricalJointSpec:
     samples: Mapping[str, np.ndarray]
     probabilities: np.ndarray
     joint_sample_id: str | None
+
+
+@dataclass(frozen=True)
+class _GaussianJointSpec:
+    """Transform independent standard normals into a declared Gaussian model."""
+
+    names: tuple[str, ...]
+    means: np.ndarray
+    factor: np.ndarray
+
+
+def _build_gaussian_joint_spec(
+    param_names: list[str],
+    input_envelopes: Mapping[str, UncertaintyEnvelope],
+) -> tuple[_GaussianJointSpec | None, str | None]:
+    """Resolve declared Gaussian covariance before either sampling backend runs."""
+    if not any(
+        "covariance_row" in envelope.metadata or "covariance_params" in envelope.metadata
+        for envelope in input_envelopes.values()
+    ):
+        return None, None
+    if not all(
+        envelope.distribution_family is DistributionFamily.NORMAL
+        and not isinstance(envelope.distribution_payload, PosteriorSamplesCarrier)
+        for envelope in input_envelopes.values()
+    ):
+        # Covariance alone does not specify a joint law for non-Gaussian inputs.
+        return None, "incompatible_dependency"
+    try:
+        covariance = np.asarray(
+            build_covariance_matrix(
+                param_names,
+                input_envelopes,
+                use_full_covariance=True,
+                jitter=0.0,
+                preserve_singular=True,
+            ),
+            dtype=np.float64,
+        )
+        means = []
+        for name in param_names:
+            envelope = input_envelopes[name]
+            fit = _normal_parametric_fit(envelope)
+            means.append(float(envelope.point_estimate) if fit is None else fit[0])
+        eigenvalues, eigenvectors = np.linalg.eigh(covariance)
+        factor = eigenvectors * np.sqrt(np.maximum(eigenvalues, 0.0))
+    except (TypeError, ValueError):
+        return None, "incompatible_dependency"
+    return _GaussianJointSpec(tuple(param_names), np.asarray(means), factor), None
 
 
 class _DrawOutcomeCode(StrEnum):
@@ -350,6 +399,17 @@ class MonteCarloPropagator:
                 input_param_names=param_names,
                 failure=empirical_failure,
             )
+        gaussian_spec, gaussian_failure = (
+            _build_gaussian_joint_spec(param_names, input_envelopes)
+            if empirical_spec is None
+            else (None, None)
+        )
+        if gaussian_failure is not None:
+            return _unknown_joint_results(
+                output_metric_ids,
+                input_param_names=param_names,
+                failure=gaussian_failure,
+            )
         level = self._config.confidence_level
         alpha = 1.0 - level
 
@@ -390,6 +450,7 @@ class MonteCarloPropagator:
                 missing_outputs,
                 draw_outcomes,
                 empirical_spec,
+                gaussian_spec,
             )
             stopped_early = adaptive.enabled and actual_n_samples < n_samples
         else:
@@ -407,6 +468,7 @@ class MonteCarloPropagator:
                 missing_outputs,
                 draw_outcomes,
                 empirical_spec,
+                gaussian_spec,
             )
             stopped_early = adaptive.enabled and actual_n_samples < n_samples
 
@@ -428,8 +490,11 @@ class MonteCarloPropagator:
             requested_n_samples=n_samples,
             qmc_summary=qmc_summary,
             sample_axis=(empirical_spec.sample_axis if empirical_spec is not None else "draw"),
-            joint_sample_id=(empirical_spec.joint_sample_id if empirical_spec is not None else None),
+            joint_sample_id=(
+                empirical_spec.joint_sample_id if empirical_spec is not None else None
+            ),
             parametric_fit_names=_parametric_fit_names(input_envelopes),
+            gaussian_joint_names=(gaussian_spec.names if gaussian_spec is not None else ()),
         )
 
     # ------------------------------------------------------------------
@@ -450,6 +515,7 @@ class MonteCarloPropagator:
         missing_outputs: dict[str, int],
         draw_outcomes: list[_DrawOutcomeRecord],
         empirical_spec: _EmpiricalJointSpec | None,
+        gaussian_spec: _GaussianJointSpec | None,
     ) -> tuple[int, int, _QMCExecutionSummary]:
         batch_size = min(self._config.mc_batch_size, n_samples)
         failed = 0
@@ -490,6 +556,7 @@ class MonteCarloPropagator:
                     input_envelopes,
                     empirical_spec=empirical_spec,
                     dimension_names=qmc_dimension_names,
+                    gaussian_spec=gaussian_spec,
                 )
 
                 for row_idx in range(uniform_samples.shape[0]):
@@ -557,6 +624,7 @@ class MonteCarloPropagator:
         missing_outputs: dict[str, int],
         draw_outcomes: list[_DrawOutcomeRecord],
         empirical_spec: _EmpiricalJointSpec | None,
+        gaussian_spec: _GaussianJointSpec | None,
     ) -> tuple[int, int]:
         rng = jrandom.PRNGKey(self._config.mc_seed)
         generated = 0
@@ -571,6 +639,15 @@ class MonteCarloPropagator:
             )
             batch_samples: dict[str, jnp.ndarray] = {}
             shared_indices: jnp.ndarray | None = None
+            if gaussian_spec is not None:
+                rng, joint_key = jrandom.split(rng)
+                standard = jrandom.normal(joint_key, shape=(this_batch, len(param_names)))
+                joint_samples = standard @ jnp.asarray(
+                    gaussian_spec.factor, dtype=standard.dtype
+                ).T + jnp.asarray(gaussian_spec.means, dtype=standard.dtype)
+                batch_samples = {
+                    name: joint_samples[:, idx] for idx, name in enumerate(gaussian_spec.names)
+                }
             if empirical_spec is not None:
                 rng, shared_key = jrandom.split(rng)
                 shared_indices = jrandom.choice(
@@ -580,6 +657,8 @@ class MonteCarloPropagator:
                     p=jnp.asarray(empirical_spec.probabilities, dtype=jnp.float32),
                 )
             for name in param_names:
+                if gaussian_spec is not None:
+                    continue
                 env = input_envelopes[name]
                 if empirical_spec is not None and name in empirical_spec.names:
                     assert shared_indices is not None
@@ -811,6 +890,7 @@ class MonteCarloPropagator:
         sample_axis: str = "draw",
         joint_sample_id: str | None = None,
         parametric_fit_names: tuple[str, ...] = (),
+        gaussian_joint_names: tuple[str, ...] = (),
     ) -> list[PropagationResult]:
         from .sensitivity import compute_first_order_indices
 
@@ -834,8 +914,7 @@ class MonteCarloPropagator:
         )
         qmc_has_full_certificate = qmc_method is not None and qmc_scrambled and qmc_replicates >= 2
         input_envelope_digests = {
-            name: _envelope_content_digest(envelope)
-            for name, envelope in input_envelopes.items()
+            name: _envelope_content_digest(envelope) for name, envelope in input_envelopes.items()
         }
         input_identity_complete = all(
             value is not None for value in input_envelope_digests.values()
@@ -857,6 +936,10 @@ class MonteCarloPropagator:
                 "input_envelope_sha256": input_envelope_digests,
                 "sample_axis": sample_axis,
                 "joint_sample_id": joint_sample_id,
+                "gaussian_joint_names": list(gaussian_joint_names),
+                "gaussian_joint_assumption": (
+                    "multivariate_normal_with_declared_covariance" if gaussian_joint_names else None
+                ),
             },
             "input_identity_status": (
                 "content_hashed" if input_identity_complete else "not_established"
@@ -878,9 +961,7 @@ class MonteCarloPropagator:
             interval_semantics = IntervalSemantics.CONFIDENCE_INTERVAL
             confidence_level: float | None = level
             # Sampling cannot promote a non-gate-eligible input into a gate.
-            gate_eligible = all(
-                envelope.gate_eligible for envelope in input_envelopes.values()
-            )
+            gate_eligible = all(envelope.gate_eligible for envelope in input_envelopes.values())
             exactness = ExactnessKind.APPROXIMATION
             scope = ("expectation", "interval", "quantile", "cdf")
             sample_size_value: int | None = n_valid
@@ -904,6 +985,11 @@ class MonteCarloPropagator:
             if joint_sample_id is not None:
                 # The producer-supplied ID is a declaration, not an
                 # independently reconciled row-identity proof.
+                gate_eligible = False
+            if gaussian_joint_names:
+                # Marginal Normal laws plus covariance specify this model only
+                # under a declared joint-Gaussian assumption, not an admitted
+                # source-law proof. Preserve it as a candidate computation.
                 gate_eligible = False
 
             if n_valid < self._config.mc_min_valid_samples:
@@ -1053,6 +1139,9 @@ class MonteCarloPropagator:
                 if parametric_fit_names:
                     metadata["parametric_fit_payload_used"] = True
                     metadata["parametric_fit_inputs"] = list(parametric_fit_names)
+                if gaussian_joint_names:
+                    metadata["gaussian_joint_inputs"] = list(gaussian_joint_names)
+                    metadata["gaussian_joint_identity_status"] = "declared_non_authoritative"
 
                 if stopped_early:
                     metadata["adaptive_stopped_early"] = True
@@ -1124,6 +1213,9 @@ class MonteCarloPropagator:
                     assumptions.append("declared_shared_sample_identity")
                 if parametric_fit_names:
                     assumptions.append("typed_parametric_fit")
+                if gaussian_joint_names:
+                    assumptions.append("multivariate_normal_with_declared_covariance")
+                    notes["gaussian_joint_identity_status"] = "declared_non_authoritative"
                 if qmc_has_full_certificate:
                     assumptions.append("rqmc_replicates")
                 elif qmc_method is not None:
@@ -1177,7 +1269,7 @@ class MonteCarloPropagator:
                         "draw_outcome_provenance": draw_outcome_provenance,
                         "executor_failed_batches": failed,
                         "stopped_early": stopped_early,
-                    "output_coverage_complete": not has_incomplete_draws,
+                        "output_coverage_complete": not has_incomplete_draws,
                         "qmc_method": qmc_method,
                         "qmc_scrambled": qmc_scrambled if qmc_method is not None else None,
                         "qmc_replicates": qmc_replicates if qmc_method is not None else None,
@@ -1261,6 +1353,7 @@ class MonteCarloPropagator:
         *,
         empirical_spec: _EmpiricalJointSpec | None = None,
         dimension_names: tuple[str, ...] | None = None,
+        gaussian_spec: _GaussianJointSpec | None = None,
     ) -> dict[str, np.ndarray]:
         """Inverse CDF transform of uniform QMC samples per envelope distribution."""
         from scipy.stats import norm as sp_norm
@@ -1275,6 +1368,17 @@ class MonteCarloPropagator:
                 raise ValueError(failure)
         if dimension_names is None:
             dimension_names = _qmc_dimension_names(param_names, empirical_spec)
+        if empirical_spec is None and gaussian_spec is None:
+            gaussian_spec, failure = _build_gaussian_joint_spec(param_names, input_envelopes)
+            if failure is not None:
+                raise ValueError(failure)
+        if gaussian_spec is not None:
+            uniforms = uniform_samples[
+                :, [dimension_names.index(name) for name in gaussian_spec.names]
+            ]
+            standard = sp_norm.ppf(np.clip(uniforms, 1e-10, 1.0 - 1e-10))
+            joint_samples = standard @ gaussian_spec.factor.T + gaussian_spec.means
+            return {name: joint_samples[:, idx] for idx, name in enumerate(gaussian_spec.names)}
         if empirical_spec is not None:
             empirical_anchor_idx = dimension_names.index(empirical_spec.names[0])
             shared_indices = _empirical_indices_from_uniform(

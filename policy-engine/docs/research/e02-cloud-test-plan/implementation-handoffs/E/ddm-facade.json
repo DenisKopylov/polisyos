@@ -1,0 +1,196 @@
+{
+  "schema": "policyos.e02.implementation_handoff.v1",
+  "unit": "E",
+  "slice": "ddm-facade",
+  "closure_ids": [
+    "LA-056"
+  ],
+  "related_findings_not_closed": [
+    "LA-054",
+    "LA-055"
+  ],
+  "bundle_ids": [
+    "DDM-01",
+    "DDM-02"
+  ],
+  "slice_base_sha": "c40d4acae1ce58b597267255026d9356565828fd",
+  "implementation_commits": [
+    "c13b7be010825b46e6282b8035e9ca8ef6c8735f"
+  ],
+  "candidate_tree_sha": "812ef9dba2cea4ee2cdc08c487b1ac31342303ac",
+  "branch": "codex/e02-E-ddm",
+  "pull_request": "https://github.com/DenisKopylov/polisyos/pull/11",
+  "changed_paths": [
+    "policy-engine/tests/unit/ddm/test_facade.py"
+  ],
+  "baseline_cells": [
+    {
+      "cell_id": "F14-P043",
+      "source_commit": "0213101b6d124e6f855b1aff7c442bb0912a61c2",
+      "source_ref": "integration_head",
+      "test_path": "policy-engine/tests/unit/ddm/test_full_acceptance.py",
+      "source_locator": "received/F14.txt:393",
+      "observed_state": "PASS",
+      "finding_ids": [
+        "LA-054",
+        "LA-055"
+      ],
+      "environment_locator": "received/F14.txt:metadata JSON",
+      "environment": {
+        "python": "3.14.2",
+        "platform": "Linux x86_64",
+        "cpu_quota_cores": 4,
+        "memory_limit_bytes": 17179869184,
+        "numerical_threads": 1,
+        "backend": "Pydantic/native Python; NumPy bootstrap for tests calling calibrate; JAX_PLATFORMS=cpu reported where used"
+      },
+      "input_identity": "policy-engine/tests/unit/ddm/test_full_acceptance.py@0213101b6d124e6f855b1aff7c442bb0912a61c2 and its committed synthetic/helper inputs; raw archive and production feed bytes not transferred",
+      "evidence_grade": "source_reported_compact_text_only; candidate_route; semantic_adequacy not_established"
+    },
+    {
+      "cell_id": "F15-P136",
+      "source_commit": "0213101b6d124e6f855b1aff7c442bb0912a61c2",
+      "source_ref": "integration_head",
+      "test_path": "policy-engine/tests/unit/ddm/test_facade.py",
+      "source_locator": "received/F15.txt:291",
+      "observed_state": "PASS",
+      "finding_ids": [
+        "LA-056"
+      ],
+      "environment_locator": "received/F15.txt:metadata JSON",
+      "environment": {
+        "python": "3.14.2",
+        "platform": "Linux x86_64",
+        "cpu_quota_cores": 4,
+        "memory_limit_bytes": 17179869184,
+        "numerical_threads": 1,
+        "backend": "Pydantic/native Python; NumPy bootstrap for tests calling calibrate; JAX_PLATFORMS=cpu reported where used"
+      },
+      "input_identity": "policy-engine/tests/unit/ddm/test_facade.py@0213101b6d124e6f855b1aff7c442bb0912a61c2 and its committed synthetic/helper inputs; raw archive and production feed bytes not transferred",
+      "evidence_grade": "source_reported_compact_text_only; candidate_route; semantic_adequacy not_established"
+    },
+    {
+      "cell_id": "F13-P135",
+      "source_commit": "0213101b6d124e6f855b1aff7c442bb0912a61c2",
+      "source_ref": "integration_head",
+      "test_path": "policy-engine/tests/unit/ddm/test_readiness_mapping.py",
+      "source_locator": "received/F13.txt:262",
+      "observed_state": "PASS",
+      "finding_ids": [
+        "LA-054",
+        "LA-055",
+        "LA-056"
+      ],
+      "environment_locator": "received/F13.txt:metadata JSON",
+      "environment": {
+        "python": "3.14.2",
+        "platform": "Linux x86_64",
+        "cpu_quota_cores": 4,
+        "memory_limit_bytes": 17179869184,
+        "numerical_threads": 1,
+        "backend": "Pydantic/native Python; NumPy bootstrap for tests calling calibrate; JAX_PLATFORMS=cpu reported where used"
+      },
+      "input_identity": "policy-engine/tests/unit/ddm/test_readiness_mapping.py@0213101b6d124e6f855b1aff7c442bb0912a61c2 and its committed synthetic/helper inputs; raw archive and production feed bytes not transferred",
+      "evidence_grade": "source_reported_compact_text_only; candidate_route; semantic_adequacy not_established"
+    },
+    {
+      "cell_id": "F02-P137",
+      "source_commit": "69780761ae091d8fcc6ab8778c7f5f7227eeef0b",
+      "source_ref": "research_main",
+      "test_path": "policy-engine/tests/unit/ddm/mirror_contracts/test_events.py",
+      "source_locator": "received/F02.txt:265",
+      "observed_state": "PASS",
+      "finding_ids": [
+        "LA-056"
+      ],
+      "environment_locator": "received/F02.txt:metadata JSON",
+      "environment": {
+        "python": "3.14.2",
+        "platform": "Linux x86_64",
+        "cpu_quota_cores": 4,
+        "memory_limit_bytes": 17179869184,
+        "numerical_threads": 1,
+        "backend": "Pydantic/native Python; NumPy bootstrap for tests calling calibrate; JAX_PLATFORMS=cpu reported where used"
+      },
+      "input_identity": "policy-engine/tests/unit/ddm/mirror_contracts/test_events.py@69780761ae091d8fcc6ab8778c7f5f7227eeef0b and its committed synthetic/helper inputs; raw archive and production feed bytes not transferred",
+      "evidence_grade": "source_reported_compact_text_only; candidate_route; semantic_adequacy not_established"
+    }
+  ],
+  "checks": [
+    {
+      "command": "PYTHONPATH=src .venv/bin/python -m pytest tests/unit/ddm -rA --tb=short",
+      "cwd": "policy-engine",
+      "target_sha": "c13b7be010825b46e6282b8035e9ca8ef6c8735f",
+      "environment": "Linux6.18.44-x86_64/glibc2.41 Python3.14.2 pytest9.0.2 Pydantic2.12.5; shared venv with explicit candidate src; no production data",
+      "input_closure": "All tests/unit/ddm test files from candidate, actual candidate DDM source, committed fixture inputs, fresh child imports. Eight mirror_contract tests are structural and are not relied on for semantic evidence.",
+      "outcome": "PASS",
+      "output": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/E/ddm-facade/candidate-tests.txt",
+      "measurement": {
+        "tests_passed": 57,
+        "pytest_wall_s": 0.85,
+        "supervisor_wall_s": 2.568934338999952,
+        "peak_child_rss_kib": 93548
+      }
+    },
+    {
+      "command": ".venv/bin/python -m ruff check tests/unit/ddm/test_facade.py; .venv/bin/python -m ruff format --check tests/unit/ddm/test_facade.py",
+      "cwd": "policy-engine",
+      "target_sha": "c13b7be010825b46e6282b8035e9ca8ef6c8735f",
+      "environment": "candidate checkout; shared contributor venv",
+      "input_closure": "changed test path and candidate Ruff configuration",
+      "outcome": "PASS",
+      "output": "All checks passed!\n1 file already formatted"
+    },
+    {
+      "command": "PYTHONPATH=src .venv/bin/python _build/e02-E-ddm-controls/run_controls.py",
+      "cwd": "policy-engine",
+      "target_sha": "c13b7be010825b46e6282b8035e9ca8ef6c8735f",
+      "environment": "Python3.14.2 stdlib fresh child processes; copied immutable candidate DDM bytes in ignored scratch",
+      "input_closure": "probe literal extracted by AST from candidate test_contract_only_import_does_not_load_ddm_orchestration; candidate src and separate copy of src/polisyos/__init__.py plus entire src/polisyos/ddm",
+      "outcome": "PASS",
+      "output": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/E/ddm-facade/negative-controls.txt",
+      "reproduction_python": "from pathlib import Path\nimport ast,json,os,resource,shutil,subprocess,sys,time\nroot=Path.cwd()\noutput=root/'docs/research/e02-cloud-test-plan/implementation-handoffs/E/ddm-facade/negative-controls.log'\nscratch=root/'_build/e02-E-ddm-controls/source'\nscratch.mkdir(parents=True,exist_ok=True)\n(scratch/'polisyos').mkdir(exist_ok=True)\nshutil.copy2(root/'src/polisyos/__init__.py',scratch/'polisyos/__init__.py')\nshutil.copytree(root/'src/polisyos/ddm',scratch/'polisyos/ddm',dirs_exist_ok=True)\nfn=next(node for node in ast.parse((root/'tests/unit/ddm/test_facade.py').read_text()).body if isinstance(node,ast.FunctionDef) and node.name=='test_contract_only_import_does_not_load_ddm_orchestration')\nprobe=next(ast.literal_eval(node.value) for node in fn.body if isinstance(node,ast.Assign) and any(isinstance(t,ast.Name) and t.id=='probe' for t in node.targets))\nresults=[]\ndef run(label,source,expected,expected_exit):\n start=time.monotonic()\n p=subprocess.run([sys.executable,'-c',probe,'polisyos.ddm.integration.events',str(expected)],cwd=root,env={**os.environ,'PYTHONPATH':str(source)},capture_output=True,text=True)\n results.append({'label':label,'argv':[sys.executable,'-c','<probe from tracked test_facade.py>','polisyos.ddm.integration.events',str(expected)],'PYTHONPATH':str(source),'expected':expected_exit,'exit':p.returncode,'wall_s':time.monotonic()-start,'stdout':p.stdout,'stderr':p.stderr})\n if (p.returncode==0) != (expected_exit==0):raise RuntimeError(label)\nrun('normal_control',root/'src',root/'src',0)\n# The copied canonical bytes cannot impersonate this candidate's source origin.\nrun('foreign_source_origin_rejected',scratch,root/'src',1)\n# Delete lazy behavior while retaining every existing export and marker.\nfacade=scratch/'polisyos/ddm/__init__.py'\nbase=facade.read_text()\nfacade.write_text(base+'\\nimport_module(\"polisyos.ddm.integration.monitor\")\\n')\nrun('eager_orchestration_property_removal_rejected',scratch,scratch,1)\nfacade.write_text(base)\nrun('restored_control',scratch,scratch,0)\noutput.write_text('\\n'.join(json.dumps(r,indent=2) for r in results)+'\\n')\nprint(output.read_text())\n",
+      "negative_results": {
+        "normal_control": "exit0 contract-only",
+        "foreign_source_origin_rejected": "exit1 AssertionError module __file__ outside expected candidate source",
+        "eager_orchestration_property_removal_rejected": "exit1 AssertionError contract import entered orchestration: polisyos.ddm.integration.monitor",
+        "restored_control": "exit0 contract-only"
+      }
+    }
+  ],
+  "property": {
+    "statement": "A neutral canonical or legacy DDM contract import reads this candidate source without loading monitor/registry/incident orchestration, while public forwarding shares one class owner and old serialized class references still resolve.",
+    "runtime_path": [
+      "producer:ddm/contracts/events.py and metric_budget.py canonical class declarations",
+      "artifact:validated event model JSON and legacy GLOBAL pickle class references",
+      "bridge:ddm/__init__.py, ddm/integration/__init__.py lazy facade and ddm/integration/events.py forwarding",
+      "consumer:readiness_mapper, calibration.audit, detector adapter, incident, model_registry, monitor; native DDM suite exercises validator/consumer behavior",
+      "surface:public polisyos.ddm facade; registry/readiness JSON exercised in test_full_acceptance; production live-feed/deployment outside this bounded evidence"
+    ],
+    "proxy_divergence": "The former subprocess probe can pass against a linked editable installation from another checkout. The same candidate contract bytes loaded from a separate source copy preserve all lazy exports, yet the hardened probe rejects their foreign __file__ origin. Conversely adding eager import_module(monitor) leaves exports/markers intact and is behaviorally rejected.",
+    "negative_controls": [
+      "inherited foreign PYTHONPATH contains an import-raising package and is overridden by explicit candidate src",
+      "the fresh MetaPathFinder trap is shown active by explicitly requesting monitor through importlib",
+      "foreign actual source copy rejected on origin",
+      "lazy property removal with exports retained fails; restored bytes pass",
+      "native registry consumer tests reject historical unbound FP pass, foreign model bindings, unavailable trigger observations, changed immutable report context, expiry; R2 signoff exception remains explicit"
+    ]
+  },
+  "predicate_basis": "recomputed",
+  "capability_state_or_finding_state": "LA-056 bounded verification strengthened on current source; no production mechanism change and no repository-wide closure claim. LA-054/LA-055 remain partial with semantic-owner/input residuals.",
+  "authority_purpose": "Verification receipt for contract import boundary and compatibility only; does not authorize promotion or deployment and does not substitute synthetic inputs for real feed/source-law evidence.",
+  "provenance": {
+    "executor": "E DDM direct leaf",
+    "source_identity": "All DDM production source unchanged between slice base and implementation; single modified test path. Shared venv origin bypass explicitly blocked.",
+    "rule_versions": "Existing event_type literals and compatibility schema IDs unchanged; private checker evidence and registry policy unchanged.",
+    "time_roles": "Synthetic events use fixed fixture timestamps; checker effective_at and valid_until are existing native fields; measurement time is separate and is not production validity."
+  },
+  "limitations_and_next_owner": [
+    "LA-054 P40 STOP and LA-055 principal decision remain binding context: this task does not lift their semantic closure or invent checker authority/deployment ownership.",
+    "Current code already has private checker token/report digest, exact-context rebind and durable model identity projection, but real deployment/live-feed availability, report provenance and applicability promise remain not_established. Need DDM schema/applicability owner and local deployment/live-feed data owner, plus principal decision named in residual ledger.",
+    "No non-test production caller outside DDM was observed by source-symbol trace; static search is diagnostic and dynamic/plugin invocation remains unresolved. Runtime behavior demonstrated through real native DDM consumer tests with committed synthetic inputs.",
+    "Old class FQNs are tested as trusted protocol0 GLOBAL references derived from actual forwarded types. No historical production pickle bytes are available; production persisted payload census/readback belongs to local source owner if used.",
+    "Manual shift_event.schema.json remained unchanged; relocation is not permission to replace its anyOf evidence-channel guard with a generated schema.",
+    "G acceptance: fetch exact branch head, verify base/implementation ancestry, rerun PYTHONPATH=src .venv/bin/python -m pytest tests/unit/ddm -rA --tb=short. For LA-054/055 closure supply actual report + model/application + observation-window/live-feed data + effective time + signed policy decision; exercise expire/change/unavailable negative controls and JSON reload/rebind at exact integrated SHA."
+  ]
+}

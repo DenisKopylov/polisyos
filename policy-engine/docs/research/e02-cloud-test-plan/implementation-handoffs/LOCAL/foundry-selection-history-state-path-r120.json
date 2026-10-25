@@ -1,0 +1,642 @@
+{
+  "schema": "policyos.e02.local_implementation_boundary.v1",
+  "artifact_kind": "tracked_handoff_draft",
+  "slice_id": "foundry-selection-history-r120",
+  "evidence_root": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/root-ir-transport-composition-20261024-r1",
+  "slice_base": {
+    "commit": "503b2b42a75c1934ff47a502eedfceab58664afb",
+    "tree": "0d6dd21cdc9b54706f8b2f3874cc98c78c9da670"
+  },
+  "candidate_source": {
+    "commit": "b6d9277bc8eae638f1a7a05f512af614499c89f3",
+    "tree": "3b2f17df3387d6ae324cf9c2e96c4a4238cb4d8b",
+    "parents": [
+      "503b2b42a75c1934ff47a502eedfceab58664afb"
+    ],
+    "branch": "codex/e02-unified-local-20261009"
+  },
+  "source_freeze": false,
+  "global_source_freeze": false,
+  "code_acceptance": false,
+  "source_footprint": [
+    {
+      "path": "policy-engine/src/polisyos/foundry/methods/selection/history.py",
+      "status": "M",
+      "sha256": "13a78da1d17d70bcd7c4e8ab12ab195d1ca1b50089fa646f3c80c8b070ec0f71"
+    },
+    {
+      "path": "policy-engine/tests/unit/foundry/methods/selection/test_history_paths.py",
+      "status": "A",
+      "sha256": "9c490c27c14e72677632938cff4cc867ebd3764c0b2f5e2ff309dcf30dec376d"
+    },
+    {
+      "path": "policy-engine/src/polisyos/foundry/methods/selection/README.md",
+      "status": "M",
+      "sha256": "030418a8e29f32fa1baf7f0ce58bc73e0c624fc03aee06f82a23f73c543dc444"
+    },
+    {
+      "path": "policy-engine/release-fragments/unreleased/2026-10-25-foundry-selection-history-state-path.toml",
+      "status": "A",
+      "sha256": "6b4774ba98b88448087b57a9825a8fa5a1616ee56d263098ef66ddb42c9e51a6"
+    }
+  ],
+  "source_footprint_summary": {
+    "tracked_commit_diff_paths": 4,
+    "modified": 2,
+    "added": 2,
+    "owner_module": 1,
+    "test_companion": 1,
+    "documentation_and_release_companions": 2,
+    "scope": "Use one private strict resolver for selection-history state roots and completed output paths; default to persistent per-user state, preserve explicit paths/injection, and require explicit lossless adoption for legacy history."
+  },
+  "selected_inputs": [
+    {
+      "identity": "R120 delivered source commit/tree and changed-byte readback",
+      "status": "verified",
+      "evidence": [
+        "implementation-source-commit-r120-20261025-r1/readback.json@d524245f92f2d788fbf4f17829b6aded9560899dfcf78cf235ea1dde0cee1d15",
+        "integration/implementation-source-commit-r120-manifest.json@fb7cb299c91a726050262d077cfec0c35d3390adf24ffa7e5c900960809b44c2"
+      ]
+    },
+    {
+      "identity": "Historical R121 remote checkpoint, superseded by R122",
+      "status": "historical_snapshot_superseded",
+      "evidence": [
+        "implementation-source-commit-r121-20261025-r1/readback.json@32a3d36655b764e9e9f20166736eb8a8074b54c53c3caed5a46aed64fa424aec",
+        "push-source-r121-20261025-r1/receipt.json@c507241f1a8d42110c924dca9144dbe280350cdcc872eca7ad318fb6fd4b9850"
+      ]
+    },
+    {
+      "identity": "Six-module composed pytest evidence",
+      "status": "actual_precommit_candidate_run_byte_qualified_after_commit",
+      "evidence": [
+        "boot0-history-composed-canonical-r118/invocation.json@85c7fe34322b2885de523ba298b8759f0d0cb71e43c9a9c38fb48df91bdbe87a",
+        "boot0-history-composed-canonical-r118/root-result.json@86fa601a3dbfbee14926a3f9cd60113ec462e9c56cc669d47c776aa568b8f743",
+        "boot0-history-composed-canonical-r118/execution/junit.xml@838c3680c90b6bef3d4be4f80895ff69b2952c4347b6abd9dc92a1e76454f4cb",
+        "boot0-history-composed-canonical-r118/execution/boot0-history-composed.stdout.txt@84ed9b28bd0876e57d568277cd761da0e9d650c91fafe5f81397713b04fcd536",
+        "boot0-history-composed-canonical-r118/execution/boot0-history-composed.stderr.txt@cac246557f41f69633f58d838e666821f128a69865a37bdf25e835258563db64"
+      ]
+    },
+    {
+      "identity": "Focused Ruff check and format",
+      "status": "both_passed_on_eight_Python_paths",
+      "evidence": [
+        "boot0-history-focused-ruff-r118/check/execution/receipt.json@544fe7a448822775565386084f535162ee36a75a2d75257fd939e5155da6d738",
+        "boot0-history-focused-ruff-r118/format/execution/receipt.json@a218a722293c0029573a3d84690ace3d459ef036af7416baaa78793a1667940c"
+      ]
+    },
+    {
+      "identity": "One-fragment release compatibility check",
+      "status": "bounded_single_RAW_fragment_only",
+      "evidence": [
+        "history-v5-fragment-validator-r1/execution/invocation.json@a63dd18a00c423b0e93c6b48e3a9762faa9000bc9b36dfffef7d1b1702ba9a8c",
+        "history-v5-fragment-validator-r1/execution/receipt.json@a38b701c4628bef3b18ae5609bfad83f7913a2b9d5b216e3c0d6f1c6a6d53579"
+      ]
+    },
+    {
+      "identity": "Independent owner and Ruff-delta reviews",
+      "status": "bounded_review_go",
+      "evidence": [
+        "runtime-history-output-path-class-r1/runtime-history-v5-independent-review-r1/independent-review.json@0fff12a2200ed5c672d6248656528d43f9a575f8dc9c1e25d2292128d42fb1d4",
+        "runtime-history-v5-ruff-cleanup-r1/runtime-history-v5-ruff-delta-independent-r1/independent-review.json@fc99cc6549da363c8af8680e2fcff0e62c4cb4ca03cb1522e8eecb6db3ed6b04"
+      ]
+    },
+    {
+      "identity": "Post-implementation ignored-history custody transition",
+      "status": "native_trash_move_and_current_guard_recheck_verified",
+      "evidence": [
+        "history-legacy-native-trash-r1/receipt.json@5ba2a5da373b51f171310a164c4b7eae52f56171c57b2d3976d907ff6759ded7",
+        "history-legacy-evacuation-postfix-review-r1/independent-review.json@3651891072bcfadd238cacb04f80570a88724abe7ec08065aaaf15541bb89aec",
+        "untracked-build-history-preservation-r1/receipt.json@791ba93daabb0c47cf5dd068a2de7e6f81823e72a8cad49dcf3f3511115a00e5"
+      ]
+    },
+    {
+      "identity": "Current R122 branch delivery/readback",
+      "status": "verified_current_remote_snapshot",
+      "evidence": [
+        "implementation-source-commit-r122-20261025-r1/readback.json@bfc2b986033d3e486ddcdd1506271fb674763e1520e2155e683c1d38fad65771",
+        "push-source-r122-20261025-r1/receipt.json@4c10eea12f5ddb06881151b843cd865ef0c0f93a8b218bce79490747530632de"
+      ]
+    }
+  ],
+  "source_frame": {
+    "candidate_precommit": {
+      "base": "6cd7935c9a1dc1d22a08fc2bf7f72c73dd5ef600",
+      "ref": "integration/runtime-history-v5-ruff-reviewed-application-r118/full-composed-source-frame.json@8eaad18ab23c2d2164b8fc03c130f1a2b5b53d605dfcff6234c6598281a3f459",
+      "selected_paths": 1069,
+      "tree": "8a6682302952559ceb830d3f8158bf18b37015c5"
+    },
+    "committed_frames": [
+      {
+        "commit": "503b2b42a75c1934ff47a502eedfceab58664afb",
+        "tree": "0d6dd21cdc9b54706f8b2f3874cc98c78c9da670",
+        "parents": [
+          "6cd7935c9a1dc1d22a08fc2bf7f72c73dd5ef600"
+        ],
+        "frame_ref": "implementation-source-commit-r119-20261025-r1/full-composed-source-frame.json@fc4f8a716a08946cb34321405e25eabd67ef143626dccd5ef5ad07331fdf911d",
+        "frame_entries": 1069
+      },
+      {
+        "commit": "b6d9277bc8eae638f1a7a05f512af614499c89f3",
+        "tree": "3b2f17df3387d6ae324cf9c2e96c4a4238cb4d8b",
+        "parents": [
+          "503b2b42a75c1934ff47a502eedfceab58664afb"
+        ],
+        "frame_ref": "implementation-source-commit-r120-20261025-r1/full-composed-source-frame.json@39d6ad4a1f100be7e2aa2a0eeefd6d0fa7074550682deb5b91dc794a1142621a",
+        "frame_entries": 1069
+      },
+      {
+        "commit": "c7f7292f248be724b992fa30eaed7c67d8b64121",
+        "tree": "80865cef7233fe5c93488cda6600c35bc9219fc8",
+        "parents": [
+          "b6d9277bc8eae638f1a7a05f512af614499c89f3"
+        ],
+        "frame_ref": "implementation-source-commit-r121-20261025-r1/full-composed-source-frame.json@8f328a5a28f570b159e75e4c3e424a661a3a2a634ec01486531fbbb9c59bf463",
+        "frame_entries": 1069
+      },
+      {
+        "commit": "49dff9183c20be3877d47953e0142417cb854cd0",
+        "tree": "6c566aafccf5ceaa8f6718ba52b81a6b926d2b60",
+        "parents": [
+          "c7f7292f248be724b992fa30eaed7c67d8b64121"
+        ],
+        "frame_ref": "implementation-source-commit-r122-20261025-r1/full-composed-source-frame.json@6368485dc3f31b630baee6352947641ad581185dd58aca264e9f7dbfb135c352",
+        "frame_entries": 1070
+      }
+    ],
+    "comparison": {
+      "historical_candidate_to_r119_r120_r121": {
+        "candidate_entries": 1069,
+        "per_frame": {
+          "r119": {
+            "entry_count": 1069,
+            "added": [],
+            "removed": [],
+            "changed": []
+          },
+          "r120": {
+            "entry_count": 1069,
+            "added": [],
+            "removed": [],
+            "changed": []
+          },
+          "r121": {
+            "entry_count": 1069,
+            "added": [],
+            "removed": [],
+            "changed": []
+          }
+        },
+        "result": "all three historical committed maps are identical to the R118 precommit candidate map"
+      },
+      "r121_to_current_r122": {
+        "from_entries": 1069,
+        "to_entries": 1070,
+        "added": [
+          "policy-engine/tests/unit/scientist/orchestration/engine/test_cache_reference_custody.py"
+        ],
+        "removed": [],
+        "changed": []
+      },
+      "qualification": "The R118 68-case precommit run is byte-qualified for the R119/R120 source bytes captured in R119/R120/R121 frames. R122 adds one separately committed test path; no fresh 68-case run on R122 is claimed."
+    },
+    "current_frame": {
+      "commit": "49dff9183c20be3877d47953e0142417cb854cd0",
+      "tree": "6c566aafccf5ceaa8f6718ba52b81a6b926d2b60",
+      "frame_ref": "implementation-source-commit-r122-20261025-r1/full-composed-source-frame.json@6368485dc3f31b630baee6352947641ad581185dd58aca264e9f7dbfb135c352",
+      "selected_paths": 1070,
+      "selected_python_files": 803
+    }
+  },
+  "backend_profile": {
+    "host": "macOS sandbox-exec",
+    "python_executable": "policy-engine/.venv/bin/python",
+    "import_overrides": {},
+    "numerical_profile": "cpu_single_thread",
+    "torch": "2.10.0",
+    "intra_op": 1,
+    "inter_op": 1,
+    "integration_environment": "POLISYOS_RUN_INTEGRATION=1"
+  },
+  "commands": [
+    {
+      "name": "Six-module composed pytest run",
+      "invocation_ref": "boot0-history-composed-canonical-r118/invocation.json@85c7fe34322b2885de523ba298b8759f0d0cb71e43c9a9c38fb48df91bdbe87a",
+      "execution": "/usr/bin/sandbox-exec -> policy-engine/.venv/bin/python -B child.py; child calls pytest.main; invocation records exact argv, temp/cache/benchmark locations, and no import overrides.",
+      "targets": [
+        "tests/integration/runtime_quality/test_evaluation_safety_authorities_source.py",
+        "tests/integration/runtime_quality/test_evaluation_safety_admission.py",
+        "tests/unit/runtime/http/test_runtime_service_container.py",
+        "tests/unit/foundry/methods/selection/test_history_paths.py",
+        "tests/unit/foundry/methods/test_selection_v2.py",
+        "tests/unit/foundry/methods/backends/test_dispatch.py"
+      ],
+      "junit_cases_by_module": {
+        "test_evaluation_safety_authorities_source": 3,
+        "test_evaluation_safety_admission": 4,
+        "test_runtime_service_container": 9,
+        "test_history_paths": 19,
+        "test_selection_v2": 22,
+        "test_dispatch": 11
+      },
+      "result": {
+        "passed": 68,
+        "failed": 0,
+        "errors": 0,
+        "skipped": 0,
+        "junit_seconds": 22.474,
+        "harness_wall_seconds": 40.103819541,
+        "exit_code": 0
+      },
+      "output_refs": [
+        "boot0-history-composed-canonical-r118/root-result.json@86fa601a3dbfbee14926a3f9cd60113ec462e9c56cc669d47c776aa568b8f743",
+        "boot0-history-composed-canonical-r118/execution/junit.xml@838c3680c90b6bef3d4be4f80895ff69b2952c4347b6abd9dc92a1e76454f4cb",
+        "boot0-history-composed-canonical-r118/execution/boot0-history-composed.stdout.txt@84ed9b28bd0876e57d568277cd761da0e9d650c91fafe5f81397713b04fcd536",
+        "boot0-history-composed-canonical-r118/execution/boot0-history-composed.stderr.txt@cac246557f41f69633f58d838e666821f128a69865a37bdf25e835258563db64"
+      ],
+      "output_note": "Captured stderr has OMP Warning #179 about setting a /tmp file size; harness completed and test exit status was 0.",
+      "case_group_totals": {
+        "boot0_integration_and_container": 16,
+        "history_selection_and_dispatch": 52
+      }
+    },
+    {
+      "name": "Focused Ruff check and format --check",
+      "scope": "Eight Python files from the R119 and R120 source/test footprints; README and TOML fragment were not covered by Ruff.",
+      "invocations": [
+        "boot0-history-focused-ruff-r118/check/execution/invocation.json@0f0ec5b391d9ec100322a24d0e55f61e88e1fbfe08bb54f9b91f9f476f434def",
+        "boot0-history-focused-ruff-r118/format/execution/invocation.json@55bf1fd67e5515fe77467ebcee33600181d33a1e689501745c79f06af65c24c1"
+      ],
+      "receipts": [
+        "boot0-history-focused-ruff-r118/check/execution/receipt.json@544fe7a448822775565386084f535162ee36a75a2d75257fd939e5155da6d738",
+        "boot0-history-focused-ruff-r118/format/execution/receipt.json@a218a722293c0029573a3d84690ace3d459ef036af7416baaa78793a1667940c"
+      ],
+      "results": {
+        "check_exit_code": 0,
+        "format_exit_code": 0,
+        "timeouts": false
+      }
+    },
+    {
+      "name": "Single RAW release-fragment compatibility check",
+      "argv_summary": [
+        "policy-engine/.venv/bin/python -B tools/ops_runners/release/check_compatibility_release_gates.py --repo-root policy-engine --fragments-dir policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/root-ir-transport-composition-20261024-r1/runtime-history-v5-root-application-prep-r1/postimages/policy-engine/release-fragments/unreleased --fail-on-contract-errors"
+      ],
+      "scope": "Exactly one RAW candidate fragment selected; that file is byte-identical to the tracked R120 fragment. This is not a full release compatibility gate.",
+      "fragment_sha256": "6b4774ba98b88448087b57a9825a8fa5a1616ee56d263098ef66ddb42c9e51a6",
+      "invocation_ref": "history-v5-fragment-validator-r1/execution/invocation.json@a63dd18a00c423b0e93c6b48e3a9762faa9000bc9b36dfffef7d1b1702ba9a8c",
+      "receipt_ref": "history-v5-fragment-validator-r1/execution/receipt.json@a38b701c4628bef3b18ae5609bfad83f7913a2b9d5b216e3c0d6f1c6a6d53579",
+      "result": {
+        "exit_code": 0,
+        "timed_out": false,
+        "wall_seconds": 1.363541875
+      },
+      "candidate_fragment_ref": "runtime-history-v5-root-application-prep-r1/postimages/policy-engine/release-fragments/unreleased/2026-10-25-foundry-selection-history-state-path.toml@6b4774ba98b88448087b57a9825a8fa5a1616ee56d263098ef66ddb42c9e51a6",
+      "canonical_fragment": {
+        "path": "policy-engine/release-fragments/unreleased/2026-10-25-foundry-selection-history-state-path.toml",
+        "sha256": "6b4774ba98b88448087b57a9825a8fa5a1616ee56d263098ef66ddb42c9e51a6"
+      }
+    }
+  ],
+  "failures": [],
+  "chain": {
+    "contract": "Existing local selection-history persistence path; no new authority contract or claim.",
+    "producer": "Existing SelectionHistoryStore remains the writer; the global getter now resolves the default output to per-user persistent state rather than a package/checkout-relative path.",
+    "artifact": "Existing history output remains in its current format; the change adds no automatic legacy import or migration.",
+    "bridge": "One private path resolver handles configured roots and completed output paths; explicit custom paths and dependency injection remain supported.",
+    "consumer": "Existing Foundry selection-history getter/store path consumes the resolved path. Installed-wheel/no-checkout consumer behavior was not exercised.",
+    "verification": "The full composed six-module run includes 19 history-path tests and 68 total cases; focused Ruff check/format and one-fragment compatibility check also passed.",
+    "surface": "Existing local Foundry selection-history API; no external service/API surface added.",
+    "semantic_test": "Tests exercise default and configured path resolution, invalid/missing roots, platform-default branches, and explicit lossless legacy adoption.",
+    "capability_status": "verification_missing"
+  },
+  "consumer_surface": {
+    "behavior": "Default history output is per-user persistent state and no longer derived from __file__, checkout, or package origin.",
+    "explicit_overrides": "custom persist_path and injected dispatcher/store choices remain explicit and supported.",
+    "legacy": "No automatic legacy import. The move receipt records that the old ignored build-tree file was moved to native Trash after preservation. At the R3 readback the old source path and the recorded Trash group/item paths are absent; the cause is unknown. The retained gzip remains byte-exact and can restore the original bytes; prior rows are not visible through the default history path unless explicitly restored/adopted.",
+    "original_data": "Time-qualified custody: the native Trash receipt records a successful move at the R121/c7 snapshot. At the R3 readback the original source path, Trash group, item, and item child are absent. Do not claim the item is currently in Trash or infer who/what removed it. The retained gzip copy currently decompresses to the exact 5,112,736-byte original SHA.",
+    "installed_wheel_smoke": false,
+    "native_windows": false
+  },
+  "controls": [
+    "The shared resolver treats a path as a missing tail only when stat and lstat both raise FileNotFoundError; it strict-resolves the deepest existing ancestor.",
+    "Reject cycles/ELOOP, dangling symlinks, permission/stat errors, ENOTDIR, NUL, empty/relative input, and expanduser failures rather than falling back to a platform default.",
+    "Keep explicit path overrides and injected store/dispatcher behavior unchanged.",
+    "Require explicit lossless legacy adoption; do not auto-import or migrate existing history."
+  ],
+  "limitations": [
+    "No actual installed-wheel/no-checkout smoke was run; module origin in purelib, output location outside purelib/checkout, and getter-write-read behavior remain unverified.",
+    "Windows behavior was tested through platform-branch simulation on macOS with PosixPath; no native Windows run is claimed.",
+    "The one-fragment check used one RAW byte-identical candidate fragment and is not a full release compatibility gate.",
+    "No source freeze, global freeze, code acceptance, formal closure, G acceptance, full backend verify, or CI parity is claimed.",
+    "An unrelated ignored-data baseline is excluded; the separate 52-case and 68-case run results are not summed.",
+    "The move receipt is historical: it records a successful native Trash move after gzip/no-handle/full-guard checks. At the R3 readback the original source path, Trash group, item, and item child are absent; the reason is unknown and no actor is attributed.",
+    "The retained gzip currently exists and decompresses to the exact 5,112,736-byte source. No claim is made that the item remains in Trash or that the old rows were migrated/auto-imported.",
+    "The 20-pathspec/12-resource guard snapshot recorded zero blockers after the move; R3 does not rerun the guard, so this is not a current GCP package build/pass.",
+    "R122 adds one selected source-frame path after the R119/R120/R121 frames; the 68-case run is byte-qualified for the earlier 1069-path maps, not a fresh test run on R122.",
+    "The separate 52-case history/selection/dispatch replay and 68-case composed replay remain distinct; neither is summed with the unrelated ignored-data baseline."
+  ],
+  "decision_refs": [],
+  "G_checkpoint_observed": {
+    "status": "not_adjudicated_by_this_draft",
+    "reference": null
+  },
+  "proposal_state": "implementation_delivered_assessment_pending",
+  "formal_closure_ids": [],
+  "assessment_occurrence_bindings": [],
+  "assessment_ids": [],
+  "proposal_ids": [],
+  "proposal_occurrences": [],
+  "closure_ids": [],
+  "review_refs": [
+    {
+      "ref": "runtime-history-output-path-class-r1/runtime-history-v5-independent-review-r1/independent-review.json@0fff12a2200ed5c672d6248656528d43f9a575f8dc9c1e25d2292128d42fb1d4",
+      "disposition": "GO_FOR_CANONICAL_APPLICATION_WITH_POST_APPLY_GATES",
+      "scope": "Exact v5 code/test/README/release-fragment candidate; installed-wheel, native Windows, source freeze, and formal G acceptance not established."
+    },
+    {
+      "ref": "runtime-history-v5-ruff-cleanup-r1/runtime-history-v5-ruff-delta-independent-r1/independent-review.json@fc99cc6549da363c8af8680e2fcff0e62c4cb4ca03cb1522e8eecb6db3ed6b04",
+      "disposition": "GO_FOR_THIS_NARROW_DELTA",
+      "scope": "Ruff-only cleanup delta review; not behavior, installed-consumer, or history-data review."
+    },
+    {
+      "ref": "history-legacy-evacuation-postfix-review-r1/independent-review.json@3651891072bcfadd238cacb04f80570a88724abe7ec08065aaaf15541bb89aec",
+      "disposition": "GO_FOR_NATIVE_TRASH_ONLY_WITH_IMMEDIATE_ROOT_RECHECK",
+      "scope": "Read-only pre-move review of exact source identity, byte-identical gzip preservation, no-open-handle evidence, and complete GCP source guard pathspec/resource map; it did not perform the move or build a package."
+    },
+    {
+      "ref": "handoff-source-r108-independent-r1/receipt-metadata-review-r119-r120-r1.json@a6840dd1d35205e3ed2fd7ec8fd67e7b17eaa8b95353799da67667c4afdba625",
+      "disposition": "NO_GO_FOR_TRACKED_DRAFTS_AS_CURRENT_UNTIL_METADATA_CORRECTED",
+      "scope": "Prior independent metadata review; R3 author rewrite addresses malformed R120 identity pins, stale R121-as-current branch fields, and time-qualified Trash availability. This is not a new peer approval."
+    }
+  ],
+  "handoff": {
+    "what_changed": "Resolve default Foundry selection-history output under persistent per-user state through one strict path resolver; preserve explicit paths/injection and require explicit lossless legacy adoption.",
+    "operational_surface": "Existing Foundry selection-history getter and SelectionHistoryStore.",
+    "intended_tracked_destination_after_independent_root_review": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/foundry-selection-history-r120.json",
+    "draft_source": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/root-ir-transport-composition-20261024-r1/handoff-boot0-history-r119-r120-drafts-r3/foundry-selection-history-r120-r3.json",
+    "rollback_or_exit_path": "The exact prior rows can be reconstructed from the currently retained byte-exact gzip; the historical native Trash item is not found at R3 readback. Restore/adopt only through a separately reviewed explicit operation; no automatic import is added.",
+    "follow_up": "Independent peer/root review of this R3 metadata record; installed-wheel/no-checkout and native-platform evidence remain pending. Any tracked receipt is a separate root action after current freeze."
+  },
+  "evidence_refs": [
+    "implementation-source-commit-r120-20261025-r1/readback.json@d524245f92f2d788fbf4f17829b6aded9560899dfcf78cf235ea1dde0cee1d15",
+    "integration/implementation-source-commit-r120-manifest.json@fb7cb299c91a726050262d077cfec0c35d3390adf24ffa7e5c900960809b44c2",
+    "runtime-history-output-path-class-r1/runtime-history-v5-independent-review-r1/independent-review.json@0fff12a2200ed5c672d6248656528d43f9a575f8dc9c1e25d2292128d42fb1d4",
+    "runtime-history-v5-ruff-cleanup-r1/runtime-history-v5-ruff-delta-independent-r1/independent-review.json@fc99cc6549da363c8af8680e2fcff0e62c4cb4ca03cb1522e8eecb6db3ed6b04",
+    "implementation-source-commit-r121-20261025-r1/readback.json@32a3d36655b764e9e9f20166736eb8a8074b54c53c3caed5a46aed64fa424aec",
+    "push-source-r121-20261025-r1/receipt.json@c507241f1a8d42110c924dca9144dbe280350cdcc872eca7ad318fb6fd4b9850",
+    "history-legacy-native-trash-r1/receipt.json@5ba2a5da373b51f171310a164c4b7eae52f56171c57b2d3976d907ff6759ded7",
+    "history-legacy-evacuation-postfix-review-r1/independent-review.json@3651891072bcfadd238cacb04f80570a88724abe7ec08065aaaf15541bb89aec",
+    "untracked-build-history-preservation-r1/receipt.json@791ba93daabb0c47cf5dd068a2de7e6f81823e72a8cad49dcf3f3511115a00e5",
+    "untracked-build-history-preservation-r1/independent-review.json@1b70909bafaa8cf3946638e1145b394ed010c88607f07d9dde6204805c5e8ab7",
+    "untracked-build-history-preservation-r1/executions.jsonl.gz@6c8277a125910819fa156b5aa1a403e03e4f20ea0d82a1900c678f55d85aa28b",
+    "runtime-history-v5-canonical-replay-r1/invocation.json@4aad8275f81646e52f28ac5b44909ac35854c05517a37bb52c5f8fed3b78ee3b",
+    "runtime-history-v5-canonical-replay-r1/root-result.json@fe3b18805035c94aa48e0860fb7a20b9e3ffc90ba173a39f38457f2e7883e35e",
+    "runtime-history-v5-canonical-replay-r1/execution/junit.xml@886c4abd6c30bdb69e9c113f98634ac6efb75e73e93f12e88558049964d6500a",
+    "handoff-boot0-history-r119-r120-drafts-r1/foundry-selection-history-r120.json@cd2ebbcb79f9c8806d38da1e48601ce233384da968d01cb9dc5203d72d52035f",
+    "implementation-source-commit-r122-20261025-r1/readback.json@bfc2b986033d3e486ddcdd1506271fb674763e1520e2155e683c1d38fad65771",
+    "push-source-r122-20261025-r1/receipt.json@4c10eea12f5ddb06881151b843cd865ef0c0f93a8b218bce79490747530632de",
+    "implementation-source-commit-r122-20261025-r1/full-composed-source-frame.json@6368485dc3f31b630baee6352947641ad581185dd58aca264e9f7dbfb135c352",
+    "handoff-source-r108-independent-r1/receipt-metadata-review-r119-r120-r1.json@a6840dd1d35205e3ed2fd7ec8fd67e7b17eaa8b95353799da67667c4afdba625"
+  ],
+  "native_decision": "R120_IMPLEMENTATION_PENDING_ASSESSMENT; TRASH_MOVE_HISTORICAL_AND_ITEM_NOT_FOUND; GZIP_BYTE_EXACT; NO_AUTO_IMPORT; OVERALL_ASSESSMENT_PENDING",
+  "native_summary": {
+    "composed_modules": 6,
+    "passed": 68,
+    "failed": 0,
+    "errors": 0,
+    "skipped": 0,
+    "history_paths_cases": 19,
+    "history_and_selection_related_case_group_counts": {
+      "test_history_paths": 19,
+      "test_selection_v2": 22,
+      "test_dispatch": 11
+    },
+    "run_was_precommit_candidate": true,
+    "postcommit_full_frame_maps_identical": {
+      "path_entries": 1069,
+      "added": 0,
+      "removed": 0,
+      "changed": 0
+    },
+    "installed_wheel_smoke": false,
+    "source_freeze": false,
+    "G_acceptance": false,
+    "closure_ids": [],
+    "boot0_integration_and_container_cases": 16,
+    "history_selection_and_dispatch_cases": 52,
+    "legacy_data_custody": {
+      "move_recorded_at_R121": true,
+      "source_path_absent_at_R3_readback": true,
+      "trash_group_currently_found": false,
+      "trash_item_currently_found": false,
+      "trash_absence_cause": "unknown",
+      "gzip_currently_exists": true,
+      "gzip_bytes": 191588,
+      "gzip_sha256": "6c8277a125910819fa156b5aa1a403e03e4f20ea0d82a1900c678f55d85aa28b",
+      "gzip_restore_bytes": 5112736,
+      "gzip_restore_sha256": "ec59a4f48abec39989553661be44dae6f9d9b283dc0be19951fbb1f783c77473",
+      "gzip_restoration_matches_original": true,
+      "gcp_zero_blocker_snapshot_at_move_time": true,
+      "current_gcp_guard_rerun": false,
+      "permanent_deletion_or_current_trash_restoration_claim": false
+    },
+    "history_selection_replay_52": {
+      "passed": 52,
+      "failed": 0,
+      "errors": 0,
+      "skipped": 0,
+      "aggregated_with_composed_68": false
+    },
+    "unrelated_ignored_baseline": "excluded; no case counts are combined"
+  },
+  "repository_state": {
+    "candidate_commit": "b6d9277bc8eae638f1a7a05f512af614499c89f3",
+    "candidate_tree": "3b2f17df3387d6ae324cf9c2e96c4a4238cb4d8b",
+    "parent": "503b2b42a75c1934ff47a502eedfceab58664afb",
+    "branch": "codex/e02-unified-local-20261009",
+    "current_remote_head": "49dff9183c20be3877d47953e0142417cb854cd0",
+    "current_remote_tree": "6c566aafccf5ceaa8f6718ba52b81a6b926d2b60",
+    "current_remote_push_ref": "push-source-r122-20261025-r1/receipt.json@4c10eea12f5ddb06881151b843cd865ef0c0f93a8b218bce79490747530632de",
+    "current_remote_changed_path_count": 15,
+    "all_remote_changed_bytes_match_reviewed_candidate": true,
+    "current_remote_scope_note": "R122 is current; its 15-path push/readback window is relative to the R119 slice base (6cd), not an R120-only footprint. R121/c7/14 paths is historical.",
+    "source_freeze": false,
+    "global_source_freeze": false,
+    "code_acceptance": false,
+    "closure_ids": [],
+    "worktree_cleanliness_claimed": false,
+    "current_remote_branch": "refs/heads/codex/e02-unified-local-20261009",
+    "current_remote_origin_tracking_head": "49dff9183c20be3877d47953e0142417cb854cd0",
+    "current_remote_readback_ref": "implementation-source-commit-r122-20261025-r1/readback.json@bfc2b986033d3e486ddcdd1506271fb674763e1520e2155e683c1d38fad65771",
+    "current_remote_changed_path_count_base": "6cd7935c9a1dc1d22a08fc2bf7f72c73dd5ef600"
+  },
+  "pattern_pass": {
+    "ids": [
+      "P01",
+      "P02",
+      "P10",
+      "P27",
+      "P29",
+      "P33"
+    ],
+    "existing_anti_patterns_found": [
+      "A package/checkout-derived default can put persistent history under an ephemeral or installed package root; R120 moves the existing owner to per-user state.",
+      "The resolver/path unit coverage is real, but installed-wheel consumption remains untested, so the capability is not complete."
+    ],
+    "target": "Use the existing history owner and a single strict path resolver; reject malformed roots instead of fallback; keep legacy adoption explicit and lossless.",
+    "missing_capability_labels": [
+      "verification_missing"
+    ],
+    "acceptance_signal": "An installed no-checkout wheel resolves the default through the same owner, writes and reads history outside purelib and checkout, and retains explicit path/adoption behavior."
+  },
+  "draft_revision": 3,
+  "supersedes_raw_draft": {
+    "path": "handoff-boot0-history-r119-r120-drafts-r2/foundry-selection-history-r120.json",
+    "sha256": "5c6d9a86cb7e848793810675755c6d7c520ebbda695899d1ac089d50ad3325e7",
+    "preserved_unchanged": true
+  },
+  "draft_source": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/root-ir-transport-composition-20261024-r1/handoff-boot0-history-r119-r120-drafts-r3/foundry-selection-history-r120-r3.json",
+  "post_implementation_data_custody_transition": {
+    "sequence": "After R120 implementation delivery, the ignored legacy file was moved to native Trash under the R121/c7 source snapshot; R2 authoring verified the Trash item then. The independent metadata review and this R3 readback later found the exact Trash group/item paths absent. The original gzip remains present and byte-exact.",
+    "source_before_move": {
+      "path": "/Users/deniskopylov/.codex/worktrees/e02-unified-local-20261009/polisyos/policy-engine/src/_build/benchmark-results/foundry/selection_history/executions.jsonl",
+      "size_bytes": 5112736,
+      "sha256": "ec59a4f48abec39989553661be44dae6f9d9b283dc0be19951fbb1f783c77473",
+      "identity": {
+        "dev": 16777232,
+        "ino": 175662006,
+        "mode": 33188,
+        "uid": 501,
+        "gid": 20,
+        "size": 5112736,
+        "mtime_ns": 1792648359984983168
+      },
+      "historical_move_receipt_ref": "history-legacy-native-trash-r1/receipt.json@5ba2a5da373b51f171310a164c4b7eae52f56171c57b2d3976d907ff6759ded7",
+      "historical_receipt_state": "trashed",
+      "historical_receipt_no_permanent_deletion_flag": true,
+      "source_path_currently_exists": false
+    },
+    "historical_native_trash_record": {
+      "move_receipt_ref": "history-legacy-native-trash-r1/receipt.json@5ba2a5da373b51f171310a164c4b7eae52f56171c57b2d3976d907ff6759ded7",
+      "group_recorded_at_move": "/Users/deniskopylov/.Trash/E02-legacy-foundry-history-archived-20261025-r1",
+      "item_recorded_at_move": "/Users/deniskopylov/.Trash/E02-legacy-foundry-history-archived-20261025-r1/item-000",
+      "action_state_at_receipt": "trashed",
+      "native_call_return_code": 0,
+      "no_permanent_deletion_recorded_at_move": true,
+      "r2_author_readback_ref": "handoff-boot0-history-r119-r120-drafts-r2/foundry-selection-history-r120.json@5c6d9a86cb7e848793810675755c6d7c520ebbda695899d1ac089d50ad3325e7",
+      "r2_observation_time_qualification": "R2 recorded a matching item then; this is historical and does not establish current Trash availability."
+    },
+    "complete_gcp_guard_at_move_time": {
+      "review_ref": "history-legacy-evacuation-postfix-review-r1/independent-review.json@3651891072bcfadd238cacb04f80570a88724abe7ec08065aaaf15541bb89aec",
+      "guard_receipt_ref": "history-legacy-native-trash-r1/receipt.json@5ba2a5da373b51f171310a164c4b7eae52f56171c57b2d3976d907ff6759ded7",
+      "guard_source_sha256": "d0dc7ab065940c5051554ba95fceeb1962695d2d64448a06666ab24debc39462",
+      "complete_pathspec_count": 20,
+      "force_included_resource_count": 12,
+      "pathspec_and_resource_map_ref": "history-legacy-evacuation-postfix-review-r1/independent-review.json@3651891072bcfadd238cacb04f80570a88724abe7ec08065aaaf15541bb89aec",
+      "after_move_snapshot": {
+        "untracked_matches": 1798,
+        "skipped": 1798,
+        "blockers": []
+      },
+      "qualification": "The full 20-pathspec/12-resource definition and zero-blocker result are from the move-time snapshot; no fresh GCP guard was run for this R3 metadata update."
+    },
+    "no_open_handle_before_move": {
+      "argv": [
+        "/usr/sbin/lsof",
+        "-nP",
+        "/Users/deniskopylov/.codex/worktrees/e02-unified-local-20261009/polisyos/policy-engine/src/_build/benchmark-results/foundry/selection_history/executions.jsonl"
+      ],
+      "return_code": 1,
+      "stdout_empty": true,
+      "stderr_empty": true
+    },
+    "current_R3_readback": {
+      "source_path_exists": false,
+      "trash_group_path": "/Users/deniskopylov/.Trash/E02-legacy-foundry-history-archived-20261025-r1",
+      "trash_group_exists": false,
+      "trash_item_path": "/Users/deniskopylov/.Trash/E02-legacy-foundry-history-archived-20261025-r1/item-000",
+      "trash_item_exists": false,
+      "recorded_item_child_path": "/Users/deniskopylov/.Trash/E02-legacy-foundry-history-archived-20261025-r1/item-000/executions.jsonl",
+      "recorded_item_child_exists": false,
+      "trash_absence_cause": "unknown; no inference about who or what removed the paths",
+      "gzip_path": "/Users/deniskopylov/.codex/worktrees/e02-unified-local-20261009/polisyos/policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/root-ir-transport-composition-20261024-r1/untracked-build-history-preservation-r1/executions.jsonl.gz",
+      "gzip_exists": true,
+      "gzip_bytes": 191588,
+      "gzip_sha256": "6c8277a125910819fa156b5aa1a403e03e4f20ea0d82a1900c678f55d85aa28b",
+      "restored_bytes": 5112736,
+      "restored_sha256": "ec59a4f48abec39989553661be44dae6f9d9b283dc0be19951fbb1f783c77473",
+      "restoration_matches_source": true
+    },
+    "application_boundary": "The R120 runtime does not auto-import this legacy JSONL. No automatic migration occurred. The old source path and Trash item are absent now; exact source bytes remain recoverable from the retained gzip. This is not package archive/sdist/wheel build or validation evidence."
+  },
+  "run_scope_separation": {
+    "history_selection_dispatch_replay": {
+      "result": {
+        "tests": 52,
+        "passed": 52,
+        "failed": 0,
+        "errors": 0,
+        "skipped": 0
+      },
+      "scope": "Earlier three-module history/selection/dispatch replay on its recorded candidate frame; kept separate from the six-module composed result.",
+      "evidence_refs": [
+        "runtime-history-v5-canonical-replay-r1/invocation.json@4aad8275f81646e52f28ac5b44909ac35854c05517a37bb52c5f8fed3b78ee3b",
+        "runtime-history-v5-canonical-replay-r1/root-result.json@fe3b18805035c94aa48e0860fb7a20b9e3ffc90ba173a39f38457f2e7883e35e",
+        "runtime-history-v5-canonical-replay-r1/execution/junit.xml@886c4abd6c30bdb69e9c113f98634ac6efb75e73e93f12e88558049964d6500a"
+      ]
+    },
+    "six_module_composed_replay": {
+      "result": {
+        "tests": 68,
+        "passed": 68,
+        "failed": 0,
+        "errors": 0,
+        "skipped": 0
+      },
+      "evidence_refs": [
+        "boot0-history-composed-canonical-r118/root-result.json@86fa601a3dbfbee14926a3f9cd60113ec462e9c56cc669d47c776aa568b8f743",
+        "boot0-history-composed-canonical-r118/execution/junit.xml@838c3680c90b6bef3d4be4f80895ff69b2952c4347b6abd9dc92a1e76454f4cb"
+      ]
+    },
+    "aggregation": "The 52-case earlier history/selection/dispatch replay, 68-case R118 composed replay, and unrelated ignored-data baseline are separate; do not aggregate their case counts. The 68-case run remains candidate evidence only for the R119/R120/R121 1069-path maps."
+  },
+  "remote_checkpoints": {
+    "current_R122": {
+      "head": "49dff9183c20be3877d47953e0142417cb854cd0",
+      "tree": "6c566aafccf5ceaa8f6718ba52b81a6b926d2b60",
+      "parents": [
+        "c7f7292f248be724b992fa30eaed7c67d8b64121"
+      ],
+      "branch": "refs/heads/codex/e02-unified-local-20261009",
+      "verified_changed_path_count": 15,
+      "verification_window_base": "6cd7935c9a1dc1d22a08fc2bf7f72c73dd5ef600",
+      "all_remote_bytes_match": true,
+      "push_ref": "push-source-r122-20261025-r1/receipt.json@4c10eea12f5ddb06881151b843cd865ef0c0f93a8b218bce79490747530632de",
+      "readback_ref": "implementation-source-commit-r122-20261025-r1/readback.json@bfc2b986033d3e486ddcdd1506271fb674763e1520e2155e683c1d38fad65771",
+      "origin_tracking_ref": "origin/codex/e02-unified-local-20261009",
+      "origin_tracking_head_matches": true
+    },
+    "historical_R121": {
+      "head": "c7f7292f248be724b992fa30eaed7c67d8b64121",
+      "tree": "80865cef7233fe5c93488cda6600c35bc9219fc8",
+      "parents": [
+        "b6d9277bc8eae638f1a7a05f512af614499c89f3"
+      ],
+      "verified_changed_path_count": 14,
+      "all_remote_bytes_match": true,
+      "push_ref": "push-source-r121-20261025-r1/receipt.json@c507241f1a8d42110c924dca9144dbe280350cdcc872eca7ad318fb6fd4b9850",
+      "status": "historical_checkpoint_superseded_by_R122"
+    }
+  },
+  "metadata_review_resolution": {
+    "prior_review_ref": "handoff-source-r108-independent-r1/receipt-metadata-review-r119-r120-r1.json@a6840dd1d35205e3ed2fd7ec8fd67e7b17eaa8b95353799da67667c4afdba625",
+    "prior_disposition": "NO_GO_FOR_TRACKED_DRAFTS_AS_CURRENT_UNTIL_METADATA_CORRECTED",
+    "addressed_findings": [
+      "META-01: all R120 commit/tree/parent identities are now derived from Git objects and readbacks.",
+      "META-02: R122/49dff/15 is current; R121/c7/14 is historical only.",
+      "META-03: native Trash custody is time-qualified; current item/group are absent and cause is unknown; gzip remains byte-exact."
+    ],
+    "status": "author rewrite for peer re-review; not a formal closure or acceptance."
+  }
+}

@@ -1,0 +1,383 @@
+{
+  "schema": "e02-g-native-expiry-review/v1",
+  "review": "independent_R2_no_subagents",
+  "source_commit": "8533003b91961cf9ba1305ec296dab7f3ed40e4b",
+  "source_tree": "2b6cf831d0211cedf3a2caa2543a9e8daa3ac766",
+  "documentation_base": "55b5abac5a0f4854ab0bb4e8d93f01a40e5c95b3",
+  "as_of_date": "2026-10-25",
+  "architecture_selection": "selected_by_G",
+  "code_acceptance": false,
+  "closure_ids": [],
+  "method": "Standalone stdlib reader following pinned native-preflight date selectors; no repository imports or gate execution. Counts date obligations, not full preflight findings.",
+  "limitations": [
+    "Date-selection census only; no native gate or child gate executed.",
+    "No predicate/property acceptance from presence of metadata.",
+    "No current mypy error count or current unignored Ruff rerun.",
+    "Prior Fabric runtime receipts remain source qualified to their original frame."
+  ],
+  "denominator": {
+    "census_source_files": 43,
+    "package_tomls": 19,
+    "date_obligations": 138,
+    "active_expired_records": 27,
+    "expired_zero_debt_docs_exempt": 1,
+    "not_expired_records": 110,
+    "invalid_selected_dates": 0,
+    "by_selected_group": {
+      "docs": 1,
+      "shims": 6,
+      "structure": 3,
+      "dynamic": 1,
+      "packages": 9,
+      "package_sunset": 4,
+      "tests": 6,
+      "test_topology": 12,
+      "static_overrides": 25,
+      "module_size": 32,
+      "observability": 10,
+      "runbooks": 5,
+      "control_plane": 21,
+      "names": 3
+    },
+    "active_expired_by_decision": {
+      "N1": 1,
+      "N2": 19,
+      "N3": 2,
+      "N5": 1,
+      "N4": 1,
+      "N6": 1,
+      "N7": 1,
+      "N8": 1
+    }
+  },
+  "selectors": {
+    "docs": "docs_freshness_exceptions.expires; expired exemption when expected_violation_count == 0",
+    "imports": "exception[].expires",
+    "complexity": "exception[].expires",
+    "shims": "shim[].sunset_date; current checker renewal_owner + adr/adr_reference exemption",
+    "structure": "exception[].sunset",
+    "dynamic": "dynamic_imports.review_expires",
+    "dynamic_pattern": "pattern[].sunset only when notes include temporary or shim",
+    "packages": "all direct packages/*.toml except boundaries/layout: exception[].sunset",
+    "package_sunset": "same files: sunset[].date",
+    "tests": "pytest_universe_exception[].expires; package_exception[].sunset_date; package_ratchet[] explicit_exception and two active mirror-exception prefixes",
+    "test_topology": "source_package_exception[].sunset",
+    "static_overrides": "override_scope[].sunset",
+    "module_size": "budget[].sunset",
+    "observability": "component_contract[]/component[] with slo_status exception: exception_expires",
+    "runbooks": "component_contract[] with slo_exception: slo_exception_expires",
+    "generated": "family[] with exception_reason/exception_expires/sunset: exception_expires or sunset",
+    "control_plane": "codeowners_gate and owner_mapping[] with personal_repo_exception: personal_repo_exception_expires",
+    "guardrails": "exception[].expires",
+    "public_compatibility": "package[] classification compatibility: max ISO date in notes (current checker behavior, not endorsed semantic rule)",
+    "names": "shared_name[], rename_backlog[], concern[] and allowed_adapters/unresolved_collisions: nonblank non-none sunset"
+  },
+  "census_input_sha256": {
+    "architecture/exceptions/docs_freshness.toml": "aaea4ef9cfa72d3e2b6a80c70f62ed91e0e33b03514568ffc0c1a1e8e1cc2bfe",
+    "architecture/imports/exceptions.toml": "d21239455043387a83ffe8eafb1142ce23a90747579746ed2231efffc86c6433",
+    "architecture/exceptions/complexity.toml": "b66bc15d7d25fad91cf75469c3cadafd2919291ad7d3524e946b7b96beee187a",
+    "architecture/shims.toml": "181a86d98e42fc0c57cdbae21c81a62c9a1dc4fb4fb3d4e5a09fe631bfede4a2",
+    "architecture/exceptions/structure_remediation.toml": "c4f377184fa9ccf7738b03b7b5628df8c06dabcca5b9ef0c414128ebeeb281d4",
+    "architecture/imports/dynamic.toml": "2a1db6a9cb58910e50b653669ec7c8f10b811149631963fe8810f67f9aed30f6",
+    "architecture/packages/berl.toml": "64c9a14783a7dc1312a995e4b0ecfc15401cf818b99402db53a8a3446611e1c5",
+    "architecture/packages/calibration.toml": "35fb0ec9ae8e876d3e4022a3b5b34078dd7802a28148902375e9cb1e269081ec",
+    "architecture/packages/common.toml": "074736cf5af2283e169f92e76922e536e764634f3fea7fabb88300a328aa29cb",
+    "architecture/packages/core.toml": "adc89cfd43cc8b9d3ef3eb102e2e5fdbc7d3ab40fdf12469c90083db32c0246e",
+    "architecture/packages/data_forge.toml": "f74177fbc3f5d9f799faa904da8e8bae809d2b87c3cd9a0afe8c6cc6cb386fbd",
+    "architecture/packages/ddm.toml": "26b485cb075330780c3e61a226603f859ace85d6d931de59a278035a57e00806",
+    "architecture/packages/evidence.toml": "20485178af340ee3ef5d2887309e863a32534a0f5de3d30696d2384a184c77bb",
+    "architecture/packages/fabric.toml": "6aeaf944374fff90f4e181f454a779838022acf20d288b949aa463dd818e6b62",
+    "architecture/packages/foundry-agent-sim-world.toml": "a0c4ce7f382e2f0163b297f6d59f5b03047e42d5a188ec6642295d4dba2c29dc",
+    "architecture/packages/foundry.toml": "d66b1796d4a0d527949d2fa541fcb3b58c4c209fc60275eb123d7a72ece2771d",
+    "architecture/packages/ir.toml": "408c06d5be429baf1e723a8f07e009077f9d03e798c8b401970427f3352c3161",
+    "architecture/packages/lex.toml": "240a30a9d71357c438af28bd85830b5900cda1d9cad7aa8efb1e3dd031283e51",
+    "architecture/packages/method_requirement.toml": "79a47081a0b38fe29b8e4bd00c661dbb99c11bac5fb45a1fb0cb21053edd7195",
+    "architecture/packages/obligation_graph.toml": "723d20d69184b859b333aa4588e24b260df7c0fe3cbe1ac0a2db6564b1f8315b",
+    "architecture/packages/obligation_rules.toml": "e8c2443ed444511f34e018a3e464041ce9d431babbbc19f5dc3165b7df31f92a",
+    "architecture/packages/participation_requirement.toml": "6e909ab7a1f88b18b1271292cb97087aabfdf951ea3029c35425e76b967853d5",
+    "architecture/packages/runtime.toml": "634b1a927f456a17e003f0dff09696efad6478df380e733d05c2b0edd970af88",
+    "architecture/packages/scholar.toml": "6b414947ddb47e2f26944d12821b3b547f0b3c8a1898e33b2502157025bf7e02",
+    "architecture/packages/scientist.toml": "3fc5f6559e608747843c89100e575ee1fcbb51eea23f0b4ebeb59617e0027489",
+    "architecture/tests/ratchets.toml": "5d50a66a79383c0c1809686ac0d909eaf86a4c8d451148ef3d8f8da5c751ec20",
+    "architecture/tests/topology.toml": "345668fdccc6e9791c33136ef2104be931214656de4f78dca8db019266cd4af8",
+    "architecture/tooling/static_analysis_overrides.toml": "fa538561ac3c8e4c439159e016def933ba6332e51eb298b6bdba2226d6988a10",
+    "architecture/module_size_budget.toml": "f9a1af648609d200c4f0ed6d4c13262f1e7cb1ba1ba871d35399c92302fb5274",
+    "architecture/component_observability.toml": "89fc0c1a50ce985bd7ca9022f60dd8120e9603310d72dbc897c413afbdd2bb43",
+    "ops/components/index.toml": "84b195ec99b15033e2ba3f0c82b86a21a8088a34e9f018b3dca4a088ad5c8334",
+    "architecture/runbook_coverage.toml": "7fcae0572dfb14d42ececf6a047023af287618437d0dad4665b84d6f7593fdce",
+    "architecture/generated_artifacts.toml": "8ecddf6c787c0c7cb792a27d7b51f5b2c4061713acde3069741df3bad3f1f033",
+    "architecture/control_plane_supply_chain.toml": "22dea04c2c7514c5adc21bb05c6ba3db765f0802ea7926b2ee7d43664351a351",
+    "architecture/exceptions/guardrails.toml": "74ae792dcdf30f565b9ff2798519a89e6da048aeaf0f9e5426d600f8a3cc0274",
+    "architecture/public_surface/contract.toml": "cce2e7cd4d96b4595ae5bf0721002776265d70f878d4fbfcd51570f9d89f10c9",
+    "architecture/name_registry.toml": "609b27dddc630966f0060eee0e0923c783530804d73933450aa50c3e13eb57df",
+    "architecture/policies/cross_cutting_concerns.toml": "62995dbee3b3458f21223baa638f43afd02d60f026837d9f7df7dfcd8f3d02ba",
+    "architecture/imports/exceptions.md": "7769d29773daba0470f2e1ce9956046dd588cff772e4574873f33619f6fc4c21",
+    "architecture/policies/directory_contracts.toml": "88d74cf64f7e71c70f08dc7ed570ef0aa7ce02bb70a52f649015f2e9fec40d43",
+    "architecture/packages/boundaries.toml": "1eeca6d5e7e23455568d7b03322a17a0029e42b86c3254ed1f24dd8a222bea7d",
+    "tools/devx/workspace/repository_sota_closeout.py": "930b82d161b28e280fd71c7b2bcb774ac524ee996400f05810ec5db5a26b4b6b",
+    "tools/lib/docs_freshness.py": "d902f2cca072a8c94b82c7c6e1eb14b924b42330fc39af34e9609eff1a81636a"
+  },
+  "supplemental_review_input_sha256": {
+    "tools/quality/validation/decomposition_preflight.py": "25cd590f71ea1f4c4fbe3472775f8981f592c9918d734d7607442b477dcfef3c",
+    "tools/ops_runners/release/check_operability_release_gates.py": "27eb3c135255d1ccd8c2b9ab11ca67435c20a49335a52a101ce9d4cf96c97862",
+    "architecture/extension_points.toml": "007791692e7c5532fd80a01e11a875aeeb5365779f3ea11c668c92663c29dab3",
+    "architecture/tooling/ruff/per-file-ignores/50-fabric.toml": "1d078d9dbc27e88da11b70e04efe40a52113bb54c3d7e819fc46c6d34e886f6c",
+    "architecture/tooling/ruff/per-file-ignores/10-tests-ir.toml": "e6a9a107b15f46ead1037d523c959a26184652ccf4f4753d68fbbc189386a37e",
+    "architecture/tooling/ruff/per-file-ignores/80-runtime-core-ir.toml": "3f63aa045f6190ba7b248ae03d705aa2f97d5e9f976650457ac5482c738d8bf9",
+    "architecture/tooling/mypy/overrides/20-fabric.ini": "96d3a012ace23da8d4af6352b23b8c0896010874cb3f5554e335e2dfd4d19590",
+    "architecture/tooling/mypy/overrides/10-ir.ini": "eeaf5a1e8072bfe3c3bc1143f4e63dfadc356e94c56f64520c9512ed4fd5e195",
+    "src/polisyos/core/discovery/base.py": "c6ca686a2823557950e9e801419f404ee58c5f7b74666c2a9518719db9f0f7bf",
+    "src/polisyos/core/discovery/orchestrator.py": "8b01fffa33271f71a6b42529ca63ff97c4b825586d131050f5e5ea521daa6e06",
+    "src/polisyos/foundry/runtime/__init__.py": "76f1150da98a75f3d88e56f4ccc3e91fef852d2456453959db5df6b0eade37e5"
+  },
+  "active_expired_routes": [
+    {
+      "registry": "architecture/imports/dynamic.toml",
+      "section": "dynamic_imports",
+      "record": "team-architecture",
+      "field": "review_expires",
+      "value": "2026-08-04",
+      "owner": "team-architecture",
+      "decision": "N1"
+    },
+    {
+      "registry": "architecture/packages/berl.toml",
+      "section": "exception",
+      "record": "berl-standalone-slo-deferred",
+      "field": "sunset",
+      "value": "2026-08-01",
+      "owner": "team-scientist",
+      "decision": "N2"
+    },
+    {
+      "registry": "architecture/packages/calibration.toml",
+      "section": "exception",
+      "record": "calibration-standalone-slo-deferred",
+      "field": "sunset",
+      "value": "2026-08-01",
+      "owner": "team-scientist",
+      "decision": "N2"
+    },
+    {
+      "registry": "architecture/packages/common.toml",
+      "section": "exception",
+      "record": "common-dependent-slo",
+      "field": "sunset",
+      "value": "2026-08-01",
+      "owner": "team-core",
+      "decision": "N2"
+    },
+    {
+      "registry": "architecture/packages/ddm.toml",
+      "section": "exception",
+      "record": "ddm-standalone-slo-deferred",
+      "field": "sunset",
+      "value": "2026-08-01",
+      "owner": "team-scientist",
+      "decision": "N2"
+    },
+    {
+      "registry": "architecture/packages/fabric.toml",
+      "section": "exception",
+      "record": "fabric-ruff-ratchet",
+      "field": "sunset",
+      "value": "2026-10-01",
+      "owner": "team-fabric",
+      "decision": "N3"
+    },
+    {
+      "registry": "architecture/tooling/static_analysis_overrides.toml",
+      "section": "override_scope",
+      "record": "fabric-ruff-package-ratchet",
+      "field": "sunset",
+      "value": "2026-10-01",
+      "owner": "team-fabric",
+      "decision": "N3"
+    },
+    {
+      "registry": "architecture/tooling/static_analysis_overrides.toml",
+      "section": "override_scope",
+      "record": "fabric-mypy-module-ratchet",
+      "field": "sunset",
+      "value": "2026-10-01",
+      "owner": "team-fabric",
+      "decision": "N5"
+    },
+    {
+      "registry": "architecture/tooling/static_analysis_overrides.toml",
+      "section": "override_scope",
+      "record": "ir-ruff-package-ratchet",
+      "field": "sunset",
+      "value": "2026-10-01",
+      "owner": "team-ir",
+      "decision": "N4"
+    },
+    {
+      "registry": "architecture/tooling/static_analysis_overrides.toml",
+      "section": "override_scope",
+      "record": "ir-mypy-module-ratchet",
+      "field": "sunset",
+      "value": "2026-10-01",
+      "owner": "team-ir",
+      "decision": "N6"
+    },
+    {
+      "registry": "architecture/component_observability.toml",
+      "section": "component_contract",
+      "record": "common",
+      "field": "exception_expires",
+      "value": "2026-08-01",
+      "owner": "team-core",
+      "decision": "N2"
+    },
+    {
+      "registry": "architecture/component_observability.toml",
+      "section": "component_contract",
+      "record": "berl",
+      "field": "exception_expires",
+      "value": "2026-08-01",
+      "owner": "team-architecture",
+      "decision": "N2"
+    },
+    {
+      "registry": "architecture/component_observability.toml",
+      "section": "component_contract",
+      "record": "ddm",
+      "field": "exception_expires",
+      "value": "2026-08-01",
+      "owner": "team-architecture",
+      "decision": "N2"
+    },
+    {
+      "registry": "architecture/component_observability.toml",
+      "section": "component_contract",
+      "record": "calibration",
+      "field": "exception_expires",
+      "value": "2026-08-01",
+      "owner": "team-foundry",
+      "decision": "N2"
+    },
+    {
+      "registry": "architecture/component_observability.toml",
+      "section": "component_contract",
+      "record": "security",
+      "field": "exception_expires",
+      "value": "2026-08-01",
+      "owner": "team-security",
+      "decision": "N2"
+    },
+    {
+      "registry": "ops/components/index.toml",
+      "section": "component",
+      "record": "common",
+      "field": "exception_expires",
+      "value": "2026-08-01",
+      "owner": "team-core",
+      "decision": "N2"
+    },
+    {
+      "registry": "ops/components/index.toml",
+      "section": "component",
+      "record": "berl",
+      "field": "exception_expires",
+      "value": "2026-08-01",
+      "owner": "team-architecture",
+      "decision": "N2"
+    },
+    {
+      "registry": "ops/components/index.toml",
+      "section": "component",
+      "record": "ddm",
+      "field": "exception_expires",
+      "value": "2026-08-01",
+      "owner": "team-architecture",
+      "decision": "N2"
+    },
+    {
+      "registry": "ops/components/index.toml",
+      "section": "component",
+      "record": "calibration",
+      "field": "exception_expires",
+      "value": "2026-08-01",
+      "owner": "team-foundry",
+      "decision": "N2"
+    },
+    {
+      "registry": "ops/components/index.toml",
+      "section": "component",
+      "record": "security",
+      "field": "exception_expires",
+      "value": "2026-08-01",
+      "owner": "team-security",
+      "decision": "N2"
+    },
+    {
+      "registry": "architecture/runbook_coverage.toml",
+      "section": "component_contract",
+      "record": "common",
+      "field": "slo_exception_expires",
+      "value": "2026-08-01",
+      "owner": "team-core",
+      "decision": "N2"
+    },
+    {
+      "registry": "architecture/runbook_coverage.toml",
+      "section": "component_contract",
+      "record": "security",
+      "field": "slo_exception_expires",
+      "value": "2026-08-01",
+      "owner": "team-security",
+      "decision": "N2"
+    },
+    {
+      "registry": "architecture/runbook_coverage.toml",
+      "section": "component_contract",
+      "record": "calibration",
+      "field": "slo_exception_expires",
+      "value": "2026-08-01",
+      "owner": "team-foundry",
+      "decision": "N2"
+    },
+    {
+      "registry": "architecture/runbook_coverage.toml",
+      "section": "component_contract",
+      "record": "berl",
+      "field": "slo_exception_expires",
+      "value": "2026-08-01",
+      "owner": "team-architecture",
+      "decision": "N2"
+    },
+    {
+      "registry": "architecture/runbook_coverage.toml",
+      "section": "component_contract",
+      "record": "ddm",
+      "field": "slo_exception_expires",
+      "value": "2026-08-01",
+      "owner": "team-architecture",
+      "decision": "N2"
+    },
+    {
+      "registry": "architecture/name_registry.toml",
+      "section": "rename_backlog",
+      "record": "discovery",
+      "field": "sunset",
+      "value": "2026-10-01",
+      "owner": "team-architecture",
+      "decision": "N7"
+    },
+    {
+      "registry": "architecture/name_registry.toml",
+      "section": "rename_backlog",
+      "record": "runtime",
+      "field": "sunset",
+      "value": "2026-10-01",
+      "owner": "team-foundry/team-scientist",
+      "decision": "N8"
+    }
+  ],
+  "local_method_artifacts": {
+    "policy-engine/_build/e02-g-native-review-20261025/census.json": "61467e72b2cc823eea5a4bef32dce3a92e1fdfd95c08b94ca91715f094e42e60",
+    "policy-engine/_build/e02-g-native-review-20261025/census.py": "e7e609bdb751f377af070f782511f87148203b27fb3b2ce24c945b2656745aaa"
+  },
+  "local_artifacts_portability": "Ignored reader/output may be unavailable elsewhere; source commit, selectors and all input hashes are sufficient to reconstruct census without importing repository validators."
+}

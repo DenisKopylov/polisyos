@@ -1,6 +1,6 @@
 # AD-E02-FABRIC-REFLECTION-01: совместимость разрешённых аннотаций
 
-Версия решения 1, 25 октября 2026. Owner реализации — Fabric (`team-polisyos` в public-surface manifest); DevX владеет генерацией lint-config, `team-architecture` — public-surface policy. G выбирает контракт, затем отдельно принимает код. `code_acceptance=false`, `closure_ids=[]`.
+Версия решения 2, 25 октября 2026. Owner реализации — Fabric (`team-polisyos` в public-surface manifest); DevX владеет генерацией lint-config, `team-architecture` — public-surface policy. G выбирает контракт, затем отдельно принимает код. `code_acceptance=false`, `closure_ids=[]`.
 
 ## 1. Архитектурный выбор
 
@@ -14,7 +14,11 @@
 
 Сохраняются реальные nominal types, canonical type aliases и generic arguments, union/nullability и метаданные, если они объявлены. Уже существующий `Any` не запрещается; замена требуемого типа на `Any`, `object`, пустую mapping, unresolved `ForwardRef` или строковый fallback не удовлетворяет контракту. Ключи результата сверяются с объявленными параметрами/return либо class annotations; проверка одного непустого dict недостаточна. Валидные `TypeAliasType`/parameterized alias не обязаны быть экземплярами `type` или принудительно раскрываться до underlying union. Не требуется рекурсивно разрешать поля каждого класса, встреченного внутри типа: это другое, неограниченное обязательство.
 
-Для классов тестируется class object, для методов — реально полученный member, для classmethod — class-bound member. `get_type_hints(Class)` не подменяет проверку `Class.method` или `Class.__init__`. Private protocol, встреченный в публичной сигнатуре, сохраняет собственную identity, но от этого не становится новым поддерживаемым import path.
+Совместимость сверяется с **reviewed baseline + явно одобренной delta**, а не только с текущим объектом. Сохранить имена и kinds параметров, смысл defaults, return, async/member kind и существующие call forms; удаление параметра вместе с аннотацией не должно уменьшить одновременно implementation и его oracle. Не фиксировать адреса default-объектов, строковый `repr` или случайный порядок union branches. Новое поле/параметр допускается по обычным правилам совместимости, а не запрещается замороженным сегодняшним множеством.
+
+Canonical alias — не освобождение от его смыслового контракта. Сравнение с alias, импортированным из того же изменённого owner, не ловит изменение его RHS. Для unchanged alias достаточно source-qualified preservation плюс проверка разрешения; при изменении owner/dependency проверяется конкретная accepted relation отдельным owner test и affected consumers. Для `SourceConnectorValue` это сохранение обеих предусмотренных connector forms и generic argument, а не обязательный универсальный рекурсивный evaluator. Валидные `Literal` со строковыми значениями, type parameters и metadata `Annotated` не являются неразрешёнными forward references. Не запрещать новые законные формы Python typing широким правилом «внутри hints не бывает строк».
+
+Для классов тестируется class object, для методов — реально полученный member, для classmethod — class-bound member. `get_type_hints(Class)` не подменяет проверку `Class.method` или `Class.__init__`. Private protocol, встреченный в публичной сигнатуре, сохраняет собственную identity, но от этого не становится новым поддерживаемым import path. Identity проверяется с canonical owner **внутри данного candidate/process**; это не запрет обоснованной будущей миграции типа и не сравнение указателей между версиями/процессами.
 
 Базовая среда — объявленный проектом Python `>=3.14,<3.15` и существующий dependency/backend profile, в котором соответствующий facade поддерживается. Записывать точные версии и профиль actual candidate. Решение не требует импорта полного Fabric со всеми optional backends в любой минимальной среде; уже существующее optional-dependency поведение нельзя ухудшать или выдавать за новую общую гарантию. Reflection не подтверждает доступность backend, пригодность данных или полномочия метода.
 
@@ -54,6 +58,6 @@
 
 ## 5. Status, authority и границы
 
-Это engineering API contract версии 1. Нет новой artifact schema, product enum, law, authority, custody или временного статуса. Annotation type — описание интерфейса, а не evidence достаточности политического вывода. Resolver не исполняет expressions из недоверенного документа, артефакта или LLM-ответа; здесь исследуются trusted repository objects. Python предупреждает о выполнении кода при introspection. [Typing security](https://docs.python.org/3.14/library/typing.html#typing.get_type_hints).
+Это engineering API contract, редакция решения 2; версия product API этим документом не меняется. Нет новой artifact schema, product enum, law, authority, custody или временного статуса. Annotation type — описание интерфейса, а не evidence достаточности политического вывода. Resolver не исполняет expressions из недоверенного документа, артефакта или LLM-ответа; здесь исследуются trusted repository objects. Python предупреждает о выполнении кода при introspection. [Typing security](https://docs.python.org/3.14/library/typing.html#typing.get_type_hints).
 
 Нет настоящих внешних law/production inputs для выбора A. Требуются engineering inputs: actual source/tree, admitted dependency profile и полные deciding outputs. До supported-facade и semantic checks состояние проверки — `verification_missing` / `semantic_test_missing`; существующий source не объявляется отсутствующей capability. HTTP/browser surfaces для самого Python reflection property — `surface_out_of_scope`; Python facade и reference documentation входят в scope.

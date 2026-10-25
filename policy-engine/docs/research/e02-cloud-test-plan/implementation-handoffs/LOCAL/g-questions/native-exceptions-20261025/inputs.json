@@ -1,0 +1,734 @@
+{
+  "status": {
+    "code_acceptance": false,
+    "closure_ids": [],
+    "global_source_input_backend_freeze": false,
+    "decision_is_proposal": true,
+    "packet_revision": "R2 corrects public-surface classification after independent review; it does not change source or test code."
+  },
+  "candidate": {
+    "branch": "codex/e02-unified-local-20261009",
+    "head": "1d04d66aef583d03c02c91d5931d7e3674f73753",
+    "tree": "106bce6360f5689ed5a1f06bd58599f8be4300db",
+    "parent": "70d2d9a397544434c309b1b026c0239b30f22805",
+    "source_frame": "49dff9183c20be3877d47953e0142417cb854cd0",
+    "source_delta_since_frame": {
+      "base": "49dff9183c20be3877d47953e0142417cb854cd0",
+      "paths": [
+        "policy-engine/architecture/tests/ratchets.toml",
+        "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/boot0-trusted-attempt-authorities-source-r119.json",
+        "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/foundry-selection-history-state-path-r120.json",
+        "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/q2-packaging/installed-wave-recipe.md",
+        "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/q2-packaging/raw/q2-freeze-input-audit-v2-20261011.py",
+        "policy-engine/tests/repo_quality/architecture/test_test_ratchets_contract.py",
+        "policy-engine/tests/unit/runtime/http/test_deployment_security.py",
+        "policy-engine/tests/unit/runtime/http/test_runtime_deployment_security.py",
+        "policy-engine/tests/unit/runtime/http/test_runtime_step_up_authz.py",
+        "policy-engine/tests/unit/runtime/http/test_step_up.py"
+      ],
+      "current_source_rebind": {
+        "affected_fabric_modules_checked": 5,
+        "ruff_configuration_inputs_checked": 12,
+        "mismatches": 0,
+        "current_tracked_fabric_ir_python_files": 502,
+        "evidence": "Independent peer review rechecked the five affected Fabric modules and twelve Ruff configuration inputs at HEAD 1d04. I additionally rehashed every unique path represented by the packet's affected-module/config/support-source pins (25 total) against frame 49d and current HEAD 1d04; all 25 matched. The 502 tracked Python-file count is the complete Fabric/IR denominator.",
+        "unique_source_and_config_paths_checked": 25,
+        "paths_rehashed": {
+          "affected_fabric_modules": 5,
+          "ruff_configuration_inputs": 12,
+          "support_sources": 8
+        }
+      }
+    },
+    "source_freeze": false
+  },
+  "frame": {
+    "commit": "49dff9183c20be3877d47953e0142417cb854cd0",
+    "tree": "6c566aafccf5ceaa8f6718ba52b81a6b926d2b60",
+    "raw": {
+      "file": "source-frame.json",
+      "sha256": "d9f2989e6e126d3215afb99c9b923806820a4807aadc771b0188cbc5ceafceca"
+    },
+    "python_files": 502,
+    "owners": {
+      "fabric": 306,
+      "ir": 196
+    },
+    "tracked_equals_physical": true,
+    "symlinks": 0,
+    "ruff_config_inputs": 12
+  },
+  "question": "For the 11 supported public-stable Fabric annotation sites whose reflection contract remains unresolved, does compatibility promise successful typing.get_type_hints resolution, or are annotations only required for static typing unless reflection is separately promised?",
+  "denominator": {
+    "diagnostics": 14,
+    "rules": {
+      "TC001": 11,
+      "TC003": 3
+    },
+    "distinct_bindings": 14,
+    "modules": 5,
+    "public_occurrences": 12,
+    "public_unresolved_G_choice": 11,
+    "public_already_bound": 1,
+    "internal_executor_occurrences": 2,
+    "scan_python_files": 502,
+    "denominator_source": {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/root-ir-transport-composition-20261024-r1/native-ruff-exception-substance-r1/ruff-unignored-owner-scopes.json",
+      "sha256": "ebf45741308707fe733ea7b3d6e14acf0b4409ddf678384967db95c292e27446",
+      "complete_stdout_diagnostics": 182,
+      "fabric_diagnostics": 14,
+      "ir_diagnostics": 168
+    },
+    "classification_summary": "11 public sites with unresolved reflection contract + 1 already-bound public + 2 internal = 14 diagnostics."
+  },
+  "occurrences": [
+    {
+      "id": "FABRIC-TC001-001",
+      "rule": "TC001",
+      "path": "policy-engine/src/polisyos/fabric/connectors/cache/invalidation.py",
+      "line": 12,
+      "imported_name": "ConnectionHandle",
+      "local_binding": "ConnectionHandle",
+      "boundary": "public_unsettled",
+      "evidence": {
+        "module": "polisyos.fabric.connectors.cache.invalidation",
+        "callable": "InvalidationTrigger.check_for_updates",
+        "probe_site": "invalidation.ConnectionHandle",
+        "positive": "resolved",
+        "removal": "NameError"
+      },
+      "outcome": "Current get_type_hints resolves; exact binding removal raises NameError.",
+      "next_check": "facade_positive_plus_exact_global_removal_negative_after_G_choice",
+      "formal_closure": false
+    },
+    {
+      "id": "FABRIC-TC001-002",
+      "rule": "TC001",
+      "path": "policy-engine/src/polisyos/fabric/connectors/cache/invalidation.py",
+      "line": 12,
+      "imported_name": "SourceConnectorValue",
+      "local_binding": "SourceConnectorValue",
+      "boundary": "public_unsettled",
+      "evidence": {
+        "module": "polisyos.fabric.connectors.cache.invalidation",
+        "callable": "InvalidationTrigger.check_for_updates",
+        "probe_site": "invalidation.SourceConnectorValue",
+        "positive": "resolved",
+        "removal": "NameError"
+      },
+      "outcome": "Current get_type_hints resolves; exact binding removal raises NameError.",
+      "next_check": "facade_positive_plus_exact_global_removal_negative_after_G_choice",
+      "formal_closure": false
+    },
+    {
+      "id": "FABRIC-TC001-003",
+      "rule": "TC001",
+      "path": "policy-engine/src/polisyos/fabric/connectors/cache/invalidation.py",
+      "line": 13,
+      "imported_name": "ConnectorSchemaContract",
+      "local_binding": "ConnectorSchemaContract",
+      "boundary": "public_unsettled",
+      "evidence": {
+        "module": "polisyos.fabric.connectors.cache.invalidation",
+        "callable": "SchemaChangeInvalidationTrigger.on_contract_registered",
+        "probe_site": "invalidation.ConnectorSchemaContract",
+        "positive": "resolved",
+        "removal": "NameError"
+      },
+      "outcome": "Current get_type_hints resolves; exact binding removal raises NameError.",
+      "next_check": "facade_positive_plus_exact_global_removal_negative_after_G_choice",
+      "formal_closure": false
+    },
+    {
+      "id": "FABRIC-TC001-004",
+      "rule": "TC001",
+      "path": "policy-engine/src/polisyos/fabric/connectors/cache/invalidation.py",
+      "line": 13,
+      "imported_name": "EvolutionReport",
+      "local_binding": "EvolutionReport",
+      "boundary": "public_unsettled",
+      "evidence": {
+        "module": "polisyos.fabric.connectors.cache.invalidation",
+        "callable": "SchemaChangeInvalidationTrigger.on_contract_registered",
+        "probe_site": "invalidation.EvolutionReport",
+        "positive": "resolved",
+        "removal": "NameError"
+      },
+      "outcome": "Current get_type_hints resolves; exact binding removal raises NameError.",
+      "next_check": "facade_positive_plus_exact_global_removal_negative_after_G_choice",
+      "formal_closure": false
+    },
+    {
+      "id": "FABRIC-TC001-005",
+      "rule": "TC001",
+      "path": "policy-engine/src/polisyos/fabric/connectors/cache/invalidation.py",
+      "line": 17,
+      "imported_name": "ConnectorCacheStore",
+      "local_binding": "ConnectorCacheStore",
+      "boundary": "public_unsettled",
+      "evidence": {
+        "module": "polisyos.fabric.connectors.cache.invalidation",
+        "callable": "InvalidationOrchestrator.__init__",
+        "probe_site": "invalidation.ConnectorCacheStore",
+        "positive": "resolved",
+        "removal": "NameError"
+      },
+      "outcome": "Current get_type_hints resolves; exact binding removal raises NameError.",
+      "next_check": "facade_positive_plus_exact_global_removal_negative_after_G_choice",
+      "formal_closure": false
+    },
+    {
+      "id": "FABRIC-TC001-006",
+      "rule": "TC001",
+      "path": "policy-engine/src/polisyos/fabric/connectors/contracts/source_contract.py",
+      "line": 20,
+      "imported_name": "ConnectorMetadataSpec",
+      "local_binding": "ConnectorMetadataSpec",
+      "boundary": "public_already_bound",
+      "evidence": {
+        "module": "polisyos.fabric.connectors.contracts.source_contract",
+        "callable": "SourceContract.from_connector_schema_contract",
+        "probe_site": "source_contract.ConnectorMetadataSpec",
+        "positive": "resolved",
+        "removal": "NameError"
+      },
+      "outcome": "Runtime reflection is explicitly bound in source and two tests.",
+      "next_check": "retain_existing_binding_and_tests",
+      "formal_closure": false
+    },
+    {
+      "id": "FABRIC-TC001-007",
+      "rule": "TC001",
+      "path": "policy-engine/src/polisyos/fabric/data_plane/modes.py",
+      "line": 23,
+      "imported_name": "ConnectionConfig",
+      "local_binding": "ConnectionConfig",
+      "boundary": "public_unsettled",
+      "evidence": {
+        "module": "polisyos.fabric.data_plane.modes",
+        "callable": "run_streaming_windowed",
+        "probe_site": "modes.ConnectionConfig",
+        "positive": "resolved",
+        "removal": "NameError"
+      },
+      "outcome": "Current get_type_hints resolves; exact binding removal raises NameError.",
+      "next_check": "facade_positive_plus_exact_global_removal_negative_after_G_choice",
+      "formal_closure": false
+    },
+    {
+      "id": "FABRIC-TC001-008",
+      "rule": "TC001",
+      "path": "policy-engine/src/polisyos/fabric/evidence/decision_data.py",
+      "line": 19,
+      "imported_name": "LineageRef",
+      "local_binding": "RuntimeLineageRef",
+      "boundary": "internal_executor",
+      "evidence": {
+        "module": "polisyos.fabric.evidence.decision_data",
+        "callable": "_lineage_from_runtime",
+        "probe_site": "decision_data.RuntimeLineageRef",
+        "positive": "resolved",
+        "removal": "NameError"
+      },
+      "outcome": "Private reflection changes on removal; function retains its own conversion import.",
+      "next_check": "executor_choice_private_lineage",
+      "formal_closure": false
+    },
+    {
+      "id": "FABRIC-TC001-009",
+      "rule": "TC001",
+      "path": "policy-engine/src/polisyos/fabric/evidence/decision_data.py",
+      "line": 20,
+      "imported_name": "QuantityValue",
+      "local_binding": "RuntimeQuantityValue",
+      "boundary": "internal_executor",
+      "evidence": {
+        "module": "polisyos.fabric.evidence.decision_data",
+        "callable": "from_runtime_quantity",
+        "probe_site": "decision_data.RuntimeQuantityValue",
+        "positive": "resolved",
+        "removal": "NameError",
+        "public_surface_reconciliation": {
+          "helper": "from_runtime_quantity",
+          "supported_entrypoint": false,
+          "reason": "polisyos.fabric.evidence is absent from the supported_entrypoints list; from_runtime_quantity is absent from stable polisyos.fabric.__all__ and _LAZY_IMPORTS.",
+          "legacy_note": "Fabric README mentions this submodule as a legacy compatibility import, but the public-surface contract does not designate it supported and architecture/shims.toml has no explicit record for this path.",
+          "probe_limit": "The fresh exact-14 probe establishes present-day annotation behavior, not public API status."
+        }
+      },
+      "outcome": "Current module-level get_type_hints resolves and exact global removal raises NameError, but the annotated helpers are not part of a supported public entrypoint.",
+      "next_check": "executor_choice_internal_quantity",
+      "formal_closure": false
+    },
+    {
+      "id": "FABRIC-TC001-010",
+      "rule": "TC001",
+      "path": "policy-engine/src/polisyos/fabric/evidence/decision_data.py",
+      "line": 21,
+      "imported_name": "TemporalRef",
+      "local_binding": "RuntimeTemporalRef",
+      "boundary": "public_unsettled",
+      "evidence": {
+        "module": "polisyos.fabric.evidence.decision_data",
+        "callable": "TemporalRef.from_runtime_scope",
+        "probe_site": "decision_data.RuntimeTemporalRef",
+        "positive": "resolved",
+        "removal": "NameError"
+      },
+      "outcome": "Current get_type_hints resolves; exact binding removal raises NameError.",
+      "next_check": "facade_positive_plus_exact_global_removal_negative_after_G_choice",
+      "formal_closure": false
+    },
+    {
+      "id": "FABRIC-TC001-011",
+      "rule": "TC001",
+      "path": "policy-engine/src/polisyos/fabric/evidence/decision_data.py",
+      "line": 22,
+      "imported_name": "TemporalScope",
+      "local_binding": "RuntimeTemporalScope",
+      "boundary": "public_unsettled",
+      "evidence": {
+        "module": "polisyos.fabric.evidence.decision_data",
+        "callable": "TemporalRef.from_runtime_scope",
+        "probe_site": "decision_data.RuntimeTemporalScope",
+        "positive": "resolved",
+        "removal": "NameError"
+      },
+      "outcome": "Current get_type_hints resolves; exact binding removal raises NameError.",
+      "next_check": "facade_positive_plus_exact_global_removal_negative_after_G_choice",
+      "formal_closure": false
+    },
+    {
+      "id": "FABRIC-TC003-012",
+      "rule": "TC003",
+      "path": "policy-engine/src/polisyos/fabric/world/query.py",
+      "line": 11,
+      "imported_name": "Iterable",
+      "local_binding": "Iterable",
+      "boundary": "public_unsettled",
+      "evidence": {
+        "module": "polisyos.fabric.world.query",
+        "callable": "query_world_table",
+        "probe_site": "query.Iterable",
+        "positive": "resolved",
+        "removal": "NameError"
+      },
+      "outcome": "Current get_type_hints resolves; exact binding removal raises NameError.",
+      "next_check": "facade_positive_plus_exact_global_removal_negative_after_G_choice",
+      "formal_closure": false
+    },
+    {
+      "id": "FABRIC-TC003-013",
+      "rule": "TC003",
+      "path": "policy-engine/src/polisyos/fabric/world/query.py",
+      "line": 11,
+      "imported_name": "Mapping",
+      "local_binding": "Mapping",
+      "boundary": "public_unsettled",
+      "evidence": {
+        "module": "polisyos.fabric.world.query",
+        "callable": "query_world_table",
+        "probe_site": "query.Mapping",
+        "positive": "resolved",
+        "removal": "NameError"
+      },
+      "outcome": "Current get_type_hints resolves; exact binding removal raises NameError.",
+      "next_check": "facade_positive_plus_exact_global_removal_negative_after_G_choice",
+      "formal_closure": false
+    },
+    {
+      "id": "FABRIC-TC003-014",
+      "rule": "TC003",
+      "path": "policy-engine/src/polisyos/fabric/world/query.py",
+      "line": 11,
+      "imported_name": "Sequence",
+      "local_binding": "Sequence",
+      "boundary": "public_unsettled",
+      "evidence": {
+        "module": "polisyos.fabric.world.query",
+        "callable": "query_world_table",
+        "probe_site": "query.Sequence",
+        "positive": "resolved",
+        "removal": "NameError"
+      },
+      "outcome": "Current get_type_hints resolves; exact binding removal raises NameError.",
+      "next_check": "facade_positive_plus_exact_global_removal_negative_after_G_choice",
+      "formal_closure": false
+    }
+  ],
+  "next_check_definitions": {
+    "supported_facade_positive_plus_removal_negative_after_G_choice": "For each of the 11 unresolved public signatures, resolve the supported entrypoint and call get_type_hints; then remove only its exact runtime global while retaining annotation text and assert the selected boundary behavior.",
+    "retain_existing_binding_and_tests": "Keep ConnectorMetadataSpec runtime import and its two existing reflection tests; do not include this already-bound case in the question.",
+    "executor_choice_private_lineage": "RuntimeLineageRef is used in private _lineage_from_runtime; preserve conversion behavior and decide locally whether private reflection must remain.",
+    "executor_choice_internal_quantity": "RuntimeQuantityValue annotates internal from_runtime_quantity/from_runtime_quantities helpers on an unsupported evidence subpackage path; preserve ordinary conversion behavior and decide locally whether internal reflection must remain."
+  },
+  "source_hashes": {
+    "affected_modules": [
+      {
+        "path": "policy-engine/src/polisyos/fabric/connectors/cache/invalidation.py",
+        "sha256": "9b79e2cf067629425de0820fb336705ebcdfe8de2a969e0754dcc1f9493a3ffe",
+        "bytes": 7806
+      },
+      {
+        "path": "policy-engine/src/polisyos/fabric/connectors/contracts/source_contract.py",
+        "sha256": "1c9ba073eba4788a21cefe269a2838808207aaf37fe79cc8389cc84095cda0fe",
+        "bytes": 28484
+      },
+      {
+        "path": "policy-engine/src/polisyos/fabric/data_plane/modes.py",
+        "sha256": "623fe90d4abc3f8303f4ff7acac1d903b1929e81055b44daa38c67add788a07c",
+        "bytes": 61436
+      },
+      {
+        "path": "policy-engine/src/polisyos/fabric/evidence/decision_data.py",
+        "sha256": "75e02988e3f682118bc535ea5545973cef8a3df73d20706696d45a780e7d41fb",
+        "bytes": 29323
+      },
+      {
+        "path": "policy-engine/src/polisyos/fabric/world/query.py",
+        "sha256": "28f00f19e7fa71d8770ea9289fb50f658cda02526d7266d2ef6fc49396162970",
+        "bytes": 30983
+      }
+    ],
+    "ruff_config_12": [
+      {
+        "path": "policy-engine/architecture/tooling/ruff/workspace_root.toml",
+        "sha256": "1f21f4ac118c6e056a3509bcc7440dfadd28cb0155b0fab777e05354c4c107b1",
+        "bytes": 28265
+      },
+      {
+        "path": "policy-engine/architecture/tooling/ruff/base.toml",
+        "sha256": "4bdfbd63efab5ce43a61163af33796de3cf1584e278543405243f804ba7055a5",
+        "bytes": 1248
+      },
+      {
+        "path": "policy-engine/ruff.toml",
+        "sha256": "8ffeafd8510518f1e89e6a2028aff685817bf5466dbffbc8c8bce85d01c8a4c5",
+        "bytes": 999
+      },
+      {
+        "path": "policy-engine/architecture/tooling/tool_config_split.toml",
+        "sha256": "f383f9fe9704dc04fb2268921bc9bc4d47f82e51b86740fc637f8a7ac0785650",
+        "bytes": 4765
+      },
+      {
+        "path": "policy-engine/architecture/tooling/ruff/per-file-ignores/50-fabric.toml",
+        "sha256": "1d078d9dbc27e88da11b70e04efe40a52113bb54c3d7e819fc46c6d34e886f6c",
+        "bytes": 1545
+      },
+      {
+        "path": "policy-engine/architecture/tooling/ruff/per-file-ignores/80-runtime-core-ir.toml",
+        "sha256": "3f63aa045f6190ba7b248ae03d705aa2f97d5e9f976650457ac5482c738d8bf9",
+        "bytes": 4751
+      },
+      {
+        "path": "policy-engine/architecture/tooling/static_analysis_overrides.toml",
+        "sha256": "fa538561ac3c8e4c439159e016def933ba6332e51eb298b6bdba2226d6988a10",
+        "bytes": 14413
+      },
+      {
+        "path": "policy-engine/architecture/packages/fabric.toml",
+        "sha256": "6aeaf944374fff90f4e181f454a779838022acf20d288b949aa463dd818e6b62",
+        "bytes": 5662
+      },
+      {
+        "path": "policy-engine/architecture/packages/ir.toml",
+        "sha256": "408c06d5be429baf1e723a8f07e009077f9d03e798c8b401970427f3352c3161",
+        "bytes": 4724
+      },
+      {
+        "path": "policy-engine/tools/devx/workspace/ruff_sources.py",
+        "sha256": "7f748b1671730065afa0bf53d0cfbf0082182e553093b7172a6df5d55e017e7b",
+        "bytes": 7451
+      },
+      {
+        "path": "policy-engine/tools/ops_runners/reports/dead_overrides.py",
+        "sha256": "c6f5dc8110c9c20aec976dc3d44163d45d6cadca25a861c2d5f92da3a02149e1",
+        "bytes": 31603
+      },
+      {
+        "path": "policy-engine/tools/quality/validation/architecture_report_only_contracts.py",
+        "sha256": "51872af190fba7c33aff7d00385bee063ee0459146ab8125145b19d9ee5261d3",
+        "bytes": 31169
+      }
+    ],
+    "support_sources": [
+      {
+        "path": "policy-engine/architecture/public_surface/contract.toml",
+        "source_commit": "49dff9183c20be3877d47953e0142417cb854cd0",
+        "sha256": "cce2e7cd4d96b4595ae5bf0721002776265d70f878d4fbfcd51570f9d89f10c9"
+      },
+      {
+        "path": "policy-engine/CONTRIBUTING.md",
+        "source_commit": "49dff9183c20be3877d47953e0142417cb854cd0",
+        "sha256": "e78f1bdb99a900f6426f9f451b7e9cbc0e21007eb12012eaf209d89c505f3a1f"
+      },
+      {
+        "path": "policy-engine/tests/unit/fabric/connectors/test_source_contract_v2.py",
+        "source_commit": "49dff9183c20be3877d47953e0142417cb854cd0",
+        "sha256": "7ac0fd7e69e01568ea6408d4b6ade6bf9479710111238dc8f344b3770560f14b"
+      },
+      {
+        "path": "policy-engine/src/polisyos/scientist/agent/tools/knowledge_tools_adapter.py",
+        "source_commit": "49dff9183c20be3877d47953e0142417cb854cd0",
+        "sha256": "4e60cb47c079eb813a055370a3432d2c4fd48ad53110b9f002ebefc890b4fb24"
+      },
+      {
+        "path": "policy-engine/src/polisyos/fabric/README.md",
+        "source_commit": "49dff9183c20be3877d47953e0142417cb854cd0",
+        "sha256": "cedb9fdefffb787d773193a13ac60e5c29366dc33fb0f5c14caf39406d583083",
+        "fact": "Stable root facade and legacy import description; lines 56-67, 172-181."
+      },
+      {
+        "path": "policy-engine/src/polisyos/fabric/__init__.py",
+        "source_commit": "49dff9183c20be3877d47953e0142417cb854cd0",
+        "sha256": "93b5764232d4b1fdaea6efe4b55a4a42850e28e709a2ce4cca95ac061141b713",
+        "fact": "Stable root __all__ and lazy exports; from_runtime_quantity is absent."
+      },
+      {
+        "path": "policy-engine/architecture/shims.toml",
+        "source_commit": "49dff9183c20be3877d47953e0142417cb854cd0",
+        "sha256": "181a86d98e42fc0c57cdbae21c81a62c9a1dc4fb4fb3d4e5a09fe631bfede4a2",
+        "fact": "No explicit shim record designates polisyos.fabric.evidence.decision_data as supported."
+      },
+      {
+        "path": "policy-engine/docs/reference/public-surface.md",
+        "source_commit": "49dff9183c20be3877d47953e0142417cb854cd0",
+        "sha256": "5c8b4e8aa1dcb05b79391c39dce05593d2499b36f52ee3595204a53ebf2e9964",
+        "fact": "Generated public surface reference; supplemental to the owner contract."
+      }
+    ],
+    "public_surface": {
+      "path": "policy-engine/architecture/public_surface/contract.toml",
+      "fact": "polisyos.fabric is public_stable with a lazy facade; its explicit supported_entrypoints include the root, api, connectors, data_plane, world, docs, ingestion, retrieval and product_integration, but not polisyos.fabric.evidence.",
+      "limit": "No package-wide get_type_hints guarantee is stated; the decision is restricted to the 11 unresolved signatures whose owner routes are supported.",
+      "source_commit": "49dff9183c20be3877d47953e0142417cb854cd0",
+      "sha256": "cce2e7cd4d96b4595ae5bf0721002776265d70f878d4fbfcd51570f9d89f10c9",
+      "lines": [
+        246,
+        265
+      ]
+    },
+    "contributor_contract": {
+      "path": "policy-engine/CONTRIBUTING.md",
+      "fact": "Public APIs are fully annotated; TYPE_CHECKING/local/lazy imports are permitted for boundary-sensitive modules; no get_type_hints guarantee is specified.",
+      "source_commit": "49dff9183c20be3877d47953e0142417cb854cd0",
+      "sha256": "e78f1bdb99a900f6426f9f451b7e9cbc0e21007eb12012eaf209d89c505f3a1f"
+    },
+    "settled_ConnectorMetadataSpec": {
+      "source": "policy-engine/src/polisyos/fabric/connectors/contracts/source_contract.py",
+      "line": 19,
+      "sha256": "1c9ba073eba4788a21cefe269a2838808207aaf37fe79cc8389cc84095cda0fe",
+      "test": "policy-engine/tests/unit/fabric/connectors/test_source_contract_v2.py",
+      "test_sha256": "7ac0fd7e69e01568ea6408d4b6ade6bf9479710111238dc8f344b3770560f14b",
+      "test_lines": [
+        42,
+        48
+      ],
+      "assertions": [
+        "SourceContract.from_connector_schema_contract metadata resolves to ConnectorMetadataSpec | None",
+        "SourceContractSLA.from_metadata metadata resolves to ConnectorMetadataSpec"
+      ]
+    },
+    "possible_generic_consumer": {
+      "path": "policy-engine/src/polisyos/scientist/agent/tools/knowledge_tools_adapter.py",
+      "sha256": "4e60cb47c079eb813a055370a3432d2c4fd48ad53110b9f002ebefc890b4fb24",
+      "line": 95,
+      "behavior": "Calls get_type_hints and catches NameError/TypeError/AttributeError, then falls back to raw annotations.",
+      "limit": "No actual call path to affected Fabric APIs was established."
+    },
+    "accepted_G_scope": {
+      "commit": "528ec2576393e8aa9a0238ae4172336ccf76a057",
+      "document": "policy-engine/docs/research/e02-cloud-test-plan/integration/architecture-decisions-2026-10-23/01-ir-owner-contract.md",
+      "sha256": "566a8b50dd0443722612fc8dcdb4c9d62250744dd0e68b422efe1418ba14053b",
+      "link": "https://github.com/DenisKopylov/polisyos/blob/528ec2576393e8aa9a0238ae4172336ccf76a057/policy-engine/docs/research/e02-cloud-test-plan/integration/architecture-decisions-2026-10-23/01-ir-owner-contract.md",
+      "limit": "IR-Q1/Q2 typed owner admission/representations/migration do not decide Python reflection."
+    },
+    "prior_N818": {
+      "commit": "d40bca270ef5c456e8233196e4d8d65e099777a7",
+      "document": "policy-engine/docs/research/e02-cloud-test-plan/integration/architecture-decisions-2026-10-21/09-fabric-exception-identities.md",
+      "limit": "Seven exception class identities remain selected; not reopened."
+    }
+  },
+  "evidence": {
+    "ruff": {
+      "raw": {
+        "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/root-ir-transport-composition-20261024-r1/native-ruff-exception-substance-r1/ruff-unignored-owner-scopes.json",
+        "sha256": "ebf45741308707fe733ea7b3d6e14acf0b4409ddf678384967db95c292e27446"
+      },
+      "cwd": "/Users/deniskopylov/.codex/worktrees/e02-unified-local-20261009/polisyos",
+      "argv_tokens": 513,
+      "argv_sha256": "b40ae0edf900867b29de9f67c2d834183a3e1d6733226664040b46969808271d",
+      "exit_code": 1,
+      "duration": 0.121,
+      "timed_out": false,
+      "full_argv_and_json_stdout_retained": true,
+      "diagnostics": {
+        "total": 182,
+        "fabric": {
+          "TC001": 11,
+          "TC003": 3
+        },
+        "IR": 168
+      },
+      "qualification": "Complete stdout JSON has 182 diagnostics total, including 14 Fabric (11 TC001, 3 TC003) and 168 IR. This is a lint diagnostic denominator, not an architecture-decision denominator; occurrence status is separately classified below."
+    },
+    "reflection": {
+      "independent_peer_review": {
+        "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/root-ir-transport-composition-20261024-r1/native-discovery-sunset-substance-r1/g-question-review-r1/review.md",
+        "sha256": "669a65f0987a042c54eeecd256e9386c735679d2d03dc077efb823bdf5e76a74",
+        "review_revision": "R2 final report"
+      },
+      "fresh_exact_14_probe": {
+        "command": {
+          "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/root-ir-transport-composition-20261024-r1/native-discovery-sunset-substance-r1/reflection-exact14-review-r2/invocation.json",
+          "sha256": "a2d6637f5f525c2314ee3cfe5adbdea17a7d8bd8caa625cee09b48e7eb78bc92",
+          "contents": "Complete sandboxed argv and exact Python probe code; source copies are checked against the five affected module hashes in this packet."
+        },
+        "complete_stdout": {
+          "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/root-ir-transport-composition-20261024-r1/native-discovery-sunset-substance-r1/reflection-exact14-review-r2/stdout",
+          "sha256": "f7b26b8b21e3c212457f040c2f8a6c4d0eee98a990fc706b1ef19bea4ff86045"
+        },
+        "stderr": {
+          "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/root-ir-transport-composition-20261024-r1/native-discovery-sunset-substance-r1/reflection-exact14-review-r2/stderr",
+          "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+          "interpretation": "empty"
+        },
+        "receipt": {
+          "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/root-ir-transport-composition-20261024-r1/native-discovery-sunset-substance-r1/reflection-exact14-review-r2/receipt.json",
+          "sha256": "267404c0a36d24af80f6f7942741fc0c76cae33b8873b4c96fd1a5467be18192",
+          "exit_code": 0,
+          "timed_out": false,
+          "wall_seconds": 3.0629002089990536
+        },
+        "profile": {
+          "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/root-ir-transport-composition-20261024-r1/native-discovery-sunset-substance-r1/reflection-exact14-review-r2/profile.sb",
+          "sha256": "070c4fb81f4f297ce385ad7b63f103fa95501c15a22047d154bf8e4f3f1f1a8d"
+        },
+        "result": {
+          "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/root-ir-transport-composition-20261024-r1/native-discovery-sunset-substance-r1/reflection-exact14-review-r2/reflection-probe.json",
+          "sha256": "691f176e414bf9ccbb2d507ba7283a7b3bf56b1caf6976e6ad5a67ece4f00b2f",
+          "positive_count": 14,
+          "exact_removal_NameError_count": 14,
+          "source_frame": "49dff9183c20be3877d47953e0142417cb854cd0",
+          "maxrss_platform_units": 295895040
+        },
+        "claim_limit": "All 14 exact bindings resolve on the pinned source copies, and each exact global removal raises NameError. This demonstrates current behavior only; it does not elevate unsupported evidence helpers into the public API or settle public contract semantics."
+      },
+      "historical_author_probe": {
+        "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/root-ir-transport-composition-20261024-r1/native-ruff-exception-substance-r1/fabric-type-import-reflection-prototype.json",
+        "sha256": "679134665c5037d27e1de2c1099c604ebeb6096ac3d28eacf8025c6b8cfd8b9c",
+        "qualification": "Earlier 29-record prototype had no captured original argv; it is retained as historical exploration and not treated as the reproducible deciding run."
+      },
+      "historical_peer_preflight_failure": {
+        "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/root-ir-transport-composition-20261024-r1/native-discovery-sunset-substance-r1/reflection-exact14-review-r1/receipt.json",
+        "sha256": "790ed90858a3cd3617e2acda3f3679765eb2b3358cfb9379c5fcd5ef347b0c0b",
+        "qualification": "The reviewer’s first attempt failed before imports because the module-copy path builder mishandled a dotted component. This is retained as a harness preflight failure, not product evidence; corrected independent R2 run is the deciding behavior probe."
+      }
+    },
+    "prior_row_mismatch": {
+      "raw": {
+        "file": "fabric-type-import-runtime-boundary-review-r1.json",
+        "sha256": "1918a519ddcc05c4d564628db4b2e82816a80c30410cfc120202d7429db78b3e"
+      },
+      "issue": "Hand-transcribed rows mismatch complete Ruff output and omit four actual names: ConnectionHandle, ConnectorSchemaContract, Iterable, Mapping.",
+      "disposition": "Retained but excluded as denominator authority; this packet derives from full Ruff JSON and alias-aware source bindings."
+    },
+    "static_boundary": {
+      "file": "fabric-type-import-static-boundary-analysis.json",
+      "sha256": "72cd3df5929f0bd713b53f1799b5d48b1d700e68bf64a9b19b7da347a311237f"
+    },
+    "IR168": {
+      "classification": {
+        "file": "ir-ruff-diagnostic-classification-r1.json",
+        "sha256": "42484dde388b7df84f2ff9a2dad1a9b34a21b5ed80b4148e63e975a96d6fb708"
+      },
+      "summary": {
+        "file": "ir-ruff-classification-summary-r1.md",
+        "sha256": "5efa2d43c364cdb7be85524d079376efb71904014b0d0868224b4f3227fd0cfb"
+      },
+      "disposition": "No new G question evidenced; G528 remains selected; ordinary E501/SIM102 and source-grounded ANN repairs stay with implementers."
+    },
+    "candidate_narrowing": {
+      "file": "candidate-suppression-analysis.json",
+      "sha256": "f9d5d78a438f9197923ab24b1fd9e9b58eb27d5f17bb93291fd3c1c66ad6f6cd"
+    },
+    "unapplied_patch": {
+      "file": "candidate-fabric-suppression-narrowing.patch",
+      "sha256": "90e59156608750aae50b764d5600c725a30f97856a5ff11d0fa0aad1294dcf9a"
+    },
+    "n818_ruf100_profile_caveat": {
+      "n818_g_decision": "unchanged; no new exception identity question.",
+      "n818_only_active_scope_scan": {
+        "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/root-ir-transport-composition-20261024-r1/native-ruff-exception-substance-r1/ruff-actual-n818-only-complete-owner-sources.json",
+        "sha256": "e79d6fd6c96f88de01aa1531d4a0bc5d4add6941fecf0039e1a2e9260d8fe5f1",
+        "result": "green"
+      },
+      "active_config_full_owner_scan": {
+        "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/root-ir-transport-composition-20261024-r1/native-ruff-exception-substance-r1/ruff-active-complete-owner-sources.json",
+        "sha256": "f91bbc9f60f9bf1417646a6b4e8d2f9e1dd0c1badd7044cd8df705403d1382a3",
+        "result": "green"
+      },
+      "narrow_RUF100_result": {
+        "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/root-ir-transport-composition-20261024-r1/native-ruff-exception-substance-r1/ruff-actual-n818-ruf100-summary.json",
+        "sha256": "6e06022298b54f47a6ca3c49d6cc8a8581dc587e5bd5b302c9e29cc0cf7e4f38",
+        "count": 16,
+        "qualification": "All 16 are profile-limited unused-noqa diagnostics for suppressed codes outside the selected N818,RUF100 rule set, including S301/F401/F403. Do not report as active-config RUF100 debt or use as a reason to weaken RUF100."
+      },
+      "full_narrow_profile_json": {
+        "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/root-ir-transport-composition-20261024-r1/native-ruff-exception-substance-r1/ruff-actual-n818-ruf100-complete-owner-sources.json",
+        "sha256": "62814894f54c1aaa4d77637c60ab4e4fed3c442257e4cee03f68d739472a9f2b",
+        "result": "profile-only diagnostics; retained for transparency"
+      }
+    },
+    "independent_review_scope_correction": {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/root-ir-transport-composition-20261024-r1/native-discovery-sunset-substance-r1/g-question-review-r1/review.md",
+      "sha256": "669a65f0987a042c54eeecd256e9386c735679d2d03dc077efb823bdf5e76a74",
+      "finding": "RuntimeQuantityValue occurs only in from_runtime_quantity/from_runtime_quantities under polisyos.fabric.evidence.decision_data; evidence is not a supported_entrypoint, and from_runtime_quantity is not a stable root-facade export. It is executor/internal, not a G public-compatibility choice.",
+      "corrected_partition": "11 unresolved public + 1 already-bound public + 2 internal occurrences = 14 Ruff diagnostics."
+    }
+  },
+  "alternatives": {
+    "recommended": "Preserve current get_type_hints behavior for the 11 unresolved signatures on supported public Fabric APIs with exact rationale-bearing TC001/TC003 exceptions and facade-level tests. Keep ConnectorMetadataSpec as already bound. Leave RuntimeLineageRef and RuntimeQuantityValue reflection disposition to local implementation; do not make them part of this G question.",
+    "static_only": "Allow the 11 exact public imports to move under TYPE_CHECKING while preserving ordinary API execution and static typing. This changes get_type_hints behavior at those exact signatures. G should specify whether that is a public_stable API break under existing removal policy before implementation; no waiver or expiry mechanism.",
+    "falsifier": "For the named 11 supported public surfaces, retain annotation text/markers and remove only the exact runtime globals. A preserves get_type_hints success and fails on removal; B documents that ordinary calls/type checking continue while runtime reflection is no longer promised.",
+    "checks": [
+      "Use owner Ruff generator and verify emitted config bytes.",
+      "Run complete explicit-target Fabric Ruff with RUF100 active.",
+      "Add a new unqualified annotation-only import and require owner Ruff failure.",
+      "Exercise the 11 sites through supported facades after the decision.",
+      "Preserve the existing ConnectorMetadataSpec tests unchanged.",
+      "Keep internal RuntimeLineageRef and RuntimeQuantityValue decisions outside this question."
+    ],
+    "not_G_questions": [
+      "ConnectorMetadataSpec is already bound by source comment and two reflection tests.",
+      "RuntimeLineageRef is private executor scope.",
+      "RuntimeQuantityValue is on an unsupported legacy evidence subpackage path and is not root-facade exported.",
+      "G528 IR-Q1/Q2 and the seven N818 exception identities remain selected.",
+      "No law, authority, custody, currentness or scientific choice is in scope."
+    ]
+  },
+  "raw_evidence_root": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/root-ir-transport-composition-20261024-r1/native-ruff-exception-substance-r1",
+  "schema": "policyos.e02.fabric-reflection-question-packet.v2",
+  "packet_revision": {
+    "id": "g-review-packet-r2",
+    "supersedes": "g-review-packet-r1",
+    "change": "Corrects FABRIC-TC001-009 from public_unsettled to internal_executor; corrects G-choice denominator from 12 to 11; pins the independent reviewer’s fresh exact-14 probe with full argv, stdout, stderr and receipt; retains the first pre-import harness failure as a qualified history item.",
+    "author": "local executor; pending independent/root review; not G adjudication"
+  },
+  "pattern_pass": {
+    "relevant_ids": [
+      "P35",
+      "P36",
+      "P38"
+    ],
+    "existing_risks": [
+      "The initial 14-diagnostic census treated one internal helper as a public choice; current runtime reflection behavior was adjacent to, but did not establish, public status."
+    ],
+    "property": "Whether typing.get_type_hints success is part of the public-stable contract for supported Fabric signatures.",
+    "implementation_evidence": "The independent probe resolves all 14 current module bindings and exact removal yields NameError.",
+    "divergent_case": "RuntimeQuantityValue resolves under polisyos.fabric.evidence.decision_data, but the subpackage is not a supported entrypoint and from_runtime_quantity is absent from the root public facade.",
+    "target_pattern": "Use owner-supported entrypoints to classify each occurrence; ask G only about the 11 unresolved public rows; preserve full diagnostic denominator and individual internal/settled outcomes.",
+    "acceptance_signal": "G decision for the 11 named rows, followed by supported-facade positive and exact-global-removal controls."
+  }
+}

@@ -1,0 +1,19 @@
+{
+  "schema": "policyos.g-question-source-rebind/v1",
+  "head": "f018987afd063fcb115ae79b319ba42a3e1ddb8f",
+  "tree": "a12a0601779db361008c2b0f71b08dcc20501225",
+  "bound_packet_inputs_sha256": "2629acf92e560050262ec6d2edd950f81ac0d0a408c3a258f175343e7b400abc",
+  "source_frame_preserved": "49dff9183c20be3877d47953e0142417cb854cd0",
+  "unique_complete_packet_source_inputs": 25,
+  "mismatches": 0,
+  "changed_paths_since_frame": 21,
+  "packet_source_intersection": 0,
+  "independent_review": {
+    "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/root-ir-transport-composition-20261024-r1/native-discovery-sunset-substance-r1/newleaf/g-packet-r2-delta-review-r1/g-packet-r2-delta-review-r1.md",
+    "sha256": "3f017ddf031a5bbd8f3a9611d06d049e17d8a8fbccecdbcc8b35c7b7db6552e7"
+  },
+  "scope": "Freshness of the complete 25-path question input set; no global E02 freeze, gate inheritance, code acceptance or formal closure. Original captured outputs remain time-qualified.",
+  "source_freeze": false,
+  "code_acceptance": false,
+  "closure_ids": []
+}

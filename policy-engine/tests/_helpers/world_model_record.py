@@ -8,7 +8,11 @@ from pathlib import Path
 
 import duckdb
 
-from polisyos.core.artifacts.manifest import ArtifactRef, SchemaInfo
+from polisyos.core.artifacts.manifest import (
+    ArtifactRef,
+    SchemaInfo,
+    input_ref_from_artifact_ref,
+)
 from polisyos.core.artifacts.store import FileSystemCAS, PutOptions
 from polisyos.core.canon import CanonSpec
 from polisyos.core.contracts.fabric import DataSnapshot
@@ -95,7 +99,12 @@ def _build_record(
 
 
 def _data_snapshot_ref(store: FileSystemCAS, *, snapshot_id: str = SNAPSHOT_ID):
-    payload_ref = _put_json(store, FABRIC_PAYLOAD, kind="fabric.world_payload")
+    payload_ref = store.put_json(
+        FABRIC_PAYLOAD,
+        PutOptions(kind="fabric.world_payload", media_type="application/json"),
+        canon_spec=CanonSpec(forbid_floats=False),
+        return_selected_profile=True,
+    )
     return store.put_json(
         DataSnapshot(
             data_ref=payload_ref,
@@ -109,8 +118,10 @@ def _data_snapshot_ref(store: FileSystemCAS, *, snapshot_id: str = SNAPSHOT_ID):
                 name=DataSnapshot.ARTIFACT_SCHEMA_NAME,
                 version=DataSnapshot.ARTIFACT_SCHEMA_VERSION,
             ),
+            inputs=[input_ref_from_artifact_ref(payload_ref, role="data_ref")],
         ),
         canon_spec=CanonSpec(forbid_floats=False),
+        return_selected_profile=True,
     )
 
 

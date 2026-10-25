@@ -605,6 +605,53 @@ def test_world_model_record_builds_bound_global_state_and_executes_smoke(tmp_pat
     assert exec_result.simulation_result_ref is not None
 
 
+def test_data_snapshot_manifest_inputs_are_consumed_and_reject_removed_or_mutated_edges(
+    tmp_path: Path,
+) -> None:
+    from polisyos.core.artifacts import input_ref_from_artifact_ref, load_core_json_artifact
+    from polisyos.runtime.quality.data_snapshot_lineage import (
+        DataSnapshotLineageError,
+        validate_data_snapshot_owner_lineage,
+    )
+
+    store = FileSystemCAS(tmp_path / "cas")
+    snapshot_ref = _data_snapshot_ref(store, snapshot_id="fixture-snapshot-manifest-lineage")
+    snapshot = DataSnapshot.model_validate(load_core_json_artifact(store, snapshot_ref))
+    expected_input = input_ref_from_artifact_ref(snapshot.data_ref, role="data_ref")
+
+    assert snapshot_ref.manifest_profile_sha256 is not None
+    assert snapshot.data_ref.manifest_profile_sha256 is not None
+    assert snapshot.stats["snapshot_id"] == "fixture-snapshot-manifest-lineage"
+    assert load_core_json_artifact(store, snapshot.data_ref) == FABRIC_PAYLOAD
+    assert store.get_manifest(snapshot_ref).inputs == [expected_input]
+    validate_data_snapshot_owner_lineage(store, snapshot_ref, snapshot)
+
+    malformed_inputs = (
+        [],
+        [input_ref_from_artifact_ref(snapshot.data_ref, role="quality_report_ref")],
+    )
+    for inputs in malformed_inputs:
+        malformed_ref = store.put_json(
+            snapshot,
+            PutOptions(
+                kind=DataSnapshot.ARTIFACT_KIND,
+                media_type=DataSnapshot.ARTIFACT_MEDIA_TYPE,
+                schema=SchemaInfo(
+                    name=DataSnapshot.ARTIFACT_SCHEMA_NAME,
+                    version=DataSnapshot.ARTIFACT_SCHEMA_VERSION,
+                ),
+                inputs=list(inputs),
+            ),
+            canon_spec=CanonSpec(forbid_floats=False),
+            return_selected_profile=True,
+        )
+        with pytest.raises(
+            DataSnapshotLineageError,
+            match="data_snapshot_manifest_inputs_mismatch",
+        ):
+            validate_data_snapshot_owner_lineage(store, malformed_ref, snapshot)
+
+
 def test_world_model_record_content_binds_same_snapshot_and_rejects_mismatch(
     tmp_path: Path,
 ) -> None:

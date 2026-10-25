@@ -1,0 +1,59 @@
+# Реализация и приёмочные сигналы
+
+Это задания для исполнителя E02, не выполненные G tests. Основной контракт — [AD-E02-FABRIC-REFLECTION-01](01-fabric-runtime-annotations.md).
+
+## 1. Первые действия и writer boundaries
+
+1. На текущем attached candidate сверить source вопроса с actual files, exports, annotations, config owners и dependency profile. Не переносить старые line numbers. Если эквивалентное исправление уже существует, проверить и переиспользовать. Freeze относится к этому slice после содержательного review; global E02 freeze не требуется.
+2. Для 14 исходных bindings пройти все annotation uses в пяти affected modules: functions/methods **и class fields**. Сопоставить с actual supported facade exports, документированными mode routes и private consumers. Учесть alias binding, quoted annotations, positional/keyword/return annotations. Исходный ledger — seed, не стоп по числу 14. Исполнитель может расширить cohort на реальный новый use; не обязан обходить всё дерево классов, plugin catalog или production data.
+3. Fabric writer сохраняет bindings из решения и scoped docs/tests; private imports меняет лишь после проверки real runtime use. DevX writer согласованно меняет canonical fragment и генерируемые outputs. Эти работы можно готовить параллельно в непересекающихся файлах, но принимать как один coherent slice. Общие generated files — один writer. Автор не финальный independent reviewer своего изменения.
+
+## 2. Canonical lint repair
+
+- Source: `policy-engine/architecture/tooling/ruff/per-file-ignores/50-fabric.toml`. Удалить **только `TC001` и `TC003`** из production `src/polisyos/fabric/**`. Сохранить `TC002`, остальные production ignores и отдельно scoped test policy.
+- Для сохранённых runtime bindings добавить только фактически нужный rule code с ADR-style причиной и ID решения. Уже существующий `ConnectorMetadataSpec` comment/tests переиспользовать. Private строки 008/009 не получают исключение по причине «public API»; если реальный consumer требует runtime reflection, обосновать этот внутренний контракт отдельно в том же slice.
+- Для точности предпочтителен отдельный diagnostic line на binding. При группировке импортов проверить охват `noqa` pinned Ruff: одна строка с разрешённым импортом не должна автоматически скрывать добавленный посторонний alias. Не использовать file-wide `# ruff: noqa`, общий `exempt-modules`, выдуманный runtime decorator или фиктивный base class. Не закреплять layout, который ломает import sorter: выбрать минимальный совместимый layout и доказать фактический coverage.
+- Генератор уже существует: `tools/devx/workspace/ruff_sources.py`, manifest `architecture/tooling/tool_config_split.toml`. Использовать текущую штатную `workspace tool-configs` regeneration и `--check`. На source вопроса companions — `architecture/tooling/ruff/workspace_root.toml` и `ruff.generated.toml`; actual manifest определяет полный набор. Generated files вручную не править. Не создавать второй генератор/exception database.
+- `RUF100` проверять с **полным active profile**. Narrow `N818,RUF100` исключает прочие codes и потому не является oracle для их `noqa`. Не исправлять его 16 profile artefacts удалением нужных suppressions или отключением RUF100.
+
+## 3. Содержательные tests и независимые negatives
+
+| Проверка | Positive / observable property | Falsifier, который обязан отличаться |
+| --- | --- | --- |
+| Обычный facade import | Получить выбранные объекты через поддерживаемые exports в fresh interpreter; без preload deep modules/исправления namespaces | Подменить/сломать export либо направить facade на другой object: тест должен заметить; прямой deep import не спасает green |
+| Alias identity | В одном процессе `polisyos.fabric.query_world_table is polisyos.fabric.data_plane.query_world_table`; переиспользовать существующий identity test | Одна route ведёт на копию/wrapper при сохранённых именах и похожей сигнатуре: identity assertion FAIL |
+| Полная сигнатура | `get_type_hints` в штатных namespaces; полный набор parameter/return или class-field keys; exact nominal types и `get_origin`/`get_args` для generic/union; optional branches сохранены | Сохранить имена/комментарии, заменить значимый тип на `Any`/`object` либо убрать union branch: oracle должен FAIL |
+| Nominal identity | Core Temporal types и Fabric TemporalRef различаются; types получены от canonical owners, не из проверяемой mapping | Подставить одноимённый другой класс: строковый name/repr oracle не должен принять его |
+| Shared binding closure | Оба cache constructors, три query functions, `WorldQueryRequest` fields, Temporal classmethod | Сохранить основной representative, сломать соседний публичный member: его отдельный semantic assertion FAIL |
+| Exact binding removal | Для каждого сохраняемого runtime import в изолированной копии убрать именно binding, сохранив annotations и markers | Разрешение нужного типа перестаёт проходить. Для исходных string annotations ожидается соответствующий `NameError`; не принимать любой посторонний import/setup error за успешный negative |
+| Lint visibility | Full active production profile видит новый необоснованный annotation-only import | Fresh-line `TC001` и `TC003` sentinel под **production Fabric logical path** даёт соответствующую диагностику. Test-path с собственным ignore не доказывает видимость |
+| Suppression scope | У допустимого binding ровно обоснованный suppression; соседние imports не скрыты | В approved multiline/grouped import добавить посторонний annotation-only alias: он остаётся видимым либо layout разносится до этого свойства; проверить pinned Ruff, не текст `noqa` |
+| Сохранённая работа | Существующие affected importer/conversion/optional-backend tests проходят на selected candidate | Перенос private imports не должен вызывать runtime NameError; typed backend refusal нельзя заменить общим swallowed ImportError |
+
+Expected types берутся из reviewed signature и canonical type owners, а не копированием результата `get_type_hints` или вычислением эталона тем же resolver. **Примеры относятся к frame `49dff918`, не к G documentation checkout:** `connector` — `SourceConnectorValue[Any]`, `report` содержит именно `EvolutionReport | None`, query `columns` — `Sequence[str] | None`, `where` — `Mapping[str, Any] | None`, temporal scope сохраняет обе Core branches и остальные исходные branches. `SourceConnectorValue` — canonical generic type alias, не nominal class: сравнивать alias/origin и arguments, не вводить `isinstance(hint, type)` или обязательное раскрытие alias. Сверка actual candidate отличает допустимую эволюцию API от подмены типа ради green.
+
+`WorldQueryRequest` проверяется как class, не экземпляр. Для его dataclass-field projection брать actual fields через `dataclasses.fields(WorldQueryRequest)` и проверять их присутствие/типы в hints; не приравнивать множество dataclass fields к любым class annotations (`ClassVar`/`InitVar` имеют другую семантику). Полные class annotations проверяются в своём наборе, поля — в своём. Для default и `include_extras=True` использовать документированную семантику Python, не требовать одинаковых результатов при наличии `Annotated`. [Type aliases](https://docs.python.org/3.14/library/typing.html#typing.TypeAliasType), [dataclass fields](https://docs.python.org/3.14/library/dataclasses.html#dataclasses.fields).
+
+Removal — тест механизма, не требование вечного существования конкретного глобального имени. На эквивалентном допустимом refactor выбирать реальную dependency нового механизма; отказ старого mutation способа сам по себе не является regression. Не мутировать namespace production process и не считать исторический source-copy probe fresh facade check.
+
+### Python 3.14 и cache
+
+Source использует `from __future__ import annotations`; текущий 14-binding probe работал с string annotations на Python 3.14.3. Общая модель Python 3.14 поддерживает deferred evaluation и caches, поэтому mutation после первого чтения может не проверять реальное отсутствие binding. Baseline и mutated arm должны начинать с чистого annotation state; предпочтительно отдельный fresh process либо доказанно fresh isolated module, с mutation до первой introspection. Не изменять CPython private caches и не требовать конкретного хранения `__annotations__`. **STRING/FORWARDREF inspection не равно успешному разрешению типов.** [PEP 649](https://peps.python.org/pep-0649/), [PEP 749](https://peps.python.org/pep-0749/).
+
+Не запускать десятки импортирующих processes параллельно. Для этой маленькой поверхности достаточно последовательных bounded children с зафиксированным profile и явным timeout, выбранным после измерения. Ни database connections, ни actual ingestion, ни production payload для reflection oracle не нужны. Исследование G не выполняет даже эти tests; они остаются исполнителю при доступном compute slot.
+
+## 4. Минимальный footprint и delivery
+
+- Пять source modules исходного пакета: менять только нужные bindings/comments; source contract может остаться byte-identical при уже правильном локальном suppression. Не переносить nominal definitions.
+- Existing Fabric tests рядом с соответствующими owners: connector invalidation, source_contract v2, data-plane modes, decision-data/TemporalRef, world query/request. Допустим один общий parameterized facade test с независимыми expected types; не создавать parallel test framework. Existing tests metadata из пакета сохраняются.
+- Canonical Ruff fragment + все реально пересобранные projections + существующий `tests/repo_quality/tools/test_tool_config_split.py`/генераторный `--check` как applicable checks. Если test pins меняются — это обязательный companion.
+- Fabric README/reference и Data Plane README уточняют reflection scope и конфликт mode route. Existing public-surface contract/reference/inventory/release-fragment procedure используется при документировании нового public compatibility commitment; менять manifest notes можно штатно, **не добавляя все deep modules в supported_entrypoints**. Если inventory формально неизменен, зафиксировать его review/no-change, а не записывать выдуманную regeneration. Runtime HTTP/OpenAPI/TS clients этим Python-import изменением не затронуты, если actual diff не меняет их owner inputs.
+- Handoff содержит source/base/tree, actual use/export closure, полные decisive positive/negative outputs, runtime/Python/Ruff/config identity, changed/generated companions, ограниченные profiles и `UNRUN` отдельно. Исторический набор 502 = Fabric 306 + IR 196 воспроизведён по argv/tree; после изменения config полный новый Fabric denominator вычисляется заново. Не расширять этот slice до ремонта всех 168 IR diagnostics.
+
+После reviews выполнить одну affected verification wave и полный scoped Fabric Ruff check с active config. Отдельно проверить, что config generation не изменяет IR/N818 policy. Full backend replay здесь не prerequisite; обязательные repository gates сохраняются. При красном не заявлять inherited без P41 base replay + input-disjointness. Нет разрешения обходить hook или менять policy, чтобы опубликоваться.
+
+## 5. Когда продолжать самостоятельно, а когда нужен новый выбор
+
+Исполнитель самостоятельно решает layout imports, размещение scoped tests, actual counterpart paths, private typing-only placement и несемантические generator companions. Новая source строка не обнуляет весь прошлый review: перепроверяются delta и affected dependencies.
+
+Новый G вопрос нужен только при конкретном несовместимом semantic выборе: например, сохранение public contract требует нового dependency, который нарушает установленную minimal-import boundary, а существующие owners не дают совместимого пути; либо proposed migration действительно снимает выбранную гарантию. Приложить actual importer chain, минимальный контрпример и проверенные reuse/extend alternatives. «Нет общего freeze», «нет production data» и «Ruff предлагает TYPE_CHECKING» не являются блокерами этого slice.

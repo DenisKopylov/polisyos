@@ -1,0 +1,168 @@
+{
+  "schema": "e02-g-architecture-inputs/v1",
+  "decision_id": "AD-E02-FABRIC-REFLECTION-01",
+  "date": "2026-10-25",
+  "architecture_selection": "selected_by_G",
+  "code_acceptance": false,
+  "closure_ids": [],
+  "global_source_input_backend_freeze": false,
+  "documentation_base": "777d8e609c9c4a92c1c55b81757ba2fad22db1c6",
+  "packet": {
+    "commit": "8533003b91961cf9ba1305ec296dab7f3ed40e4b",
+    "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/g-questions/native-exceptions-20261025/",
+    "files": {
+      "README.md": "7e91a50d00bc978cb94939cf203c27e481830d3f2f668ffe5fefc24d0bef045a",
+      "question.md": "25928785f5f0b27cf3914ce83fec557b1aa2cf57546664f62f4dba0e24a740a4",
+      "inputs.json": "2629acf92e560050262ec6d2edd950f81ac0d0a408c3a258f175343e7b400abc",
+      "source-rebind.json": "2eb186ef1515012f404030a6ea6d77810ab0a21c11e292e4f65e05c04aa9b430"
+    }
+  },
+  "implementation_source_frame": {
+    "commit": "49dff9183c20be3877d47953e0142417cb854cd0",
+    "tree": "6c566aafccf5ceaa8f6718ba52b81a6b926d2b60",
+    "source_is_not_G_documentation_tree": true
+  },
+  "independent_static_verification": {
+    "author_input_paths": 25,
+    "input_path_source": "packet inputs.json:source_hashes.{affected_modules,ruff_config_12,support_sources}, deduplicated by path",
+    "sha256_mismatches": [],
+    "additional_source_pins": [
+      {
+        "path": "policy-engine/src/polisyos/fabric/connectors/__init__.py",
+        "git_blob": "0665429f0f7b104166431afdcda0050198e7a936",
+        "sha256": "d2977b98f96d5e95d33d76cd1aca9b2a1a49b898a790e75d51ca4c83bbe0be91"
+      },
+      {
+        "path": "policy-engine/src/polisyos/fabric/connectors/cache/__init__.py",
+        "git_blob": "5e3e1d8c7d4bf4756ddaa5127952355c56699587",
+        "sha256": "18217d6dbf70effd0b7d9dfa9be87a3013318765de48177d2b9734b49825fe26"
+      },
+      {
+        "path": "policy-engine/src/polisyos/fabric/data_plane/__init__.py",
+        "git_blob": "c109b88b47972d1f92f0dbe84fedd904a38a5bbc",
+        "sha256": "125fa61796fe713971b364722d350797d472277c931d14461bffe098c8a2aab1"
+      },
+      {
+        "path": "policy-engine/src/polisyos/fabric/data_plane/README.md",
+        "git_blob": "3d09499e86f0ec36512fedcc8588d91716cc2ae5",
+        "sha256": "156b1eb691930706ee734f128bf6352ee52185f263d89e4773158a92a8095a88"
+      },
+      {
+        "path": "policy-engine/src/polisyos/fabric/world/__init__.py",
+        "git_blob": "f9496202a8e237628dd72657f53abb812da300b1",
+        "sha256": "c9d4d133b0ae4cd6b97251cec6b3620937780aeb4a1aec3d869cea7cf5fbd6c5"
+      },
+      {
+        "path": "policy-engine/src/polisyos/fabric/api.py",
+        "git_blob": "b5353adca4465e45abbe4b89010d52442bea4b68",
+        "sha256": "89260a18d78c25fa5904bd6e5791a5a8798762e21339a0507a5080701fa80d94"
+      },
+      {
+        "path": "policy-engine/pyproject.toml",
+        "git_blob": "e4bb0ae9d77ae3bbb4b961ddd8f5f7e2e597ca51",
+        "sha256": "5f65308cb088086b6fc0aa40a5bae6ed852ae3a2e261103bd0d4158d97c1e8f2"
+      },
+      {
+        "path": "policy-engine/tests/unit/fabric/data_plane/test_raw_result_sink.py",
+        "git_blob": "3c4796113931ab91d8ed2497b5d3b39d84d39b3c",
+        "sha256": "e83201136424e9196d957be61c8323d728841f8667aa239db122f300913e7634"
+      },
+      {
+        "path": "policy-engine/src/polisyos/fabric/connectors/base.py",
+        "git_blob": "0f8a052eb65375515353ea5b096aac768dc87dd2",
+        "sha256": "1b24cee041f280ddd399d75ddfe5a4c2b2aa3c8a4d32303a0e6ea7f464dc72d3"
+      }
+    ],
+    "complete_ruff_output_hash_matches": true,
+    "diagnostics_total": 182,
+    "diagnostics_by_package": {
+      "fabric": 14,
+      "ir": 168
+    },
+    "fabric_diagnostic_rules": {
+      "TC001": 11,
+      "TC003": 3
+    },
+    "tracked_python_source_files": 502,
+    "explicit_argv_python_source_files": 502,
+    "argv_vs_tracked_symmetric_difference": 0,
+    "python_denominator_by_package": {
+      "fabric": 306,
+      "ir": 196
+    },
+    "scope_walk": "AST of all five affected modules: function/method parameter and return annotations plus class AnnAssign; reconcile implicated classes/functions with supported facade bindings and mode documentation; no execution.",
+    "new_public_callable_count": 8,
+    "new_public_class_field_surface_count": 1,
+    "question_representative_callable_count": 6,
+    "corrected_occurrence_partition": {
+      "new_facade_backed": 10,
+      "bounded_documented_mode_compatibility": 1,
+      "public_already_bound": 1,
+      "internal_executor": 2
+    },
+    "corrected_row": "FABRIC-TC001-007",
+    "raw_reflection_artifact_readback": [
+      {
+        "packet_pointer": "evidence.reflection.fresh_exact_14_probe.command",
+        "sha256_matches": true,
+        "bytes": 4626
+      },
+      {
+        "packet_pointer": "evidence.reflection.fresh_exact_14_probe.complete_stdout",
+        "sha256_matches": true,
+        "bytes": 246
+      },
+      {
+        "packet_pointer": "evidence.reflection.fresh_exact_14_probe.stderr",
+        "sha256_matches": true,
+        "bytes": 0
+      },
+      {
+        "packet_pointer": "evidence.reflection.fresh_exact_14_probe.receipt",
+        "sha256_matches": true,
+        "bytes": 393
+      },
+      {
+        "packet_pointer": "evidence.reflection.fresh_exact_14_probe.profile",
+        "sha256_matches": true,
+        "bytes": 355
+      },
+      {
+        "packet_pointer": "evidence.reflection.fresh_exact_14_probe.result",
+        "sha256_matches": true,
+        "bytes": 4986
+      }
+    ]
+  },
+  "runtime_evidence": {
+    "source_reported_python": "3.14.3",
+    "source_reported_positives": 14,
+    "source_reported_removal_NameError": 14,
+    "G_replayed": false,
+    "qualification": "Existing source-copy probe bytes and hashes verified; imported copies replace sys.modules entries. Probe tests nonempty resolved hints and exact removal, not full semantic type identity or ordinary facade access. It is not the acceptance oracle for the selected contract."
+  },
+  "research_review": {
+    "direct_research_and_initial_review_agents": [
+      "reflection_public_surface",
+      "reflection_python_research",
+      "reflection_ruff_contract",
+      "reflection_initial_redteam"
+    ],
+    "draft_independent_review": [
+      "reflection_final_redteam",
+      "reflection_python_research"
+    ],
+    "root_review": "Performed separately; accept only source-backed findings, correct binding/signature scope and mode facade conflict; no product implementation.",
+    "final_disposition": "bounded_GO_after_explicit_alias_identity_type_alias_and_dataclass_field_fixes; root independently checked exact-source examples"
+  },
+  "not_run": [
+    "product imports",
+    "tests",
+    "Ruff",
+    "architecture gates",
+    "builds",
+    "installs",
+    "global replay"
+  ],
+  "delivery_boundary": "Documentation only; no changes to system-design-decisions, implementation source, main or remote branches."
+}

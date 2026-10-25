@@ -23,6 +23,7 @@ import json
 import math
 import os
 import re
+import shutil
 import stat
 import subprocess
 import sys
@@ -2524,6 +2525,902 @@ def selected_python_runtime_profile(
     }
 
 
+def selected_environment_creator_executable_profile(
+    requested_uv: Path,
+    repo: Path,
+    *,
+    home: Path,
+    temporary: Path,
+    timeout_seconds: float,
+) -> dict[str, Any]:
+    """Recompute the operator-selected UV identity without trusting environment metadata."""
+    if not requested_uv.is_absolute():
+        raise AuditFailure("selected environment creator path must be absolute")
+    if not home.is_absolute() or not temporary.is_absolute():
+        raise AuditFailure("environment creator profile paths must be absolute")
+    for directory in (home, temporary):
+        directory.mkdir(parents=True, exist_ok=True)
+        if not directory.is_dir() or directory.is_symlink():
+            raise AuditFailure(f"environment creator profile directory is unsafe: {directory}")
+    selected_path = shutil.which("uv")
+    if not selected_path:
+        raise AuditFailure("selected environment creator is not available on operator PATH")
+    path_from_path = Path(os.path.abspath(selected_path))
+    try:
+        resolved = path_from_path.resolve(strict=True)
+        requested_resolved = requested_uv.resolve(strict=True)
+    except (OSError, RuntimeError, ValueError) as error:
+        raise AuditFailure("selected environment creator path is unavailable") from error
+    identity = resolved.stat()
+    if (
+        requested_resolved != resolved
+        or not stat.S_ISREG(identity.st_mode)
+        or not os.access(resolved, os.X_OK)
+    ):
+        raise AuditFailure("CLI environment creator differs from the operator-selected UV")
+    before = read_regular_local(resolved)
+    environment = {
+        "HOME": str(home),
+        "LANG": "C",
+        "LC_ALL": "C",
+        "PATH": "/usr/bin:/bin",
+        "TMPDIR": str(temporary),
+    }
+    try:
+        result = subprocess.run(  # noqa: S603 -- absolute UV executable and fixed version argv.
+            [str(resolved), "--version"],
+            cwd=repo,
+            env=environment,
+            capture_output=True,
+            text=True,
+            encoding="utf-8",
+            errors="replace",
+            timeout=timeout_seconds,
+            check=False,
+        )
+    except (OSError, subprocess.TimeoutExpired) as error:
+        raise AuditFailure("selected UV version probe did not complete") from error
+    after = read_regular_local(resolved)
+    selected_after = shutil.which("uv")
+    if (
+        result.returncode != 0
+        or before != after
+        or not selected_after
+        or Path(os.path.abspath(selected_after)).resolve(strict=True) != resolved
+    ):
+        raise AuditFailure("selected UV changed or failed its version probe")
+    version_output = result.stdout.strip()
+    version_parts = version_output.split()
+    if len(version_parts) < 2 or version_parts[0] != "uv":
+        raise AuditFailure("selected UV returned a malformed version identity")
+    return {
+        "selection": "operator PATH, confirmed by required CLI path",
+        "path_from_path": str(path_from_path),
+        "resolved_path": str(resolved),
+        "sha256": sha256(before),
+        "size_bytes": len(before),
+        "mode": stat.S_IMODE(identity.st_mode),
+        "version": version_parts[1],
+        "version_output": version_output,
+        "vendor_authenticity": "not_established",
+    }
+
+
+def generated_environment_tree(
+    root: Path, selected_python: Path
+) -> tuple[list[dict[str, Any]], int]:
+    """Inventory a bounded generated venv without following links or copying packages."""
+    try:
+        resolved_root = root.resolve(strict=True)
+        selected_python = selected_python.resolve(strict=True)
+    except (OSError, RuntimeError, ValueError) as error:
+        raise AuditFailure("generated environment or selected Python is unavailable") from error
+    if resolved_root != root or root.is_symlink() or not root.is_dir():
+        raise AuditFailure("generated environment root is not a canonical directory")
+    pending = [root]
+    rows: list[dict[str, Any]] = []
+    regular_file_bytes = 0
+    while pending:
+        directory = pending.pop()
+        try:
+            entries = sorted(os.scandir(directory), key=lambda entry: entry.name)
+        except OSError as error:
+            raise AuditFailure(
+                f"cannot inventory generated environment directory: {directory}"
+            ) from error
+        for entry in entries:
+            path = Path(entry.path)
+            relative = path.relative_to(root).as_posix()
+            try:
+                info = path.lstat()
+            except OSError as error:
+                raise AuditFailure(f"generated environment entry disappeared: {path}") from error
+            mode = stat.S_IMODE(info.st_mode)
+            if stat.S_ISDIR(info.st_mode):
+                rows.append({"path": relative, "kind": "directory", "mode": mode})
+                pending.append(path)
+            elif stat.S_ISREG(info.st_mode):
+                data = read_regular_local(path)
+                regular_file_bytes += len(data)
+                if regular_file_bytes > 5 * 1024 * 1024:
+                    raise AuditFailure(
+                        "generated environment exceeds the 5 MiB dependency-free bound"
+                    )
+                rows.append(
+                    {
+                        "path": relative,
+                        "kind": "regular_file",
+                        "mode": mode,
+                        "bytes": len(data),
+                        "sha256": sha256(data),
+                    }
+                )
+            elif stat.S_ISLNK(info.st_mode):
+                target = os.readlink(path)
+                candidate = Path(target) if Path(target).is_absolute() else path.parent / target
+                try:
+                    resolved_target = candidate.resolve(strict=True)
+                except (OSError, RuntimeError, ValueError) as error:
+                    raise AuditFailure(
+                        f"generated environment link is unresolved: {path}"
+                    ) from error
+                if resolved_target != selected_python and not resolved_target.is_relative_to(root):
+                    raise AuditFailure(
+                        f"generated environment link escapes its selected profile: {path}"
+                    )
+                rows.append({"path": relative, "kind": "symlink", "target": target})
+            else:
+                raise AuditFailure(f"generated environment contains a special file: {path}")
+    rows.sort(key=lambda row: (row["path"], row["kind"]))
+    return rows, regular_file_bytes
+
+
+def parse_environment_config(data: bytes, context: str) -> dict[str, str]:
+    """Parse pyvenv.cfg as exact unique key/value rows."""
+    try:
+        lines = data.decode("utf-8").splitlines()
+    except UnicodeDecodeError as error:
+        raise AuditFailure(f"{context} is not UTF-8") from error
+    values: dict[str, str] = {}
+    for line in lines:
+        if not line.strip():
+            continue
+        key, separator, value = line.partition("=")
+        key = key.strip()
+        value = value.strip()
+        if not separator or not key or not value or key in values:
+            raise AuditFailure(f"{context} contains a malformed or duplicate field")
+        values[key] = value
+    return values
+
+
+def reconcile_environment_generator_config(
+    actual_fields: dict[str, str],
+    generated_fields: dict[str, str],
+    runtime_profile: dict[str, Any],
+    creator: dict[str, Any],
+    project_name: str,
+) -> dict[str, str]:
+    """Reconcile venv semantics while binding each home path to the selected base prefix."""
+    required = {
+        "home",
+        "implementation",
+        "uv",
+        "version_info",
+        "include-system-site-packages",
+        "prompt",
+    }
+    if set(actual_fields) != required or set(generated_fields) != required:
+        raise AuditFailure("selected or regenerated pyvenv.cfg has an unsupported field set")
+    base_value = runtime_profile.get("base_prefix")
+    executable_value = runtime_profile.get("resolved_executable")
+    implementation = runtime_profile.get("implementation")
+    version = runtime_profile.get("version")
+    creator_version = creator.get("version")
+    if (
+        not isinstance(base_value, str)
+        or not Path(base_value).is_absolute()
+        or not isinstance(executable_value, str)
+        or not Path(executable_value).is_absolute()
+        or not isinstance(implementation, str)
+        or not implementation
+        or not isinstance(version, str)
+        or not version
+        or not isinstance(creator_version, str)
+        or not creator_version
+        or not isinstance(project_name, str)
+        or not project_name
+    ):
+        raise AuditFailure("selected runtime or creator omits pyvenv.cfg semantic identity")
+    try:
+        base_prefix = Path(base_value).resolve(strict=True)
+        selected_executable = Path(executable_value).resolve(strict=True)
+        selected_interpreter_home = selected_executable.parent.resolve(strict=True)
+    except (OSError, RuntimeError, ValueError) as error:
+        raise AuditFailure("selected Python base prefix or executable is unavailable") from error
+    if not selected_executable.is_relative_to(base_prefix):
+        raise AuditFailure("selected Python executable is outside its isolated base prefix")
+    expected = {
+        "implementation": implementation.casefold(),
+        "uv": creator_version,
+        "version_info": version.split(" ", 1)[0],
+        "include-system-site-packages": "false",
+        "prompt": project_name,
+    }
+    for context, fields in (("selected", actual_fields), ("regenerated", generated_fields)):
+        for key, value in expected.items():
+            observed = fields[key].casefold() if key == "implementation" else fields[key]
+            if observed != value:
+                raise AuditFailure(f"{context} pyvenv.cfg semantic field differs: {key}")
+        home_value = fields["home"]
+        if not Path(home_value).is_absolute():
+            raise AuditFailure(f"{context} pyvenv.cfg home is not absolute")
+        try:
+            resolved_home = Path(home_value).resolve(strict=True)
+        except (OSError, RuntimeError, ValueError) as error:
+            raise AuditFailure(f"{context} pyvenv.cfg home is unavailable") from error
+        if resolved_home != selected_interpreter_home:
+            raise AuditFailure(
+                f"{context} pyvenv.cfg home does not resolve to the selected interpreter home"
+            )
+    actual_semantics = {key: actual_fields[key] for key in required - {"home"}}
+    generated_semantics = {key: generated_fields[key] for key in required - {"home"}}
+    if actual_semantics != generated_semantics:
+        raise AuditFailure("selected and regenerated pyvenv.cfg semantic fields differ")
+    return {
+        "kind": "resolved_selected_base_prefix_and_exact_semantic_fields",
+        "selected_base_prefix": str(base_prefix),
+        "selected_interpreter_home": str(selected_interpreter_home),
+        "actual_home_resolved": str(selected_interpreter_home),
+        "generated_home_resolved": str(selected_interpreter_home),
+        "home_path_spelling_may_differ": "resolved equality only",
+        "non_home_semantics": "exact",
+    }
+
+
+def selected_python_environment_generator_profile(
+    repo: Path,
+    source_sha: str,
+    python: Path,
+    python_executable: dict[str, Any],
+    isolated_runtime: dict[str, Any],
+    selected_creator: dict[str, Any],
+    output_root: Path,
+    label: str,
+) -> dict[str, Any]:
+    """Recreate the selected venv's generated closure before collection executes site code."""
+    runtime = isolated_runtime.get("runtime_profile")
+    launcher_runtime = python_executable.get("runtime_profile")
+    if not isinstance(runtime, dict) or not isinstance(launcher_runtime, dict):
+        raise AuditFailure("environment creator requires an isolated selected Python profile")
+    if launcher_runtime.get("kind") != "venv" or runtime.get("pyvenv_cfg") is None:
+        raise AuditFailure("environment-generated site origins require a selected venv profile")
+    if python_executable_record(python) != python_executable:
+        raise AuditFailure("selected Python changed before environment generation")
+    if runtime.get("resolved_executable") != python_executable.get("resolved_path"):
+        raise AuditFailure("selected environment creator Python differs from the CLI launcher")
+    cfg_identity = runtime.get("pyvenv_cfg")
+    if not isinstance(cfg_identity, dict) or not isinstance(cfg_identity.get("path"), str):
+        raise AuditFailure("selected venv profile omits pyvenv.cfg identity")
+    actual_cfg_path = Path(cfg_identity["path"])
+    actual_cfg_bytes = read_regular_local(actual_cfg_path)
+    if len(actual_cfg_bytes) != cfg_identity.get("bytes") or sha256(
+        actual_cfg_bytes
+    ) != cfg_identity.get("sha256"):
+        raise AuditFailure("selected pyvenv.cfg changed before environment generation")
+    actual_cfg_fields = parse_environment_config(actual_cfg_bytes, "selected pyvenv.cfg")
+    if actual_cfg_fields.get("uv") != selected_creator.get("version"):
+        raise AuditFailure("selected UV version differs from the declared pyvenv.cfg creator")
+
+    project_blob_oid, project_bytes = commit_blob_record(repo, source_sha, APP_PROJECT_REL)
+    try:
+        project = tomllib.loads(project_bytes.decode("utf-8"))
+    except (UnicodeDecodeError, tomllib.TOMLDecodeError) as error:
+        raise AuditFailure("source-bound application project config is unreadable") from error
+    project_data = project.get("project")
+    project_name = project_data.get("name") if isinstance(project_data, dict) else None
+    if not isinstance(project_name, str) or not project_name:
+        raise AuditFailure("source-bound project name is unavailable for venv generation")
+
+    generation_root = output_root / f"{label}-environment-generator"
+    if generation_root.exists() or generation_root.is_symlink():
+        raise AuditFailure(f"environment generator output is already present: {generation_root}")
+    generation_root.mkdir(parents=False, exist_ok=False)
+    home = generation_root / "home"
+    temporary = generation_root / "tmp"
+    cache = generation_root / "cache"
+    config = generation_root / "config"
+    for directory in (home, temporary, cache, config):
+        directory.mkdir()
+    generated_venv = generation_root / "venv"
+    selected_python_value = python_executable.get("resolved_path")
+    if not isinstance(selected_python_value, str) or not Path(selected_python_value).is_absolute():
+        raise AuditFailure("selected Python launcher omits its absolute resolved executable")
+    selected_python = Path(selected_python_value)
+    try:
+        selected_python_resolved = selected_python.resolve(strict=True)
+    except (OSError, RuntimeError, ValueError) as error:
+        raise AuditFailure("selected Python creator executable is unavailable") from error
+    if (
+        selected_python_resolved != selected_python
+        or selected_python_resolved != Path(str(runtime["resolved_executable"]))
+        or sha256(read_regular_local(selected_python_resolved)) != python_executable.get("sha256")
+    ):
+        raise AuditFailure(
+            "selected Python creator executable differs from the isolated launcher profile"
+        )
+    uv_path = Path(str(selected_creator.get("resolved_path", "")))
+    if not uv_path.is_absolute():
+        raise AuditFailure("selected UV profile omits its absolute executable")
+    environment = {
+        "HOME": str(home),
+        "LANG": "C",
+        "LC_ALL": "C",
+        "PATH": "/usr/bin:/bin",
+        "TMPDIR": str(temporary),
+        "XDG_CACHE_HOME": str(cache),
+        "XDG_CONFIG_HOME": str(config),
+    }
+    argv = [
+        str(uv_path),
+        "venv",
+        "--no-project",
+        "--no-config",
+        "--no-cache",
+        "--offline",
+        "--no-python-downloads",
+        "--python",
+        str(selected_python),
+        "--prompt",
+        project_name,
+        str(generated_venv),
+    ]
+    if (
+        selected_environment_creator_executable_profile(
+            Path(str(selected_creator["path_from_path"])),
+            repo,
+            home=home,
+            temporary=temporary,
+            timeout_seconds=15.0,
+        )
+        != selected_creator
+    ):
+        raise AuditFailure("operator-selected UV changed before venv generation")
+    try:
+        result = subprocess.run(  # noqa: S603 -- source/operator-selected absolute UV and fixed offline argv.
+            argv,
+            cwd=repo / "policy-engine",
+            env=environment,
+            capture_output=True,
+            text=True,
+            encoding="utf-8",
+            errors="replace",
+            timeout=30.0,
+            check=False,
+        )
+    except (OSError, subprocess.TimeoutExpired) as error:
+        raise AuditFailure(
+            "dependency-free selected-UV venv generation did not complete"
+        ) from error
+    (generation_root / "uv-venv.stdout.txt").write_text(result.stdout, encoding="utf-8")
+    (generation_root / "uv-venv.stderr.txt").write_text(result.stderr, encoding="utf-8")
+    if result.returncode != 0:
+        raise AuditFailure("selected UV could not recreate the dependency-free venv profile")
+    if (
+        selected_environment_creator_executable_profile(
+            Path(str(selected_creator["path_from_path"])),
+            repo,
+            home=home,
+            temporary=temporary,
+            timeout_seconds=15.0,
+        )
+        != selected_creator
+    ):
+        raise AuditFailure("operator-selected UV changed during venv generation")
+    if python_executable_record(python) != python_executable:
+        raise AuditFailure("selected Python changed during venv generation")
+
+    generated_cfg_path = generated_venv / "pyvenv.cfg"
+    generated_cfg_bytes = read_regular_local(generated_cfg_path)
+    generated_cfg_fields = parse_environment_config(generated_cfg_bytes, "recomputed pyvenv.cfg")
+    cfg_reconciliation = reconcile_environment_generator_config(
+        actual_cfg_fields, generated_cfg_fields, runtime, selected_creator, project_name
+    )
+    tree, regular_bytes = generated_environment_tree(generated_venv, selected_python)
+
+    actual_prefix = Path(str(runtime.get("prefix", "")))
+    if not actual_prefix.is_absolute():
+        raise AuditFailure("selected Python profile omits its absolute venv prefix")
+    active_site_roots = collection_profile_directories(runtime, "site_roots")
+    generated_site_artifacts: list[dict[str, Any]] = []
+    for active_site_root in active_site_roots:
+        try:
+            site_relative = active_site_root.relative_to(actual_prefix)
+        except ValueError as error:
+            raise AuditFailure("active site root is outside the selected venv prefix") from error
+        generated_site_root = generated_venv / site_relative
+        if generated_site_root.is_symlink() or not generated_site_root.is_dir():
+            raise AuditFailure("recreated environment omits a canonical generated site root")
+        site_prefix = site_relative.as_posix().rstrip("/") + "/"
+        for entry in tree:
+            if entry.get("kind") != "regular_file" or not str(entry.get("path", "")).startswith(
+                site_prefix
+            ):
+                continue
+            relative = str(entry["path"])[len(site_prefix) :]
+            if not relative or not safe_record_relative_path(relative):
+                raise AuditFailure("generated site artifact has an unsafe relative path")
+            generated_site_path = generated_site_root / relative
+            actual_site_path = active_site_root / relative
+            generated_bytes = read_regular_local(generated_site_path)
+            actual_bytes = read_regular_local(actual_site_path)
+            if (
+                len(generated_bytes) != entry.get("bytes")
+                or sha256(generated_bytes) != entry.get("sha256")
+                or generated_bytes != actual_bytes
+                or stat.S_IMODE(generated_site_path.stat().st_mode)
+                != stat.S_IMODE(actual_site_path.stat().st_mode)
+            ):
+                raise AuditFailure(
+                    "selected environment differs from regenerated site artifact: "
+                    f"{actual_site_path}"
+                )
+            generated_site_artifacts.append(
+                {
+                    "active_site_root": str(active_site_root),
+                    "generated_site_root_relative": site_relative.as_posix(),
+                    "relative_path": relative,
+                    "bytes": len(generated_bytes),
+                    "sha256": sha256(generated_bytes),
+                    "mode": stat.S_IMODE(generated_site_path.stat().st_mode),
+                }
+            )
+    generated_site_artifacts.sort(key=lambda row: (row["active_site_root"], row["relative_path"]))
+    if not generated_site_artifacts:
+        raise AuditFailure("selected UV generated no site artifacts to bind")
+    profile: dict[str, Any] = {
+        "schema_version": 1,
+        "kind": "locally_selected_recomputed_generator",
+        "creator_authenticity": "not_established",
+        "source_sha": source_sha,
+        "creator": selected_creator,
+        "python_executable": python_executable,
+        "python_runtime_profile": runtime,
+        "generator_python_argument": str(selected_python),
+        "generator_python_argument_kind": "explicit_bound_resolved_executable",
+        "generator_python_argument_resolved_path": str(selected_python_resolved),
+        "pyvenv_cfg_reconciliation": cfg_reconciliation,
+        "source_project": {
+            "path": APP_PROJECT_REL,
+            "git_blob_oid": project_blob_oid,
+            "sha256": sha256(project_bytes),
+            "name": project_name,
+        },
+        "actual_pyvenv_cfg": {
+            "path": str(actual_cfg_path),
+            "bytes": len(actual_cfg_bytes),
+            "sha256": sha256(actual_cfg_bytes),
+            "fields": actual_cfg_fields,
+        },
+        "generated_pyvenv_cfg": {
+            "path": str(generated_cfg_path),
+            "bytes": len(generated_cfg_bytes),
+            "sha256": sha256(generated_cfg_bytes),
+            "fields": generated_cfg_fields,
+        },
+        "generated_environment_root": str(generated_venv),
+        "generated_environment_tree": tree,
+        "generated_environment_entry_count": len(tree),
+        "generated_environment_regular_file_bytes": regular_bytes,
+        "generated_site_artifacts": generated_site_artifacts,
+        "command": argv,
+        "cwd": str(repo / "policy-engine"),
+        "network_disabled": True,
+        "seed_or_dependencies_requested": False,
+        "stdout_sha256": sha256(result.stdout.encode("utf-8")),
+        "stderr_sha256": sha256(result.stderr.encode("utf-8")),
+    }
+    profile["profile_sha256"] = canonical_json_sha256(profile)
+    profile_path = output_root / "environment-generator-profile.json"
+    if profile_path.exists() or profile_path.is_symlink():
+        raise AuditFailure("environment generator profile receipt path is occupied")
+    profile_path.write_text(
+        json.dumps(profile, ensure_ascii=False, sort_keys=True, indent=2) + "\n", encoding="utf-8"
+    )
+    profile["profile_path"] = str(profile_path)
+    return profile
+
+
+def bind_selected_python_generated_site_artifact(
+    origin: Path,
+    file_bytes: bytes,
+    active_site_roots: list[Path],
+    profile: dict[str, Any],
+    selected_creator: dict[str, Any],
+    python_executable: dict[str, Any],
+    expected_runtime_profile: dict[str, Any],
+    source_sha: str,
+    record_owner_claims: list[tuple[str, str, str, bool]],
+) -> dict[str, Any]:
+    """Bind one unowned site file to exact output from the selected environment creator."""
+    if not isinstance(file_bytes, bytes) or not origin.is_absolute():
+        raise AuditFailure("generated site artifact origin or bytes are malformed")
+    if record_owner_claims:
+        raise AuditFailure("generated site artifact has competing or malformed RECORD claims")
+    if (
+        not isinstance(profile, dict)
+        or profile.get("kind") != "locally_selected_recomputed_generator"
+        or profile.get("creator_authenticity") != "not_established"
+        or profile.get("creator") != selected_creator
+        or profile.get("python_executable") != python_executable
+        or profile.get("python_runtime_profile") != expected_runtime_profile.get("runtime_profile")
+        or profile.get("source_sha") != source_sha
+    ):
+        raise AuditFailure("generated site artifact is detached from its selected creator profile")
+    payload = dict(profile)
+    recorded_sha = payload.pop("profile_sha256", None)
+    payload.pop("profile_path", None)
+    if not isinstance(recorded_sha, str) or canonical_json_sha256(payload) != recorded_sha:
+        raise AuditFailure("environment creator profile digest is stale or counterfeit")
+    matching_roots = [root for root in active_site_roots if origin.is_relative_to(root)]
+    if not matching_roots:
+        raise AuditFailure("generated site artifact is outside active site roots")
+    active_site_root = max(matching_roots, key=lambda root: len(root.parts))
+    relative = origin.relative_to(active_site_root).as_posix()
+    artifacts = profile.get("generated_site_artifacts")
+    if not isinstance(artifacts, list):
+        raise AuditFailure("environment creator profile omits generated site artifacts")
+    matching = [
+        item
+        for item in artifacts
+        if isinstance(item, dict)
+        and item.get("active_site_root") == str(active_site_root)
+        and item.get("relative_path") == relative
+    ]
+    if len(matching) != 1:
+        raise AuditFailure("unowned active-site file is absent or ambiguous in generated closure")
+    artifact = matching[0]
+    if (
+        type(artifact.get("bytes")) is not int
+        or artifact["bytes"] != len(file_bytes)
+        or not isinstance(artifact.get("sha256"), str)
+        or not re.fullmatch(r"[0-9a-f]{64}", artifact["sha256"])
+        or artifact["sha256"] != sha256(file_bytes)
+    ):
+        raise AuditFailure("unowned active-site file differs from generated creator bytes")
+    return {
+        "kind": "locally_selected_recomputed_generator_site_artifact",
+        "origin": str(origin),
+        "active_site_root": str(active_site_root),
+        "relative_path": relative,
+        "bytes": len(file_bytes),
+        "sha256": sha256(file_bytes),
+        "creator_profile_sha256": recorded_sha,
+        "creator_executable_sha256": selected_creator.get("sha256"),
+        "creator_version": selected_creator.get("version"),
+        "creator_authenticity": "not_established",
+        "source_sha": source_sha,
+        "provenance_predicate": "recomputed",
+    }
+
+
+def recheck_selected_python_environment_generator_profile(profile: dict[str, Any]) -> None:
+    """Recheck complete generated output and actual site bytes before source-audit admission."""
+    root_value = profile.get("generated_environment_root")
+    python_record = profile.get("python_executable")
+    if not isinstance(root_value, str) or not isinstance(python_record, dict):
+        raise AuditFailure("generated environment profile omits its output root or selected Python")
+    root = Path(root_value)
+    selected_python_value = python_record.get("resolved_path")
+    if not isinstance(selected_python_value, str) or not Path(selected_python_value).is_absolute():
+        raise AuditFailure("generated environment profile omits its selected Python target")
+    current_tree, current_bytes = generated_environment_tree(root, Path(selected_python_value))
+    if current_tree != profile.get("generated_environment_tree") or current_bytes != profile.get(
+        "generated_environment_regular_file_bytes"
+    ):
+        raise AuditFailure("generated environment closure changed after its profile was captured")
+    actual_cfg = profile.get("actual_pyvenv_cfg")
+    if not isinstance(actual_cfg, dict) or not isinstance(actual_cfg.get("path"), str):
+        raise AuditFailure("generated environment profile omits selected pyvenv.cfg")
+    actual_cfg_bytes = read_regular_local(Path(actual_cfg["path"]))
+    if len(actual_cfg_bytes) != actual_cfg.get("bytes") or sha256(
+        actual_cfg_bytes
+    ) != actual_cfg.get("sha256"):
+        raise AuditFailure("selected pyvenv.cfg changed after generator reconciliation")
+    actual_cfg_fields = parse_environment_config(actual_cfg_bytes, "selected pyvenv.cfg recheck")
+    if actual_cfg_fields != actual_cfg.get("fields"):
+        raise AuditFailure("selected pyvenv.cfg fields changed after generator reconciliation")
+    generated_cfg_bytes = read_regular_local(root / "pyvenv.cfg")
+    generated_cfg_fields = parse_environment_config(
+        generated_cfg_bytes, "regenerated pyvenv.cfg recheck"
+    )
+    runtime_profile = profile.get("python_runtime_profile")
+    creator = profile.get("creator")
+    project = profile.get("source_project")
+    if (
+        not isinstance(runtime_profile, dict)
+        or not isinstance(creator, dict)
+        or not isinstance(project, dict)
+    ):
+        raise AuditFailure("generated environment profile omits configuration identities")
+    cfg_reconciliation = reconcile_environment_generator_config(
+        actual_cfg_fields, generated_cfg_fields, runtime_profile, creator, project.get("name")
+    )
+    if cfg_reconciliation != profile.get("pyvenv_cfg_reconciliation"):
+        raise AuditFailure("selected pyvenv.cfg reconciliation changed after capture")
+    if generated_cfg_fields != profile.get("generated_pyvenv_cfg", {}).get("fields"):
+        raise AuditFailure("regenerated pyvenv.cfg fields changed after capture")
+    artifacts = profile.get("generated_site_artifacts")
+    if not isinstance(artifacts, list) or not artifacts:
+        raise AuditFailure("generated environment profile omits its site closure")
+    for artifact in artifacts:
+        if not isinstance(artifact, dict):
+            raise AuditFailure("generated site closure contains a malformed artifact")
+        root_path = artifact.get("active_site_root")
+        relative = artifact.get("relative_path")
+        if not isinstance(root_path, str) or not isinstance(relative, str):
+            raise AuditFailure("generated site closure omits a canonical path")
+        path = Path(root_path) / relative
+        data = read_regular_local(path)
+        if (
+            len(data) != artifact.get("bytes")
+            or sha256(data) != artifact.get("sha256")
+            or stat.S_IMODE(path.stat().st_mode) != artifact.get("mode")
+        ):
+            raise AuditFailure(f"selected environment generated site artifact changed: {path}")
+    payload = dict(profile)
+    recorded_sha = payload.pop("profile_sha256", None)
+    payload.pop("profile_path", None)
+    if not isinstance(recorded_sha, str) or canonical_json_sha256(payload) != recorded_sha:
+        raise AuditFailure("generated environment profile receipt changed after capture")
+    profile_path = profile.get("profile_path")
+    if not isinstance(profile_path, str):
+        raise AuditFailure("generated environment profile receipt path is missing")
+    try:
+        persisted = json.loads(read_regular_local(Path(profile_path)))
+    except (OSError, UnicodeDecodeError, json.JSONDecodeError) as error:
+        raise AuditFailure("generated environment profile receipt is unreadable") from error
+    persisted_expected = {**payload, "profile_sha256": recorded_sha}
+    if persisted != persisted_expected:
+        raise AuditFailure("persisted generated environment profile differs from its bound value")
+
+
+def locked_distribution_for_unowned_startup_file(
+    origin: Path,
+    file_bytes: bytes,
+    claims: list[tuple[str, str, str, bool]],
+    lock_versions: dict[str, set[str]],
+    active_site_roots: list[Path],
+    record_cache: dict[tuple[str, ...], dict[str, Any]],
+    record_rows_cache: dict[tuple[str, ...], dict[str, list[tuple[str, str, bool]]]],
+) -> dict[str, Any]:
+    """Reuse canonical locked RECORD resolution for a startup file with a physical owner."""
+    if len(claims) != 1 or not claims[0][3]:
+        raise AuditFailure(f"startup file does not have one safe RECORD owner: {origin}")
+    record_name, hash_field, size_field, _safe = claims[0]
+    record_path = Path(record_name)
+    metadata_path = record_path.parent / "METADATA"
+    try:
+        record_bytes = read_regular_local(record_path)
+        metadata_bytes = read_regular_local(metadata_path)
+        metadata = email.parser.BytesParser().parsebytes(metadata_bytes)
+        names = metadata.get_all("Name", [])
+        versions = metadata.get_all("Version", [])
+    except (OSError, TypeError, ValueError) as error:
+        raise AuditFailure(f"startup RECORD owner metadata is unreadable: {record_path}") from error
+    if len(names) != 1 or len(versions) != 1:
+        raise AuditFailure(f"startup RECORD owner has malformed canonical metadata: {record_path}")
+    name, version = names[0], versions[0]
+    algorithm, separator, value = hash_field.partition("=")
+    if (
+        not separator
+        or algorithm != "sha256"
+        or not value
+        or not size_field.isdigit()
+        or not record_path.is_absolute()
+    ):
+        raise AuditFailure(f"startup RECORD owner has an unsupported row: {origin}")
+    distribution = {
+        "name": name,
+        "version": version,
+        "record_path": str(record_path),
+        "distribution_record_sha256": sha256(record_bytes),
+        "dist_info_path": str(record_path.parent),
+        "metadata_path": str(metadata_path),
+        "metadata_sha256": sha256(metadata_bytes),
+        "record_hash_algorithm": algorithm,
+        "record_hash_value": value,
+    }
+    bound = locked_distribution_record(
+        distribution,
+        lock_versions,
+        active_site_roots,
+        f"Python startup file {origin}",
+        record_cache,
+        record_rows_cache,
+        record_owner_inventory={str(origin.resolve(strict=True)): claims},
+        file_origin=origin,
+        file_bytes=file_bytes,
+    )
+    return {
+        "kind": "locked_python_startup_file",
+        "origin": str(origin),
+        "distribution": name,
+        "version": version,
+        "distribution_record_sha256": bound["sha256"],
+        "record_origin": str(record_path),
+        "metadata_origin": str(metadata_path),
+        "metadata_bytes": len(metadata_bytes),
+        "metadata_sha256": sha256(metadata_bytes),
+        "bytes": len(file_bytes),
+        "sha256": sha256(file_bytes),
+    }
+
+
+def self_test_environment_generated_site_artifact() -> dict[str, bool]:
+    """Exercise the actual generated-site classifier with generic and counterfeit inputs."""
+    source_sha = "a" * 40
+    active_root = Path("/fixture/repository/.venv/lib/python3.14/site-packages")
+    python_executable = {"resolved_path": "/fixture/python", "sha256": "b" * 64}
+    runtime = {"runtime_profile": {"resolved_executable": "/fixture/python"}}
+    creator = {"resolved_path": "/fixture/uv", "version": "0.10.6", "sha256": "c" * 64}
+    first_bytes = b"fixture environment bootstrap\n"
+    profile: dict[str, Any] = {
+        "kind": "locally_selected_recomputed_generator",
+        "creator_authenticity": "not_established",
+        "source_sha": source_sha,
+        "creator": creator,
+        "python_executable": python_executable,
+        "python_runtime_profile": runtime["runtime_profile"],
+        "generated_site_artifacts": [
+            {
+                "active_site_root": str(active_root),
+                "relative_path": "generic_bootstrap.py",
+                "bytes": len(first_bytes),
+                "sha256": sha256(first_bytes),
+            },
+            {
+                "active_site_root": str(active_root),
+                "relative_path": "_virtualenv.pth",
+                "bytes": len(b"import _virtualenv\n"),
+                "sha256": sha256(b"import _virtualenv\n"),
+            },
+        ],
+    }
+    profile["profile_sha256"] = canonical_json_sha256(profile)
+
+    def accepted(
+        origin: Path,
+        data: bytes,
+        *,
+        current_creator: dict[str, Any] = creator,
+        current_runtime: dict[str, Any] = runtime,
+        claims: list[tuple[str, str, str, bool]] | None = None,
+    ) -> bool:
+        try:
+            bind_selected_python_generated_site_artifact(
+                origin,
+                data,
+                [active_root],
+                profile,
+                current_creator,
+                python_executable,
+                current_runtime,
+                source_sha,
+                claims or [],
+            )
+        except AuditFailure:
+            return False
+        return True
+
+    cases = {
+        "generic-name-exact-generated-file-accepted": accepted(
+            active_root / "generic_bootstrap.py", first_bytes
+        ),
+        "changed-generated-file-bytes-rejected": not accepted(
+            active_root / "generic_bootstrap.py", first_bytes + b"tampered"
+        ),
+        "unknown-site-module-rejected": not accepted(active_root / "unknown.py", first_bytes),
+        "foreign-root-identical-bytes-rejected": not accepted(
+            Path("/fixture/outside/generic_bootstrap.py"), first_bytes
+        ),
+        "false-prefix-site-sibling-rejected": not accepted(
+            Path(str(active_root) + "-shadow/generic_bootstrap.py"), first_bytes
+        ),
+        "fake-pth-bytes-rejected": not accepted(
+            active_root / "_virtualenv.pth", b"import attacker\n"
+        ),
+        "record-owner-conflict-rejected": not accepted(
+            active_root / "generic_bootstrap.py",
+            first_bytes,
+            claims=[("/fixture/site/x.dist-info/RECORD", "sha256=x", str(len(first_bytes)), True)],
+        ),
+        "selected-creator-sha-mismatch-rejected": not accepted(
+            active_root / "generic_bootstrap.py",
+            first_bytes,
+            current_creator={**creator, "sha256": "d" * 64},
+        ),
+        "runtime-profile-mismatch-rejected": not accepted(
+            active_root / "generic_bootstrap.py",
+            first_bytes,
+            current_runtime={"runtime_profile": {"resolved_executable": "/fixture/other-python"}},
+        ),
+    }
+    if not all(type(value) is bool and value for value in cases.values()):
+        raise AuditFailure(f"environment generated site artifact controls failed: {cases}")
+    return cases
+
+
+def self_test_environment_generator_configuration() -> dict[str, bool]:
+    """Exercise pyvenv.cfg path-alias equivalence and fail-closed semantic checks."""
+    import tempfile
+
+    with tempfile.TemporaryDirectory(prefix="q2-pyvenv-config-self-test-") as temporary:
+        root = Path(temporary)
+        base_prefix = root / "base-python"
+        base_bin = base_prefix / "bin"
+        base_bin.mkdir(parents=True)
+        selected_executable = base_bin / "python"
+        selected_executable.write_bytes(b"selected executable identity\n")
+        false_prefix = root / "false-python"
+        false_bin = false_prefix / "bin"
+        false_bin.mkdir(parents=True)
+        alias_root = root / "uv" / "python" / "cpython-test-alias"
+        alias_root.parent.mkdir(parents=True)
+        alias_root.symlink_to(base_prefix, target_is_directory=True)
+        runtime = {
+            "base_prefix": str(base_prefix),
+            "resolved_executable": str(selected_executable),
+            "implementation": "cpython",
+            "version": "3.14.3 (self-test)",
+        }
+        creator = {"version": "0.10.6"}
+        actual = {
+            "home": str(alias_root / "bin"),
+            "implementation": "CPython",
+            "uv": "0.10.6",
+            "version_info": "3.14.3",
+            "include-system-site-packages": "false",
+            "prompt": "policy-engine",
+        }
+        generated = {**actual, "home": str(base_bin)}
+
+        def reconciles(
+            actual_fields: dict[str, str] = actual,
+            generated_fields: dict[str, str] = generated,
+        ) -> bool:
+            try:
+                reconcile_environment_generator_config(
+                    actual_fields, generated_fields, runtime, creator, "policy-engine"
+                )
+            except AuditFailure:
+                return False
+            return True
+
+        cases = {
+            "different-home-spelling-resolving-to-selected-interpreter-home-accepted": reconciles(),
+            "foreign-home-resolving-to-other-python-rejected": not reconciles(
+                actual, {**generated, "home": str(false_bin)}
+            ),
+            "wrong-python-version-rejected": not reconciles(
+                actual, {**generated, "version_info": "3.14.2"}
+            ),
+            "wrong-uv-version-rejected": not reconciles(actual, {**generated, "uv": "0.10.5"}),
+            "system-site-packages-enabled-rejected": not reconciles(
+                actual, {**generated, "include-system-site-packages": "true"}
+            ),
+            "wrong-project-prompt-rejected": not reconciles(
+                actual, {**generated, "prompt": "foreign-project"}
+            ),
+            "unknown-config-field-rejected": not reconciles(
+                actual, {**generated, "extra": "accepted-by-no-one"}
+            ),
+        }
+    if not all(type(value) is bool and value for value in cases.values()):
+        raise AuditFailure(f"environment generator configuration controls failed: {cases}")
+    return cases
+
+
 def selected_python_generated_module_rows(
     python: Path,
     parents: list[dict[str, Any]],
@@ -3532,6 +4429,8 @@ def bind_collection_origins(
     expected_runtime_profile: dict[str, Any],
     python: Path,
     python_executable: dict[str, Any],
+    environment_creator_profile: dict[str, Any],
+    selected_creator: dict[str, Any],
     timeout_seconds: float,
 ) -> tuple[list[dict[str, Any]], list[dict[str, str]]]:
     """Bind every loaded module, config, startup file, plugin, and conftest origin."""
@@ -3720,6 +4619,32 @@ def bind_collection_origins(
                         "bytes": len(data),
                         "sha256": observed_sha,
                     }
+                elif distribution is None and in_site_profile:
+                    try:
+                        physical_origin = path.resolve(strict=True)
+                    except (OSError, RuntimeError, ValueError) as error:
+                        raise AuditFailure(
+                            f"unowned installed module origin is unavailable: {origin}"
+                        ) from error
+                    if physical_origin != path:
+                        raise AuditFailure(
+                            f"unowned installed module origin is not canonical: {origin}"
+                        )
+                    generated_record = bind_selected_python_generated_site_artifact(
+                        physical_origin,
+                        data,
+                        active_site_roots,
+                        environment_creator_profile,
+                        selected_creator,
+                        python_executable,
+                        expected_runtime_profile,
+                        source_sha,
+                        record_owner_inventory.get(str(physical_origin), []),
+                    )
+                    record = {
+                        **generated_record,
+                        "module": module_name,
+                    }
                 else:
                     if not in_site_profile:
                         raise AuditFailure(
@@ -3866,13 +4791,35 @@ def bind_collection_origins(
         data = read_regular_local(origin)
         if sha256(data) != startup.get("sha256"):
             raise AuditFailure(f"Python startup file changed during collection: {origin}")
-        origin_rows[str(origin)] = {
-            "kind": "selected_python_startup_profile",
-            "origin": str(origin),
-            "label": startup.get("label"),
-            "bytes": len(data),
-            "sha256": sha256(data),
-        }
+        physical_origin = origin.resolve(strict=True)
+        if physical_origin != origin:
+            raise AuditFailure(f"Python startup file origin is not canonical: {origin}")
+        startup_claims = record_owner_inventory.get(str(physical_origin), [])
+        if startup_claims:
+            startup_record = locked_distribution_for_unowned_startup_file(
+                physical_origin,
+                data,
+                startup_claims,
+                lock_versions,
+                active_site_roots,
+                distribution_record_cache,
+                distribution_record_rows_cache,
+            )
+        else:
+            startup_record = bind_selected_python_generated_site_artifact(
+                physical_origin,
+                data,
+                active_site_roots,
+                environment_creator_profile,
+                selected_creator,
+                python_executable,
+                expected_runtime_profile,
+                source_sha,
+                startup_claims,
+            )
+            startup_record["kind"] = "locally_selected_recomputed_generator_startup_file"
+        startup_record["label"] = startup.get("label")
+        origin_rows[str(origin)] = startup_record
     for record_evidence in record_inventory_evidence:
         key = str(record_evidence["origin"])
         existing = origin_rows.get(key)
@@ -4047,6 +4994,8 @@ def collect_ids(
     catalog_expected_bytes: bytes,
     label: str,
     timeout_seconds: float,
+    environment_creator_profile: dict[str, Any],
+    selected_creator: dict[str, Any],
 ) -> tuple[set[str], dict[str, Any]]:
     plugin_path = output_root / f"{COLLECTION_PLUGIN_NAME}.py"
     plugin_bytes = COLLECTION_PLUGIN_SOURCE.encode("utf-8")
@@ -4153,6 +5102,15 @@ def collect_ids(
     if not isinstance(python_profile, dict):
         raise AuditFailure("pytest collection report omits its Python runtime profile")
     validate_python_runtime_profile(isolated_runtime_before, python_profile)
+    if (
+        environment_creator_profile.get("python_executable") != python_before
+        or environment_creator_profile.get("python_runtime_profile")
+        != isolated_runtime_before.get("runtime_profile")
+        or environment_creator_profile.get("creator") != selected_creator
+    ):
+        raise AuditFailure(
+            "collection runtime differs from the selected environment creator profile"
+        )
     if report.get("collection_exitstatus") != 0:
         raise AuditFailure(
             "pytest collection report does not confirm a complete successful session"
@@ -4169,6 +5127,8 @@ def collect_ids(
         isolated_runtime_before,
         python,
         python_before,
+        environment_creator_profile,
+        selected_creator,
         timeout_seconds,
     )
     if not any(row.get("kind") == "helper_generated_collection_plugin" for row in origins):
@@ -4234,6 +5194,12 @@ def collect_ids(
         "external_plugins_from_locked_source_declarations_only": True,
     }
     record["python_executable"] = python_before
+    record["selected_environment_creator_profile_sha256"] = environment_creator_profile[
+        "profile_sha256"
+    ]
+    record["selected_environment_creator_profile_path"] = environment_creator_profile[
+        "profile_path"
+    ]
     record["isolated_python_runtime_profile"] = isolated_runtime_before
     record["python_runtime_profile"] = python_profile
     record["pytest_profile"] = pytest_profile
@@ -4859,6 +5825,44 @@ def rebind_timeout_driver(source: str, runner_sha: str) -> tuple[str, bytes]:
     return updated, updated.encode("utf-8")
 
 
+def _validate_declared_node_id_binding(
+    suite: dict[str, Any],
+    *,
+    ids_key: str,
+    count_key: str,
+    digest_key: str,
+    label: str,
+    required: bool,
+) -> list[str] | None:
+    """Check one declared ID list and its optional count/digest self-binding."""
+    declared = suite.get(ids_key)
+    if declared is None:
+        if required:
+            raise AuditFailure(f"{label} must declare its node ID list")
+        return None
+    if (
+        type(declared) is not list
+        or not declared
+        or any(type(item) is not str for item in declared)
+    ):
+        raise AuditFailure(f"{label} node IDs must be a nonempty string list")
+    if declared != sorted(set(declared)):
+        raise AuditFailure(f"{label} node IDs must be sorted and unique")
+    count = suite.get(count_key)
+    if count is None:
+        if required:
+            raise AuditFailure(f"{label} must declare its node ID count")
+    elif not exact_nonbool_count_matches(count, len(declared)):
+        raise AuditFailure(f"{label} node ID count differs from its declared ID list")
+    digest = suite.get(digest_key)
+    if digest is None:
+        if required:
+            raise AuditFailure(f"{label} must declare its node ID digest")
+    elif digest != canonical_ids_sha256(declared):
+        raise AuditFailure(f"{label} node ID digest differs from its declared ID list")
+    return declared
+
+
 def validate_recomputed_ids(
     manifest: dict[str, Any],
     expected_ids: set[str],
@@ -4867,13 +5871,16 @@ def validate_recomputed_ids(
     suite = manifest.get("current_primary_suite")
     if not isinstance(suite, dict):
         raise AuditFailure("manifest omits current_primary_suite")
-    declared = suite.get("selected_node_ids")
-    if not isinstance(declared, list) or declared != sorted(set(declared)):
-        raise AuditFailure("selected_node_ids must be sorted and unique")
-    if not exact_nonbool_count_matches(suite.get("selected_node_count"), len(declared)):
-        raise AuditFailure("selected_node_count does not equal the declared ID list length")
-    if suite.get("selected_node_ids_sha256") != canonical_ids_sha256(declared):
-        raise AuditFailure("selected_node_ids_sha256 does not recompute from the ID list")
+    declared = _validate_declared_node_id_binding(
+        suite,
+        ids_key="selected_node_ids",
+        count_key="selected_node_count",
+        digest_key="selected_node_ids_sha256",
+        label="primary selected-node declaration",
+        required=True,
+    )
+    if declared is None:
+        raise AuditFailure("primary selected-node declaration is absent")
     if set(declared) != expected_ids:
         missing = sorted(expected_ids - set(declared))
         extra = sorted(set(declared) - expected_ids)
@@ -4902,25 +5909,396 @@ def validate_supplemental_node_ids(manifest: dict[str, Any], expected_ids: set[s
     suite = manifest.get("supplemental_suite")
     if not isinstance(suite, dict):
         raise AuditFailure("supplemental manifest omits its suite")
-    declared = suite.get("selected_node_ids")
-    if (
-        not isinstance(declared, list)
-        or not declared
-        or any(not isinstance(item, str) for item in declared)
-    ):
-        raise AuditFailure("supplemental selected IDs must be a nonempty string list")
-    if declared != sorted(set(declared)):
-        raise AuditFailure("supplemental selected IDs must be sorted and unique")
-    declared_count = suite.get("expected_node_count")
-    if not exact_nonbool_count_matches(declared_count, len(declared)):
-        raise AuditFailure("supplemental selected-ID count differs from its full list")
-    if suite.get("selected_node_ids_sha256") != canonical_ids_sha256(declared):
-        raise AuditFailure("supplemental selected-ID digest differs from its full list")
+    declared = _validate_declared_node_id_binding(
+        suite,
+        ids_key="selected_node_ids",
+        count_key="expected_node_count",
+        digest_key="selected_node_ids_sha256",
+        label="supplemental selected-node declaration",
+        required=True,
+    )
+    if declared is None:
+        raise AuditFailure("supplemental selected-node declaration is absent")
     if set(declared) != expected_ids:
         raise AuditFailure("supplemental manifest IDs differ from actual source collection")
     group = {"test_path": suite.get("test_path"), "selectors": suite.get("selectors")}
     if selected_group_ids(group, expected_ids) != expected_ids:
         raise AuditFailure("supplemental source collection contains undeclared selector IDs")
+
+
+SOURCE_AUDIT_INPUT_SCHEMA: dict[str, Any] = {
+    "primary": {
+        "type": "object",
+        "fields": {
+            "original_q2_suite": {
+                "type": "object",
+                "fields": {
+                    "baseline_junit_path": {"type": "path"},
+                    "baseline_junit_sha256": {"type": "sha256"},
+                    "baseline_case_count": {"type": "count", "minimum": 1},
+                    "test_paths": {
+                        "type": "array",
+                        "nonempty": True,
+                        "unique": True,
+                        "items": {"type": "path"},
+                    },
+                },
+            },
+            "candidate_baseline": {
+                "type": "object",
+                "fields": {
+                    "force_include_count": {"type": "count", "minimum": 1},
+                    "force_include_assets": {
+                        "type": "array",
+                        "nonempty": True,
+                        "items": {
+                            "type": "object",
+                            "fields": {
+                                "source": {"type": "path"},
+                                "archive": {"type": "string", "nonempty": True},
+                                "wheel": {"type": "path"},
+                                "bytes": {"type": "count", "minimum": 0},
+                                "sha256": {"type": "sha256"},
+                            },
+                        },
+                    },
+                },
+            },
+            "current_primary_suite": {
+                "type": "object",
+                "fields": {
+                    "selection": {
+                        "type": "object",
+                        "fields": {
+                            "baseline_paths": {
+                                "type": "array",
+                                "nonempty": True,
+                                "unique": True,
+                                "items": {"type": "path"},
+                            }
+                        },
+                    },
+                    "source_file_sha256": {
+                        "type": "object",
+                        "key_type": "path",
+                        "additional": {"type": "sha256"},
+                    },
+                    "selected_node_ids": {
+                        "type": "array",
+                        "required": False,
+                        "nonempty": True,
+                        "items": {"type": "node_id"},
+                    },
+                    "selected_node_count": {
+                        "type": "count",
+                        "required": False,
+                        "minimum": 0,
+                    },
+                    "selected_node_ids_sha256": {
+                        "type": "sha256",
+                        "required": False,
+                    },
+                    "historical_baseline_subset": {
+                        "type": "object",
+                        "fields": {
+                            "name": {"type": "string", "nonempty": True},
+                            "selected_node_count": {"type": "count", "minimum": 1},
+                            "selected_node_ids_sha256": {"type": "sha256"},
+                        },
+                    },
+                },
+            },
+            "additional_installed_consumers": {
+                "type": "object",
+                "key_type": "string",
+                "nonempty": True,
+                "additional": {
+                    "type": "object",
+                    "fields": {
+                        "test_path": {"type": "path"},
+                        "selectors": {
+                            "type": "array",
+                            "nonempty": True,
+                            "unique": True,
+                            "items": {"type": "selector"},
+                        },
+                        "fixture_paths": {
+                            "type": "object",
+                            "required": False,
+                            "key_type": "string",
+                            "additional": {"type": "path"},
+                        },
+                    },
+                },
+            },
+            "required_outcome": {
+                "type": "object",
+                "fields": {
+                    "profiles": {
+                        "type": "array",
+                        "nonempty": True,
+                        "unique": True,
+                        "items": {"type": "string", "nonempty": True},
+                    }
+                },
+            },
+        },
+    },
+    "supplemental": {
+        "type": "object",
+        "fields": {
+            "primary_inputs": {
+                "type": "object",
+                "fields": {
+                    "manifest_sha256": {"type": "sha256"},
+                    "runner_sha256": {"type": "sha256"},
+                    "primary_suite_manifest_field": {
+                        "type": "string",
+                        "nonempty": True,
+                        "const": "current_primary_suite",
+                    },
+                    "required_profiles": {
+                        "type": "array",
+                        "nonempty": True,
+                        "unique": True,
+                        "items": {"type": "string", "nonempty": True},
+                    },
+                    "required_status": {
+                        "type": "string",
+                        "nonempty": True,
+                        "const": "pass",
+                    },
+                    "force_include_asset_count_per_profile": {
+                        "type": "count",
+                        "minimum": 1,
+                    },
+                },
+            },
+            "supplemental_suite": {
+                "type": "object",
+                "fields": {
+                    "test_path": {"type": "path"},
+                    "test_sha256": {"type": "sha256"},
+                    "selectors": {
+                        "type": "array",
+                        "nonempty": True,
+                        "unique": True,
+                        "items": {"type": "selector"},
+                    },
+                    "expected_node_count": {
+                        "type": "count",
+                        "minimum": 0,
+                    },
+                    "selected_node_ids": {
+                        "type": "array",
+                        "required": False,
+                        "nonempty": True,
+                        "items": {"type": "node_id"},
+                    },
+                    "selected_node_ids_sha256": {
+                        "type": "sha256",
+                        "required": False,
+                    },
+                    "denominator_properties": {
+                        "type": "object",
+                        "key_type": "string",
+                        "nonempty": True,
+                        "additional": {"type": "count", "minimum": 0},
+                    },
+                },
+            },
+        },
+    },
+}
+
+
+def _validate_source_input_schema(value: object, schema: dict[str, Any], label: str) -> None:
+    """Validate typed JSON shape from the declared source-audit consumer contract."""
+    kind = schema["type"]
+    if kind == "object":
+        if type(value) is not dict:
+            raise AuditFailure(f"{label} must be an object")
+        if schema.get("nonempty") and not value:
+            raise AuditFailure(f"{label} must not be empty")
+        fields = schema.get("fields", {})
+        for name, child_schema in fields.items():
+            if name not in value:
+                if child_schema.get("required", True):
+                    raise AuditFailure(f"{label}.{name} is required")
+                continue
+            _validate_source_input_schema(value[name], child_schema, f"{label}.{name}")
+        additional_schema = schema.get("additional")
+        if additional_schema is not None:
+            key_type = schema.get("key_type", "string")
+            for name, child in value.items():
+                if name in fields:
+                    continue
+                _validate_source_input_key(name, key_type, f"{label} key")
+                _validate_source_input_schema(child, additional_schema, f"{label}.{name}")
+        return
+    if kind == "array":
+        if type(value) is not list:
+            raise AuditFailure(f"{label} must be an array")
+        if schema.get("nonempty") and not value:
+            raise AuditFailure(f"{label} must not be empty")
+        item_schema = schema["items"]
+        for index, item in enumerate(value):
+            _validate_source_input_schema(item, item_schema, f"{label}[{index}]")
+        if schema.get("unique") and len(set(value)) != len(value):
+            raise AuditFailure(f"{label} entries must be unique")
+        return
+    if kind == "count":
+        minimum = schema.get("minimum", 0)
+        if type(value) is not int or value < minimum:
+            raise AuditFailure(f"{label} must be an exact integer >= {minimum}")
+        return
+    if kind == "sha256":
+        if type(value) is not str or not re.fullmatch(r"[0-9a-f]{64}", value):
+            raise AuditFailure(f"{label} must be a lowercase SHA-256 digest")
+        return
+    if kind == "path":
+        if type(value) is not str or not value or "\x00" in value:
+            raise AuditFailure(f"{label} must be a nonempty source-relative path")
+        relative = safe_relative(value)
+        if relative.as_posix() != value:
+            raise AuditFailure(f"{label} must use a canonical source-relative path")
+        return
+    if kind == "node_id":
+        if type(value) is not str or not value:
+            raise AuditFailure(f"{label} must be a nonempty source-qualified node ID")
+        pieces = value.split("::")
+        if len(pieces) < 2 or any(not piece for piece in pieces):
+            raise AuditFailure(f"{label} must be a source-qualified node ID")
+        _validate_source_input_schema(pieces[0], {"type": "path"}, f"{label} source")
+        if not pieces[-1].split("[", 1)[0].startswith("test_"):
+            raise AuditFailure(f"{label} must name a pytest test function")
+        return
+    if kind in {"string", "selector"}:
+        if type(value) is not str or (schema.get("nonempty", True) and not value):
+            raise AuditFailure(f"{label} must be a nonempty string")
+        if "const" in schema and value != schema["const"]:
+            raise AuditFailure(f"{label} must equal {schema['const']!r}")
+        return
+    raise AuditFailure(f"source-audit input schema has unknown type: {kind}")
+
+
+def _validate_source_input_key(value: object, kind: str, label: str) -> None:
+    if kind == "path":
+        _validate_source_input_schema(value, {"type": "path"}, label)
+    elif kind == "string":
+        _validate_source_input_schema(value, {"type": "string", "nonempty": True}, label)
+    else:
+        raise AuditFailure(f"source-audit input schema has unknown key type: {kind}")
+
+
+def validate_source_audit_input_shapes(
+    manifest: dict[str, Any], supplemental: dict[str, Any]
+) -> tuple[
+    dict[str, Any],
+    dict[str, Any],
+    dict[str, Any],
+    dict[str, Any],
+    dict[str, Any],
+    dict[str, Any],
+]:
+    """Admit every source-audit input field used after selected-environment effects.
+
+    Digest and collection freshness are intentionally not compared here: ``prepare``
+    regenerates those values. Their JSON types and self-consistency are still checked.
+    """
+    _validate_source_input_schema(manifest, SOURCE_AUDIT_INPUT_SCHEMA["primary"], "primary")
+    _validate_source_input_schema(
+        supplemental, SOURCE_AUDIT_INPUT_SCHEMA["supplemental"], "supplemental"
+    )
+
+    original_suite = manifest["original_q2_suite"]
+    current_primary = manifest["current_primary_suite"]
+    groups = manifest["additional_installed_consumers"]
+    required_outcome = manifest["required_outcome"]
+    candidate = manifest["candidate_baseline"]
+    supplemental_suite = supplemental["supplemental_suite"]
+    supplemental_primary_inputs = supplemental["primary_inputs"]
+
+    baseline_paths = original_suite["test_paths"]
+    if len(set(baseline_paths)) != len(baseline_paths):
+        raise AuditFailure("original baseline test paths must be unique")
+    if current_primary["selection"]["baseline_paths"] != baseline_paths:
+        raise AuditFailure("current primary baseline paths diverge from the original Q2 path set")
+
+    group_paths: set[str] = set()
+    for name, group in groups.items():
+        if len(set(group["selectors"])) != len(group["selectors"]):
+            raise AuditFailure(f"installed consumer selectors must be unique: {name}")
+        if group["test_path"] in baseline_paths:
+            raise AuditFailure(
+                f"current runner cannot select a consumer twice across baseline/group: "
+                f"{group['test_path']}"
+            )
+        group_paths.add(group["test_path"])
+    if not {"dependency_profile", "canonical_bridge_and_worker"} <= set(groups):
+        raise AuditFailure("historical Q2 subset owner group is missing")
+    fixture_paths = groups["canonical_bridge_and_worker"].get("fixture_paths")
+    if type(fixture_paths) is not dict:
+        raise AuditFailure("canonical worker consumers must declare a fixture-path mapping")
+    source_paths = set(baseline_paths) | group_paths
+    if set(current_primary["source_file_sha256"]) != source_paths:
+        raise AuditFailure(
+            "manifest source digest paths do not equal the complete selected test module set"
+        )
+
+    assets = candidate["force_include_assets"]
+    if not exact_nonbool_count_matches(candidate["force_include_count"], len(assets)):
+        raise AuditFailure("primary resource count differs from its declared asset list")
+    asset_sources: set[str] = set()
+    asset_targets: set[str] = set()
+    for asset in assets:
+        source = asset["source"]
+        wheel = asset["wheel"]
+        if source in asset_sources or wheel in asset_targets:
+            raise AuditFailure("primary resource source and wheel paths must be unique")
+        if asset["archive"] != f"policy-engine/{source}":
+            raise AuditFailure(f"primary resource archive path differs from its source: {source}")
+        asset_sources.add(source)
+        asset_targets.add(wheel)
+
+    _validate_declared_node_id_binding(
+        current_primary,
+        ids_key="selected_node_ids",
+        count_key="selected_node_count",
+        digest_key="selected_node_ids_sha256",
+        label="primary selected-node declaration",
+        required=False,
+    )
+    _validate_declared_node_id_binding(
+        supplemental_suite,
+        ids_key="selected_node_ids",
+        count_key="expected_node_count",
+        digest_key="selected_node_ids_sha256",
+        label="supplemental selected-node declaration",
+        required=False,
+    )
+
+    if supplemental_suite["test_path"] in source_paths:
+        raise AuditFailure("supplemental selection duplicates a primary module")
+    if supplemental_primary_inputs["required_profiles"] != required_outcome["profiles"]:
+        raise AuditFailure("primary and supplemental profile contracts differ")
+    denominator_properties = supplemental_suite["denominator_properties"]
+    required_denominators = {
+        "source_contract_package_definitions",
+        "source_contract_supported_entrypoints",
+        "ast_inventory_unresolved_package_rows",
+    }
+    if not required_denominators <= set(denominator_properties):
+        raise AuditFailure("supplemental manifest omits a required source/AST denominator")
+
+    return (
+        original_suite,
+        current_primary,
+        required_outcome,
+        groups,
+        supplemental_suite,
+        supplemental_primary_inputs,
+    )
 
 
 def self_test_origin_gate_symlink() -> dict[str, bool]:
@@ -6405,6 +7783,8 @@ def self_test() -> dict[str, Any]:
     if not profile_contract_control:
         raise AuditFailure("self-test failed to reject a divergent primary profile contract")
     environment_controls = self_test_environment_reconciliation()
+    generated_site_controls = self_test_environment_generated_site_artifact()
+    generated_cfg_controls = self_test_environment_generator_configuration()
     return {
         "status": "pass",
         "product_source_read": False,
@@ -6413,11 +7793,15 @@ def self_test() -> dict[str, Any]:
         "actual_node_ids": len(actual),
         "corrupt_field_and_marker_preserving_removal_controls": cases,
         "effective_environment_reconciliation_controls": environment_controls,
+        "generated_environment_site_artifact_controls": generated_site_controls,
+        "generated_environment_config_controls": generated_cfg_controls,
         "profile_contract_divergence_control": profile_contract_control,
     }
 
 
 def run_audit(args: argparse.Namespace) -> dict[str, Any]:
+    if not hasattr(args, "uv_executable"):
+        raise AuditFailure("run_audit requires an explicit selected UV executable")
     repo = Path(args.repo).resolve(strict=True)
     product = repo / "policy-engine"
     python_argument = Path(args.python)
@@ -6426,18 +7810,23 @@ def run_audit(args: argparse.Namespace) -> dict[str, Any]:
     python = Path(os.path.abspath(python_argument))
     if not python.is_file() or not os.access(python, os.X_OK):
         raise AuditFailure(f"collector Python launcher is unavailable: {python}")
+    uv_argument = Path(args.uv_executable)
+    if not uv_argument.is_absolute():
+        raise AuditFailure("selected UV executable path must be absolute")
     if args.collection_timeout_seconds <= 0:
         raise AuditFailure("collection timeout must be positive and explicit")
     output = Path(args.output_root).resolve()
     if output.exists():
         raise AuditFailure(f"output directory already exists; preserve old receipts: {output}")
+    if args.command not in {"prepare", "check"}:
+        raise AuditFailure("source audit command must be prepare or check")
+
     git_profile = git_oracle_profile(repo)
     helper_record = bind_audit_helper(repo, args.source_sha)
     if helper_record["provenance"].get("kind") != "tracked_source_commit_blob":
         raise AuditFailure("only a helper committed in the selected source can produce a freeze")
     python_record = python_executable_record(python)
     require_frozen_checkout(repo, args.source_sha, args.source_tree)
-    output.mkdir(parents=True, exist_ok=False)
 
     helper_sha = helper_record["sha256"]
     input_records, local_capsule_bytes = input_file_records(
@@ -6448,22 +7837,31 @@ def run_audit(args: argparse.Namespace) -> dict[str, Any]:
         helper_record=helper_record,
         git_profile=git_profile,
     )
-    supplemental_manifest_relative = input_records["supplemental_manifest_path"]
     supplemental_manifest_relative = (
-        Path(supplemental_manifest_relative).relative_to(repo).as_posix()
+        Path(input_records["supplemental_manifest_path"]).relative_to(repo).as_posix()
     )
-
-    original_manifest_bytes = read_commit_blob(repo, args.source_sha, MANIFEST_REL)
+    original_manifest_bytes = local_capsule_bytes[MANIFEST_REL]
     manifest = parse_json(original_manifest_bytes, MANIFEST_REL)
     if (repo / MANIFEST_REL).read_bytes() != original_manifest_bytes:
         raise AuditFailure("working manifest bytes differ from frozen Git object")
+    supplemental_bytes = local_capsule_bytes[supplemental_manifest_relative]
+    supplemental = parse_json(supplemental_bytes, supplemental_manifest_relative)
+    (
+        original_suite,
+        _,
+        _,
+        groups,
+        supplemental_suite,
+        _,
+    ) = validate_source_audit_input_shapes(manifest, supplemental)
+    supplemental_path = supplemental_suite["test_path"]
+    supplemental_selectors = supplemental_suite["selectors"]
+
     assets, asset_receipt = asset_rows_from_config(repo, args.source_sha, manifest)
     runner_bytes = local_capsule_bytes[RUNNER_REL]
     catalog_resource_root, catalog_expected = catalog_expectation_from_assets(assets, runner_bytes)
     catalog_resources = catalog_expected["resources"]
-    catalog_expected_path = output / "catalog-expected.json"
-    if catalog_expected_path.exists() or catalog_expected_path.is_symlink():
-        raise AuditFailure("catalog collection input path is occupied")
+    validate_catalog_expectation(catalog_expected, assets, runner_bytes)
     catalog_expected_bytes = (
         json.dumps(
             catalog_expected,
@@ -6473,13 +7871,8 @@ def run_audit(args: argparse.Namespace) -> dict[str, Any]:
         )
         + "\n"
     ).encode("utf-8")
-    validate_catalog_expectation(catalog_expected, assets, runner_bytes)
-    catalog_expected_path.write_bytes(catalog_expected_bytes)
-    catalog_created = verify_catalog_collection_input(catalog_expected_path, catalog_expected_bytes)
-    catalog_expected_sha256 = catalog_created["sha256"]
-    baseline_junit_relative = safe_relative(
-        manifest["original_q2_suite"]["baseline_junit_path"]
-    ).as_posix()
+
+    baseline_junit_relative = safe_relative(original_suite["baseline_junit_path"]).as_posix()
     baseline_junit_path = f"policy-engine/{baseline_junit_relative}"
     baseline_junit_oid, baseline_junit_bytes = commit_blob_record(
         repo, args.source_sha, baseline_junit_path
@@ -6500,14 +7893,57 @@ def run_audit(args: argparse.Namespace) -> dict[str, Any]:
         "git_blob_oid": baseline_junit_oid,
     }
     original = baseline_ids_from_junit(baseline_junit_bytes, manifest)
-    if not exact_nonbool_count_matches(
-        manifest["original_q2_suite"].get("baseline_case_count"), len(original)
-    ):
+    if not exact_nonbool_count_matches(original_suite.get("baseline_case_count"), len(original)):
         raise AuditFailure("baseline Q2 ID denominator does not equal its declared count")
 
-    baseline_paths = manifest["original_q2_suite"]["test_paths"]
-    if manifest["current_primary_suite"]["selection"]["baseline_paths"] != baseline_paths:
-        raise AuditFailure("current primary baseline paths diverge from the original Q2 path set")
+    baseline_paths = original_suite["test_paths"]
+    group_paths: dict[str, list[str]] = {}
+    for group in groups.values():
+        path = group["test_path"]
+        selectors = group["selectors"]
+        group_paths.setdefault(path, []).extend(selectors)
+    source_paths = sorted(set(baseline_paths) | set(group_paths))
+
+    output.mkdir(parents=False, exist_ok=False)
+    creator_work = output / "selected-environment-creator"
+    creator_work.mkdir()
+    creator_home = creator_work / "home"
+    creator_temporary = creator_work / "tmp"
+    creator_home.mkdir()
+    creator_temporary.mkdir()
+    selected_creator = selected_environment_creator_executable_profile(
+        uv_argument,
+        repo,
+        home=creator_home,
+        temporary=creator_temporary,
+        timeout_seconds=15.0,
+    )
+    runtime_profile_home = output / "selected-python-runtime-profile-home"
+    runtime_profile_home.mkdir()
+    isolated_runtime_for_creator = selected_python_runtime_profile(
+        python,
+        home=runtime_profile_home,
+        timeout_seconds=args.collection_timeout_seconds,
+    )
+    if isolated_runtime_for_creator["launcher_record"] != python_record:
+        raise AuditFailure("selected Python changed before creator profile capture")
+    environment_creator_profile = selected_python_environment_generator_profile(
+        repo,
+        args.source_sha,
+        python,
+        python_record,
+        isolated_runtime_for_creator,
+        selected_creator,
+        output,
+        "primary",
+    )
+
+    catalog_expected_path = output / "catalog-expected.json"
+    if catalog_expected_path.exists() or catalog_expected_path.is_symlink():
+        raise AuditFailure("catalog collection input path is occupied")
+    catalog_expected_path.write_bytes(catalog_expected_bytes)
+    catalog_created = verify_catalog_collection_input(catalog_expected_path, catalog_expected_bytes)
+    catalog_expected_sha256 = catalog_created["sha256"]
     baseline_ids, baseline_collection = collect_ids(
         repo=repo,
         source_sha=args.source_sha,
@@ -6520,6 +7956,8 @@ def run_audit(args: argparse.Namespace) -> dict[str, Any]:
         catalog_expected_bytes=catalog_expected_bytes,
         label="collect-primary-baseline",
         timeout_seconds=args.collection_timeout_seconds,
+        environment_creator_profile=environment_creator_profile,
+        selected_creator=selected_creator,
     )
     collection_records = [baseline_collection]
     if not original <= baseline_ids:
@@ -6527,15 +7965,6 @@ def run_audit(args: argparse.Namespace) -> dict[str, Any]:
             f"source collection lost original Q2 cases: {sorted(original - baseline_ids)}"
         )
 
-    groups = manifest["additional_installed_consumers"]
-    group_paths: dict[str, list[str]] = {}
-    for group in groups.values():
-        path = group["test_path"]
-        if path in baseline_paths:
-            raise AuditFailure(
-                f"current runner cannot select a consumer twice across baseline/group: {path}"
-            )
-        group_paths.setdefault(path, []).extend(group["selectors"])
     extra_ids: set[str] = set()
     additional_collections = {}
     for index, (path, selectors) in enumerate(sorted(group_paths.items())):
@@ -6552,6 +7981,8 @@ def run_audit(args: argparse.Namespace) -> dict[str, Any]:
             catalog_expected_bytes=catalog_expected_bytes,
             label=f"collect-primary-consumers-{index:02d}",
             timeout_seconds=args.collection_timeout_seconds,
+            environment_creator_profile=environment_creator_profile,
+            selected_creator=selected_creator,
         )
         path_group = [group for group in groups.values() if group["test_path"] == path]
         resolved: set[str] = set()
@@ -6596,17 +8027,6 @@ def run_audit(args: argparse.Namespace) -> dict[str, Any]:
             "source-derived primary suite does not retain the historical baseline subset"
         )
 
-    supplemental_bytes = local_capsule_bytes[supplemental_manifest_relative]
-    supplemental = parse_json(supplemental_bytes, supplemental_manifest_relative)
-    supplemental_path = supplemental["supplemental_suite"]["test_path"]
-    supplemental_selectors = supplemental["supplemental_suite"]["selectors"]
-    if (
-        supplemental["primary_inputs"]["required_profiles"]
-        != manifest["required_outcome"]["profiles"]
-    ):
-        raise AuditFailure("primary and supplemental profile contracts differ")
-    if supplemental_path in group_paths or supplemental_path in baseline_paths:
-        raise AuditFailure("supplemental selection duplicates a primary module")
     supplement_specs = [f"{supplemental_path}::{selector}" for selector in supplemental_selectors]
     supplemental_collected, supplemental_collection = collect_ids(
         repo=repo,
@@ -6620,6 +8040,8 @@ def run_audit(args: argparse.Namespace) -> dict[str, Any]:
         catalog_expected_bytes=catalog_expected_bytes,
         label="collect-supplemental-consumers",
         timeout_seconds=args.collection_timeout_seconds,
+        environment_creator_profile=environment_creator_profile,
+        selected_creator=selected_creator,
     )
     collection_records.append(supplemental_collection)
     if sha256(read_regular_local(catalog_expected_path)) != catalog_expected_sha256:
@@ -6632,11 +8054,6 @@ def run_audit(args: argparse.Namespace) -> dict[str, Any]:
         f"{supplemental_path}::{selector}" for selector in supplemental_selectors
     }
 
-    source_paths = sorted(set(baseline_paths) | set(group_paths))
-    if set(manifest["current_primary_suite"]["source_file_sha256"]) != set(source_paths):
-        raise AuditFailure(
-            "manifest source digest paths do not equal the complete selected test module set"
-        )
     source_hashes = {
         path: sha256(read_commit_blob(repo, args.source_sha, f"policy-engine/{path}"))
         for path in source_paths
@@ -6823,7 +8240,7 @@ def run_audit(args: argparse.Namespace) -> dict[str, Any]:
 
     current_manifest_pin = sha256(original_manifest_bytes)
     current_supplement_pin = sha256(supplemental_bytes)
-    current_supp_manifest = parse_json(supplemental_bytes, supplemental_manifest_relative)
+    current_supp_manifest = supplemental
     expected_timeout_values = {"runner_sha256": actual_runner_sha}
     timeout_mismatches = []
     for _key, expected in expected_timeout_values.items():
@@ -6875,6 +8292,8 @@ def run_audit(args: argparse.Namespace) -> dict[str, Any]:
         "install_started": False,
         "tests_executed": False,
         "pytest_collection_only": True,
+        "selected_environment_creator": selected_creator,
+        "selected_python_environment_generator_profile": environment_creator_profile,
         "primary": {
             "baseline_ids": len(baseline_ids),
             "original_q2_ids": len(original),
@@ -6984,6 +8403,18 @@ def run_audit(args: argparse.Namespace) -> dict[str, Any]:
         recheck_collection_origins(collection["loaded_module_origins"])
     if python_executable_record(python) != python_record:
         raise AuditFailure("collector Python executable changed during the source audit")
+    recheck_selected_python_environment_generator_profile(environment_creator_profile)
+    if (
+        selected_environment_creator_executable_profile(
+            uv_argument,
+            repo,
+            home=creator_home,
+            temporary=creator_temporary,
+            timeout_seconds=15.0,
+        )
+        != selected_creator
+    ):
+        raise AuditFailure("operator-selected UV changed during the source audit")
     if bind_audit_helper(repo, args.source_sha) != helper_record:
         raise AuditFailure("canonical Q2 audit helper changed or lost its Git binding")
     if git_oracle_profile(repo) != git_profile:
@@ -7022,6 +8453,11 @@ def main() -> int:
             "--python",
             required=True,
             help="absolute existing Python with pytest and locked test dependencies",
+        )
+        sub.add_argument(
+            "--uv-executable",
+            required=True,
+            help="absolute operator-selected UV executable, also resolved from PATH",
         )
         sub.add_argument(
             "--collection-timeout-seconds",

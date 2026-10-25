@@ -2136,55 +2136,516 @@ def test_source_audit_manifest_parser_rejects_schema_version_aliases() -> None:
             audit_api.parse_json(payload, "primary fixture")
 
 
-def test_source_audit_entrypoint_rejects_primary_schema_alias_before_collection(
-    tmp_path: Path, monkeypatch: pytest.MonkeyPatch
+@pytest.mark.parametrize("invalid_input", ["primary-schema", "supplemental-schema", "capsule-pin"])
+def test_source_audit_rejects_invalid_inputs_before_uv_side_effects(
+    invalid_input: str, tmp_path: Path, monkeypatch: pytest.MonkeyPatch
 ) -> None:
     repo = REPO_ROOT
     source_sha, _, _ = _current_audit_binding(repo)
     source_tree = _run_test_process(
         [_git_executable(), "-C", str(repo), "rev-parse", f"{source_sha}^{{tree}}"]
     ).stdout.strip()
-    monkeypatch.setattr(audit_api, "require_frozen_checkout", lambda *args: None)
-    monkeypatch.setattr(
-        audit_api,
-        "input_file_records",
-        lambda *args, **kwargs: (
-            {"supplemental_manifest_path": str(repo / "supplied-supplement.json")},
-            {},
+    original_read_commit_blob = audit_api.read_commit_blob
+    supplemental_path = repo / audit_api.SUPPLEMENT_MANIFEST_REL
+    supplemental_bytes = original_read_commit_blob(
+        repo, source_sha, audit_api.SUPPLEMENT_MANIFEST_REL
+    )
+    supplemental_sha256 = hashlib.sha256(supplemental_bytes).hexdigest()
+    if invalid_input == "supplemental-schema":
+        supplemental_bytes = b'{"schema_version": 1.0}'
+        supplemental_sha256 = hashlib.sha256(supplemental_bytes).hexdigest()
+
+    if invalid_input in {"primary-schema", "supplemental-schema"}:
+        target = (
+            audit_api.MANIFEST_REL
+            if invalid_input == "primary-schema"
+            else audit_api.SUPPLEMENT_MANIFEST_REL
+        )
+        rejected_bytes = (
+            b'{"schema_version": true}' if invalid_input == "primary-schema" else supplemental_bytes
+        )
+
+        def read_commit_blob(repo_path: Path, commit: str, relative: str) -> bytes:
+            if relative == target:
+                return rejected_bytes
+            return original_read_commit_blob(repo_path, commit, relative)
+
+        monkeypatch.setattr(audit_api, "read_commit_blob", read_commit_blob)
+
+    uv_side_effects: list[str] = []
+    original_which = audit_api.shutil.which
+    original_run = audit_api.subprocess.run
+
+    def record_uv_lookup(command: str, *args: object, **kwargs: object) -> str | None:
+        if command == "uv":
+            uv_side_effects.append("lookup")
+            raise AssertionError("UV discovery ran before source input admission")
+        return original_which(command, *args, **kwargs)
+
+    def record_uv_process(argv: object, *args: object, **kwargs: object) -> object:
+        if isinstance(argv, (list, tuple)) and argv and Path(str(argv[0])).name == "uv":
+            uv_side_effects.append("process")
+            raise AssertionError("UV process ran before source input admission")
+        return original_run(argv, *args, **kwargs)
+
+    monkeypatch.setattr(audit_api.shutil, "which", record_uv_lookup)
+    monkeypatch.setattr(audit_api.subprocess, "run", record_uv_process)
+    output_root = tmp_path / f"audit-{invalid_input}"
+    args = SimpleNamespace(
+        command="prepare",
+        repo=str(repo),
+        source_sha=source_sha,
+        source_tree=source_tree,
+        python=sys.executable,
+        uv_executable="/operator/selected/uv",
+        collection_timeout_seconds=1,
+        output_root=str(output_root),
+        supplemental_manifest=str(supplemental_path),
+        supplemental_manifest_sha256=(
+            "c" * 64 if invalid_input == "capsule-pin" else supplemental_sha256
         ),
     )
+    expected_error = {
+        "primary-schema": "unsupported manifest schema version",
+        "supplemental-schema": "unsupported manifest schema version",
+        "capsule-pin": "supplemental manifest SHA-256 differs",
+    }[invalid_input]
+    with pytest.raises(audit_api.AuditFailure, match=expected_error):
+        audit_api.run_audit(args)
+    assert uv_side_effects == []
+    assert not output_root.exists()
+
+
+def _schema_counterfeit(rule: dict[str, Any]) -> object:
+    kind = rule["type"]
+    if kind == "object":
+        return []
+    if kind == "array":
+        return {}
+    if kind == "count":
+        return True
+    if kind in {"path", "node_id", "sha256", "string", "selector"}:
+        return 1
+    raise AssertionError(f"test does not know the source schema type {kind!r}")
+
+
+_DELETE_SCHEMA_FIELD = object()
+_SCHEMA_KEY_CHANGE = "__schema_key_change__"
+
+
+def _schema_counterfeits(
+    value: object, rule: dict[str, Any], path: tuple[str | int, ...]
+) -> list[tuple[tuple[str | int, ...], object]]:
+    """Derive type and container counterfeits from the production source-input schema."""
+    cases: list[tuple[tuple[str | int, ...], object]] = []
+    if path:
+        cases.append((path, _schema_counterfeit(rule)))
+    kind = rule["type"]
+    if kind == "count":
+        minimum = rule.get("minimum", 0)
+        cases.append((path, minimum - 1))
+        if type(value) is int:
+            cases.append((path, float(value)))
+    elif kind == "sha256":
+        cases.extend(((path, "g" * 64), (path, "")))
+    elif kind == "path":
+        cases.extend(
+            (
+                (path, ""),
+                (path, "../invalid-source-path"),
+                (path, "/outside/source-path"),
+                (path, "invalid\x00source-path"),
+            )
+        )
+    elif kind == "node_id":
+        cases.append((path, "tests/unit/test_source.py::not_a_test"))
+    elif kind in {"string", "selector"}:
+        if rule.get("nonempty", True):
+            cases.append((path, ""))
+        if "const" in rule:
+            cases.append((path, "different-constant"))
+    if kind == "object" and isinstance(value, dict):
+        fields = rule.get("fields", {})
+        for name, child_rule in fields.items():
+            if name in value:
+                if child_rule.get("required", True):
+                    cases.append(((*path, name), _DELETE_SCHEMA_FIELD))
+                cases.extend(_schema_counterfeits(value[name], child_rule, (*path, name)))
+            elif not child_rule.get("required", True):
+                cases.append(((*path, name), _schema_counterfeit(child_rule)))
+        if rule.get("nonempty"):
+            cases.append((path, {}))
+        additional_rule = rule.get("additional")
+        if additional_rule is not None:
+            key_type = rule.get("key_type", "string")
+            invalid_key = "../invalid-map-key" if key_type == "path" else ""
+            for name, child in value.items():
+                if name not in fields:
+                    cases.append(((*path, name), (_SCHEMA_KEY_CHANGE, invalid_key)))
+                    cases.extend(_schema_counterfeits(child, additional_rule, (*path, name)))
+    elif kind == "array" and isinstance(value, list) and value:
+        if rule.get("nonempty"):
+            cases.append((path, []))
+        if rule.get("unique"):
+            cases.append((path, [value[0], value[0]]))
+        cases.extend(_schema_counterfeits(value[0], rule["items"], (*path, 0)))
+    return cases
+
+
+def _replace_schema_path(value: object, path: tuple[str | int, ...], replacement: object) -> object:
+    if not path:
+        return replacement
+    cursor = value
+    for component in path[:-1]:
+        if isinstance(cursor, (dict, list)):
+            cursor = cursor[component]
+        else:
+            raise AssertionError(f"schema path crosses a scalar value: {path}")
+    if not isinstance(cursor, (dict, list)):
+        raise AssertionError(f"schema path ends at a scalar value: {path}")
+    if replacement is _DELETE_SCHEMA_FIELD:
+        del cursor[path[-1]]
+    elif (
+        isinstance(replacement, tuple)
+        and len(replacement) == 2
+        and replacement[0] == _SCHEMA_KEY_CHANGE
+    ):
+        cursor[replacement[1]] = cursor.pop(path[-1])
+    else:
+        cursor[path[-1]] = replacement
+    return value
+
+
+def test_source_audit_rejects_all_declared_input_shape_drifts_before_uv_or_output(
+    tmp_path: Path, monkeypatch: pytest.MonkeyPatch
+) -> None:
+    repo = REPO_ROOT
+    primary_path = (repo / audit_api.MANIFEST_REL).resolve(strict=True)
+    supplemental_manifest_path = repo / audit_api.SUPPLEMENT_MANIFEST_REL
+    supplemental_relative = audit_api.SUPPLEMENT_MANIFEST_REL
+    documents: dict[str, Any] = {
+        "primary": json.loads(primary_path.read_text(encoding="utf-8")),
+        "supplemental": json.loads(supplemental_manifest_path.read_text(encoding="utf-8")),
+    }
+    cases = [
+        (
+            document,
+            path,
+            replacement,
+            "parser" if path == (document,) else "schema",
+            "",
+        )
+        for document, rule in audit_api.SOURCE_AUDIT_INPUT_SCHEMA.items()
+        for path, replacement in _schema_counterfeits(documents[document], rule, (document,))
+    ]
+    primary = documents["primary"]
+    supplemental = documents["supplemental"]
+    baseline_path = primary["original_q2_suite"]["test_paths"][0]
+    supplemental_test_path = supplemental["supplemental_suite"]["test_path"]
+    cases.extend(
+        (
+            (
+                "primary",
+                ("primary", "current_primary_suite", "selection", "baseline_paths"),
+                ["tests/other.py"],
+                "cross",
+                "current primary baseline paths diverge from the original Q2 path set",
+            ),
+            (
+                "primary",
+                ("primary", "current_primary_suite", "source_file_sha256"),
+                {"tests/other.py": "0" * 64},
+                "cross",
+                "manifest source digest paths do not equal the complete selected test module set",
+            ),
+            (
+                "primary",
+                ("primary", "additional_installed_consumers", "dependency_profile"),
+                _DELETE_SCHEMA_FIELD,
+                "cross",
+                "historical Q2 subset owner group is missing",
+            ),
+            (
+                "primary",
+                ("primary", "additional_installed_consumers", "canonical_bridge_and_worker"),
+                _DELETE_SCHEMA_FIELD,
+                "cross",
+                "historical Q2 subset owner group is missing",
+            ),
+            (
+                "primary",
+                (
+                    "primary",
+                    "additional_installed_consumers",
+                    "canonical_bridge_and_worker",
+                    "fixture_paths",
+                ),
+                _DELETE_SCHEMA_FIELD,
+                "cross",
+                "canonical worker consumers must declare a fixture-path mapping",
+            ),
+            (
+                "primary",
+                ("primary", "additional_installed_consumers", "dependency_profile", "test_path"),
+                baseline_path,
+                "cross",
+                "current runner cannot select a consumer twice across baseline/group",
+            ),
+            (
+                "primary",
+                ("primary", "candidate_baseline", "force_include_count"),
+                primary["candidate_baseline"]["force_include_count"] + 1,
+                "cross",
+                "primary resource count differs from its declared asset list",
+            ),
+            (
+                "primary",
+                ("primary", "current_primary_suite", "selected_node_count"),
+                primary["current_primary_suite"]["selected_node_count"] + 1,
+                "cross",
+                "primary selected-node declaration node ID count differs from its declared ID list",
+            ),
+            (
+                "primary",
+                ("primary", "current_primary_suite", "selected_node_ids_sha256"),
+                "0" * 64,
+                "cross",
+                (
+                    "primary selected-node declaration node ID digest "
+                    "differs from its declared ID list"
+                ),
+            ),
+            (
+                "supplemental",
+                ("supplemental", "primary_inputs", "required_profiles"),
+                ["different-profile"],
+                "cross",
+                "primary and supplemental profile contracts differ",
+            ),
+            (
+                "supplemental",
+                ("supplemental", "supplemental_suite", "test_path"),
+                baseline_path,
+                "cross",
+                "supplemental selection duplicates a primary module",
+            ),
+            (
+                "supplemental",
+                ("supplemental", "supplemental_suite", "selected_node_ids"),
+                [f"{supplemental_test_path}::test_stale_case"],
+                "cross",
+                (
+                    "supplemental selected-node declaration node ID count "
+                    "differs from its declared ID list"
+                ),
+            ),
+            (
+                "supplemental",
+                (
+                    "supplemental",
+                    "supplemental_suite",
+                    "denominator_properties",
+                    "source_contract_package_definitions",
+                ),
+                _DELETE_SCHEMA_FIELD,
+                "cross",
+                "supplemental manifest omits a required source/AST denominator",
+            ),
+        )
+    )
+    assert cases, "the declared input schema must expose drift controls"
+
     original_read_bytes = Path.read_bytes
-    manifest_path = (repo / audit_api.MANIFEST_REL).resolve(strict=True)
+    side_effects: list[str] = []
+    parser_failures: list[tuple[str, BaseException]] = []
+    admission_failures: list[BaseException] = []
+    schema_failures: list[tuple[str, str]] = []
+    original_parse = audit_api.parse_json
+    original_admission = audit_api.validate_source_audit_input_shapes
+    original_schema_validation = audit_api._validate_source_input_schema
 
-    def read_manifest_bytes(path: Path) -> bytes:
-        if path.resolve(strict=False) == manifest_path:
-            return current_payload
-        return original_read_bytes(path)
+    def observe_parse(data: bytes, label: str) -> dict[str, Any]:
+        try:
+            return original_parse(data, label)
+        except audit_api.AuditFailure as error:
+            parser_failures.append((label, error))
+            raise
 
-    for index, counterfeit in enumerate((True, 1.0, "1", None, 2)):
-        current_payload = json.dumps({"schema_version": counterfeit}).encode("utf-8")
+    def observe_schema_validation(value: object, schema: dict[str, Any], label: str) -> None:
+        try:
+            original_schema_validation(value, schema, label)
+        except audit_api.AuditFailure as error:
+            schema_failures.append((label, str(error)))
+            raise
+
+    def observe_admission(
+        manifest: dict[str, Any], supplemental: dict[str, Any]
+    ) -> tuple[dict[str, Any], ...]:
+        try:
+            return original_admission(manifest, supplemental)
+        except audit_api.AuditFailure as error:
+            admission_failures.append(error)
+            raise
+
+    monkeypatch.setattr(audit_api, "parse_json", observe_parse)
+    monkeypatch.setattr(audit_api, "_validate_source_input_schema", observe_schema_validation)
+    monkeypatch.setattr(audit_api, "validate_source_audit_input_shapes", observe_admission)
+    monkeypatch.setattr(audit_api, "git_oracle_profile", lambda *_args: {"profile": "test"})
+    monkeypatch.setattr(
+        audit_api,
+        "bind_audit_helper",
+        lambda *_args, **_kwargs: {
+            "sha256": "a" * 64,
+            "provenance": {"kind": "tracked_source_commit_blob"},
+        },
+    )
+    monkeypatch.setattr(audit_api, "python_executable_record", lambda _path: {"sha256": "b" * 64})
+    monkeypatch.setattr(audit_api, "require_frozen_checkout", lambda *_args: None)
+
+    def reject_discovery(*_args: object, **_kwargs: object) -> None:
+        side_effects.append("executable-discovery")
+        raise AssertionError("malformed input reached executable discovery")
+
+    def reject_process(*_args: object, **_kwargs: object) -> None:
+        side_effects.append("subprocess")
+        raise AssertionError("malformed input reached process execution")
+
+    monkeypatch.setattr(audit_api.shutil, "which", reject_discovery)
+    monkeypatch.setattr(audit_api.subprocess, "run", reject_process)
+    monkeypatch.setattr(
+        audit_api, "selected_environment_creator_executable_profile", reject_process
+    )
+
+    def schema_label(path: tuple[str | int, ...]) -> str:
+        label = str(path[0])
+        for part in path[1:]:
+            label += f"[{part}]" if isinstance(part, int) else f".{part}"
+        return label
+
+    for index, (document, path, replacement, rejection_kind, expected) in enumerate(cases):
+        candidate = json.loads(json.dumps(documents))
+        _replace_schema_path(candidate, path, replacement)
+        primary_bytes = json.dumps(candidate["primary"]).encode("utf-8")
+        supplemental_bytes = json.dumps(candidate["supplemental"]).encode("utf-8")
+        monkeypatch.setattr(
+            Path,
+            "read_bytes",
+            lambda path_value, data=primary_bytes: (
+                data
+                if path_value.resolve(strict=False) == primary_path
+                else original_read_bytes(path_value)
+            ),
+        )
         monkeypatch.setattr(
             audit_api,
-            "read_commit_blob",
-            lambda *args, payload=current_payload: payload,
+            "input_file_records",
+            lambda *_args, _primary=primary_bytes, _supp=supplemental_bytes, **_kwargs: (
+                {
+                    "supplemental_manifest_path": str(supplemental_manifest_path),
+                    "tracked_git_objects": {},
+                },
+                {
+                    audit_api.MANIFEST_REL: _primary,
+                    supplemental_relative: _supp,
+                },
+            ),
         )
-        monkeypatch.setattr(Path, "read_bytes", read_manifest_bytes)
-        args = type(
-            "Args",
-            (),
-            {
-                "repo": str(repo),
-                "python": sys.executable,
-                "collection_timeout_seconds": 1,
-                "output_root": str(tmp_path / f"audit-{index}"),
-                "source_sha": source_sha,
-                "source_tree": source_tree,
-                "supplemental_manifest": str(repo / "supplied-supplement.json"),
-                "supplemental_manifest_sha256": "c" * 64,
-            },
-        )()
-        with pytest.raises(audit_api.AuditFailure, match="unsupported manifest schema version"):
+        output = tmp_path / f"audit-{index:03d}"
+        args = SimpleNamespace(
+            command="prepare",
+            repo=str(repo),
+            source_sha="a" * 40,
+            source_tree="b" * 40,
+            python=sys.executable,
+            uv_executable=sys.executable,
+            collection_timeout_seconds=1,
+            output_root=str(output),
+            supplemental_manifest=str(supplemental_manifest_path),
+            supplemental_manifest_sha256=hashlib.sha256(supplemental_bytes).hexdigest(),
+        )
+        previous_parser_failures = len(parser_failures)
+        previous_failures = len(admission_failures)
+        previous_schema_failures = len(schema_failures)
+        with pytest.raises(audit_api.AuditFailure) as raised:
             audit_api.run_audit(args)
+        if rejection_kind == "parser":
+            assert len(parser_failures) == previous_parser_failures + 1
+            assert parser_failures[-1][1] is raised.value
+            assert "JSON root must be an object" in str(raised.value)
+        else:
+            assert len(parser_failures) == previous_parser_failures
+            assert len(admission_failures) == previous_failures + 1, (
+                f"{document}:{'.'.join(map(str, path))} was rejected outside source input admission"
+            )
+            assert admission_failures[-1] is raised.value, (
+                f"{document}:{'.'.join(map(str, path))} did not preserve the typed admission error"
+            )
+        if rejection_kind == "schema":
+            if (
+                isinstance(replacement, tuple)
+                and len(replacement) == 2
+                and replacement[0] == _SCHEMA_KEY_CHANGE
+            ):
+                expected_label = f"{schema_label(path[:-1])} key"
+            elif replacement is _DELETE_SCHEMA_FIELD:
+                expected_label = schema_label(path[:-1])
+            else:
+                expected_label = schema_label(path)
+            observed = schema_failures[previous_schema_failures:]
+            assert any(label == expected_label for label, _message in observed), (
+                f"{document}:{'.'.join(map(str, path))} did not fail its typed field rule; "
+                f"observed={observed}"
+            )
+            if replacement is _DELETE_SCHEMA_FIELD:
+                assert any(schema_label(path) in message for _label, message in observed)
+        elif rejection_kind == "cross":
+            assert str(raised.value) == expected or expected in str(raised.value), (
+                f"{document}:{'.'.join(map(str, path))} failed for the wrong admission rule: "
+                f"{raised.value}"
+            )
+        assert not output.exists(), f"{document}:{'.'.join(map(str, path))} created output"
+        assert not side_effects, f"{document}:{'.'.join(map(str, path))} crossed the UV boundary"
+
+
+def test_source_audit_preflight_accepts_stale_self_consistent_bindings() -> None:
+    repo = REPO_ROOT
+    primary = json.loads((repo / audit_api.MANIFEST_REL).read_text(encoding="utf-8"))
+    supplemental = json.loads(
+        (repo / audit_api.SUPPLEMENT_MANIFEST_REL).read_text(encoding="utf-8")
+    )
+    primary["candidate_baseline"]["force_include_assets"][0]["sha256"] = "0" * 64
+    primary["current_primary_suite"]["source_file_sha256"] = dict.fromkeys(
+        primary["current_primary_suite"]["source_file_sha256"], "0" * 64
+    )
+    current_ids = primary["current_primary_suite"]["selected_node_ids"]
+    stale_id = f"{primary['original_q2_suite']['test_paths'][0]}::test_stale_selected_case"
+    stale_ids = sorted({*current_ids[:-1], stale_id})
+    primary["current_primary_suite"]["selected_node_ids"] = stale_ids
+    primary["current_primary_suite"]["selected_node_count"] = len(stale_ids)
+    primary["current_primary_suite"]["selected_node_ids_sha256"] = audit_api.canonical_ids_sha256(
+        stale_ids
+    )
+    supplemental["primary_inputs"]["manifest_sha256"] = "0" * 64
+    supplemental["primary_inputs"]["runner_sha256"] = "0" * 64
+    supplemental["supplemental_suite"]["test_sha256"] = "0" * 64
+
+    audit_api.validate_source_audit_input_shapes(primary, supplemental)
+
+
+def test_source_audit_requires_explicit_uv_argument(tmp_path: Path) -> None:
+    args = SimpleNamespace(
+        command="prepare",
+        repo=str(REPO_ROOT),
+        source_sha="0" * 40,
+        source_tree="0" * 40,
+        python=sys.executable,
+        collection_timeout_seconds=1,
+        output_root=str(tmp_path / "missing-uv-audit"),
+        supplemental_manifest=str(REPO_ROOT / audit_api.SUPPLEMENT_MANIFEST_REL),
+        supplemental_manifest_sha256="0" * 64,
+    )
+    with pytest.raises(audit_api.AuditFailure, match="explicit selected UV executable"):
+        audit_api.run_audit(args)
 
 
 def test_audit_helper_refuses_a_noncanonical_invocation_path(
@@ -2319,6 +2780,42 @@ def test_record_owner_search_roots_keep_nested_site_and_reject_spoof() -> None:
         "repo-nested-actual-record-positive",
         "repo-nested-counterfeit-owner-rejected",
         "parent-census-rejects-valid-row-with-reentered-competitor",
+    }
+    assert cases, cases
+    assert all(type(value) is bool for value in cases.values()), cases
+    assert all(cases.values()), cases
+    assert required <= cases.keys(), cases
+
+
+def test_selected_environment_generator_site_artifact_is_generic_and_fail_closed() -> None:
+    cases = audit_api.self_test_environment_generated_site_artifact()
+    required = {
+        "generic-name-exact-generated-file-accepted",
+        "changed-generated-file-bytes-rejected",
+        "unknown-site-module-rejected",
+        "foreign-root-identical-bytes-rejected",
+        "false-prefix-site-sibling-rejected",
+        "fake-pth-bytes-rejected",
+        "record-owner-conflict-rejected",
+        "selected-creator-sha-mismatch-rejected",
+        "runtime-profile-mismatch-rejected",
+    }
+    assert cases, cases
+    assert all(type(value) is bool for value in cases.values()), cases
+    assert all(cases.values()), cases
+    assert required <= cases.keys(), cases
+
+
+def test_selected_environment_generator_config_reconciles_identity_and_semantics() -> None:
+    cases = audit_api.self_test_environment_generator_configuration()
+    required = {
+        "different-home-spelling-resolving-to-selected-interpreter-home-accepted",
+        "foreign-home-resolving-to-other-python-rejected",
+        "wrong-python-version-rejected",
+        "wrong-uv-version-rejected",
+        "system-site-packages-enabled-rejected",
+        "wrong-project-prompt-rejected",
+        "unknown-config-field-rejected",
     }
     assert cases, cases
     assert all(type(value) is bool for value in cases.values()), cases

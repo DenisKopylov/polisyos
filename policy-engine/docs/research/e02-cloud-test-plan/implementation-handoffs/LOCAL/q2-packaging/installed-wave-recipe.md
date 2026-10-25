@@ -10,6 +10,8 @@ The final SHA and tree are not known here. The checked-in generated primary mani
 
 ## Exact schema-version admission
 
+The source audit records the selected UV path, version, and binary hash. It requires the explicit `--uv-executable` path to resolve to the same `uv` found on the caller's `PATH`; venv recreation invokes the exact resolved Python executable bound by the selected launcher profile. The selected `pyvenv.cfg` bytes remain hash-bound; the recreated config may use a different `home` path spelling only when both paths resolve to the selected runtime executable's parent directory, which is contained beneath its isolated `base_prefix`, and UV version, Python implementation/version, system-site-packages setting, and project prompt must match exactly. Generated site artifacts still require exact byte and mode equality. This is a local recomputed creator observation (`creator_authenticity: not_established`), not a vendor signature.
+
 The current primary and supplemental source-freeze manifests and the terminal command-evidence sidecar use schema version `1`. Each reader requires the JSON value to be an exact non-boolean integer before proceeding; `true`, `1.0`, `"1"`, `null`, and unsupported integer versions are refused. The source audit applies the same rule when it reads both manifest inputs. This is input validation, not a migration to a newer schema version.
 
 ## Source-bound manifest admission
@@ -22,13 +24,15 @@ source_sha=ACTUAL_FULL_FROZEN_COMMIT_SHA
 source_tree=ACTUAL_FULL_FROZEN_TREE_SHA
 app_python="$repo/policy-engine/.venv/bin/python"
 audit="$repo/policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/q2-packaging/raw/q2-freeze-input-audit-v2-20261011.py"
+uv_executable="$(command -v uv)"
 supplemental_manifest=/absolute/path/to/reviewed-versioned-supplemental-manifest.json
 supplemental_manifest_sha256=ACTUAL_SUPPLEMENTAL_MANIFEST_SHA256
 collection_timeout_seconds=MEASURED_COLLECTION_TIMEOUT_SECONDS
 prepare_root="$repo/policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/q2-packaging/raw/source-freezes/${source_sha}-$(date -u +%Y%m%dT%H%M%SZ)"
 python3 "$audit" prepare \
   --repo "$repo" --source-sha "$source_sha" --source-tree "$source_tree" \
-  --python "$app_python" --collection-timeout-seconds "$collection_timeout_seconds" \
+  --python "$app_python" --uv-executable "$uv_executable" \
+  --collection-timeout-seconds "$collection_timeout_seconds" \
   --output-root "$prepare_root" \
   --supplemental-manifest "$supplemental_manifest" \
   --supplemental-manifest-sha256 "$supplemental_manifest_sha256"
@@ -77,7 +81,7 @@ The source capsule includes the build-tools helper, its wheel lock, their semant
 supplemental_manifest="$prepare_root/proposed-supplemental-manifest.json"
 supplemental_manifest_sha256="$(sha256sum "$supplemental_manifest" | cut -d' ' -f1)"
 check_root="$repo/policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/q2-packaging/raw/source-freeze-checks/${source_sha}-$(date -u +%Y%m%dT%H%M%SZ)"
-python3 "$audit" check   --repo "$repo" --source-sha "$source_sha" --source-tree "$source_tree"   --python "$app_python" --collection-timeout-seconds "$collection_timeout_seconds"   --output-root "$check_root"   --supplemental-manifest "$supplemental_manifest"   --supplemental-manifest-sha256 "$supplemental_manifest_sha256"
+python3 "$audit" check   --repo "$repo" --source-sha "$source_sha" --source-tree "$source_tree"   --python "$app_python" --uv-executable "$uv_executable" --collection-timeout-seconds "$collection_timeout_seconds"   --output-root "$check_root"   --supplemental-manifest "$supplemental_manifest"   --supplemental-manifest-sha256 "$supplemental_manifest_sha256"
 ```
 
 ## Launch after source freeze

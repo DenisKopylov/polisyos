@@ -40,6 +40,8 @@ def test_artifact_ref_model_preserves_selected_manifest_profile() -> None:
     )
 
     assert ref.manifest_profile_sha256 == profile
+    assert isinstance(ref, Mapping)
+    assert list(ref) == ["artifact_id", "kind", "media_type", "manifest_profile_sha256"]
     assert dict(ref) == {
         "artifact_id": "sha256:" + "b" * 64,
         "kind": "ir.strategic_payoff_table",
@@ -53,6 +55,8 @@ def test_artifact_ref_model_keeps_profileless_legacy_mapping() -> None:
     ref = StrategicPayoffTableRef(artifact_id="sha256:" + "c" * 64)
 
     assert ref.manifest_profile_sha256 is None
+    assert isinstance(ref, Mapping)
+    assert list(ref) == ["artifact_id", "kind", "media_type"]
     assert dict(ref) == {
         "artifact_id": "sha256:" + "c" * 64,
         "kind": "ir.strategic_payoff_table",

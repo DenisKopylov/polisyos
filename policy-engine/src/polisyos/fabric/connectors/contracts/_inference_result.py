@@ -39,8 +39,10 @@ class InferenceResult(BaseModel):
     sample_size: int = 0
     inference_time_ms: float = 0.0
 
+    # Preserve the existing instance accessor over BaseModel.schema's classmethod.
+    # N5 permits a narrow override residual after the compatibility check.
     @property
-    def schema(self) -> DataSchema:
+    def schema(self) -> DataSchema:  # type: ignore[override]
         """Backwards-compatible accessor for callers using ``result.schema``."""
         return self.inferred_schema
 

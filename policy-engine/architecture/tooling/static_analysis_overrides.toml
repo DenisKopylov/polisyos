@@ -53,18 +53,6 @@ issue = "docs/plans/archive/2026-05-07-repository-best-in-class-remediation-mast
 expectation = "No new blanket package-level ignores; shrink by connector and data-plane slices."
 
 [[override_scope]]
-id = "fabric-mypy-module-ratchet"
-package = "fabric"
-owner = "team-fabric"
-tool = "mypy"
-config = "architecture/tooling/mypy/generated.ini"
-pattern = "polisyos.fabric.*"
-mode = "report_only"
-sunset = "2026-10-01"
-issue = "docs/plans/archive/2026-05-07-repository-best-in-class-remediation-master-plan.md#phase-55---tool-config-split-and-overrides-lane"
-expectation = "Concrete module list remains explicit until typed connector surfaces are promoted."
-
-[[override_scope]]
 id = "ir-ruff-package-ratchet"
 package = "ir"
 owner = "team-ir"
@@ -75,18 +63,6 @@ mode = "report_only"
 sunset = "2026-10-01"
 issue = "docs/plans/archive/2026-05-07-repository-best-in-class-remediation-master-plan.md#phase-55---tool-config-split-and-overrides-lane"
 expectation = "IR root-facade moves keep per-file ignores explicit while schema and annotation contracts stabilize."
-
-[[override_scope]]
-id = "ir-mypy-module-ratchet"
-package = "ir"
-owner = "team-ir"
-tool = "mypy"
-config = "architecture/tooling/mypy/generated.ini"
-pattern = "polisyos.ir.*"
-mode = "report_only"
-sunset = "2026-10-01"
-issue = "docs/plans/archive/2026-05-07-repository-best-in-class-remediation-master-plan.md#phase-55---tool-config-split-and-overrides-lane"
-expectation = "IR override debt is owned by team-ir while Phase 3.2 facade shims and schema packages settle."
 
 [[override_scope]]
 id = "data-forge-source-ruff-ratchet"

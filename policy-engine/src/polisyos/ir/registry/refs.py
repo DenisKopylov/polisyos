@@ -49,7 +49,9 @@ class ArtifactRefModel(BaseModel, Mapping[str, object]):
             raise ValueError("selected_write_ref_requires_profile")
         return cls.model_validate(selected)
 
-    def __iter__(self) -> Iterator[str]:
+    # Mapping iterates keys, while Pydantic's BaseModel iterator yields key/value pairs.
+    # Keep the public Mapping behavior; only this known supertype conflict is suppressed.
+    def __iter__(self) -> Iterator[str]:  # type: ignore[override]
         yield "artifact_id"
         yield "kind"
         yield "media_type"
